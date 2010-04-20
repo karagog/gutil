@@ -6,7 +6,7 @@
 
 QT       -= core gui
 
-TARGET = Gcore
+TARGET = Gexcept
 TEMPLATE = lib
 CONFIG += staticlib
 

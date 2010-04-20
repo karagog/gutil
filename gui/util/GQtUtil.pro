@@ -16,7 +16,7 @@ HEADERS += headers/settings.h \
     headers/usermachinelock.h \
     headers/xmlhelpers.h
 INCLUDEPATH += headers \
-    ../headers \
+    ../../util/strings/headers \
     include
 
 # For static builds

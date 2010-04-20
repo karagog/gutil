@@ -37,15 +37,10 @@ namespace GUtil
         static string fromBase64(const string &);
 
         // Manipulating hex strings
-        //static string toBase16(const string &);    // Requires libcryptopp
-        //static string fromBase16(const string &);  // Requires libcryptopp
         static char charToHex(char);
         static char hexToChar(char);  // Always returns upper-case
 
         static void showBits(char c, ostream &);
-
-    private:
-        static bool translate_path(std::string &);
     };
 }
 

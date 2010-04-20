@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "stringhelpers.h"
+#include "strings_private.h"
 //#include "cryptopp/hex.h"
 //#include "cryptopp/base64.h"
 #include <cassert>
@@ -57,35 +58,6 @@ string StringHelpers::pathName(const string &s)
         return "./";		//If no slash was found, then the pwd is '.'
 
     return(retstring.substr(0, lastSlash + 1));
-}
-
-bool StringHelpers::translate_path(string &path)
-{
-    // Replace backslashes to forward slashes for compatibility
-
-    unsigned int ind = path.find_first_of("\\");
-    if(ind != string::npos)
-    {
-        // If there is a mix of forward slashes and backwards, I don't know how
-        //  to handle it, so return false
-        if(path.find_first_of("/") != string::npos)
-            return false;
-
-        do
-        {
-            path.replace(ind, 1, "/");
-            ind = path.find_first_of("\\");
-        }while(ind != string::npos);
-    }
-
-    // Strip the trailing slash so we get the right path name
-    while(string::npos != (ind = path.find_last_of("/"))
-        && ind == path.length() - 1)
-        {
-        path.resize(path.length() - 1);
-    }
-
-    return true;
 }
 
 /* CryptoPP implementations
@@ -238,27 +210,6 @@ string StringHelpers::fromBase64(const string &instr)
 
     return outstr;
 }
-
-//string StringHelpers::toBase16(const string &instr)
-//{
-////    string tmp;
-////
-////    CryptoPP::HexEncoder encoder(new CryptoPP::StringSink(tmp), true);
-////    encoder.Put((byte *)instr.c_str(), instr.length());
-////    encoder.MessageEnd();
-////
-////    return tmp;
-//}
-
-//string StringHelpers::fromBase16(const string &instr)
-//{
-////    string tmp;
-////
-////    CryptoPP::StringSource(instr, true,
-////                           new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
-////
-////    return tmp;
-//}
 
 char StringHelpers::charToHex(char c)
 {

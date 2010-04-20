@@ -12,11 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "cryptohelpers.h"
-#include "exception.h"
-#include "cryptopp/default.h"
-//#include "cryptopp/hex.h"
-#include "cryptopp/files.h"
+#include "encryption.h"
+#include "default.h"
+#include "hex.h"
+#include "base64.h"
+#include "files.h"
 using namespace std;
 using namespace GUtil;
 
@@ -86,4 +86,46 @@ bool CryptoHelpers::decryptFile(const char *in, const char *out, const char *pas
     }
 
     return true;
+}
+
+string CryptoHelpers::toBase64(const string &instr)
+{
+    string tmp;
+
+    CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(tmp), false);
+    encoder.Put((byte *)instr.c_str(), instr.length());
+    encoder.MessageEnd();
+
+    return tmp;
+}
+
+string CryptoHelpers::fromBase64(const string &instr)
+{
+    string tmp;
+
+    CryptoPP::StringSource(instr, true,
+                           new CryptoPP::Base64Decoder(new CryptoPP::StringSink(tmp)));
+
+    return tmp;
+}
+
+string CryptoHelpers::toBase16(const string &instr)
+{
+    string tmp;
+
+    CryptoPP::HexEncoder encoder(new CryptoPP::StringSink(tmp), true);
+    encoder.Put((byte *)instr.c_str(), instr.length());
+    encoder.MessageEnd();
+
+    return tmp;
+}
+
+string CryptoHelpers::fromBase16(const string &instr)
+{
+    string tmp;
+
+    CryptoPP::StringSource(instr, true,
+                           new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
+
+    return tmp;
 }

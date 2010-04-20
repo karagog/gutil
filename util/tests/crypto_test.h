@@ -30,6 +30,8 @@ public slots:
 private slots:
     void test_strings();
     void test_files();
+    void test_base64();
+    void test_base16();
 
     void test_exceptions();
 

@@ -9,17 +9,12 @@ SOURCES += settingstest.cpp \
     xmlhelpers_test.cpp
 QT += testlib
 INCLUDEPATH += ../headers \
-    ../../headers
+    ../../../util/strings/headers
 
 # Need to declare these libraries before cryptopp
 LIBS += -lGQtUtil \
-    -lgutil
+    -lGstring
 win32:LIBS += -L../debug \
-    -L../../release \
-    -L../../lib \
-    -lcryptoppmingw
+    -L../../../util/strings/debug
 unix:LIBS += -L.. \
-    -L../.. \
-    -L../../lib \
-    -lcryptopp \
-    -Wl,-rpath,..
+    -L../..

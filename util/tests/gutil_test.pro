@@ -5,15 +5,16 @@ SOURCES += strings_test.cpp \
     main.cpp \
     crypto_test.cpp \
     exception_test.cpp
-INCLUDEPATH += ../headers \
-    ../include
+INCLUDEPATH += ../encryption/headers ../strings/headers ../exceptions/headers
+
 QT += testlib
 QT -= gui
-LIBS += -L../lib
+LIBS += -L../encryption/debug -L../strings/debug -L../exceptions/debug -L../encryption/lib \
+    -lGencrypt \
+    -lGstring \
+    -lGexcept
 #win32:LIBS += -L../release \
 win32:LIBS += -L../debug \
-    -lgutil \
     -lcryptoppmingw
 unix:LIBS += -L.. \
-    -lgutil \
     -lcryptopp

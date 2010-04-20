@@ -32,6 +32,13 @@ namespace GUtil
         static bool encryptFile(const char *in, const char *out, const char *passPhrase);
         static bool decryptFile(const char *in, const char *out, const char *passPhrase);
 
+        // Different data encoding schemes
+        static string toBase64(const string &instr);
+        static string fromBase64(const string &instr);
+
+        static string toBase16(const string &instr);
+        static string fromBase16(const string &instr);
+
     };
 }
 

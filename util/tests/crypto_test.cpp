@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "crypto_test.h"
 #include "exception.h"
-#include "cryptohelpers.h"
+#include "encryption.h"
 #include <string>
 #include <QString>
 #include <QFile>
@@ -91,6 +91,72 @@ void crypto_test::test_files()
     QVERIFY(QFile::remove(f.fileName() + ".decrypted"));
     QVERIFY(QFile::remove(f.fileName() + ".encrypted"));
     QVERIFY(f.remove());
+}
+
+void crypto_test::test_base64()
+{
+    // First test a simple one that you can work out on paper
+    string in = "sur";
+    string out = CryptoHelpers::toBase64(in);
+    QVERIFY(out == "c3Vy");
+
+    out = CryptoHelpers::fromBase64(out);
+    QVERIFY(out == in);
+
+    // Test that the function gives the correct padding
+    in = "sure.";
+    out = CryptoHelpers::toBase64(in);
+    QVERIFY(out == "c3VyZS4=");
+    out = CryptoHelpers::fromBase64(out);
+    QVERIFY(out == in);
+
+    in = "sure";
+    out = CryptoHelpers::toBase64(in);
+    QVERIFY(out == "c3VyZQ==");
+    out = CryptoHelpers::fromBase64(out);
+    QVERIFY(out == in);
+
+    in = "Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure.";
+    out = CryptoHelpers::toBase64(in);
+    QVERIFY(out == "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2YgdGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGludWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRoZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=");
+    out = CryptoHelpers::fromBase64(out);
+    QVERIFY(out == in);
+
+    // Test binary encoding
+    char bin_dat[] = { 0x00 };
+    in.resize(0);
+    in.append(bin_dat, 1);
+    out = CryptoHelpers::toBase64(in);
+    QVERIFY(out == "AA==");
+
+    out = CryptoHelpers::fromBase64(out);
+    QVERIFY(out.length() == 1 && out.at(0) == (char)0x00);
+
+    // Test if qstrings can hold binary data
+    QString qstr;
+    qstr.append((QChar)0x00);
+    out = CryptoHelpers::toBase64(qstr.toStdString());
+    QVERIFY(out == "AA==");
+
+    // Note: The cryptoPP implementation of base64 does not do validation, so no
+    //   need to test bad strings
+}
+
+void crypto_test::test_base16()
+{
+    // First test a simple one that you can work out on paper
+    string in;
+    char tc = 0x04;
+    in.append(&tc, 1);
+    tc = 0xab;
+    in.append(&tc, 1);
+    tc = 0x00;
+    in.append(&tc, 1);
+    string out = CryptoHelpers::toBase16(in);
+    QVERIFY(out == "04AB00");
+
+    out = CryptoHelpers::fromBase16(out);
+    QVERIFY(out == in);
 }
 
 void crypto_test::test_exceptions()
