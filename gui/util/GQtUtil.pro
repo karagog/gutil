@@ -21,11 +21,11 @@ INCLUDEPATH += headers \
 
 # For static builds
 # LIBS += -lgutil
-win32 { 
+win32 {
     LIBS += -L../release
     SOURCES += src/qtlockedfile_win.cpp
 }
-unix { 
+unix {
     LIBS += -L..
     SOURCES += src/qtlockedfile_unix.cpp
 }
