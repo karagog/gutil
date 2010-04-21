@@ -5,8 +5,10 @@ win32:TARGET = QtControlsmingw
 unix:TARGET = QtControls
 TEMPLATE = lib
 CONFIG += staticlib
-HEADERS += headers/line_edit_with_button.h
-SOURCES += line_edit_with_button.cpp
+HEADERS += headers/line_edit_with_button.h \
+    headers/effectswidgets.h
+SOURCES += line_edit_with_button.cpp \
+    effectswidgets.cpp
 FORMS += line_edit_with_button.ui
 
 INCLUDEPATH += headers

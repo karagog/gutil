@@ -7,7 +7,7 @@ test_form::test_form(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->lineEditWidget, SIGNAL(clicked()), this, SLOT(process_click()));
+    connect(ui->lineEditWidget, SIGNAL(buttonClicked()), this, SLOT(process_click()));
 }
 
 test_form::~test_form()

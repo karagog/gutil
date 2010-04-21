@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>164</height>
+    <height>84</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="line_edit_with_button" name="lineEditWidget" native="true"/>
+    <widget class="GUtil::QtControls::line_edit_with_button" name="lineEditWidget" native="true"/>
    </item>
    <item>
     <widget class="QLabel" name="label">
@@ -28,12 +28,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>line_edit_with_button</class>
+   <class>GUtil::QtControls::line_edit_with_button</class>
    <extends>QWidget</extends>
    <header>line_edit_with_button.h</header>
    <container>1</container>
    <slots>
-    <slot>textChanged(QString)</slot>
+    <slot>fadeButton()</slot>
    </slots>
   </customwidget>
  </customwidgets>
