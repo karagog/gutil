@@ -1,4 +1,5 @@
 #include "line_edit_with_button.h"
+#include "effectswidgets.h"
 #include "ui_line_edit_with_button.h"
 #include <QShowEvent>
 using namespace GUtil::QtControls;
@@ -10,7 +11,7 @@ line_edit_with_button::line_edit_with_button(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    fader = new FaderWidget(ui->pushButton, 500, 100);
+    fader = new FaderWidget(ui->pushButton, 500, 75);
 
     // We want the button to fade in right away
     fader->start();
