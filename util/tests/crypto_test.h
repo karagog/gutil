@@ -32,6 +32,7 @@ private slots:
     void test_files();
     void test_base64();
     void test_base16();
+    void test_compression();
 
     void test_exceptions();
 

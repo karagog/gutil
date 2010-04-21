@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "hex.h"
 #include "base64.h"
 #include "files.h"
+#include "gzip.h"
 using namespace std;
 using namespace GUtil;
 
@@ -86,6 +87,33 @@ bool CryptoHelpers::decryptFile(const char *in, const char *out, const char *pas
     }
 
     return true;
+}
+
+string CryptoHelpers::compress(const string &instr)
+{
+    string ret;
+
+    CryptoPP::Gzip zipper(new CryptoPP::StringSink(ret));
+
+    zipper.Put((byte*)instr.c_str(), instr.length());
+    zipper.MessageEnd();
+
+//    byte *tmpbytes = new byte[zipper.MaxRetrievable()];
+//    zipper.Get(tmpbytes, zipper.MaxRetrievable());
+
+//    string ret((char*)tmpbytes, zipper.MaxRetrievable());
+//    delete tmpbytes;
+
+    return ret;
+}
+
+string CryptoHelpers::decompress(const string &instr)
+{
+    string tmp;
+
+    CryptoPP::StringSource(instr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
+
+    return tmp;
 }
 
 string CryptoHelpers::toBase64(const string &instr)

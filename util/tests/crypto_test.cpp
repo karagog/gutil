@@ -187,3 +187,14 @@ void crypto_test::test_exceptions()
     QVERIFY(QFile::remove(QString(noexist)));
     QVERIFY(QFile::remove(QString(noexist2)));
 }
+
+void crypto_test::test_compression()
+{
+    string in = string(1000, 'a');
+    string out = CryptoHelpers::compress(in);
+    QVERIFY(out != in);
+    QVERIFY(out.length() < in.length());
+
+    out = CryptoHelpers::decompress(out);
+    QVERIFY(out == in);
+}
