@@ -198,3 +198,32 @@ void crypto_test::test_compression()
     out = CryptoHelpers::decompress(out);
     QVERIFY(out == in);
 }
+
+void crypto_test::test_random_numbers()
+{
+    // First test the rand() function
+    int prev = CryptoHelpers::rand();
+    for(int i = 0; i < 100; i++)
+    {
+        int rnd = CryptoHelpers::rand();
+
+        QVERIFY(rnd != prev);
+        //qDebug(QVariant::fromValue<int>(rnd).toString().toStdString().c_str());
+
+        prev = rnd;
+    }
+
+    // Then test the random data function
+    string out = CryptoHelpers::randData(25);
+    QVERIFY(out.length() == 25);
+    //qDebug(CryptoHelpers::toBase16(out).c_str());
+
+    out = CryptoHelpers::randData(25, 456);
+    QVERIFY(out.length() == 25);
+    //qDebug(CryptoHelpers::toBase16(out).c_str());
+
+    // We should get the same string if we we seed the same
+//    string out2 = CryptoHelpers::randData(25, 456);
+//    qDebug(CryptoHelpers::toBase16(out2).c_str());
+//    QVERIFY(out == out2);
+}

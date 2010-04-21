@@ -33,6 +33,7 @@ private slots:
     void test_base64();
     void test_base16();
     void test_compression();
+    void test_random_numbers();
 
     void test_exceptions();
 

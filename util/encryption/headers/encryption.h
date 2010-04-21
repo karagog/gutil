@@ -43,6 +43,10 @@ namespace GUtil
         static string toBase16(const string &instr);
         static string fromBase16(const string &instr);
 
+        // Random number generator
+        static int rand();
+        static string randData(int, int seed = -1);
+
     };
 }
 

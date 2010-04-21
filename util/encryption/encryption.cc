@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "base64.h"
 #include "files.h"
 #include "gzip.h"
+#include "osrng.h"
 using namespace std;
 using namespace GUtil;
 
@@ -94,15 +95,8 @@ string CryptoHelpers::compress(const string &instr)
     string ret;
 
     CryptoPP::Gzip zipper(new CryptoPP::StringSink(ret));
-
     zipper.Put((byte*)instr.c_str(), instr.length());
     zipper.MessageEnd();
-
-//    byte *tmpbytes = new byte[zipper.MaxRetrievable()];
-//    zipper.Get(tmpbytes, zipper.MaxRetrievable());
-
-//    string ret((char*)tmpbytes, zipper.MaxRetrievable());
-//    delete tmpbytes;
 
     return ret;
 }
@@ -156,4 +150,35 @@ string CryptoHelpers::fromBase16(const string &instr)
                            new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
 
     return tmp;
+}
+
+int CryptoHelpers::rand()
+{
+    CryptoPP::AutoSeededRandomPool rng;
+    return rng.GenerateWord32();
+}
+
+string CryptoHelpers::randData(int size, int seed)
+{
+    CryptoPP::RandomPool *rng;
+    if(seed == -1)
+    {
+        rng = new CryptoPP::AutoSeededRandomPool();
+    }
+    else
+    {
+        rng = new CryptoPP::RandomPool();
+
+        // Seed the random pool
+        rng->Put((byte*)(&seed), sizeof(int));
+    }
+
+    byte *output = new byte[size];
+    rng->GenerateBlock(output, size);
+
+    string ret = string((char*)output, size);
+    delete output;
+    delete rng;
+
+    return ret;
 }
