@@ -2,9 +2,10 @@
 #include <QPainter>
 #include <QTimer>
 #include <QEvent>
+#include <QApplication>
 using namespace GUtil::QtControls::EffectsWidgets;
 
-FaderWidget::FaderWidget(QWidget *parent, int fade_duration, int start_delay)
+FaderWidget::FaderWidget(QWidget *parent, bool fade_in, int fade_duration, int start_delay)
     : QWidget(parent)
 {
     if (parent)
@@ -12,7 +13,17 @@ FaderWidget::FaderWidget(QWidget *parent, int fade_duration, int start_delay)
     else
         color = Qt::white;
 
-    currentAlpha = 255;
+    _fade_in = fade_in;
+
+    if(_fade_in)
+    {
+        currentAlpha = 255;
+    }
+    else
+    {
+        currentAlpha = 0;
+    }
+
     duration = fade_duration;
     delay = start_delay;
 
@@ -24,6 +35,8 @@ FaderWidget::FaderWidget(QWidget *parent, int fade_duration, int start_delay)
 
     // We want to intercept resize event so we can adjust our size
     parent->installEventFilter(this);
+
+    show();
 }
 
 bool FaderWidget::eventFilter(QObject *obj, QEvent *ev)
@@ -59,25 +72,39 @@ void FaderWidget::setFadeDuration(int milliseconds)
     duration = milliseconds;
 }
 
-void FaderWidget::start()
+bool FaderWidget::willFadeIn()
+{
+    return _fade_in;
+}
+
+void FaderWidget::setWillFadeIn(bool val)
+{
+    _fade_in = val;
+}
+
+void FaderWidget::startFading()
 {
     if(timer->isActive())
     {
         timer->stop();
-        hide();
     }
 
-    // Hide the widget
-    currentAlpha = 255;
-    show();
+    if(_fade_in)
+        currentAlpha = 255;
+    else
+        currentAlpha = 0;
 
-    // Fade in after a certain delay
+    update();
+
+    // Fade after a certain delay
     QTimer::singleShot(delay, this, SLOT(_start()));
 }
 
 void FaderWidget::_start()
 {
-    // Make sure we fit over top our parent, no matter what the size
+    if(_fade_in)
+        ((QWidget *)parent())->show();
+
     timer->start(50);
 }
 
@@ -91,14 +118,39 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
 
     if(timer->isActive())
     {
-        currentAlpha -= (255 * timer->interval()) / duration;
-        if (currentAlpha <= 0) {
-            timer->stop();
-            currentAlpha = 0;
+        if(_fade_in)
+        {
+            currentAlpha -= (255 * timer->interval()) / duration;
+            if (currentAlpha <= 0)
+            {
+                timer->stop();
+                currentAlpha = 0;
+            }
+        }
+        else
+        {
+            currentAlpha += (255 * timer->interval()) / duration;
+            if (currentAlpha >= 255)
+            {
+                timer->stop();
+                currentAlpha = 255;
 
-            // Even though we're invisible we still hide so that we can show
-            //  again later
-            hide();
+                ((QWidget *)parent())->hide();
+            }
         }
     }
+}
+
+void FaderWidget::fadeIn()
+{
+    ((QWidget *)parent())->hide();
+
+    _fade_in = true;
+    startFading();
+}
+
+void FaderWidget::fadeOut()
+{
+    _fade_in = false;
+    startFading();
 }

@@ -40,6 +40,8 @@ namespace GUtil
             void setText(const QString&);
             void selectAll() const;
 
+            void toggleButton();
+
         protected:
             void changeEvent(QEvent *);
             void focusInEvent(QFocusEvent *);

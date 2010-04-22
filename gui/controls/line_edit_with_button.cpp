@@ -11,10 +11,10 @@ line_edit_with_button::line_edit_with_button(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    fader = new FaderWidget(ui->pushButton, 500, 75);
+    fader = new FaderWidget(ui->pushButton, true, 500, 75);
 
     // We want the button to fade in right away
-    fader->start();
+    fader->startFading();
 }
 
 line_edit_with_button::~line_edit_with_button()
@@ -63,6 +63,14 @@ void line_edit_with_button::focusInEvent(QFocusEvent *ev)
     QWidget::focusInEvent(ev);
 
     ui->lineEdit->setFocus();
+}
+
+void line_edit_with_button::toggleButton()
+{
+    if(fader->willFadeIn())
+        fader->fadeOut();
+    else
+        fader->fadeIn();
 }
 
 void line_edit_with_button::changeEvent(QEvent *e)

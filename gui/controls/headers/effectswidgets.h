@@ -16,18 +16,23 @@ namespace GUtil
                            WRITE setFadeColor)
                         Q_PROPERTY(int fadeDuration READ fadeDuration \
                                    WRITE setFadeDuration)
+                Q_PROPERTY(bool willFadeIn READ willFadeIn WRITE setWillFadeIn)
             public:
-                        FaderWidget(QWidget *parent, int fade_duration = 333,
-                                    int start_delay = 0);
+                        FaderWidget(QWidget *parent, bool fade_in,
+                                    int fade_duration = 333, int start_delay = 0);
 
                 QColor fadeColor() const;
                 void setFadeColor(const QColor &newColor);
                 int fadeDuration() const;
                 void setFadeDuration(int milliseconds);
+                bool willFadeIn();
+                void setWillFadeIn(bool);
 
             public slots:
-                // Start the fade effect
-                void start();
+                void startFading();
+
+                void fadeOut();
+                void fadeIn();
 
             protected:
                 void paintEvent(QPaintEvent *event);
@@ -42,6 +47,7 @@ namespace GUtil
                 QColor color;
                 int duration;
                 int delay;
+                bool _fade_in;
 
                 // Use this code snippet as an example for how to use this class
                 //QPointer<FaderWidget> faderwidget;
