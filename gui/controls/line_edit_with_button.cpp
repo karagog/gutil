@@ -50,8 +50,8 @@ void line_edit_with_button::_btn_clicked()
 {
     emit buttonClicked();
 
-    // Always focus back on the line edit
-    ui->lineEdit->setFocus();
+    // Always focus back on myself
+    setFocus();
 }
 
 void line_edit_with_button::_txt_changed(QString val)
