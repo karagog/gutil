@@ -12,7 +12,7 @@ line_edit_with_button::line_edit_with_button(QWidget *parent) :
     ui->setupUi(this);
 
     // The button fades in
-    (new FaderWidget(ui->pushButton, true, 500, 350))->startFading();
+    (fader = new FaderWidget(ui->pushButton, true, 500, 350))->startFading();
 }
 
 line_edit_with_button::~line_edit_with_button()

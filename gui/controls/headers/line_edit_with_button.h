@@ -2,6 +2,7 @@
 #define LINE_EDIT_WITH_BUTTON_H
 
 #include <QWidget>
+#include <QPointer>
 
 namespace Ui {
     class line_edit_with_button;
@@ -15,6 +16,11 @@ namespace GUtil
 {
     namespace QtControls
     {
+        namespace EffectsWidgets
+        {
+            class FaderWidget;
+        }
+
         class line_edit_with_button : public QWidget {
             Q_OBJECT
         public:
@@ -42,6 +48,8 @@ namespace GUtil
 
         private:
             Ui::line_edit_with_button *ui;
+
+            QPointer<EffectsWidgets::FaderWidget> fader;
 
         private slots:
             void _btn_clicked();
