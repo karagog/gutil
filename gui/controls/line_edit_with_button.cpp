@@ -2,6 +2,7 @@
 #include "effectswidgets.h"
 #include "ui_line_edit_with_button.h"
 #include <QShowEvent>
+#include <QEvent>
 using namespace GUtil::QtControls;
 using namespace GUtil::QtControls::EffectsWidgets;
 
@@ -48,6 +49,9 @@ void line_edit_with_button::selectAll() const
 void line_edit_with_button::_btn_clicked()
 {
     emit buttonClicked();
+
+    // Always focus back on the line edit
+    ui->lineEdit->setFocus();
 }
 
 void line_edit_with_button::_txt_changed(QString val)
@@ -55,16 +59,29 @@ void line_edit_with_button::_txt_changed(QString val)
     emit textChanged(val);
 }
 
-void line_edit_with_button::focusInEvent(QFocusEvent *ev)
-{
-    QWidget::focusInEvent(ev);
-
-    ui->lineEdit->setFocus();
-}
-
 void line_edit_with_button::toggleButton()
 {
     fader->toggleFade();
+}
+
+void line_edit_with_button::focusInEvent(QFocusEvent *e)
+{
+    ui->lineEdit->event(e);
+}
+
+void line_edit_with_button::focusOutEvent(QFocusEvent *e)
+{
+    ui->lineEdit->event(e);
+}
+
+void line_edit_with_button::keyPressEvent(QKeyEvent *e)
+{
+    ui->lineEdit->event(e);
+}
+
+void line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
+{
+    ui->lineEdit->event(e);
 }
 
 void line_edit_with_button::changeEvent(QEvent *e)

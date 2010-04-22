@@ -11,6 +11,7 @@ namespace Ui {
 class QShowEvent;
 class QResizeEvent;
 class QFocusEvent;
+class QEvent;
 
 namespace GUtil
 {
@@ -44,7 +45,12 @@ namespace GUtil
 
         protected:
             void changeEvent(QEvent *);
+
+            // These events are passed to the lineEdit itself
             void focusInEvent(QFocusEvent *);
+            void focusOutEvent(QFocusEvent *);
+            void keyPressEvent(QKeyEvent *);
+            void keyReleaseEvent(QKeyEvent *);
 
         private:
             Ui::line_edit_with_button *ui;
