@@ -33,6 +33,10 @@ namespace GUtil
 
                 void fadeOut();
                 void fadeIn();
+                void toggleFade();
+
+            signals:
+                void doneFading(bool faded_in);
 
             protected:
                 void paintEvent(QPaintEvent *event);

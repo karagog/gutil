@@ -64,10 +64,7 @@ void line_edit_with_button::focusInEvent(QFocusEvent *ev)
 
 void line_edit_with_button::toggleButton()
 {
-    if(fader->willFadeIn())
-        fader->fadeOut();
-    else
-        fader->fadeIn();
+    fader->toggleFade();
 }
 
 void line_edit_with_button::changeEvent(QEvent *e)

@@ -88,13 +88,20 @@ void FaderWidget::startFading()
 {
     if(timer->isActive())
     {
-        timer->stop();
+        // don't allow to fade while it's in the middle of fading
+        return;
     }
 
     if(_fade_in)
         currentAlpha = 255;
     else
         currentAlpha = 0;
+
+    // Make sure the parent is in the correct state before we fade it
+    if(_fade_in)
+        ((QWidget *)parent())->hide();
+    else
+        ((QWidget *)parent())->show();
 
     update();
 
@@ -127,6 +134,8 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
             {
                 timer->stop();
                 currentAlpha = 0;
+
+                emit doneFading(true);
             }
         }
         else
@@ -137,7 +146,10 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
                 timer->stop();
                 currentAlpha = 255;
 
+                // Hide the parent once we're faded out
                 ((QWidget *)parent())->hide();
+
+                emit doneFading(false);
             }
         }
     }
@@ -145,8 +157,6 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
 
 void FaderWidget::fadeIn()
 {
-    ((QWidget *)parent())->hide();
-
     _fade_in = true;
     startFading();
 }
@@ -154,5 +164,11 @@ void FaderWidget::fadeIn()
 void FaderWidget::fadeOut()
 {
     _fade_in = false;
+    startFading();
+}
+
+void FaderWidget::toggleFade()
+{
+    _fade_in = !_fade_in;
     startFading();
 }

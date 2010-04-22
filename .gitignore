@@ -1,0 +1,20 @@
+release
+debug
+
+*.[oa]
+*~
+*.lib
+*.dll
+*.user
+*.exe
+
+# The user can add this specially if they need it
+Makefile*
+
+# Qt-specific ignores
+ui_*.h
+moc_*.cpp
+qrc_*.cpp
+*.Debug
+*.Release
+
