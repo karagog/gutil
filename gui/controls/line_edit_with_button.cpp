@@ -11,15 +11,12 @@ line_edit_with_button::line_edit_with_button(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    fader = new FaderWidget(ui->pushButton, true, 500, 350);
-
-    // We want the button to fade in right away
-    fader->startFading();
+    // The button fades in
+    (new FaderWidget(ui->pushButton, true, 500, 350))->startFading();
 }
 
 line_edit_with_button::~line_edit_with_button()
 {
-    fader->close(); // It deletes itself on close
     delete ui;
 }
 
