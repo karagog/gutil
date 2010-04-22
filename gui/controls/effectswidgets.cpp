@@ -5,24 +5,15 @@
 #include <QApplication>
 using namespace GUtil::QtControls::EffectsWidgets;
 
-FaderWidget::FaderWidget(QWidget *parent, bool fade_in, int fade_duration, int start_delay)
-    : QWidget(parent)
+FaderWidget::FaderWidget(QWidget *par, bool fade_in, int fade_duration, int start_delay)
+    : QWidget(par)
 {
-    if (parent)
-        color = parent->palette().window().color();
+    if (par)
+        color = par->palette().window().color();
     else
         color = Qt::white;
 
     _fade_in = fade_in;
-
-    if(_fade_in)
-    {
-        currentAlpha = 255;
-    }
-    else
-    {
-        currentAlpha = 0;
-    }
 
     duration = fade_duration;
     delay = start_delay;
@@ -34,9 +25,20 @@ FaderWidget::FaderWidget(QWidget *parent, bool fade_in, int fade_duration, int s
     setAttribute(Qt::WA_DeleteOnClose);
 
     // We want to intercept resize event so we can adjust our size
-    parent->installEventFilter(this);
+    par->installEventFilter(this);
 
     show();
+
+    if(_fade_in)
+    {
+        currentAlpha = 255;
+        ((QWidget *)parent())->hide();
+    }
+    else
+    {
+        currentAlpha = 0;
+        ((QWidget *)parent())->show();
+    }
 }
 
 bool FaderWidget::eventFilter(QObject *obj, QEvent *ev)
@@ -105,7 +107,7 @@ void FaderWidget::_start()
     if(_fade_in)
         ((QWidget *)parent())->show();
 
-    timer->start(50);
+    timer->start(30);
 }
 
 void FaderWidget::paintEvent(QPaintEvent * /* event */)

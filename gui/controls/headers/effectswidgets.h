@@ -18,7 +18,7 @@ namespace GUtil
                                    WRITE setFadeDuration)
                 Q_PROPERTY(bool willFadeIn READ willFadeIn WRITE setWillFadeIn)
             public:
-                        FaderWidget(QWidget *parent, bool fade_in,
+                        FaderWidget(QWidget *par, bool fade_in,
                                     int fade_duration = 333, int start_delay = 0);
 
                 QColor fadeColor() const;
