@@ -6,14 +6,17 @@
 using namespace GUtil::QtControls;
 using namespace GUtil::QtControls::EffectsWidgets;
 
-line_edit_with_button::line_edit_with_button(QWidget *parent) :
+line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible) :
     QWidget(parent),
     ui(new Ui::line_edit_with_button)
 {
     ui->setupUi(this);
 
-    // The button fades in
-    (fader = new FaderWidget(ui->pushButton, true, 500, 350))->startFading();
+    // Attach a fader to the button
+    fader = new FaderWidget(ui->pushButton, true, 500, 350);
+
+    if(btn_visible)
+        fader->startFading();
 
     // I want to intercept focus events so I can bring it back to myself
     ui->lineEdit->installEventFilter(this);
@@ -23,16 +26,6 @@ line_edit_with_button::line_edit_with_button(QWidget *parent) :
 line_edit_with_button::~line_edit_with_button()
 {
     delete ui;
-}
-
-void line_edit_with_button::setButtonToolTip(const QString&s)
-{
-    ui->pushButton->setToolTip(s);
-}
-
-void line_edit_with_button::setLineEditToolTip(const QString &s)
-{
-    ui->lineEdit->setToolTip(s);
 }
 
 QString line_edit_with_button::text() const
@@ -48,19 +41,6 @@ void line_edit_with_button::setText(const QString &t)
 void line_edit_with_button::selectAll() const
 {
     ui->lineEdit->selectAll();
-}
-
-void line_edit_with_button::_btn_clicked()
-{
-    emit buttonClicked();
-
-    // Always focus back on myself
-//    setFocus();
-}
-
-void line_edit_with_button::_txt_changed(QString val)
-{
-    emit textChanged(val);
 }
 
 void line_edit_with_button::toggleButton()
@@ -118,4 +98,14 @@ void line_edit_with_button::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+QPushButton *line_edit_with_button::pushButton() const
+{
+    return ui->pushButton;
+}
+
+QLineEdit *line_edit_with_button::lineEdit() const
+{
+    return ui->lineEdit;
 }

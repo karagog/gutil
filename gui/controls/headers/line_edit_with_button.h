@@ -12,6 +12,8 @@ class QShowEvent;
 class QResizeEvent;
 class QFocusEvent;
 class QEvent;
+class QPushButton;
+class QLineEdit;
 
 namespace GUtil
 {
@@ -25,27 +27,18 @@ namespace GUtil
         class line_edit_with_button : public QWidget {
             Q_OBJECT
         public:
-            line_edit_with_button(QWidget *parent = 0);
+            line_edit_with_button(QWidget *parent = 0, bool btn_visible = true);
             ~line_edit_with_button();
 
             QString text() const;
 
-            void setButtonToolTip(const QString&);
-            void setLineEditToolTip(const QString &);
-
-        signals:
-            void buttonClicked();
-            void textChanged(QString);
+            QPushButton *pushButton() const;
+            QLineEdit *lineEdit() const;
 
         public slots:
-            void setText(const QString&);
-            void selectAll() const;
-
             void toggleButton();
 
         protected:
-            void changeEvent(QEvent *);
-
             // These events are passed to the lineEdit itself
             void focusInEvent(QFocusEvent *);
             void focusOutEvent(QFocusEvent *);
@@ -53,14 +46,12 @@ namespace GUtil
             void keyReleaseEvent(QKeyEvent *);
             bool eventFilter(QObject *, QEvent *);
 
+            void changeEvent(QEvent *);
+
         private:
             Ui::line_edit_with_button *ui;
 
             QPointer<EffectsWidgets::FaderWidget> fader;
-
-        private slots:
-            void _btn_clicked();
-            void _txt_changed(QString);
         };
     }
 }
