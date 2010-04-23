@@ -103,6 +103,7 @@ void FaderWidget::startFading()
     else
         ((QWidget *)parent())->show();
 
+    show();
     update();
 
     // Fade after a certain delay
@@ -135,6 +136,8 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
                 timer->stop();
                 currentAlpha = 0;
 
+                hide();
+
                 emit doneFading(true);
             }
         }
@@ -148,6 +151,8 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
 
                 // Hide the parent once we're faded out
                 ((QWidget *)parent())->hide();
+
+                hide();
 
                 emit doneFading(false);
             }
