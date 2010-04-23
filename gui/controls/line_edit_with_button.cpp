@@ -14,6 +14,10 @@ line_edit_with_button::line_edit_with_button(QWidget *parent) :
 
     // The button fades in
     (fader = new FaderWidget(ui->pushButton, true, 500, 350))->startFading();
+
+    // I want to intercept focus events so I can bring it back to myself
+    ui->lineEdit->installEventFilter(this);
+    ui->pushButton->installEventFilter(this);
 }
 
 line_edit_with_button::~line_edit_with_button()
@@ -51,7 +55,7 @@ void line_edit_with_button::_btn_clicked()
     emit buttonClicked();
 
     // Always focus back on myself
-    setFocus();
+//    setFocus();
 }
 
 void line_edit_with_button::_txt_changed(QString val)
@@ -67,6 +71,8 @@ void line_edit_with_button::toggleButton()
 void line_edit_with_button::focusInEvent(QFocusEvent *e)
 {
     ui->lineEdit->event(e);
+
+    setFocus();
 }
 
 void line_edit_with_button::focusOutEvent(QFocusEvent *e)
@@ -82,6 +88,24 @@ void line_edit_with_button::keyPressEvent(QKeyEvent *e)
 void line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
 {
     ui->lineEdit->event(e);
+}
+
+bool line_edit_with_button::eventFilter(QObject *o, QEvent *ev)
+{
+    if(o == 0)
+        return false;
+
+    switch(ev->type())
+    {
+    case QEvent::FocusIn:
+        // Always bring the focus back to the top widget
+        setFocus();
+        return true;
+    default:
+        break;
+    }
+
+    return false;
 }
 
 void line_edit_with_button::changeEvent(QEvent *e)

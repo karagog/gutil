@@ -51,6 +51,7 @@ namespace GUtil
             void focusOutEvent(QFocusEvent *);
             void keyPressEvent(QKeyEvent *);
             void keyReleaseEvent(QKeyEvent *);
+            bool eventFilter(QObject *, QEvent *);
 
         private:
             Ui::line_edit_with_button *ui;
