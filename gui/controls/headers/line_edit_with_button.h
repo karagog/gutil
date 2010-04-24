@@ -2,7 +2,6 @@
 #define LINE_EDIT_WITH_BUTTON_H
 
 #include <QWidget>
-#include <QPointer>
 
 namespace Ui {
     class line_edit_with_button;
@@ -32,8 +31,11 @@ namespace GUtil
 
             QPushButton *pushButton() const;
             QLineEdit *lineEdit() const;
+            EffectsWidgets::FaderWidget *faderWidget() const;
 
         public slots:
+            void showButton();
+            void hideButton();
             void toggleButton();
 
         protected:
@@ -49,7 +51,7 @@ namespace GUtil
         private:
             Ui::line_edit_with_button *ui;
 
-            QPointer<EffectsWidgets::FaderWidget> fader;
+            EffectsWidgets::FaderWidget *_fader;
         };
     }
 }

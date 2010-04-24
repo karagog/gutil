@@ -12,11 +12,13 @@ line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible) 
 {
     ui->setupUi(this);
 
+    ui->pushButton->setVisible(false);
+
     // Attach a fader to the button
-    fader = new FaderWidget(ui->pushButton, true, 500, 350);
+    _fader = new FaderWidget(ui->pushButton, 500, 350);
 
     if(btn_visible)
-        fader->startFading();
+        _fader->fadeIn();
 
     // I want to intercept focus events so I can bring it back to myself
     ui->lineEdit->installEventFilter(this);
@@ -28,9 +30,21 @@ line_edit_with_button::~line_edit_with_button()
     delete ui;
 }
 
+void line_edit_with_button::showButton()
+{
+    if(ui->pushButton->isHidden())
+        _fader->fadeIn();
+}
+
+void line_edit_with_button::hideButton()
+{
+    if(!ui->pushButton->isHidden())
+        _fader->fadeIn();
+}
+
 void line_edit_with_button::toggleButton()
 {
-    fader->toggleFade();
+    _fader->toggleFade();
 }
 
 void line_edit_with_button::focusInEvent(QFocusEvent *e)
@@ -93,4 +107,9 @@ QPushButton *line_edit_with_button::pushButton() const
 QLineEdit *line_edit_with_button::lineEdit() const
 {
     return ui->lineEdit;
+}
+
+FaderWidget * line_edit_with_button::faderWidget() const
+{
+    return _fader;
 }

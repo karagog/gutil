@@ -5,7 +5,7 @@
 #include <QApplication>
 using namespace GUtil::QtControls::EffectsWidgets;
 
-FaderWidget::FaderWidget(QWidget *par, bool fade_in, int fade_duration, int start_delay)
+FaderWidget::FaderWidget(QWidget *par, int fade_duration, int start_delay)
     : QWidget(par)
 {
     if (par)
@@ -13,42 +13,29 @@ FaderWidget::FaderWidget(QWidget *par, bool fade_in, int fade_duration, int star
     else
         color = Qt::white;
 
-    _fade_in = fade_in;
+    _fade_in = false;
 
     duration = fade_duration;
     delay = start_delay;
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()),
-            this, SLOT(update()));
-
-    setAttribute(Qt::WA_DeleteOnClose);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 
     // We want to intercept resize event so we can adjust our size
     par->installEventFilter(this);
-
-    show();
-
-    if(_fade_in)
-    {
-        currentAlpha = 255;
-        ((QWidget *)parent())->hide();
-    }
-    else
-    {
-        currentAlpha = 0;
-        ((QWidget *)parent())->show();
-    }
 }
 
 bool FaderWidget::eventFilter(QObject *obj, QEvent *ev)
 {
     bool ret = false;
 
-    if(ev->type() == QEvent::Resize)
+    if(obj == parent())
     {
-        resize(((QWidget *)obj)->size());
-        ret = true;
+        if(ev->type() == QEvent::Resize)
+        {
+            resize(parentWidget()->size());
+            ret = true;
+        }
     }
 
     return ret;
@@ -74,17 +61,7 @@ void FaderWidget::setFadeDuration(int milliseconds)
     duration = milliseconds;
 }
 
-bool FaderWidget::willFadeIn()
-{
-    return _fade_in;
-}
-
-void FaderWidget::setWillFadeIn(bool val)
-{
-    _fade_in = val;
-}
-
-void FaderWidget::startFading()
+void FaderWidget::start_fading()
 {
     if(timer->isActive())
     {
@@ -97,23 +74,20 @@ void FaderWidget::startFading()
     else
         currentAlpha = 0;
 
-    // Make sure the parent is in the correct state before we fade it
-    if(_fade_in)
-        ((QWidget *)parent())->hide();
-    else
-        ((QWidget *)parent())->show();
-
     show();
-    update();
 
-    // Fade after a certain delay
-    QTimer::singleShot(delay, this, SLOT(_start()));
+    // Check if the parent is in the correct state before we fade it
+    if((_fade_in && parentWidget()->isHidden()) ||
+       (!_fade_in && !parentWidget()->isHidden()))
+    {
+        QTimer::singleShot(delay, this, SLOT(_start()));
+    }
 }
 
 void FaderWidget::_start()
 {
     if(_fade_in)
-        ((QWidget *)parent())->show();
+        parentWidget()->show();
 
     timer->start(30);
 }
@@ -150,7 +124,7 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
                 currentAlpha = 255;
 
                 // Hide the parent once we're faded out
-                ((QWidget *)parent())->hide();
+                parentWidget()->hide();
 
                 hide();
 
@@ -163,17 +137,17 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
 void FaderWidget::fadeIn()
 {
     _fade_in = true;
-    startFading();
+    start_fading();
 }
 
 void FaderWidget::fadeOut()
 {
     _fade_in = false;
-    startFading();
+    start_fading();
 }
 
 void FaderWidget::toggleFade()
 {
     _fade_in = !_fade_in;
-    startFading();
+    start_fading();
 }
