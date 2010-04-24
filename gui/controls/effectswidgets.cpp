@@ -89,7 +89,7 @@ void FaderWidget::_start()
     if(_fade_in)
         parentWidget()->showNormal();
 
-    timer->start(30);
+    timer->start(40);
 }
 
 void FaderWidget::paintEvent(QPaintEvent * /* event */)
