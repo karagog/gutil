@@ -56,40 +56,7 @@
   <tabstop>lineEdit</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>line_edit_with_button</receiver>
-   <slot>_btn_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>220</x>
-     <y>24</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>178</x>
-     <y>27</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lineEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>line_edit_with_button</receiver>
-   <slot>_txt_changed(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>141</x>
-     <y>16</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>80</x>
-     <y>5</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>_btn_clicked()</slot>
   <slot>_txt_changed(QString)</slot>

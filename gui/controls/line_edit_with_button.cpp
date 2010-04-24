@@ -28,21 +28,6 @@ line_edit_with_button::~line_edit_with_button()
     delete ui;
 }
 
-QString line_edit_with_button::text() const
-{
-    return ui->lineEdit->text();
-}
-
-void line_edit_with_button::setText(const QString &t)
-{
-    ui->lineEdit->setText(t);
-}
-
-void line_edit_with_button::selectAll() const
-{
-    ui->lineEdit->selectAll();
-}
-
 void line_edit_with_button::toggleButton()
 {
     fader->toggleFade();

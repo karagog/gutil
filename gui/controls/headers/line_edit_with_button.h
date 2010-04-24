@@ -30,8 +30,6 @@ namespace GUtil
             line_edit_with_button(QWidget *parent = 0, bool btn_visible = true);
             ~line_edit_with_button();
 
-            QString text() const;
-
             QPushButton *pushButton() const;
             QLineEdit *lineEdit() const;
 
