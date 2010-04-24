@@ -87,7 +87,7 @@ void FaderWidget::start_fading()
 void FaderWidget::_start()
 {
     if(_fade_in)
-        parentWidget()->show();
+        parentWidget()->showNormal();
 
     timer->start(30);
 }
