@@ -6,7 +6,7 @@
 using namespace GUtil::QtControls;
 using namespace GUtil::QtControls::EffectsWidgets;
 
-line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible) :
+line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible, int fade_duration) :
     QWidget(parent),
     ui(new Ui::line_edit_with_button)
 {
@@ -15,7 +15,9 @@ line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible) 
     ui->pushButton->setVisible(false);
 
     // Attach a fader to the button
-    _fader = new FaderWidget(ui->pushButton, 500, 350);
+    _fader = new FaderWidget(ui->pushButton,
+                             fade_duration == -1 ? 500 : fade_duration,
+                             350);
 
     if(btn_visible)
         _fader->fadeIn();

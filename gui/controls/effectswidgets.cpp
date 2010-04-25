@@ -76,8 +76,12 @@ void FaderWidget::start_fading()
 
     show();
 
+    // If they disabled the fade, then we ignore the delay
+    if(duration == 0)
+        _start();
+
     // Check if the parent is in the correct state before we fade it
-    if((_fade_in && parentWidget()->isHidden()) ||
+    else if((_fade_in && parentWidget()->isHidden()) ||
        (!_fade_in && !parentWidget()->isHidden()))
     {
         QTimer::singleShot(delay, this, SLOT(_start()));
@@ -104,12 +108,15 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
     {
         if(_fade_in)
         {
-            currentAlpha -= (255 * timer->interval()) / duration;
-            if (currentAlpha <= 0)
+            if(duration != 0)
+            {
+                currentAlpha -= (255 * timer->interval()) / duration;
+            }
+
+            if (duration == 0 || currentAlpha <= 0)
             {
                 timer->stop();
                 currentAlpha = 0;
-
                 hide();
 
                 emit doneFading(true);
@@ -117,8 +124,12 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
         }
         else
         {
-            currentAlpha += (255 * timer->interval()) / duration;
-            if (currentAlpha >= 255)
+            if(duration != 0)
+            {
+                currentAlpha += (255 * timer->interval()) / duration;
+            }
+
+            if (duration == 0 || currentAlpha >= 255)
             {
                 timer->stop();
                 currentAlpha = 255;
