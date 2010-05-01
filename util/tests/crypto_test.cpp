@@ -190,8 +190,9 @@ void crypto_test::test_exceptions()
 
 void crypto_test::test_compression()
 {
-    string in = string(1000, 'a');
-    string out = CryptoHelpers::compress(in);
+    string in = string(1000, 0x00) + string(1000, 0x02);
+    string out = CryptoHelpers::compress(in, CryptoHelpers::MAX_COMPRESSION_LEVEL);
+    qDebug(QString("Size in: %1\nSize out: %2").arg(in.length()).arg(out.length()).toStdString().c_str());
     QVERIFY(out != in);
     QVERIFY(out.length() < in.length());
 

@@ -20,10 +20,10 @@ using namespace std;
 
 namespace GUtil
 {
+
     class CryptoHelpers
     {
     public:
-
         // For working with strings (returns null if conversion fails)
         static string encryptString(const string &instr, const string &passPhrase);
         static string decryptString(const string &instr, const string &passPhrase);
@@ -33,8 +33,12 @@ namespace GUtil
         static bool decryptFile(const char *in, const char *out, const char *passPhrase);
 
         // Data Compression functions
-        static string compress(const string &instr);
+        static string compress(const string &instr, int level = DEFAULT_COMPRESSION_LEVEL);
         static string decompress(const string &instr);
+
+        static int DEFAULT_COMPRESSION_LEVEL;
+        static int MIN_COMPRESSION_LEVEL;
+        static int MAX_COMPRESSION_LEVEL;
 
         // Different data encoding schemes
         static string toBase64(const string &instr);
@@ -46,6 +50,7 @@ namespace GUtil
         // Random number generator
         static int rand();
         static string randData(int, int seed = -1);
+
 
     };
 }

@@ -10,11 +10,13 @@ INCLUDEPATH += ../encryption/headers ../strings/headers ../exceptions/headers
 QT += testlib
 QT -= gui
 LIBS += -L../encryption/debug -L../strings/debug -L../exceptions/debug -L../encryption/lib \
-    -lGencrypt \
-    -lGstring \
     -lGexcept
 #win32:LIBS += -L../release \
 win32:LIBS += -L../debug \
+    -lGstringmingw \
+    -lGencryptmingw \
     -lcryptoppmingw
 unix:LIBS += -L.. \
+    -lGstring \
+    -lGencrypt \
     -lcryptopp

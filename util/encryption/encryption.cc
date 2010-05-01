@@ -22,6 +22,10 @@ limitations under the License.*/
 using namespace std;
 using namespace GUtil;
 
+int CryptoHelpers::DEFAULT_COMPRESSION_LEVEL = CryptoPP::Gzip::DEFAULT_DEFLATE_LEVEL;
+int CryptoHelpers::MIN_COMPRESSION_LEVEL = CryptoPP::Gzip::MIN_DEFLATE_LEVEL;
+int CryptoHelpers::MAX_COMPRESSION_LEVEL = CryptoPP::Gzip::MAX_DEFLATE_LEVEL;
+
 string CryptoHelpers::encryptString(const string &instr, const string &passPhrase)
 {
     string outstr;
@@ -90,13 +94,24 @@ bool CryptoHelpers::decryptFile(const char *in, const char *out, const char *pas
     return true;
 }
 
-string CryptoHelpers::compress(const string &instr)
+string CryptoHelpers::compress(const string &instr, int level)
 {
     string ret;
 
-    CryptoPP::Gzip zipper(new CryptoPP::StringSink(ret));
-    zipper.Put((byte*)instr.c_str(), instr.length());
-    zipper.MessageEnd();
+    if(level < MIN_COMPRESSION_LEVEL ||
+       level > MAX_COMPRESSION_LEVEL)
+        level = DEFAULT_COMPRESSION_LEVEL;
+
+    try
+    {
+        CryptoPP::Gzip zipper(new CryptoPP::StringSink(ret), level);
+        zipper.Put((byte*)instr.c_str(), instr.length());
+        zipper.MessageEnd();
+    }
+    catch(CryptoPP::Exception)
+    {
+        return "";
+    }
 
     return ret;
 }
@@ -105,7 +120,14 @@ string CryptoHelpers::decompress(const string &instr)
 {
     string tmp;
 
-    CryptoPP::StringSource(instr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
+    try
+    {
+        CryptoPP::StringSource(instr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
+    }
+    catch(CryptoPP::Exception)
+    {
+        return "";
+    }
 
     return tmp;
 }
