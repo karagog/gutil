@@ -21,6 +21,8 @@ namespace GUtil
 {
     namespace QtUtil
     {
+        // This class will represent a tree model as a list model, essentially
+        //  throwing away the hierarchy and letting you access it like a list
         class myFlatTreeView : public QAbstractProxyModel
         {
             Q_OBJECT
