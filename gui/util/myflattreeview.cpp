@@ -76,8 +76,7 @@ void myFlatTreeView::_refresh_child_record()
     QAbstractItemModel *m = sourceModel();
     if(m)
     {
-        int c = sourceModel()->rowCount();
-        for(int i = 0; i < c; i++)
+        for(int i = sourceModel()->rowCount() - 1; i >= 0; i--)
         {
             _total_rows += _count_child_indexes(m->index(i, 0));
         }
