@@ -15,15 +15,14 @@ INCLUDEPATH += ../headers \
 
 win32:LIBS += \
     -lGQtUtilmingw \
+    -lGstringmingw \
     -L../debug \
     -L../../../util/strings/debug
 unix:LIBS += \
     -lGQtUtil \
+    -lGstring \
     -L.. \
-    -L../..
-
-LIBS +=  \
-    -lGstring
+    -L../../../util/strings
 
 FORMS += \
     flattreemodeltest.ui
