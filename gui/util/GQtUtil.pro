@@ -1,7 +1,8 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-03-27T16:39:45
 # -------------------------------------------------
-TARGET = GQtUtil
+win32:TARGET = GQtUtilmingw
+unix:TARGET = GQtUtil
 TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += settings.cpp \
@@ -9,12 +10,14 @@ SOURCES += settings.cpp \
     src/qtlockedfile.cpp \
     filesystemhelpers.cpp \
     usermachinelock.cpp \
-    xmlhelpers.cpp
+    xmlhelpers.cpp \
+    myflattreeview.cpp
 HEADERS += headers/settings.h \
     headers/widgethelpers.h \
     headers/filesystemhelpers.h \
     headers/usermachinelock.h \
-    headers/xmlhelpers.h
+    headers/xmlhelpers.h \
+    headers/myflattreeview.h
 INCLUDEPATH += headers \
     ../../util/strings/headers \
     include

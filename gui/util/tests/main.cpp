@@ -17,13 +17,16 @@ limitations under the License.*/
 #include "usermachinelock_test.h"
 #include "stringhelpers.h"
 #include "xmlhelpers_test.h"
+#include "flattreemodeltest.h"
+#include <QApplication>
 using namespace std;
 
 
-int main()
+int main(int argc, char **argv)
 {
     int res;
 
+    QApplication app(argc, argv);
     {
         settingsTest test;
         res = QTest::qExec(&test);
@@ -51,9 +54,12 @@ int main()
             return res;
     }
 
+    flatTreeModelTest *tmt = new flatTreeModelTest(0);
+    tmt->show();
+
     // This is a test to see if I'm able to use gutil functions
     //  while linking with the shared version of GQtUtil
     string probe = GUtil::StringHelpers::baseName("/home/testing/yay/");
 
-    return res;
+    return app.exec();
 }
