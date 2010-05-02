@@ -21,6 +21,54 @@ myFlatTreeView::myFlatTreeView(QObject *parent) :
 {
 }
 
+void myFlatTreeView::setSourceModel(QAbstractItemModel *m)
+{
+    QAbstractProxyModel::setSourceModel(m);
+
+    if(m)
+    {
+        // So we can reset ourself when something changes
+        connect(m, SIGNAL(rowsInserted(QModelIndex, int, int)),
+                this, SLOT(source_model_rows_inserted(QModelIndex,int,int)));
+        connect(m, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                this, SLOT(source_model_rows_removed(QModelIndex,int,int)));
+        connect(m, SIGNAL(modelReset()), this, SLOT(_reset_model()));
+    }
+    else
+    {
+        disconnect(this, SLOT(source_model_rows_inserted(QModelIndex,int,int)));
+        disconnect(this, SLOT(source_model_rows_removed(QModelIndex,int,int)));
+        disconnect(this, SLOT(_reset_model()));
+    }
+}
+
+void myFlatTreeView::source_model_rows_inserted(const QModelIndex &ind,
+                                                int start, int end)
+{
+    _reset_model();
+}
+
+void myFlatTreeView::source_model_rows_removed(const QModelIndex &ind,
+                                               int start, int end)
+{
+    _reset_model();
+}
+
+void myFlatTreeView::_reset_model()
+{
+    beginResetModel();
+    reset();
+
+    _refresh_child_record();
+
+    endResetModel();
+}
+
+void myFlatTreeView::_refresh_child_record()
+{
+    _child_record.clear();
+}
+
 QModelIndex myFlatTreeView::mapToSource(const QModelIndex &proxyIndex) const
 {
     QAbstractItemModel *sm = sourceModel();
@@ -109,7 +157,8 @@ QModelIndex myFlatTreeView::index(int row, int column, const QModelIndex &par) c
     if(par.isValid())
         return QModelIndex();
 
-    return createIndex(row, column);
+    // Use the row as a unique id
+    return createIndex(row, column, row);
 }
 
 int myFlatTreeView::rowCount(const QModelIndex &parent) const

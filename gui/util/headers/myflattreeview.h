@@ -16,6 +16,7 @@ limitations under the License.*/
 #define MYFLATTREEVIEW_H
 
 #include <QAbstractProxyModel>
+#include <QMap>
 
 namespace GUtil
 {
@@ -28,6 +29,8 @@ namespace GUtil
             Q_OBJECT
         public:
             explicit myFlatTreeView(QObject *parent = 0);
+
+            virtual void setSourceModel(QAbstractItemModel *);
 
         protected:
             virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
@@ -43,6 +46,13 @@ namespace GUtil
             int _count_preceeding_indexes(const QModelIndex &) const;
             int _count_child_indexes(const QModelIndex &) const;
 
+            QMap<int, int> _child_record;
+            void _refresh_child_record();
+
+        private slots:
+            void source_model_rows_inserted(const QModelIndex &, int, int);
+            void source_model_rows_removed(const QModelIndex &, int, int);
+            void _reset_model();
         };
     }
 }
