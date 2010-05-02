@@ -44,10 +44,12 @@ namespace GUtil
 
         private:
             int _count_preceeding_indexes(const QModelIndex &) const;
-            int _count_child_indexes(const QModelIndex &) const;
+            int _count_child_indexes(const QModelIndex &ind = QModelIndex());
 
             QMap<int, int> _child_record;
             void _refresh_child_record();
+
+            int _total_rows;
 
         private slots:
             void source_model_rows_inserted(const QModelIndex &, int, int);

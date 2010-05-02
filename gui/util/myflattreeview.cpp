@@ -40,6 +40,8 @@ void myFlatTreeView::setSourceModel(QAbstractItemModel *m)
         disconnect(this, SLOT(source_model_rows_removed(QModelIndex,int,int)));
         disconnect(this, SLOT(_reset_model()));
     }
+
+    _reset_model();
 }
 
 void myFlatTreeView::source_model_rows_inserted(const QModelIndex &ind,
@@ -57,16 +59,29 @@ void myFlatTreeView::source_model_rows_removed(const QModelIndex &ind,
 void myFlatTreeView::_reset_model()
 {
     beginResetModel();
-    reset();
 
+    // This is an expensive operation, so we only do it when we have to, storing
+    //  the results we calculate for quick lookup later
     _refresh_child_record();
 
+    reset();
     endResetModel();
 }
 
 void myFlatTreeView::_refresh_child_record()
 {
     _child_record.clear();
+    _total_rows = 0;
+
+    QAbstractItemModel *m = sourceModel();
+    if(m)
+    {
+        int c = sourceModel()->rowCount();
+        for(int i = 0; i < c; i++)
+        {
+            _total_rows += _count_child_indexes(m->index(i, 0));
+        }
+    }
 }
 
 QModelIndex myFlatTreeView::mapToSource(const QModelIndex &proxyIndex) const
@@ -86,7 +101,7 @@ QModelIndex myFlatTreeView::mapToSource(const QModelIndex &proxyIndex) const
 
         QModelIndex targ = sm->index(i, 0, tmppar);
 
-        int tmpsum = count + _count_child_indexes(targ);
+        int tmpsum = count + _child_record[targ.internalId()];
         if(tmpsum > targetrow)
         {
             tmppar = targ;
@@ -108,7 +123,9 @@ QModelIndex myFlatTreeView::mapToSource(const QModelIndex &proxyIndex) const
 
 QModelIndex myFlatTreeView::mapFromSource(const QModelIndex &sourceIndex) const
 {
-    return index(_count_preceeding_indexes(sourceIndex) - 1, 0);
+    if(sourceModel())
+        return index(_count_preceeding_indexes(sourceIndex) - 1, 0);
+    return QModelIndex();
 }
 
 int myFlatTreeView::_count_preceeding_indexes(const QModelIndex &ind) const
@@ -123,7 +140,7 @@ int myFlatTreeView::_count_preceeding_indexes(const QModelIndex &ind) const
     //  before me but still under the same parent
     for(int i = ind.row() - 1; i >= 0; i--)
     {
-        ret += _count_child_indexes(m->index(i, 0, ind.parent()));
+        ret += _child_record[m->index(i, 0, ind.parent()).internalId()];
     }
 
     // Then add in my parent's preceeding indeces
@@ -132,7 +149,7 @@ int myFlatTreeView::_count_preceeding_indexes(const QModelIndex &ind) const
     return ret;
 }
 
-int myFlatTreeView::_count_child_indexes(const QModelIndex &ind) const
+int myFlatTreeView::_count_child_indexes(const QModelIndex &ind)
 {
     // Start with one to account for 'ind'
     int ret = 1;
@@ -143,6 +160,10 @@ int myFlatTreeView::_count_child_indexes(const QModelIndex &ind) const
     {
         ret += _count_child_indexes(m->index(i, 0, ind));
     }
+
+    // Remember this result for later
+    _child_record.insert(ind.internalId(), ret);
+
     return ret;
 }
 
@@ -166,9 +187,7 @@ int myFlatTreeView::rowCount(const QModelIndex &parent) const
     if(parent.isValid())
         return 0;
 
-    if(sourceModel())
-        return _count_child_indexes(QModelIndex());
-    return 0;
+    return _total_rows;
 }
 
 int myFlatTreeView::columnCount(const QModelIndex &parent) const
