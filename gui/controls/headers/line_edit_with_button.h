@@ -26,7 +26,7 @@ namespace GUtil
         class line_edit_with_button : public QWidget {
             Q_OBJECT
         public:
-            line_edit_with_button(QWidget *parent = 0, bool btn_visible = true,
+            line_edit_with_button(QWidget *par = 0, bool btn_visible = true,
                                   int fade_duration = -1);
             ~line_edit_with_button();
 
@@ -45,6 +45,8 @@ namespace GUtil
             void focusOutEvent(QFocusEvent *);
             void keyPressEvent(QKeyEvent *);
             void keyReleaseEvent(QKeyEvent *);
+            void mousePressEvent(QMouseEvent *);
+            void mouseReleaseEvent(QMouseEvent *);
             bool eventFilter(QObject *, QEvent *);
 
             void changeEvent(QEvent *);

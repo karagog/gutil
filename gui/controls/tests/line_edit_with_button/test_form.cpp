@@ -11,6 +11,7 @@ test_form::test_form(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setTabOrder(ui->lineEditWidget, ui->pushButton_2);
 
     line_edit_with_button *le = new line_edit_with_button(this, false);
     ui->verticalLayout->addWidget(le);

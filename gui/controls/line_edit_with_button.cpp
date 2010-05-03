@@ -6,8 +6,8 @@
 using namespace GUtil::QtControls;
 using namespace GUtil::QtControls::EffectsWidgets;
 
-line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible, int fade_duration) :
-    QWidget(parent),
+line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int fade_duration) :
+    QWidget(par),
     ui(new Ui::line_edit_with_button)
 {
     ui->setupUi(this);
@@ -25,6 +25,11 @@ line_edit_with_button::line_edit_with_button(QWidget *parent, bool btn_visible, 
     // I want to intercept focus events so I can bring it back to myself
     ui->lineEdit->installEventFilter(this);
     ui->pushButton->installEventFilter(this);
+
+    // Set up the focus policies so that my child widgets NEVER get focus
+    ui->lineEdit->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton->setFocusPolicy(Qt::NoFocus);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 line_edit_with_button::~line_edit_with_button()
@@ -52,8 +57,6 @@ void line_edit_with_button::toggleButton()
 void line_edit_with_button::focusInEvent(QFocusEvent *e)
 {
     ui->lineEdit->event(e);
-
-    setFocus();
 }
 
 void line_edit_with_button::focusOutEvent(QFocusEvent *e)
@@ -63,12 +66,28 @@ void line_edit_with_button::focusOutEvent(QFocusEvent *e)
 
 void line_edit_with_button::keyPressEvent(QKeyEvent *e)
 {
+    QWidget::keyPressEvent(e);
     ui->lineEdit->event(e);
 }
 
 void line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
 {
+    QWidget::keyReleaseEvent(e);
     ui->lineEdit->event(e);
+}
+
+void line_edit_with_button::mousePressEvent(QMouseEvent *e)
+{
+    ui->lineEdit->event(e);
+
+    QWidget::mousePressEvent(e);
+}
+
+void line_edit_with_button::mouseReleaseEvent(QMouseEvent *e)
+{
+    ui->lineEdit->event(e);
+
+    QWidget::mouseReleaseEvent(e);
 }
 
 bool line_edit_with_button::eventFilter(QObject *o, QEvent *ev)
@@ -82,6 +101,8 @@ bool line_edit_with_button::eventFilter(QObject *o, QEvent *ev)
         // Always bring the focus back to the top widget
         setFocus();
         return true;
+        break;
+
     default:
         break;
     }
