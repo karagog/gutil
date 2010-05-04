@@ -42,12 +42,8 @@ namespace GUtil
         protected:
             // These events are passed to the lineEdit itself
             void focusInEvent(QFocusEvent *);
-            void focusOutEvent(QFocusEvent *);
             void keyPressEvent(QKeyEvent *);
             void keyReleaseEvent(QKeyEvent *);
-            void mousePressEvent(QMouseEvent *);
-            void mouseReleaseEvent(QMouseEvent *);
-            bool eventFilter(QObject *, QEvent *);
 
             void changeEvent(QEvent *);
 

@@ -22,10 +22,6 @@ line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int
     if(btn_visible)
         _fader->fadeIn();
 
-    // I want to intercept focus events so I can bring it back to myself
-    ui->lineEdit->installEventFilter(this);
-    ui->pushButton->installEventFilter(this);
-
     // Set up the focus policies so that my child widgets NEVER get focus
     ui->lineEdit->setFocusPolicy(Qt::NoFocus);
     ui->pushButton->setFocusPolicy(Qt::NoFocus);
@@ -59,55 +55,14 @@ void line_edit_with_button::focusInEvent(QFocusEvent *e)
     ui->lineEdit->event(e);
 }
 
-void line_edit_with_button::focusOutEvent(QFocusEvent *e)
-{
-    ui->lineEdit->event(e);
-}
-
 void line_edit_with_button::keyPressEvent(QKeyEvent *e)
 {
-    QWidget::keyPressEvent(e);
     ui->lineEdit->event(e);
 }
 
 void line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
 {
-    QWidget::keyReleaseEvent(e);
     ui->lineEdit->event(e);
-}
-
-void line_edit_with_button::mousePressEvent(QMouseEvent *e)
-{
-    ui->lineEdit->event(e);
-
-    QWidget::mousePressEvent(e);
-}
-
-void line_edit_with_button::mouseReleaseEvent(QMouseEvent *e)
-{
-    ui->lineEdit->event(e);
-
-    QWidget::mouseReleaseEvent(e);
-}
-
-bool line_edit_with_button::eventFilter(QObject *o, QEvent *ev)
-{
-    if(o == 0)
-        return false;
-
-    switch(ev->type())
-    {
-    case QEvent::FocusIn:
-        // Always bring the focus back to the top widget
-        setFocus();
-        return true;
-        break;
-
-    default:
-        break;
-    }
-
-    return false;
 }
 
 void line_edit_with_button::changeEvent(QEvent *e)
