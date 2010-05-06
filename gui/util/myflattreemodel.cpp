@@ -24,6 +24,12 @@ myFlatTreeModel::myFlatTreeModel(QObject *parent) :
 void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
 {
     QAbstractItemModel *curmodel = sourceModel();
+    if(curmodel == m)
+    {
+        refreshSourceModel();
+        return;
+    }
+
     if(curmodel)
     {
         curmodel->disconnect(this, SLOT(source_model_about_to_be_reset()));
@@ -64,7 +70,17 @@ void myFlatTreeModel::source_model_about_to_be_reset()
 
 void myFlatTreeModel::source_model_reset()
 {
+    // This is an expensive operation, so we only do it once, storing
+    //  the results we calculate for quick lookup while we refresh the indexes
     _refresh_child_record();
+
+    _index_map_to_source.clear();
+    _index_map_from_source.clear();
+    _refresh_index_mapping();
+
+    // To save memory we'll clear this map 'cause we don't use it after here
+    _child_record.clear();
+
     endResetModel();
 }
 
@@ -76,17 +92,11 @@ void myFlatTreeModel::refreshSourceModel()
 void myFlatTreeModel::_reset_model()
 {
     beginResetModel();
-
-    // This is an expensive operation, so we only do it when we have to, storing
-    //  the results we calculate for quick lookup later
-    _refresh_child_record();
-
-    endResetModel();
+    source_model_reset();
 }
 
 void myFlatTreeModel::_refresh_child_record()
 {
-    _child_record.clear();
     _total_rows = 0;
 
     QAbstractItemModel *m = sourceModel();
@@ -101,45 +111,21 @@ void myFlatTreeModel::_refresh_child_record()
 
 QModelIndex myFlatTreeModel::mapToSource(const QModelIndex &proxyIndex) const
 {
-    QAbstractItemModel *sm = sourceModel();
-    int targetrow = proxyIndex.row();
-
-    QModelIndex tmppar;
-    int count = 0;
-    int lim = sm->rowCount(tmppar);
-    int i;
-
-    for(i = 0; i < lim; i++)
-    {
-        if(count == targetrow)
-            break;
-
-        QModelIndex targ = sm->index(i, 0, tmppar);
-
-        int tmpsum = count + _child_record[targ.internalId()];
-        if(tmpsum > targetrow)
-        {
-            tmppar = targ;
-
-            // Reset the loop as we descend into this index
-            i = -1;
-            lim = sm->rowCount(tmppar);
-
-            // count the one that we're descending into
-            count++;
-            continue;
-        }
-
-        count = tmpsum;
-    }
-
-    return sm->index(i, 0, tmppar);
+    return _index_map_to_source[proxyIndex.internalId()];
 }
 
 QModelIndex myFlatTreeModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
+    int t = _index_map_from_source[sourceIndex.internalId()];
+    if(t == 0 || !sourceIndex.isValid())
+        return QModelIndex();
+    return index(t, sourceIndex.column());
+}
+
+QModelIndex myFlatTreeModel::_map_from_source(const QModelIndex &sourceIndex)
+{
     if(sourceModel())
-        return index(_count_preceeding_indexes(sourceIndex) - 1, 0);
+        return index(_count_preceeding_indexes(sourceIndex) - 1, sourceIndex.column());
     return QModelIndex();
 }
 
@@ -180,6 +166,21 @@ int myFlatTreeModel::_count_child_indexes(const QModelIndex &ind)
     _child_record.insert(ind.internalId(), ret);
 
     return ret;
+}
+
+void myFlatTreeModel::_refresh_index_mapping(const QModelIndex &ind)
+{
+    QAbstractItemModel *sm = sourceModel();
+    for(int i = sm->rowCount(ind) - 1; i >= 0; i--)
+    {
+        QModelIndex targ = sm->index(i, 0, ind);
+        QModelIndex proxy_index = _map_from_source(targ);
+
+        _index_map_to_source.insert(proxy_index.internalId(), QPersistentModelIndex(targ));
+        _index_map_from_source.insert(targ.internalId(), proxy_index.row());
+
+        _refresh_index_mapping(targ);
+    }
 }
 
 QModelIndex myFlatTreeModel::parent(const QModelIndex &) const

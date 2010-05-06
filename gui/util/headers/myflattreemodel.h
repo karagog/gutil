@@ -48,9 +48,14 @@ namespace GUtil
         private:
             int _count_preceeding_indexes(const QModelIndex &) const;
             int _count_child_indexes(const QModelIndex &ind = QModelIndex());
+            void _refresh_index_mapping(const QModelIndex &ind = QModelIndex());
+
+            QModelIndex _map_from_source(const QModelIndex &sourceIndex);
 
             void _reset_model();
 
+            QMap<int, QPersistentModelIndex> _index_map_to_source;
+            QMap<int, int> _index_map_from_source;
             QMap<int, int> _child_record;
             void _refresh_child_record();
 
