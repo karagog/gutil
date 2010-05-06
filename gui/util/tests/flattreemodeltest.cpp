@@ -19,7 +19,7 @@ flatTreeModelTest::flatTreeModelTest(QWidget *parent) :
     ui->treeView->setModel(dm);
     ui->listView->setModel(ftv);
 
-    connect(ui->pushButton, SIGNAL(clicked()), ftv, SLOT(_reset_model()));
+    connect(ui->pushButton, SIGNAL(clicked()), ftv, SLOT(refreshSourceModel()));
 }
 
 flatTreeModelTest::~flatTreeModelTest()

@@ -23,81 +23,38 @@ myFlatTreeModel::myFlatTreeModel(QObject *parent) :
 
 void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
 {
+    QAbstractItemModel *curmodel = sourceModel();
+    if(curmodel)
+    {
+        curmodel->disconnect(this, SLOT(source_model_about_to_be_reset()));
+        curmodel->disconnect(this, SLOT(source_model_reset()));
+    }
+
     QAbstractProxyModel::setSourceModel(m);
 
     if(m)
     {
         // So we can reset ourself when something changes
-        Q_ASSERT(connect(m, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)),
-                this, SLOT(source_model_rows_about_to_be_inserted(QModelIndex,int,int))));
-        Q_ASSERT(connect(m, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
-                this, SLOT(source_model_rows_about_to_be_removed(QModelIndex,int,int))));
+        connect(m, SIGNAL(modelAboutToBeReset()), this, SLOT(source_model_about_to_be_reset()));
+        connect(m, SIGNAL(modelReset()), this, SLOT(source_model_reset()));
 
-        Q_ASSERT(connect(m, SIGNAL(rowsInserted(QModelIndex, int, int)),
-                this, SLOT(source_model_rows_inserted())));
-        Q_ASSERT(connect(m, SIGNAL(rowsRemoved(QModelIndex, int, int)),
-                this, SLOT(source_model_rows_removed())));
+        connect(m, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)),
+                this, SLOT(source_model_about_to_be_reset()));
+        connect(m, SIGNAL(rowsInserted(QModelIndex, int, int)),
+                this, SLOT(source_model_reset()));
 
-        Q_ASSERT(connect(m, SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)),
-                this, SLOT(source_model_rows_about_to_be_moved(QModelIndex,int,int, QModelIndex, int))));
-        Q_ASSERT(connect(m, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)),
-                this, SLOT(source_model_rows_moved())));
+        connect(m, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(source_model_about_to_be_reset()));
+        connect(m, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                this, SLOT(source_model_reset()));
 
-        Q_ASSERT(connect(m, SIGNAL(modelAboutToBeReset()), this, SLOT(source_model_about_to_be_reset())));
-        Q_ASSERT(connect(m, SIGNAL(modelReset()), this, SLOT(source_model_reset())));
-    }
-    else
-    {
-        disconnect(this, SLOT(source_model_rows_about_to_be_inserted(QModelIndex,int,int)));
-        disconnect(this, SLOT(source_model_rows_about_to_be_removed(QModelIndex,int,int)));
-        disconnect(this, SLOT(source_model_rows_inserted(QModelIndex,int,int)));
-        disconnect(this, SLOT(source_model_rows_removed(QModelIndex,int,int)));
-        disconnect(this, SLOT(source_model_rows_about_to_be_moved(QModelIndex,int,int,QModelIndex,int)));
-        disconnect(this, SLOT(source_model_rows_moved()));
-        disconnect(this, SLOT(_reset_model()));
+        connect(m, SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
+                this, SLOT(source_model_about_to_be_reset()));
+        connect(m, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+                this, SLOT(source_model_reset()));
     }
 
     _reset_model();
-}
-
-void myFlatTreeModel::source_model_rows_about_to_be_inserted(const QModelIndex &ind,
-                                                            int start, int end)
-{
-    int proxy_row = mapFromSource(ind).row();
-    beginInsertRows(QModelIndex(), proxy_row + start, proxy_row + end);
-}
-
-void myFlatTreeModel::source_model_rows_about_to_be_removed(const QModelIndex &ind,
-                                                           int start, int end)
-{
-    int proxy_row = mapFromSource(ind).row();
-    beginRemoveRows(QModelIndex(), proxy_row + start, proxy_row + end);
-}
-
-void myFlatTreeModel::source_model_rows_about_to_be_moved(const QModelIndex &ind,
-                                                         int start, int end,
-                                                         const QModelIndex &targ,
-                                                         int dest)
-{
-    int proxy_row1 = mapFromSource(ind).row();
-    int proxy_row2 = mapFromSource(targ).row();
-    beginMoveRows(QModelIndex(), proxy_row1 + start, proxy_row1 + end,
-                  QModelIndex(), proxy_row2 + dest);
-}
-
-void myFlatTreeModel::source_model_rows_inserted()
-{
-    endInsertRows();
-}
-
-void myFlatTreeModel::source_model_rows_removed()
-{
-    endRemoveRows();
-}
-
-void myFlatTreeModel::source_model_rows_moved()
-{
-    endMoveRows();
 }
 
 void myFlatTreeModel::source_model_about_to_be_reset()
@@ -108,8 +65,12 @@ void myFlatTreeModel::source_model_about_to_be_reset()
 void myFlatTreeModel::source_model_reset()
 {
     _refresh_child_record();
-    reset();
     endResetModel();
+}
+
+void myFlatTreeModel::refreshSourceModel()
+{
+    _reset_model();
 }
 
 void myFlatTreeModel::_reset_model()
@@ -120,7 +81,6 @@ void myFlatTreeModel::_reset_model()
     //  the results we calculate for quick lookup later
     _refresh_child_record();
 
-    reset();
     endResetModel();
 }
 

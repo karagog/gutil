@@ -32,6 +32,9 @@ namespace GUtil
 
             virtual void setSourceModel(QAbstractItemModel *);
 
+        public slots:
+            void refreshSourceModel();
+
         protected:
             virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
             virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
@@ -46,22 +49,16 @@ namespace GUtil
             int _count_preceeding_indexes(const QModelIndex &) const;
             int _count_child_indexes(const QModelIndex &ind = QModelIndex());
 
+            void _reset_model();
+
             QMap<int, int> _child_record;
             void _refresh_child_record();
 
             int _total_rows;
 
         private slots:
-            void source_model_rows_about_to_be_inserted(const QModelIndex &, int, int);
-            void source_model_rows_about_to_be_removed(const QModelIndex &, int, int);
-            void source_model_rows_about_to_be_moved(const QModelIndex &, int, int,
-                                                     const QModelIndex &, int);
             void source_model_about_to_be_reset();
-            void source_model_rows_inserted();
-            void source_model_rows_removed();
-            void source_model_rows_moved();
             void source_model_reset();
-            void _reset_model();
         };
     }
 }
