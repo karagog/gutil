@@ -34,6 +34,7 @@ void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
     {
         curmodel->disconnect(this, SLOT(source_model_about_to_be_reset()));
         curmodel->disconnect(this, SLOT(source_model_reset()));
+        curmodel->disconnect(this, SLOT(source_model_data_changed(QModelIndex,QModelIndex)));
     }
 
     QAbstractProxyModel::setSourceModel(m);
@@ -58,9 +59,17 @@ void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
                 this, SLOT(source_model_about_to_be_reset()));
         connect(m, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
                 this, SLOT(source_model_reset()));
+
+        connect(m, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                this, SLOT(source_model_data_changed(QModelIndex,QModelIndex)));
     }
 
     _reset_model();
+}
+
+void myFlatTreeModel::source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2)
+{
+    emit dataChanged(mapFromSource(ind1), mapFromSource(ind2));
 }
 
 void myFlatTreeModel::source_model_about_to_be_reset()

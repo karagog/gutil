@@ -64,6 +64,8 @@ namespace GUtil
         private slots:
             void source_model_about_to_be_reset();
             void source_model_reset();
+
+            void source_model_data_changed(const QModelIndex &, const QModelIndex &);
         };
     }
 }
