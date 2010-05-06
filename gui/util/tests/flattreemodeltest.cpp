@@ -1,5 +1,5 @@
 #include "flattreemodeltest.h"
-#include "myflattreeview.h"
+#include "myflattreemodel.h"
 #include "ui_flattreemodeltest.h"
 #include <QFileSystemModel>
 using namespace GUtil::QtUtil;

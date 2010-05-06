@@ -11,13 +11,13 @@ SOURCES += settings.cpp \
     filesystemhelpers.cpp \
     usermachinelock.cpp \
     xmlhelpers.cpp \
-    myflattreeview.cpp
+    myflattreemodel.cpp
 HEADERS += headers/settings.h \
     headers/widgethelpers.h \
     headers/filesystemhelpers.h \
     headers/usermachinelock.h \
     headers/xmlhelpers.h \
-    headers/myflattreeview.h
+    headers/myflattreemodel.h
 INCLUDEPATH += headers \
     ../../util/strings/headers \
     include
