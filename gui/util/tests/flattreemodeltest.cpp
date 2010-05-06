@@ -13,11 +13,13 @@ flatTreeModelTest::flatTreeModelTest(QWidget *parent) :
     QFileSystemModel *dm = new QFileSystemModel(this);
     dm->setRootPath("C:\\");
 
-    myFlatTreeView *ftv = new myFlatTreeView(0);
+    myFlatTreeModel *ftv = new myFlatTreeModel(0);
     ftv->setSourceModel(dm);
 
     ui->treeView->setModel(dm);
     ui->listView->setModel(ftv);
+
+    connect(ui->pushButton, SIGNAL(clicked()), ftv, SLOT(_reset_model()));
 }
 
 flatTreeModelTest::~flatTreeModelTest()

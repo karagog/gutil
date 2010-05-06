@@ -24,11 +24,11 @@ namespace GUtil
     {
         // This class will represent a tree model as a list model, essentially
         //  throwing away the hierarchy and letting you access it like a list
-        class myFlatTreeView : public QAbstractProxyModel
+        class myFlatTreeModel : public QAbstractProxyModel
         {
             Q_OBJECT
         public:
-            explicit myFlatTreeView(QObject *parent = 0);
+            explicit myFlatTreeModel(QObject *parent = 0);
 
             virtual void setSourceModel(QAbstractItemModel *);
 
@@ -52,8 +52,15 @@ namespace GUtil
             int _total_rows;
 
         private slots:
-            void source_model_rows_inserted(const QModelIndex &, int, int);
-            void source_model_rows_removed(const QModelIndex &, int, int);
+            void source_model_rows_about_to_be_inserted(const QModelIndex &, int, int);
+            void source_model_rows_about_to_be_removed(const QModelIndex &, int, int);
+            void source_model_rows_about_to_be_moved(const QModelIndex &, int, int,
+                                                     const QModelIndex &, int);
+            void source_model_about_to_be_reset();
+            void source_model_rows_inserted();
+            void source_model_rows_removed();
+            void source_model_rows_moved();
+            void source_model_reset();
             void _reset_model();
         };
     }

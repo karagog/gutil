@@ -25,7 +25,6 @@ filesystem_test::filesystem_test(QObject *parent) :
 {
 }
 
-
 void filesystem_test::rmdir_test()
 {
     QDir tmpdir = QDir::temp();
