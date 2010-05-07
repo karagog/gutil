@@ -48,7 +48,7 @@ namespace GUtil
         static string fromBase16(const string &instr);
 
         // Random number generator
-        static int rand();
+        static unsigned int rand();
         static string randData(int, int seed = -1);
 
 
