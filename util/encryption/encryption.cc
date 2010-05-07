@@ -177,7 +177,7 @@ string CryptoHelpers::fromBase16(const string &instr)
 unsigned int CryptoHelpers::rand()
 {
     CryptoPP::AutoSeededRandomPool rng;
-    return (unsigned int)rng.GenerateWord32();
+    return rng.GenerateWord32();
 }
 
 string CryptoHelpers::randData(int size, int seed)
