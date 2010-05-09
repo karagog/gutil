@@ -62,9 +62,9 @@ void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
 
         connect(m, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(source_model_data_changed(QModelIndex,QModelIndex)));
-    }
 
-    _reset_model();
+        _reset_model();
+    }
 }
 
 void myFlatTreeModel::source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2)
