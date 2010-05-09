@@ -62,9 +62,9 @@ void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
 
         connect(m, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(source_model_data_changed(QModelIndex,QModelIndex)));
-
-        _reset_model();
     }
+
+    _reset_model();
 }
 
 void myFlatTreeModel::source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2)
@@ -180,15 +180,18 @@ int myFlatTreeModel::_count_child_indexes(const QModelIndex &ind)
 void myFlatTreeModel::_refresh_index_mapping(const QModelIndex &ind)
 {
     QAbstractItemModel *sm = sourceModel();
-    for(int i = sm->rowCount(ind) - 1; i >= 0; i--)
+    if(sm)
     {
-        QModelIndex targ = sm->index(i, 0, ind);
-        QModelIndex proxy_index = _map_from_source(targ);
+        for(int i = sm->rowCount(ind) - 1; i >= 0; i--)
+        {
+            QModelIndex targ = sm->index(i, 0, ind);
+            QModelIndex proxy_index = _map_from_source(targ);
 
-        _index_map_to_source.insert(proxy_index.internalId(), QPersistentModelIndex(targ));
-        _index_map_from_source.insert(targ.internalId(), proxy_index.row());
+            _index_map_to_source.insert(proxy_index.internalId(), QPersistentModelIndex(targ));
+            _index_map_from_source.insert(targ.internalId(), proxy_index.row());
 
-        _refresh_index_mapping(targ);
+            _refresh_index_mapping(targ);
+        }
     }
 }
 
