@@ -33,7 +33,7 @@ GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler v
 
 ifneq ($(GCC42_OR_LATER),0)
 ifneq ($(UNAME),Darwin)
-CXXFLAGS += -march=native -mtune=native
+#CXXFLAGS += -march=native -mtune=native
 endif
 endif
 
