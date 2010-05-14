@@ -1,4 +1,4 @@
-CXXFLAGS = -O3
+CXXFLAGS = -O2
 #CXXFLAGS = -g
 # -fPIC is supported. Please report any breakage of -fPIC as a bug.
 # CXXFLAGS += -fPIC
