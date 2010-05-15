@@ -6,8 +6,7 @@
 
 QT       -= core gui
 
-win32:TARGET = Gencryptmingw
-unix:TARGET = Gencrypt
+TARGET = Gencrypt
 
 TEMPLATE = lib
 CONFIG += staticlib

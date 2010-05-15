@@ -6,8 +6,7 @@
 
 QT       -= core gui
 
-win32:TARGET = Gstringmingw
-unix:TARGET = Gstring
+TARGET = Gstring
 
 TEMPLATE = lib
 CONFIG += staticlib
