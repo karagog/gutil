@@ -4,7 +4,7 @@ CONFIG += staticlib
 SOURCES += \
     strings_private.cc \
     strings.cc \
-    exception.cpp \
+    exception.cc \
     encryption.cc
 
 INCLUDEPATH += headers cryptopp_src
