@@ -20,9 +20,7 @@ HEADERS += headers/settings.h \
     headers/myflattreemodel.h \
     headers/file_manager.h
 INCLUDEPATH += headers \
-    ../../util/strings/headers \
-    ../../util/encryption/headers \
-    ../../util/exceptions/headers \
+    ../../util/headers \
     include
 
 # For static builds
