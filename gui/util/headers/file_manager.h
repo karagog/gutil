@@ -16,8 +16,8 @@ limitations under the License.*/
 #define FILE_MANAGER_H
 
 #include <QString>
-#include <QMap>
 #include <QUuid>
+#include <QSqlDatabase>
 
 // Use this class to manage binary data.  This is useful for storing and accessing
 //  lots of files without consuming lots of memory
@@ -27,36 +27,23 @@ class File_Manager
 public:
     // If 'is_secondary' is true, then it won't automatically reset the file when
     //  it initializes itself.  Use this to preserve existing data
-    File_Manager(const QString &passphrase = QUuid::createUuid().toString(),
-                 bool is_secondary = false);
+    File_Manager(QString unique_id);
+    ~File_Manager();
 
     // Clear all files
     void reset();
-
-    QString passphrase();
-
-    // Call beginTransaction before accessing any of the files
-    bool beginTransaction();
 
     // Use these as an interface to access files (accepts and returns binary data strings)
     unsigned int addFile(const QString &data);
     QString getFile(unsigned int id) const;
 
-    // Be sure to call endTransaction when you're done to commit the data you've
-    //  changed and/or to free up the resources it uses to remember the files
-    bool endTransaction();
-
 private:
     QString file_location;
-    QString encryption_passphrase;
-    QMap<unsigned int, QString> _map;
+    QString my_id;
     unsigned int max_id;
 
-    bool _transaction;
-    bool _changed;
-    bool _was_reset;
-
-    static QString get_new_file_loc();
+    void get_database(QSqlDatabase &) const;
+    static QString get_file_loc(const QString &id);
 };
 
 #endif // FILE_MANAGER_H

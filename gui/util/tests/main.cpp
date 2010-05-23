@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "stringhelpers.h"
 #include "xmlhelpers_test.h"
 #include "flattreemodeltest.h"
+#include "file_manager_test.h"
 #include <QApplication>
 using namespace std;
 
@@ -50,6 +51,13 @@ int main(int argc, char **argv)
     {
         XmlHelpers_test test;
         res = QTest::qExec(&test);
+        if(res != 0)
+            return res;
+    }
+
+    {
+        file_manager_test fmt;
+        res = QTest::qExec(&fmt);
         if(res != 0)
             return res;
     }
