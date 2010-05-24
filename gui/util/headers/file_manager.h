@@ -34,15 +34,15 @@ public:
     void reset();
 
     // Use these as an interface to access files (accepts and returns binary data strings)
-    unsigned int addFile(const QString &data);
-    QString getFile(unsigned int id) const;
+    int addFile(const QString &data);
+    QString getFile(int id) const;
 
 private:
     QString file_location;
     QString my_id;
-    unsigned int max_id;
+    int max_id;
 
-    void get_database(QSqlDatabase &) const;
+    bool get_database(QSqlDatabase &) const;
     static QString get_file_loc(const QString &id);
 };
 

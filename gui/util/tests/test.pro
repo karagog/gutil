@@ -11,14 +11,14 @@ SOURCES += settingstest.cpp \
     xmlhelpers_test.cpp \
     flattreemodeltest.cpp \
     file_manager_test.cpp
-QT += testlib
+QT += testlib sql
 INCLUDEPATH += ../headers \
     ../../../util/headers
 
 win32:LIBS += \
     -lGQtUtil \
     -lgutil \
-    -L../release \
+    -L../debug \
     -L../../../util/release
 unix:LIBS += \
     -lGQtUtil \

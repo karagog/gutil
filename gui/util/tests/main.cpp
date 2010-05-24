@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "xmlhelpers_test.h"
 #include "flattreemodeltest.h"
 #include "file_manager_test.h"
+#include "exception.h"
 #include <QApplication>
 using namespace std;
 
@@ -57,7 +58,15 @@ int main(int argc, char **argv)
 
     {
         file_manager_test fmt;
-        res = QTest::qExec(&fmt);
+        try
+        {
+            res = QTest::qExec(&fmt);
+        }
+        catch(GUtil::Exception ex)
+        {
+            qDebug(ex.Message().c_str());
+        }
+
         if(res != 0)
             return res;
     }

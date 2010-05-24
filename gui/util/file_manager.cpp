@@ -42,6 +42,8 @@ File_Manager::File_Manager(QString unique_id)
     if(!mutexes.contains(my_id))
         mutexes.insert(my_id, new QReadWriteLock());
 
+    QSqlDatabase::addDatabase("QSQLITE");
+
     reset();
 }
 
@@ -53,7 +55,7 @@ File_Manager::~File_Manager()
     }
 }
 
-unsigned int File_Manager::addFile(const QString &data)
+int File_Manager::addFile(const QString &data)
 {
     mutexes.value(my_id)->lockForWrite();
 
@@ -62,17 +64,18 @@ unsigned int File_Manager::addFile(const QString &data)
 
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
     q.bindValue(":id", QVariant(max_id));
-    q.bindValue(":data", QVariant(QByteArray((const char *)data.constData(), data.length())));
+    q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
-        throw new GUtil::Exception(q.lastError().text().toStdString());
+        throw GUtil::Exception(q.lastError().text().toStdString());
     int ret = max_id++;
 
+    dbase.commit();
     dbase.close();
     mutexes.value(my_id)->unlock();
     return ret;
 }
 
-QString File_Manager::getFile(unsigned int id) const
+QString File_Manager::getFile(int id) const
 {
     mutexes.value(my_id)->lockForRead();
 
@@ -80,10 +83,12 @@ QString File_Manager::getFile(unsigned int id) const
     get_database(dbase);
 
     QSqlQuery q("SELECT data FROM files WHERE id=:id");
-    q.bindValue(":id", id);
+    q.bindValue(":id", QVariant(id));
 
     if(!q.exec())
-        throw new Exception(q.lastError().text().toStdString());
+        throw GUtil::Exception(q.lastError().text().toStdString());
+    if(!q.first())
+        throw GUtil::Exception("File not found");
 
     QByteArray ba = q.value(0).toByteArray();
 
@@ -93,16 +98,17 @@ QString File_Manager::getFile(unsigned int id) const
     return QString::fromStdString(string(ba.constData(), ba.length()));
 }
 
-void File_Manager::get_database(QSqlDatabase &dbase) const
+bool File_Manager::get_database(QSqlDatabase &dbase) const
 {
-    dbase = QSqlDatabase::addDatabase("QSQLITE");
+    dbase = QSqlDatabase::database();
     dbase.setDatabaseName(file_location);
 
     if(!dbase.open())
     {
-        throw new GUtil::Exception(QString("Unable to store files: %1")
-                                   .arg(dbase.lastError().text()).toStdString());
+        return false;
     }
+
+    return true;
 }
 
 void File_Manager::reset()
@@ -112,10 +118,12 @@ void File_Manager::reset()
     QSqlDatabase dbase;
     get_database(dbase);
 
-    dbase.exec("DROP TABLE \"files\"");
-    dbase.exec("CREATE TABLE \"files\" ("
-               "\"id\" TEXT NOT NULL,"
+    QSqlQuery q(dbase);
+    q.exec("DROP TABLE \"files\"");
+    q.exec("CREATE TABLE \"files\" ("
+               "\"id\" INTEGER NOT NULL,"
                "\"data\" BLOB NOT NULL)");
+    q.exec("CREATE INDEX idx ON files(id)");
     dbase.close();
 
     max_id = 0;

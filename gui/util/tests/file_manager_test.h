@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class File_Manager;
+
 class file_manager_test : public QObject
 {
     Q_OBJECT
@@ -15,6 +17,11 @@ public slots:
 
 private slots:
     void simple_startup_test();
+    void test_binary_dat();
+    void test_reset();
+
+private:
+    File_Manager *fm;
 
 };
 
