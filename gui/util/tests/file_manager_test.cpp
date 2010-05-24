@@ -47,3 +47,10 @@ void file_manager_test::test_reset()
     }
     QVERIFY(exception_hit);
 }
+
+void file_manager_test::test_large_files()
+{
+    QString dat(100000000, 'a');
+    int id = fm->addFile(dat);
+    QVERIFY(dat == fm->getFile(id));
+}

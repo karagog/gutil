@@ -44,6 +44,7 @@ private:
 
     bool get_database(QSqlDatabase &) const;
     static QString get_file_loc(const QString &id);
+    void close_transaction(QSqlDatabase &dbase) const;
 };
 
 #endif // FILE_MANAGER_H

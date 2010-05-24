@@ -66,7 +66,10 @@ int File_Manager::addFile(const QString &data)
     q.bindValue(":id", QVariant(max_id));
     q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
+    {
+        close_transaction(dbase);
         throw GUtil::Exception(q.lastError().text().toStdString());
+    }
     int ret = max_id++;
 
     dbase.commit();
@@ -86,16 +89,27 @@ QString File_Manager::getFile(int id) const
     q.bindValue(":id", QVariant(id));
 
     if(!q.exec())
+    {
+        close_transaction(dbase);
         throw GUtil::Exception(q.lastError().text().toStdString());
+    }
     if(!q.first())
+    {
+        close_transaction(dbase);
         throw GUtil::Exception("File not found");
+    }
 
     QByteArray ba = q.value(0).toByteArray();
 
-    dbase.close();
-    mutexes.value(my_id)->unlock();
+    close_transaction(dbase);
 
     return QString::fromStdString(string(ba.constData(), ba.length()));
+}
+
+void File_Manager::close_transaction(QSqlDatabase &dbase) const
+{
+    dbase.close();
+    mutexes.value(my_id)->unlock();
 }
 
 bool File_Manager::get_database(QSqlDatabase &dbase) const

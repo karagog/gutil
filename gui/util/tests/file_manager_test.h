@@ -19,6 +19,7 @@ private slots:
     void simple_startup_test();
     void test_binary_dat();
     void test_reset();
+    void test_large_files();
 
 private:
     File_Manager *fm;
