@@ -145,6 +145,11 @@ void File_Manager::reset()
     mutexes.value(my_id)->unlock();
 }
 
+QString File_Manager::filename()
+{
+    return file_location;
+}
+
 QString File_Manager::get_file_loc(const QString &id)
 {
     return QDesktopServices::storageLocation(QDesktopServices::TempLocation)

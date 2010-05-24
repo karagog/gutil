@@ -30,6 +30,9 @@ public:
     File_Manager(QString unique_id);
     ~File_Manager();
 
+    // The name of the SQlite database file
+    QString filename();
+
     // Clear all files
     void reset();
 
