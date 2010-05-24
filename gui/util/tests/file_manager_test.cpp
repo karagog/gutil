@@ -59,7 +59,7 @@ void file_manager_test::test_second_object()
 
 void file_manager_test::test_large_files()
 {
-    QString dat(100000000, 'a');
+    QString dat(10000000, 'a');
     int id = fm->addFile(dat);
     QVERIFY(dat == fm->getFile(id));
 }

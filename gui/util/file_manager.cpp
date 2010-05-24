@@ -32,15 +32,31 @@ limitations under the License.*/
 #include <iostream>
 using namespace GUtil;
 
-QMap<QString, QReadWriteLock*> mutexes;
+class mutex_record_t
+{
+public:
+    mutex_record_t()
+    {
+        count = 1;
+        mut = new QReadWriteLock();
+    }
+    ~mutex_record_t(){ delete mut; }
+
+    QReadWriteLock *mut;
+    int count;
+};
+
+QMap<QString, mutex_record_t *> mutexes;
 
 File_Manager::File_Manager(QString unique_id, bool is_secondary)
 {
     my_id = unique_id;
     file_location = get_file_loc(my_id);
 
-    if(!mutexes.contains(my_id))
-        mutexes.insert(my_id, new QReadWriteLock());
+    if(mutexes.contains(my_id))
+        mutexes[my_id]->count++;
+    else
+        mutexes.insert(my_id, new mutex_record_t());
 
     if(!QSqlDatabase::database().isOpen())
         QSqlDatabase::addDatabase("QSQLITE");
@@ -50,11 +66,16 @@ File_Manager::File_Manager(QString unique_id, bool is_secondary)
 
 File_Manager::~File_Manager()
 {
+    if(--(mutexes[my_id]->count) == 0)
+    {
+        delete mutexes.value(my_id);
+        mutexes.remove(my_id);
+    }
 }
 
 int File_Manager::addFile(const QString &data)
 {
-    mutexes.value(my_id)->lockForWrite();
+    mutexes.value(my_id)->mut->lockForWrite();
 
     QSqlDatabase dbase;
     get_database(dbase);
@@ -83,7 +104,7 @@ int File_Manager::addFile(const QString &data)
 
 QString File_Manager::getFile(int id) const
 {
-    mutexes.value(my_id)->lockForRead();
+    mutexes.value(my_id)->mut->lockForRead();
 
     QSqlDatabase dbase;
     get_database(dbase);
@@ -112,7 +133,7 @@ QString File_Manager::getFile(int id) const
 void File_Manager::close_transaction(QSqlDatabase &dbase) const
 {
     dbase.close();
-    mutexes.value(my_id)->unlock();
+    mutexes.value(my_id)->mut->unlock();
 }
 
 bool File_Manager::get_database(QSqlDatabase &dbase) const
@@ -130,7 +151,7 @@ bool File_Manager::get_database(QSqlDatabase &dbase) const
 
 void File_Manager::reset()
 {
-    mutexes.value(my_id)->lockForWrite();
+    mutexes.value(my_id)->mut->lockForWrite();
 
     QSqlDatabase dbase;
     get_database(dbase);
@@ -143,7 +164,7 @@ void File_Manager::reset()
     q.exec("CREATE INDEX idx ON files(id)");
     dbase.close();
 
-    mutexes.value(my_id)->unlock();
+    mutexes.value(my_id)->mut->unlock();
 }
 
 QString File_Manager::filename()
