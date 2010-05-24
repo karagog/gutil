@@ -34,7 +34,7 @@ using namespace GUtil;
 
 QMap<QString, QReadWriteLock*> mutexes;
 
-File_Manager::File_Manager(QString unique_id)
+File_Manager::File_Manager(QString unique_id, bool is_secondary)
 {
     my_id = unique_id;
     file_location = get_file_loc(my_id);
@@ -43,8 +43,8 @@ File_Manager::File_Manager(QString unique_id)
         mutexes.insert(my_id, new QReadWriteLock());
 
     QSqlDatabase::addDatabase("QSQLITE");
-
-    reset();
+    if(!is_secondary)
+        reset();
 }
 
 File_Manager::~File_Manager()
