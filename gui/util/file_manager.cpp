@@ -50,10 +50,6 @@ File_Manager::File_Manager(QString unique_id, bool is_secondary)
 
 File_Manager::~File_Manager()
 {
-    foreach(QString k, mutexes.keys())
-    {
-        delete mutexes.value(k);
-    }
 }
 
 int File_Manager::addFile(const QString &data)
