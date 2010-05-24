@@ -43,7 +43,6 @@ public:
 private:
     QString file_location;
     QString my_id;
-    int max_id;
 
     bool get_database(QSqlDatabase &) const;
     static QString get_file_loc(const QString &id);

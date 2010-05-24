@@ -48,6 +48,15 @@ void file_manager_test::test_reset()
     QVERIFY(exception_hit);
 }
 
+void file_manager_test::test_second_object()
+{
+    File_Manager *fm2 = new File_Manager("filemanagertest", true);
+    QVERIFY(fm->addFile("test1") == 0);
+    QVERIFY(fm2->addFile("test2") == 1);
+    QVERIFY(fm->addFile("test3") == 2);
+    delete fm2;
+}
+
 void file_manager_test::test_large_files()
 {
     QString dat(100000000, 'a');

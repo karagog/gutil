@@ -42,7 +42,8 @@ File_Manager::File_Manager(QString unique_id, bool is_secondary)
     if(!mutexes.contains(my_id))
         mutexes.insert(my_id, new QReadWriteLock());
 
-    QSqlDatabase::addDatabase("QSQLITE");
+    if(!QSqlDatabase::database().isOpen())
+        QSqlDatabase::addDatabase("QSQLITE");
     if(!is_secondary)
         reset();
 }
@@ -62,20 +63,26 @@ int File_Manager::addFile(const QString &data)
     QSqlDatabase dbase;
     get_database(dbase);
 
-    QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
-    q.bindValue(":id", QVariant(max_id));
+    int max_id = 0;
+    QSqlQuery q("SELECT COUNT(id), MAX(id) FROM files", dbase);
+    q.exec();
+    if(q.first() && (q.value(0).toInt() > 0))
+    {
+        max_id = q.value(1).toInt() + 1;
+    }
+    q.clear();
+
+    q.prepare("INSERT INTO files (id, data) VALUES (:id, :data)");
+    q.bindValue(":id", max_id);
     q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
     {
         close_transaction(dbase);
         throw GUtil::Exception(q.lastError().text().toStdString());
     }
-    int ret = max_id++;
 
-    dbase.commit();
-    dbase.close();
-    mutexes.value(my_id)->unlock();
-    return ret;
+    close_transaction(dbase);
+    return max_id;
 }
 
 QString File_Manager::getFile(int id) const
@@ -139,8 +146,6 @@ void File_Manager::reset()
                "\"data\" BLOB NOT NULL)");
     q.exec("CREATE INDEX idx ON files(id)");
     dbase.close();
-
-    max_id = 0;
 
     mutexes.value(my_id)->unlock();
 }

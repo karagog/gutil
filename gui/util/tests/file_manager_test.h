@@ -19,6 +19,7 @@ private slots:
     void simple_startup_test();
     void test_binary_dat();
     void test_reset();
+    void test_second_object();
     void test_large_files();
 
 private:
