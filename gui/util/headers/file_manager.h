@@ -40,13 +40,15 @@ public:
     int addFile(const QString &data);
     QString getFile(int id) const;
 
+    QList<int> idList();
+
 private:
     QString file_location;
     QString my_id;
 
     bool get_database(QSqlDatabase &) const;
     static QString get_file_loc(const QString &id);
-    void close_transaction(QSqlDatabase &dbase) const;
+    void close_database(QSqlDatabase &dbase) const;
 };
 
 #endif // FILE_MANAGER_H
