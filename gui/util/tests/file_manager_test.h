@@ -21,6 +21,7 @@ private slots:
     void test_reset();
     void test_second_object();
     void test_large_files();
+    void test_idList();
 
 private:
     File_Manager *fm;

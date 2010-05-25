@@ -63,3 +63,19 @@ void file_manager_test::test_large_files()
     int id = fm->addFile(dat);
     QVERIFY(dat == fm->getFile(id));
 }
+
+void file_manager_test::test_idList()
+{
+    fm->reset();
+
+    QList<int> l;
+    l.append(fm->addFile("HI"));
+    l.append(fm->addFile(""));
+    l.append(fm->addFile("hi"));
+
+    QList<int> l2 = fm->idList();
+
+    QVERIFY(l2.count() == l.count());
+    for(int i = l2.count() - 1; i >= 0; i--)
+        QVERIFY(l2[i] == l[i]);
+}

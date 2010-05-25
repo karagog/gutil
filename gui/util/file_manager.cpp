@@ -58,18 +58,25 @@ File_Manager::File_Manager(QString unique_id, bool is_secondary)
     else
         mutexes.insert(my_id, new mutex_record_t());
 
-    if(!QSqlDatabase::database().isOpen())
-        QSqlDatabase::addDatabase("QSQLITE");
     if(!is_secondary)
+    {
+        QSqlDatabase::addDatabase("QSQLITE");
         reset();
+    }
 }
 
 File_Manager::~File_Manager()
 {
-    if(--(mutexes[my_id]->count) == 0)
+    mutex_record_t *r = mutexes.value(my_id);
+    r->count -= 1;
+    if(r->count == 0)
     {
-        delete mutexes.value(my_id);
+        r->mut->lockForWrite();
+
         mutexes.remove(my_id);
+
+        r->mut->unlock();
+        delete r;
     }
 }
 
