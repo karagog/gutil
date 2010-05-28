@@ -305,8 +305,6 @@ bool Settings::load_settings(const QString &settings_filename)
         sr.readNext();
     }
 
-    QString probe = sr.errorString();
-
     return (_loaded = true);
 }
 
