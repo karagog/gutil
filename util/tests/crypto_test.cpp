@@ -175,8 +175,9 @@ void crypto_test::test_exceptions()
         // Try decrypting with a bad password
         QVERIFY("" == CryptoHelpers::decryptString(msg, badpw));
     }
-    catch(GUtil::Exception)
+    catch(GUtil::Exception ex)
     {
+        qDebug(ex.Message().c_str());
         exception_hit = true;
     }
     QVERIFY(exception_hit);
@@ -205,8 +206,9 @@ void crypto_test::test_exceptions()
     {
         CryptoHelpers::decryptFile(noexist, noexist, badpw.c_str());
     }
-    catch(GUtil::Exception)
+    catch(GUtil::Exception ex)
     {
+        qDebug(ex.Message().c_str());
         exception_hit = true;
     }
     QVERIFY(exception_hit);
