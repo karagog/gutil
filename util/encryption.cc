@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "files.h"
 #include "gzip.h"
 #include "osrng.h"
+#include "exception.h"
 using namespace std;
 using namespace GUtil;
 
@@ -40,7 +41,7 @@ string CryptoHelpers::encryptString(const string &instr, const string &passPhras
     }
     catch(CryptoPP::Exception ex)
     {
-        return "";
+        throw GUtil::Exception(ex.GetWhat());
     }
 
     return outstr;
@@ -60,7 +61,7 @@ string CryptoHelpers::decryptString(const string &instr, const string &passPhras
     }
     catch(CryptoPP::Exception ex)
     {
-        return "";
+        throw GUtil::Exception(ex.GetWhat());
     }
 
     return outstr;
@@ -74,7 +75,7 @@ bool CryptoHelpers::encryptFile(const char *in, const char *out, const char *pas
     }
     catch(CryptoPP::Exception ex)
     {
-        return false;
+        throw GUtil::Exception(ex.GetWhat());
     }
 
     return true;
@@ -88,7 +89,7 @@ bool CryptoHelpers::decryptFile(const char *in, const char *out, const char *pas
     }
     catch(CryptoPP::Exception ex)
     {
-        return false;
+        throw GUtil::Exception(ex.GetWhat());
     }
 
     return true;
@@ -108,9 +109,9 @@ string CryptoHelpers::compress(const string &instr, int level)
         zipper.Put((byte*)instr.c_str(), instr.length());
         zipper.MessageEnd();
     }
-    catch(CryptoPP::Exception)
+    catch(CryptoPP::Exception ex)
     {
-        return "";
+        throw GUtil::Exception(ex.GetWhat());
     }
 
     return ret;
@@ -124,9 +125,9 @@ string CryptoHelpers::decompress(const string &instr)
     {
         CryptoPP::StringSource(instr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
     }
-    catch(CryptoPP::Exception)
+    catch(CryptoPP::Exception ex)
     {
-        return "";
+        throw GUtil::Exception(ex.GetWhat());
     }
 
     return tmp;
@@ -147,8 +148,15 @@ string CryptoHelpers::fromBase64(const string &instr)
 {
     string tmp;
 
-    CryptoPP::StringSource(instr, true,
-                           new CryptoPP::Base64Decoder(new CryptoPP::StringSink(tmp)));
+    try
+    {
+        CryptoPP::StringSource(instr, true,
+                               new CryptoPP::Base64Decoder(new CryptoPP::StringSink(tmp)));
+    }
+    catch(CryptoPP::Exception ex)
+    {
+        throw GUtil::Exception(ex.GetWhat());
+    }
 
     return tmp;
 }
@@ -168,13 +176,20 @@ string CryptoHelpers::fromBase16(const string &instr)
 {
     string tmp;
 
-    CryptoPP::StringSource(instr, true,
-                           new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
+    try
+    {
+        CryptoPP::StringSource(instr, true,
+                               new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
+    }
+    catch(CryptoPP::Exception ex)
+    {
+        throw GUtil::Exception(ex.GetWhat());
+    }
 
     return tmp;
 }
 
-unsigned int CryptoHelpers::rand()
+int CryptoHelpers::rand()
 {
     CryptoPP::AutoSeededRandomPool rng;
     return rng.GenerateWord32();

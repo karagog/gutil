@@ -8,3 +8,8 @@ SOURCES += \
     encryption.cc
 
 INCLUDEPATH += headers cryptopp_src
+
+HEADERS += \
+    headers/stringhelpers.h \
+    headers/exception.h \
+    headers/encryption.h
