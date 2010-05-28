@@ -14,8 +14,7 @@ limitations under the License.*/
 
 #include "stringhelpers.h"
 #include "strings_private.h"
-//#include "cryptopp/hex.h"
-//#include "cryptopp/base64.h"
+#include "exception.h"
 #include <cassert>
 #include <map>
 
@@ -60,32 +59,43 @@ string StringHelpers::pathName(const string &s)
     return(retstring.substr(0, lastSlash + 1));
 }
 
-/* CryptoPP implementations
-string StringHelpers::toBase64(const string &instr)
+string StringHelpers::toBase16(const string &s)
 {
-    string tmp;
+    string res;
+    for(int i = 0; i < (int)s.size(); i++)
+    {
+        char c = s[i];
+        char lnib, rnib;
 
-    CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(tmp), false);
-    encoder.Put((byte *)instr.c_str(), instr.length());
-    encoder.MessageEnd();
+        lnib = (c & 0xf0) >> 4;
+        rnib = c & 0x0f;
 
-    return tmp;
+        res.append(1, hexToChar(lnib));
+        res.append(1, hexToChar(rnib));
+    }
+    return res;
 }
 
-string StringHelpers::fromBase64(const string &instr)
+string StringHelpers::fromBase16(const string &s)
 {
-    string tmp;
+    if(s.size() % 2 != 0)
+        throw GUtil::Exception("Input string was not in the correct format");
 
-    CryptoPP::StringSource(instr, true,
-                           new CryptoPP::Base64Decoder(new CryptoPP::StringSink(tmp)));
+    string res;
+    for(int i = 0; i < (int)s.size(); i += 2)
+    {
+        char c1 = s[i];
+        char c2 = s[i + 1];
+        char lnib, rnib;
 
-    return tmp;
+        lnib = charToHex(c1) << 4;
+        rnib = charToHex(c2);
+
+        res.append(1, lnib | rnib);
+    }
+    return res;
 }
 
-*/
-
-
-// These are your own implementations of base64
 string StringHelpers::toBase64(const string &instr)
 {
     string outstr = "";
@@ -148,7 +158,7 @@ string StringHelpers::fromBase64(const string &instr)
     string outstr = "";
 
     if(instr.length() % 4)
-        return "";
+        throw new GUtil::Exception("Input string is not the right length");
 
     // Construct a map of the possible characters, which adds a bit of overhead to this function,
     //  but saves us a linear search of the characters for every base64 digit we find
@@ -169,11 +179,11 @@ string StringHelpers::fromBase64(const string &instr)
         // Check the characters for validation; don't accept any foreign characters
         map<char, int>::iterator it = charmap.find(tmp1);
         if(it == charmap.end())
-            return "";
+            throw GUtil::Exception("Unrecognized base-64 character");
 
         it = charmap.find(tmp2);
         if(it == charmap.end())
-            return "";
+            throw GUtil::Exception("Unrecognized base-64 character");
 
         unsigned char a = charmap[tmp1];
         unsigned char b = charmap[tmp2];
@@ -187,7 +197,7 @@ string StringHelpers::fromBase64(const string &instr)
         {
             it = charmap.find(tmp3);
             if(it == charmap.end())
-                return "";
+                throw GUtil::Exception("Unrecognized base-64 character");
 
             val[0] = (b << 4) | (c >> 2);
             outstr.append(val, 1);
@@ -196,16 +206,16 @@ string StringHelpers::fromBase64(const string &instr)
             {
                 it = charmap.find(tmp4);
                 if(it == charmap.end())
-                    return "";
+                    throw GUtil::Exception("Unrecognized base-64 character");
 
                 val[0] = (c << 6) | d;
                 outstr.append(val, 1);
             }
             else if(i < (len - 4))
-                return "";
+                throw GUtil::Exception("String is in unrecognized format");
         }
         else if(tmp4 != base64_padding)
-            return "";
+            throw GUtil::Exception("String is in unrecognized format");
     }
 
     return outstr;
@@ -213,12 +223,12 @@ string StringHelpers::fromBase64(const string &instr)
 
 char StringHelpers::charToHex(char c)
 {
-    // Make it upper-case if it was upper
+    // Make it upper-case if it was lower
     if(c >= (char)0x61)
         c = c - 0x20;
 
     char lnib, rnib;
-    char ret = 0xff;  // The failure byte, in case our conversion fails
+    char ret;
 
     lnib = (c & 0xf0) >> 4;
     rnib = c & 0x0f;
@@ -229,18 +239,21 @@ char StringHelpers::charToHex(char c)
     }
     else if((c >= (char)0x41) && (c <= (char)0x46))
     {	// if it's A-F
-        ret = 0x9 + rnib;
+        ret = 0x09 + rnib;
     }
+    else
+        throw GUtil::Exception("Unrecognized hex character");
 
     return ret;
 }
 
 char StringHelpers::hexToChar(char c)
 {
-    char ret = 0xff;
+    char ret;
 
     // Make sure it's a valid hex digit
-    if(0 != (c & 0xf0));
+    if(0 != (c & 0xf0))
+        throw GUtil::Exception("Unrecognized hex digit");
 
     // If it's less than 10, display a number
     else if(c < 0x0A)

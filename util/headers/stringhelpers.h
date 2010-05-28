@@ -36,6 +36,10 @@ namespace GUtil
         static string toBase64(const string &);
         static string fromBase64(const string &);
 
+        // Hex conversions
+        static string toBase16(const string &);
+        static string fromBase16(const string &);
+
         // Manipulating hex strings
         static char charToHex(char);
         static char hexToChar(char);  // Always returns upper-case
