@@ -67,7 +67,7 @@ string CryptoHelpers::decryptString(const string &instr, const string &passPhras
     return outstr;
 }
 
-bool CryptoHelpers::encryptFile(const char *in, const char *out, const char *passPhrase)
+void CryptoHelpers::encryptFile(const char *in, const char *out, const char *passPhrase)
 {
     try
     {
@@ -77,11 +77,9 @@ bool CryptoHelpers::encryptFile(const char *in, const char *out, const char *pas
     {
         throw GUtil::Exception(ex.GetWhat());
     }
-
-    return true;
 }
 
-bool CryptoHelpers::decryptFile(const char *in, const char *out, const char *passPhrase)
+void CryptoHelpers::decryptFile(const char *in, const char *out, const char *passPhrase)
 {
     try
     {
@@ -91,8 +89,6 @@ bool CryptoHelpers::decryptFile(const char *in, const char *out, const char *pas
     {
         throw GUtil::Exception(ex.GetWhat());
     }
-
-    return true;
 }
 
 string CryptoHelpers::compress(const string &instr, int level)

@@ -29,8 +29,8 @@ namespace GUtil
         static string decryptString(const string &instr, const string &passPhrase);
 
         // For working with files
-        static bool encryptFile(const char *in, const char *out, const char *passPhrase);
-        static bool decryptFile(const char *in, const char *out, const char *passPhrase);
+        static void encryptFile(const char *in, const char *out, const char *passPhrase);
+        static void decryptFile(const char *in, const char *out, const char *passPhrase);
 
         // Data Compression functions
         static string compress(const string &instr, int level = DEFAULT_COMPRESSION_LEVEL);

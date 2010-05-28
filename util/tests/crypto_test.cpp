@@ -164,25 +164,52 @@ void crypto_test::test_exceptions()
     string msg = "Blahbaram";
     string pw = "firstpassword";
     string badpw = "stupidpassword";
-    string str1, str2;
+    string str1;
     int result = 0;
+    bool exception_hit = false;
 
     str1 = CryptoHelpers::encryptString(msg, pw);
 
-    // Try decrypting with a bad password
-    QVERIFY("" == CryptoHelpers::decryptString(msg, badpw));
+    try
+    {
+        // Try decrypting with a bad password
+        QVERIFY("" == CryptoHelpers::decryptString(msg, badpw));
+    }
+    catch(GUtil::Exception)
+    {
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
 
     // Verify that file exceptions work
     result = 0;
     char *noexist = "thisfiledoesntexist.nothing.here";
     char *noexist2 = "thisfiledoesntexist2.nothing.here";
 
-    QVERIFY(CryptoHelpers::encryptFile(noexist, noexist, "blah"));
+    exception_hit = false;
+    try
+    {
+        CryptoHelpers::encryptFile(noexist, noexist, "blah");
 
-    // Make sure it works the other way without problems
-    QVERIFY(CryptoHelpers::decryptFile(noexist, noexist2, "blah"));
+        // Make sure it works the other way without problems
+        CryptoHelpers::decryptFile(noexist, noexist2, "blah");
+    }
+    catch(GUtil::Exception)
+    {
+        exception_hit = true;
+    }
+    QVERIFY(!exception_hit);
 
-    QVERIFY(!CryptoHelpers::decryptFile(noexist, noexist, "wrongpassword"));
+    exception_hit = false;
+    try
+    {
+        CryptoHelpers::decryptFile(noexist, noexist, badpw.c_str());
+    }
+    catch(GUtil::Exception)
+    {
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
 
     QVERIFY(QFile::remove(QString(noexist)));
     QVERIFY(QFile::remove(QString(noexist2)));
@@ -192,7 +219,7 @@ void crypto_test::test_compression()
 {
     string in = string(1000, 0x00) + string(1000, 0x02);
     string out = CryptoHelpers::compress(in, CryptoHelpers::MAX_COMPRESSION_LEVEL);
-    qDebug(QString("Size in: %1\nSize out: %2").arg(in.length()).arg(out.length()).toStdString().c_str());
+    //qDebug(QString("Size in: %1\nSize out: %2").arg(in.length()).arg(out.length()).toStdString().c_str());
     QVERIFY(out != in);
     QVERIFY(out.length() < in.length());
 
