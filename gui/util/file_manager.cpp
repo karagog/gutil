@@ -48,7 +48,7 @@ public:
 
 QMap<QString, mutex_record_t *> mutexes;
 
-File_Manager::File_Manager(QString unique_id, bool is_secondary)
+File_Manager::File_Manager(const QString &unique_id, bool is_secondary)
 {
     my_id = unique_id;
     file_location = get_file_loc(my_id);

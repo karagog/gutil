@@ -27,7 +27,7 @@ class File_Manager
 public:
     // If 'is_secondary' is true, then it won't automatically reset the file when
     //  it initializes itself.  Use this to preserve existing data
-    File_Manager(QString unique_id, bool is_secondary = false);
+    File_Manager(const QString &unique_id, bool is_secondary = false);
     ~File_Manager();
 
     // The name of the SQlite database file
