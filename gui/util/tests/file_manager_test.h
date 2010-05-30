@@ -3,7 +3,13 @@
 
 #include <QObject>
 
-class File_Manager;
+namespace GUtil
+{
+    namespace QtUtil
+    {
+        class File_Manager;
+    }
+}
 
 class file_manager_test : public QObject
 {
@@ -24,7 +30,7 @@ private slots:
     void test_idList();
 
 private:
-    File_Manager *fm;
+    GUtil::QtUtil::File_Manager *fm;
 
 };
 

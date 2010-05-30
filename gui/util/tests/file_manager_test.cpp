@@ -2,6 +2,7 @@
 #include "file_manager.h"
 #include "exception.h"
 #include <QTest>
+using namespace GUtil::QtUtil;
 
 file_manager_test::file_manager_test(QObject *parent) :
     QObject(parent)
