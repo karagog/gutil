@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include <QString>
 #include <QMutex>
-#include <QThread>
 #include <QSqlDatabase>
 #include <QMap>
 
@@ -28,86 +27,33 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        // This class will read/write the data to disk for us in a separate thread
-        //  Note: You should never have to use this class directly.  Use the class
-        //    below it as an interface for it.
-        class File_Manager_worker : public QThread
+        class File_Manager
         {
-            Q_OBJECT
-            friend class File_Manager;
         public:
 
-            File_Manager_worker(const QString&, bool is_secondary,
-                                QObject *parent = 0);
-            ~File_Manager_worker();
+            File_Manager(const QString&, bool primary = true);
+            ~File_Manager();
 
+            // For manipulating files
             int addFile(const QString &);
             void removeFile(int);
             QString getFile(int);
-
-        protected:
-            void run();
-
-            QList<int> idList();
+            bool hasFile(int id);
 
             // Clear all files
             void reset();
 
-            // Are we currently keeping track of this ID?
-            bool in_map(int id);
-
-            int bytes_allocated();
+            // List the id's that we've got
+            QList<int> idList();
 
         private:
-            QMap<int, QString> add_q;
-            QList<int> rem_q;
-
             QString my_id;
             QString file_location;
-            int max_file_id;
+
+            int get_max_file_id(QSqlDatabase &);
 
             void get_database(QSqlDatabase &) const;
             static QString get_file_loc(const QString &id);
-
-            // Is the file on disk in the database?
-            bool in_database(int);
-        };
-
-
-
-        // This is the main class you interface with
-        class File_Manager : public QObject
-        {
-            Q_OBJECT
-        public:
-
-            // If 'is_secondary' is true, then it won't automatically reset the file when
-            //  it initializes itself.  Use this to preserve existing data
-            File_Manager(const QString &unique_id, bool is_secondary = false);
-            ~File_Manager();
-
-            // Access the files
-            int addFile(const QString &data);
-            void removeFile(int);
-            QString getFile(int) const;
-
-            bool hasFile(int);
-            int bytesAllocated();
-
-            // Pushes the file changes from memory to the disk
-            void pushToDisk();
-
-            void reset();
-
-            QList<int> idList();
-
-            // Wait for the background worker thread to complete its operation
-            void waitForWorker();
-
-        private:
-            QString my_id;
-
-            File_Manager_worker *worker;
         };
     }
 }

@@ -31,7 +31,6 @@ private slots:
     void test_file_queuing();
     void test_hasFile();
     void test_remove();
-    void test_byte_consumption();
 
 private:
     GUtil::QtUtil::File_Manager *fm;
