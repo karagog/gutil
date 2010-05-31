@@ -29,54 +29,62 @@ int main(int argc, char **argv)
     int res;
 
     QApplication app(argc, argv);
+    try
     {
-        settingsTest test;
-        res = QTest::qExec(&test);
-        if(res != 0)
-            return res;
-    }
-
-    {
-        filesystem_test test;
-        res = QTest::qExec(&test);
-        if(res != 0)
-            return res;
-    }
-
-    {
-        res = QTest::qExec(new usermachinelock_test());
-        if(res != 0)
-            return res;
-    }
-
-    {
-        XmlHelpers_test test;
-        res = QTest::qExec(&test);
-        if(res != 0)
-            return res;
-    }
-
-    {
-        file_manager_test fmt;
-        try
         {
-            res = QTest::qExec(&fmt);
-        }
-        catch(GUtil::Exception ex)
-        {
-            qDebug(ex.Message().c_str());
+            settingsTest test;
+            res = QTest::qExec(&test);
+            if(res != 0)
+                return res;
         }
 
-        if(res != 0)
-            return res;
+        {
+            filesystem_test test;
+            res = QTest::qExec(&test);
+            if(res != 0)
+                return res;
+        }
+
+        {
+            res = QTest::qExec(new usermachinelock_test());
+            if(res != 0)
+                return res;
+        }
+
+        {
+            XmlHelpers_test test;
+            res = QTest::qExec(&test);
+            if(res != 0)
+                return res;
+        }
+
+        {
+            file_manager_test fmt;
+            try
+            {
+                res = QTest::qExec(&fmt);
+            }
+            catch(GUtil::Exception ex)
+            {
+                qDebug(ex.Message().c_str());
+            }
+
+            if(res != 0)
+                return res;
+        }
+
+        flatTreeModelTest *tmt = new flatTreeModelTest(0);
+        tmt->show();
+
+        // This is a test to see if I'm able to use gutil functions
+        //  while linking with the shared version of GQtUtil
+        string probe = GUtil::StringHelpers::baseName("/home/testing/yay/");
+
     }
-
-    flatTreeModelTest *tmt = new flatTreeModelTest(0);
-    tmt->show();
-
-    // This is a test to see if I'm able to use gutil functions
-    //  while linking with the shared version of GQtUtil
-    string probe = GUtil::StringHelpers::baseName("/home/testing/yay/");
+    catch(std::exception)
+    {
+        qDebug("fuck");
+    }
 
     return app.exec();
 }

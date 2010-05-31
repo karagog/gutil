@@ -29,20 +29,20 @@ namespace GUtil
     namespace QtUtil
     {
         // This class will read/write the data to disk for us in a separate thread
+        //  Note: You should never have to use this class directly.  Use the class
+        //    below it as an interface for it.
         class File_Manager_worker : public QThread
         {
             Q_OBJECT
             friend class File_Manager;
         public:
 
-            File_Manager_worker(const QString&,
-                                QMap<int, QString> &, QMutex &,
-                                QList<int> &, QMutex &,
-                                bool is_secondary,
+            File_Manager_worker(const QString&, bool is_secondary,
                                 QObject *parent = 0);
             ~File_Manager_worker();
 
             int addFile(const QString &);
+            void removeFile(int);
             QString getFile(int);
 
         protected:
@@ -53,10 +53,12 @@ namespace GUtil
             // Clear all files
             void reset();
 
+            // Are we currently keeping track of this ID?
+            bool in_map(int id);
+
         private:
-            QMutex *add_mutex, *rem_mutex;
-            QMap<int, QString> *add_q;
-            QList<int> *rem_q;
+            QMap<int, QString> add_q;
+            QList<int> rem_q;
 
             QString my_id;
             QString file_location;
@@ -79,9 +81,12 @@ namespace GUtil
             File_Manager(const QString &unique_id, bool is_secondary = false);
             ~File_Manager();
 
-            // Use these as an interface to access files (accepts and returns binary data strings)
+            // Access the files
             int addFile(const QString &data);
-            QString getFile(int id) const;
+            void removeFile(int);
+            QString getFile(int) const;
+
+            bool hasFile(int);
 
             // Pushes the file changes from memory to the disk
             void pushToDisk();
@@ -92,10 +97,6 @@ namespace GUtil
 
         private:
             QString my_id;
-            QMutex add_q_mutex;
-            QMutex rem_q_mutex;
-            QMap<int, QString> add_q;
-            QList<int> rem_q;
 
             File_Manager_worker *worker;
         };

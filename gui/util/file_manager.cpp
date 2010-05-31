@@ -26,6 +26,7 @@ limitations under the License.*/
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlResult>
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
@@ -54,17 +55,9 @@ QMap<QString, mutex_record_t *> mutexes;
 QReadWriteLock mutex_lock;
 
 File_Manager_worker::File_Manager_worker(const QString &id,
-                                         QMap<int, QString> &add, QMutex &add_m,
-                                         QList<int> &rem, QMutex &rem_m,
                                          bool is_secondary, QObject *parent)
     :QThread(parent)
 {
-    add_q = &add;
-    rem_q = &rem;
-
-    add_mutex = &add_m;
-    rem_mutex = &rem_m;
-
     max_file_id = 0;
     my_id = id;
     file_location = get_file_loc(id);
@@ -96,41 +89,50 @@ void File_Manager_worker::run()
         throw GUtil::Exception("Could not open database");
     }
 
-    // First process the remove queue
-    rem_mutex->lock();
 
-    int lim = rem_q->count();
+    // First process the remove queue
+    int lim = rem_q.count();
     for(int i = 0; i < lim; i++)
     {
         // Remove each item one by one
-
+        if(add_q.contains(rem_q.at(i)))
+        {
+            add_q.remove(rem_q.at(i));
+        }
+        else
+        {
+            QSqlQuery q("DELETE FROM files WHERE id=:id");
+            q.bindValue(":id", rem_q.at(i));
+            if(!q.exec() || (q.numRowsAffected() != 1))
+            {
+                QString err = q.lastError().text();
+                mutexes.value(my_id)->mut->unlock();
+                mutex_lock.unlock();
+                throw GUtil::Exception(err.toStdString());
+            }
+        }
     }
 
-    rem_q->clear();
-    rem_mutex->unlock();
+    rem_q.clear();
 
 
     // Then add items from the add queue
-    add_mutex->lock();
-
-    lim = add_q->count();
+    lim = add_q.keys().count();
     for(int i = 0; i < lim; i++)
     {
         QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)");
-        q.bindValue(":id", max_file_id - (lim - i));
-        q.bindValue(":data", add_q->value(i), QSql::Binary);
+        q.bindValue(":id", add_q.keys().at(i));
+        q.bindValue(":data", add_q.value(add_q.keys().at(i)), QSql::Binary);
         if(!q.exec())
         {
             QString err = q.lastError().text();
-            add_mutex->unlock();
             mutexes.value(my_id)->mut->unlock();
             mutex_lock.unlock();
             throw GUtil::Exception(err.toStdString());
         }
     }
 
-    add_q->clear();
-    add_mutex->unlock();
+    add_q.clear();
 
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
@@ -139,31 +141,40 @@ void File_Manager_worker::run()
 
 int File_Manager_worker::addFile(const QString &data)
 {
+    mutex_lock.lockForRead();
+    mutexes.value(my_id)->mut->lockForWrite();
+
     int ret = max_file_id++;
-    add_mutex->lock();
+    add_q.insert(ret, data);
 
-    add_q->insert(ret, data);
-
-    add_mutex->unlock();
+    mutexes.value(my_id)->mut->unlock();
+    mutex_lock.unlock();
 
     return ret;
 }
 
+void File_Manager_worker::removeFile(int id)
+{
+    mutex_lock.lockForRead();
+    mutexes.value(my_id)->mut->lockForWrite();
+
+    rem_q.append(id);
+
+    mutexes.value(my_id)->mut->unlock();
+    mutex_lock.unlock();
+}
+
 QString File_Manager_worker::getFile(int id)
 {
-    // We must wait until this thread has completed before getting files
-    while(isRunning())
-        wait();
-
-    QString retval;
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForRead();
 
+    QString retval;
+
     // First check quickly if we're holding it in our memory cache
-    add_mutex->lock();
-    if(add_q->contains(id))
+    if(add_q.contains(id))
     {
-        retval = add_q->value(id);
+        retval = add_q.value(id);
     }
     else
     {
@@ -171,7 +182,6 @@ QString File_Manager_worker::getFile(int id)
         get_database(dbase);
         if(!dbase.open())
         {
-            add_mutex->unlock();
             mutexes.value(my_id)->mut->unlock();
             mutex_lock.unlock();
             throw GUtil::Exception("Could not open database");
@@ -183,7 +193,6 @@ QString File_Manager_worker::getFile(int id)
         if(!q.exec())
         {
             dbase.close();
-            add_mutex->unlock();
             mutexes.value(my_id)->mut->unlock();
             mutex_lock.unlock();
             throw GUtil::Exception(q.lastError().text().toStdString());
@@ -197,14 +206,12 @@ QString File_Manager_worker::getFile(int id)
         else
         {
             dbase.close();
-            add_mutex->unlock();
             mutexes.value(my_id)->mut->unlock();
             mutex_lock.unlock();
             throw GUtil::Exception("File not found");
         }
     }
 
-    add_mutex->unlock();
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
 
@@ -235,14 +242,8 @@ void File_Manager_worker::reset()
     dbase.close();
 
     max_file_id = 0;
-
-    add_mutex->lock();
-    add_q->clear();
-    add_mutex->unlock();
-
-    rem_mutex->lock();
-    rem_q->clear();
-    rem_mutex->unlock();
+    add_q.clear();
+    rem_q.clear();
 
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
@@ -284,8 +285,8 @@ QList<int> File_Manager_worker::idList()
         }
     }
 
-    for(int i = 0; i < add_q->uniqueKeys().count(); i++)
-        ret.append(add_q->uniqueKeys().at(i));
+    for(int i = 0; i < add_q.uniqueKeys().count(); i++)
+        ret.append(add_q.uniqueKeys().at(i));
 
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
@@ -293,13 +294,58 @@ QList<int> File_Manager_worker::idList()
     return ret;
 }
 
+bool File_Manager_worker::in_map(int id)
+{
+    mutex_lock.lockForRead();
+    mutexes.value(my_id)->mut->lockForRead();
+
+    bool ret = false, found = false;
+    if(rem_q.contains(id))
+    {
+        found = true;
+        ret = false;
+    }
+    else
+    {
+        if(add_q.contains(id))
+        {
+            found = true;
+            ret = true;
+        }
+    }
+
+    if(found)
+    {
+        mutexes.value(my_id)->mut->unlock();
+        mutex_lock.unlock();
+        return ret;
+    }
+
+    QSqlDatabase dbase;
+    get_database(dbase);
+    if(!dbase.open())
+    {
+        mutexes.value(my_id)->mut->unlock();
+        mutex_lock.unlock();
+        throw GUtil::Exception("Cannot open database");
+    }
+
+    QSqlQuery q("SELECT id FROM files WHERE id=:id");
+    q.bindValue(":id", id);
+    q.exec();
+
+    ret = q.size();
+    mutexes.value(my_id)->mut->unlock();
+    mutex_lock.unlock();
+    return ret;
+}
 
 
 File_Manager::File_Manager(const QString &unique_id, bool is_secondary)
 {
     my_id = unique_id;
 
-    mutex_lock.lockForRead();
+    mutex_lock.lockForWrite();
     if(mutexes.contains(unique_id))
     {
         mutexes.value(unique_id)->mut->lockForWrite();
@@ -313,10 +359,7 @@ File_Manager::File_Manager(const QString &unique_id, bool is_secondary)
     {
         mutexes.insert(unique_id, new mutex_record_t());
         mutex_lock.unlock();
-        worker = new File_Manager_worker(unique_id,
-                                         add_q, add_q_mutex,
-                                         rem_q, rem_q_mutex,
-                                         is_secondary, this);
+        worker = new File_Manager_worker(unique_id, is_secondary, this);
         mutex_lock.lockForRead();
         mutexes.value(unique_id)->worker = worker;
     }
@@ -351,9 +394,19 @@ int File_Manager::addFile(const QString &data)
     return worker->addFile(data);
 }
 
+void File_Manager::removeFile(int id)
+{
+    return worker->removeFile(id);
+}
+
 QString File_Manager::getFile(int id) const
 {
     return worker->getFile(id);
+}
+
+bool File_Manager::hasFile(int id)
+{
+    return worker->in_map(id);
 }
 
 void File_Manager::pushToDisk()

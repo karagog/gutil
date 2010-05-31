@@ -106,3 +106,43 @@ void file_manager_test::test_file_queuing()
     QVERIFY(idList[3] == 3);
     QVERIFY(idList[4] == 4);
 }
+
+void file_manager_test::test_hasFile()
+{
+    fm->reset();
+    fm->addFile("HI");
+    fm->pushToDisk();
+    fm->addFile("HI");
+    QVERIFY(fm->hasFile(0));
+    QVERIFY(fm->hasFile(1));
+
+    fm->pushToDisk();
+    QVERIFY(fm->hasFile(1));
+}
+
+void file_manager_test::test_remove()
+{
+    fm->removeFile(0);
+    QVERIFY(!fm->hasFile(0));
+
+    fm->pushToDisk();
+    QVERIFY(!fm->hasFile(0));
+    QVERIFY(fm->hasFile(1));
+    QVERIFY(fm->getFile(1) == "HI");
+
+    fm->removeFile(1);
+    QVERIFY(!fm->hasFile(1));
+
+    fm->pushToDisk();
+    QVERIFY(!fm->hasFile(1));
+
+    int v = fm->addFile("Hi again");
+    int v2 = fm->addFile("HI");
+    fm->removeFile(v);
+    QVERIFY(!fm->hasFile(v));
+    QVERIFY(fm->hasFile(v2));
+
+    fm->pushToDisk();
+    QVERIFY(!fm->hasFile(v));
+    QVERIFY(fm->getFile(v2) == "HI");
+}
