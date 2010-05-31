@@ -56,6 +56,8 @@ namespace GUtil
             // Are we currently keeping track of this ID?
             bool in_map(int id);
 
+            int bytes_allocated();
+
         private:
             QMap<int, QString> add_q;
             QList<int> rem_q;
@@ -66,6 +68,9 @@ namespace GUtil
 
             void get_database(QSqlDatabase &) const;
             static QString get_file_loc(const QString &id);
+
+            // Is the file on disk in the database?
+            bool in_database(int);
         };
 
 
@@ -87,6 +92,7 @@ namespace GUtil
             QString getFile(int) const;
 
             bool hasFile(int);
+            int bytesAllocated();
 
             // Pushes the file changes from memory to the disk
             void pushToDisk();
@@ -94,6 +100,9 @@ namespace GUtil
             void reset();
 
             QList<int> idList();
+
+            // Wait for the background worker thread to complete its operation
+            void waitForWorker();
 
         private:
             QString my_id;

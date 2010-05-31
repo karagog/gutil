@@ -122,6 +122,12 @@ void file_manager_test::test_hasFile()
 
 void file_manager_test::test_remove()
 {
+    fm->reset();
+    QVERIFY(!fm->hasFile(0));
+
+    fm->addFile("HI");
+    fm->addFile("HI");
+    QVERIFY(fm->hasFile(0));
     fm->removeFile(0);
     QVERIFY(!fm->hasFile(0));
 
@@ -145,4 +151,27 @@ void file_manager_test::test_remove()
     fm->pushToDisk();
     QVERIFY(!fm->hasFile(v));
     QVERIFY(fm->getFile(v2) == "HI");
+}
+
+void file_manager_test::test_byte_consumption()
+{
+    fm->reset();
+    fm->addFile("HI");
+    QVERIFY(fm->bytesAllocated() == 2);
+
+    fm->pushToDisk();
+    QVERIFY(fm->bytesAllocated() == 0);
+
+    int v = fm->addFile("Hello");
+    QVERIFY(fm->bytesAllocated() == 5);
+
+    fm->removeFile(v);
+    QVERIFY(fm->bytesAllocated() == 0);
+
+    fm->addFile("Hi");
+    fm->addFile("Hello");
+    QVERIFY(fm->bytesAllocated() == 7);
+
+    fm->pushToDisk();
+    QVERIFY(fm->bytesAllocated() == 0);
 }

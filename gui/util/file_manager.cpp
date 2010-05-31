@@ -95,21 +95,14 @@ void File_Manager_worker::run()
     for(int i = 0; i < lim; i++)
     {
         // Remove each item one by one
-        if(add_q.contains(rem_q.at(i)))
+        QSqlQuery q("DELETE FROM files WHERE id=:id");
+        q.bindValue(":id", rem_q.at(i));
+        if(!q.exec() || (q.numRowsAffected() != 1))
         {
-            add_q.remove(rem_q.at(i));
-        }
-        else
-        {
-            QSqlQuery q("DELETE FROM files WHERE id=:id");
-            q.bindValue(":id", rem_q.at(i));
-            if(!q.exec() || (q.numRowsAffected() != 1))
-            {
-                QString err = q.lastError().text();
-                mutexes.value(my_id)->mut->unlock();
-                mutex_lock.unlock();
-                throw GUtil::Exception(err.toStdString());
-            }
+            QString err = q.lastError().text();
+            mutexes.value(my_id)->mut->unlock();
+            mutex_lock.unlock();
+            throw GUtil::Exception(err.toStdString());
         }
     }
 
@@ -158,7 +151,14 @@ void File_Manager_worker::removeFile(int id)
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 
-    rem_q.append(id);
+    if(add_q.contains(id))
+    {
+        add_q.remove(id);
+    }
+    else
+    {
+        rem_q.append(id);
+    }
 
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
@@ -321,6 +321,15 @@ bool File_Manager_worker::in_map(int id)
         return ret;
     }
 
+    ret = in_database(id);
+
+    mutexes.value(my_id)->mut->unlock();
+    mutex_lock.unlock();
+    return ret;
+}
+
+bool File_Manager_worker::in_database(int id)
+{
     QSqlDatabase dbase;
     get_database(dbase);
     if(!dbase.open())
@@ -334,11 +343,31 @@ bool File_Manager_worker::in_map(int id)
     q.bindValue(":id", id);
     q.exec();
 
-    ret = q.size();
+    return q.first();
+}
+
+int File_Manager_worker::bytes_allocated()
+{
+    wait();
+    mutex_lock.lockForRead();
+    mutexes.value(my_id)->mut->lockForRead();
+
+    int sum = 0;
+    for(int i = add_q.keys().count() - 1; i >= 0; i--)
+    {
+        sum += add_q.value(add_q.keys().at(i)).length();
+    }
+
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
-    return ret;
+    return sum;
 }
+
+void File_Manager::waitForWorker()
+{
+    worker->wait();
+}
+
 
 
 File_Manager::File_Manager(const QString &unique_id, bool is_secondary)
@@ -396,7 +425,7 @@ int File_Manager::addFile(const QString &data)
 
 void File_Manager::removeFile(int id)
 {
-    return worker->removeFile(id);
+    worker->removeFile(id);
 }
 
 QString File_Manager::getFile(int id) const
@@ -424,3 +453,7 @@ void File_Manager::reset()
     worker->reset();
 }
 
+int File_Manager::bytesAllocated()
+{
+    return worker->bytes_allocated();
+}
