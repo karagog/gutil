@@ -288,5 +288,20 @@ int File_Manager::get_free_file_id(QSqlDatabase &dbase)
             max_id = q.value(1).toInt() + 1;
     }
 
+    // Now just make sure the id isn't taken
+    while(1)
+    {
+        q.prepare("SELECT COUNT(id), id FROM files WHERE id=:id");
+        q.bindValue(0, max_id);
+        q.exec();
+        if(!q.first())
+            break;
+
+        if(q.value(0).toInt() == 0)
+            break;
+
+        max_id++;
+    }
+
     return max_id;
 }
