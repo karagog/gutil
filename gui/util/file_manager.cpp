@@ -98,7 +98,7 @@ int File_Manager::addFile(const QString &data)
         throw GUtil::Exception("Cannot open database");
     }
 
-    int ret = get_max_file_id(dbase);
+    int ret = get_free_file_id(dbase);
 
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
     q.bindValue(":id", ret);
@@ -275,7 +275,7 @@ bool File_Manager::hasFile(int id)
     return ret;
 }
 
-int File_Manager::get_max_file_id(QSqlDatabase &dbase)
+int File_Manager::get_free_file_id(QSqlDatabase &dbase)
 {
     // You must already have a lock on the database before using this function!
 

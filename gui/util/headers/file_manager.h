@@ -50,7 +50,7 @@ namespace GUtil
             QString my_id;
             QString file_location;
 
-            int get_max_file_id(QSqlDatabase &);
+            int get_free_file_id(QSqlDatabase &);
 
             void get_database(QSqlDatabase &) const;
             static QString get_file_loc(const QString &id);
