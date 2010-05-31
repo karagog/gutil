@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <QMutex>
 #include <QThread>
 #include <QSqlDatabase>
-#include <QObject>
+#include <QMap>
 
 // Use this class to manage binary data.  This is useful for storing and accessing
 //  lots of files without consuming lots of memory
@@ -36,7 +36,7 @@ namespace GUtil
         public:
 
             File_Manager_worker(const QString&,
-                                QList<QString> &, QMutex &,
+                                QMap<int, QString> &, QMutex &,
                                 QList<int> &, QMutex &,
                                 bool is_secondary,
                                 QObject *parent = 0);
@@ -55,7 +55,7 @@ namespace GUtil
 
         private:
             QMutex *add_mutex, *rem_mutex;
-            QList<QString> *add_q;
+            QMap<int, QString> *add_q;
             QList<int> *rem_q;
 
             QString my_id;
@@ -90,18 +90,14 @@ namespace GUtil
 
             QList<int> idList();
 
-        private slots:
-            void worker_finished();
-
         private:
             QString my_id;
             QMutex add_q_mutex;
             QMutex rem_q_mutex;
-            QList<QString> add_q;
+            QMap<int, QString> add_q;
             QList<int> rem_q;
 
             File_Manager_worker *worker;
-            bool worker_running;
         };
     }
 }

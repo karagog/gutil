@@ -89,8 +89,20 @@ void file_manager_test::test_file_queuing()
     fm->pushToDisk();
 
     fm->addFile("file3");
+    fm->addFile("file4");
+    fm->addFile("file5");
 
     QVERIFY(fm->getFile(0) == "file1");
     QVERIFY(fm->getFile(1) == "file2");
     QVERIFY(fm->getFile(2) == "file3");
+    QVERIFY(fm->getFile(3) == "file4");
+    QVERIFY(fm->getFile(4) == "file5");
+
+    QList<int> idList = fm->idList();
+    QVERIFY(idList.count() == 5);
+    QVERIFY(idList[0] == 0);
+    QVERIFY(idList[1] == 1);
+    QVERIFY(idList[2] == 2);
+    QVERIFY(idList[3] == 3);
+    QVERIFY(idList[4] == 4);
 }
