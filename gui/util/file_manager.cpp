@@ -74,6 +74,9 @@ File_Manager::File_Manager(const QString &id, bool primary)
 
     if(primary)
     {
+        if(QFile::exists(file_location))
+            QFile::remove(file_location);
+
         QSqlDatabase::addDatabase("QSQLITE");
         reset();
     }
