@@ -36,6 +36,7 @@ namespace GUtil
 
             // For manipulating files
             int addFile(const QString &);
+            int addFile(int, const QString &);
             void removeFile(int);
             QString getFile(int);
             bool hasFile(int id);
@@ -53,7 +54,11 @@ namespace GUtil
             int get_free_file_id(QSqlDatabase &);
 
             void get_database(QSqlDatabase &) const;
+            void prep_database(QSqlDatabase &);
             static QString get_file_loc(const QString &id);
+
+            int add_file(int, const QString &, QSqlDatabase&);
+            bool has_file(int id, QSqlDatabase &);
         };
     }
 }

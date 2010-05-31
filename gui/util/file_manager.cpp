@@ -90,27 +90,10 @@ int File_Manager::addFile(const QString &data)
     mutexes.value(my_id)->mut->lockForWrite();
 
     QSqlDatabase dbase;
-    get_database(dbase);
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception("Cannot open database");
-    }
+    prep_database(dbase);
 
     int ret = get_free_file_id(dbase);
-
-    QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
-    q.bindValue(":id", ret);
-    q.bindValue(":data", data, QSql::Binary);
-    if(!q.exec())
-    {
-        QString err = q.lastError().text();
-        dbase.close();
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception(err.toStdString());
-    }
+    add_file(ret, data, dbase);
 
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
@@ -119,19 +102,43 @@ int File_Manager::addFile(const QString &data)
     return ret;
 }
 
+int File_Manager::addFile(int id, const QString &data)
+{
+    mutex_lock.lockForRead();
+    mutexes.value(my_id)->mut->lockForWrite();
+
+    QSqlDatabase dbase;
+    prep_database(dbase);
+
+    int ret = add_file(id, data, dbase);
+
+    dbase.close();
+    mutexes.value(my_id)->mut->unlock();
+    mutex_lock.unlock();
+
+    return ret;
+}
+
+int File_Manager::add_file(int id, const QString &data, QSqlDatabase &dbase)
+{
+    if(has_file(id, dbase))
+        removeFile(id);
+
+    QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
+    q.bindValue(":id", id);
+    q.bindValue(":data", data, QSql::Binary);
+    q.exec();
+
+    return id;
+}
+
 void File_Manager::removeFile(int id)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 
     QSqlDatabase dbase;
-    get_database(dbase);
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception("Cannot open database");
-    }
+    prep_database(dbase);
 
     // Remove each item one by one
     QSqlQuery q("DELETE FROM files WHERE id=:id");
@@ -156,13 +163,7 @@ QString File_Manager::getFile(int id)
     mutexes.value(my_id)->mut->lockForRead();
 
     QSqlDatabase dbase;
-    get_database(dbase);
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception("Could not open database");
-    }
+    prep_database(dbase);
 
     QSqlQuery q("SELECT data, COUNT(data) FROM files WHERE id=:id", dbase);
     q.bindValue(":id", id);
@@ -189,13 +190,7 @@ void File_Manager::reset()
     mutexes.value(my_id)->mut->lockForWrite();
 
     QSqlDatabase dbase;
-    get_database(dbase);
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception("Cannot open database");
-    }
+    prep_database(dbase);
 
     QSqlQuery q(dbase);
     q.exec("DROP TABLE \"files\"");
@@ -215,6 +210,17 @@ void File_Manager::get_database(QSqlDatabase &dbase) const
     dbase.setDatabaseName(file_location);
 }
 
+void File_Manager::prep_database(QSqlDatabase &dbase)
+{
+    get_database(dbase);
+    if(!dbase.open())
+    {
+        mutexes.value(my_id)->mut->unlock();
+        mutex_lock.unlock();
+        throw GUtil::Exception("Cannot open database");
+    }
+}
+
 QString File_Manager::get_file_loc(const QString &id)
 {
     return QDesktopServices::storageLocation(QDesktopServices::TempLocation)
@@ -228,13 +234,7 @@ QList<int> File_Manager::idList()
 
     QList<int> ret;
     QSqlDatabase dbase;
-    get_database(dbase);
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception("Cannot open database");
-    }
+    prep_database(dbase);
 
     QSqlQuery q("SELECT id FROM files");
     if(q.exec())
@@ -257,22 +257,21 @@ bool File_Manager::hasFile(int id)
     mutexes.value(my_id)->mut->lockForRead();
 
     QSqlDatabase dbase;
-    get_database(dbase);
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception("Cannot open database");
-    }
+    prep_database(dbase);
 
-    QSqlQuery q("SELECT id FROM files WHERE id=:id");
-    q.bindValue(":id", id);
-    q.exec();
-    bool ret = q.first();
+    bool ret = has_file(id, dbase);
 
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
     return ret;
+}
+
+bool File_Manager::has_file(int id, QSqlDatabase &dbase)
+{
+    QSqlQuery q("SELECT id FROM files WHERE id=:id", dbase);
+    q.bindValue(":id", id);
+    q.exec();
+    return q.first();
 }
 
 int File_Manager::get_free_file_id(QSqlDatabase &dbase)
@@ -289,19 +288,8 @@ int File_Manager::get_free_file_id(QSqlDatabase &dbase)
     }
 
     // Now just make sure the id isn't taken
-    while(1)
-    {
-        q.prepare("SELECT COUNT(id), id FROM files WHERE id=:id");
-        q.bindValue(0, max_id);
-        q.exec();
-        if(!q.first())
-            break;
-
-        if(q.value(0).toInt() == 0)
-            break;
-
+    while(has_file(max_id, dbase))
         max_id++;
-    }
 
     return max_id;
 }
