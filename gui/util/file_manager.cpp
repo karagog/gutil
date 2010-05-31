@@ -43,7 +43,7 @@ public:
         mut = new QReadWriteLock();
         worker = 0;
     }
-    ~mutex_record_t(){ delete mut; }
+    ~mutex_record_t(){ delete mut; delete worker; }
 
     QReadWriteLock *mut;
     int count;
@@ -78,24 +78,7 @@ File_Manager_worker::File_Manager_worker(const QString &id,
 
 File_Manager_worker::~File_Manager_worker()
 {
-    mutex_lock.lockForRead();
 
-    mutex_record_t *r = mutexes.value(my_id);
-    r->count -= 1;
-    if(r->count == 0)
-    {
-        mutex_lock.unlock();
-        mutex_lock.lockForWrite();
-
-        r->mut->lockForWrite();
-
-        mutexes.remove(my_id);
-
-        r->mut->unlock();
-        delete r;
-    }
-
-    mutex_lock.unlock();
 }
 
 void File_Manager_worker::run()
@@ -145,6 +128,8 @@ void File_Manager_worker::run()
         }
     }
 
+    add_q->clear();
+
     add_mutex->unlock();
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
@@ -163,8 +148,12 @@ int File_Manager_worker::addFile(const QString &data)
     return ret;
 }
 
-QString File_Manager_worker::getFile(int id) const
+QString File_Manager_worker::getFile(int id)
 {
+    // We must wait until this thread has completed before getting new files
+    if(isRunning())
+        wait();
+
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForRead();
 
@@ -233,6 +222,12 @@ void File_Manager_worker::reset()
 
     QSqlDatabase dbase;
     get_database(dbase);
+    if(!dbase.open())
+    {
+        mutexes.value(my_id)->mut->unlock();
+        mutex_lock.unlock();
+        throw GUtil::Exception("Cannot open database");
+    }
 
     QSqlQuery q(dbase);
     q.exec("DROP TABLE \"files\"");
@@ -292,6 +287,9 @@ QList<int> File_Manager_worker::idList()
         }
     }
 
+    for(int i = 0; i < add_q->count(); i++)
+        ret.append((max_file_id - add_q->count()) + i);
+
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
@@ -303,6 +301,7 @@ QList<int> File_Manager_worker::idList()
 File_Manager::File_Manager(const QString &unique_id, bool is_secondary)
 {
     worker_running = false;
+    my_id = unique_id;
 
     mutex_lock.lockForRead();
     if(mutexes.contains(unique_id))
@@ -333,7 +332,24 @@ File_Manager::File_Manager(const QString &unique_id, bool is_secondary)
 
 File_Manager::~File_Manager()
 {
-    delete worker;
+    mutex_lock.lockForRead();
+
+    mutex_record_t *r = mutexes.value(my_id);
+    r->count -= 1;
+    if(r->count == 0)
+    {
+        mutex_lock.unlock();
+        mutex_lock.lockForWrite();
+
+        r->mut->lockForWrite();
+
+        mutexes.remove(my_id);
+
+        r->mut->unlock();
+        delete r;
+    }
+
+    mutex_lock.unlock();
 }
 
 int File_Manager::addFile(const QString &data)

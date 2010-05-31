@@ -80,3 +80,17 @@ void file_manager_test::test_idList()
     for(int i = l2.count() - 1; i >= 0; i--)
         QVERIFY(l2[i] == l[i]);
 }
+
+void file_manager_test::test_file_queuing()
+{
+    fm->reset();
+    fm->addFile("file1");
+    fm->addFile("file2");
+    fm->pushToDisk();
+
+    fm->addFile("file3");
+
+    QVERIFY(fm->getFile(0) == "file1");
+    QVERIFY(fm->getFile(1) == "file2");
+    QVERIFY(fm->getFile(2) == "file3");
+}

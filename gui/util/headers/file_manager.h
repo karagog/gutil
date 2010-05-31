@@ -43,7 +43,7 @@ namespace GUtil
             ~File_Manager_worker();
 
             int addFile(const QString &);
-            QString getFile(int) const;
+            QString getFile(int);
 
         protected:
             void run();
@@ -94,6 +94,7 @@ namespace GUtil
             void worker_finished();
 
         private:
+            QString my_id;
             QMutex add_q_mutex;
             QMutex rem_q_mutex;
             QList<QString> add_q;

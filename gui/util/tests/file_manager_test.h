@@ -28,6 +28,7 @@ private slots:
     void test_second_object();
     void test_large_files();
     void test_idList();
+    void test_file_queuing();
 
 private:
     GUtil::QtUtil::File_Manager *fm;
