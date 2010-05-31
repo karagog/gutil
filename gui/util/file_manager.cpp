@@ -164,11 +164,11 @@ QString File_Manager::getFile(int id)
         throw GUtil::Exception("Could not open database");
     }
 
-    QSqlQuery q("SELECT data FROM files WHERE id=:id", dbase);
+    QSqlQuery q("SELECT data, COUNT(data) FROM files WHERE id=:id", dbase);
     q.bindValue(":id", id);
     q.exec();
 
-    if(q.first())
+    if(q.first() && (q.value(1).toInt() == 1))
     {
         QByteArray ba = q.value(0).toByteArray();
         mutexes.value(my_id)->mut->unlock();
