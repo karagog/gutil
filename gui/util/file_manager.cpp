@@ -125,7 +125,7 @@ int File_Manager::addFile(int id, const QString &data)
 int File_Manager::add_file(int id, const QString &data, QSqlDatabase &dbase)
 {
     if(has_file(id, dbase))
-        removeFile(id);
+        remove_file(id, dbase);
 
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
     q.bindValue(":id", id);
@@ -143,21 +143,19 @@ void File_Manager::removeFile(int id)
     QSqlDatabase dbase;
     prep_database(dbase);
 
-    // Remove each item one by one
-    QSqlQuery q("DELETE FROM files WHERE id=:id");
-    q.bindValue(":id", id);
-    if(!q.exec() || (q.numRowsAffected() != 1))
-    {
-        QString err = q.lastError().text();
-        dbase.close();
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        throw GUtil::Exception(err.toStdString());
-    }
+    remove_file(id, dbase);
 
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
+}
+
+void File_Manager::remove_file(int id, QSqlDatabase &dbase)
+{
+    // Remove each item one by one
+    QSqlQuery q("DELETE FROM files WHERE id=:id");
+    q.bindValue(":id", id);
+    q.exec();
 }
 
 QString File_Manager::getFile(int id)

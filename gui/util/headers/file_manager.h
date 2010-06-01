@@ -59,6 +59,7 @@ namespace GUtil
 
             int add_file(int, const QString &, QSqlDatabase&);
             bool has_file(int id, QSqlDatabase &);
+            void remove_file(int, QSqlDatabase &);
         };
     }
 }
