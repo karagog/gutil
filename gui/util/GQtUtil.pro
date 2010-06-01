@@ -12,14 +12,16 @@ SOURCES += settings.cpp \
     usermachinelock.cpp \
     xmlhelpers.cpp \
     myflattreemodel.cpp \
-    file_manager.cpp
+    file_manager.cpp \
+    cancellablethread.cpp
 HEADERS += headers/settings.h \
     headers/widgethelpers.h \
     headers/filesystemhelpers.h \
     headers/usermachinelock.h \
     headers/xmlhelpers.h \
     headers/myflattreemodel.h \
-    headers/file_manager.h
+    headers/file_manager.h \
+    headers/cancellablethread.h
 INCLUDEPATH += headers \
     ../../util/headers \
     include
