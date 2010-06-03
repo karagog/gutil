@@ -77,7 +77,7 @@ File_Manager::File_Manager(const QString &id, bool primary)
         if(QFile::exists(file_location))
             QFile::remove(file_location);
 
-        QSqlDatabase::addDatabase("QSQLITE");
+        QSqlDatabase::addDatabase("QSQLITE").setDatabaseName(file_location);
         reset();
     }
 }
@@ -205,15 +205,9 @@ void File_Manager::reset()
     mutex_lock.unlock();
 }
 
-void File_Manager::get_database(QSqlDatabase &dbase) const
-{
-    dbase = QSqlDatabase::database();
-    dbase.setDatabaseName(file_location);
-}
-
 void File_Manager::prep_database(QSqlDatabase &dbase)
 {
-    get_database(dbase);
+    dbase = QSqlDatabase::database();
     if(!dbase.open())
     {
         mutexes.value(my_id)->mut->unlock();

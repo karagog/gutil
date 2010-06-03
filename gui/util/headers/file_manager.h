@@ -53,7 +53,6 @@ namespace GUtil
 
             int get_free_file_id(QSqlDatabase &);
 
-            void get_database(QSqlDatabase &) const;
             void prep_database(QSqlDatabase &);
             static QString get_file_loc(const QString &id);
 
