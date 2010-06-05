@@ -16,6 +16,7 @@ limitations under the License.*/
 #define EFFECTSWIDGETS_H
 
 #include <QWidget>
+#include <QMutex>
 
 namespace GUtil
 {
@@ -47,8 +48,8 @@ namespace GUtil
 
             public slots:
                 void fadeOut(bool skip_fade = false);
-                void fadeIn();
-                void toggleFade();
+                void fadeIn(bool skip_fade = false);
+                void toggleFade(bool skip_fade = false);
 
             signals:
                 void doneFading(bool faded_in);
@@ -68,6 +69,9 @@ namespace GUtil
                 int duration;
                 int delay;
                 bool _fade_in;
+                bool skipped_fade;
+                QMutex thislock;
+
             };
         }
     }

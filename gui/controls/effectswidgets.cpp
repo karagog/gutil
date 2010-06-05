@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QApplication>
 using namespace GUtil::QtControls::EffectsWidgets;
 
+#define FADE_RESOLUTION 40
+
 FaderWidget::FaderWidget(QWidget *par, int fade_duration, int start_delay)
     : QWidget(par)
 {
@@ -28,6 +30,7 @@ FaderWidget::FaderWidget(QWidget *par, int fade_duration, int start_delay)
         color = Qt::white;
 
     _fade_in = false;
+    skipped_fade = false;
 
     duration = fade_duration;
     delay = start_delay;
@@ -79,7 +82,6 @@ void FaderWidget::start_fading()
 {
     if(timer->isActive())
     {
-        // don't allow to fade while it's in the middle of fading
         return;
     }
 
@@ -88,10 +90,11 @@ void FaderWidget::start_fading()
     else
         currentAlpha = 0;
 
-    show();
+    if(!skipped_fade)
+        show();
 
     // If they disabled the fade, then we ignore the delay
-    if(duration == 0)
+    if(skipped_fade || duration == 0)
         _start();
 
     // Check if the parent is in the correct state before we fade it
@@ -100,14 +103,18 @@ void FaderWidget::start_fading()
     {
         QTimer::singleShot(delay, this, SLOT(_start()));
     }
+    thislock.unlock();
 }
 
 void FaderWidget::_start()
 {
     if(_fade_in)
         parentWidget()->showNormal();
+    else if(skipped_fade)
+        parentWidget()->hide();
 
-    timer->start(40);
+    if(!skipped_fade)
+        timer->start(FADE_RESOLUTION);
 }
 
 void FaderWidget::paintEvent(QPaintEvent * /* event */)
@@ -159,25 +166,29 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
     }
 }
 
-void FaderWidget::fadeIn()
+void FaderWidget::fadeIn(bool skip_fade)
 {
+    thislock.lock();
+
+    skipped_fade = skip_fade;
     _fade_in = true;
     start_fading();
 }
 
 void FaderWidget::fadeOut(bool skip_fade)
 {
-    if(skip_fade)
-        hide();
-    else
-    {
-        _fade_in = false;
-        start_fading();
-    }
+    thislock.lock();
+
+    skipped_fade = skip_fade;
+    _fade_in = false;
+    start_fading();
 }
 
-void FaderWidget::toggleFade()
+void FaderWidget::toggleFade(bool skip_fade)
 {
+    thislock.lock();
+
+    skipped_fade = skip_fade;
     _fade_in = !_fade_in;
     start_fading();
 }
