@@ -278,12 +278,16 @@ int File_Manager::get_free_file_id(QSqlDatabase &dbase)
     if(q.first())
     {
         if(q.value(0).toInt() > 0)
-            max_id = q.value(1).toInt() + 1;
+            max_id = q.value(1).toInt();
     }
 
-    // Now just make sure the id isn't taken
-    while(has_file(max_id, dbase))
-        max_id++;
+    do
+    {
+        if(++max_id < 0)
+            max_id = 0;
+
+    // Make sure the id isn't taken
+    }while(has_file(max_id, dbase));
 
     return max_id;
 }
