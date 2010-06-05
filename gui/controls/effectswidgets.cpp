@@ -151,10 +151,15 @@ void FaderWidget::fadeIn()
     start_fading();
 }
 
-void FaderWidget::fadeOut()
+void FaderWidget::fadeOut(bool skip_fade)
 {
-    _fade_in = false;
-    start_fading();
+    if(skip_fade)
+        hide();
+    else
+    {
+        _fade_in = false;
+        start_fading();
+    }
 }
 
 void FaderWidget::toggleFade()

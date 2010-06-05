@@ -32,7 +32,7 @@ namespace GUtil
                 void setFadeDuration(int);
 
             public slots:
-                void fadeOut();
+                void fadeOut(bool skip_fade = false);
                 void fadeIn();
                 void toggleFade();
 
