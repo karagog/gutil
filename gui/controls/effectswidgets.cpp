@@ -108,6 +108,8 @@ void FaderWidget::start_fading()
 
 void FaderWidget::_start()
 {
+    bool yes = thislock.tryLock();
+
     if(_fade_in)
         parentWidget()->showNormal();
     else if(skipped_fade)
@@ -115,6 +117,9 @@ void FaderWidget::_start()
 
     if(!skipped_fade)
         timer->start(FADE_RESOLUTION);
+
+    if(yes)
+        thislock.unlock();
 }
 
 void FaderWidget::paintEvent(QPaintEvent * /* event */)
