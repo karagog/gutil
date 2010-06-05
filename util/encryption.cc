@@ -95,35 +95,68 @@ string CryptoHelpers::compress(const string &instr, int level)
 {
     string ret;
 
-    if(level < MIN_COMPRESSION_LEVEL ||
-       level > MAX_COMPRESSION_LEVEL)
-        level = DEFAULT_COMPRESSION_LEVEL;
+    bool skip_compression = instr.length() > 10000000;
 
-    try
+    if(!skip_compression)
     {
-        CryptoPP::Gzip zipper(new CryptoPP::StringSink(ret), level);
-        zipper.Put((byte*)instr.c_str(), instr.length());
-        zipper.MessageEnd();
-    }
-    catch(CryptoPP::Exception ex)
-    {
-        throw GUtil::Exception(ex.GetWhat());
+        if(level < MIN_COMPRESSION_LEVEL ||
+           level > MAX_COMPRESSION_LEVEL)
+            level = DEFAULT_COMPRESSION_LEVEL;
+
+        try
+        {
+            CryptoPP::Gzip zipper(new CryptoPP::StringSink(ret), level);
+            zipper.Put((byte*)instr.c_str(), instr.length());
+            zipper.MessageEnd();
+        }
+        catch(CryptoPP::Exception ex)
+        {
+            throw GUtil::Exception(ex.GetWhat());
+        }
     }
 
-    return ret;
+    if(skip_compression ||  ret.length() > instr.length())
+    {
+        // Leave it uncompressed, because we didn't gain anything by compression
+        return "0" + instr;
+    }
+
+    return "1" + ret;
 }
 
 string CryptoHelpers::decompress(const string &instr)
 {
     string tmp;
 
-    try
+    if(instr.length() > 0)
     {
-        CryptoPP::StringSource(instr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
-    }
-    catch(CryptoPP::Exception ex)
-    {
-        throw GUtil::Exception(ex.GetWhat());
+        bool is_compressed = false;
+        char tmpc = instr.at(0);
+        if(tmpc == '1')
+            is_compressed = true;
+
+        string newstr;
+        if(tmpc == '0' || tmpc == '1')
+            newstr = instr.substr(1);
+        else
+        {
+            is_compressed = true;
+            newstr = instr;
+        }
+
+        if(is_compressed)
+        {
+            try
+            {
+                CryptoPP::StringSource(newstr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
+            }
+            catch(CryptoPP::Exception ex)
+            {
+                throw GUtil::Exception(ex.GetWhat());
+            }
+        }
+        else
+            return newstr;
     }
 
     return tmp;
