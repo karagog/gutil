@@ -30,7 +30,6 @@ limitations under the License.*/
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
-#include <iostream>
 using namespace GUtil;
 using namespace GUtil::QtUtil;
 
