@@ -129,7 +129,8 @@ int File_Manager::add_file(int id, const QString &data, QSqlDatabase &dbase)
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
     q.bindValue(":id", id);
     q.bindValue(":data", data, QSql::Binary);
-    q.exec();
+    if(!q.exec())
+        throw GUtil::Exception(q.lastError().text().toStdString());
 
     return id;
 }
@@ -273,17 +274,32 @@ int File_Manager::get_free_file_id(QSqlDatabase &dbase)
     // You must already have a lock on the database before using this function!
 
     int max_id = 0;
+    bool found_id = false;
+
     QSqlQuery q("SELECT COUNT(id),MAX(id) FROM files", dbase);
     q.exec();
     if(q.first())
     {
         if(q.value(0).toInt() > 0)
+        {
             max_id = q.value(1).toInt();
+            found_id = true;
+        }
     }
 
+    bool first_time = true;
     do
     {
-        if(++max_id < 0)
+        if(first_time)
+        {
+            first_time = false;
+            if(found_id)
+                max_id++;
+        }
+        else
+            max_id++;
+
+        if(max_id < 0)
             max_id = 0;
 
     // Make sure the id isn't taken
