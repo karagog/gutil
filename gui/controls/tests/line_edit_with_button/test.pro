@@ -4,7 +4,7 @@ HEADERS += test_form.h
 FORMS += test_form.ui
 
 win32{
-LIBS += -L../../debug -lQtControlsmingw
+LIBS += -L../../debug -lQtControls
 }
 unix{
 LIBS += -L../.. -lQtControls

@@ -20,6 +20,11 @@ test_form::test_form(QWidget *parent) :
 
     connect(ui->pushButton_2, SIGNAL(clicked()), le, SLOT(toggleButton()));
 
+    connect(ui->widget, SIGNAL(clicked()), this, SLOT(progress_bar_clicked()));
+
+    ui->widget->useButton();
+    ui->widget->Label()->setText("Hello World");
+
     le->faderWidget()->setFadeDuration(2000);
 }
 
@@ -31,6 +36,11 @@ test_form::~test_form()
 void test_form::process_click()
 {
     ui->label->setText(ui->lineEditWidget->lineEdit()->text());
+}
+
+void test_form::progress_bar_clicked()
+{
+    ui->widget->setValue(ui->widget->value() + 5);
 }
 
 void test_form::changeEvent(QEvent *e)

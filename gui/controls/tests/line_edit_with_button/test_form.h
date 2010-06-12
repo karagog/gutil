@@ -21,6 +21,8 @@ private:
 
 private slots:
     void process_click();
+
+    void progress_bar_clicked();
 };
 
 #endif // TEST_FORM_H

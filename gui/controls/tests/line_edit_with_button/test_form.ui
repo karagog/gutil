@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>119</height>
+    <height>209</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,6 +35,9 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="GUtil::QtControls::LabelledProgressBar" name="widget" native="true"/>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -48,6 +51,12 @@
     <slot>toggleButton()</slot>
     <slot>fadeOut()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>GUtil::QtControls::LabelledProgressBar</class>
+   <extends>QWidget</extends>
+   <header>labelledprogressbar.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
