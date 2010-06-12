@@ -80,9 +80,18 @@ void FaderWidget::setFadeDuration(int milliseconds)
 
 void FaderWidget::start_fading()
 {
+    if(!fadelock.tryLock())
+        return;
+
     if(timer->isActive())
     {
-        return;
+        if(parentWidget()->isHidden())
+            timer->stop();
+        else
+        {
+            fadelock.unlock();
+            return;
+        }
     }
 
     if(_fade_in)
@@ -103,13 +112,10 @@ void FaderWidget::start_fading()
     {
         QTimer::singleShot(delay, this, SLOT(_start()));
     }
-    thislock.unlock();
 }
 
 void FaderWidget::_start()
 {
-    bool yes = thislock.tryLock();
-
     if(_fade_in)
         parentWidget()->showNormal();
     else if(skipped_fade)
@@ -118,8 +124,7 @@ void FaderWidget::_start()
     if(!skipped_fade)
         timer->start(FADE_RESOLUTION);
 
-    if(yes)
-        thislock.unlock();
+    fadelock.unlock();
 }
 
 void FaderWidget::paintEvent(QPaintEvent * /* event */)
@@ -173,27 +178,36 @@ void FaderWidget::paintEvent(QPaintEvent * /* event */)
 
 void FaderWidget::fadeIn(bool skip_fade)
 {
-    thislock.lock();
+    if(!thislock.tryLock())
+        return;
 
     skipped_fade = skip_fade;
     _fade_in = true;
     start_fading();
+
+    thislock.unlock();
 }
 
 void FaderWidget::fadeOut(bool skip_fade)
 {
-    thislock.lock();
+    if(!thislock.tryLock())
+        return;
 
     skipped_fade = skip_fade;
     _fade_in = false;
     start_fading();
+
+    thislock.unlock();
 }
 
 void FaderWidget::toggleFade(bool skip_fade)
 {
-    thislock.lock();
+    if(!thislock.tryLock())
+        return;
 
     skipped_fade = skip_fade;
     _fade_in = !_fade_in;
     start_fading();
+
+    thislock.unlock();
 }

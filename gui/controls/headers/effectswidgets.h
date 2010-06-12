@@ -71,6 +71,7 @@ namespace GUtil
                 bool _fade_in;
                 bool skipped_fade;
                 QMutex thislock;
+                QMutex fadelock;
 
             };
         }
