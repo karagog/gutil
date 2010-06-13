@@ -127,12 +127,24 @@ int File_Manager::add_file(int id, const QString &data, QSqlDatabase &dbase)
         remove_file(id, dbase);
 
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
+    try
+    {
+        _execute_insertion(q, id, data);
+    }
+    catch(GUtil::Exception)
+    {
+        return -1;
+    }
+
+    return id;
+}
+
+void File_Manager::_execute_insertion(QSqlQuery &q, int id, const QString &data)
+{
     q.bindValue(":id", id);
     q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
         throw GUtil::Exception(q.lastError().text().toStdString());
-
-    return id;
 }
 
 void File_Manager::removeFile(int id)
@@ -153,7 +165,7 @@ void File_Manager::removeFile(int id)
 void File_Manager::remove_file(int id, QSqlDatabase &dbase)
 {
     // Remove each item one by one
-    QSqlQuery q("DELETE FROM files WHERE id=:id");
+    QSqlQuery q("DELETE FROM files WHERE id=:id", dbase);
     q.bindValue(":id", id);
     q.exec();
 }
@@ -306,4 +318,31 @@ int File_Manager::get_free_file_id(QSqlDatabase &dbase)
     }while(has_file(max_id, dbase));
 
     return max_id;
+}
+
+bool File_Manager::reserveIdList(const QList<int> &list)
+{
+    mutex_lock.lockForRead();
+    mutexes.value(my_id)->mut->lockForWrite();
+
+    bool ret = true;
+    QSqlDatabase dbase;
+    prep_database(dbase);
+
+    QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
+    try
+    {
+        foreach(int id, list)
+            _execute_insertion(q, id, "");
+    }
+    catch(GUtil::Exception)
+    {
+        ret = false;
+    }
+
+    dbase.close();
+    mutexes.value(my_id)->mut->unlock();
+    mutex_lock.unlock();
+
+    return ret;
 }

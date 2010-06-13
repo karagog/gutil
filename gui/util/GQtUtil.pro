@@ -14,17 +14,15 @@ SOURCES += settings.cpp \
     myflattreemodel.cpp \
     file_manager.cpp \
     cancellablethread.cpp
-HEADERS += headers/settings.h \
-    headers/widgethelpers.h \
-    headers/filesystemhelpers.h \
-    headers/usermachinelock.h \
-    headers/xmlhelpers.h \
-    headers/myflattreemodel.h \
-    headers/file_manager.h \
-    headers/cancellablethread.h
-INCLUDEPATH += headers \
-    ../../util/headers \
-    include
+HEADERS += settings.h \
+    widgethelpers.h \
+    filesystemhelpers.h \
+    usermachinelock.h \
+    xmlhelpers.h \
+    myflattreemodel.h \
+    file_manager.h \
+    cancellablethread.h
+INCLUDEPATH += ../../util include
 
 # For static builds
 # LIBS += -lgutil

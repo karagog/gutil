@@ -34,6 +34,9 @@ namespace GUtil
             File_Manager(const QString&, bool primary = true);
             ~File_Manager();
 
+            //  (All of the public functions can be treated atomically,
+            //   and can be executed safely from multiple threads)
+
             // For manipulating files
             int addFile(const QString &);
             int addFile(int, const QString &);
@@ -47,6 +50,9 @@ namespace GUtil
             // List the id's that we've got
             QList<int> idList();
 
+            // Set aside the list of ids
+            bool reserveIdList(const QList<int> &);
+
         private:
             QString my_id;
             QString file_location;
@@ -59,6 +65,8 @@ namespace GUtil
             int add_file(int, const QString &, QSqlDatabase&);
             bool has_file(int id, QSqlDatabase &);
             void remove_file(int, QSqlDatabase &);
+
+            void _execute_insertion(QSqlQuery &, int, const QString &);
         };
     }
 }

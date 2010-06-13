@@ -4,12 +4,10 @@
 TARGET = QtControls
 TEMPLATE = lib
 CONFIG += staticlib
-HEADERS += headers/line_edit_with_button.h \
-    headers/effectswidgets.h \
-    headers/labelledprogressbar.h
+HEADERS += line_edit_with_button.h \
+    effectswidgets.h \
+    labelledprogressbar.h
 SOURCES += line_edit_with_button.cpp \
     effectswidgets.cpp \
     labelledprogressbar.cpp
 FORMS += line_edit_with_button.ui
-
-INCLUDEPATH += headers
