@@ -48,16 +48,22 @@ void LabelledProgressBar::useButton(bool which)
 {
     if(which)
     {
-        (button = new QPushButton(this))->setFlat(true);
-        connect(button, SIGNAL(clicked()), this, SLOT(_button_clicked()));
+        if(button == 0)
+        {
+            (button = new QPushButton(this))->setFlat(true);
+            connect(button, SIGNAL(clicked()), this, SLOT(_button_clicked()));
 
-        layout->addWidget(button);
-        layout->setCurrentWidget(button);
+            layout->addWidget(button);
+            layout->setCurrentWidget(button);
+        }
     }
     else
     {
-        delete button;
-        button = 0;
+        if(button != 0)
+        {
+            delete button;
+            button = 0;
+        }
     }
 }
 
