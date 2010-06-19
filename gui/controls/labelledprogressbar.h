@@ -16,6 +16,7 @@ limitations under the License.*/
 #define LABELLEDPROGRESSBAR_H
 
 #include <QProgressBar>
+#include <QVariant>
 
 class QLabel;
 class QPushButton;
@@ -37,6 +38,9 @@ namespace GUtil
             QLabel *Label();
             QProgressBar *ProgressBar();
             QPushButton *Button();
+
+            // Use this if you want to store any kind of data/state within the control
+            QVariant data;
 
         signals:
             void clicked();
