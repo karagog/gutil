@@ -127,14 +127,8 @@ int File_Manager::add_file(int id, const QString &data, QSqlDatabase &dbase)
         remove_file(id, dbase);
 
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
-    try
-    {
-        _execute_insertion(q, id, data);
-    }
-    catch(GUtil::Exception)
-    {
-        return -1;
-    }
+
+    _execute_insertion(q, id, data);
 
     return id;
 }
@@ -330,15 +324,9 @@ bool File_Manager::reserveIdList(const QList<int> &list)
     prep_database(dbase);
 
     QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
-    try
-    {
-        foreach(int id, list)
-            _execute_insertion(q, id, "");
-    }
-    catch(GUtil::Exception)
-    {
-        ret = false;
-    }
+
+    foreach(int id, list)
+        _execute_insertion(q, id, "");
 
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
