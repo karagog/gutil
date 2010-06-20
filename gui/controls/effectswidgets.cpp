@@ -112,6 +112,8 @@ void FaderWidget::start_fading()
     {
         QTimer::singleShot(delay, this, SLOT(_start()));
     }
+    else
+        fadelock.unlock();
 }
 
 void FaderWidget::_start()
