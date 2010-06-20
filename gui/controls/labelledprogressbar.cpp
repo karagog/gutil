@@ -15,28 +15,32 @@ limitations under the License.*/
 #include "labelledprogressbar.h"
 #include <QLabel>
 #include <QStackedLayout>
+#include <QVBoxLayout>
 #include <QPushButton>
+#include <QProgressBar>
 
 using namespace GUtil::QtControls;
 
 LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
-    QProgressBar(parent)
+    QWidget(parent)
 {
     button = 0;
-    setTextVisible(false);
+    progressBar = new QProgressBar(this);
+    progressBar->setTextVisible(false);
+
+    setLayout(new QVBoxLayout(this));
+    layout()->setContentsMargins(0, 0, 0, 0);
+    layout()->addWidget(progressBar);
 
     label = new QLabel(this);
     label->setAlignment(Qt::AlignCenter);
-
-    QFont f;
-    f.setBold(true);
+    QFont f;  f.setBold(true);
     label->setFont(f);
 
-    layout = new QStackedLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setStackingMode(QStackedLayout::StackAll);
-
-    layout->addWidget(label);
+    progressBar->setLayout(new QStackedLayout(progressBar));
+    progressBar->layout()->setContentsMargins(0, 0, 0, 0);
+    ((QStackedLayout*)progressBar->layout())->setStackingMode(QStackedLayout::StackAll);
+    progressBar->layout()->addWidget(label);
 }
 
 void LabelledProgressBar::_button_clicked()
@@ -53,8 +57,8 @@ void LabelledProgressBar::useButton(bool which)
             (button = new QPushButton(this))->setFlat(true);
             connect(button, SIGNAL(clicked()), this, SLOT(_button_clicked()));
 
-            layout->addWidget(button);
-            layout->setCurrentWidget(button);
+            progressBar->layout()->addWidget(button);
+            ((QStackedLayout *)progressBar->layout())->setCurrentWidget(button);
         }
     }
     else
@@ -80,4 +84,14 @@ QProgressBar *LabelledProgressBar::ProgressBar()
 QPushButton *LabelledProgressBar::Button()
 {
     return button;
+}
+
+void LabelledProgressBar::setValue(int val)
+{
+    progressBar->setValue(val);
+}
+
+int LabelledProgressBar::value()
+{
+    return progressBar->value();
 }
