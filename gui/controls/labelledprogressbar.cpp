@@ -24,7 +24,9 @@ using namespace GUtil::QtControls;
 LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
     QWidget(parent)
 {
-    button = 0;
+    button = new QPushButton(this);
+    button->setStyleSheet("background-color: rgba(0,0,0,0);");
+
     progressBar = new QProgressBar(this);
     progressBar->setTextVisible(false);
 
@@ -41,33 +43,21 @@ LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
     progressBar->layout()->setContentsMargins(0, 0, 0, 0);
     ((QStackedLayout*)progressBar->layout())->setStackingMode(QStackedLayout::StackAll);
     progressBar->layout()->addWidget(label);
+
+    button->hide();
+    progressBar->layout()->addWidget(button);
 }
 
-void LabelledProgressBar::_button_clicked()
-{
-    emit clicked();
-}
-
-void LabelledProgressBar::useButton(bool which)
+void LabelledProgressBar::setButtonEnabled(bool which)
 {
     if(which)
     {
-        if(button == 0)
-        {
-            (button = new QPushButton(this))->setFlat(true);
-            connect(button, SIGNAL(clicked()), this, SLOT(_button_clicked()));
-
-            progressBar->layout()->addWidget(button);
-            ((QStackedLayout *)progressBar->layout())->setCurrentWidget(button);
-        }
+        button->show();
+        ((QStackedLayout *)progressBar->layout())->setCurrentWidget(button);
     }
     else
     {
-        if(button != 0)
-        {
-            delete button;
-            button = 0;
-        }
+        button->hide();
     }
 }
 
@@ -84,14 +74,4 @@ QProgressBar *LabelledProgressBar::ProgressBar()
 QPushButton *LabelledProgressBar::Button()
 {
     return button;
-}
-
-void LabelledProgressBar::setValue(int val)
-{
-    progressBar->setValue(val);
-}
-
-int LabelledProgressBar::value()
-{
-    return progressBar->value();
 }

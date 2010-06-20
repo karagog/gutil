@@ -33,7 +33,7 @@ namespace GUtil
         public:
             explicit LabelledProgressBar(QWidget *parent = 0);
 
-            void useButton(bool which = true);
+            void setButtonEnabled(bool which = true);
 
             QLabel *Label();
             QProgressBar *ProgressBar();
@@ -41,15 +41,6 @@ namespace GUtil
 
             // Use this if you want to store any kind of data/state within the control
             QVariant data;
-
-            void setValue(int);
-            int value();
-
-        signals:
-            void clicked();
-
-        private slots:
-            void _button_clicked();
 
         private:
             QProgressBar *progressBar;
