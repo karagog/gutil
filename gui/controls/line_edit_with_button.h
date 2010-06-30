@@ -59,10 +59,9 @@ namespace GUtil
             void keyPressEvent(QKeyEvent *);
             void keyReleaseEvent(QKeyEvent *);
 
-            void changeEvent(QEvent *);
-
         private:
-            Ui::line_edit_with_button *ui;
+            QPushButton *button;
+            QLineEdit *line_edit;
 
             EffectsWidgets::FaderWidget *_fader;
         };
