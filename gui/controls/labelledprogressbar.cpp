@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "labelledprogressbar.h"
-#include <QLabel>
+#include <Qlabel>
 #include <QStackedLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -27,25 +27,25 @@ LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
     button = new QPushButton(this);
     button->setStyleSheet("background-color: rgba(0,0,0,0);");
 
-    progressBar = new QProgressBar(this);
-    progressBar->setTextVisible(false);
+    _progressBar = new QProgressBar(this);
+    _progressBar->setTextVisible(false);
 
     setLayout(new QVBoxLayout(this));
     layout()->setContentsMargins(0, 0, 0, 0);
-    layout()->addWidget(progressBar);
+    layout()->addWidget(_progressBar);
 
-    label = new QLabel(this);
-    label->setAlignment(Qt::AlignCenter);
+    _label = new QLabel(this);
+    _label->setAlignment(Qt::AlignCenter);
     QFont f;  f.setBold(true);
-    label->setFont(f);
+    _label->setFont(f);
 
-    progressBar->setLayout(new QStackedLayout(progressBar));
-    progressBar->layout()->setContentsMargins(0, 0, 0, 0);
-    ((QStackedLayout*)progressBar->layout())->setStackingMode(QStackedLayout::StackAll);
-    progressBar->layout()->addWidget(label);
+    _progressBar->setLayout(new QStackedLayout(_progressBar));
+    _progressBar->layout()->setContentsMargins(0, 0, 0, 0);
+    ((QStackedLayout*)_progressBar->layout())->setStackingMode(QStackedLayout::StackAll);
+    _progressBar->layout()->addWidget(_label);
 
     button->hide();
-    progressBar->layout()->addWidget(button);
+    _progressBar->layout()->addWidget(button);
 }
 
 void LabelledProgressBar::setButtonEnabled(bool which)
@@ -53,7 +53,7 @@ void LabelledProgressBar::setButtonEnabled(bool which)
     if(which)
     {
         button->show();
-        ((QStackedLayout *)progressBar->layout())->setCurrentWidget(button);
+        ((QStackedLayout *)_progressBar->layout())->setCurrentWidget(button);
     }
     else
     {
@@ -61,17 +61,17 @@ void LabelledProgressBar::setButtonEnabled(bool which)
     }
 }
 
-QLabel *LabelledProgressBar::Label()
+QLabel *LabelledProgressBar::label()
 {
-    return label;
+    return _label;
 }
 
-QProgressBar *LabelledProgressBar::ProgressBar()
+QProgressBar *LabelledProgressBar::progressBar()
 {
-    return progressBar;
+    return _progressBar;
 }
 
-QPushButton *LabelledProgressBar::Button()
+QPushButton *LabelledProgressBar::pushButton()
 {
     return button;
 }

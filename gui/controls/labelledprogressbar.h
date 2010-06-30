@@ -35,16 +35,16 @@ namespace GUtil
 
             void setButtonEnabled(bool which = true);
 
-            QLabel *Label();
-            QProgressBar *ProgressBar();
-            QPushButton *Button();
+            QLabel *label();
+            QProgressBar *progressBar();
+            QPushButton *pushButton();
 
             // Use this if you want to store any kind of data/state within the control
             QVariant data;
 
         private:
-            QProgressBar *progressBar;
-            QLabel *label;
+            QProgressBar *_progressBar;
+            QLabel *_label;
             QPushButton *button;
         };
     }
