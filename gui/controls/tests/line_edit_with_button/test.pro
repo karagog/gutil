@@ -10,4 +10,4 @@ unix{
 LIBS += -L../.. -lQtControls
 }
 
-INCLUDEPATH += ../../headers
+INCLUDEPATH += ../..

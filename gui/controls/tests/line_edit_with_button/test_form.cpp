@@ -1,6 +1,8 @@
 #include "test_form.h"
 #include "ui_test_form.h"
 #include <QLineEdit>
+#include <QProgressBar>
+#include <QPushButton>
 #include "line_edit_with_button.h"
 #include "effectswidgets.h"
 using namespace GUtil::QtControls;
@@ -20,9 +22,9 @@ test_form::test_form(QWidget *parent) :
 
     connect(ui->pushButton_2, SIGNAL(clicked()), le, SLOT(toggleButton()));
 
-    connect(ui->widget, SIGNAL(clicked()), this, SLOT(progress_bar_clicked()));
+    connect(ui->widget->Button(), SIGNAL(clicked()), this, SLOT(progress_bar_clicked()));
 
-    ui->widget->useButton();
+    ui->widget->setButtonEnabled(true);
     ui->widget->Label()->setText("Hello World");
 
     le->faderWidget()->setFadeDuration(2000);
@@ -40,7 +42,7 @@ void test_form::process_click()
 
 void test_form::progress_bar_clicked()
 {
-    ui->widget->setValue(ui->widget->value() + 5);
+    ui->widget->ProgressBar()->setValue(ui->widget->ProgressBar()->value() + 5);
 }
 
 void test_form::changeEvent(QEvent *e)
