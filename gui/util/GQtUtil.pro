@@ -13,7 +13,8 @@ SOURCES += settings.cpp \
     xmlhelpers.cpp \
     myflattreemodel.cpp \
     file_manager.cpp \
-    cancellablethread.cpp
+    cancellablethread.cpp \
+    pubsubsystem.cpp
 HEADERS += settings.h \
     widgethelpers.h \
     filesystemhelpers.h \
@@ -21,7 +22,8 @@ HEADERS += settings.h \
     xmlhelpers.h \
     myflattreemodel.h \
     file_manager.h \
-    cancellablethread.h
+    cancellablethread.h \
+    pubsubsystem.h
 INCLUDEPATH += ../../util include
 
 # For static builds
