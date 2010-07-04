@@ -12,9 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "settings.h"
+#include "DA_PersistentSettings.h"
 #include "stringhelpers.h"
-#include "usermachinelock.h"
+#include "DA_UserMachineLock.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

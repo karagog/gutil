@@ -12,52 +12,52 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "xmlhelpers.h"
+#include "myxmlstreamreader.h"
 #include <QXmlStreamWriter>
 using namespace GUtil::QtUtil;
 
-GXmlStreamReader::GXmlStreamReader()
+myXmlStreamReader::myXmlStreamReader()
     :QXmlStreamReader()
 {
 
 }
 
-GXmlStreamReader::GXmlStreamReader(const QString &data)
+myXmlStreamReader::myXmlStreamReader(const QString &data)
     :QXmlStreamReader(data)
 {
 
 }
 
-GXmlStreamReader::GXmlStreamReader(QIODevice *data)
+myXmlStreamReader::myXmlStreamReader(QIODevice *data)
     :QXmlStreamReader(data)
 {
 
 }
 
-GXmlStreamReader::GXmlStreamReader(const QByteArray &data)
+myXmlStreamReader::myXmlStreamReader(const QByteArray &data)
     :QXmlStreamReader(data)
 {
 
 }
 
-GXmlStreamReader::GXmlStreamReader(const char *data)
+myXmlStreamReader::myXmlStreamReader(const char *data)
     :QXmlStreamReader(data)
 {
 
 }
 
-QString GXmlStreamReader::InnerText()
+QString myXmlStreamReader::InnerText()
 {
     QString ret = "";
     QXmlStreamWriter sw(&ret);
     sw.setAutoFormatting(false);
 
-    if(tokenType() == GXmlStreamReader::StartElement)
+    if(tokenType() == myXmlStreamReader::StartElement)
     {
         int t;
-        while((t = readNext()) != GXmlStreamReader::EndElement &&
-              t != GXmlStreamReader::EndDocument &&
-              t != GXmlStreamReader::Invalid)
+        while((t = readNext()) != myXmlStreamReader::EndElement &&
+              t != myXmlStreamReader::EndDocument &&
+              t != myXmlStreamReader::Invalid)
         {
             _read_inner_xml(sw);
         }
@@ -66,7 +66,7 @@ QString GXmlStreamReader::InnerText()
     return ret;
 }
 
-QString GXmlStreamReader::InnerXml()
+QString myXmlStreamReader::InnerXml()
 {
     QString ret;
     QXmlStreamWriter sw(&ret);
@@ -77,9 +77,9 @@ QString GXmlStreamReader::InnerXml()
     return ret;
 }
 
-void GXmlStreamReader::_read_inner_xml(QXmlStreamWriter &sw)
+void myXmlStreamReader::_read_inner_xml(QXmlStreamWriter &sw)
 {
-    if(tokenType() == GXmlStreamReader::StartElement)
+    if(tokenType() == myXmlStreamReader::StartElement)
     {
         sw.writeStartElement(name().toString());
 
@@ -89,11 +89,11 @@ void GXmlStreamReader::_read_inner_xml(QXmlStreamWriter &sw)
         }
 
         int t;
-        while((t = readNext()) != GXmlStreamReader::EndElement &&
-              t != GXmlStreamReader::EndDocument &&
-              t != GXmlStreamReader::Invalid)
+        while((t = readNext()) != myXmlStreamReader::EndElement &&
+              t != myXmlStreamReader::EndDocument &&
+              t != myXmlStreamReader::Invalid)
         {
-            if(t == GXmlStreamReader::Characters)
+            if(t == myXmlStreamReader::Characters)
                 sw.writeCharacters(text().toString());
             else
                 _read_inner_xml(sw);

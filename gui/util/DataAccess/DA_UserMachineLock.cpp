@@ -12,8 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "usermachinelock.h"
-#include "filesystemhelpers.h"
+#include "DA_UserMachineLock.h"
 #include "qtlockedfile.h"
 #include <QDir>
 using namespace GUtil::QtUtil;
@@ -72,7 +71,7 @@ void UserMachineLock::Unlock()
 
     _locked = false;
 
-    FilesystemHelpers::rm(_lf->fileName());
+    QFile::remove(_lf->fileName());
 }
 
 QString UserMachineLock::Error() const

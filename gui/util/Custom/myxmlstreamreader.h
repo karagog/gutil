@@ -22,14 +22,14 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        class GXmlStreamReader : public QXmlStreamReader
+        class myXmlStreamReader : public QXmlStreamReader
         {
         public:
-            GXmlStreamReader();
-            GXmlStreamReader(const QString &);
-            GXmlStreamReader(QIODevice *);
-            GXmlStreamReader(const QByteArray &);
-            GXmlStreamReader(const char *);
+            myXmlStreamReader();
+            myXmlStreamReader(const QString &);
+            myXmlStreamReader(QIODevice *);
+            myXmlStreamReader(const QByteArray &);
+            myXmlStreamReader(const char *);
 
             // Reads the inner Xml of the current start element, including itself
             //  and all children recursively.  It ends while pointing at the element's
