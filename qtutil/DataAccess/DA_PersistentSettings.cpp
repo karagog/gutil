@@ -33,6 +33,7 @@ DA_PersistentSettings::DA_PersistentSettings(const QString &identity)
     _lock_acquired = false;
 
     _loaded = false;
+    _readonly = false;
 
     load_settings(identity);
 }
@@ -42,28 +43,33 @@ DA_PersistentSettings::~DA_PersistentSettings()
     delete _userlock;
 }
 
-bool DA_PersistentSettings::Reload()
+void DA_PersistentSettings::Reload()
 {
-    return load_settings(_identity_string);
+    load_settings(_identity_string);
 }
 
-bool DA_PersistentSettings::SetValue(const QString &key, const QString& value)
+void DA_PersistentSettings::SetValue(const QString &key, const QString& value)
 {
     if(!IsLoaded())
     {
         throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
+
+    if(_readonly)
+        throw GUtil::Exception("Read-only");
 
     _values.insert(key, value);
-    return save_settings();
+    save_settings();
 }
 
-bool DA_PersistentSettings::SetValues(const QMap<QString, QString> &values)
+void DA_PersistentSettings::SetValues(const QMap<QString, QString> &values)
 {
     if(!IsLoaded())
-    {
-        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
-    }
+        throw GUtil::Exception("You haven't successfully initialized the settings "
+                               "object (Call 'Reload()' until it returns true)");
+
+    if(_readonly)
+        throw GUtil::Exception("Read-only");
 
     bool tmp = false;
     foreach(QString s, values.keys())
@@ -76,11 +82,10 @@ bool DA_PersistentSettings::SetValues(const QMap<QString, QString> &values)
 
     // Only save settings if we actually made changes
     if(tmp)
-        tmp = save_settings();
-    return true;
+        save_settings();
 }
 
-QString DA_PersistentSettings::Value(const QString &key)
+QString DA_PersistentSettings::Value(const QString &key) const
 {
     if(!IsLoaded())
     {
@@ -90,7 +95,7 @@ QString DA_PersistentSettings::Value(const QString &key)
     return _values.value(key, "");
 }
 
-const QMap<QString, QString> DA_PersistentSettings::Values(const QStringList &keys)
+const QMap<QString, QString> DA_PersistentSettings::Values(const QStringList &keys) const
 {
     QMap<QString, QString> ret;
     if(!IsLoaded())
@@ -118,14 +123,14 @@ bool DA_PersistentSettings::Contains(const QString &key)
     return _values.contains(key);
 }
 
-bool DA_PersistentSettings::Clear()
+void DA_PersistentSettings::Clear()
 {
     _values.clear();
 
-    return save_settings();
+    save_settings();
 }
 
-bool DA_PersistentSettings::Remove(const QString &key)
+void DA_PersistentSettings::Remove(const QString &key)
 {
     QMap<QString, QString>::iterator it = _values.find(key);
 
@@ -133,13 +138,11 @@ bool DA_PersistentSettings::Remove(const QString &key)
     if(it != _values.end())
     {
         _values.erase(it);
-        return save_settings();
+        save_settings();
     }
-
-    return true;
 }
 
-bool DA_PersistentSettings::Remove(const QStringList &keys)
+void DA_PersistentSettings::Remove(const QStringList &keys)
 {
     QMap<QString, QString>::iterator it;
     bool val_erased = false;
@@ -157,10 +160,11 @@ bool DA_PersistentSettings::Remove(const QStringList &keys)
             val_erased = true;
     }
 
-    return val_erased ? save_settings() : true;
+    if(val_erased)
+        save_settings();
 }
 
-bool DA_PersistentSettings::save_settings()
+void DA_PersistentSettings::save_settings()
 {
     if(!IsLoaded())
     {
@@ -173,18 +177,18 @@ bool DA_PersistentSettings::save_settings()
     Q_ASSERT(loc != "");
 
     QtLockedFile lf(loc);
-    if(!lf.open(QFile::ReadWrite))
-    {
-        throw GUtil::Exception("Couldn't open the settings file for writing");
-    }
+    QFile::OpenMode mode = _readonly ? QFile::ReadOnly : QFile::ReadWrite;
+    if(!lf.open(mode))
+        throw GUtil::Exception(QString("Couldn't open the settings file: %1")
+                               .arg(lf.errorString()).toStdString());
 
-    if(!lf.lock(QtLockedFile::WriteLock, true))
-    {
-        return false;
-    }
+    QtLockedFile::LockMode mode2 = _readonly ? QtLockedFile::ReadLock : QtLockedFile::WriteLock;
+    if(!lf.lock(mode2, true))
+        throw GUtil::Exception(lf.errorString().toStdString());
 
     if(!lf.resize(0))
-        throw GUtil::Exception("Couldn't truncate settings file?");
+        throw GUtil::Exception(QString("Couldn't truncate settings file?  %1")
+                               .arg(lf.errorString()).toStdString());
 
     // At this point the settings file is ours for sole writing
     QString xmlstr;
@@ -223,10 +227,9 @@ bool DA_PersistentSettings::save_settings()
     lf.close();
 
     emit NotifySaved();
-    return true;
 }
 
-bool DA_PersistentSettings::load_settings(const QString &settings_filename)
+void DA_PersistentSettings::load_settings(const QString &settings_filename)
 {
     if(!_lock_acquired && !(_lock_acquired = _userlock->Lock()))
         throw GUtil::Exception("Could not acquire user lock");
@@ -234,24 +237,33 @@ bool DA_PersistentSettings::load_settings(const QString &settings_filename)
     _loaded = false;
 
     if(settings_filename == "")
-    {
-        return false;
-    }
+        return;
 
     QString loc;
     _identity_string = settings_filename;
     loc = get_settings_location();
 
+    QtLockedFile l(_settings_lockfilename);
     QtLockedFile lf(loc);
+    _readonly = !l.open(QFile::ReadWrite);
+
     if(!lf.open(QFile::ReadOnly))
     {
+        if(!_readonly)
+            l.close();
         throw GUtil::Exception(QString("Couldn't open the settings file for reading: %1")
                                .arg(FileName()).toStdString());
     }
 
+    if(!_readonly && !l.lock(QtLockedFile::WriteLock))
+        _readonly = true;
+
+
     if(!lf.lock(QtLockedFile::ReadLock, true))
     {
-        return false;
+        lf.close();
+        throw GUtil::Exception(QString("Couldn't open settings file: %1")
+                               .arg(lf.errorString()).toStdString());
     }
 
     QString dat = QString::fromAscii(lf.readAll());
@@ -277,7 +289,7 @@ bool DA_PersistentSettings::load_settings(const QString &settings_filename)
         sr.readNext();
     }
 
-    return (_loaded = true);
+    _loaded = true;
 }
 
 QString DA_PersistentSettings::get_settings_location()
@@ -298,7 +310,10 @@ QString DA_PersistentSettings::get_settings_location()
 
     tmpdir.cd(app_name);
 
-    _settings_filename = tmpdir.absolutePath() + "/" + fl;
+    _settings_filename = QString("%1/%2").arg(tmpdir.absolutePath()).arg(fl);
+    _settings_lockfilename = QString("%1/%2.%3").arg(tmpdir.absolutePath())
+                             .arg(app_name.toLower())
+                             .arg("settings.lockfile");
 
     if(!tmpdir.exists(fl))
     {
@@ -324,6 +339,11 @@ QString DA_PersistentSettings::Error() const
 bool DA_PersistentSettings::IsLoaded() const
 {
     return _loaded;
+}
+
+bool DA_PersistentSettings::IsReadonly() const
+{
+    return _readonly;
 }
 
 QString DA_PersistentSettings::FileName() const

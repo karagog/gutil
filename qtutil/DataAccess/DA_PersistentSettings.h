@@ -54,24 +54,25 @@ namespace GQtUtil
             ~DA_PersistentSettings();
 
             // Re-read the settings file
-            bool Reload();
+            void Reload();
 
-            bool SetValue(const QString &key, const QString& value);
-            bool SetValues(const QMap<QString, QString> &);
+            void SetValue(const QString &key, const QString& value);
+            void SetValues(const QMap<QString, QString> &);
 
-            QString Value(const QString &key);
-            const QMap<QString, QString> Values(const QStringList &);
+            QString Value(const QString &key) const;
+            const QMap<QString, QString> Values(const QStringList &) const;
             const QString operator [](const QString &) const;
 
             bool IsLoaded() const;
+            bool IsReadonly() const;
             bool Contains(const QString &key);
 
             // Erase all settings
-            bool Clear();
+            void Clear();
 
             // Remove a specific key
-            bool Remove(const QString &);
-            bool Remove(const QStringList &);
+            void Remove(const QString &);
+            void Remove(const QStringList &);
 
             QString Identity() const;
             QString FileName() const;
@@ -82,19 +83,21 @@ namespace GQtUtil
             void NotifySaved();
 
         private slots:
-            bool save_settings();
-            bool load_settings(const QString &);
+            void save_settings();
+            void load_settings(const QString &);
 
         private:
             QString _error;
             QMap<QString, QString> _values;
             QString _identity_string;
             QString _settings_filename;
+            QString _settings_lockfilename;
 
             DA_UserMachineLock *_userlock;
             bool _lock_acquired;
 
             bool _loaded;
+            bool _readonly;
 
             QString get_settings_location();
         };
