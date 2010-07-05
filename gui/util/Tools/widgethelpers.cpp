@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QWidget>
 
 
-using namespace GUtil::QtUtil;
+using namespace GUtil::QtUtil::Tools;
 
 void WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
 {

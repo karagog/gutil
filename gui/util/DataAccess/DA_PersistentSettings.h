@@ -23,85 +23,87 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        class UserMachineLock;
-
-        // This encapsulates persistent settings for your application
-
-        // This class is NOT thread-safe, so don't share the same Settings object
-        //  between several threads.  However, you CAN use several 'Settings'
-        //  objects and access the same settings identifier from different applications
-        //  at the same time.  It implements a file-locking mechanism to make sure
-        //  that the writer has exclusive access, and the others block until the
-        //  the lock is released, but they never hold the lock for long so the blocking
-        //  time is minimal.  If you want to use the same settings identifier from different
-        //  threads of the same application, then you have to implement your own locking.
-
-        class Settings : public QObject
+        namespace DataAccess
         {
-            Q_OBJECT
-        public:
+            class DA_UserMachineLock;
 
-            // The identity with which you initialize this settings object
-            //  will determine the name of the settings file that it looks
-            //  at.  You don't care what the filename is because that's all
-            //  managed for you, but you can create a separate settings
-            //  object and access the same values as any other settings
-            //  object with the same identity.  (careful when modifying the
-            //  settings though, because all other settings objects with
-            //  the same identity will not be notified of the changes!  To
-            //  force an update manually, call 'Reload()')
-            Settings(const QString &identity);
-            ~Settings();
+            // This encapsulates persistent settings for your application
 
-            // Re-read the settings file
-            bool Reload();
+            // This class is NOT thread-safe, so don't share the same Settings object
+            //  between several threads.  However, you CAN use several 'Settings'
+            //  objects and access the same settings identifier from different applications
+            //  at the same time.  It implements a file-locking mechanism to make sure
+            //  that the writer has exclusive access, and the others block until the
+            //  the lock is released, but they never hold the lock for long so the blocking
+            //  time is minimal.  If you want to use the same settings identifier from different
+            //  threads of the same application, then you have to implement your own locking.
 
-            bool SetValue(const QString &key, const QString& value);
-            bool SetValues(const QMap<QString, QString> &);
+            class DA_PersistentSettings : public QObject
+            {
+                Q_OBJECT
+            public:
 
-            QString Value(const QString &key);
-            const QMap<QString, QString> Values(const QStringList &);
-            const QString operator [](const QString &) const;
+                // The identity with which you initialize this settings object
+                //  will determine the name of the settings file that it looks
+                //  at.  You don't care what the filename is because that's all
+                //  managed for you, but you can create a separate settings
+                //  object and access the same values as any other settings
+                //  object with the same identity.  (careful when modifying the
+                //  settings though, because all other settings objects with
+                //  the same identity will not be notified of the changes!  To
+                //  force an update manually, call 'Reload()')
+                DA_PersistentSettings(const QString &identity);
+                ~DA_PersistentSettings();
 
-            bool IsLoaded() const;
-            bool Contains(const QString &key);
+                // Re-read the settings file
+                bool Reload();
 
-            // Erase all settings
-            bool Clear();
+                bool SetValue(const QString &key, const QString& value);
+                bool SetValues(const QMap<QString, QString> &);
 
-            // Remove a specific key
-            bool Remove(const QString &);
-            bool Remove(const QStringList &);
+                QString Value(const QString &key);
+                const QMap<QString, QString> Values(const QStringList &);
+                const QString operator [](const QString &) const;
 
-            QString Identity() const;
-            QString FileName() const;
+                bool IsLoaded() const;
+                bool Contains(const QString &key);
 
-            QString Error() const;
+                // Erase all settings
+                bool Clear();
 
-        signals:
-            void NotifySaved();
+                // Remove a specific key
+                bool Remove(const QString &);
+                bool Remove(const QStringList &);
 
-        private slots:
-            void clear_error();
-            bool save_settings();
-            bool load_settings(const QString &);
+                QString Identity() const;
+                QString FileName() const;
 
-        private:
-            QString _error;
-            QMap<QString, QString> _values;
-            QString _identity_string;
-            QString _settings_filename;
+                QString Error() const;
 
-            UserMachineLock *_userlock;
-            bool _lock_acquired;
+            signals:
+                void NotifySaved();
 
-            bool _loaded;
+            private slots:
+                void clear_error();
+                bool save_settings();
+                bool load_settings(const QString &);
 
-            QString get_settings_location();
+            private:
+                QString _error;
+                QMap<QString, QString> _values;
+                QString _identity_string;
+                QString _settings_filename;
 
-            void set_error(const QString &err = "");
-        };
+                DA_UserMachineLock *_userlock;
+                bool _lock_acquired;
 
+                bool _loaded;
+
+                QString get_settings_location();
+
+                void set_error(const QString &err = "");
+            };
+        }
     }
 }
 

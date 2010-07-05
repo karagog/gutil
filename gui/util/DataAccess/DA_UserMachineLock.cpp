@@ -15,9 +15,9 @@ limitations under the License.*/
 #include "DA_UserMachineLock.h"
 #include "qtlockedfile.h"
 #include <QDir>
-using namespace GUtil::QtUtil;
+using namespace GUtil::QtUtil::DataAccess;
 
-UserMachineLock::UserMachineLock(const QString &id)
+DA_UserMachineLock::DA_UserMachineLock(const QString &id)
 {
     QString filename = (QDir::tempPath() + "/%1.userlock").arg(id);
     _lf = new QtLockedFile(filename);
@@ -26,7 +26,7 @@ UserMachineLock::UserMachineLock(const QString &id)
     _error = "";
 }
 
-UserMachineLock::~UserMachineLock()
+DA_UserMachineLock::~DA_UserMachineLock()
 {
     Unlock();
 
@@ -40,7 +40,7 @@ UserMachineLock::~UserMachineLock()
 //    _loaded = init(id);
 //}
 
-bool UserMachineLock::Lock()
+bool DA_UserMachineLock::Lock()
 {
     if(_locked)
         return true;
@@ -61,7 +61,7 @@ bool UserMachineLock::Lock()
     return true;
 }
 
-void UserMachineLock::Unlock()
+void DA_UserMachineLock::Unlock()
 {
     if(!_locked)
         return;
@@ -74,12 +74,12 @@ void UserMachineLock::Unlock()
     QFile::remove(_lf->fileName());
 }
 
-QString UserMachineLock::Error() const
+QString DA_UserMachineLock::Error() const
 {
     return _error;
 }
 
-QString UserMachineLock::FileName() const
+QString DA_UserMachineLock::FileName() const
 {
     return _lf->fileName();
 }

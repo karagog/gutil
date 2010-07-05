@@ -24,31 +24,34 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        // This class is reentrant, so feel free to access it from multiple threads
-
-        class PubSubSystem : public QObject
+        namespace Utils
         {
-            Q_OBJECT
-        public:
-            explicit PubSubSystem(QObject *parent = 0);
+            // This class is reentrant, so feel free to access it from multiple threads
 
-            QVariant getData(int id);
+            class PubSubSystem : public QObject
+            {
+                Q_OBJECT
+            public:
+                explicit PubSubSystem(QObject *parent = 0);
 
-        signals:
-            void notifyMessage(QString title, QString message);
-            void notifyProgress(int progress, int id);
+                QVariant getData(int id);
 
-        public slots:
-            void publishMessage(QString title, QString message);
-            void publishProgress(int progress, int id = -1);
+            signals:
+                void notifyMessage(QString title, QString message);
+                void notifyProgress(int progress, int id);
 
-            void setData(int, const QVariant &);
+            public slots:
+                void publishMessage(QString title, QString message);
+                void publishProgress(int progress, int id = -1);
 
-        private:
-            QReadWriteLock data_lock;
-            QMap<int, QVariant> _data;
+                void setData(int, const QVariant &);
 
-        };
+            private:
+                QReadWriteLock data_lock;
+                QMap<int, QVariant> _data;
+
+            };
+        }
     }
 }
 

@@ -24,11 +24,11 @@ limitations under the License.*/
 #include <QTimer>
 #include <QVariant>
 
-using namespace GUtil::QtUtil;
+using namespace GUtil::QtUtil::DataAccess;
 
-Settings::Settings(const QString &identity)
+DA_PersistentSettings::DA_PersistentSettings(const QString &identity)
 {
-    _userlock = new UserMachineLock(identity);
+    _userlock = new DA_UserMachineLock(identity);
     _lock_acquired = false;
 
     _loaded = false;
@@ -37,22 +37,22 @@ Settings::Settings(const QString &identity)
     load_settings(identity);
 }
 
-Settings::~Settings()
+DA_PersistentSettings::~DA_PersistentSettings()
 {
     delete _userlock;
 }
 
-bool Settings::Reload()
+bool DA_PersistentSettings::Reload()
 {
     return load_settings(_identity_string);
 }
 
-void Settings::clear_error()
+void DA_PersistentSettings::clear_error()
 {
     _error = "";
 }
 
-void Settings::set_error(const QString &err)
+void DA_PersistentSettings::set_error(const QString &err)
 {
     _error = err;
 
@@ -60,7 +60,7 @@ void Settings::set_error(const QString &err)
     //    throw new Exception(err.toStdString());
 }
 
-bool Settings::SetValue(const QString &key, const QString& value)
+bool DA_PersistentSettings::SetValue(const QString &key, const QString& value)
 {
     if(!IsLoaded())
     {
@@ -72,7 +72,7 @@ bool Settings::SetValue(const QString &key, const QString& value)
     return save_settings();
 }
 
-bool Settings::SetValues(const QMap<QString, QString> &values)
+bool DA_PersistentSettings::SetValues(const QMap<QString, QString> &values)
 {
     if(!IsLoaded())
     {
@@ -95,7 +95,7 @@ bool Settings::SetValues(const QMap<QString, QString> &values)
     return true;
 }
 
-QString Settings::Value(const QString &key)
+QString DA_PersistentSettings::Value(const QString &key)
 {
     if(!IsLoaded())
     {
@@ -106,7 +106,7 @@ QString Settings::Value(const QString &key)
     return _values.value(key, "");
 }
 
-const QMap<QString, QString> Settings::Values(const QStringList &keys)
+const QMap<QString, QString> DA_PersistentSettings::Values(const QStringList &keys)
 {
     QMap<QString, QString> ret;
     if(!IsLoaded())
@@ -124,7 +124,7 @@ const QMap<QString, QString> Settings::Values(const QStringList &keys)
     return ret;
 }
 
-bool Settings::Contains(const QString &key)
+bool DA_PersistentSettings::Contains(const QString &key)
 {
     if(!IsLoaded())
     {
@@ -135,14 +135,14 @@ bool Settings::Contains(const QString &key)
     return _values.contains(key);
 }
 
-bool Settings::Clear()
+bool DA_PersistentSettings::Clear()
 {
     _values.clear();
 
     return save_settings();
 }
 
-bool Settings::Remove(const QString &key)
+bool DA_PersistentSettings::Remove(const QString &key)
 {
     QMap<QString, QString>::iterator it = _values.find(key);
 
@@ -156,7 +156,7 @@ bool Settings::Remove(const QString &key)
     return true;
 }
 
-bool Settings::Remove(const QStringList &keys)
+bool DA_PersistentSettings::Remove(const QStringList &keys)
 {
     QMap<QString, QString>::iterator it;
     bool val_erased = false;
@@ -177,7 +177,7 @@ bool Settings::Remove(const QStringList &keys)
     return val_erased ? save_settings() : true;
 }
 
-bool Settings::save_settings()
+bool DA_PersistentSettings::save_settings()
 {
     if(!IsLoaded())
     {
@@ -249,7 +249,7 @@ bool Settings::save_settings()
     return true;
 }
 
-bool Settings::load_settings(const QString &settings_filename)
+bool DA_PersistentSettings::load_settings(const QString &settings_filename)
 {
     if(!_lock_acquired && !(_lock_acquired = _userlock->Lock()))
     {
@@ -308,7 +308,7 @@ bool Settings::load_settings(const QString &settings_filename)
     return (_loaded = true);
 }
 
-QString Settings::get_settings_location()
+QString DA_PersistentSettings::get_settings_location()
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     QString app_name = _identity_string;
@@ -350,17 +350,17 @@ QString Settings::get_settings_location()
     return _settings_filename;
 }
 
-QString Settings::Error() const
+QString DA_PersistentSettings::Error() const
 {
     return _error;
 }
 
-bool Settings::IsLoaded() const
+bool DA_PersistentSettings::IsLoaded() const
 {
     return _loaded;
 }
 
-QString Settings::FileName() const
+QString DA_PersistentSettings::FileName() const
 {
     if(!IsLoaded())
     {
@@ -370,12 +370,12 @@ QString Settings::FileName() const
     return _settings_filename;
 }
 
-QString Settings::Identity() const
+QString DA_PersistentSettings::Identity() const
 {
     return _identity_string;
 }
 
-const QString Settings::operator [](const QString &key) const
+const QString DA_PersistentSettings::operator [](const QString &key) const
 {
     return _values[key];
 }

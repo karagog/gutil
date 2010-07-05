@@ -21,28 +21,31 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        // An interface for a thread that implements cancelling
-        //  Note: You have to manually check if 'isCancelled()' is true and then
-        //   exit by yourself.  That's why I say this is just an interface.
-        class CancellableThread : public QThread
+        namespace Tools
         {
-            Q_OBJECT
-        public:
-            explicit CancellableThread(QObject *parent = 0);
+            // An interface for a thread that implements cancelling
+            //  Note: You have to manually check if 'isCancelled()' is true and then
+            //   exit by yourself.  That's why I say this is just an interface.
+            class CancellableThread : public QThread
+            {
+                Q_OBJECT
+            public:
+                explicit CancellableThread(QObject *parent = 0);
 
-            bool isCancelled();
-            void uncancel();
+                bool isCancelled();
+                void uncancel();
 
-        signals:
-            void notifyCancelled();
+            signals:
+                void notifyCancelled();
 
-        public slots:
-            void cancel();
+            public slots:
+                void cancel();
 
 
-        private:
-            bool is_cancelled;
-        };
+            private:
+                bool is_cancelled;
+            };
+        }
     }
 }
 

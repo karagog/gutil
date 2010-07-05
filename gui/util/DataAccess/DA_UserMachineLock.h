@@ -22,24 +22,27 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        class UserMachineLock
+        namespace DataAccess
         {
-        public:
-            UserMachineLock(const QString &);
-            ~UserMachineLock();
+            class DA_UserMachineLock
+            {
+            public:
+                DA_UserMachineLock(const QString &);
+                ~DA_UserMachineLock();
 
-            bool Lock();
-            void Unlock();
+                bool Lock();
+                void Unlock();
 
-            QString Error() const;
-            QString FileName() const;
+                QString Error() const;
+                QString FileName() const;
 
-        private:
-            QtLockedFile *_lf;
+            private:
+                QtLockedFile *_lf;
 
-            bool _locked;
-            QString _error;
-        };
+                bool _locked;
+                QString _error;
+            };
+        }
     }
 }
 

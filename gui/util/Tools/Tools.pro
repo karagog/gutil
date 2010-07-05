@@ -5,12 +5,10 @@ CONFIG += staticlib
 
 HEADERS += \
     widgethelpers.h \
-    cancellablethread.h \
-    filesystemhelpers.h
+    cancellablethread.h
 
 SOURCES += \
     widgethelpers.cpp \
-    cancellablethread.cpp \
-    filesystemhelpers.cpp
+    cancellablethread.cpp
 
 INCLUDEPATH += ../../../util

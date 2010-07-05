@@ -21,17 +21,20 @@ namespace GUtil
 {
     namespace QtUtil
     {
-        class WidgetHelpers
+        namespace Tools
         {
-        public:
+            class WidgetHelpers
+            {
+            public:
 
-            // Center the second widget over the first one
-            static void centerOverWidget(QWidget *, QWidget *);
+                // Center the second widget over the first one
+                static void centerOverWidget(QWidget *, QWidget *);
 
-            // Put the widget in the center of the screen
-            static void centerInScreen(QWidget *);
+                // Put the widget in the center of the screen
+                static void centerInScreen(QWidget *);
 
-        };
+            };
+        }
     }
 }
 

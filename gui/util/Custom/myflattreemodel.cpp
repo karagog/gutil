@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "myflattreemodel.h"
 
-using namespace GUtil::QtUtil;
+using namespace GUtil::QtUtil::Custom;
 
 myFlatTreeModel::myFlatTreeModel(QObject *parent) :
     QAbstractProxyModel(parent)
