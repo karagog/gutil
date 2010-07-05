@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <QTimer>
 #include <QEvent>
 #include <QApplication>
-using namespace GUtil::QtControls::EffectsWidgets;
+using namespace GUtil::QtUtil::Controls::EffectsWidgets;
 
 #define FADE_RESOLUTION 40
 

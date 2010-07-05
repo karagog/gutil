@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-04-17T23:08:47
 # -------------------------------------------------
-TARGET = QtControls
+DESTDIR = ../lib
 TEMPLATE = lib
 CONFIG += staticlib
 HEADERS += line_edit_with_button.h \

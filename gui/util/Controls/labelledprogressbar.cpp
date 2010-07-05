@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <QPushButton>
 #include <QProgressBar>
 
-using namespace GUtil::QtControls;
+using namespace GUtil::QtUtil::Controls;
 
 LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
     QWidget(parent)

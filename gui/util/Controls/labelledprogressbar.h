@@ -24,29 +24,32 @@ class QProgressBar;
 
 namespace GUtil
 {
-    namespace QtControls
+    namespace QtUtil
     {
-        class LabelledProgressBar : public QWidget
+        namespace Controls
         {
-            Q_OBJECT
+            class LabelledProgressBar : public QWidget
+            {
+                Q_OBJECT
 
-        public:
-            explicit LabelledProgressBar(QWidget *parent = 0);
+            public:
+                explicit LabelledProgressBar(QWidget *parent = 0);
 
-            void setButtonEnabled(bool which = true);
+                void setButtonEnabled(bool which = true);
 
-            QLabel *label();
-            QProgressBar *progressBar();
-            QPushButton *pushButton();
+                QLabel *label();
+                QProgressBar *progressBar();
+                QPushButton *pushButton();
 
-            // Use this if you want to store any kind of data/state within the control
-            QVariant data;
+                // Use this if you want to store any kind of data/state within the control
+                QVariant data;
 
-        private:
-            QProgressBar *_progressBar;
-            QLabel *_label;
-            QPushButton *button;
-        };
+            private:
+                QProgressBar *_progressBar;
+                QLabel *_label;
+                QPushButton *button;
+            };
+        }
     }
 }
 
