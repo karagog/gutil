@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "labelledprogressbar.h"
+#include "progressbarcontrol.h"
 #include <Qlabel>
 #include <QStackedLayout>
 #include <QVBoxLayout>
@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QProgressBar>
 using namespace GQtUtil::Controls;
 
-LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
+ProgressBarControl::ProgressBarControl(QWidget *parent) :
     QWidget(parent)
 {
     button = new QPushButton(this);
@@ -47,7 +47,7 @@ LabelledProgressBar::LabelledProgressBar(QWidget *parent) :
     _progressBar->layout()->addWidget(button);
 }
 
-void LabelledProgressBar::setButtonEnabled(bool which)
+void ProgressBarControl::setButtonEnabled(bool which)
 {
     if(which)
     {
@@ -60,17 +60,17 @@ void LabelledProgressBar::setButtonEnabled(bool which)
     }
 }
 
-QLabel *LabelledProgressBar::label()
+QLabel *ProgressBarControl::label()
 {
     return _label;
 }
 
-QProgressBar *LabelledProgressBar::progressBar()
+QProgressBar *ProgressBarControl::progressBar()
 {
     return _progressBar;
 }
 
-QPushButton *LabelledProgressBar::pushButton()
+QPushButton *ProgressBarControl::pushButton()
 {
     return button;
 }

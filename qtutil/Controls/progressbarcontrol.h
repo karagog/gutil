@@ -26,12 +26,12 @@ namespace GQtUtil
 {
     namespace Controls
     {
-        class LabelledProgressBar : public QWidget
+        class ProgressBarControl : public QWidget
         {
             Q_OBJECT
 
         public:
-            explicit LabelledProgressBar(QWidget *parent = 0);
+            explicit ProgressBarControl(QWidget *parent = 0);
 
             void setButtonEnabled(bool which = true);
 

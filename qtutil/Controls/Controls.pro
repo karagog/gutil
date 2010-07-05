@@ -6,7 +6,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 HEADERS += line_edit_with_button.h \
     effectswidgets.h \
-    labelledprogressbar.h
+    progressbarcontrol.h
 SOURCES += line_edit_with_button.cpp \
     effectswidgets.cpp \
-    labelledprogressbar.cpp
+    progressbarcontrol.cpp
