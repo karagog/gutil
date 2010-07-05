@@ -18,58 +18,55 @@ limitations under the License.*/
 #include <QAbstractProxyModel>
 #include <QMap>
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace Custom
     {
-        namespace Custom
+        // This class will represent a tree model as a list model, essentially
+        //  throwing away the hierarchy and letting you access it like a list
+        class myFlatTreeModel : public QAbstractProxyModel
         {
-            // This class will represent a tree model as a list model, essentially
-            //  throwing away the hierarchy and letting you access it like a list
-            class myFlatTreeModel : public QAbstractProxyModel
-            {
-                Q_OBJECT
-            public:
-                explicit myFlatTreeModel(QObject *parent = 0);
+            Q_OBJECT
+        public:
+            explicit myFlatTreeModel(QObject *parent = 0);
 
-                virtual void setSourceModel(QAbstractItemModel *);
+            virtual void setSourceModel(QAbstractItemModel *);
 
-            public slots:
-                void refreshSourceModel();
+        public slots:
+            void refreshSourceModel();
 
-            protected:
-                virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-                virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+        protected:
+            virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+            virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 
-                virtual QModelIndex parent(const QModelIndex &) const;
-                virtual QModelIndex index(int row, int column, const QModelIndex &par = QModelIndex()) const;
-                virtual int rowCount(const QModelIndex &parent) const;
-                virtual int columnCount(const QModelIndex &parent) const;
-                virtual QVariant data(const QModelIndex &proxyIndex, int role) const;
+            virtual QModelIndex parent(const QModelIndex &) const;
+            virtual QModelIndex index(int row, int column, const QModelIndex &par = QModelIndex()) const;
+            virtual int rowCount(const QModelIndex &parent) const;
+            virtual int columnCount(const QModelIndex &parent) const;
+            virtual QVariant data(const QModelIndex &proxyIndex, int role) const;
 
-            private:
-                int _count_preceeding_indexes(const QModelIndex &) const;
-                int _count_child_indexes(const QModelIndex &ind = QModelIndex());
-                void _refresh_index_mapping(const QModelIndex &ind = QModelIndex());
+        private:
+            int _count_preceeding_indexes(const QModelIndex &) const;
+            int _count_child_indexes(const QModelIndex &ind = QModelIndex());
+            void _refresh_index_mapping(const QModelIndex &ind = QModelIndex());
 
-                QModelIndex _map_from_source(const QModelIndex &sourceIndex);
+            QModelIndex _map_from_source(const QModelIndex &sourceIndex);
 
-                void _reset_model();
+            void _reset_model();
 
-                QMap<int, QPersistentModelIndex> _index_map_to_source;
-                QMap<int, int> _index_map_from_source;
-                QMap<int, int> _child_record;
-                void _refresh_child_record();
+            QMap<int, QPersistentModelIndex> _index_map_to_source;
+            QMap<int, int> _index_map_from_source;
+            QMap<int, int> _child_record;
+            void _refresh_child_record();
 
-                int _total_rows;
+            int _total_rows;
 
-            private slots:
-                void source_model_about_to_be_reset();
-                void source_model_reset();
+        private slots:
+            void source_model_about_to_be_reset();
+            void source_model_reset();
 
-                void source_model_data_changed(const QModelIndex &, const QModelIndex &);
-            };
-        }
+            void source_model_data_changed(const QModelIndex &, const QModelIndex &);
+        };
     }
 }
 

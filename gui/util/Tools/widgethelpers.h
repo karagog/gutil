@@ -17,24 +17,21 @@ limitations under the License.*/
 
 class QWidget;
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace Tools
     {
-        namespace Tools
+        class WidgetHelpers
         {
-            class WidgetHelpers
-            {
-            public:
+        public:
 
-                // Center the second widget over the first one
-                static void centerOverWidget(QWidget *, QWidget *);
+            // Center the second widget over the first one
+            static void centerOverWidget(QWidget *, QWidget *);
 
-                // Put the widget in the center of the screen
-                static void centerInScreen(QWidget *);
+            // Put the widget in the center of the screen
+            static void centerInScreen(QWidget *);
 
-            };
-        }
+        };
     }
 }
 

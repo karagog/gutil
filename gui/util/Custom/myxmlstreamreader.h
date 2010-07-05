@@ -18,33 +18,30 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace Custom
     {
-        namespace Custom
+        class myXmlStreamReader : public QXmlStreamReader
         {
-            class myXmlStreamReader : public QXmlStreamReader
-            {
-            public:
-                myXmlStreamReader();
-                myXmlStreamReader(const QString &);
-                myXmlStreamReader(QIODevice *);
-                myXmlStreamReader(const QByteArray &);
-                myXmlStreamReader(const char *);
+        public:
+            myXmlStreamReader();
+            myXmlStreamReader(const QString &);
+            myXmlStreamReader(QIODevice *);
+            myXmlStreamReader(const QByteArray &);
+            myXmlStreamReader(const char *);
 
-                // Reads the inner Xml of the current start element, including itself
-                //  and all children recursively.  It ends while pointing at the element's
-                //  corresponding end element.
-                QString InnerXml();
+            // Reads the inner Xml of the current start element, including itself
+            //  and all children recursively.  It ends while pointing at the element's
+            //  corresponding end element.
+            QString InnerXml();
 
-                // Only read the inner text, not including the node itself
-                QString InnerText();
+            // Only read the inner text, not including the node itself
+            QString InnerText();
 
-            private:
-                void _read_inner_xml(QXmlStreamWriter &);
-            };
-        }
+        private:
+            void _read_inner_xml(QXmlStreamWriter &);
+        };
     }
 }
 

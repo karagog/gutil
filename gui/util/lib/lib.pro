@@ -11,7 +11,7 @@ extract_dataaccess.commands = ar -x libDataAccess.a
 extract_tools.commands = ar -x libTools.a
 extract_utils.commands = ar -x libUtils.a
 
-buildlib.commands = ar -ru ../libGQtUtil.a *.o
+buildlib.commands = ar -ru ../libGGQtUtil.a *.o
 
 cleanup.commands = rm *.o
 

@@ -23,8 +23,8 @@ limitations under the License.*/
 #include <QDir>
 #include <QTimer>
 #include <QVariant>
-
-using namespace GUtil::QtUtil::DataAccess;
+using namespace GUtil;
+using namespace GQtUtil::DataAccess;
 
 DA_PersistentSettings::DA_PersistentSettings(const QString &identity)
 {

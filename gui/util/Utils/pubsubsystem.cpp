@@ -1,7 +1,6 @@
 #include "pubsubsystem.h"
 #include "exception.h"
-
-using namespace GUtil::QtUtil::Utils;
+using namespace GQtUtil::Utils;
 
 PubSubSystem::PubSubSystem(QObject *parent) :
     QObject(parent)

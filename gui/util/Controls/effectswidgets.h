@@ -18,65 +18,62 @@ limitations under the License.*/
 #include <QWidget>
 #include <QMutex>
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace Controls
     {
-        namespace Controls
+        namespace EffectsWidgets
         {
-            namespace EffectsWidgets
+            // Use this code snippet as an example for how to use this class:
+
+            // FaderWidget *fader = new FaderWidget(<Widget that you want faded>);
+            // fader->fadeIn();
+
+
+            class FaderWidget : public QWidget
             {
-                // Use this code snippet as an example for how to use this class:
+                Q_OBJECT
+                Q_PROPERTY(QColor fadeColor READ fadeColor \
+                           WRITE setFadeColor)
+                        Q_PROPERTY(int fadeDuration READ fadeDuration \
+                                   WRITE setFadeDuration)
+            public:
+                        FaderWidget(QWidget *par, int fade_duration = 333,
+                                    int start_delay = 0);
 
-                // FaderWidget *fader = new FaderWidget(<Widget that you want faded>);
-                // fader->fadeIn();
+                QColor fadeColor() const;
+                void setFadeColor(const QColor &);
+                int fadeDuration() const;
+                void setFadeDuration(int);
 
+            public slots:
+                void fadeOut(bool skip_fade = false);
+                void fadeIn(bool skip_fade = false);
+                void toggleFade(bool skip_fade = false);
 
-                class FaderWidget : public QWidget
-                {
-                    Q_OBJECT
-                    Q_PROPERTY(QColor fadeColor READ fadeColor \
-                               WRITE setFadeColor)
-                            Q_PROPERTY(int fadeDuration READ fadeDuration \
-                                       WRITE setFadeDuration)
-                public:
-                            FaderWidget(QWidget *par, int fade_duration = 333,
-                                        int start_delay = 0);
+            signals:
+                void doneFading(bool faded_in);
 
-                    QColor fadeColor() const;
-                    void setFadeColor(const QColor &);
-                    int fadeDuration() const;
-                    void setFadeDuration(int);
+            protected:
+                void paintEvent(QPaintEvent *event);
+                bool eventFilter(QObject *, QEvent *);
 
-                public slots:
-                    void fadeOut(bool skip_fade = false);
-                    void fadeIn(bool skip_fade = false);
-                    void toggleFade(bool skip_fade = false);
+            private slots:
+                void start_fading();
+                void _start();
 
-                signals:
-                    void doneFading(bool faded_in);
+            private:
+                QTimer *timer;
+                int currentAlpha;
+                QColor color;
+                int duration;
+                int delay;
+                bool _fade_in;
+                bool skipped_fade;
+                QMutex thislock;
+                QMutex fadelock;
 
-                protected:
-                    void paintEvent(QPaintEvent *event);
-                    bool eventFilter(QObject *, QEvent *);
-
-                private slots:
-                    void start_fading();
-                    void _start();
-
-                private:
-                    QTimer *timer;
-                    int currentAlpha;
-                    QColor color;
-                    int duration;
-                    int delay;
-                    bool _fade_in;
-                    bool skipped_fade;
-                    QMutex thislock;
-                    QMutex fadelock;
-
-                };
-            }
+            };
         }
     }
 }

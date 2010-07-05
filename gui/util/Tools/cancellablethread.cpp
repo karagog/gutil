@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "cancellablethread.h"
-using namespace GUtil::QtUtil::Tools;
+using namespace GQtUtil::Tools;
 
 CancellableThread::CancellableThread(QObject *parent) :
     QThread(parent)

@@ -19,8 +19,8 @@ limitations under the License.*/
 #include <QShowEvent>
 #include <QEvent>
 #include <QHBoxLayout>
-using namespace GUtil::QtUtil::Controls;
-using namespace GUtil::QtUtil::Controls::EffectsWidgets;
+using namespace GQtUtil::Controls;
+using namespace GQtUtil::Controls::EffectsWidgets;
 
 line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int fade_duration) :
     QWidget(par)

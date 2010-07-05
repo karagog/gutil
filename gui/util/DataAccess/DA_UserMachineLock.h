@@ -18,31 +18,28 @@ limitations under the License.*/
 
 class QtLockedFile;
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace DataAccess
     {
-        namespace DataAccess
+        class DA_UserMachineLock
         {
-            class DA_UserMachineLock
-            {
-            public:
-                DA_UserMachineLock(const QString &);
-                ~DA_UserMachineLock();
+        public:
+            DA_UserMachineLock(const QString &);
+            ~DA_UserMachineLock();
 
-                bool Lock();
-                void Unlock();
+            bool Lock();
+            void Unlock();
 
-                QString Error() const;
-                QString FileName() const;
+            QString Error() const;
+            QString FileName() const;
 
-            private:
-                QtLockedFile *_lf;
+        private:
+            QtLockedFile *_lf;
 
-                bool _locked;
-                QString _error;
-            };
-        }
+            bool _locked;
+            QString _error;
+        };
     }
 }
 

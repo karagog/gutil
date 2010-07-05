@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "DA_UserMachineLock.h"
 #include "qtlockedfile.h"
 #include <QDir>
-using namespace GUtil::QtUtil::DataAccess;
+using namespace GQtUtil::DataAccess;
 
 DA_UserMachineLock::DA_UserMachineLock(const QString &id)
 {

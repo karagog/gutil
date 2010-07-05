@@ -23,54 +23,51 @@ limitations under the License.*/
 // Use this class to manage binary data.  This is useful for storing and accessing
 //  lots of files without consuming lots of memory
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace DataAccess
     {
-        namespace DataAccess
+        class DA_BinaryDataStore
         {
-            class DA_BinaryDataStore
-            {
-            public:
+        public:
 
-                DA_BinaryDataStore(const QString&, bool primary = true);
-                ~DA_BinaryDataStore();
+            DA_BinaryDataStore(const QString&, bool primary = true);
+            ~DA_BinaryDataStore();
 
-                //  (All of the public functions can be treated atomically,
-                //   and can be executed safely from multiple threads)
+            //  (All of the public functions can be treated atomically,
+            //   and can be executed safely from multiple threads)
 
-                // For manipulating files
-                int addFile(const QString &);
-                int addFile(int, const QString &);
-                void removeFile(int);
-                QString getFile(int);
-                bool hasFile(int id);
+            // For manipulating files
+            int addFile(const QString &);
+            int addFile(int, const QString &);
+            void removeFile(int);
+            QString getFile(int);
+            bool hasFile(int id);
 
-                // Clear all files
-                void reset();
+            // Clear all files
+            void reset();
 
-                // List the id's that we've got
-                QList<int> idList();
+            // List the id's that we've got
+            QList<int> idList();
 
-                // Set aside the list of ids
-                bool reserveIdList(const QList<int> &);
+            // Set aside the list of ids
+            bool reserveIdList(const QList<int> &);
 
-            private:
-                QString my_id;
-                QString file_location;
+        private:
+            QString my_id;
+            QString file_location;
 
-                int get_free_file_id(QSqlDatabase &);
+            int get_free_file_id(QSqlDatabase &);
 
-                void prep_database(QSqlDatabase &);
-                static QString get_file_loc(const QString &id);
+            void prep_database(QSqlDatabase &);
+            static QString get_file_loc(const QString &id);
 
-                int add_file(int, const QString &, QSqlDatabase&);
-                bool has_file(int id, QSqlDatabase &);
-                void remove_file(int, QSqlDatabase &);
+            int add_file(int, const QString &, QSqlDatabase&);
+            bool has_file(int id, QSqlDatabase &);
+            void remove_file(int, QSqlDatabase &);
 
-                void _execute_insertion(QSqlQuery &, int, const QString &);
-            };
-        }
+            void _execute_insertion(QSqlQuery &, int, const QString &);
+        };
     }
 }
 

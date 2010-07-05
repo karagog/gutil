@@ -20,38 +20,35 @@ limitations under the License.*/
 #include <QVariant>
 #include <QReadWriteLock>
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace Utils
     {
-        namespace Utils
+        // This class is reentrant, so feel free to access it from multiple threads
+
+        class PubSubSystem : public QObject
         {
-            // This class is reentrant, so feel free to access it from multiple threads
+            Q_OBJECT
+        public:
+            explicit PubSubSystem(QObject *parent = 0);
 
-            class PubSubSystem : public QObject
-            {
-                Q_OBJECT
-            public:
-                explicit PubSubSystem(QObject *parent = 0);
+            QVariant getData(int id);
 
-                QVariant getData(int id);
+        signals:
+            void notifyMessage(QString title, QString message);
+            void notifyProgress(int progress, int id);
 
-            signals:
-                void notifyMessage(QString title, QString message);
-                void notifyProgress(int progress, int id);
+        public slots:
+            void publishMessage(QString title, QString message);
+            void publishProgress(int progress, int id = -1);
 
-            public slots:
-                void publishMessage(QString title, QString message);
-                void publishProgress(int progress, int id = -1);
+            void setData(int, const QVariant &);
 
-                void setData(int, const QVariant &);
+        private:
+            QReadWriteLock data_lock;
+            QMap<int, QVariant> _data;
 
-            private:
-                QReadWriteLock data_lock;
-                QMap<int, QVariant> _data;
-
-            };
-        }
+        };
     }
 }
 

@@ -16,9 +16,7 @@ limitations under the License.*/
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QWidget>
-
-
-using namespace GUtil::QtUtil::Tools;
+using namespace GQtUtil::Tools;
 
 void WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
 {

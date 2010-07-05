@@ -28,46 +28,43 @@ class QEvent;
 class QPushButton;
 class QLineEdit;
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace Controls
     {
-        namespace Controls
+        namespace EffectsWidgets
         {
-            namespace EffectsWidgets
-            {
-                class FaderWidget;
-            }
-
-            class line_edit_with_button : public QWidget {
-                Q_OBJECT
-            public:
-                line_edit_with_button(QWidget *par = 0, bool btn_visible = true,
-                                      int fade_duration = -1);
-                ~line_edit_with_button();
-
-                QPushButton *pushButton() const;
-                QLineEdit *lineEdit() const;
-                EffectsWidgets::FaderWidget *faderWidget() const;
-
-            public slots:
-                void showButton();
-                void hideButton();
-                void toggleButton();
-
-            protected:
-                // These events are passed to the lineEdit itself
-                void focusInEvent(QFocusEvent *);
-                void keyPressEvent(QKeyEvent *);
-                void keyReleaseEvent(QKeyEvent *);
-
-            private:
-                QPushButton *button;
-                QLineEdit *line_edit;
-
-                EffectsWidgets::FaderWidget *_fader;
-            };
+            class FaderWidget;
         }
+
+        class line_edit_with_button : public QWidget {
+            Q_OBJECT
+        public:
+            line_edit_with_button(QWidget *par = 0, bool btn_visible = true,
+                                  int fade_duration = -1);
+            ~line_edit_with_button();
+
+            QPushButton *pushButton() const;
+            QLineEdit *lineEdit() const;
+            EffectsWidgets::FaderWidget *faderWidget() const;
+
+        public slots:
+            void showButton();
+            void hideButton();
+            void toggleButton();
+
+        protected:
+            // These events are passed to the lineEdit itself
+            void focusInEvent(QFocusEvent *);
+            void keyPressEvent(QKeyEvent *);
+            void keyReleaseEvent(QKeyEvent *);
+
+        private:
+            QPushButton *button;
+            QLineEdit *line_edit;
+
+            EffectsWidgets::FaderWidget *_fader;
+        };
     }
 }
 
