@@ -10,4 +10,3 @@ HEADERS += line_edit_with_button.h \
 SOURCES += line_edit_with_button.cpp \
     effectswidgets.cpp \
     labelledprogressbar.cpp
-FORMS +=

@@ -9,4 +9,4 @@ SOURCES += \
 HEADERS += \
     pubsubsystem.h
 
-INCLUDEPATH += ../../../util
+INCLUDEPATH += ../../util

@@ -14,7 +14,7 @@ SOURCES += \
     DA_BinaryDataStore.cpp \
     src/qtlockedfile.cpp
 
-INCLUDEPATH += ../../../util include
+INCLUDEPATH += ../../util include
 QT += sql
 
 win32 {
