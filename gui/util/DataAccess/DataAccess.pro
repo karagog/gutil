@@ -11,7 +11,8 @@ HEADERS += \
 SOURCES += \
     DA_UserMachineLock.cpp \
     DA_PersistentSettings.cpp \
-    DA_BinaryDataStore.cpp
+    DA_BinaryDataStore.cpp \
+    src/qtlockedfile.cpp
 
 INCLUDEPATH += ../../../util include
 QT += sql
