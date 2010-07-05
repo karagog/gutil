@@ -1,18 +1,19 @@
-
-#TARGET = GQtUtil
-#DESTDIR = ..
 TEMPLATE = lib
 CONFIG += staticlib
 
 TARGET = dummy_ignorethislib
 
-#gqtutil.target = GQtUtil
-#gqtutil.commands = make libcryptopp.a
+#To build this library of libraries, first extract the objects from the constituent
+#  libraries, then bundle them up in the new one
+extract_custom.commands = ar -x libCustom.a
+extract_dataaccess.commands = ar -x libDataAccess.a
+extract_tools.commands = ar -x libTools.a
+extract_utils.commands = ar -x libUtils.a
 
-#PRE_TARGETDEPS += gqtutil
-#QMAKE_EXTRA_TARGETS += gqtutil
+buildlib.commands = ar -ru ../libGQtUtil.a *.o
 
-copytarget.commands = ar -ru libGQtUtil.a libTools.a libCustom.a libDataAccess.a libUtils.a
-PRE_TARGETDEPS += copytarget
-QMAKE_EXTRA_TARGETS += copytarget
+cleanup.commands = rm *.o
+
+PRE_TARGETDEPS += extract_custom extract_dataaccess extract_tools extract_utils buildlib cleanup
+QMAKE_EXTRA_TARGETS += extract_custom extract_dataaccess extract_tools extract_utils buildlib cleanup
 

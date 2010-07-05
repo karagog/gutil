@@ -17,10 +17,8 @@ INCLUDEPATH += ../../../util include
 QT += sql
 
 win32 {
-    LIBS += -L../release
     SOURCES += src/qtlockedfile_win.cpp
 }
 unix {
-    LIBS += -L..
     SOURCES += src/qtlockedfile_unix.cpp
 }
