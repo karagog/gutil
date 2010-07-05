@@ -82,7 +82,6 @@ namespace GQtUtil
             void NotifySaved();
 
         private slots:
-            void clear_error();
             bool save_settings();
             bool load_settings(const QString &);
 
@@ -98,8 +97,6 @@ namespace GQtUtil
             bool _loaded;
 
             QString get_settings_location();
-
-            void set_error(const QString &err = "");
         };
     }
 }

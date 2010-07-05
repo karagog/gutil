@@ -13,8 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DA_PersistentSettings.h"
-#include "stringhelpers.h"
 #include "DA_UserMachineLock.h"
+#include "stringhelpers.h"
+#include "exception.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -32,7 +33,6 @@ DA_PersistentSettings::DA_PersistentSettings(const QString &identity)
     _lock_acquired = false;
 
     _loaded = false;
-    clear_error();
 
     load_settings(identity);
 }
@@ -47,25 +47,11 @@ bool DA_PersistentSettings::Reload()
     return load_settings(_identity_string);
 }
 
-void DA_PersistentSettings::clear_error()
-{
-    _error = "";
-}
-
-void DA_PersistentSettings::set_error(const QString &err)
-{
-    _error = err;
-
-    //    // Setting the error string is always accompanied by throwing an exception
-    //    throw new Exception(err.toStdString());
-}
-
 bool DA_PersistentSettings::SetValue(const QString &key, const QString& value)
 {
     if(!IsLoaded())
     {
-        set_error("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
-        return false;
+        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
 
     _values.insert(key, value);
@@ -76,8 +62,7 @@ bool DA_PersistentSettings::SetValues(const QMap<QString, QString> &values)
 {
     if(!IsLoaded())
     {
-        set_error("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
-        return false;
+        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
 
     bool tmp = false;
@@ -99,8 +84,7 @@ QString DA_PersistentSettings::Value(const QString &key)
 {
     if(!IsLoaded())
     {
-        set_error("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
-        return false;
+        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
 
     return _values.value(key, "");
@@ -111,7 +95,7 @@ const QMap<QString, QString> DA_PersistentSettings::Values(const QStringList &ke
     QMap<QString, QString> ret;
     if(!IsLoaded())
     {
-        set_error("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
+        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
     else
     {
@@ -128,8 +112,7 @@ bool DA_PersistentSettings::Contains(const QString &key)
 {
     if(!IsLoaded())
     {
-        set_error("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
-        return false;
+        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
 
     return _values.contains(key);
@@ -181,8 +164,7 @@ bool DA_PersistentSettings::save_settings()
 {
     if(!IsLoaded())
     {
-        set_error("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
-        return false;
+        throw GUtil::Exception("You haven't successfully initialized the settings object (Call 'Reload()' until it returns true)");
     }
 
     QString loc;
@@ -193,8 +175,7 @@ bool DA_PersistentSettings::save_settings()
     QtLockedFile lf(loc);
     if(!lf.open(QFile::ReadWrite))
     {
-        set_error("Couldn't open the settings file for writing");
-        return false;
+        throw GUtil::Exception("Couldn't open the settings file for writing");
     }
 
     if(!lf.lock(QtLockedFile::WriteLock, true))
@@ -203,10 +184,7 @@ bool DA_PersistentSettings::save_settings()
     }
 
     if(!lf.resize(0))
-    {
-        set_error("Couldn't truncate settings file?");
-        return false;
-    }
+        throw GUtil::Exception("Couldn't truncate settings file?");
 
     // At this point the settings file is ours for sole writing
     QString xmlstr;
@@ -238,8 +216,7 @@ bool DA_PersistentSettings::save_settings()
     if(xmlstr.length() != lf.write(xmlstr.toStdString().c_str()))
     {
         lf.close();
-        set_error("Couldn't write all the data to the file");
-        return false;
+        throw GUtil::Exception("Couldn't write all the data to the file");
     }
 
     lf.unlock();
@@ -252,10 +229,7 @@ bool DA_PersistentSettings::save_settings()
 bool DA_PersistentSettings::load_settings(const QString &settings_filename)
 {
     if(!_lock_acquired && !(_lock_acquired = _userlock->Lock()))
-    {
-        set_error("Could not acquire user lock");
-        return false;
-    }
+        throw GUtil::Exception("Could not acquire user lock");
 
     _loaded = false;
 
@@ -271,8 +245,8 @@ bool DA_PersistentSettings::load_settings(const QString &settings_filename)
     QtLockedFile lf(loc);
     if(!lf.open(QFile::ReadOnly))
     {
-        set_error("Couldn't open the settings file for reading: " + FileName());
-        return false;
+        throw GUtil::Exception(QString("Couldn't open the settings file for reading: %1")
+                               .arg(FileName()).toStdString());
     }
 
     if(!lf.lock(QtLockedFile::ReadLock, true))
@@ -291,10 +265,8 @@ bool DA_PersistentSettings::load_settings(const QString &settings_filename)
     sr.readNext();
 
     if(!sr.readNextStartElement())  //Read in settings root
-    {
-        set_error("XML not recognized");
-        return false;
-    }
+        throw GUtil::Exception("XML not recognized");
+
     while(sr.readNextStartElement())
     {
         QString decoded_string = QString::fromStdString(
@@ -321,10 +293,7 @@ QString DA_PersistentSettings::get_settings_location()
     if(!tmpdir.exists(app_name))
     {
         if(!tmpdir.mkpath(app_name))
-        {
-            set_error("Couldn't make settings directory");
-            return "";
-        }
+            throw GUtil::Exception("Couldn't make settings directory");
     }
 
     tmpdir.cd(app_name);
@@ -336,10 +305,7 @@ QString DA_PersistentSettings::get_settings_location()
         QFile f(_settings_filename);
 
         if(!f.open(QFile::WriteOnly))
-        {
-            set_error("Couldn't create settings file");
-            return "";
-        }
+            throw GUtil::Exception("Couldn't create settings file");
 
         // An initially parseable xml tree
         f.write("<settings></settings>");
