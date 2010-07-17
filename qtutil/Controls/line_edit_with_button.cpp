@@ -13,14 +13,14 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "line_edit_with_button.h"
-#include "effectswidgets.h"
+#include "EffectsWidgets/faderwidget.h"
 #include <QPushButton>
 #include <QLineEdit>
 #include <QShowEvent>
 #include <QEvent>
 #include <QHBoxLayout>
 using namespace GQtUtil::Controls;
-using namespace GQtUtil::Controls::EffectsWidgets;
+using namespace GQtUtil::EffectsWidgets;
 
 line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int fade_duration) :
     QWidget(par)

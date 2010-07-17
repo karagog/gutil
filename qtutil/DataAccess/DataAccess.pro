@@ -5,17 +5,28 @@ CONFIG += staticlib
 
 HEADERS += \
     DA_UserMachineLock.h \
-    DA_PersistentSettings.h \
-    DA_BinaryDataStore.h
+    DA_BinaryDataStore.h \
+    DA_LocalClientServer.h \
+    DA_ConfigFile.h \
+    Private/DA_ValueBuffer_P.h \
+    Private/Transports/ITransportMechanism.h \
+    Private/Transports/filetransport.h \
+    Private/Transports/sockettransport.h \
+    Private/DataObjects/variablecontainer.h
 
 SOURCES += \
     DA_UserMachineLock.cpp \
-    DA_PersistentSettings.cpp \
     DA_BinaryDataStore.cpp \
-    src/qtlockedfile.cpp
+    src/qtlockedfile.cpp \
+    DA_LocalClientServer.cpp \
+    DA_ConfigFile.cpp \
+    Private/DA_ValueBuffer_P.cpp \
+    Private/Transports/filetransport.cpp \
+    Private/Transports/sockettransport.cpp \
+    Private/DataObjects/variablecontainer.cpp
 
-INCLUDEPATH += ../../util include
-QT += sql
+INCLUDEPATH += ../../util include ..
+QT += sql network
 
 win32 {
     SOURCES += src/qtlockedfile_win.cpp

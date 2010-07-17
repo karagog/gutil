@@ -30,13 +30,13 @@ class QLineEdit;
 
 namespace GQtUtil
 {
+    namespace EffectsWidgets
+    {
+        class FaderWidget;
+    }
+
     namespace Controls
     {
-        namespace EffectsWidgets
-        {
-            class FaderWidget;
-        }
-
         class line_edit_with_button : public QWidget {
             Q_OBJECT
         public:

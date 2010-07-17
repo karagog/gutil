@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef APPLICATIONLOCK_H
 #define APPLICATIONLOCK_H
 #include <QString>
+#include "DA_ConfigFile.h"
+#include "exception.h"
 
 class QtLockedFile;
 
@@ -22,23 +24,26 @@ namespace GQtUtil
 {
     namespace DataAccess
     {
-        class DA_UserMachineLock
+        // An easy to use inter-process locking mechanism, which also has a backend
+        //   datastore for setting and accessing persistent data
+        class DA_UserMachineLock : public DA_ConfigFile
         {
         public:
-            DA_UserMachineLock(const QString &);
+            DA_UserMachineLock(const QString &,
+                               const QString &modifier = "",
+                               QObject *parent = 0);
             ~DA_UserMachineLock();
 
-            bool Lock();
-            void Unlock();
+            // Using this class is as simple as these two functions
+            void lock();
+            void unlock();
 
-            QString Error() const;
-            QString FileName() const;
+            bool isLocked() const;
+
+            QString fileName() const;
 
         private:
-            QtLockedFile *_lf;
-
-            bool _locked;
-            QString _error;
+            QtLockedFile *_lf_lock;
         };
     }
 }

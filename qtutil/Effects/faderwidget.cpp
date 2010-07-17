@@ -12,12 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "effectswidgets.h"
+#include "faderwidget.h"
 #include <QPainter>
 #include <QTimer>
 #include <QEvent>
 #include <QApplication>
-using namespace GQtUtil::Controls::EffectsWidgets;
+using namespace GQtUtil::EffectsWidgets;
 
 #define FADE_RESOLUTION 40
 

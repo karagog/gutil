@@ -12,32 +12,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef IXMLSERIALIZABLE_H
+#define IXMLSERIALIZABLE_H
 
-#include <QObject>
-#include <QMap>
-#include <QString>
-#include "DA_UserMachineLock.h"
+#include <QByteArray>
 
 namespace GQtUtil
 {
-    namespace DataAccess
+    namespace Interfaces
     {
-        // This encapsulates persistent settings for your application
-        class DA_PersistentSettings : public DA_UserMachineLock
+        class IXmlSerializable
         {
-            Q_OBJECT
         public:
-
-            DA_PersistentSettings(const QString &identity, QObject *parent = 0);
-            ~DA_PersistentSettings();
-
-        private:
-            bool lock();
-            void unlock();
+            virtual QByteArray toXml() = 0;
+            virtual void fromXml(const QByteArray &) = 0;
         };
     }
 }
 
-#endif // SETTINGS_H
+#endif // IXMLSERIALIZABLE_H

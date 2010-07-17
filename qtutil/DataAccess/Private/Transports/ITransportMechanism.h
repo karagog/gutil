@@ -12,32 +12,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef ITRANSPORTMECHANISM_H
+#define ITRANSPORTMECHANISM_H
 
-#include <QObject>
-#include <QMap>
-#include <QString>
-#include "DA_UserMachineLock.h"
+#include <QByteArray>
 
 namespace GQtUtil
 {
     namespace DataAccess
     {
-        // This encapsulates persistent settings for your application
-        class DA_PersistentSettings : public DA_UserMachineLock
+        namespace Private
         {
-            Q_OBJECT
-        public:
-
-            DA_PersistentSettings(const QString &identity, QObject *parent = 0);
-            ~DA_PersistentSettings();
-
-        private:
-            bool lock();
-            void unlock();
-        };
+            namespace Transports
+            {
+                // This is an abstract base class to represent different methods of data transport
+                class ITransportMechanism
+                {
+                public:
+                    virtual void exportData(const QByteArray&) = 0;
+                    virtual QByteArray importData() = 0;
+                };
+            }
+        }
     }
 }
 
-#endif // SETTINGS_H
+#endif // ITRANSPORTMECHANISM_H

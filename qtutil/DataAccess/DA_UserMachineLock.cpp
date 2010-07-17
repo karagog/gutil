@@ -15,71 +15,69 @@ limitations under the License.*/
 #include "DA_UserMachineLock.h"
 #include "qtlockedfile.h"
 #include <QDir>
+#include <QUuid>
 using namespace GQtUtil::DataAccess;
 
-DA_UserMachineLock::DA_UserMachineLock(const QString &id)
+DA_UserMachineLock::DA_UserMachineLock(const QString &id, const QString &modifier, QObject *parent)
+    :DA_ConfigFile(id, modifier, parent)
 {
-    QString filename = (QDir::tempPath() + "/%1.userlock").arg(id);
-    _lf = new QtLockedFile(filename);
-
-    _locked = false;
-    _error = "";
+    makeReadOnly(true);
+    _lf_lock = new QtLockedFile(QString("%1.%2")
+                          .arg(DA_ConfigFile::fileName())
+                          .arg("lockfile"));
 }
 
 DA_UserMachineLock::~DA_UserMachineLock()
 {
-    Unlock();
+    unlock();
 
-    delete _lf;
+    delete _lf_lock;
 }
 
-//ApplicationLock::ApplicationLock(const QString &id, const QUuid &reminder)
-//{
-//    myid = reminder;
-//
-//    _loaded = init(id);
-//}
-
-bool DA_UserMachineLock::Lock()
+void DA_UserMachineLock::lock()
 {
-    if(_locked)
-        return true;
+    bool ret;
+    bool lock_failed = false;
+    QString errmsg;
 
-    if(!_lf->open(QFile::ReadWrite))
+    if((ret = isLocked()));
+
+    else if(!(ret = _lf_lock->open(QFile::ReadWrite)))
+        errmsg = _lf_lock->errorString();
+
+    else if(!(ret = _lf_lock->lock(QtLockedFile::WriteLock, false)))
     {
-        _error = "Could not open file";
-        return false;
+        _lf_lock->close();
+        lock_failed = true;
     }
 
-    if(!_lf->lock(QtLockedFile::WriteLock, false))
-    {
-        _error = "Could not gain lock on file";
-        _lf->close();
-        return false;
-    }
+    // If we don't have a lock, then we're stuck in readonly mode
+    makeReadOnly(!ret);
 
-    return true;
+    if(!ret && !lock_failed)
+        throw GUtil::Exception(errmsg.toStdString());
 }
 
-void DA_UserMachineLock::Unlock()
+void DA_UserMachineLock::unlock()
 {
-    if(!_locked)
+    if(!isLocked())
         return;
 
-    _lf->unlock();
-    _lf->close();
+    // If we don't have a lock, then we're stuck in readonly mode
+    makeReadOnly(true);
 
-    _locked = false;
+    _lf_lock->unlock();
+    _lf_lock->close();
 
-    QFile::remove(_lf->fileName());
+    QFile::remove(_lf_lock->fileName());
 }
 
-QString DA_UserMachineLock::Error() const
+bool DA_UserMachineLock::isLocked() const
 {
-    return _error;
+    return _lf_lock->isLocked();
 }
 
-QString DA_UserMachineLock::FileName() const
+QString DA_UserMachineLock::fileName() const
 {
-    return _lf->fileName();
+    return _lf_lock->fileName();
 }
