@@ -28,25 +28,27 @@ namespace GQtUtil
         {
             namespace DataObjects
             {
-                class VariableContainer : public Interfaces::IXmlSerializable
+                // A class used to hold data and serialize
+                //   the values to xml or access them conveniently with string keys
+                class DataContainer : public Interfaces::IXmlSerializable
                 {
                 public:
                     virtual QByteArray toXml();
                     virtual void fromXml(const QByteArray &);
 
-                    void setValue(const QString &, const QString &);
-                    QString getValue(const QString &);
+                    void setValue(const QString &, const QByteArray &);
+                    QByteArray getValue(const QString &);
 
                     bool remove(const QString &);
 
                     bool contains(const QString &);
                     void clear();
 
-                    QString &at(const QString &) const;
-                    QString &operator [](const QString &) const;
+                    QByteArray &at(const QString &);
+                    QByteArray &operator [](const QString &);
 
                 private:
-                    QMap<QString, QString> _values;
+                    QMap<QString, QByteArray> _values;
                 };
             }
         }

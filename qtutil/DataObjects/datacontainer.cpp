@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "variablecontainer.h"
+#include "datacontainer.h"
 #include "stringhelpers.h"
 #include "exception.h"
 #include <QXmlStreamReader>
@@ -20,19 +20,19 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace GQtUtil::DataAccess::Private::DataObjects;
 
-void VariableContainer::setValue(const QString &key, const QString &value)
+void DataContainer::setValue(const QString &key, const QByteArray &value)
 {
     _values[key] = value;
 }
 
-QString VariableContainer::getValue(const QString &key)
+QByteArray DataContainer::getValue(const QString &key)
 {
     return _values.value(key);
 }
 
-bool VariableContainer::remove(const QString &key)
+bool DataContainer::remove(const QString &key)
 {
-    QMap<QString, QString>::iterator it = _values.last()->find(key);
+    QMap<QString, QByteArray>::iterator it = _values.find(key);
 
     if(it == _values.end())
         return false;
@@ -41,27 +41,27 @@ bool VariableContainer::remove(const QString &key)
     return true;
 }
 
-bool VariableContainer::contains(const QString &key)
+bool DataContainer::contains(const QString &key)
 {
     return _values.contains(key);
 }
 
-void VariableContainer::clear()
+void DataContainer::clear()
 {
     _values.clear();
 }
 
-QString &VariableContainer::at(const QString &key) const
+QByteArray &DataContainer::at(const QString &key)
 {
     return _values[key];
 }
 
-QString &VariableContainer::operator [](const QString &key) const
+QByteArray &DataContainer::operator [](const QString &key)
 {
     return _values[key];
 }
 
-QByteArray VariableContainer::toXml()
+QByteArray DataContainer::toXml()
 {
     QByteArray xmlstr;
     QXmlStreamWriter sw(&xmlstr);
@@ -74,15 +74,13 @@ QByteArray VariableContainer::toXml()
     {
         // Don't bother writing empty settings, because they'll be defaulted to a
         //  null string anyways if they're not found
-        QString v = _values[s];
+        QByteArray v = _values[s];
         if(v.length() == 0)
             continue;
 
-        QString encoded_string = QString::fromStdString(
-                StringHelpers::toBase64(v.toStdString()));
-
         sw.writeStartElement(s);
-        sw.writeAttribute("v", encoded_string);
+        sw.writeAttribute("v", QString::fromStdString(StringHelpers::toBase64(
+                std::string(v.constData(), v.length()))));
         sw.writeEndElement();
     }
 
@@ -92,7 +90,7 @@ QByteArray VariableContainer::toXml()
     return xmlstr;
 }
 
-void VariableContainer::fromXml(const QByteArray &dat)
+void DataContainer::fromXml(const QByteArray &dat)
 {
     clear();
 
@@ -105,9 +103,10 @@ void VariableContainer::fromXml(const QByteArray &dat)
 
     while(sr.readNextStartElement())
     {
-        QString decoded_string = QString::fromStdString(
-                StringHelpers::fromBase64(sr.attributes().value("v").toString().toStdString()));
-        _values.insert(sr.name().toString(), decoded_string);
+        std::string tmp = StringHelpers::fromBase64(
+                sr.attributes().value("v").toString().toStdString());
+
+        _values.insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));
 
         // Read in the end element tag
         sr.readNext();

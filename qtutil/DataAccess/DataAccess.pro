@@ -11,8 +11,7 @@ HEADERS += \
     Private/DA_ValueBuffer_P.h \
     Private/Transports/ITransportMechanism.h \
     Private/Transports/filetransport.h \
-    Private/Transports/sockettransport.h \
-    Private/DataObjects/variablecontainer.h
+    Private/Transports/sockettransport.h
 
 SOURCES += \
     DA_UserMachineLock.cpp \
@@ -23,7 +22,6 @@ SOURCES += \
     Private/DA_ValueBuffer_P.cpp \
     Private/Transports/filetransport.cpp \
     Private/Transports/sockettransport.cpp \
-    Private/DataObjects/variablecontainer.cpp \
     Private/Transports/ITransportMechanism.cpp
 
 INCLUDEPATH += ../../util include ..

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DO_VALUEBUFFER_H
 #define DO_VALUEBUFFER_H
 
-#include "DataObjects/variablecontainer.h"
+#include "DataObjects/datacontainer.h"
 #include <QMap>
 #include <QString>
 #include <QObject>
@@ -68,7 +68,7 @@ namespace GQtUtil
 
                 // For manipulating the queues of values
                 void enQueue();
-                DataObjects::VariableContainer *deQueue();
+                DataObjects::DataContainer *deQueue();
 
                 // Forcefully remove all data from the queue
                 void clearQueue();
@@ -88,7 +88,7 @@ namespace GQtUtil
                 QMutex queue_mutex;
 
                 // We store a queue, becaue we may be buffering several data "blocks"
-                QQueue<DataObjects::VariableContainer *> _values;
+                QQueue<DataObjects::DataContainer *> _values;
             };
         }
     }

@@ -37,14 +37,14 @@ DA_ValueBuffer_P::DA_ValueBuffer_P(
 void DA_ValueBuffer_P::enQueue()
 {
     queue_mutex.lock();
-    _values.enqueue(new DataObjects::VariableContainer());
+    _values.enqueue(new DataObjects::DataContainer());
     queue_mutex.unlock();
 }
 
-DataObjects::VariableContainer *DA_ValueBuffer_P::deQueue()
+DataObjects::DataContainer *DA_ValueBuffer_P::deQueue()
 {
     queue_mutex.lock();
-    DataObjects::VariableContainer *ret = _values.dequeue();
+    DataObjects::DataContainer *ret = _values.dequeue();
     queue_mutex.unlock();
 
     return ret;
