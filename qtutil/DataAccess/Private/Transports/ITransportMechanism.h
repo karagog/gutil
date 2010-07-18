@@ -16,6 +16,7 @@ limitations under the License.*/
 #define ITRANSPORTMECHANISM_H
 
 #include <QByteArray>
+#include <QMutex>
 
 namespace GQtUtil
 {
@@ -29,8 +30,25 @@ namespace GQtUtil
                 class ITransportMechanism
                 {
                 public:
-                    virtual void exportData(const QByteArray&) = 0;
-                    virtual QByteArray importData() = 0;
+
+                    // These functions are atomic with respect to each other;
+                    //  feel free to call these in multiple threads
+                    void sendData(const QByteArray&);
+                    QByteArray receiveData();
+
+                protected:
+
+                    // Derived classes must implement these functions
+                    //  Note that locking is taken care of by this interface class,
+                    //  so you can trust that these are atomic WRT each other
+                    virtual void send_data(const QByteArray&) = 0;
+                    virtual QByteArray receive_data() = 0;
+
+                private:
+
+                    // Protects us so we can be re-entrant when using the transport
+                    QMutex _lock;
+
                 };
             }
         }

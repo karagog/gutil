@@ -33,10 +33,11 @@ namespace GQtUtil
                 public:
                     FileTransport(const QString &);
 
-                    virtual void exportData(const QByteArray &);
-                    virtual QByteArray importData();
-
                     QString fileName() const;
+
+                protected:
+                    virtual void send_data(const QByteArray &);
+                    virtual QByteArray receive_data();
 
                 private:
                     QtLockedFile *_lf;

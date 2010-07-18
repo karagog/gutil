@@ -22,7 +22,7 @@ FileTransport::FileTransport(const QString &filename)
     _lf->setFileName(filename);
 }
 
-void FileTransport::exportData(const QByteArray &data)
+void FileTransport::send_data(const QByteArray &data)
 {
     if(!_lf->open(QtLockedFile::ReadWrite))
         throw GUtil::Exception(_lf->errorString().toStdString());
@@ -52,7 +52,7 @@ void FileTransport::exportData(const QByteArray &data)
     _lf->close();
 }
 
-QByteArray FileTransport::importData()
+QByteArray FileTransport::receive_data()
 {
     if(!_lf->open(QtLockedFile::ReadWrite))
         throw GUtil::Exception(_lf->errorString().toStdString());

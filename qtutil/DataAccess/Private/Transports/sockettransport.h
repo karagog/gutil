@@ -34,11 +34,12 @@ namespace GQtUtil
                     SocketTransport(QLocalSocket *);
                     ~SocketTransport();
 
-                    virtual void exportData(const QByteArray &);
-                    virtual QByteArray importData();
-
                     QLocalSocket *socket();
                     void setSocket(QLocalSocket *);
+
+                protected:
+                    virtual void send_data(const QByteArray &);
+                    virtual QByteArray receive_data();
 
                 private:
                     QLocalSocket *_sock;

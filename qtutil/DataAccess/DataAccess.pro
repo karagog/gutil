@@ -23,7 +23,8 @@ SOURCES += \
     Private/DA_ValueBuffer_P.cpp \
     Private/Transports/filetransport.cpp \
     Private/Transports/sockettransport.cpp \
-    Private/DataObjects/variablecontainer.cpp
+    Private/DataObjects/variablecontainer.cpp \
+    Private/Transports/ITransportMechanism.cpp
 
 INCLUDEPATH += ../../util include ..
 QT += sql network

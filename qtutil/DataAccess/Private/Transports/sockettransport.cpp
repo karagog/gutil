@@ -42,13 +42,13 @@ void SocketTransport::setSocket(QLocalSocket *socket)
     _sock = socket;
 }
 
-void SocketTransport::exportData(const QByteArray &data)
+void SocketTransport::send_data(const QByteArray &data)
 {
     if(_sock)
         _sock->write(data);
 }
 
-QByteArray SocketTransport::importData()
+QByteArray SocketTransport::receive_data()
 {
     QByteArray ret;
     if(_sock)
