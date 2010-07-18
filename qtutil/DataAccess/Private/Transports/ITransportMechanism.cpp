@@ -51,3 +51,23 @@ QByteArray ITransportMechanism::receiveData()
     _lock.unlock();
     return res;
 }
+
+bool ITransportMechanism::hasData() const
+{
+    bool ret;
+    _lock.lock();
+
+    try
+    {
+        ret = has_data();
+    }
+    catch(GUtil::Exception)
+    {
+        _lock.unlock();
+        throw;
+    }
+
+    _lock.unlock();
+
+    return ret;
+}

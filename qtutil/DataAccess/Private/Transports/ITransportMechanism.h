@@ -31,10 +31,13 @@ namespace GQtUtil
                 {
                 public:
 
-                    // These functions are atomic with respect to each other;
-                    //  feel free to call these in multiple threads
+                    // These functions are all atomic with respect to each other;
+                    //  feel free to use this class in multiple threads
                     void sendData(const QByteArray&);
                     QByteArray receiveData();
+
+                    // Is there data ready to read?
+                    bool hasData() const;
 
                 protected:
 
@@ -43,6 +46,7 @@ namespace GQtUtil
                     //  so you can trust that these are atomic WRT each other
                     virtual void send_data(const QByteArray&) = 0;
                     virtual QByteArray receive_data() = 0;
+                    virtual bool has_data() const = 0;
 
                 private:
 
