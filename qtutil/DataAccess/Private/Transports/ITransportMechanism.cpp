@@ -16,6 +16,12 @@ limitations under the License.*/
 #include "exception.h"
 using namespace GQtUtil::DataAccess::Private::Transports;
 
+ITransportMechanism::ITransportMechanism(QObject *parent)
+    :QObject(parent)
+{
+    setHasData(false);
+}
+
 void ITransportMechanism::sendData(const QByteArray &data)
 {
     _lock.lock();
@@ -35,6 +41,11 @@ void ITransportMechanism::sendData(const QByteArray &data)
 
 QByteArray ITransportMechanism::receiveData()
 {
+    return receive_data_private(false);
+}
+
+QByteArray ITransportMechanism::receive_data_private(bool asynchronous)
+{
     QByteArray res;
     _lock.lock();
 
@@ -49,25 +60,34 @@ QByteArray ITransportMechanism::receiveData()
     }
 
     _lock.unlock();
+
+    if(asynchronous)
+        emit notifyNewData(res);
+
+    update_has_data_available();
+
     return res;
 }
 
 bool ITransportMechanism::hasData() const
 {
-    bool ret;
     _lock.lock();
-
-    try
-    {
-        ret = has_data();
-    }
-    catch(GUtil::Exception)
-    {
-        _lock.unlock();
-        throw;
-    }
-
+    bool ret = _has_data;
     _lock.unlock();
-
     return ret;
+}
+
+void ITransportMechanism::setHasData(bool val)
+{
+    _lock.lock();
+    _has_data = val;
+    _lock.unlock();
+}
+
+void ITransportMechanism::receive_asynchronous_update()
+{
+    update_has_data_available();
+
+    while(hasData())
+        receive_data_private(true);
 }
