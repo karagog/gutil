@@ -31,7 +31,7 @@ ValueBuffer::ValueBuffer(
     // Start off with one variable container (default only uses one)
     enQueue();
 
-    connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(load_data(QByteArray)));
+    connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(import_data(QByteArray)));
 }
 
 void ValueBuffer::enQueue()
@@ -73,19 +73,19 @@ void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
         return;
 
     foreach(QString s, values.keys())
-        _values.last()->setValue(s, values[s]);
+        currentDataContainer()->setValue(s, values[s]);
 
     // Only save if we actually made changes
     if(values.keys().length() > 0)
         export_data();
 }
 
-QByteArray ValueBuffer::value(const QString &key) const
+QByteArray ValueBuffer::value(const QString &key)
 {
-    return _values.last()->getValue(key);
+    return currentDataContainer()->getValue(key);
 }
 
-QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys) const
+QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys)
 {
     QMap<QString, QByteArray> ret;
 
@@ -95,9 +95,9 @@ QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys) const
     return ret;
 }
 
-bool ValueBuffer::contains(const QString &key) const
+bool ValueBuffer::contains(const QString &key)
 {
-    return _values.last()->contains(key);
+    return currentDataContainer()->contains(key);
 }
 
 void ValueBuffer::clear()
@@ -105,15 +105,15 @@ void ValueBuffer::clear()
     if(isReadOnly())
         return;
 
-    _values.last()->clear();
-
     export_data();
+
+    currentDataContainer()->clear();
 }
 
 void ValueBuffer::clearQueue()
 {
     while(_values.count() > 1)
-        delete _values.dequeue();
+        delete deQueue();
 }
 
 void ValueBuffer::remove(const QString &key)
@@ -132,7 +132,7 @@ void ValueBuffer::remove(const QStringList &keys)
 
     foreach(QString s, keys)
     {
-        if(_values.last()->remove(s))
+        if(currentDataContainer()->remove(s))
             val_erased = true;
     }
 
@@ -144,15 +144,19 @@ QList<QByteArray> ValueBuffer::prepare_data_for_export()
 {
     QList<QByteArray> ret;
     while(_values.count() > 1)
-        ret.append(_values.dequeue()->toXml());
+    {
+        DataObjects::DataContainer *vals = deQueue();
+        ret.append(vals->toXml());
+        delete vals;
+    }
     return ret;
 }
 
 void ValueBuffer::import_data(const QByteArray &dat)
 {
-    _values.last()->fromXml(dat);
+    currentDataContainer()->fromXml(dat);
 
-    enQueue();
+    emit newDataArrived();
 }
 
 void ValueBuffer::export_data()
@@ -162,7 +166,11 @@ void ValueBuffer::export_data()
         _transport->sendData(b);
 }
 
-void ValueBuffer::load_data(const QByteArray &new_data)
+DataObjects::DataContainer *ValueBuffer::currentDataContainer()
 {
-    import_data(new_data);
+    queue_mutex.lock();
+    DataObjects::DataContainer *ret = _values.last();
+    queue_mutex.unlock();
+
+    return ret;
 }

@@ -47,40 +47,40 @@ namespace GQtUtil
                 void setValue(const QString &key, const QByteArray& value);
                 void setValues(const QMap<QString, QByteArray> &);
 
-                QByteArray value(const QString &key) const;
-                QMap<QString, QByteArray> values(const QStringList &) const;
+                QByteArray value(const QString &key);
+                QMap<QString, QByteArray> values(const QStringList &);
 
-                bool contains(const QString &key) const;
+                bool contains(const QString &key);
 
+                // Flushes the data queue and clears the current data container
                 void clear();
 
-                // Remove a specific key
+                // Remove a specific key (or keys)
                 void remove(const QString &);
                 void remove(const QStringList &);
 
+
+            signals:
+                void newDataArrived();
+
+
             protected:
-                // You can achieve different data preparation behavior by overriding these
-                virtual QList<QByteArray> prepare_data_for_export();
-                virtual void import_data(const QByteArray &);
 
                 // For manipulating the queues of values
                 void enQueue();
                 DataObjects::DataContainer *deQueue();
 
+                // Export data through the transport mechanism.  (All but the current data container get exported)
+                void export_data();
+
                 // Forcefully remove all data from the queue
                 void clearQueue();
-
-                // The method of transport (could be file, socket, network I/O)
-                Interfaces::ITransportMechanism *_transport;
-
-                // Export data through the transport mechanism
-                void export_data();
 
 
             private slots:
 
                 // You never call this directly; It is called when the transport layer says there's new data
-                void load_data(const QByteArray &);
+                void import_data(const QByteArray &);
 
 
             private:
@@ -92,6 +92,13 @@ namespace GQtUtil
 
                 // We store a queue, becaue we may be buffering several data "blocks"
                 QQueue<DataObjects::DataContainer *> _values;
+
+                // The method of transport (could be file, socket, network I/O)
+                Interfaces::ITransportMechanism *_transport;
+
+                QList<QByteArray> prepare_data_for_export();
+                DataObjects::DataContainer *currentDataContainer();
+
             };
         }
     }
