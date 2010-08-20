@@ -3,7 +3,10 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    ixmlserializable.h
+    ixmlserializable.h \
+    ITransportMechanism.h
 
 SOURCES += \
-    ixmlserializable.cpp
+    ITransportMechanism.cpp
+
+INCLUDEPATH += .. ../../util

@@ -24,31 +24,31 @@ limitations under the License.*/
 
 namespace GQtUtil
 {
+    namespace Interfaces
+    {
+        class ITransportMechanism;
+    }
+
     namespace DataAccess
     {
         namespace Private
         {
-            namespace Transports
-            {
-                class ITransportMechanism;
-            }
-
             // Serves as a generic class to hold values and send/receive them with
             //   the provided transport mechanism
-            class DA_ValueBuffer_P : public QObject
+            class ValueBuffer : public QObject
             {
                 Q_OBJECT
             public:
-                DA_ValueBuffer_P(Transports::ITransportMechanism *, QObject *parent = 0);
+                ValueBuffer(Interfaces::ITransportMechanism *, QObject *parent = 0);
 
                 void makeReadOnly(bool val = true);
                 bool isReadOnly();
 
-                void setValue(const QString &key, const QString& value);
-                void setValues(const QMap<QString, QString> &);
+                void setValue(const QString &key, const QByteArray& value);
+                void setValues(const QMap<QString, QByteArray> &);
 
-                QString value(const QString &key) const;
-                QMap<QString, QString> values(const QStringList &) const;
+                QByteArray value(const QString &key) const;
+                QMap<QString, QByteArray> values(const QStringList &) const;
 
                 bool contains(const QString &key) const;
 
@@ -58,13 +58,10 @@ namespace GQtUtil
                 void remove(const QString &);
                 void remove(const QStringList &);
 
-            public slots:
-                void reload();
-
             protected:
                 // You can achieve different data preparation behavior by overriding these
                 virtual QList<QByteArray> prepare_data_for_export();
-                virtual void import_data(const QList<QByteArray> &);
+                virtual void import_data(const QByteArray &);
 
                 // For manipulating the queues of values
                 void enQueue();
@@ -74,11 +71,17 @@ namespace GQtUtil
                 void clearQueue();
 
                 // The method of transport (could be file, socket, network I/O)
-                Transports::ITransportMechanism *_transport;
+                Interfaces::ITransportMechanism *_transport;
 
-                // These functions actually consume the transport mechanism
-                virtual void export_data();
-                virtual void reload_data();
+                // Export data through the transport mechanism
+                void export_data();
+
+
+            private slots:
+
+                // You never call this directly; It is called when the transport layer says there's new data
+                void load_data(const QByteArray &);
+
 
             private:
                 bool _readonly;

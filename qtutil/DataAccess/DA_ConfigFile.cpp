@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DA_ConfigFile.h"
-#include "Private/Transports/filetransport.h"
+#include "Private/filetransport.h"
 #include "exception.h"
 #include "stringhelpers.h"
 #include "qtlockedfile.h"
@@ -24,10 +24,10 @@ limitations under the License.*/
 #include <QDir>
 using namespace GUtil;
 using namespace GQtUtil::DataAccess;
-using namespace GQtUtil::DataAccess::Private::Transports;
+using namespace GQtUtil::DataAccess::Private;
 
 DA_ConfigFile::DA_ConfigFile(const QString &identifier, const QString &modifier, QObject *parent)
-    :DA_ValueBuffer_P(new FileTransport(QString("%1.%2")
+    :ValueBuffer(new FileTransport(QString("%1.%2")
                                                    .arg(get_file_location(identifier))
                                                    .arg(modifier)),
                       parent)
@@ -87,7 +87,7 @@ void DA_ConfigFile::export_data()
     // We're the ones updating the file, so we ignore the filesystem watcher
     _ignore_update = true;
 
-    DA_ValueBuffer_P::export_data();
+    ValueBuffer::export_data();
 }
 
 void DA_ConfigFile::catch_asynchronous_update()

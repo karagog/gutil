@@ -14,6 +14,8 @@ limitations under the License.*/
 
 #include "ixmlserializable.h"
 
+using namespace GQtUtil::Interfaces;
+
 IXmlSerializable::IXmlSerializable()
 {
 }

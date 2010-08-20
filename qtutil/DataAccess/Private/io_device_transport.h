@@ -15,9 +15,10 @@ limitations under the License.*/
 #ifndef SOCKETTRANSPORT_H
 #define SOCKETTRANSPORT_H
 
-#include "ITransportMechanism.h"
+#include "Interfaces/ITransportMechanism.h"
+#include <QMutex>
 
-class QLocalSocket;
+class QIODevice;
 
 namespace GQtUtil
 {
@@ -25,26 +26,23 @@ namespace GQtUtil
     {
         namespace Private
         {
-            namespace Transports
+            class IODevice_Transport : public Interfaces::ITransportMechanism
             {
-                class SocketTransport : public ITransportMechanism
-                {
-                public:
-                    SocketTransport();
-                    SocketTransport(QLocalSocket *);
-                    ~SocketTransport();
+            public:
+                IODevice_Transport(QIODevice *io_device, QObject *parent = 0);
+                ~IODevice_Transport();
 
-                    QLocalSocket *socket();
-                    void setSocket(QLocalSocket *);
+            protected:
+                virtual void send_data(const QByteArray &);
+                virtual QByteArray receive_data();
 
-                protected:
-                    virtual void send_data(const QByteArray &);
-                    virtual QByteArray receive_data();
+                virtual void updateHasDataAvailable(bool &has_data_variable);
 
-                private:
-                    QLocalSocket *_sock;
-                };
-            }
+            private:
+                QIODevice *_io_device;
+                QMutex _io_device_lock;
+
+            };
         }
     }
 }

@@ -49,6 +49,7 @@ namespace GQtUtil
 
                 private:
                     QMap<QString, QByteArray> _values;
+
                 };
             }
         }

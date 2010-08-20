@@ -8,10 +8,11 @@ HEADERS += \
     DA_BinaryDataStore.h \
     DA_LocalClientServer.h \
     DA_ConfigFile.h \
-    Private/DA_ValueBuffer_P.h \
-    Private/Transports/ITransportMechanism.h \
-    Private/Transports/filetransport.h \
-    Private/Transports/sockettransport.h
+    Private/ValueBuffer.h \
+    Private/filetransport.h \
+    Private/io_device_transport.h \
+    Private/io_queue_worker.h \
+    Private/localsockettransport.h
 
 SOURCES += \
     DA_UserMachineLock.cpp \
@@ -19,10 +20,11 @@ SOURCES += \
     src/qtlockedfile.cpp \
     DA_LocalClientServer.cpp \
     DA_ConfigFile.cpp \
-    Private/DA_ValueBuffer_P.cpp \
-    Private/Transports/filetransport.cpp \
-    Private/Transports/sockettransport.cpp \
-    Private/Transports/ITransportMechanism.cpp
+    Private/ValueBuffer.cpp \
+    Private/filetransport.cpp \
+    Private/io_device_transport.cpp \
+    Private/io_queue_worker.cpp \
+    Private/localsockettransport.cpp
 
 INCLUDEPATH += ../../util include ..
 QT += sql network

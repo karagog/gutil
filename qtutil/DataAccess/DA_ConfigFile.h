@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QString>
 #include <QMap>
-#include "Private/DA_ValueBuffer_P.h"
+#include "Private/ValueBuffer.h"
 
 class QtLockedFile;
 
@@ -30,7 +30,7 @@ namespace GQtUtil
         //   binary data as well as normal string data, because it translates strings
         //   into base64 before writing them to disk.
 
-        class DA_ConfigFile : public Private::DA_ValueBuffer_P
+        class DA_ConfigFile : public Private::ValueBuffer
         {
             Q_OBJECT
         public:

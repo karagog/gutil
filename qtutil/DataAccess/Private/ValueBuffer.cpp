@@ -12,16 +12,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "DA_ValueBuffer_P.h"
-#include "Transports/ITransportMechanism.h"
+#include "ValueBuffer.h"
+#include "Interfaces/ITransportMechanism.h"
 #include "stringhelpers.h"
 #include "exception.h"
 #include <QStringList>
 using namespace GUtil;
 using namespace GQtUtil::DataAccess::Private;
 
-DA_ValueBuffer_P::DA_ValueBuffer_P(
-        Transports::ITransportMechanism *transport_mechanism,
+ValueBuffer::ValueBuffer(
+        Interfaces::ITransportMechanism *transport_mechanism,
         QObject *parent)
             :QObject(parent)
 {
@@ -31,17 +31,17 @@ DA_ValueBuffer_P::DA_ValueBuffer_P(
     // Start off with one variable container (default only uses one)
     enQueue();
 
-    reload();
+    connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(load_data(QByteArray)));
 }
 
-void DA_ValueBuffer_P::enQueue()
+void ValueBuffer::enQueue()
 {
     queue_mutex.lock();
     _values.enqueue(new DataObjects::DataContainer());
     queue_mutex.unlock();
 }
 
-DataObjects::DataContainer *DA_ValueBuffer_P::deQueue()
+DataObjects::DataContainer *ValueBuffer::deQueue()
 {
     queue_mutex.lock();
     DataObjects::DataContainer *ret = _values.dequeue();
@@ -50,24 +50,24 @@ DataObjects::DataContainer *DA_ValueBuffer_P::deQueue()
     return ret;
 }
 
-void DA_ValueBuffer_P::makeReadOnly(bool val)
+void ValueBuffer::makeReadOnly(bool val)
 {
     _readonly = val;
 }
 
-bool DA_ValueBuffer_P::isReadOnly()
+bool ValueBuffer::isReadOnly()
 {
     return _readonly;
 }
 
-void DA_ValueBuffer_P::setValue(const QString &key, const QString& value)
+void ValueBuffer::setValue(const QString &key, const QByteArray& value)
 {
-    QMap<QString, QString> m;
+    QMap<QString, QByteArray> m;
     m.insert(key, value);
     setValues(m);
 }
 
-void DA_ValueBuffer_P::setValues(const QMap<QString, QString> &values)
+void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
 {
     if(isReadOnly())
         return;
@@ -80,14 +80,14 @@ void DA_ValueBuffer_P::setValues(const QMap<QString, QString> &values)
         export_data();
 }
 
-QString DA_ValueBuffer_P::value(const QString &key) const
+QByteArray ValueBuffer::value(const QString &key) const
 {
     return _values.last()->getValue(key);
 }
 
-QMap<QString, QString> DA_ValueBuffer_P::values(const QStringList &keys) const
+QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys) const
 {
-    QMap<QString, QString> ret;
+    QMap<QString, QByteArray> ret;
 
     foreach(QString s, keys)
         ret[s] = value(s);
@@ -95,12 +95,12 @@ QMap<QString, QString> DA_ValueBuffer_P::values(const QStringList &keys) const
     return ret;
 }
 
-bool DA_ValueBuffer_P::contains(const QString &key) const
+bool ValueBuffer::contains(const QString &key) const
 {
     return _values.last()->contains(key);
 }
 
-void DA_ValueBuffer_P::clear()
+void ValueBuffer::clear()
 {
     if(isReadOnly())
         return;
@@ -110,20 +110,20 @@ void DA_ValueBuffer_P::clear()
     export_data();
 }
 
-void DA_ValueBuffer_P::clearQueue()
+void ValueBuffer::clearQueue()
 {
     while(_values.count() > 1)
         delete _values.dequeue();
 }
 
-void DA_ValueBuffer_P::remove(const QString &key)
+void ValueBuffer::remove(const QString &key)
 {
     QStringList sl;
     sl.append(key);
     remove(sl);
 }
 
-void DA_ValueBuffer_P::remove(const QStringList &keys)
+void ValueBuffer::remove(const QStringList &keys)
 {
     if(isReadOnly())
         return;
@@ -140,37 +140,29 @@ void DA_ValueBuffer_P::remove(const QStringList &keys)
         export_data();
 }
 
-QList<QByteArray> DA_ValueBuffer_P::prepare_data_for_export()
+QList<QByteArray> ValueBuffer::prepare_data_for_export()
 {
     QList<QByteArray> ret;
     while(_values.count() > 1)
-        ret.append(_values.deque()->toXml());
+        ret.append(_values.dequeue()->toXml());
     return ret;
 }
 
-void DA_ValueBuffer_P::import_data(const QList<QByteArray> &dat)
+void ValueBuffer::import_data(const QByteArray &dat)
 {
-    while(dat.length() > 0)
-    {
-        _values.last()->fromXml(dat.first());
-        enQueue();
-        dat.removeFirst();
-    }
+    _values.last()->fromXml(dat);
+
+    enQueue();
 }
 
-void DA_ValueBuffer_P::export_data()
+void ValueBuffer::export_data()
 {
     QList<QByteArray> data = prepare_data_for_export();
     foreach(QByteArray b, data)
-        _transport->exportData(b);
+        _transport->sendData(b);
 }
 
-void DA_ValueBuffer_P::reload_data()
+void ValueBuffer::load_data(const QByteArray &new_data)
 {
-    import_data(_transport->importData());
-}
-
-void DA_ValueBuffer_P::reload()
-{
-    reload_data();
+    import_data(new_data);
 }
