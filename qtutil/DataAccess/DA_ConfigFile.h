@@ -26,6 +26,11 @@ namespace GQtUtil
 {
     namespace DataAccess
     {
+        namespace Private
+        {
+            class FileTransport;
+        }
+
         // This class provices a persistent storage of variables.  You can store
         //   binary data as well as normal string data, because it translates strings
         //   into base64 before writing them to disk.
@@ -40,6 +45,8 @@ namespace GQtUtil
 
             QString fileName() const;
 
+            void getIdentity(QString &identifier, QString &modifier);
+
         signals:
             void notifyConfigurationUpdate();
 
@@ -51,6 +58,11 @@ namespace GQtUtil
 
         private:
             bool _ignore_update;
+
+            QString _identity;
+            QString _modifier;
+
+            Private::FileTransport *_file_transport;
 
             static QString get_file_location(QString id);
         };

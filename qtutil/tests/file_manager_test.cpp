@@ -1,13 +1,13 @@
 #include "file_manager_test.h"
-#include "file_manager.h"
+#include "DataAccess/DA_BinaryDataStore.h"
 #include "exception.h"
 #include <QTest>
-using namespace GUtil::QtUtil;
+using namespace GQtUtil::DataAccess;
 
 file_manager_test::file_manager_test(QObject *parent) :
     QObject(parent)
 {
-    fm = new File_Manager("filemanagertest");
+    fm = new DA_BinaryDataStore("filemanagertest");
 }
 
 void file_manager_test::simple_startup_test()
@@ -52,7 +52,7 @@ void file_manager_test::test_reset()
 void file_manager_test::test_second_object()
 {
     fm->reset();
-    File_Manager *fm2 = new File_Manager("filemanagertest", false);
+    DA_BinaryDataStore *fm2 = new DA_BinaryDataStore("filemanagertest", false);
     QVERIFY(fm->addFile("test1") == 0);
     QVERIFY(fm2->addFile("test2") == 1);
     QVERIFY(fm->addFile("test3") == 2);

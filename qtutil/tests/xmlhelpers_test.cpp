@@ -13,9 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "xmlhelpers_test.h"
-#include "xmlhelpers.h"
+#include "Custom/myxmlstreamreader.h"
 
-using namespace GUtil::QtUtil;
+using namespace GQtUtil::Custom;
 
 XmlHelpers_test::XmlHelpers_test(QObject *parent) :
         QObject(parent)
@@ -28,7 +28,7 @@ void XmlHelpers_test::test_innerXml()
 
     // Test a basic xml string
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
 
@@ -44,13 +44,13 @@ void XmlHelpers_test::test_innerXml()
 
         // Make sure the reader is pointing at the corresponding end element for the
         //  node we just read
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "t");
     }
 
     // Test one of the inner elements of the tree
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
         QVERIFY(rdr.readNextStartElement());
@@ -58,14 +58,14 @@ void XmlHelpers_test::test_innerXml()
         QString res = rdr.InnerXml();
 
         QVERIFY(res == "<inner a=\"attribute\"/>");
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "inner");
     }
 
     // Try a heavily nested one
     xmlstr = "<a><aa><aaa>Here is text</aaa><bbb attr=\"test\"><aaaa/></bbb></aa></a>";
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
 
@@ -78,7 +78,7 @@ void XmlHelpers_test::test_innerXml()
         }
 
         QVERIFY(res == xmlstr);
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "a");
     }
 
@@ -87,7 +87,7 @@ void XmlHelpers_test::test_innerXml()
     xmlstr = "<a><aa><aaa>Here is&quot;text<aaaa lab=\"&quot;\"></aaaa></aaa>"
              "<bbb attr=\"test&amp;\"><aaaa/></bbb></aa></a>";
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
         QVERIFY(rdr.readNextStartElement());
@@ -97,12 +97,12 @@ void XmlHelpers_test::test_innerXml()
 
         QVERIFY(res == "<aa><aaa>Here is&quot;text<aaaa lab=\"&quot;\"/></aaa>"
                 "<bbb attr=\"test&amp;\"><aaaa/></bbb></aa>");
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "aa");
 
-        GXmlStreamReader rdr2(res);
+        myXmlStreamReader rdr2(res);
         rdr2.readNextStartElement();
-        while(rdr2.readNext() != GXmlStreamReader::Characters)
+        while(rdr2.readNext() != myXmlStreamReader::Characters)
         {}
 
         // Make sure it translates the escaped characters correctly
@@ -116,7 +116,7 @@ void XmlHelpers_test::test_innerText()
 
     // Test a basic xml string
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
 
@@ -129,13 +129,13 @@ void XmlHelpers_test::test_innerText()
 
         // Make sure the reader is pointing at the corresponding end element for the
         //  node we just read
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "t");
     }
 
     // Test one of the inner elements of the tree
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
         QVERIFY(rdr.readNextStartElement());
@@ -143,14 +143,14 @@ void XmlHelpers_test::test_innerText()
         QString res = rdr.InnerText();
 
         QVERIFY(res == "");
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "inner");
     }
 
     // Try a heavily nested one
     xmlstr = "<a><aa><aaa>Here is text</aaa><bbb attr=\"test\"><aaaa/></bbb></aa></a>";
     {
-        GXmlStreamReader rdr(xmlstr);
+        myXmlStreamReader rdr(xmlstr);
 
         QVERIFY(rdr.readNextStartElement());
 
@@ -160,7 +160,7 @@ void XmlHelpers_test::test_innerText()
 //        qDebug(("After: " + res).toStdString().c_str());
 
         QVERIFY(res == "<aa><aaa>Here is text</aaa><bbb attr=\"test\"><aaaa/></bbb></aa>");
-        QVERIFY(rdr.tokenType() == GXmlStreamReader::EndElement);
+        QVERIFY(rdr.tokenType() == myXmlStreamReader::EndElement);
         QVERIFY(rdr.name().toString() == "a");
     }
 }

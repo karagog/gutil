@@ -13,9 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "usermachinelock_test.h"
-#include "usermachinelock.h"
+#include "DataAccess/DA_UserMachineLock.h"
+#include "exception.h"
 #include <QTest>
-using namespace GUtil::QtUtil;
+using namespace GQtUtil::DataAccess;
 
 usermachinelock_test::usermachinelock_test(QObject *parent) :
     QObject(parent)
@@ -24,12 +25,19 @@ usermachinelock_test::usermachinelock_test(QObject *parent) :
 
 void usermachinelock_test::test_locking()
 {
-    UserMachineLock a("GTestLib");
-    UserMachineLock b("GTestLib");
+    DA_UserMachineLock a("GTestLib");
+    DA_UserMachineLock b("GTestLib");
 
-    QString probe = a.FileName();
+    QString probe = a.fileName();
 
-    QVERIFY(a.Lock());
+    try
+    {
+        a.lock();
+    }
+    catch(GUtil::Exception)
+    {
+        QVERIFY(false);
+    }
 
     // This doesn't work unless you do it from another instance
     //QVERIFY(!b.Lock());

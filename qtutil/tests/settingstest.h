@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef SETTINGSTEST_H
 #define SETTINGSTEST_H
 
-#include "settings.h"
+#include "DataAccess/DA_ConfigFile.h"
 #include <QObject>
 #include <QTest>
 
@@ -50,7 +50,7 @@ private slots:
     void catch_save_signal_not_test();
 
 private:
-    GUtil::QtUtil::Settings *settings;
+    GQtUtil::DataAccess::DA_ConfigFile *settings;
 
     bool save_flag;
 };

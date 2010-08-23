@@ -27,10 +27,10 @@ using namespace GQtUtil::DataAccess;
 using namespace GQtUtil::DataAccess::Private;
 
 DA_ConfigFile::DA_ConfigFile(const QString &identifier, const QString &modifier, QObject *parent)
-    :ValueBuffer(new FileTransport(QString("%1.%2")
-                                                   .arg(get_file_location(identifier))
-                                                   .arg(modifier)),
-                      parent)
+    :ValueBuffer(_file_transport = new FileTransport(QString("%1.%2")
+                                   .arg(get_file_location(_identity = identifier))
+                                   .arg(_modifier = modifier)),
+                 parent)
 {
     _ignore_update = false;
 
@@ -40,12 +40,18 @@ DA_ConfigFile::DA_ConfigFile(const QString &identifier, const QString &modifier,
     connect(fsw, SIGNAL(fileChanged(QString)), this, SLOT(catch_asynchronous_update()));
 
     // Automatically load the configuration
-    reload();
+    //reload();
 }
 
 QString DA_ConfigFile::fileName() const
 {
-    return ((FileTransport *)_transport)->fileName();
+    return _file_transport->fileName();
+}
+
+void DA_ConfigFile::getIdentity(QString &identifier, QString &modifier)
+{
+    identifier = _identity;
+    modifier = _modifier;
 }
 
 QString DA_ConfigFile::get_file_location(QString id)
@@ -96,7 +102,7 @@ void DA_ConfigFile::catch_asynchronous_update()
         _ignore_update = false;
     else
     {
-        reload();
+        //reload();
         emit notifyConfigurationUpdate();
     }
 }

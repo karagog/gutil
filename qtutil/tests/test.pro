@@ -12,8 +12,8 @@ SOURCES += settingstest.cpp \
     flattreemodeltest.cpp \
     file_manager_test.cpp
 QT += testlib sql
-INCLUDEPATH += ../headers \
-    ../../../util/headers
+INCLUDEPATH += .. \
+    ../../util
 
 win32:LIBS += \
     -lGQtUtil \

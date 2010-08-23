@@ -1,8 +1,8 @@
 #include "flattreemodeltest.h"
-#include "myflattreemodel.h"
+#include "Custom/myflattreemodel.h"
 #include "ui_flattreemodeltest.h"
 #include <QFileSystemModel>
-using namespace GUtil::QtUtil;
+using namespace GQtUtil::Custom;
 
 flatTreeModelTest::flatTreeModelTest(QWidget *parent) :
     QWidget(parent),

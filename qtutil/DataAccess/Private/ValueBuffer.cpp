@@ -85,6 +85,11 @@ QByteArray ValueBuffer::value(const QString &key)
     return currentDataContainer()->getValue(key);
 }
 
+QByteArray& ValueBuffer::operator [](QString key)
+{
+    return (*currentDataContainer())[key];
+}
+
 QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys)
 {
     QMap<QString, QByteArray> ret;

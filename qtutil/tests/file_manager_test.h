@@ -3,11 +3,11 @@
 
 #include <QObject>
 
-namespace GUtil
+namespace GQtUtil
 {
-    namespace QtUtil
+    namespace DataAccess
     {
-        class File_Manager;
+        class DA_BinaryDataStore;
     }
 }
 
@@ -33,7 +33,7 @@ private slots:
     void test_remove();
 
 private:
-    GUtil::QtUtil::File_Manager *fm;
+    GQtUtil::DataAccess::DA_BinaryDataStore *fm;
 
 };
 

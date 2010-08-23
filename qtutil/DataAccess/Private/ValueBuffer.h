@@ -50,6 +50,8 @@ namespace GQtUtil
                 QByteArray value(const QString &key);
                 QMap<QString, QByteArray> values(const QStringList &);
 
+                QByteArray& operator [](QString key);
+
                 bool contains(const QString &key);
 
                 // Flushes the data queue and clears the current data container
@@ -58,7 +60,6 @@ namespace GQtUtil
                 // Remove a specific key (or keys)
                 void remove(const QString &);
                 void remove(const QStringList &);
-
 
             signals:
                 void newDataArrived();
