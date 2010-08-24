@@ -21,17 +21,25 @@ namespace GQtUtil
 {
     namespace Tools
     {
-        // An interface for a thread that implements cancelling
-        //  Note: You have to manually check if 'isCancelled()' is true and then
-        //   exit by yourself.  That's why I say this is just an interface.
-        class CancellableThread : public QThread
+        // Useful QThread wrapper
+
+        //   Exposes protected functions of QThread
+
+        //   ProvidesAn interface for a thread that implements cancelling
+        //    Note: You have to manually check if 'isCancelled()' is true and then
+        //     exit by yourself.  That's why I say this is just an interface.
+        class GThread : public QThread
         {
             Q_OBJECT
         public:
-            explicit CancellableThread(QObject *parent = 0);
+            explicit GThread(QObject *parent = 0);
 
             bool isCancelled();
             void uncancel();
+
+            static void sleep(unsigned long seconds);
+            static void msleep(unsigned long mseconds);
+            static void usleep(unsigned long useconds);
 
         signals:
             void notifyCancelled();

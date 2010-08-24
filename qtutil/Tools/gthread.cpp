@@ -12,27 +12,42 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "cancellablethread.h"
+#include "gthread.h"
 using namespace GQtUtil::Tools;
 
-CancellableThread::CancellableThread(QObject *parent) :
+GThread::GThread(QObject *parent) :
     QThread(parent)
 {
     is_cancelled = false;
 }
 
-void CancellableThread::cancel()
+void GThread::cancel()
 {
     is_cancelled = true;
     emit notifyCancelled();
 }
 
-void CancellableThread::uncancel()
+void GThread::uncancel()
 {
     is_cancelled = false;
 }
 
-bool CancellableThread::isCancelled()
+bool GThread::isCancelled()
 {
     return is_cancelled;
+}
+
+void GThread::sleep(unsigned long seconds)
+{
+    QThread::sleep(seconds);
+}
+
+void GThread::msleep(unsigned long mseconds)
+{
+    QThread::sleep(mseconds);
+}
+
+void GThread::usleep(unsigned long useconds)
+{
+    QThread::sleep(useconds);
 }

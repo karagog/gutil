@@ -25,12 +25,12 @@ FileTransport::FileTransport(const QString &filename, QObject *parent)
 {
     _lf = new QtLockedFile(filename);
 
+    update_has_data_available();
+
     _file_watcher = new QFileSystemWatcher(this);
     _file_watcher->addPath(filename);
 
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(update_has_data_available()));
-
-    update_has_data_available();
 }
 
 void FileTransport::send_data(const QByteArray &data)

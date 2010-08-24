@@ -17,8 +17,7 @@ limitations under the License.*/
 #include "exception.h"
 //#include "filesystemhelpers.h"
 #include <string>
-#include <QDir>
-#include <QTimer>
+#include <QFile>
 
 using namespace GUtil;
 using namespace GQtUtil::DataAccess;
@@ -216,13 +215,10 @@ void settingsTest::test_clear_all_values()
     QString tmpkey = "thisisnew";
     QString permkey = "thisstays";
 
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-
     settings->setValue(tmpkey, "nothing");
     settings->setValue(permkey, "value");
 
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
     QVERIFY(newsettings[tmpkey] == "nothing");
     QVERIFY(newsettings[permkey] == "value");
