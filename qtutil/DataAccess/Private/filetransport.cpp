@@ -23,7 +23,7 @@ using namespace GQtUtil::DataAccess::Private;
 FileTransport::FileTransport(const QString &filename, QObject *parent)
     :ITransportMechanism(parent)
 {
-    _lf->setFileName(filename);
+    _lf = new QtLockedFile(filename);
 
     _file_watcher = new QFileSystemWatcher(this);
     _file_watcher->addPath(filename);
@@ -93,6 +93,16 @@ void FileTransport::updateHasDataAvailable(bool &has_data_variable)
 QString FileTransport::fileName() const
 {
     return _lf->fileName();
+}
+
+QByteArray FileTransport::fileData()
+{
+    return receive_data();
+}
+
+void FileTransport::reload()
+{
+    emit notifyNewData(receive_data());
 }
 
 void FileTransport::_open_and_lock_file(bool for_write)

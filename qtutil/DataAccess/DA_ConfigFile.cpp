@@ -22,36 +22,66 @@ limitations under the License.*/
 #include <QFileSystemWatcher>
 #include <QDesktopServices>
 #include <QDir>
+#include <QTimer>
 using namespace GUtil;
 using namespace GQtUtil::DataAccess;
 using namespace GQtUtil::DataAccess::Private;
 
 DA_ConfigFile::DA_ConfigFile(const QString &identifier, const QString &modifier, QObject *parent)
-    :ValueBuffer(_file_transport = new FileTransport(QString("%1.%2")
-                                   .arg(get_file_location(_identity = identifier))
-                                   .arg(_modifier = modifier)),
+    :ValueBuffer(new FileTransport(QString("%1.%2")
+                                   .arg(get_file_location(identifier))
+                                   .arg(modifier)),
                  parent)
 {
-    _ignore_update = false;
+    _init(identifier, modifier);
+}
 
-    // Attach a filesystem watcher so we can know if the file updates behind our back
-    QFileSystemWatcher *fsw = new QFileSystemWatcher(this);
-    fsw->addPath(identifier);
-    connect(fsw, SIGNAL(fileChanged(QString)), this, SLOT(catch_asynchronous_update()));
+DA_ConfigFile::DA_ConfigFile(const DA_ConfigFile &other, QObject *parent)
+    :ValueBuffer(new FileTransport(QString("%1.%2")
+                                   .arg(get_file_location(other._identity))
+                                   .arg(other._modifier)),
+                 parent)
+{
+    _init(other._identity, other._modifier);
+}
 
-    // Automatically load the configuration
-    //reload();
+void DA_ConfigFile::_init(const QString &identity, const QString &modifier)
+{
+    _identity = identity;
+    _modifier = modifier;
+
+    importData(get_file_transport()->fileData());
+
+    connect(get_file_transport(), SIGNAL(notifyNewData(QByteArray)),
+            this, SLOT(catch_asynchronous_update(QByteArray)));
 }
 
 QString DA_ConfigFile::fileName() const
 {
-    return _file_transport->fileName();
+    return get_file_transport()->fileName();
+}
+
+void DA_ConfigFile::reload()
+{
+    get_file_transport()->reload();
 }
 
 void DA_ConfigFile::getIdentity(QString &identifier, QString &modifier)
 {
     identifier = _identity;
     modifier = _modifier;
+}
+
+void DA_ConfigFile::value_changed()
+{
+    // Export the changed data to the config file
+    enQueue(true);
+    exportData();
+}
+
+Private::FileTransport *DA_ConfigFile::get_file_transport() const
+{
+    return (Private::FileTransport *)_transport;
 }
 
 QString DA_ConfigFile::get_file_location(QString id)
@@ -88,21 +118,9 @@ QString DA_ConfigFile::get_file_location(QString id)
     return _config_filename;
 }
 
-void DA_ConfigFile::export_data()
+void DA_ConfigFile::catch_asynchronous_update(const QByteArray &dat)
 {
-    // We're the ones updating the file, so we ignore the filesystem watcher
-    _ignore_update = true;
+    importData(dat);
 
-    ValueBuffer::export_data();
-}
-
-void DA_ConfigFile::catch_asynchronous_update()
-{
-    if(_ignore_update)
-        _ignore_update = false;
-    else
-    {
-        //reload();
-        emit notifyConfigurationUpdate();
-    }
+    emit notifyConfigurationUpdate();
 }

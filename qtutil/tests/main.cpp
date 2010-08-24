@@ -38,12 +38,12 @@ int main(int argc, char **argv)
                 return res;
         }
 
-        {
-            filesystem_test test;
-            res = QTest::qExec(&test);
-            if(res != 0)
-                return res;
-        }
+//        {
+//            filesystem_test test;
+//            res = QTest::qExec(&test);
+//            if(res != 0)
+//                return res;
+//        }
 
         {
             res = QTest::qExec(new usermachinelock_test());

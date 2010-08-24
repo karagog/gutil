@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "exception.h"
 #include <QStringList>
 using namespace GUtil;
+using namespace GQtUtil::DataObjects;
 using namespace GQtUtil::DataAccess::Private;
 
 ValueBuffer::ValueBuffer(
@@ -31,23 +32,34 @@ ValueBuffer::ValueBuffer(
     // Start off with one variable container (default only uses one)
     enQueue();
 
-    connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(import_data(QByteArray)));
+    connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
 }
 
-void ValueBuffer::enQueue()
+void ValueBuffer::enQueue(bool copy)
 {
-    queue_mutex.lock();
-    _values.enqueue(new DataObjects::DataContainer());
-    queue_mutex.unlock();
+    queue_lock.lockForWrite();
+    _enQueue(copy);
+    queue_lock.unlock();
 }
 
-DataObjects::DataContainer *ValueBuffer::deQueue()
+void ValueBuffer::_enQueue(bool copy)
 {
-    queue_mutex.lock();
-    DataObjects::DataContainer *ret = _values.dequeue();
-    queue_mutex.unlock();
+    if(copy)
+        _values.enqueue(new DataObjects::DataContainer(*currentDataContainer()));
+    else
+        _values.enqueue(new DataObjects::DataContainer());
+}
 
-    return ret;
+void ValueBuffer::deQueue()
+{
+    queue_lock.lockForWrite();
+    _deQueue();
+    queue_lock.unlock();
+}
+
+void ValueBuffer::_deQueue()
+{
+    _values.dequeue();
 }
 
 void ValueBuffer::makeReadOnly(bool val)
@@ -72,17 +84,16 @@ void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
     if(isReadOnly())
         return;
 
+    queue_lock.lockForRead();
+    data_container_lock.lockForWrite();
+
     foreach(QString s, values.keys())
         currentDataContainer()->setValue(s, values[s]);
 
-    // Only save if we actually made changes
-    if(values.keys().length() > 0)
-        export_data();
-}
+    data_container_lock.unlock();
+    queue_lock.unlock();
 
-QByteArray ValueBuffer::value(const QString &key)
-{
-    return currentDataContainer()->getValue(key);
+    value_changed();
 }
 
 QByteArray& ValueBuffer::operator [](QString key)
@@ -90,19 +101,37 @@ QByteArray& ValueBuffer::operator [](QString key)
     return (*currentDataContainer())[key];
 }
 
+QByteArray ValueBuffer::value(const QString &key)
+{
+    return values(QStringList(key)).value(key);
+}
+
 QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys)
 {
-    QMap<QString, QByteArray> ret;
+    queue_lock.lockForRead();
+    data_container_lock.lockForRead();
 
+    QMap<QString, QByteArray> ret;
     foreach(QString s, keys)
-        ret[s] = value(s);
+        ret[s] = currentDataContainer()->getValue(s);
+
+    data_container_lock.unlock();
+    queue_lock.unlock();
 
     return ret;
 }
 
 bool ValueBuffer::contains(const QString &key)
 {
-    return currentDataContainer()->contains(key);
+    queue_lock.lockForRead();
+    data_container_lock.lockForRead();
+
+    bool ret = currentDataContainer()->contains(key);
+
+    data_container_lock.lockForRead();
+    queue_lock.unlock();
+
+    return ret;
 }
 
 void ValueBuffer::clear()
@@ -110,15 +139,28 @@ void ValueBuffer::clear()
     if(isReadOnly())
         return;
 
-    export_data();
+    queue_lock.lockForRead();
+    data_container_lock.lockForWrite();
 
     currentDataContainer()->clear();
+
+    data_container_lock.unlock();
+    queue_lock.unlock();
+
+    value_changed();
 }
 
 void ValueBuffer::clearQueue()
 {
+    queue_lock.lockForWrite();
+
     while(_values.count() > 1)
-        delete deQueue();
+    {
+        delete firstContainerInLine();
+        _deQueue();
+    }
+
+    queue_lock.unlock();
 }
 
 void ValueBuffer::remove(const QString &key)
@@ -133,49 +175,83 @@ void ValueBuffer::remove(const QStringList &keys)
     if(isReadOnly())
         return;
 
-    bool val_erased = false;
+    queue_lock.lockForRead();
+    data_container_lock.lockForWrite();
 
     foreach(QString s, keys)
-    {
-        if(currentDataContainer()->remove(s))
-            val_erased = true;
-    }
+        currentDataContainer()->remove(s);
 
-    if(val_erased)
-        export_data();
+    data_container_lock.unlock();
+    queue_lock.unlock();
+
+    value_changed();
+}
+
+void ValueBuffer::value_changed()
+{
+    // The base class does nothing, derived classes may choose to do something
 }
 
 QList<QByteArray> ValueBuffer::prepare_data_for_export()
 {
+    queue_lock.lockForWrite();
+
     QList<QByteArray> ret;
     while(_values.count() > 1)
     {
-        DataObjects::DataContainer *vals = deQueue();
+        DataObjects::DataContainer *vals = firstContainerInLine();
+        _deQueue();
         ret.append(vals->toXml());
         delete vals;
     }
-    return ret;
-}
 
-void ValueBuffer::import_data(const QByteArray &dat)
-{
-    currentDataContainer()->fromXml(dat);
-
-    emit newDataArrived();
-}
-
-void ValueBuffer::export_data()
-{
-    QList<QByteArray> data = prepare_data_for_export();
-    foreach(QByteArray b, data)
-        _transport->sendData(b);
-}
-
-DataObjects::DataContainer *ValueBuffer::currentDataContainer()
-{
-    queue_mutex.lock();
-    DataObjects::DataContainer *ret = _values.last();
-    queue_mutex.unlock();
+    queue_lock.unlock();
 
     return ret;
+}
+
+void ValueBuffer::importData(const QByteArray &dat)
+{
+    queue_lock.lockForRead();
+    data_container_lock.lockForWrite();
+
+    try
+    {
+        currentDataContainer()->clear();
+        currentDataContainer()->fromXml(dat);
+    }
+    catch(GUtil::Exception)
+    {
+        data_container_lock.unlock();
+        queue_lock.unlock();
+        return;
+    }
+
+    data_container_lock.unlock();
+    queue_lock.unlock();
+
+    value_changed();
+}
+
+void ValueBuffer::exportData()
+{
+    try
+    {
+        foreach(QByteArray b, prepare_data_for_export())
+            _transport->sendData(b);
+    }
+    catch(GUtil::Exception)
+    {
+        return;
+    }
+}
+
+DataContainer *ValueBuffer::firstContainerInLine()
+{
+    return _values.first();
+}
+
+DataContainer *ValueBuffer::currentDataContainer()
+{
+    return _values.last();
 }

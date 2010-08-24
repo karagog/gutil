@@ -18,14 +18,23 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 using namespace GUtil;
-using namespace GQtUtil::DataAccess::Private::DataObjects;
+using namespace GQtUtil::DataObjects;
+
+DataContainer::DataContainer()
+{}
+
+DataContainer::DataContainer(const DataContainer &other)
+{
+    foreach(QString k, other.keys())
+        setValue(k, other.getValue(k));
+}
 
 void DataContainer::setValue(const QString &key, const QByteArray &value)
 {
     _values[key] = value;
 }
 
-QByteArray DataContainer::getValue(const QString &key)
+QByteArray DataContainer::getValue(const QString &key) const
 {
     return _values.value(key);
 }
@@ -49,6 +58,11 @@ bool DataContainer::contains(const QString &key)
 void DataContainer::clear()
 {
     _values.clear();
+}
+
+QStringList DataContainer::keys() const
+{
+    return _values.keys();
 }
 
 QByteArray &DataContainer::at(const QString &key)

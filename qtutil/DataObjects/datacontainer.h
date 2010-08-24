@@ -15,44 +15,44 @@ limitations under the License.*/
 #ifndef VARIABLECONTAINER_H
 #define VARIABLECONTAINER_H
 
+#include "Interfaces/ixmlserializable.h"
 #include <QMap>
 #include <QString>
 #include <QByteArray>
-#include <Interfaces/ixmlserializable.h>
+#include <QStringList>
 
 namespace GQtUtil
 {
-    namespace DataAccess
+    namespace DataObjects
     {
-        namespace Private
+        // A class used to hold data and serialize
+        //   the values to xml or access them conveniently with string keys
+        class DataContainer : public Interfaces::IXmlSerializable
         {
-            namespace DataObjects
-            {
-                // A class used to hold data and serialize
-                //   the values to xml or access them conveniently with string keys
-                class DataContainer : public Interfaces::IXmlSerializable
-                {
-                public:
-                    virtual QByteArray toXml();
-                    virtual void fromXml(const QByteArray &);
+        public:
+            DataContainer();
+            DataContainer(const DataContainer &);
 
-                    void setValue(const QString &, const QByteArray &);
-                    QByteArray getValue(const QString &);
+            virtual QByteArray toXml();
+            virtual void fromXml(const QByteArray &);
 
-                    bool remove(const QString &);
+            void setValue(const QString &, const QByteArray &);
+            QByteArray getValue(const QString &) const;
 
-                    bool contains(const QString &);
-                    void clear();
+            bool remove(const QString &);
 
-                    QByteArray &at(const QString &);
-                    QByteArray &operator [](const QString &);
+            bool contains(const QString &);
+            void clear();
 
-                private:
-                    QMap<QString, QByteArray> _values;
+            QStringList keys() const;
 
-                };
-            }
-        }
+            QByteArray &at(const QString &);
+            QByteArray &operator [](const QString &);
+
+        private:
+            QMap<QString, QByteArray> _values;
+
+        };
     }
 }
 

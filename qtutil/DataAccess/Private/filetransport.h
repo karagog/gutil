@@ -34,6 +34,9 @@ namespace GQtUtil
                 FileTransport(const QString &, QObject *parent = 0);
 
                 QString fileName() const;
+                QByteArray fileData();
+
+                void reload();
 
             protected:
                 virtual void send_data(const QByteArray &);

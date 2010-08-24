@@ -18,6 +18,7 @@ limitations under the License.*/
 //#include "filesystemhelpers.h"
 #include <string>
 #include <QDir>
+#include <QTimer>
 
 using namespace GUtil;
 using namespace GQtUtil::DataAccess;
@@ -56,6 +57,8 @@ void settingsTest::saving_value()
         qDebug(ex.Message().c_str());
         QVERIFY(false);
     }
+
+    QVERIFY(settings->value("testkey") == "testval");
 }
 
 void settingsTest::reading_same_value()
@@ -63,11 +66,8 @@ void settingsTest::reading_same_value()
     //create a new settings object and see if it has that key from test case 1
     //qDebug("Reading the value back in...");
 
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
-    //QString probe = settings->Value("testkey");
     QString probe = QString::fromAscii(newsettings.value("testkey"));
     QVERIFY(probe == "testval");
 }
@@ -81,9 +81,7 @@ void settingsTest::null_dat()
 {
     settings->setValue("nulldata", QByteArray());
 
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
     QString probe = QString::fromAscii(newsettings.value("nulldata"));
     QVERIFY(probe == "");
@@ -117,9 +115,7 @@ void settingsTest::multiple_values()
     QVERIFY(output[two] == settings->value(two));
 
     // Test that a new settings object will have the same values
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
     QVERIFY(settings->value(one) == newsettings.value(one));
     QVERIFY(settings->value(two) == newsettings.value(two));
@@ -159,18 +155,14 @@ void settingsTest::test_reload()
 {
     QString one = "reloadtest1";
 
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
     settings->setValue(one, QByteArray("fart"));
 
-    // Make sure 'newsettings' doesn't have the new key we just inserted
-    QVERIFY(newsettings[one] == QByteArray());
+    QVERIFY(newsettings[one] == "");
 
-    // But after we reload it should be there
-    //QVERIFY(newsettings.Reload());
-    QVERIFY(newsettings[one] == QByteArray("fart"));
+    newsettings.reload();
+    QVERIFY(newsettings[one] == "fart");
 }
 
 void settingsTest::test_bin_dat()
@@ -181,9 +173,7 @@ void settingsTest::test_bin_dat()
 
     settings->setValue("binary", str);
 
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
     QVERIFY(newsettings["binary"] == settings->value("binary"));
     QVERIFY(newsettings["binary"] == str);
@@ -193,28 +183,30 @@ void settingsTest::test_erase_value()
 {
     QString tmpkey = "thisisnew";
     QString permkey = "thisstays";
+
     settings->setValue(tmpkey, QByteArray("nothing"));
     settings->setValue(permkey, QByteArray("value"));
 
-    QString _identity, _modifier;
-    settings->getIdentity(_identity, _modifier);
-    DA_ConfigFile newsettings(_identity, _modifier);
+    DA_ConfigFile newsettings(*settings);
 
+    newsettings.reload();
+
+    QString probe = newsettings[tmpkey];
+    probe = settings->value(tmpkey);
     QVERIFY(newsettings[tmpkey] == "nothing");
     QVERIFY(newsettings[permkey] == "value");
 
     // Now erase the value and test if it's still in there
     try
     {
-        QVERIFY(false);
+        settings->remove(tmpkey);
     }
     catch(GUtil::Exception)
     {
-        settings->remove(tmpkey);
+        QVERIFY(false);
     }
 
-    //QVERIFY(newsettings.Reload());
-
+    newsettings.reload();
     QVERIFY(newsettings[tmpkey] == "");
     QVERIFY(newsettings[permkey] == "value");
 }
@@ -223,11 +215,13 @@ void settingsTest::test_clear_all_values()
 {
     QString tmpkey = "thisisnew";
     QString permkey = "thisstays";
-    settings->setValue(tmpkey, "nothing");
-    settings->setValue(permkey, "value");
 
     QString _identity, _modifier;
     settings->getIdentity(_identity, _modifier);
+
+    settings->setValue(tmpkey, "nothing");
+    settings->setValue(permkey, "value");
+
     DA_ConfigFile newsettings(_identity, _modifier);
 
     QVERIFY(newsettings[tmpkey] == "nothing");
@@ -235,15 +229,14 @@ void settingsTest::test_clear_all_values()
 
     try
     {
-        QVERIFY(false);
+        settings->clear();
     }
     catch(GUtil::Exception)
     {
-        settings->clear();
+        QVERIFY(false);
     }
 
-    //QVERIFY(newsettings.Reload());
-
+    newsettings.reload();
     QVERIFY(newsettings[tmpkey] == "");
     QVERIFY(newsettings[permkey] == "");
 }

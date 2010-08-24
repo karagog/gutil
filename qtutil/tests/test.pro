@@ -18,13 +18,13 @@ INCLUDEPATH += .. \
 win32:LIBS += \
     -lGQtUtil \
     -lgutil \
-    -L../debug \
-    -L../../../util/release
+    -L.. \
+    -L../../util/release
 unix:LIBS += \
     -lGQtUtil \
     -lGstring \
     -L.. \
-    -L../../../util
+    -L../../util/release
 
 FORMS += \
     flattreemodeltest.ui

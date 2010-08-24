@@ -42,19 +42,25 @@ namespace GQtUtil
             explicit DA_ConfigFile(const QString &,
                                    const QString &modifier = "",
                                    QObject *parent = 0);
+            explicit DA_ConfigFile(const DA_ConfigFile &, QObject *parent = 0);
 
             QString fileName() const;
 
             void getIdentity(QString &identifier, QString &modifier);
 
+        public slots:
+            void reload();
+
         signals:
             void notifyConfigurationUpdate();
 
         protected:
-            virtual void export_data();
+            virtual void value_changed();
+
+            Private::FileTransport *get_file_transport() const;
 
         private slots:
-            void catch_asynchronous_update();
+            void catch_asynchronous_update(const QByteArray &);
 
         private:
             bool _ignore_update;
@@ -62,9 +68,8 @@ namespace GQtUtil
             QString _identity;
             QString _modifier;
 
-            Private::FileTransport *_file_transport;
-
             static QString get_file_location(QString id);
+            void _init(const QString &, const QString &);
         };
     }
 }

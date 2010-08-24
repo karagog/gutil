@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QString>
 #include <QObject>
 #include <QQueue>
-#include <QMutex>
+#include <QReadWriteLock>
 
 namespace GQtUtil
 {
@@ -61,27 +61,31 @@ namespace GQtUtil
                 void remove(const QString &);
                 void remove(const QStringList &);
 
-            signals:
-                void newDataArrived();
-
 
             protected:
 
-                // For manipulating the queues of values
-                void enQueue();
-                DataObjects::DataContainer *deQueue();
+                // This function is called whenever a value changes; derived classes
+                //   can take advantage of this to export data or do whatever
+                virtual void value_changed();
 
-                // Export data through the transport mechanism.  (All but the current data container get exported)
-                void export_data();
+                // For manipulating the queues of values
+                void enQueue(bool copy = false);
+                void deQueue();
+
+                // Export data through the transport mechanism.
+                //   (All but the current data container get exported)
+                void exportData();
 
                 // Forcefully remove all data from the queue
                 void clearQueue();
 
+                // The method of transport (could be file, socket, network I/O)
+                Interfaces::ITransportMechanism *_transport;
 
-            private slots:
 
-                // You never call this directly; It is called when the transport layer says there's new data
-                void import_data(const QByteArray &);
+            protected slots:
+                // This is called automatically when the transport layer says there's new data
+                void importData(const QByteArray &);
 
 
             private:
@@ -89,16 +93,19 @@ namespace GQtUtil
 
                 // This lock protects the _values queue, because it may be enqueued
                 //   in a separate thread
-                QMutex queue_mutex;
+                QReadWriteLock queue_lock;
+                QReadWriteLock data_container_lock;
+
+                DataObjects::DataContainer *firstContainerInLine();
+                DataObjects::DataContainer *currentDataContainer();
 
                 // We store a queue, becaue we may be buffering several data "blocks"
                 QQueue<DataObjects::DataContainer *> _values;
 
-                // The method of transport (could be file, socket, network I/O)
-                Interfaces::ITransportMechanism *_transport;
-
                 QList<QByteArray> prepare_data_for_export();
-                DataObjects::DataContainer *currentDataContainer();
+
+                void _enQueue(bool copy = false);
+                void _deQueue();
 
             };
         }
