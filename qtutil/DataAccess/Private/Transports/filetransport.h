@@ -42,7 +42,7 @@ namespace GQtUtil
                 virtual void send_data(const QByteArray &);
                 virtual QByteArray receive_data();
 
-                virtual void updateHasDataAvailable(bool &has_data_variable);
+                virtual void update_has_data_variable(bool &has_data_variable);
 
             private:
                 QtLockedFile *_lf;

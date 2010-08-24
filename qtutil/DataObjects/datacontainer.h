@@ -34,7 +34,7 @@ namespace GQtUtil
             DataContainer(const DataContainer &);
 
             virtual QByteArray toXml();
-            virtual void fromXml(const QByteArray &);
+            virtual void fromXml(const QByteArray &) throw();
 
             void setValue(const QString &, const QByteArray &);
             QByteArray getValue(const QString &) const;

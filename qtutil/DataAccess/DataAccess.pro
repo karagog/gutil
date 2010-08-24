@@ -9,10 +9,9 @@ HEADERS += \
     DA_LocalClientServer.h \
     DA_ConfigFile.h \
     Private/ValueBuffer.h \
-    Private/filetransport.h \
-    Private/io_device_transport.h \
+    Private/Transports/filetransport.h \
     Private/io_queue_worker.h \
-    Private/localsockettransport.h
+    Private/Transports/localsockettransport.h
 
 SOURCES += \
     DA_UserMachineLock.cpp \
@@ -21,10 +20,9 @@ SOURCES += \
     DA_LocalClientServer.cpp \
     DA_ConfigFile.cpp \
     Private/ValueBuffer.cpp \
-    Private/filetransport.cpp \
-    Private/io_device_transport.cpp \
+    Private/Transports/filetransport.cpp \
     Private/io_queue_worker.cpp \
-    Private/localsockettransport.cpp
+    Private/Transports/localsockettransport.cpp
 
 INCLUDEPATH += ../../util include ..
 QT += sql network

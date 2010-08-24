@@ -25,12 +25,12 @@ FileTransport::FileTransport(const QString &filename, QObject *parent)
 {
     _lf = new QtLockedFile(filename);
 
-    update_has_data_available();
+    trigger_update_has_data_available();
 
     _file_watcher = new QFileSystemWatcher(this);
     _file_watcher->addPath(filename);
 
-    connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(update_has_data_available()));
+    connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 }
 
 void FileTransport::send_data(const QByteArray &data)
@@ -66,7 +66,7 @@ QByteArray FileTransport::receive_data()
     return dat;
 }
 
-void FileTransport::updateHasDataAvailable(bool &has_data_variable)
+void FileTransport::update_has_data_variable(bool &has_data_variable)
 {
     has_data_variable = false;
 

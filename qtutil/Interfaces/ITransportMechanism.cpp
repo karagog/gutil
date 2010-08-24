@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ITransportMechanism.h"
-#include "exception.h"
 using namespace GQtUtil::Interfaces;
 
 ITransportMechanism::ITransportMechanism(QObject *parent)
@@ -24,41 +23,63 @@ ITransportMechanism::ITransportMechanism(QObject *parent)
 
 void ITransportMechanism::sendData(const QByteArray &data)
 {
-    _data_lock.lock();
+    _lock.lock();
 
     try
     {
         send_data(data);
     }
-    catch(GUtil::Exception)
+    catch(...)
     {
-        _data_lock.unlock();
+        _lock.unlock();
         throw;
     }
 
-    _data_lock.unlock();
+    _lock.unlock();
+
+    emit notifyDataSent(data);
 }
 
-void ITransportMechanism::update_has_data_available()
+QByteArray ITransportMechanism::receiveData()
 {
-    _data_lock.lock();
+    _lock.lock();
+
+    QByteArray ret;
+    try
+    {
+        ret = last_data_received = receive_data();
+    }
+    catch(...)
+    {
+        _lock.unlock();
+        throw;
+    }
+
+    _lock.unlock();
+
+    return ret;
+}
+
+void ITransportMechanism::trigger_update_has_data_available()
+{
+    _lock.lock();
 
     try
     {
-        updateHasDataAvailable(_has_data);
+        update_has_data_variable(_has_data);
 
         while(_has_data)
         {
-            emit notifyNewData(receive_data());
+            emit notifyNewData(last_data_received = receive_data());
 
-            updateHasDataAvailable(_has_data);
+            update_has_data_variable(_has_data);
         }
     }
-    catch(GUtil::Exception)
+    catch(...)
     {
-        _data_lock.unlock();
+        _lock.unlock();
         throw;
     }
 
-    _data_lock.unlock();
+    _lock.unlock();
 }

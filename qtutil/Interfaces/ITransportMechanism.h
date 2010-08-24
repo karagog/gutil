@@ -40,11 +40,16 @@ namespace GQtUtil
 
             void sendData(const QByteArray &);
 
+            // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
+            QByteArray receiveData();
+
 
         signals:
 
             // Tell the world about the new data that arrived asynchronously
             void notifyNewData(const QByteArray &);
+
+            void notifyDataSent(const QByteArray &);
 
 
         protected:
@@ -57,23 +62,28 @@ namespace GQtUtil
             virtual void send_data(const QByteArray&) = 0;
             virtual QByteArray receive_data() = 0;
 
+
+            // A reference to the last data received
+            QByteArray last_data_received;
+
+
             // You must derive from this function to program special logic
             //   to determine if there's data available.  This will depend
             //   on the method of transport you're using.  Set the boolean
             //   to true if there is data available.
-            virtual void updateHasDataAvailable(bool &has_data_variable) = 0;
+            virtual void update_has_data_variable(bool &has_data_variable) = 0;
 
 
         protected slots:
 
             // Connect this to an update signal, or call it manually to force an update
-            void update_has_data_available();
+            void trigger_update_has_data_available();
 
 
         private:
 
             // Protects us so we can be re-entrant when using the transport
-            QMutex _data_lock;
+            QMutex _lock;
 
             // Note: Only use 'has_data' and 'set_has_data' to change this boolean
             bool _has_data;

@@ -104,7 +104,7 @@ QByteArray DataContainer::toXml()
     return xmlstr;
 }
 
-void DataContainer::fromXml(const QByteArray &dat)
+void DataContainer::fromXml(const QByteArray &dat) throw()
 {
     clear();
 

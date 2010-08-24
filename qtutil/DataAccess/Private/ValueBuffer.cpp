@@ -15,8 +15,8 @@ limitations under the License.*/
 #include "ValueBuffer.h"
 #include "Interfaces/ITransportMechanism.h"
 #include "stringhelpers.h"
-#include "exception.h"
 #include <QStringList>
+#include <QtConcurrentRun>
 using namespace GUtil;
 using namespace GQtUtil::DataObjects;
 using namespace GQtUtil::DataAccess::Private;
@@ -29,38 +29,35 @@ ValueBuffer::ValueBuffer(
     _transport = transport_mechanism;
     _readonly = false;
 
-    // Start off with one variable container (default only uses one)
-    enQueue();
-
     connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
 }
 
-void ValueBuffer::enQueue(bool copy)
-{
-    queue_lock.lockForWrite();
-    _enQueue(copy);
-    queue_lock.unlock();
-}
+//void ValueBuffer::enQueue(bool copy)
+//{
+//    queue_lock.lockForWrite();
+//    _enQueue(copy);
+//    queue_lock.unlock();
+//}
 
-void ValueBuffer::_enQueue(bool copy)
-{
-    if(copy)
-        _values.enqueue(new DataObjects::DataContainer(*currentDataContainer()));
-    else
-        _values.enqueue(new DataObjects::DataContainer());
-}
+//void ValueBuffer::_enQueue(bool copy)
+//{
+//    if(copy)
+//        _values.enqueue(new DataObjects::DataContainer(*currentDataContainer()));
+//    else
+//        _values.enqueue(new DataObjects::DataContainer());
+//}
 
-void ValueBuffer::deQueue()
-{
-    queue_lock.lockForWrite();
-    _deQueue();
-    queue_lock.unlock();
-}
+//void ValueBuffer::deQueue()
+//{
+//    queue_lock.lockForWrite();
+//    _deQueue();
+//    queue_lock.unlock();
+//}
 
-void ValueBuffer::_deQueue()
-{
-    _values.dequeue();
-}
+//void ValueBuffer::_deQueue()
+//{
+//    _values.dequeue();
+//}
 
 void ValueBuffer::makeReadOnly(bool val)
 {
@@ -84,21 +81,19 @@ void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
     if(isReadOnly())
         return;
 
-    queue_lock.lockForRead();
-    data_container_lock.lockForWrite();
+    current_data_lock.lockForWrite();
 
     foreach(QString s, values.keys())
-        currentDataContainer()->setValue(s, values[s]);
+        current_data->setValue(s, values[s]);
 
-    data_container_lock.unlock();
-    queue_lock.unlock();
+    current_data_lock.unlock();
 
     value_changed();
 }
 
 QByteArray& ValueBuffer::operator [](QString key)
 {
-    return (*currentDataContainer())[key];
+    return (*current_data)[key];
 }
 
 QByteArray ValueBuffer::value(const QString &key)
@@ -108,28 +103,24 @@ QByteArray ValueBuffer::value(const QString &key)
 
 QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys)
 {
-    queue_lock.lockForRead();
-    data_container_lock.lockForRead();
+    current_data_lock.lockForRead();
 
     QMap<QString, QByteArray> ret;
     foreach(QString s, keys)
-        ret[s] = currentDataContainer()->getValue(s);
+        ret[s] = current_data->getValue(s);
 
-    data_container_lock.unlock();
-    queue_lock.unlock();
+    current_data_lock.unlock();
 
     return ret;
 }
 
 bool ValueBuffer::contains(const QString &key)
 {
-    queue_lock.lockForRead();
-    data_container_lock.lockForRead();
+    current_data_lock.lockForRead();
 
-    bool ret = currentDataContainer()->contains(key);
+    bool ret = current_data->contains(key);
 
-    data_container_lock.lockForRead();
-    queue_lock.unlock();
+    current_data_lock.unlock();
 
     return ret;
 }
@@ -139,119 +130,152 @@ void ValueBuffer::clear()
     if(isReadOnly())
         return;
 
-    queue_lock.lockForRead();
-    data_container_lock.lockForWrite();
-
-    currentDataContainer()->clear();
-
-    data_container_lock.unlock();
-    queue_lock.unlock();
+    current_data_lock.lockForWrite();
+    current_data->clear();
+    current_data_lock.unlock();
 
     value_changed();
 }
 
-void ValueBuffer::clearQueue()
+void ValueBuffer::clearQueues()
 {
-    queue_lock.lockForWrite();
-
-    while(_values.count() > 1)
-    {
-        delete firstContainerInLine();
-        _deQueue();
-    }
-
-    queue_lock.unlock();
+    _clear_queue(&in_queue_mutex, &in_queue);
+    _clear_queue(&out_queue_mutex, &out_queue);
 }
 
-void ValueBuffer::remove(const QString &key)
+void ValueBuffer::_clear_queue(QMutex *lock, QQueue< QByteArray > *queue)
+{
+    lock->lock();
+    queue->clear();
+    lock->unlock();
+}
+
+void ValueBuffer::removeValue(const QString &key)
 {
     QStringList sl;
     sl.append(key);
-    remove(sl);
+    removeValue(sl);
 }
 
-void ValueBuffer::remove(const QStringList &keys)
+void ValueBuffer::removeValue(const QStringList &keys)
 {
     if(isReadOnly())
         return;
 
-    queue_lock.lockForRead();
-    data_container_lock.lockForWrite();
+    current_data_lock.lockForWrite();
 
     foreach(QString s, keys)
-        currentDataContainer()->remove(s);
+        current_data->remove(s);
 
-    data_container_lock.unlock();
-    queue_lock.unlock();
+    current_data_lock.unlock();
 
     value_changed();
 }
 
-void ValueBuffer::value_changed()
+//QList<QByteArray> ValueBuffer::prepare_data_for_export()
+//{
+//    queue_lock.lockForWrite();
+
+//    QList<QByteArray> ret;
+//    while(_values.count() > 1)
+//    {
+//        DataObjects::DataContainer *vals = firstContainerInLine();
+//        _deQueue();
+//        ret.append(vals->toXml());
+//        delete vals;
+//    }
+
+//    queue_lock.unlock();
+
+//    return ret;
+//}
+
+void ValueBuffer::importData(const QByteArray &dat)
 {
-    // The base class does nothing, derived classes may choose to do something
+    in_queue_mutex.lock();
+    in_queue.enqueue(dat);
+    in_queue_mutex.unlock();
+
+    value_changed();
 }
 
-QList<QByteArray> ValueBuffer::prepare_data_for_export()
-{
-    queue_lock.lockForWrite();
+//void ValueBuffer::exportData()
+//{
+//    try
+//    {
+//        foreach(QByteArray b, prepare_data_for_export())
+//            _transport->sendData(b);
+//    }
+//    catch(...)
+//    {
+//        return;
+//    }
+//}
 
-    QList<QByteArray> ret;
-    while(_values.count() > 1)
+void ValueBuffer::enQueueMessage(QueueType q, const QByteArray &msg)
+{
+    QMutex *m;
+    QQueue< QByteArray > *tmpq;
+
+    switch(q)
     {
-        DataObjects::DataContainer *vals = firstContainerInLine();
-        _deQueue();
-        ret.append(vals->toXml());
-        delete vals;
+    case InQueue:
+        m = &in_queue_mutex;
+        tmpq = &in_queue;
+        break;
+    case OutQueue:
+        m = &out_queue_mutex;
+        tmpq = &out_queue;
+        break;
+    default:
+        return;
     }
 
-    queue_lock.unlock();
+    m->lock();
+    tmpq->enqueue(msg);
+    m->unlock();
+
+    // We want to get rid of anything in the queue as soon as possible
+    process_queues();
+}
+
+QByteArray ValueBuffer::deQueueMessage(QueueType q)
+{
+    QByteArray ret;
+    QMutex *m;
+    QQueue<QByteArray> *tmpq;
+
+    switch(q)
+    {
+    case InQueue:
+        m = &in_queue_mutex;
+        tmpq = &in_queue;
+        break;
+    case OutQueue:
+        m = &out_queue_mutex;
+        tmpq = &out_queue;
+        break;
+    default:
+        return ret;
+    }
+
+    m->lock();
+    if(!tmpq->empty())
+        ret = tmpq->dequeue();
+    m->unlock();
 
     return ret;
 }
 
-void ValueBuffer::importData(const QByteArray &dat)
+void ValueBuffer::value_changed()
 {
-    queue_lock.lockForRead();
-    data_container_lock.lockForWrite();
-
-    try
-    {
-        currentDataContainer()->clear();
-        currentDataContainer()->fromXml(dat);
-    }
-    catch(GUtil::Exception)
-    {
-        data_container_lock.unlock();
-        queue_lock.unlock();
-        return;
-    }
-
-    data_container_lock.unlock();
-    queue_lock.unlock();
-
-    value_changed();
+    // Does nothing, override to do something
 }
 
-void ValueBuffer::exportData()
+void ValueBuffer::process_queues()
 {
-    try
-    {
-        foreach(QByteArray b, prepare_data_for_export())
-            _transport->sendData(b);
-    }
-    catch(GUtil::Exception)
-    {
-        return;
-    }
-}
+    // Flush the queues
+    flush_output_queue();
 
-DataContainer *ValueBuffer::firstContainerInLine()
-{
-    return _values.first();
-}
-
-DataContainer *ValueBuffer::currentDataContainer()
-{
-    return _values.last();
+    flush_input_queue();
 }

@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QQueue>
 #include <QReadWriteLock>
+#include <QMutex>
 
 namespace GQtUtil
 {
@@ -39,48 +40,50 @@ namespace GQtUtil
             {
                 Q_OBJECT
             public:
-                ValueBuffer(Interfaces::ITransportMechanism *, QObject *parent = 0);
-
-                void makeReadOnly(bool val = true);
-                bool isReadOnly();
-
                 void setValue(const QString &key, const QByteArray& value);
                 void setValues(const QMap<QString, QByteArray> &);
 
                 QByteArray value(const QString &key);
                 QMap<QString, QByteArray> values(const QStringList &);
-
                 QByteArray& operator [](QString key);
+
+                // Remove a specific key (or keys)
+                void removeValue(const QString &);
+                void removeValue(const QStringList &);
 
                 bool contains(const QString &key);
 
                 // Flushes the data queue and clears the current data container
                 void clear();
 
-                // Remove a specific key (or keys)
-                void remove(const QString &);
-                void remove(const QStringList &);
+                void makeReadOnly(bool val = true);
+                bool isReadOnly();
 
 
             protected:
 
+                // No public constructor; this class must be derived
+                ValueBuffer(Interfaces::ITransportMechanism *, QObject *parent = 0);
+
                 // This function is called whenever a value changes; derived classes
-                //   can take advantage of this to export data or do whatever
+                //   can take advantage of this to export data or do whatever with the changed data
                 virtual void value_changed();
 
-                // For manipulating the queues of values
-                void enQueue(bool copy = false);
-                void deQueue();
-
-                // Export data through the transport mechanism.
-                //   (All but the current data container get exported)
-                void exportData();
-
                 // Forcefully remove all data from the queue
-                void clearQueue();
+                void clearQueues();
 
                 // The method of transport (could be file, socket, network I/O)
                 Interfaces::ITransportMechanism *_transport;
+
+                enum QueueType
+                {
+                    InQueue,
+                    OutQueue
+                };
+
+                // Use this to safely remove an item from the in_queue
+                QByteArray deQueueMessage(QueueType);
+                void enQueueMessage(QueueType, const QByteArray &);
 
 
             protected slots:
@@ -89,23 +92,22 @@ namespace GQtUtil
 
 
             private:
+
+                QMutex in_queue_mutex;
+                QMutex out_queue_mutex;
+                QQueue< QByteArray > in_queue;
+                QQueue< QByteArray > out_queue;
+
+                QReadWriteLock current_data_lock;
+                DataObjects::DataContainer *current_data;
+
+                void process_queues();
+                void flush_input_queue();
+                void flush_output_queue();
+
+                void _clear_queue(QMutex *, QQueue< QByteArray > *);
+
                 bool _readonly;
-
-                // This lock protects the _values queue, because it may be enqueued
-                //   in a separate thread
-                QReadWriteLock queue_lock;
-                QReadWriteLock data_container_lock;
-
-                DataObjects::DataContainer *firstContainerInLine();
-                DataObjects::DataContainer *currentDataContainer();
-
-                // We store a queue, becaue we may be buffering several data "blocks"
-                QQueue<DataObjects::DataContainer *> _values;
-
-                QList<QByteArray> prepare_data_for_export();
-
-                void _enQueue(bool copy = false);
-                void _deQueue();
 
             };
         }

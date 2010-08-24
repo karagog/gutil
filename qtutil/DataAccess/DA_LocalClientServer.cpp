@@ -14,7 +14,7 @@
 
 //#include "da_localclientserver.h"
 //#include "DA_UserMachineLock.h"
-//#include "Private/Transports/sockettransport.h"
+//#include "Private/Transports/localsockettransport.h"
 //#include "exception.h"
 //#include <QXmlStreamWriter>
 //#include <QXmlStreamReader>
@@ -31,7 +31,7 @@
 //DA_LocalSocket::DA_LocalSocket(const QString &identifier,
 //                                                     const QString &modifier,
 //                                                     QObject *parent)
-//    : ValueBuffer(_transport = new Transports::IODevice_Transport(new QLocalSocket(this)),
+//        : ValueBuffer(_transport = new LocalSocketTransport(new QLocalSocket(this)),
 //                 parent)
 //{
 //    _machine_lock = new DA_UserMachineLock(identifier, QString("%1.%2").arg(modifier).arg(MODIFIER_STRING), this);

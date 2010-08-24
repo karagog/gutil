@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DA_ConfigFile.h"
-#include "Private/filetransport.h"
+#include "Private/Transports/filetransport.h"
 #include "exception.h"
 #include "stringhelpers.h"
 #include "qtlockedfile.h"
@@ -75,8 +75,9 @@ void DA_ConfigFile::getIdentity(QString &identifier, QString &modifier)
 void DA_ConfigFile::value_changed()
 {
     // Export the changed data to the config file
-    enQueue(true);
-    exportData();
+    throw GUtil::NotImplementedException();
+    //enQueue(true);
+    //exportData();
 }
 
 Private::FileTransport *DA_ConfigFile::get_file_transport() const
