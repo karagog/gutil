@@ -34,6 +34,14 @@ namespace GUtil
     private:
         std::string _message;
     };
+
+
+    class NotImplementedException : public Exception
+    {
+    public:
+        NotImplementedException();
+        NotImplementedException(const std::string &message);
+    };
 }
 
 #endif // GEXEPTION_H

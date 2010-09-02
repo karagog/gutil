@@ -16,11 +16,13 @@ limitations under the License.*/
 using namespace GUtil;
 
 Exception::Exception()
+    :exception()
 {
 
 }
 
 Exception::Exception(const std::string & message)
+    :exception()
 {
     _message = message;
 }
@@ -33,4 +35,20 @@ std::string Exception::Message() const
 void Exception::SetMessage(const std::string &msg)
 {
     _message = msg;
+}
+
+
+
+
+
+NotImplementedException::NotImplementedException()
+    :Exception()
+{
+
+}
+
+NotImplementedException::NotImplementedException(const std::string &message)
+    :Exception(message)
+{
+
 }
