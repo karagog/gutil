@@ -192,11 +192,7 @@ void ValueBuffer::removeValue(const QStringList &keys)
 
 void ValueBuffer::importData(const QByteArray &dat)
 {
-    in_queue_mutex.lock();
-    in_queue.enqueue(dat);
-    in_queue_mutex.unlock();
-
-    value_changed();
+    enQueueMessage(InQueue, dat);
 }
 
 //void ValueBuffer::exportData()
@@ -237,6 +233,21 @@ void ValueBuffer::enQueueMessage(QueueType q, const QByteArray &msg)
 
     // We want to get rid of anything in the queue as soon as possible
     process_queues();
+}
+
+void ValueBuffer::enQueueCurrentData(bool clear)
+{
+    if(clear)
+        current_data_lock.lockForWrite();
+    else
+        current_data_lock.lockForRead();
+
+    enQueueMessage(OutQueue, current_data->toXml());
+
+    if(clear)
+        current_data->clear();
+
+    current_data_lock.unlock();
 }
 
 QByteArray ValueBuffer::deQueueMessage(QueueType q)

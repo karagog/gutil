@@ -83,7 +83,12 @@ namespace GQtUtil
 
                 // Use this to safely remove an item from the in_queue
                 QByteArray deQueueMessage(QueueType);
+
+                // Use this to add a byte array to the current queue
                 void enQueueMessage(QueueType, const QByteArray &);
+
+                // Use this to prepare to enqueue the current message for sending
+                void enQueueCurrentData(bool clear = true);
 
 
             protected slots:
