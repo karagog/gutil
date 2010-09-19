@@ -75,20 +75,24 @@ namespace GQtUtil
                 // The method of transport (could be file, socket, network I/O)
                 Interfaces::ITransportMechanism *_transport;
 
-                enum QueueType
+                enum QueueTypeEnum
                 {
                     InQueue,
                     OutQueue
                 };
 
                 // Use this to safely remove an item from the in_queue
-                QByteArray deQueueMessage(QueueType);
+                QByteArray deQueueMessage(QueueTypeEnum);
 
                 // Use this to add a byte array to the current queue
-                void enQueueMessage(QueueType, const QByteArray &);
+                void enQueueMessage(QueueTypeEnum, const QByteArray &);
 
                 // Use this to prepare to enqueue the current message for sending
                 void enQueueCurrentData(bool clear = true);
+
+                // Subclasses implement this to process a new byte array after it
+                //   gets dequeued
+                virtual void process_input_data(const QByteArray &) = 0;
 
 
             protected slots:
@@ -107,10 +111,9 @@ namespace GQtUtil
                 DataObjects::DataContainer *current_data;
 
                 void process_queues();
-                void flush_input_queue();
-                void flush_output_queue();
+                void _flush_queue(QueueTypeEnum) throw();
 
-                void _clear_queue(QMutex *, QQueue< QByteArray > *);
+                void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
                 bool _readonly;
 

@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "ValueBuffer.h"
 #include "Interfaces/ITransportMechanism.h"
 #include "stringhelpers.h"
+#include "exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 using namespace GUtil;
@@ -139,15 +140,15 @@ void ValueBuffer::clear()
 
 void ValueBuffer::clearQueues()
 {
-    _clear_queue(&in_queue_mutex, &in_queue);
-    _clear_queue(&out_queue_mutex, &out_queue);
+    _clear_queue(in_queue_mutex, in_queue);
+    _clear_queue(out_queue_mutex, out_queue);
 }
 
-void ValueBuffer::_clear_queue(QMutex *lock, QQueue< QByteArray > *queue)
+void ValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteArray > &queue)
 {
-    lock->lock();
-    queue->clear();
-    lock->unlock();
+    lock.lock();
+    queue.clear();
+    lock.unlock();
 }
 
 void ValueBuffer::removeValue(const QString &key)
@@ -172,43 +173,12 @@ void ValueBuffer::removeValue(const QStringList &keys)
     value_changed();
 }
 
-//QList<QByteArray> ValueBuffer::prepare_data_for_export()
-//{
-//    queue_lock.lockForWrite();
-
-//    QList<QByteArray> ret;
-//    while(_values.count() > 1)
-//    {
-//        DataObjects::DataContainer *vals = firstContainerInLine();
-//        _deQueue();
-//        ret.append(vals->toXml());
-//        delete vals;
-//    }
-
-//    queue_lock.unlock();
-
-//    return ret;
-//}
-
 void ValueBuffer::importData(const QByteArray &dat)
 {
     enQueueMessage(InQueue, dat);
 }
 
-//void ValueBuffer::exportData()
-//{
-//    try
-//    {
-//        foreach(QByteArray b, prepare_data_for_export())
-//            _transport->sendData(b);
-//    }
-//    catch(...)
-//    {
-//        return;
-//    }
-//}
-
-void ValueBuffer::enQueueMessage(QueueType q, const QByteArray &msg)
+void ValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
 {
     QMutex *m;
     QQueue< QByteArray > *tmpq;
@@ -250,7 +220,7 @@ void ValueBuffer::enQueueCurrentData(bool clear)
     current_data_lock.unlock();
 }
 
-QByteArray ValueBuffer::deQueueMessage(QueueType q)
+QByteArray ValueBuffer::deQueueMessage(QueueTypeEnum q)
 {
     QByteArray ret;
     QMutex *m;
@@ -286,7 +256,50 @@ void ValueBuffer::value_changed()
 void ValueBuffer::process_queues()
 {
     // Flush the queues
-    flush_output_queue();
+    _flush_queue(OutQueue);
+    _flush_queue(InQueue);
+}
 
-    flush_input_queue();
+void ValueBuffer::_flush_queue(QueueTypeEnum qt) throw()
+{
+    QQueue<QByteArray> *queue;
+    QMutex *mutex;
+
+    if(qt == InQueue)
+    {
+        queue = &in_queue;
+        mutex = &in_queue_mutex;
+    }
+    else if (qt == OutQueue)
+    {
+        queue = &out_queue;
+        mutex = &out_queue_mutex;
+    }
+    else
+    {
+        throw GUtil::Exception("Unrecognized queue type");
+    }
+
+    bool queue_has_data = true;
+
+    while(queue_has_data)
+    {
+        QByteArray ba;
+
+        mutex->lock();
+
+        if(queue->count() > 0)
+            ba = queue->dequeue();
+        queue_has_data = queue->count() > 0;
+
+        mutex->unlock();
+
+        if(!ba.isNull())
+        {
+            if(qt == InQueue)
+                process_input_data(ba);
+            else if (qt == OutQueue)
+                _transport->sendData(ba);
+        }
+    }
 }
