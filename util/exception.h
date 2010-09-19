@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <stdexcept>
 #include <string>
+#include <map>
 
 namespace GUtil
 {
@@ -29,10 +30,14 @@ namespace GUtil
 
         void SetMessage(const std::string &msg);
 
+        void SetData(const std::string &, const std::string &);
+        std::string GetData(const std::string &) const;
+
         std::string Message() const;
 
     private:
         std::string _message;
+        std::map<std::string, std::string> _data;
     };
 
 

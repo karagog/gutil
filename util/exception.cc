@@ -37,6 +37,16 @@ void Exception::SetMessage(const std::string &msg)
     _message = msg;
 }
 
+void Exception::SetData(const std::string &key, const std::string &value)
+{
+    _data[key] = value;
+}
+
+std::string Exception::GetData(const std::string &key) const
+{
+    return _data.at(key);
+}
+
 
 
 
