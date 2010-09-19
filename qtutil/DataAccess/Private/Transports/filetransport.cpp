@@ -33,7 +33,7 @@ FileTransport::FileTransport(const QString &filename, QObject *parent)
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 }
 
-void FileTransport::send_data(const QByteArray &data)
+void FileTransport::send_data(const QByteArray &data) throw()
 {
     _open_and_lock_file(true);
 
@@ -55,7 +55,7 @@ void FileTransport::send_data(const QByteArray &data)
     _unlock_and_close_file();
 }
 
-QByteArray FileTransport::receive_data()
+QByteArray FileTransport::receive_data() throw()
 {
     _open_and_lock_file(false);
 

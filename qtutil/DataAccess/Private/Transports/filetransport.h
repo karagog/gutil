@@ -39,8 +39,8 @@ namespace GQtUtil
                 void reload();
 
             protected:
-                virtual void send_data(const QByteArray &);
-                virtual QByteArray receive_data();
+                virtual void send_data(const QByteArray &) throw();
+                virtual QByteArray receive_data() throw();
 
                 virtual void update_has_data_variable(bool &has_data_variable);
 
