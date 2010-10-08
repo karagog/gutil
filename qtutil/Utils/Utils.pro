@@ -5,8 +5,10 @@ DESTDIR = ../lib
 TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += \
-    pubsubsystem.cpp
+    pubsubsystem.cpp \
+    Private/abstractlogger.cpp
 HEADERS += \
-    pubsubsystem.h
+    pubsubsystem.h \
+    Private/abstractlogger.h
 
-INCLUDEPATH += ../../util
+INCLUDEPATH += ../../util .
