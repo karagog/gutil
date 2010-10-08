@@ -42,6 +42,7 @@ namespace GUtil
         std::string ToString() const;
 
     protected:
+        // Derived exceptions should reimplement this so their type can be shown in string format
         virtual std::string ToString_protected() const;
 
     private:

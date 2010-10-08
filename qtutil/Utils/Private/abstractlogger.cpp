@@ -36,7 +36,20 @@ void AbstractLogger::LogError(const QString &msg, const QString &title)
 
 void AbstractLogger::LogException(const GUtil::Exception &ex)
 {
-    Log(QString::fromStdString(ex.Message()),
+    QString data_string;
+
+    std::vector<std::string> keys = ex.GetDataKeys(true);
+    if(keys.size() > 0)
+    {
+        data_string = "Exception Data:";
+
+        for(std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); it++)
+            data_string.append(QString("\n\tKey: %1   Value: %2")
+                               .arg(QString::fromStdString(*it))
+                               .arg(QString::fromStdString(ex.GetData(*it))));
+    }
+
+    Log(QString("%1\n\n%2").arg(QString::fromStdString(ex.Message())).arg(data_string),
         QString("Exception Caught: %1").arg(QString::fromStdString(ex.ToString())),
         Error);
 }
