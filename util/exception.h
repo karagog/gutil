@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <stdexcept>
 #include <string>
+#include <vector>
 #include <map>
 
 namespace GUtil
@@ -33,7 +34,15 @@ namespace GUtil
         void SetData(const std::string &, const std::string &);
         std::string GetData(const std::string &) const;
 
+        // Get a list of the keys you've put in the data collection
+        std::vector<std::string> GetDataKeys(bool include_blanks = false) const;
+
         std::string Message() const;
+
+        std::string ToString() const;
+
+    protected:
+        virtual std::string ToString_protected() const;
 
     private:
         std::string _message;
@@ -46,6 +55,9 @@ namespace GUtil
     public:
         NotImplementedException();
         NotImplementedException(const std::string &message);
+
+    protected:
+        virtual std::string ToString_protected() const;
     };
 }
 

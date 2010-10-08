@@ -47,6 +47,32 @@ std::string Exception::GetData(const std::string &key) const
     return _data.at(key);
 }
 
+std::vector<std::string> Exception::GetDataKeys(bool include_blanks) const
+{
+    std::vector<std::string> ret;
+
+    for(std::map<std::string, std::string>::const_iterator it = _data.begin(); it != _data.end(); it++)
+    {
+        std::string first = it->first;
+        std::string second = it->second;
+
+        if(include_blanks || second.length() > 0)
+            ret.push_back(first);
+    }
+
+    return ret;
+}
+
+std::string Exception::ToString() const
+{
+    return "GUtil::" + ToString_protected();
+}
+
+std::string Exception::ToString_protected() const
+{
+    return "Exception";
+}
+
 
 
 
@@ -61,4 +87,9 @@ NotImplementedException::NotImplementedException(const std::string &message)
     :Exception(message)
 {
 
+}
+
+std::string NotImplementedException::ToString_protected() const
+{
+    return "NotImplementedException";
 }
