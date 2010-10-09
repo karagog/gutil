@@ -7,10 +7,12 @@ CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
     streamlogger.cpp \
-    Private/abstractlogger.cpp
+    Private/abstractlogger.cpp \
+    filelogger.cpp
 HEADERS += \
     pubsubsystem.h \
     streamlogger.h \
-    Private/abstractlogger.h
+    Private/abstractlogger.h \
+    filelogger.h
 
 INCLUDEPATH += ../../util .
