@@ -21,11 +21,7 @@ namespace GQtUtil
         protected:
             explicit StreamLogger(std::ostream *, PubSubSystem *, QObject *parent = 0);
 
-            virtual void LogMessage_protected(const QString &, MessageTypeEnum);            
-
-            virtual bool PrepareMessageStream();
-            virtual void LogMessageToStream(const QString &);
-            virtual void CloseMessageStream();
+            virtual void LogMessage_protected(const QString &, MessageTypeEnum);
 
             static void LogMessageToStream(const QString &, std::ostream *);
 

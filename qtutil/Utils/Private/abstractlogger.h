@@ -45,11 +45,16 @@ namespace GQtUtil
         protected:
             explicit AbstractLogger(PubSubSystem *, QObject *parent = 0);
 
-            // You can customize your own logger object by overriding these functions
-            virtual QString PrepareLogMessage(const QString &, const QString &, MessageTypeEnum);
-
             // This function actually writes the message somewhere useful
             virtual void LogMessage_protected(const QString &, MessageTypeEnum) = 0;
+
+            // These happen before/after logging
+            virtual bool PreLogMessage();
+            virtual void PostLogMessage();
+
+            // You can customize your own logging format
+            virtual QString PrepareLogMessage(const QString &, const QString &, MessageTypeEnum);
+
 
         private:
             PubSubSystem *_pubsub;

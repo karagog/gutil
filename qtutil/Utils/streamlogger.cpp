@@ -22,36 +22,12 @@ void StreamLogger::_init(ostream *os)
 
 void StreamLogger::LogMessage_protected(const QString &msg, MessageTypeEnum)
 {
-    // Open it
-    if(PrepareMessageStream())
-    {
-        // Write to the stream
-        LogMessageToStream(msg);
-
-        // Close it
-        CloseMessageStream();
-    }
-}
-
-bool StreamLogger::PrepareMessageStream()
-{
-    // Do nothing by default
-    return true;
-}
-
-void StreamLogger::LogMessageToStream(const QString &msg)
-{
     LogMessageToStream(msg, _stream);
 }
 
 void StreamLogger::LogMessageToStream(const QString &msg, ostream *stream)
 {
     (*stream) << msg.toStdString();
-}
-
-void StreamLogger::CloseMessageStream()
-{
-    // Do nothing by default
 }
 
 std::ostream *StreamLogger::Stream() const
