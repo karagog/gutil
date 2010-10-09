@@ -36,7 +36,7 @@ namespace GQtUtil
             virtual bool PreLogMessage();
             virtual void PostLogMessage();
 
-            std::fstream *FileStream();
+            std::ofstream *FileStream();
 
         private:
             QString _filename;
