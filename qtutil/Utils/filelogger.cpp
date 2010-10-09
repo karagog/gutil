@@ -18,8 +18,8 @@ limitations under the License.*/
 using namespace GQtUtil::Utils;
 using namespace std;
 
-FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent) :
-    AbstractStreamLogger(new ofstream(), pss, parent)
+FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent)
+    :AbstractStreamLogger(new ofstream(), pss, parent)
 {
     _filename = filename;
 }

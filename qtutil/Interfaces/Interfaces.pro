@@ -4,9 +4,11 @@ CONFIG += staticlib
 
 HEADERS += \
     ixmlserializable.h \
-    ITransportMechanism.h
+    ITransportMechanism.h \
+    ireadonlyobject.h
 
 SOURCES += \
-    ITransportMechanism.cpp
+    ITransportMechanism.cpp \
+    ireadonlyobject.cpp
 
 INCLUDEPATH += .. ../../util
