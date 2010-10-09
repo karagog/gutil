@@ -6,13 +6,15 @@ TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
-    streamlogger.cpp \
     Private/abstractlogger.cpp \
-    filelogger.cpp
+Private/abstractstreamlogger.cpp \
+    filelogger.cpp \
+    consolelogger.cpp
 HEADERS += \
     pubsubsystem.h \
-    streamlogger.h \
     Private/abstractlogger.h \
-    filelogger.h
+Private/abstractstreamlogger.h \
+    filelogger.h \
+    consolelogger.h
 
 INCLUDEPATH += ../../util .

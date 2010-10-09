@@ -12,10 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef FILELOGGER_H
-#define FILELOGGER_H
+#ifndef CONSOLELOGGER_H
+#define CONSOLELOGGER_H
 
 #include "Private/abstractstreamlogger.h"
+#include <QObject>
 
 namespace GQtUtil
 {
@@ -23,26 +24,14 @@ namespace GQtUtil
     {
         class PubSubSystem;
 
-        class FileLogger : public AbstractStreamLogger
+        // Logs to the console
+        class ConsoleLogger : public AbstractStreamLogger
         {
             Q_OBJECT
         public:
-            explicit FileLogger(const QString &, PubSubSystem *, QObject *parent = 0);
-
-            // Clears the log file
-            void Clear();
-
-        protected:
-            virtual bool PreLogMessage();
-            virtual void PostLogMessage();
-
-            std::fstream *FileStream();
-
-        private:
-            QString _filename;
-
+            explicit ConsoleLogger(PubSubSystem *, QObject *parent = 0);
         };
     }
 }
 
-#endif // FILELOGGER_H
+#endif // CONSOLELOGGER_H

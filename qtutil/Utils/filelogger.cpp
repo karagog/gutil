@@ -19,7 +19,7 @@ using namespace GQtUtil::Utils;
 using namespace std;
 
 FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent) :
-    StreamLogger(new fstream(), pss, parent)
+    AbstractStreamLogger(new fstream(), pss, parent)
 {
     _filename = filename;
 }

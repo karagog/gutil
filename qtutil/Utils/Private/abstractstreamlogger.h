@@ -10,16 +10,11 @@ namespace GQtUtil
         class PubSubSystem;
 
         // Logs to an ostream
-        class StreamLogger : public GQtUtil::Utils::AbstractLogger
+        class AbstractStreamLogger : public AbstractLogger
         {
             Q_OBJECT
-        public:
-            // Default constructor outputs to stdout
-            explicit StreamLogger(PubSubSystem *, QObject *parent = 0);
-
-
         protected:
-            explicit StreamLogger(std::ostream *, PubSubSystem *, QObject *parent = 0);
+            explicit AbstractStreamLogger(std::ostream *, PubSubSystem *, QObject *parent = 0);
 
             virtual void LogMessage_protected(const QString &, MessageTypeEnum);
 
