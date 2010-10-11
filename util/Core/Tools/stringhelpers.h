@@ -29,6 +29,11 @@ namespace GUtil
             {
             public:
 
+                // Some functions for string manipulation
+                static bool toInt(const string &, int &);
+                static string toLower(const string &);
+                static string toUpper(const string &);
+
                 // Returns the name of the last element at the end of a file path
                 //   Note: File slash directions are not guaranteed to be preserved!!
                 static string baseName(const string &);

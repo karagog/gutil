@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
-#include "serial.h"
+#include <stdio.h>
+#include "da_serialport.h"
 
 #ifdef linux
         #include <termios.h>
@@ -9,6 +10,7 @@
 #endif
 
 using namespace std;
+using namespace GUtil::Core::DataAccess;
 
 int cp_serial_t::configure(string COMPORT){
 	// Function to configure port settings and open new com port
@@ -75,7 +77,7 @@ int cp_serial_t::configure(string COMPORT){
         //int count = 9;
         //do{
                 //COMPORT[COMPORT.size()-1]++;            //Increment the number at the end to try another port
-        handle = CreateFile(COMPORT.c_str(),
+        handle = CreateFile((wchar_t*)COMPORT.c_str(),
             GENERIC_READ | GENERIC_WRITE,
             0,
             0,

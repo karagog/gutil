@@ -4,9 +4,10 @@
 #include <vector>
 #include <sstream>
 #include <stdlib.h>
-#include "Gstring.h"
-#include "Gmenu.h"
+#include "stringhelpers.h"
+#include "cl_menu.h"
 using namespace std;
+using namespace GUtil::Core::Tools;
 
 int get_input(istream & in, int & result, int lowlimit, int highlimit){
 	//This attempts to get an integer input from the provided stream.
@@ -27,7 +28,7 @@ int get_input(istream & in, int & result, int lowlimit, int highlimit){
 	while(!in.fail()){
 		istringstream tempstream(templine.c_str());				//Turn the line into a stream
 		tempstream >> tempselection;						//Grab the first word from the line (until whitespace)
-		if(string_to_int(tempselection,selection) == 0){		//If the selection was a valid number
+                if(StringHelpers::toInt(tempselection,selection)){		//If the selection was a valid number
 			if((selection >= lowlimit) && (selection <= highlimit)){	//If the selection is in bounds
 				//result = selection - 1;
 				result = selection;
@@ -87,7 +88,7 @@ bool get_yes_no(istream & str){
 	}
 
 	//At this point first_word is the word of interest; parse this for a valid 'yes'
-	first_word = lowercase(first_word);
+        first_word = StringHelpers::toLower(first_word);
 	if(first_word == "yes" || first_word == "y")
 		return(true);
 	return(false);

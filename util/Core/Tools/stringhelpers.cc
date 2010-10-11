@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "exception.h"
 #include <cassert>
 #include <map>
+#include <cctype>
 
 using namespace std;
 using namespace GUtil::Core;
@@ -25,6 +26,28 @@ using namespace GUtil::Core::Tools::Private;
 
 static const char base64_digits[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char base64_padding = '=';
+
+bool StringHelpers::toInt(const string &s, int &res)
+{
+    throw NotImplementedException();
+    return true;
+}
+
+string StringHelpers::toLower(const string &s)
+{
+    string ret;
+    for(int i = 0; i < (int)s.length(); i++)
+        ret.append(1, tolower(s.at(i)));
+    return ret;
+}
+
+string StringHelpers::toUpper(const string &s)
+{
+    string ret;
+    for(int i = 0; i < (int)s.length(); i++)
+        ret.append(1, toupper(s.at(i)));
+    return ret;
+}
 
 string StringHelpers::baseName(const string &s)
 {
