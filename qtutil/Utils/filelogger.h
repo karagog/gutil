@@ -27,7 +27,7 @@ namespace GQtUtil
         {
             Q_OBJECT
         public:
-            explicit FileLogger(const QString &, PubSubSystem *, QObject *parent = 0);
+            explicit FileLogger(const QString &, PubSubSystem *pss = 0, QObject *parent = 0);
             virtual ~FileLogger();
 
             // Clears the log file

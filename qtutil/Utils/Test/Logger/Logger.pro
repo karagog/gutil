@@ -18,5 +18,5 @@ TEMPLATE = app
 SOURCES += tst_loggertest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
-INCLUDEPATH += ../..
+INCLUDEPATH += ../.. ../../../../util
 LIBS += -L../../../lib -L../../../../util/debug -lUtils -lgutil

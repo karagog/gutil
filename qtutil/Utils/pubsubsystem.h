@@ -32,17 +32,17 @@ namespace GQtUtil
         public:
             explicit PubSubSystem(QObject *parent = 0);
 
-            QVariant getData(int id);
+            QVariant GetData(int id);
 
         signals:
-            void notifyMessage(QString title, QString message);
-            void notifyProgress(int progress, int id);
+            void NotifyMessage(QString message, QString title);
+            void NotifyProgress(int progress, int id);
 
         public slots:
-            void publishMessage(QString title, QString message);
-            void publishProgress(int progress, int id = -1);
+            void PublishMessage(QString title, QString message);
+            void PublishProgress(int progress, int id = -1);
 
-            void setData(int, const QVariant &);
+            void SetData(int, const QVariant &);
 
         private:
             QReadWriteLock data_lock;

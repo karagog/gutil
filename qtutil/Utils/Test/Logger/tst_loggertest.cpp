@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "filelogger.h"
 #include "consolelogger.h"
 #include "pubsubsystem.h"
+#include "exception.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 using namespace GQtUtil::Utils;
@@ -28,6 +29,7 @@ public:
 
 private Q_SLOTS:
     void test_normal_logging();
+    void test_exception_logging();
 };
 
 LoggerTest::LoggerTest()
@@ -36,8 +38,31 @@ LoggerTest::LoggerTest()
 
 void LoggerTest::test_normal_logging()
 {
-    ConsoleLogger clog;
-    clog.LogMessage("Hello");
+    PubSubSystem pss;
+    ConsoleLogger clog(&pss, this);
+    clog.LogMessage("This is a message", "Hello world");
+
+    pss.PublishMessage("Message", "Title");
+}
+
+void LoggerTest::test_exception_logging()
+{
+    ConsoleLogger clog(0, this);
+
+    try
+    {
+        GUtil::Exception ex("May the force be with you");
+        ex.SetData("firstkey", "boo!");
+        ex.SetData("secondkey", "what?");
+        ex.SetData("thirdkey", "ERROR");
+        ex.SetData("thirdkey", "this works");
+        ex.SetData("fourthkey", "");
+        throw ex;
+    }
+    catch(GUtil::Exception ex)
+    {
+        clog.LogException(ex);
+    }
 }
 
 QTEST_APPLESS_MAIN(LoggerTest);

@@ -26,15 +26,12 @@ namespace GQtUtil
 
 
         public slots:
-            void LogMessage(const QString &);
-            void LogMessage(const QString &, const QString &);
+            void LogMessage(const QString &message, const QString &title = QString::null);
+            void LogError(const QString &message, const QString &title = QString::null);
 
-            void LogError(const QString &);
-            void LogError(const QString &, const QString &);
+            void LogException(const GUtil::Exception &exception);
 
-            void LogException(const GUtil::Exception &);
-
-            void Log(const QString &, const QString &, MessageTypeEnum);
+            void Log(const QString &message, const QString &title, MessageTypeEnum);
 
 
         signals:
@@ -43,7 +40,7 @@ namespace GQtUtil
 
 
         protected:
-            explicit AbstractLogger(PubSubSystem *, QObject *parent = 0);
+            explicit AbstractLogger(PubSubSystem *pss = 0, QObject *parent = 0);
             virtual ~AbstractLogger();
 
             // This function actually writes the message somewhere useful

@@ -7,17 +7,17 @@ PubSubSystem::PubSubSystem(QObject *parent) :
 {
 }
 
-void PubSubSystem::publishMessage(QString title, QString message)
+void PubSubSystem::PublishMessage(QString message, QString title)
 {
-    emit notifyMessage(title, message);
+    emit NotifyMessage(message, title);
 }
 
-void PubSubSystem::publishProgress(int progress, int id)
+void PubSubSystem::PublishProgress(int progress, int id)
 {
-    emit publishProgress(progress, id);
+    emit PublishProgress(progress, id);
 }
 
-void PubSubSystem::setData(int id, const QVariant &d)
+void PubSubSystem::SetData(int id, const QVariant &d)
 {
     data_lock.lockForWrite();
 
@@ -26,7 +26,7 @@ void PubSubSystem::setData(int id, const QVariant &d)
     data_lock.unlock();
 }
 
-QVariant PubSubSystem::getData(int id)
+QVariant PubSubSystem::GetData(int id)
 {
     data_lock.lockForRead();
 

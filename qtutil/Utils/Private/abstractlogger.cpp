@@ -11,7 +11,7 @@ AbstractLogger::AbstractLogger(PubSubSystem *pss, QObject *parent)
     _pubsub = pss;
 
     if(pss != 0)
-        connect(pss, SIGNAL(notifyMessage(QString,QString)), this, SLOT(LogMessage(QString,QString)));
+        connect(pss, SIGNAL(NotifyMessage(QString,QString)), this, SLOT(LogMessage(QString,QString)));
 }
 
 AbstractLogger::~AbstractLogger()
@@ -19,19 +19,9 @@ AbstractLogger::~AbstractLogger()
 
 }
 
-void AbstractLogger::LogMessage(const QString &msg)
-{
-    LogMessage(msg, QString::null);
-}
-
 void AbstractLogger::LogMessage(const QString &msg, const QString &title)
 {
     Log(msg, title, Message);
-}
-
-void AbstractLogger::LogError(const QString &msg)
-{
-    LogError(msg, QString::null);
 }
 
 void AbstractLogger::LogError(const QString &msg, const QString &title)
