@@ -12,26 +12,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CONSOLELOGGER_H
-#define CONSOLELOGGER_H
+#include "filelogger.h"
+#include "consolelogger.h"
+#include "pubsubsystem.h"
+#include <QtCore/QString>
+#include <QtTest/QtTest>
+using namespace GQtUtil::Utils;
 
-#include "Private/abstractstreamlogger.h"
-#include <QObject>
-
-namespace GQtUtil
+class LoggerTest : public QObject
 {
-    namespace Utils
-    {
-        class PubSubSystem;
+    Q_OBJECT
 
-        // Logs to the console
-        class ConsoleLogger : public AbstractStreamLogger
-        {
-            Q_OBJECT
-        public:
-            explicit ConsoleLogger(PubSubSystem *pss = 0, QObject *parent = 0);
-        };
-    }
+public:
+    LoggerTest();
+
+private Q_SLOTS:
+    void test_normal_logging();
+};
+
+LoggerTest::LoggerTest()
+{
 }
 
-#endif // CONSOLELOGGER_H
+void LoggerTest::test_normal_logging()
+{
+    ConsoleLogger clog;
+    clog.LogMessage("Hello");
+}
+
+QTEST_APPLESS_MAIN(LoggerTest);
+
+#include "tst_loggertest.moc"
