@@ -3,7 +3,7 @@
 
 #include "Private/abstractlogger.h"
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Utils
     {

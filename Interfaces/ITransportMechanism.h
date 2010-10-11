@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <QMutex>
 #include <QObject>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Interfaces
     {

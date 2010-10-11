@@ -21,7 +21,7 @@ limitations under the License.*/
 class QtLockedFile;
 class QFileSystemWatcher;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace DataAccess
     {

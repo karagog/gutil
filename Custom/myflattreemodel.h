@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QAbstractProxyModel>
 #include <QMap>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Custom
     {

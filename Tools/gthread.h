@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QThread>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Tools
     {

@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QByteArray>
 #include <QStringList>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace DataObjects
     {

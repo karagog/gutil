@@ -15,7 +15,7 @@ extract_effects.commands = ar -x libEffectsWidgets.a
 extract_tools.commands = ar -x libTools.a
 extract_utils.commands = ar -x libUtils.a
 
-buildlib.commands = ar -ru ../libGQtUtil.a *.o
+buildlib.commands = ar -ru ../libGUtil.a *.o
 
 cleanup.commands = rm *.o
 

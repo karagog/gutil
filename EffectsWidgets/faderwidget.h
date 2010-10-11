@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QWidget>
 #include <QMutex>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace EffectsWidgets
     {

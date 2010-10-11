@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "Private/abstractstreamlogger.h"
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Utils
     {

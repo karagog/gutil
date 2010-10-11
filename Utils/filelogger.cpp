@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "filelogger.h"
 #include "pubsubsystem.h"
 #include <fstream>
-using namespace GQtUtil::Utils;
+using namespace GUtil::Utils;
 using namespace std;
 
 FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent)

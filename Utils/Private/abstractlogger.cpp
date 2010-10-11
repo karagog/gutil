@@ -2,8 +2,8 @@
 #include "pubsubsystem.h"
 #include "Core/exception.h"
 #include <QDateTime>
-using namespace GQtUtil::Utils;
-using namespace GUtil;
+using namespace GUtil::Utils;
+using namespace GUtil::Core;
 
 AbstractLogger::AbstractLogger(PubSubSystem *pss, QObject *parent)
     :QObject(parent)
@@ -50,7 +50,7 @@ void AbstractLogger::LogError(const QString &msg, const QString &title)
     Log(msg, title, Error);
 }
 
-void AbstractLogger::LogException(const GUtil::Exception &ex)
+void AbstractLogger::LogException(const Exception &ex)
 {
     QString data_string;
 

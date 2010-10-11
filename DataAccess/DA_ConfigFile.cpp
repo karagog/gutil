@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "DA_ConfigFile.h"
 #include "Private/Transports/filetransport.h"
 #include "Core/exception.h"
-#include "Core/stringhelpers.h"
+#include "Core/Tools/stringhelpers.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -23,9 +23,9 @@ limitations under the License.*/
 #include <QDesktopServices>
 #include <QDir>
 #include <QTimer>
-using namespace GUtil;
-using namespace GQtUtil::DataAccess;
-using namespace GQtUtil::DataAccess::Private;
+using namespace GUtil::Core;
+using namespace GUtil::DataAccess;
+using namespace GUtil::DataAccess::Private;
 
 DA_ConfigFile::DA_ConfigFile(const QString &identifier, const QString &modifier, QObject *parent)
     :ValueBuffer(new FileTransport(QString("%1.%2")
@@ -75,7 +75,7 @@ void DA_ConfigFile::getIdentity(QString &identifier, QString &modifier)
 void DA_ConfigFile::value_changed()
 {
     // Export the changed data to the config file
-    throw GUtil::NotImplementedException();
+    throw NotImplementedException();
     //enQueue(true);
     //exportData();
 }

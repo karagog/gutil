@@ -21,8 +21,8 @@
 //#include <QFile>
 //#include <QThread>
 //#include <QtConcurrentRun>
-//using namespace GQtUtil::DataAccess;
-//using namespace GQtUtil::DataAccess::Private;
+//using namespace GUtil::DataAccess;
+//using namespace GUtil::DataAccess::Private;
 //using namespace DA_LocalClientServer_Private;
 
 //#define MODIFIER_STRING "localserver"

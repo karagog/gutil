@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Custom
     {

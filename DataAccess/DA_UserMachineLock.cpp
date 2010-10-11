@@ -16,7 +16,8 @@ limitations under the License.*/
 #include "qtlockedfile.h"
 #include <QDir>
 #include <QUuid>
-using namespace GQtUtil::DataAccess;
+using namespace GUtil::Core;
+using namespace GUtil::DataAccess;
 
 DA_UserMachineLock::DA_UserMachineLock(const QString &id, const QString &modifier, QObject *parent)
     :DA_ConfigFile(id, modifier, parent)
@@ -55,7 +56,7 @@ void DA_UserMachineLock::lock()
     makeReadOnly(!ret);
 
     if(!ret && !lock_failed)
-        throw GUtil::Exception(errmsg.toStdString());
+        throw Exception(errmsg.toStdString());
 }
 
 void DA_UserMachineLock::unlock()

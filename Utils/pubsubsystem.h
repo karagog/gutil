@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QObject>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Utils
     {

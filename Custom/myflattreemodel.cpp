@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "myflattreemodel.h"
 
-using namespace GQtUtil::Custom;
+using namespace GUtil::Custom;
 
 myFlatTreeModel::myFlatTreeModel(QObject *parent) :
     QAbstractProxyModel(parent)

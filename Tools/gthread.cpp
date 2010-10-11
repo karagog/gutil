@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gthread.h"
-using namespace GQtUtil::Tools;
+using namespace GUtil::Tools;
 
 GThread::GThread(QObject *parent) :
     QThread(parent)

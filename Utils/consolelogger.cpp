@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "consolelogger.h"
 #include "pubsubsystem.h"
 #include <iostream>
-using namespace GQtUtil::Utils;
+using namespace GUtil::Utils;
 
 ConsoleLogger::ConsoleLogger(PubSubSystem *pss, QObject *parent)
     :AbstractStreamLogger(&std::cout, pss, parent)

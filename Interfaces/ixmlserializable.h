@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QByteArray>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Interfaces
     {

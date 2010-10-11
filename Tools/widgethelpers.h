@@ -17,7 +17,7 @@ limitations under the License.*/
 
 class QWidget;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Tools
     {

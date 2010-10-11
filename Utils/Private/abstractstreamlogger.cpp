@@ -1,6 +1,6 @@
 #include "abstractstreamlogger.h"
 #include <iostream>
-using namespace GQtUtil::Utils;
+using namespace GUtil::Utils;
 using namespace std;
 
 AbstractStreamLogger::AbstractStreamLogger(ostream *os, PubSubSystem *pss, QObject *parent) :

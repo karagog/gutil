@@ -23,7 +23,7 @@ limitations under the License.*/
 #include <QReadWriteLock>
 #include <QMutex>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Interfaces
     {

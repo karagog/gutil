@@ -9,7 +9,7 @@
 
 class QIODevice;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace DataAccess
     {

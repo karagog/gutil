@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "myxmlstreamreader.h"
 #include <QXmlStreamWriter>
-using namespace GQtUtil::Custom;
+using namespace GUtil::Custom;
 
 myXmlStreamReader::myXmlStreamReader()
     :QXmlStreamReader()

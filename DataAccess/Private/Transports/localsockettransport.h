@@ -5,13 +5,13 @@
 
 class QLocalSocket;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace DataAccess
     {
         namespace Private
         {
-            class LocalSocketTransport : public GQtUtil::Interfaces::ITransportMechanism
+            class LocalSocketTransport : public GUtil::Interfaces::ITransportMechanism
             {
                 Q_OBJECT
             public:

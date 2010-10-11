@@ -18,7 +18,8 @@ limitations under the License.*/
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>
-using namespace GQtUtil::DataAccess::Private;
+using namespace GUtil::Core;
+using namespace GUtil::DataAccess::Private;
 
 FileTransport::FileTransport(const QString &filename, QObject *parent)
     :ITransportMechanism(parent)
@@ -40,7 +41,7 @@ void FileTransport::send_data(const QByteArray &data) throw()
     if(!_lf->resize(0))
     {
         _unlock_and_close_file();
-        throw GUtil::Exception(_lf->errorString().toStdString());
+        throw Exception(_lf->errorString().toStdString());
     }
 
     // At this point the settings file is ours for sole writing
@@ -48,7 +49,7 @@ void FileTransport::send_data(const QByteArray &data) throw()
     {
         QString err = _lf->errorString();
         _unlock_and_close_file();
-        throw GUtil::Exception(QString("Couldn't write all the data to the file: %1")
+        throw Exception(QString("Couldn't write all the data to the file: %1")
                                .arg(err).toStdString());
     }
 
@@ -108,12 +109,12 @@ void FileTransport::reload()
 void FileTransport::_open_and_lock_file(bool for_write)
 {
     if(!_lf->open(QtLockedFile::ReadWrite))
-        throw GUtil::Exception(_lf->errorString().toStdString());
+        throw Exception(_lf->errorString().toStdString());
 
     if(!_lf->lock(for_write ? QtLockedFile::WriteLock : QtLockedFile::ReadLock))
     {
         _lf->close();
-        throw GUtil::Exception(_lf->errorString().toStdString());
+        throw Exception(_lf->errorString().toStdString());
     }
 }
 

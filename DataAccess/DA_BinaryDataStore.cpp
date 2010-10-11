@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DA_BinaryDataStore.h"
-#include "Core/stringhelpers.h"
-#include "Core/encryption.h"
+#include "Core/Tools/stringhelpers.h"
+#include "Core/Tools/encryption.h"
 #include "Core/exception.h"
 #include <QDesktopServices>
 #include <QFile>
@@ -30,8 +30,8 @@ limitations under the License.*/
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
-using namespace GUtil;
-using namespace GQtUtil::DataAccess;
+using namespace GUtil::Core;
+using namespace GUtil::DataAccess;
 
 // A class to keep track of our mutexes
 class mutex_record_t
@@ -138,7 +138,7 @@ void DA_BinaryDataStore::_execute_insertion(QSqlQuery &q, int id, const QString 
     q.bindValue(":id", id);
     q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
-        throw GUtil::Exception(q.lastError().text().toStdString());
+        throw Exception(q.lastError().text().toStdString());
 }
 
 void DA_BinaryDataStore::removeFile(int id)
@@ -187,7 +187,7 @@ QString DA_BinaryDataStore::getFile(int id)
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
-    throw GUtil::Exception("File not found");
+    throw Exception("File not found");
 }
 
 // Clear all files
@@ -218,7 +218,7 @@ void DA_BinaryDataStore::prep_database(QSqlDatabase &dbase)
     {
         mutexes.value(my_id)->mut->unlock();
         mutex_lock.unlock();
-        throw GUtil::Exception("Cannot open database");
+        throw Exception("Cannot open database");
     }
 }
 

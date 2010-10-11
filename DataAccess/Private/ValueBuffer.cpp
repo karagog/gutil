@@ -14,13 +14,13 @@ limitations under the License.*/
 
 #include "ValueBuffer.h"
 #include "Interfaces/ITransportMechanism.h"
-#include "Core/stringhelpers.h"
+#include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
-using namespace GUtil;
-using namespace GQtUtil::DataObjects;
-using namespace GQtUtil::DataAccess::Private;
+using namespace GUtil::Core;
+using namespace GUtil::DataObjects;
+using namespace GUtil::DataAccess::Private;
 
 ValueBuffer::ValueBuffer(
         Interfaces::ITransportMechanism *transport_mechanism,
@@ -277,7 +277,7 @@ void ValueBuffer::_flush_queue(QueueTypeEnum qt) throw()
     }
     else
     {
-        throw GUtil::Exception("Unrecognized queue type");
+        throw Exception("Unrecognized queue type");
     }
 
     bool queue_has_data = true;

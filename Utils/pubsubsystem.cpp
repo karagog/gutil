@@ -1,6 +1,7 @@
 #include "pubsubsystem.h"
 #include "Core/exception.h"
-using namespace GQtUtil::Utils;
+using namespace GUtil::Core;
+using namespace GUtil::Utils;
 
 PubSubSystem::PubSubSystem(QObject *parent) :
     QObject(parent)
@@ -25,4 +26,5 @@ void PubSubSystem::PublishError(const QString& message, const QString& title)
 void PubSubSystem::PublishProgress(int progress, int id)
 {
     emit PublishProgress(progress, id);
+
 }

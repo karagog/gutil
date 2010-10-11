@@ -5,11 +5,11 @@
 
 namespace GUtil
 {
-    class Exception;
-}
+    namespace Core
+    {
+        class Exception;
+    }
 
-namespace GQtUtil
-{
     namespace Utils
     {
         class PubSubSystem;
@@ -35,7 +35,7 @@ namespace GQtUtil
             void LogWarning(const QString &message, const QString &title = QString::null);
             void LogError(const QString &message, const QString &title = QString::null);
 
-            void LogException(const GUtil::Exception &exception);
+            void LogException(const GUtil::Core::Exception &exception);
 
             void Log(const QString &message, const QString &title, MessageLevelEnum);
 

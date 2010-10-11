@@ -22,7 +22,7 @@ class QLabel;
 class QPushButton;
 class QProgressBar;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Controls
     {

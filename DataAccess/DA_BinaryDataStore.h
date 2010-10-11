@@ -23,7 +23,7 @@ limitations under the License.*/
 // Use this class to manage binary data.  This is useful for storing and accessing
 //  lots of files without consuming lots of memory
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace DataAccess
     {

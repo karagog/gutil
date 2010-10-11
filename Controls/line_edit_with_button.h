@@ -28,7 +28,7 @@ class QEvent;
 class QPushButton;
 class QLineEdit;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace EffectsWidgets
     {

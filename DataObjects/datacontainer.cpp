@@ -13,12 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacontainer.h"
-#include "Core/stringhelpers.h"
+#include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-using namespace GUtil;
-using namespace GQtUtil::DataObjects;
+using namespace GUtil::Core;
+using namespace GUtil::Core::Tools;
+using namespace GUtil::DataObjects;
 
 DataContainer::DataContainer()
 {}
@@ -113,7 +114,7 @@ void DataContainer::fromXml(const QByteArray &dat) throw()
     sr.readNext();
 
     if(!sr.readNextStartElement())  //Read in settings root
-        throw GUtil::Exception("XML not recognized");
+        throw Exception("XML not recognized");
 
     while(sr.readNextStartElement())
     {

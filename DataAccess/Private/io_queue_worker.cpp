@@ -1,7 +1,7 @@
 #include "io_queue_worker.h"
 #include <QtConcurrentRun>
 
-using namespace GQtUtil::DataAccess::Private;
+using namespace GUtil::DataAccess::Private;
 
 IO_Queue_Worker::IO_Queue_Worker(QIODevice *io_device, QObject *parent)
     :QObject(parent)

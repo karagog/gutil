@@ -27,7 +27,7 @@
 //#include <QMutex>
 //#include <QPointer>
 
-//namespace GQtUtil
+//namespace GUtil
 //{
 //    namespace DataAccess
 //    {

@@ -20,7 +20,7 @@ limitations under the License.*/
 
 class QtLockedFile;
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace DataAccess
     {

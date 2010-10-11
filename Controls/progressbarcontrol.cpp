@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QProgressBar>
-using namespace GQtUtil::Controls;
+using namespace GUtil::Controls;
 
 ProgressBarControl::ProgressBarControl(QWidget *parent) :
     QWidget(parent)

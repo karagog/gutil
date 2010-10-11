@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ITransportMechanism.h"
-using namespace GQtUtil::Interfaces;
+using namespace GUtil::Interfaces;
 
 ITransportMechanism::ITransportMechanism(QObject *parent)
     :QObject(parent)
