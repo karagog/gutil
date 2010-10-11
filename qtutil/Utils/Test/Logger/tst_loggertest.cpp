@@ -40,7 +40,15 @@ void LoggerTest::test_normal_logging()
 {
     PubSubSystem pss;
     ConsoleLogger clog(&pss, this);
+    FileLogger flog("test_logging.log", &pss, this);
+
+    flog.ClearLog();
+
     clog.LogMessage("This is a message", "Hello world");
+    flog.LogMessage("This is a message", "Hello world");
+
+    clog.LogError("Bar", "Foo");
+    flog.LogError("Bar", "Foo");
 
     pss.PublishMessage("Message", "Title");
 }
@@ -48,6 +56,9 @@ void LoggerTest::test_normal_logging()
 void LoggerTest::test_exception_logging()
 {
     ConsoleLogger clog(0, this);
+    FileLogger flog("test_exceptions.log", 0, this);
+
+    flog.ClearLog();
 
     try
     {
@@ -62,6 +73,7 @@ void LoggerTest::test_exception_logging()
     catch(GUtil::Exception ex)
     {
         clog.LogException(ex);
+        flog.LogException(ex);
     }
 }
 

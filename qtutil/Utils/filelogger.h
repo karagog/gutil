@@ -31,7 +31,7 @@ namespace GQtUtil
             virtual ~FileLogger();
 
             // Clears the log file
-            void Clear();
+            void ClearLog();
 
         protected:
             virtual bool PreLogMessage();
