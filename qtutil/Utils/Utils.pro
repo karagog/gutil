@@ -1,6 +1,8 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-03-27T16:39:45
 # -------------------------------------------------
+QT += sql
+
 DESTDIR = ../lib
 TEMPLATE = lib
 CONFIG += staticlib
@@ -9,12 +11,14 @@ SOURCES += \
     Private/abstractlogger.cpp \
 Private/abstractstreamlogger.cpp \
     filelogger.cpp \
-    consolelogger.cpp
+    consolelogger.cpp \
+    databaselogger.cpp
 HEADERS += \
     pubsubsystem.h \
     Private/abstractlogger.h \
 Private/abstractstreamlogger.h \
     filelogger.h \
-    consolelogger.h
+    consolelogger.h \
+    databaselogger.h
 
 INCLUDEPATH += ../../util .
