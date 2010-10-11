@@ -5,8 +5,10 @@ CONFIG += staticlib
 
 HEADERS += \
     myflattreemodel.h \
-    myxmlstreamreader.h
+    myxmlstreamreader.h \
+    gthread.h
 
 SOURCES += \
     myflattreemodel.cpp \
-    myxmlstreamreader.cpp
+    myxmlstreamreader.cpp \
+    gthread.cpp

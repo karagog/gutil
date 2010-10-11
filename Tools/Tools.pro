@@ -4,11 +4,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    widgethelpers.h \
-    gthread.h
+    widgethelpers.h
 
 SOURCES += \
-    widgethelpers.cpp \
-    gthread.cpp
-
-INCLUDEPATH += ../../../util
+    widgethelpers.cpp
