@@ -88,7 +88,7 @@ QString AbstractLogger::PrepareLogMessage(const QString &msg, const QString &tit
     }
 
     return QString("%1  %2: %3\n%4\n\n")
-            .arg(QDateTime::currentDateTime().toString(Qt::DefaultLocaleLongDate))
+            .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
             .arg(msg_id)
             .arg(title)
             .arg(msg);
