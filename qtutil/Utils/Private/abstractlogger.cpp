@@ -14,6 +14,11 @@ AbstractLogger::AbstractLogger(PubSubSystem *pss, QObject *parent)
         connect(pss, SIGNAL(notifyMessage(QString,QString)), this, SLOT(LogMessage(QString,QString)));
 }
 
+AbstractLogger::~AbstractLogger()
+{
+
+}
+
 void AbstractLogger::LogMessage(const QString &msg)
 {
     LogMessage(msg, QString::null);

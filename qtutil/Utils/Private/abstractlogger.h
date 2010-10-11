@@ -44,6 +44,7 @@ namespace GQtUtil
 
         protected:
             explicit AbstractLogger(PubSubSystem *, QObject *parent = 0);
+            virtual ~AbstractLogger();
 
             // This function actually writes the message somewhere useful
             virtual void LogMessage_protected(const QString &, MessageTypeEnum) = 0;

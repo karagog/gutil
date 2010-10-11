@@ -24,6 +24,11 @@ FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *pare
     _filename = filename;
 }
 
+FileLogger::~FileLogger()
+{
+    delete Stream();
+}
+
 bool FileLogger::PreLogMessage()
 {
     FileStream()->open(_filename.toStdString().c_str(), ios_base::app);
