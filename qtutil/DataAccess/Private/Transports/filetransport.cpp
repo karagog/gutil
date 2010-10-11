@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "filetransport.h"
 #include "qtlockedfile.h"
-#include "exception.h"
+#include "Core/exception.h"
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>

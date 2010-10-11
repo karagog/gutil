@@ -8,4 +8,4 @@ HEADERS += \
 SOURCES += \
     datacontainer.cpp
 
-INCLUDEPATH += .. ../../util
+INCLUDEPATH += ..

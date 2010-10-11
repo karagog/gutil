@@ -1,3 +1,7 @@
+DESTDIR = ../lib
+
+QT -= gui core
+
 TEMPLATE = lib
 CONFIG += staticlib
 

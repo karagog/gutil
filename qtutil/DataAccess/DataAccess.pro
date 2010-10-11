@@ -24,7 +24,7 @@ SOURCES += \
     Private/io_queue_worker.cpp \
     Private/Transports/localsockettransport.cpp
 
-INCLUDEPATH += ../../util include ..
+INCLUDEPATH += include ..
 QT += sql network
 
 win32 {

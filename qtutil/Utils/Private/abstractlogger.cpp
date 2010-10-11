@@ -1,6 +1,6 @@
 #include "abstractlogger.h"
 #include "pubsubsystem.h"
-#include "exception.h"
+#include "Core/exception.h"
 #include <QDateTime>
 using namespace GQtUtil::Utils;
 using namespace GUtil;

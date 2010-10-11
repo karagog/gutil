@@ -1,5 +1,5 @@
 #include "pubsubsystem.h"
-#include "exception.h"
+#include "Core/exception.h"
 using namespace GQtUtil::Utils;
 
 PubSubSystem::PubSubSystem(QObject *parent) :

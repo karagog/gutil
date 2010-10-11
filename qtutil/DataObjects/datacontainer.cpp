@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacontainer.h"
-#include "stringhelpers.h"
-#include "exception.h"
+#include "Core/stringhelpers.h"
+#include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 using namespace GUtil;

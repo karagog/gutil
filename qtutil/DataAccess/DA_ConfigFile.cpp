@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #include "DA_ConfigFile.h"
 #include "Private/Transports/filetransport.h"
-#include "exception.h"
-#include "stringhelpers.h"
+#include "Core/exception.h"
+#include "Core/stringhelpers.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

@@ -16,7 +16,7 @@ limitations under the License.*/
 #define APPLICATIONLOCK_H
 #include <QString>
 #include "DA_ConfigFile.h"
-#include "exception.h"
+#include "Core/exception.h"
 
 class QtLockedFile;
 

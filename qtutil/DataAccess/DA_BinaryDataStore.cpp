@@ -13,9 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DA_BinaryDataStore.h"
-#include "stringhelpers.h"
-#include "encryption.h"
-#include "exception.h"
+#include "Core/stringhelpers.h"
+#include "Core/encryption.h"
+#include "Core/exception.h"
 #include <QDesktopServices>
 #include <QFile>
 #include <QXmlStreamWriter>

@@ -9,16 +9,16 @@ CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
     Private/abstractlogger.cpp \
-Private/abstractstreamlogger.cpp \
+    Private/abstractstreamlogger.cpp \
     filelogger.cpp \
     consolelogger.cpp \
     databaselogger.cpp
 HEADERS += \
     pubsubsystem.h \
     Private/abstractlogger.h \
-Private/abstractstreamlogger.h \
+    Private/abstractstreamlogger.h \
     filelogger.h \
     consolelogger.h \
     databaselogger.h
 
-INCLUDEPATH += ../../util .
+INCLUDEPATH += .. .

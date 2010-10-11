@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #include "ValueBuffer.h"
 #include "Interfaces/ITransportMechanism.h"
-#include "stringhelpers.h"
-#include "exception.h"
+#include "Core/stringhelpers.h"
+#include "Core/exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 using namespace GUtil;
