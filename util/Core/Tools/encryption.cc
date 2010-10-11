@@ -21,7 +21,8 @@ limitations under the License.*/
 #include "osrng.h"
 #include "exception.h"
 using namespace std;
-using namespace GUtil;
+using namespace GUtil::Core;
+using namespace GUtil::Core::Tools;
 
 int CryptoHelpers::DEFAULT_COMPRESSION_LEVEL = CryptoPP::Gzip::DEFAULT_DEFLATE_LEVEL;
 int CryptoHelpers::MIN_COMPRESSION_LEVEL = CryptoPP::Gzip::MIN_DEFLATE_LEVEL;
@@ -41,7 +42,7 @@ string CryptoHelpers::encryptString(const string &instr, const string &passPhras
     }
     catch(CryptoPP::Exception ex)
     {
-        throw GUtil::Exception(ex.GetWhat());
+        throw Exception(ex.GetWhat());
     }
 
     return outstr;
@@ -61,7 +62,7 @@ string CryptoHelpers::decryptString(const string &instr, const string &passPhras
     }
     catch(CryptoPP::Exception ex)
     {
-        throw GUtil::Exception(ex.GetWhat());
+        throw Exception(ex.GetWhat());
     }
 
     return outstr;
@@ -75,7 +76,7 @@ void CryptoHelpers::encryptFile(const char *in, const char *out, const char *pas
     }
     catch(CryptoPP::Exception ex)
     {
-        throw GUtil::Exception(ex.GetWhat());
+        throw Exception(ex.GetWhat());
     }
 }
 
@@ -87,7 +88,7 @@ void CryptoHelpers::decryptFile(const char *in, const char *out, const char *pas
     }
     catch(CryptoPP::Exception ex)
     {
-        throw GUtil::Exception(ex.GetWhat());
+        throw Exception(ex.GetWhat());
     }
 }
 
@@ -111,7 +112,7 @@ string CryptoHelpers::compress(const string &instr, int level)
         }
         catch(CryptoPP::Exception ex)
         {
-            throw GUtil::Exception(ex.GetWhat());
+            throw Exception(ex.GetWhat());
         }
     }
 
@@ -152,7 +153,7 @@ string CryptoHelpers::decompress(const string &instr)
             }
             catch(CryptoPP::Exception ex)
             {
-                throw GUtil::Exception(ex.GetWhat());
+                throw Exception(ex.GetWhat());
             }
         }
         else
@@ -184,7 +185,7 @@ string CryptoHelpers::fromBase64(const string &instr)
     }
     catch(CryptoPP::Exception ex)
     {
-        throw GUtil::Exception(ex.GetWhat());
+        throw Exception(ex.GetWhat());
     }
 
     return tmp;
@@ -212,7 +213,7 @@ string CryptoHelpers::fromBase16(const string &instr)
     }
     catch(CryptoPP::Exception ex)
     {
-        throw GUtil::Exception(ex.GetWhat());
+        throw Exception(ex.GetWhat());
     }
 
     return tmp;

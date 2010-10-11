@@ -22,44 +22,47 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    class Exception : public std::exception
+    namespace Core
     {
-    public:
-        Exception();
-        Exception(const std::string & message);
-        ~Exception() throw(){}
+        class Exception : public std::exception
+        {
+        public:
+            Exception();
+            Exception(const std::string & message);
+            ~Exception() throw(){}
 
-        void SetMessage(const std::string &msg);
+            void SetMessage(const std::string &msg);
 
-        void SetData(const std::string &, const std::string &);
-        std::string GetData(const std::string &) const;
+            void SetData(const std::string &, const std::string &);
+            std::string GetData(const std::string &) const;
 
-        // Get a list of the keys you've put in the data collection
-        std::vector<std::string> GetDataKeys(bool include_blanks = false) const;
+            // Get a list of the keys you've put in the data collection
+            std::vector<std::string> GetDataKeys(bool include_blanks = false) const;
 
-        std::string Message() const;
+            std::string Message() const;
 
-        std::string ToString() const;
+            std::string ToString() const;
 
-    protected:
-        // Derived exceptions should reimplement this so their type can be shown in string format
-        virtual std::string ToString_protected() const;
+        protected:
+            // Derived exceptions should reimplement this so their type can be shown in string format
+            virtual std::string ToString_protected() const;
 
-    private:
-        std::string _message;
-        std::map<std::string, std::string> _data;
-    };
+        private:
+            std::string _message;
+            std::map<std::string, std::string> _data;
+        };
 
 
-    class NotImplementedException : public Exception
-    {
-    public:
-        NotImplementedException();
-        NotImplementedException(const std::string &message);
+        class NotImplementedException : public Exception
+        {
+        public:
+            NotImplementedException();
+            NotImplementedException(const std::string &message);
 
-    protected:
-        virtual std::string ToString_protected() const;
-    };
+        protected:
+            virtual std::string ToString_protected() const;
+        };
+    }
 }
 
 #endif // GEXEPTION_H

@@ -15,6 +15,20 @@ limitations under the License.*/
 #ifndef STRINGS_PRIVATE_H
 #define STRINGS_PRIVATE_H
 
-bool translate_path(string &path);
+#include <string>
+
+namespace GUtil
+{
+    namespace Core
+    {
+        namespace Tools
+        {
+            namespace Private
+            {
+                bool translate_path(std::string &path);
+            }
+        }
+    }
+}
 
 #endif // STRINGS_PRIVATE_H

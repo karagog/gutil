@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "actionstack.h"
 using namespace std;
+using namespace GUtil::Core::Utils;
 
 ActionStack::ActionStack()
 {

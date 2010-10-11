@@ -6,15 +6,15 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 SOURCES += \
-    strings_private.cc \
-    stringhelpers.cc \
+    Tools/Private/strings_p.cc \
+    Tools/stringhelpers.cc \
     exception.cc \
-    encryption.cc \
-    actionstack.cpp
+    Tools/encryption.cc \
+    Utils/actionstack.cpp
 
-INCLUDEPATH += cryptopp_src
+INCLUDEPATH += Tools/cryptopp_src .
 
-HEADERS += stringhelpers.h \
+HEADERS += Tools/stringhelpers.h \
     exception.h \
-    encryption.h \
-    actionstack.h
+    Tools/encryption.h \
+    Utils/actionstack.h
