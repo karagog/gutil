@@ -7,38 +7,22 @@ PubSubSystem::PubSubSystem(QObject *parent) :
 {
 }
 
-void PubSubSystem::PublishMessage(QString message, QString title)
+void PubSubSystem::PublishMessage(const QString& message, const QString& title)
 {
     emit NotifyMessage(message, title);
+}
+
+void PubSubSystem::PublishWarning(const QString& message, const QString& title)
+{
+    emit NotifyWarning(message, title);
+}
+
+void PubSubSystem::PublishError(const QString& message, const QString& title)
+{
+    emit NotifyError(message, title);
 }
 
 void PubSubSystem::PublishProgress(int progress, int id)
 {
     emit PublishProgress(progress, id);
-}
-
-void PubSubSystem::SetData(int id, const QVariant &d)
-{
-    data_lock.lockForWrite();
-
-    _data[id] = d;
-
-    data_lock.unlock();
-}
-
-QVariant PubSubSystem::GetData(int id)
-{
-    data_lock.lockForRead();
-
-    if(!_data.contains(id))
-    {
-        data_lock.unlock();
-        throw GUtil::Exception("ID not found");
-    }
-
-    QVariant ret = _data.value(id);
-
-    data_lock.unlock();
-
-    return ret;
 }

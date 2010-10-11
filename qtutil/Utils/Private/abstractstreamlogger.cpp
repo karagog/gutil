@@ -14,7 +14,7 @@ void AbstractStreamLogger::_init(ostream *os)
     _stream = os;
 }
 
-void AbstractStreamLogger::LogMessage_protected(const QString &msg, MessageTypeEnum)
+void AbstractStreamLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
 {
     LogMessageToStream(msg, _stream);
 }

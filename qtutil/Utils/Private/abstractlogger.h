@@ -18,25 +18,31 @@ namespace GQtUtil
         {
             Q_OBJECT
         public:
-            enum MessageTypeEnum
+            enum MessageLevelEnum
             {
-                Message,
-                Error
+                Info = 0,
+                Warning = 1,
+                Error = 2
             };
+
+            // Determines the level under which we won't log anything
+            void SetMessageLevel(MessageLevelEnum);
+            MessageLevelEnum GetMessageLevel();
 
 
         public slots:
             void LogMessage(const QString &message, const QString &title = QString::null);
+            void LogWarning(const QString &message, const QString &title = QString::null);
             void LogError(const QString &message, const QString &title = QString::null);
 
             void LogException(const GUtil::Exception &exception);
 
-            void Log(const QString &message, const QString &title, MessageTypeEnum);
+            void Log(const QString &message, const QString &title, MessageLevelEnum);
 
 
         signals:
             // Every time we log a message
-            void NotifyMessageLogged(const QString &, MessageTypeEnum);
+            void NotifyMessageLogged(const QString &, MessageLevelEnum);
 
 
         protected:
@@ -44,18 +50,19 @@ namespace GQtUtil
             virtual ~AbstractLogger();
 
             // This function actually writes the message somewhere useful
-            virtual void LogMessage_protected(const QString &, MessageTypeEnum) = 0;
+            virtual void LogMessage_protected(const QString &, MessageLevelEnum) = 0;
 
             // These happen before/after logging
             virtual bool PreLogMessage();
             virtual void PostLogMessage();
 
             // You can customize your own logging format
-            virtual QString PrepareLogMessage(const QString &, const QString &, MessageTypeEnum);
+            virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum);
 
 
         private:
             PubSubSystem *_pubsub;
+            MessageLevelEnum _message_level;
 
         };
     }

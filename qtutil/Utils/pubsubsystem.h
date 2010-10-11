@@ -16,9 +16,6 @@ limitations under the License.*/
 #define PUBSUBSYSTEM_H
 
 #include <QObject>
-#include <QMap>
-#include <QVariant>
-#include <QReadWriteLock>
 
 namespace GQtUtil
 {
@@ -26,27 +23,26 @@ namespace GQtUtil
     {
         // This class is reentrant, so feel free to access it from multiple threads
 
+        // It holds QVariant data in case you want to store some state inside it
         class PubSubSystem : public QObject
         {
             Q_OBJECT
         public:
             explicit PubSubSystem(QObject *parent = 0);
 
-            QVariant GetData(int id);
-
         signals:
             void NotifyMessage(QString message, QString title);
+            void NotifyWarning(QString message, QString title);
+            void NotifyError(QString message, QString title);
+
             void NotifyProgress(int progress, int id);
 
         public slots:
-            void PublishMessage(QString title, QString message);
-            void PublishProgress(int progress, int id = -1);
+            virtual void PublishMessage(const QString& message, const QString& title = QString::null);
+            virtual void PublishWarning(const QString& message, const QString& title = QString::null);
+            virtual void PublishError(const QString& message, const QString& title = QString::null);
 
-            void SetData(int, const QVariant &);
-
-        private:
-            QReadWriteLock data_lock;
-            QMap<int, QVariant> _data;
+            virtual void PublishProgress(int progress, int id = -1);
 
         };
     }

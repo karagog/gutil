@@ -51,6 +51,14 @@ void LoggerTest::test_normal_logging()
     flog.LogError("Bar", "Foo");
 
     pss.PublishMessage("Message", "Title");
+    pss.PublishWarning("Warning");
+    pss.PublishError("Error");
+
+    clog.SetMessageLevel(ConsoleLogger::Error);
+    flog.SetMessageLevel(ConsoleLogger::Error);
+
+    pss.PublishMessage("Shouldn't see this message");
+    pss.PublishWarning("Shouldn't see this warning");
 }
 
 void LoggerTest::test_exception_logging()

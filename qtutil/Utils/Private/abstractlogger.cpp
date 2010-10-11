@@ -10,8 +10,14 @@ AbstractLogger::AbstractLogger(PubSubSystem *pss, QObject *parent)
 {
     _pubsub = pss;
 
+    _message_level = Info;
+
     if(pss != 0)
+    {
         connect(pss, SIGNAL(NotifyMessage(QString,QString)), this, SLOT(LogMessage(QString,QString)));
+        connect(pss, SIGNAL(NotifyWarning(QString,QString)), this, SLOT(LogWarning(QString,QString)));
+        connect(pss, SIGNAL(NotifyError(QString,QString)), this, SLOT(LogError(QString,QString)));
+    }
 }
 
 AbstractLogger::~AbstractLogger()
@@ -19,9 +25,24 @@ AbstractLogger::~AbstractLogger()
 
 }
 
+void AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
+{
+    _message_level = message_level;
+}
+
+AbstractLogger::MessageLevelEnum AbstractLogger::GetMessageLevel()
+{
+    return _message_level;
+}
+
 void AbstractLogger::LogMessage(const QString &msg, const QString &title)
 {
-    Log(msg, title, Message);
+    Log(msg, title, Info);
+}
+
+void AbstractLogger::LogWarning(const QString &msg, const QString &title)
+{
+    Log(msg, title, Warning);
 }
 
 void AbstractLogger::LogError(const QString &msg, const QString &title)
@@ -49,26 +70,32 @@ void AbstractLogger::LogException(const GUtil::Exception &ex)
         Error);
 }
 
-void AbstractLogger::Log(const QString &msg, const QString &title, MessageTypeEnum message_type)
+void AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
 {
-    QString log_message = PrepareLogMessage(msg, title, message_type);
+    if(message_level < _message_level)
+        return;
+
+    QString log_message = PrepareLogMessage(msg, title, message_level);
 
     if(PreLogMessage())
     {
-        LogMessage_protected(log_message, message_type);
+        LogMessage_protected(log_message, message_level);
         PostLogMessage();
 
-        emit NotifyMessageLogged(log_message, message_type);
+        emit NotifyMessageLogged(log_message, message_level);
     }
 }
 
-QString AbstractLogger::PrepareLogMessage(const QString &msg, const QString &title, MessageTypeEnum message_type)
+QString AbstractLogger::PrepareLogMessage(const QString &msg, const QString &title, MessageLevelEnum message_type)
 {
     QString msg_id;
     switch(message_type)
     {
-    case Message:
+    case Info:
         msg_id = "Info";
+        break;
+    case Warning:
+        msg_id = "Warning";
         break;
     case Error:
         msg_id = "ERROR";
