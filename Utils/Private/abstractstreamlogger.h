@@ -32,15 +32,11 @@ namespace GUtil
 
             virtual void LogMessage_protected(const QString &, MessageLevelEnum);
 
-            static void LogMessageToStream(const QString &, std::ostream *);
-
             // Use this to access the stream
             std::ostream *Stream() const;
 
 
         private:
-            void _init(std::ostream *os);
-
             std::ostream *_stream;
         };
     }

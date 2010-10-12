@@ -20,22 +20,12 @@ using namespace std;
 AbstractStreamLogger::AbstractStreamLogger(ostream *os, PubSubSystem *pss, QObject *parent) :
     AbstractLogger(pss, parent)
 {
-    _init(os);
-}
-
-void AbstractStreamLogger::_init(ostream *os)
-{
     _stream = os;
 }
 
 void AbstractStreamLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
 {
-    LogMessageToStream(msg, _stream);
-}
-
-void AbstractStreamLogger::LogMessageToStream(const QString &msg, ostream *stream)
-{
-    (*stream) << msg.toStdString();
+    (*_stream) << msg.toStdString();
 }
 
 std::ostream *AbstractStreamLogger::Stream() const
