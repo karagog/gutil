@@ -12,27 +12,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "databaselogger.h"
+#include "abstractdatabaselogger.h"
 #include "pubsubsystem.h"
-using namespace GQtUtil::Utils;
+using namespace GUtil::Utils;
 
-DatabaseLogger::DatabaseLogger(PubSubSystem *pss, QObject *parent) :
+AbstractDatabaseLogger::AbstractDatabaseLogger(PubSubSystem *pss, QObject *parent) :
     AbstractLogger(pss, parent)
 {
 }
 
-bool DatabaseLogger::PreLogMessage()
+bool AbstractDatabaseLogger::PreLogMessage()
 {
     // Set up database connection
     return true;
 }
 
-void DatabaseLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
+void AbstractDatabaseLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
 {
 
 }
 
-void DatabaseLogger::PostLogMessage()
+void AbstractDatabaseLogger::PostLogMessage()
 {
     // Close database connection
 }

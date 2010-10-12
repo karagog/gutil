@@ -12,13 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "filelogger.h"
-#include "consolelogger.h"
-#include "pubsubsystem.h"
-#include "exception.h"
+#include "Utils/filelogger.h"
+#include "Utils/consolelogger.h"
+#include "Utils/pubsubsystem.h"
+#include "Core/exception.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-using namespace GQtUtil::Utils;
+using namespace GUtil::Core;
+using namespace GUtil::Utils;
 
 class LoggerTest : public QObject
 {
@@ -70,7 +71,7 @@ void LoggerTest::test_exception_logging()
 
     try
     {
-        GUtil::Exception ex("May the force be with you");
+        Exception ex("May the force be with you");
         ex.SetData("firstkey", "boo!");
         ex.SetData("secondkey", "what?");
         ex.SetData("thirdkey", "ERROR");
@@ -78,7 +79,17 @@ void LoggerTest::test_exception_logging()
         ex.SetData("fourthkey", "");
         throw ex;
     }
-    catch(GUtil::Exception ex)
+    catch(Exception ex)
+    {
+        clog.LogException(ex);
+        flog.LogException(ex);
+    }
+
+    try
+    {
+        throw NotImplementedException();
+    }
+    catch(NotImplementedException ex)
     {
         clog.LogException(ex);
         flog.LogException(ex);

@@ -12,13 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DATABASELOGGER_H
-#define DATABASELOGGER_H
+#ifndef AbstractDatabaseLogger_H
+#define AbstractDatabaseLogger_H
 
 #include "Private/abstractlogger.h"
 #include <QSqlDatabase>
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Utils
     {
@@ -26,13 +26,12 @@ namespace GQtUtil
 
         // Logs stuff to a database
 
-        class DatabaseLogger : public AbstractLogger
+        class AbstractDatabaseLogger : public AbstractLogger
         {
             Q_OBJECT
-        public:
-            explicit DatabaseLogger(PubSubSystem *pss = 0, QObject *parent = 0);
-
         protected:
+			explicit AbstractDatabaseLogger(PubSubSystem *pss = 0, QObject *parent = 0);
+
             virtual bool PreLogMessage();
             virtual void LogMessage_protected(const QString &, MessageLevelEnum);
             virtual void PostLogMessage();
@@ -42,4 +41,4 @@ namespace GQtUtil
         };
     }
 }
-#endif // DATABASELOGGER_H
+#endif // AbstractDatabaseLogger_H

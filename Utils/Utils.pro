@@ -12,13 +12,13 @@ SOURCES += \
     Private/abstractstreamlogger.cpp \
     filelogger.cpp \
     consolelogger.cpp \
-    databaselogger.cpp
+    abstractdatabaselogger.cpp
 HEADERS += \
     pubsubsystem.h \
     Private/abstractlogger.h \
     Private/abstractstreamlogger.h \
     filelogger.h \
     consolelogger.h \
-    databaselogger.h
+    abstractdatabaselogger.h
 
 INCLUDEPATH += .. .
