@@ -18,4 +18,5 @@ qrc_*.cpp
 *.Debug
 *.Release
 *.pro.user*
+*-build-desktop
 
