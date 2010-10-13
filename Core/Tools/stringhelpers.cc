@@ -55,7 +55,7 @@ string StringHelpers::baseName(const string &s)
     string retstring(s.c_str());
 
     // If we can't parse the path correctly, return null
-    if(!translate_path(retstring))
+    if(!strings_p::translate_path(retstring))
         return "";
 
     int lastSlash;
@@ -73,7 +73,7 @@ string StringHelpers::pathName(const string &s)
     string retstring(s.c_str());
 
     // If we can't parse the path correctly, return null
-    if(!translate_path(retstring))
+    if(!strings_p::translate_path(retstring))
         return "";
 
     int lastSlash;

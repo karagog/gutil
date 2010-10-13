@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef IREADONLYOBJECT_H
 #define IREADONLYOBJECT_H
 
-namespace GQtUtil
+namespace GUtil
 {
     namespace Interfaces
     {

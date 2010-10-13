@@ -12,10 +12,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "xmlhelpers_test.h"
 #include "Custom/myxmlstreamreader.h"
+#include <QTest>
+using namespace GUtil::Custom;
 
-using namespace GQtUtil::Custom;
+class XmlHelpers_test : public QObject
+{
+Q_OBJECT
+public:
+    explicit XmlHelpers_test(QObject *parent = 0);
+
+signals:
+
+public slots:
+
+private slots:
+    void test_innerXml();
+    void test_innerText();
+
+};
 
 XmlHelpers_test::XmlHelpers_test(QObject *parent) :
         QObject(parent)
@@ -164,3 +179,7 @@ void XmlHelpers_test::test_innerText()
         QVERIFY(rdr.name().toString() == "a");
     }
 }
+
+QTEST_APPLESS_MAIN(XmlHelpers_test);
+
+#include "xmlhelpers_test.moc"

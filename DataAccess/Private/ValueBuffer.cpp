@@ -25,12 +25,20 @@ using namespace GUtil::DataAccess::Private;
 ValueBuffer::ValueBuffer(
         Interfaces::ITransportMechanism *transport_mechanism,
         QObject *parent)
-            :QObject(parent)
+            :QObject(parent),
+            IReadOnlyObject(false)
 {
+    current_data = new DataContainer();
+
     _transport = transport_mechanism;
-    _readonly = false;
 
     connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
+}
+
+ValueBuffer::~ValueBuffer()
+{
+    delete current_data;
+    delete _transport;
 }
 
 //void ValueBuffer::enQueue(bool copy)
@@ -60,15 +68,15 @@ ValueBuffer::ValueBuffer(
 //    _values.dequeue();
 //}
 
-void ValueBuffer::makeReadOnly(bool val)
-{
-    _readonly = val;
-}
+//void ValueBuffer::makeReadOnly(bool val)
+//{
+//    _readonly = val;
+//}
 
-bool ValueBuffer::isReadOnly()
-{
-    return _readonly;
-}
+//bool ValueBuffer::IsReadOnly()
+//{
+//    return _readonly;
+//}
 
 void ValueBuffer::setValue(const QString &key, const QByteArray& value)
 {
@@ -79,7 +87,7 @@ void ValueBuffer::setValue(const QString &key, const QByteArray& value)
 
 void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
 {
-    if(isReadOnly())
+    if(IsReadOnly())
         return;
 
     current_data_lock.lockForWrite();
@@ -128,7 +136,7 @@ bool ValueBuffer::contains(const QString &key)
 
 void ValueBuffer::clear()
 {
-    if(isReadOnly())
+    if(IsReadOnly())
         return;
 
     current_data_lock.lockForWrite();
@@ -160,7 +168,7 @@ void ValueBuffer::removeValue(const QString &key)
 
 void ValueBuffer::removeValue(const QStringList &keys)
 {
-    if(isReadOnly())
+    if(IsReadOnly())
         return;
 
     current_data_lock.lockForWrite();

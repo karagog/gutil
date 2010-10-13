@@ -12,15 +12,51 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "settingstest.h"
-#include "stringhelpers.h"
-#include "exception.h"
-//#include "filesystemhelpers.h"
+#include "Core/Tools/stringhelpers.h"
+#include "DataAccess/DA_ConfigFile.h"
+#include "Core/exception.h"
 #include <string>
 #include <QFile>
+#include <QTest>
+using namespace GUtil::Core;
+using namespace GUtil::Core::Tools;
+using namespace GUtil::DataAccess;
 
-using namespace GUtil;
-using namespace GQtUtil::DataAccess;
+class settingsTest : public QObject
+{
+    Q_OBJECT
+public:
+    explicit settingsTest(QObject *parent = 0);
+    ~settingsTest();
+
+signals:
+
+public slots:
+
+private slots:
+    void initTestCase();
+
+    void saving_value();
+    void reading_same_value();
+    void null_dat();
+    void test_no_value();
+    void multiple_values();
+    void test_save_signal();
+    void test_reload();
+    void test_bin_dat();
+    void test_erase_value();
+    void test_clear_all_values();
+
+    void cleanupTestCase();
+
+
+    void catch_save_signal_not_test();
+
+private:
+    DA_ConfigFile *settings;
+
+    bool save_flag;
+};
 
 settingsTest::settingsTest(QObject *parent) :
     QObject(parent)
@@ -51,7 +87,7 @@ void settingsTest::saving_value()
     {
         settings->setValue("testkey", QString("testval").toAscii());
     }
-    catch(GUtil::Exception ex)
+    catch(Exception ex)
     {
         qDebug(ex.Message().c_str());
         QVERIFY(false);
@@ -103,7 +139,7 @@ void settingsTest::multiple_values()
     {
         settings->setValues(vals);
     }
-    catch(GUtil::Exception)
+    catch(Exception)
     {
         QVERIFY(false);
     }
@@ -198,9 +234,9 @@ void settingsTest::test_erase_value()
     // Now erase the value and test if it's still in there
     try
     {
-        settings->remove(tmpkey);
+        settings->removeValue(tmpkey);
     }
-    catch(GUtil::Exception)
+    catch(Exception)
     {
         QVERIFY(false);
     }
@@ -227,7 +263,7 @@ void settingsTest::test_clear_all_values()
     {
         settings->clear();
     }
-    catch(GUtil::Exception)
+    catch(Exception)
     {
         QVERIFY(false);
     }
@@ -242,3 +278,7 @@ void settingsTest::cleanupTestCase()
     //QString probe = QString::fromStdString(GUtil::StringHelpers::pathName(settings->FileName().toStdString()));
     QFile::remove(QString::fromStdString(StringHelpers::pathName(settings->fileName().toStdString())));
 }
+
+QTEST_APPLESS_MAIN(settingsTest);
+
+#include "settingstest.moc"

@@ -16,6 +16,7 @@ limitations under the License.*/
 #define DO_VALUEBUFFER_H
 
 #include "DataObjects/datacontainer.h"
+#include "Interfaces/ireadonlyobject.h"
 #include <QMap>
 #include <QString>
 #include <QObject>
@@ -36,7 +37,7 @@ namespace GUtil
         {
             // Serves as a generic class to hold values and send/receive them with
             //   the provided transport mechanism
-            class ValueBuffer : public QObject
+            class ValueBuffer : public QObject, public GUtil::Interfaces::IReadOnlyObject
             {
                 Q_OBJECT
             public:
@@ -56,14 +57,15 @@ namespace GUtil
                 // Flushes the data queue and clears the current data container
                 void clear();
 
-                void makeReadOnly(bool val = true);
-                bool isReadOnly();
+//                void makeReadOnly(bool val = true);
+//                bool IsReadOnly();
 
 
             protected:
 
                 // No public constructor; this class must be derived
                 ValueBuffer(Interfaces::ITransportMechanism *, QObject *parent = 0);
+                virtual ~ValueBuffer();
 
                 // This function is called whenever a value changes; derived classes
                 //   can take advantage of this to export data or do whatever with the changed data
@@ -115,7 +117,7 @@ namespace GUtil
 
                 void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
-                bool _readonly;
+                //bool _readonly;
 
             };
         }

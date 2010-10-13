@@ -75,9 +75,14 @@ void DA_ConfigFile::getIdentity(QString &identifier, QString &modifier)
 void DA_ConfigFile::value_changed()
 {
     // Export the changed data to the config file
-    throw NotImplementedException();
+    //throw NotImplementedException();
     //enQueue(true);
     //exportData();
+}
+
+void DA_ConfigFile::process_input_data(const QByteArray &)
+{
+
 }
 
 Private::FileTransport *DA_ConfigFile::get_file_transport() const

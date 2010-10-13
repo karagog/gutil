@@ -22,7 +22,7 @@ using namespace GUtil::DataAccess;
 DA_UserMachineLock::DA_UserMachineLock(const QString &id, const QString &modifier, QObject *parent)
     :DA_ConfigFile(id, modifier, parent)
 {
-    makeReadOnly(true);
+    SetReadOnly(true);
     _lf_lock = new QtLockedFile(QString("%1.%2")
                           .arg(DA_ConfigFile::fileName())
                           .arg("lockfile"));
@@ -53,7 +53,7 @@ void DA_UserMachineLock::lock()
     }
 
     // If we don't have a lock, then we're stuck in readonly mode
-    makeReadOnly(!ret);
+    SetReadOnly(!ret);
 
     if(!ret && !lock_failed)
         throw Exception(errmsg.toStdString());
@@ -65,7 +65,7 @@ void DA_UserMachineLock::unlock()
         return;
 
     // If we don't have a lock, then we're stuck in readonly mode
-    makeReadOnly(true);
+    SetReadOnly(true);
 
     _lf_lock->unlock();
     _lf_lock->close();

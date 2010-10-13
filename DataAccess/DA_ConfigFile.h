@@ -57,6 +57,8 @@ namespace GUtil
         protected:
             virtual void value_changed();
 
+            virtual void process_input_data(const QByteArray &);
+
             Private::FileTransport *get_file_transport() const;
 
         private slots:

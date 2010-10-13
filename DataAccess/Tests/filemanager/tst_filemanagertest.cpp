@@ -12,26 +12,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef XMLHELPERS_TEST_H
-#define XMLHELPERS_TEST_H
+#include <QtCore/QString>
+#include <QtTest/QtTest>
 
-#include <QObject>
-#include <QTest>
+//class FilemanagerTest : public QObject
+//{
+//    Q_OBJECT
 
-class XmlHelpers_test : public QObject
-{
-Q_OBJECT
-public:
-    explicit XmlHelpers_test(QObject *parent = 0);
+//public:
+//    FilemanagerTest();
 
-signals:
+//private Q_SLOTS:
+//    void testCase1();
+//};
 
-public slots:
+//FilemanagerTest::FilemanagerTest()
+//{
+//}
 
-private slots:
-    void test_innerXml();
-    void test_innerText();
+//void FilemanagerTest::testCase1()
+//{
+//    QVERIFY2(true, "Failure");
+//}
 
-};
+//QTEST_APPLESS_MAIN(FilemanagerTest);
 
-#endif // XMLHELPERS_TEST_H
+//#include "tst_filemanagertest.moc"

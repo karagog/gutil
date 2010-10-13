@@ -1,11 +1,54 @@
-#include "file_manager_test.h"
-#include "DataAccess/DA_BinaryDataStore.h"
-#include "exception.h"
-#include <QTest>
-using namespace GQtUtil::DataAccess;
+/*Copyright 2010 George Karagoulis
 
-file_manager_test::file_manager_test(QObject *parent) :
-    QObject(parent)
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#include "DataAccess/DA_BinaryDataStore.h"
+#include "Core/exception.h"
+#include <QTest>
+using namespace GUtil::Core;
+using namespace GUtil::DataAccess;
+
+
+class file_manager_test : public QObject
+{
+    Q_OBJECT
+public:
+    explicit file_manager_test();
+    virtual ~file_manager_test(){}
+
+signals:
+
+//public slots:
+
+private Q_SLOTS:
+    void simple_startup_test();
+    void test_binary_dat();
+    void test_reset();
+    void test_second_object();
+    void test_large_files();
+    void test_idList();
+    void test_file_queuing();
+    void test_hasFile();
+    void test_remove();
+
+private:
+    DA_BinaryDataStore *fm;
+
+};
+
+
+file_manager_test::file_manager_test()// :
+    //QObject(parent)
 {
     fm = new DA_BinaryDataStore("filemanagertest");
 }
@@ -42,7 +85,7 @@ void file_manager_test::test_reset()
     {
         fm->getFile(0);
     }
-    catch(GUtil::Exception)
+    catch(Exception)
     {
         exception_hit = true;
     }
@@ -135,3 +178,7 @@ void file_manager_test::test_remove()
     fm->removeFile(1);
     QVERIFY(!fm->hasFile(1));
 }
+
+QTEST_APPLESS_MAIN(file_manager_test);
+
+#include "file_manager_test.moc"

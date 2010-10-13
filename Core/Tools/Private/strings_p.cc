@@ -16,7 +16,7 @@ limitations under the License.*/
 using namespace std;
 using namespace GUtil::Core::Tools::Private;
 
-bool translate_path(string &path)
+bool strings_p::translate_path(string &path)
 {
     // Replace backslashes to forward slashes for compatibility
 

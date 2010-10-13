@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ireadonlyobject.h"
-using namespace GQtUtil::Interfaces;
+using namespace GUtil::Interfaces;
 
 IReadOnlyObject::IReadOnlyObject(bool readonly)
 {

@@ -25,7 +25,11 @@ namespace GUtil
         {
             namespace Private
             {
-                bool translate_path(std::string &path);
+                class strings_p
+                {
+                public:
+                    static bool translate_path(std::string &path);
+                };
             }
         }
     }
