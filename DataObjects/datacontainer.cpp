@@ -17,30 +17,28 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-using namespace GUtil::Core;
-using namespace GUtil::Core::Tools;
-using namespace GUtil::DataObjects;
+using namespace GUtil;
 
-DataContainer::DataContainer()
+DataObjects::DataContainer::DataContainer()
 {}
 
-DataContainer::DataContainer(const DataContainer &other)
+DataObjects::DataContainer::DataContainer(const DataContainer &other)
 {
     foreach(QString k, other.keys())
         setValue(k, other.getValue(k));
 }
 
-void DataContainer::setValue(const QString &key, const QByteArray &value)
+void DataObjects::DataContainer::setValue(const QString &key, const QByteArray &value)
 {
     _values[key] = value;
 }
 
-QByteArray DataContainer::getValue(const QString &key) const
+QByteArray DataObjects::DataContainer::getValue(const QString &key) const
 {
     return _values.value(key);
 }
 
-bool DataContainer::remove(const QString &key)
+bool DataObjects::DataContainer::remove(const QString &key)
 {
     QMap<QString, QByteArray>::iterator it = _values.find(key);
 
@@ -51,32 +49,32 @@ bool DataContainer::remove(const QString &key)
     return true;
 }
 
-bool DataContainer::contains(const QString &key)
+bool DataObjects::DataContainer::contains(const QString &key)
 {
     return _values.contains(key);
 }
 
-void DataContainer::clear()
+void DataObjects::DataContainer::clear()
 {
     _values.clear();
 }
 
-QStringList DataContainer::keys() const
+QStringList DataObjects::DataContainer::keys() const
 {
     return _values.keys();
 }
 
-QByteArray &DataContainer::at(const QString &key)
+QByteArray &DataObjects::DataContainer::at(const QString &key)
 {
     return _values[key];
 }
 
-QByteArray &DataContainer::operator [](const QString &key)
+QByteArray &DataObjects::DataContainer::operator [](const QString &key)
 {
     return _values[key];
 }
 
-QByteArray DataContainer::toXml()
+QByteArray DataObjects::DataContainer::toXml()
 {
     QByteArray xmlstr;
     QXmlStreamWriter sw(&xmlstr);
@@ -94,7 +92,7 @@ QByteArray DataContainer::toXml()
             continue;
 
         sw.writeStartElement(s);
-        sw.writeAttribute("v", QString::fromStdString(StringHelpers::toBase64(
+        sw.writeAttribute("v", QString::fromStdString(Core::Tools::StringHelpers::toBase64(
                 std::string(v.constData(), v.length()))));
         sw.writeEndElement();
     }
@@ -105,7 +103,7 @@ QByteArray DataContainer::toXml()
     return xmlstr;
 }
 
-void DataContainer::fromXml(const QByteArray &dat) throw()
+void DataObjects::DataContainer::fromXml(const QByteArray &dat) throw()
 {
     clear();
 
@@ -114,11 +112,11 @@ void DataContainer::fromXml(const QByteArray &dat) throw()
     sr.readNext();
 
     if(!sr.readNextStartElement())  //Read in settings root
-        throw Exception("XML not recognized");
+        throw Core::Exception("XML not recognized");
 
     while(sr.readNextStartElement())
     {
-        std::string tmp = StringHelpers::fromBase64(
+        std::string tmp = Core::Tools::StringHelpers::fromBase64(
                 sr.attributes().value("v").toString().toStdString());
 
         _values.insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));

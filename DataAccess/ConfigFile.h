@@ -18,15 +18,20 @@ limitations under the License.*/
 #include <QObject>
 #include <QString>
 #include <QMap>
-#include "Private/ValueBuffer.h"
+#include "abstractvaluebuffer.h"
 
 class QtLockedFile;
 
 namespace GUtil
 {
+    namespace Utils
+    {
+        class AbstractLogger;
+    }
+
     namespace DataAccess
     {
-        namespace Private
+        namespace DataTransports
         {
             class FileTransport;
         }
@@ -35,14 +40,14 @@ namespace GUtil
         //   binary data as well as normal string data, because it translates strings
         //   into base64 before writing them to disk.
 
-        class DA_ConfigFile : public Private::ValueBuffer
+        class ConfigFile : public AbstractValueBuffer
         {
             Q_OBJECT
         public:
-            explicit DA_ConfigFile(const QString &,
-                                   const QString &modifier = "",
-                                   QObject *parent = 0);
-            explicit DA_ConfigFile(const DA_ConfigFile &, QObject *parent = 0);
+            explicit ConfigFile(const QString &, const QString &modifier = "",
+                                Utils::AbstractLogger *logger = 0,
+                                QObject *parent = 0);
+            explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
 
             QString fileName() const;
 
@@ -59,7 +64,7 @@ namespace GUtil
 
             virtual void process_input_data(const QByteArray &);
 
-            Private::FileTransport *get_file_transport() const;
+            DataTransports::FileTransport *get_file_transport() const;
 
         private slots:
             void catch_asynchronous_update(const QByteArray &);

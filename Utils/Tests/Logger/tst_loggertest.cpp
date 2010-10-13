@@ -79,17 +79,43 @@ void LoggerTest::test_exception_logging()
         ex.SetData("fourthkey", "");
         throw ex;
     }
-    catch(Exception ex)
+    catch(Exception &ex)
     {
         clog.LogException(ex);
         flog.LogException(ex);
     }
 
+
+    // Important: you must catch the exception as a reference, otherwise
+    //  it will cast as a lower exception and you won't know what actual
+    //  type it is.  The next two try-catches demonstrate that behavior.
     try
     {
-        throw NotImplementedException();
+        try
+        {
+            throw NotImplementedException();
+        }
+        catch(Exception &ex)
+        {
+            // It appears as a NotImplementedException here
+            clog.LogException(ex);
+            flog.LogException(ex);
+            throw;
+        }
     }
-    catch(NotImplementedException ex)
+    catch(Exception ex)
+    {
+        // It appears like a normal exception in here
+        clog.LogException(ex);
+        flog.LogException(ex);
+    }
+
+
+    try
+    {
+        throw std::exception();
+    }
+    catch(std::exception ex)
     {
         clog.LogException(ex);
         flog.LogException(ex);

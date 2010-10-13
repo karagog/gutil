@@ -18,9 +18,9 @@ limitations under the License.*/
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QProgressBar>
-using namespace GUtil::Controls;
+using namespace GUtil;
 
-ProgressBarControl::ProgressBarControl(QWidget *parent) :
+Controls::ProgressBarControl::ProgressBarControl(QWidget *parent) :
     QWidget(parent)
 {
     button = new QPushButton(this);
@@ -47,7 +47,7 @@ ProgressBarControl::ProgressBarControl(QWidget *parent) :
     _progressBar->layout()->addWidget(button);
 }
 
-void ProgressBarControl::setButtonEnabled(bool which)
+void Controls::ProgressBarControl::setButtonEnabled(bool which)
 {
     if(which)
     {
@@ -60,17 +60,17 @@ void ProgressBarControl::setButtonEnabled(bool which)
     }
 }
 
-QLabel *ProgressBarControl::label()
+QLabel *Controls::ProgressBarControl::label()
 {
     return _label;
 }
 
-QProgressBar *ProgressBarControl::progressBar()
+QProgressBar *Controls::ProgressBarControl::progressBar()
 {
     return _progressBar;
 }
 
-QPushButton *ProgressBarControl::pushButton()
+QPushButton *Controls::ProgressBarControl::pushButton()
 {
     return button;
 }

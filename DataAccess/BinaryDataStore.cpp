@@ -30,8 +30,7 @@ limitations under the License.*/
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
-using namespace GUtil::Core;
-using namespace GUtil::DataAccess;
+using namespace GUtil;
 
 // A class to keep track of our mutexes
 class mutex_record_t
@@ -51,7 +50,7 @@ public:
 QMap<QString, mutex_record_t *> mutexes;
 QReadWriteLock mutex_lock;
 
-DA_BinaryDataStore::DA_BinaryDataStore(const QString &id, bool primary)
+DataAccess::BinaryDataStore::BinaryDataStore(const QString &id, bool primary)
 {
     my_id = id;
     file_location = get_file_loc(id);
@@ -81,12 +80,12 @@ DA_BinaryDataStore::DA_BinaryDataStore(const QString &id, bool primary)
     }
 }
 
-DA_BinaryDataStore::~DA_BinaryDataStore()
+DataAccess::BinaryDataStore::~BinaryDataStore()
 {
 
 }
 
-int DA_BinaryDataStore::addFile(const QString &data)
+int DataAccess::BinaryDataStore::addFile(const QString &data)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
@@ -104,7 +103,7 @@ int DA_BinaryDataStore::addFile(const QString &data)
     return ret;
 }
 
-int DA_BinaryDataStore::addFile(int id, const QString &data)
+int DataAccess::BinaryDataStore::addFile(int id, const QString &data)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
@@ -121,7 +120,7 @@ int DA_BinaryDataStore::addFile(int id, const QString &data)
     return ret;
 }
 
-int DA_BinaryDataStore::add_file(int id, const QString &data, QSqlDatabase &dbase)
+int DataAccess::BinaryDataStore::add_file(int id, const QString &data, QSqlDatabase &dbase)
 {
     if(has_file(id, dbase))
         remove_file(id, dbase);
@@ -133,15 +132,15 @@ int DA_BinaryDataStore::add_file(int id, const QString &data, QSqlDatabase &dbas
     return id;
 }
 
-void DA_BinaryDataStore::_execute_insertion(QSqlQuery &q, int id, const QString &data)
+void DataAccess::BinaryDataStore::_execute_insertion(QSqlQuery &q, int id, const QString &data)
 {
     q.bindValue(":id", id);
     q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
-        throw Exception(q.lastError().text().toStdString());
+        throw Core::Exception(q.lastError().text().toStdString());
 }
 
-void DA_BinaryDataStore::removeFile(int id)
+void DataAccess::BinaryDataStore::removeFile(int id)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
@@ -156,7 +155,7 @@ void DA_BinaryDataStore::removeFile(int id)
     mutex_lock.unlock();
 }
 
-void DA_BinaryDataStore::remove_file(int id, QSqlDatabase &dbase)
+void DataAccess::BinaryDataStore::remove_file(int id, QSqlDatabase &dbase)
 {
     // Remove each item one by one
     QSqlQuery q("DELETE FROM files WHERE id=:id", dbase);
@@ -164,7 +163,7 @@ void DA_BinaryDataStore::remove_file(int id, QSqlDatabase &dbase)
     q.exec();
 }
 
-QString DA_BinaryDataStore::getFile(int id)
+QString DataAccess::BinaryDataStore::getFile(int id)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForRead();
@@ -187,11 +186,11 @@ QString DA_BinaryDataStore::getFile(int id)
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
-    throw Exception("File not found");
+    throw Core::Exception("File not found");
 }
 
 // Clear all files
-void DA_BinaryDataStore::reset()
+void DataAccess::BinaryDataStore::reset()
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
@@ -211,24 +210,24 @@ void DA_BinaryDataStore::reset()
     mutex_lock.unlock();
 }
 
-void DA_BinaryDataStore::prep_database(QSqlDatabase &dbase)
+void DataAccess::BinaryDataStore::prep_database(QSqlDatabase &dbase)
 {
     dbase = QSqlDatabase::database();
     if(!dbase.open())
     {
         mutexes.value(my_id)->mut->unlock();
         mutex_lock.unlock();
-        throw Exception("Cannot open database");
+        throw Core::Exception("Cannot open database");
     }
 }
 
-QString DA_BinaryDataStore::get_file_loc(const QString &id)
+QString DataAccess::BinaryDataStore::get_file_loc(const QString &id)
 {
     return QDesktopServices::storageLocation(QDesktopServices::TempLocation)
             + QString("/%1.tempfile").arg(id);
 }
 
-QList<int> DA_BinaryDataStore::idList()
+QList<int> DataAccess::BinaryDataStore::idList()
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForRead();
@@ -252,7 +251,7 @@ QList<int> DA_BinaryDataStore::idList()
     return ret;
 }
 
-bool DA_BinaryDataStore::hasFile(int id)
+bool DataAccess::BinaryDataStore::hasFile(int id)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForRead();
@@ -267,7 +266,7 @@ bool DA_BinaryDataStore::hasFile(int id)
     return ret;
 }
 
-bool DA_BinaryDataStore::has_file(int id, QSqlDatabase &dbase)
+bool DataAccess::BinaryDataStore::has_file(int id, QSqlDatabase &dbase)
 {
     QSqlQuery q("SELECT id FROM files WHERE id=:id", dbase);
     q.bindValue(":id", id);
@@ -275,7 +274,7 @@ bool DA_BinaryDataStore::has_file(int id, QSqlDatabase &dbase)
     return q.first();
 }
 
-int DA_BinaryDataStore::get_free_file_id(QSqlDatabase &dbase)
+int DataAccess::BinaryDataStore::get_free_file_id(QSqlDatabase &dbase)
 {
     // You must already have a lock on the database before using this function!
 
@@ -314,7 +313,7 @@ int DA_BinaryDataStore::get_free_file_id(QSqlDatabase &dbase)
     return max_id;
 }
 
-bool DA_BinaryDataStore::reserveIdList(const QList<int> &list)
+bool DataAccess::BinaryDataStore::reserveIdList(const QList<int> &list)
 {
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();

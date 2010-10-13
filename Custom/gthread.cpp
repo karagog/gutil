@@ -13,41 +13,41 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gthread.h"
-using namespace GUtil::Tools;
+using namespace GUtil;
 
-GThread::GThread(QObject *parent) :
+Custom::GThread::GThread(QObject *parent) :
     QThread(parent)
 {
     is_cancelled = false;
 }
 
-void GThread::cancel()
+void Custom::GThread::cancel()
 {
     is_cancelled = true;
     emit notifyCancelled();
 }
 
-void GThread::uncancel()
+void Custom::GThread::uncancel()
 {
     is_cancelled = false;
 }
 
-bool GThread::isCancelled()
+bool Custom::GThread::isCancelled()
 {
     return is_cancelled;
 }
 
-void GThread::sleep(unsigned long seconds)
+void Custom::GThread::sleep(unsigned long seconds)
 {
     QThread::sleep(seconds);
 }
 
-void GThread::msleep(unsigned long mseconds)
+void Custom::GThread::msleep(unsigned long mseconds)
 {
     QThread::sleep(mseconds);
 }
 
-void GThread::usleep(unsigned long useconds)
+void Custom::GThread::usleep(unsigned long useconds)
 {
     QThread::sleep(useconds);
 }

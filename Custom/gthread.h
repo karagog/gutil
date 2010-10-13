@@ -19,7 +19,7 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace Tools
+    namespace Custom
     {
         // Useful QThread wrapper
 

@@ -14,25 +14,25 @@ limitations under the License.*/
 
 #include "abstractdatabaselogger.h"
 #include "pubsubsystem.h"
-using namespace GUtil::Utils;
+using namespace GUtil;
 
-AbstractDatabaseLogger::AbstractDatabaseLogger(PubSubSystem *pss, QObject *parent) :
+Utils::AbstractDatabaseLogger::AbstractDatabaseLogger(PubSubSystem *pss, QObject *parent) :
     AbstractLogger(pss, parent)
 {
 }
 
-bool AbstractDatabaseLogger::PreLogMessage()
+bool Utils::AbstractDatabaseLogger::PreLogMessage()
 {
     // Set up database connection
     return true;
 }
 
-void AbstractDatabaseLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
+void Utils::AbstractDatabaseLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
 {
 
 }
 
-void AbstractDatabaseLogger::PostLogMessage()
+void Utils::AbstractDatabaseLogger::PostLogMessage()
 {
     // Close database connection
 }

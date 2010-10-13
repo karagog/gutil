@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <QDateTime>
 #include <QObject>
 
 namespace GUtil
@@ -49,7 +50,8 @@ namespace GUtil
             void LogWarning(const QString &message, const QString &title = QString::null);
             void LogError(const QString &message, const QString &title = QString::null);
 
-            void LogException(const GUtil::Core::Exception &exception);
+            void LogException(const GUtil::Core::Exception &ex);
+			void LogException(const std::exception &ex);
 
             void Log(const QString &message, const QString &title, MessageLevelEnum);
 
@@ -71,7 +73,8 @@ namespace GUtil
             virtual void PostLogMessage();
 
             // You can customize your own logging format
-            virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum);
+            virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum,
+                                              const QDateTime &dt = QDateTime::currentDateTime());
 
 
         private:

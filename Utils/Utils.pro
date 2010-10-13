@@ -8,15 +8,15 @@ TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
-    Private/abstractlogger.cpp \
-    Private/abstractstreamlogger.cpp \
+    abstractlogger.cpp \
+    abstractstreamlogger.cpp \
     filelogger.cpp \
     consolelogger.cpp \
     abstractdatabaselogger.cpp
 HEADERS += \
     pubsubsystem.h \
-    Private/abstractlogger.h \
-    Private/abstractstreamlogger.h \
+    abstractlogger.h \
+    abstractstreamlogger.h \
     filelogger.h \
     consolelogger.h \
     abstractdatabaselogger.h

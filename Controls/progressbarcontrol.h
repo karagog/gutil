@@ -39,9 +39,6 @@ namespace GUtil
             QProgressBar *progressBar();
             QPushButton *pushButton();
 
-            // Use this if you want to store any kind of data/state within the control
-            QVariant data;
-
         private:
             QProgressBar *_progressBar;
             QLabel *_label;

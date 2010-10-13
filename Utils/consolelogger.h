@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef CONSOLELOGGER_H
 #define CONSOLELOGGER_H
 
-#include "Private/abstractstreamlogger.h"
+#include "abstractstreamlogger.h"
 #include <QObject>
 
 namespace GUtil
@@ -30,6 +30,9 @@ namespace GUtil
             Q_OBJECT
         public:
             explicit ConsoleLogger(PubSubSystem *pss = 0, QObject *parent = 0);
+
+        protected:
+            virtual std::ostream &Stream();
         };
     }
 }

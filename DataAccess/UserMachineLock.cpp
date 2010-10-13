@@ -16,26 +16,26 @@ limitations under the License.*/
 #include "qtlockedfile.h"
 #include <QDir>
 #include <QUuid>
-using namespace GUtil::Core;
-using namespace GUtil::DataAccess;
+using namespace GUtil;
 
-DA_UserMachineLock::DA_UserMachineLock(const QString &id, const QString &modifier, QObject *parent)
-    :DA_ConfigFile(id, modifier, parent)
+DataAccess::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier,
+                                             Utils::AbstractLogger *logger, QObject *parent)
+    :ConfigFile(id, modifier, logger, parent)
 {
     SetReadOnly(true);
     _lf_lock = new QtLockedFile(QString("%1.%2")
-                          .arg(DA_ConfigFile::fileName())
+                          .arg(ConfigFile::fileName())
                           .arg("lockfile"));
 }
 
-DA_UserMachineLock::~DA_UserMachineLock()
+DataAccess::UserMachineLock::~UserMachineLock()
 {
     unlock();
 
     delete _lf_lock;
 }
 
-void DA_UserMachineLock::lock()
+void DataAccess::UserMachineLock::lock()
 {
     bool ret;
     bool lock_failed = false;
@@ -56,10 +56,10 @@ void DA_UserMachineLock::lock()
     SetReadOnly(!ret);
 
     if(!ret && !lock_failed)
-        throw Exception(errmsg.toStdString());
+        throw Core::Exception(errmsg.toStdString());
 }
 
-void DA_UserMachineLock::unlock()
+void DataAccess::UserMachineLock::unlock()
 {
     if(!isLocked())
         return;
@@ -73,12 +73,12 @@ void DA_UserMachineLock::unlock()
     QFile::remove(_lf_lock->fileName());
 }
 
-bool DA_UserMachineLock::isLocked() const
+bool DataAccess::UserMachineLock::isLocked() const
 {
     return _lf_lock->isLocked();
 }
 
-QString DA_UserMachineLock::fileName() const
+QString DataAccess::UserMachineLock::fileName() const
 {
     return _lf_lock->fileName();
 }

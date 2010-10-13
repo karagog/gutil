@@ -8,10 +8,10 @@ HEADERS += \
     BinaryDataStore.h \
     LocalClientServer.h \
     ConfigFile.h \
-    Private/ValueBuffer.h \
-    Private/Transports/filetransport.h \
-    Private/io_queue_worker.h \
-    Private/Transports/localsockettransport.h
+    abstractvaluebuffer.h \
+    DataTransports/filetransport.h \
+    io_queue_worker.h \
+    DataTransports/localsockettransport.h
 
 SOURCES += \
     UserMachineLock.cpp \
@@ -19,10 +19,10 @@ SOURCES += \
     src/qtlockedfile.cpp \
     LocalClientServer.cpp \
     ConfigFile.cpp \
-    Private/ValueBuffer.cpp \
-    Private/Transports/filetransport.cpp \
-    Private/io_queue_worker.cpp \
-    Private/Transports/localsockettransport.cpp
+    abstractvaluebuffer.cpp \
+    DataTransports/filetransport.cpp \
+    io_queue_worker.cpp \
+    DataTransports/localsockettransport.cpp
 
 INCLUDEPATH += include ..
 QT += sql network

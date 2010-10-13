@@ -14,14 +14,14 @@ limitations under the License.*/
 
 #include "myflattreemodel.h"
 
-using namespace GUtil::Custom;
+using namespace GUtil;
 
-myFlatTreeModel::myFlatTreeModel(QObject *parent) :
+Custom::myFlatTreeModel::myFlatTreeModel(QObject *parent) :
     QAbstractProxyModel(parent)
 {
 }
 
-void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
+void Custom::myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
 {
     QAbstractItemModel *curmodel = sourceModel();
     if(curmodel == m)
@@ -67,17 +67,17 @@ void myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
     _reset_model();
 }
 
-void myFlatTreeModel::source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2)
+void Custom::myFlatTreeModel::source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2)
 {
     emit dataChanged(mapFromSource(ind1), mapFromSource(ind2));
 }
 
-void myFlatTreeModel::source_model_about_to_be_reset()
+void Custom::myFlatTreeModel::source_model_about_to_be_reset()
 {
     beginResetModel();
 }
 
-void myFlatTreeModel::source_model_reset()
+void Custom::myFlatTreeModel::source_model_reset()
 {
     // This is an expensive operation, so we only do it once, storing
     //  the results we calculate for quick lookup while we refresh the indexes
@@ -93,18 +93,18 @@ void myFlatTreeModel::source_model_reset()
     endResetModel();
 }
 
-void myFlatTreeModel::refreshSourceModel()
+void Custom::myFlatTreeModel::refreshSourceModel()
 {
     _reset_model();
 }
 
-void myFlatTreeModel::_reset_model()
+void Custom::myFlatTreeModel::_reset_model()
 {
     beginResetModel();
     source_model_reset();
 }
 
-void myFlatTreeModel::_refresh_child_record()
+void Custom::myFlatTreeModel::_refresh_child_record()
 {
     _total_rows = 0;
 
@@ -118,12 +118,12 @@ void myFlatTreeModel::_refresh_child_record()
     }
 }
 
-QModelIndex myFlatTreeModel::mapToSource(const QModelIndex &proxyIndex) const
+QModelIndex Custom::myFlatTreeModel::mapToSource(const QModelIndex &proxyIndex) const
 {
     return _index_map_to_source[proxyIndex.internalId()];
 }
 
-QModelIndex myFlatTreeModel::mapFromSource(const QModelIndex &sourceIndex) const
+QModelIndex Custom::myFlatTreeModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
     int t = _index_map_from_source[sourceIndex.internalId()];
     if(t == 0 || !sourceIndex.isValid())
@@ -131,14 +131,14 @@ QModelIndex myFlatTreeModel::mapFromSource(const QModelIndex &sourceIndex) const
     return index(t, sourceIndex.column());
 }
 
-QModelIndex myFlatTreeModel::_map_from_source(const QModelIndex &sourceIndex)
+QModelIndex Custom::myFlatTreeModel::_map_from_source(const QModelIndex &sourceIndex)
 {
     if(sourceModel())
         return index(_count_preceeding_indexes(sourceIndex) - 1, sourceIndex.column());
     return QModelIndex();
 }
 
-int myFlatTreeModel::_count_preceeding_indexes(const QModelIndex &ind) const
+int Custom::myFlatTreeModel::_count_preceeding_indexes(const QModelIndex &ind) const
 {
     if(!ind.isValid())
         return 0;
@@ -159,7 +159,7 @@ int myFlatTreeModel::_count_preceeding_indexes(const QModelIndex &ind) const
     return ret;
 }
 
-int myFlatTreeModel::_count_child_indexes(const QModelIndex &ind)
+int Custom::myFlatTreeModel::_count_child_indexes(const QModelIndex &ind)
 {
     // Start with one to account for 'ind'
     int ret = 1;
@@ -177,7 +177,7 @@ int myFlatTreeModel::_count_child_indexes(const QModelIndex &ind)
     return ret;
 }
 
-void myFlatTreeModel::_refresh_index_mapping(const QModelIndex &ind)
+void Custom::myFlatTreeModel::_refresh_index_mapping(const QModelIndex &ind)
 {
     QAbstractItemModel *sm = sourceModel();
     if(sm)
@@ -195,13 +195,13 @@ void myFlatTreeModel::_refresh_index_mapping(const QModelIndex &ind)
     }
 }
 
-QModelIndex myFlatTreeModel::parent(const QModelIndex &) const
+QModelIndex Custom::myFlatTreeModel::parent(const QModelIndex &) const
 {
     // We're a flat table
     return QModelIndex();
 }
 
-QModelIndex myFlatTreeModel::index(int row, int column, const QModelIndex &par) const
+QModelIndex Custom::myFlatTreeModel::index(int row, int column, const QModelIndex &par) const
 {
     if(par.isValid())
         return QModelIndex();
@@ -210,7 +210,7 @@ QModelIndex myFlatTreeModel::index(int row, int column, const QModelIndex &par) 
     return createIndex(row, column, row);
 }
 
-int myFlatTreeModel::rowCount(const QModelIndex &parent) const
+int Custom::myFlatTreeModel::rowCount(const QModelIndex &parent) const
 {
     if(parent.isValid())
         return 0;
@@ -218,7 +218,7 @@ int myFlatTreeModel::rowCount(const QModelIndex &parent) const
     return _total_rows;
 }
 
-int myFlatTreeModel::columnCount(const QModelIndex &parent) const
+int Custom::myFlatTreeModel::columnCount(const QModelIndex &parent) const
 {
     QAbstractItemModel *m = sourceModel();
     if(m)
@@ -226,7 +226,7 @@ int myFlatTreeModel::columnCount(const QModelIndex &parent) const
     return 0;
 }
 
-QVariant myFlatTreeModel::data(const QModelIndex &proxyIndex, int role) const
+QVariant Custom::myFlatTreeModel::data(const QModelIndex &proxyIndex, int role) const
 {
     return mapToSource(proxyIndex).data(role);
 }

@@ -27,12 +27,12 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class DA_BinaryDataStore
+        class BinaryDataStore
         {
         public:
 
-            DA_BinaryDataStore(const QString&, bool primary = true);
-            ~DA_BinaryDataStore();
+            BinaryDataStore(const QString&, bool primary = true);
+            ~BinaryDataStore();
 
             //  (All of the public functions can be treated atomically,
             //   and can be executed safely from multiple threads)

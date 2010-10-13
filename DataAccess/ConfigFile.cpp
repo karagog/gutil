@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
-#include "Private/Transports/filetransport.h"
+#include "DataTransports/filetransport.h"
 #include "Core/exception.h"
 #include "Core/Tools/stringhelpers.h"
 #include "qtlockedfile.h"
@@ -23,29 +23,32 @@ limitations under the License.*/
 #include <QDesktopServices>
 #include <QDir>
 #include <QTimer>
-using namespace GUtil::Core;
-using namespace GUtil::DataAccess;
-using namespace GUtil::DataAccess::Private;
+using namespace GUtil;
 
-DA_ConfigFile::DA_ConfigFile(const QString &identifier, const QString &modifier, QObject *parent)
-    :ValueBuffer(new FileTransport(QString("%1.%2")
+DataAccess::ConfigFile::ConfigFile(const QString &identifier,
+                                   const QString &modifier,
+                                   Utils::AbstractLogger *logger,
+                                   QObject *parent)
+    :DataAccess::AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(QString("%1.%2")
                                    .arg(get_file_location(identifier))
                                    .arg(modifier)),
+                 logger,
                  parent)
 {
     _init(identifier, modifier);
 }
 
-DA_ConfigFile::DA_ConfigFile(const DA_ConfigFile &other, QObject *parent)
-    :ValueBuffer(new FileTransport(QString("%1.%2")
+DataAccess::ConfigFile::ConfigFile(const DataAccess::ConfigFile &other, QObject *parent)
+    :AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(QString("%1.%2")
                                    .arg(get_file_location(other._identity))
                                    .arg(other._modifier)),
+                 other.Logger(),
                  parent)
 {
     _init(other._identity, other._modifier);
 }
 
-void DA_ConfigFile::_init(const QString &identity, const QString &modifier)
+void DataAccess::ConfigFile::_init(const QString &identity, const QString &modifier)
 {
     _identity = identity;
     _modifier = modifier;
@@ -56,41 +59,41 @@ void DA_ConfigFile::_init(const QString &identity, const QString &modifier)
             this, SLOT(catch_asynchronous_update(QByteArray)));
 }
 
-QString DA_ConfigFile::fileName() const
+QString DataAccess::ConfigFile::fileName() const
 {
     return get_file_transport()->fileName();
 }
 
-void DA_ConfigFile::reload()
+void DataAccess::ConfigFile::reload()
 {
     get_file_transport()->reload();
 }
 
-void DA_ConfigFile::getIdentity(QString &identifier, QString &modifier)
+void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
 {
     identifier = _identity;
     modifier = _modifier;
 }
 
-void DA_ConfigFile::value_changed()
+void DataAccess::ConfigFile::value_changed()
 {
     // Export the changed data to the config file
-    //throw NotImplementedException();
+    throw Core::NotImplementedException();
     //enQueue(true);
     //exportData();
 }
 
-void DA_ConfigFile::process_input_data(const QByteArray &)
+void DataAccess::ConfigFile::process_input_data(const QByteArray &)
 {
 
 }
 
-Private::FileTransport *DA_ConfigFile::get_file_transport() const
+DataAccess::DataTransports::FileTransport *DataAccess::ConfigFile::get_file_transport() const
 {
-    return (Private::FileTransport *)_transport;
+    return (DataAccess::DataTransports::FileTransport *)Transport();
 }
 
-QString DA_ConfigFile::get_file_location(QString id)
+QString DataAccess::ConfigFile::get_file_location(QString id)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     QString fl = id.toLower() + ".config.xml";
@@ -124,7 +127,7 @@ QString DA_ConfigFile::get_file_location(QString id)
     return _config_filename;
 }
 
-void DA_ConfigFile::catch_asynchronous_update(const QByteArray &dat)
+void DataAccess::ConfigFile::catch_asynchronous_update(const QByteArray &dat)
 {
     importData(dat);
 

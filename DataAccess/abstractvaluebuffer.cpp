@@ -12,30 +12,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ValueBuffer.h"
+#include "abstractvaluebuffer.h"
 #include "Interfaces/ITransportMechanism.h"
+#include "Utils/abstractlogger.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
-using namespace GUtil::Core;
-using namespace GUtil::DataObjects;
-using namespace GUtil::DataAccess::Private;
+using namespace GUtil;
 
-ValueBuffer::ValueBuffer(
+DataAccess::AbstractValueBuffer::AbstractValueBuffer(
         Interfaces::ITransportMechanism *transport_mechanism,
+		Utils::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
-            IReadOnlyObject(false)
+            Interfaces::IReadOnlyObject(false)
 {
-    current_data = new DataContainer();
+	_logger = logger;
+    current_data = new DataObjects::DataContainer();
 
     _transport = transport_mechanism;
 
     connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
 }
 
-ValueBuffer::~ValueBuffer()
+DataAccess::AbstractValueBuffer::~AbstractValueBuffer()
 {
     delete current_data;
     delete _transport;
@@ -78,17 +79,17 @@ ValueBuffer::~ValueBuffer()
 //    return _readonly;
 //}
 
-void ValueBuffer::setValue(const QString &key, const QByteArray& value)
+bool DataAccess::AbstractValueBuffer::setValue(const QString &key, const QByteArray& value)
 {
     QMap<QString, QByteArray> m;
     m.insert(key, value);
-    setValues(m);
+    return setValues(m);
 }
 
-void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
+bool DataAccess::AbstractValueBuffer::setValues(const QMap<QString, QByteArray> &values)
 {
     if(IsReadOnly())
-        return;
+        return false;
 
     current_data_lock.lockForWrite();
 
@@ -97,20 +98,35 @@ void ValueBuffer::setValues(const QMap<QString, QByteArray> &values)
 
     current_data_lock.unlock();
 
-    value_changed();
+	return TriggerValueChanged();
 }
 
-QByteArray& ValueBuffer::operator [](QString key)
+bool DataAccess::AbstractValueBuffer::TriggerValueChanged()
+{
+	try
+	{
+		value_changed();
+	}
+	catch(Core::Exception ex)
+	{
+		LogException(ex);
+		return false;
+	}
+
+	return true;
+}
+
+QByteArray& DataAccess::AbstractValueBuffer::operator [](QString key)
 {
     return (*current_data)[key];
 }
 
-QByteArray ValueBuffer::value(const QString &key)
+QByteArray DataAccess::AbstractValueBuffer::value(const QString &key)
 {
     return values(QStringList(key)).value(key);
 }
 
-QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys)
+QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::values(const QStringList &keys)
 {
     current_data_lock.lockForRead();
 
@@ -123,7 +139,7 @@ QMap<QString, QByteArray> ValueBuffer::values(const QStringList &keys)
     return ret;
 }
 
-bool ValueBuffer::contains(const QString &key)
+bool DataAccess::AbstractValueBuffer::contains(const QString &key)
 {
     current_data_lock.lockForRead();
 
@@ -134,7 +150,7 @@ bool ValueBuffer::contains(const QString &key)
     return ret;
 }
 
-void ValueBuffer::clear()
+void DataAccess::AbstractValueBuffer::clear()
 {
     if(IsReadOnly())
         return;
@@ -143,33 +159,33 @@ void ValueBuffer::clear()
     current_data->clear();
     current_data_lock.unlock();
 
-    value_changed();
+	TriggerValueChanged();
 }
 
-void ValueBuffer::clearQueues()
+void DataAccess::AbstractValueBuffer::clearQueues()
 {
     _clear_queue(in_queue_mutex, in_queue);
     _clear_queue(out_queue_mutex, out_queue);
 }
 
-void ValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteArray > &queue)
+void DataAccess::AbstractValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteArray > &queue)
 {
     lock.lock();
     queue.clear();
     lock.unlock();
 }
 
-void ValueBuffer::removeValue(const QString &key)
+bool DataAccess::AbstractValueBuffer::removeValue(const QString &key)
 {
     QStringList sl;
     sl.append(key);
-    removeValue(sl);
+    return removeValue(sl);
 }
 
-void ValueBuffer::removeValue(const QStringList &keys)
+bool DataAccess::AbstractValueBuffer::removeValue(const QStringList &keys)
 {
     if(IsReadOnly())
-        return;
+        return false;
 
     current_data_lock.lockForWrite();
 
@@ -178,42 +194,20 @@ void ValueBuffer::removeValue(const QStringList &keys)
 
     current_data_lock.unlock();
 
-    value_changed();
+    return TriggerValueChanged();
 }
 
-void ValueBuffer::importData(const QByteArray &dat)
+void DataAccess::AbstractValueBuffer::importData(const QByteArray &dat)
 {
     enQueueMessage(InQueue, dat);
 }
 
-void ValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
+void DataAccess::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
 {
-    QMutex *m;
-    QQueue< QByteArray > *tmpq;
-
-    switch(q)
-    {
-    case InQueue:
-        m = &in_queue_mutex;
-        tmpq = &in_queue;
-        break;
-    case OutQueue:
-        m = &out_queue_mutex;
-        tmpq = &out_queue;
-        break;
-    default:
-        return;
-    }
-
-    m->lock();
-    tmpq->enqueue(msg);
-    m->unlock();
-
-    // We want to get rid of anything in the queue as soon as possible
-    process_queues();
+    en_deQueueMessage(q, msg, true);
 }
 
-void ValueBuffer::enQueueCurrentData(bool clear)
+void DataAccess::AbstractValueBuffer::enQueueCurrentData(bool clear)
 {
     if(clear)
         current_data_lock.lockForWrite();
@@ -228,7 +222,12 @@ void ValueBuffer::enQueueCurrentData(bool clear)
     current_data_lock.unlock();
 }
 
-QByteArray ValueBuffer::deQueueMessage(QueueTypeEnum q)
+QByteArray DataAccess::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
+{
+    return en_deQueueMessage(q, QByteArray(), false);
+}
+
+QByteArray DataAccess::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q, const QByteArray &msg, bool enqueue)
 {
     QByteArray ret;
     QMutex *m;
@@ -248,27 +247,48 @@ QByteArray ValueBuffer::deQueueMessage(QueueTypeEnum q)
         return ret;
     }
 
+
     m->lock();
-    if(!tmpq->empty())
-        ret = tmpq->dequeue();
+    {
+        // Critical section
+        if(enqueue)
+            tmpq->enqueue(msg);
+        else if(!tmpq->empty())
+            ret = tmpq->dequeue();
+    }
     m->unlock();
+
+    // We want to get rid of anything in the queue as soon as possible
+    if(enqueue)
+        process_queues();
 
     return ret;
 }
 
-void ValueBuffer::value_changed()
+void DataAccess::AbstractValueBuffer::LogException(const GUtil::Core::Exception &ex) const
 {
-    // Does nothing, override to do something
+    if(_logger != 0)
+        _logger->LogException(ex);
 }
 
-void ValueBuffer::process_queues()
+Utils::AbstractLogger *DataAccess::AbstractValueBuffer::Logger() const
+{
+    return _logger;
+}
+
+Interfaces::ITransportMechanism *DataAccess::AbstractValueBuffer::Transport() const
+{
+    return _transport;
+}
+
+void DataAccess::AbstractValueBuffer::process_queues()
 {
     // Flush the queues
     _flush_queue(OutQueue);
     _flush_queue(InQueue);
 }
 
-void ValueBuffer::_flush_queue(QueueTypeEnum qt) throw()
+void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 {
     QQueue<QByteArray> *queue;
     QMutex *mutex;
@@ -285,7 +305,7 @@ void ValueBuffer::_flush_queue(QueueTypeEnum qt) throw()
     }
     else
     {
-        throw Exception("Unrecognized queue type");
+        throw Core::Exception("Unrecognized queue type");
     }
 
     bool queue_has_data = true;

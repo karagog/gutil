@@ -14,40 +14,34 @@ limitations under the License.*/
 
 #include "filelogger.h"
 #include "pubsubsystem.h"
-#include <fstream>
-using namespace GUtil::Utils;
+using namespace GUtil;
 using namespace std;
 
-FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent)
-    :AbstractStreamLogger(new ofstream(), pss, parent)
+Utils::FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent)
+    :AbstractStreamLogger(pss, parent)
 {
     _filename = filename;
 }
 
-FileLogger::~FileLogger()
+std::ostream &Utils::FileLogger::Stream()
 {
-    delete FileStream();
+    return _fstream;
 }
 
-bool FileLogger::PreLogMessage()
+bool Utils::FileLogger::PreLogMessage()
 {
-    FileStream()->open(_filename.toStdString().c_str(), ios_base::app);
+    _fstream.open(_filename.toStdString().c_str(), ios_base::app);
 
-    return FileStream()->is_open();
+    return _fstream.is_open();
 }
 
-void FileLogger::PostLogMessage()
+void Utils::FileLogger::PostLogMessage()
 {
-    FileStream()->close();
+    _fstream.close();
 }
 
-void FileLogger::ClearLog()
+void Utils::FileLogger::ClearLog()
 {
-    FileStream()->open(_filename.toStdString().c_str(), ios_base::trunc);
-    FileStream()->close();
-}
-
-ofstream *FileLogger::FileStream()
-{
-    return (ofstream *)Stream();
+    _fstream.open(_filename.toStdString().c_str(), ios_base::trunc);
+    _fstream.close();
 }

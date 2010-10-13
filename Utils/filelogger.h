@@ -15,7 +15,8 @@ limitations under the License.*/
 #ifndef FILELOGGER_H
 #define FILELOGGER_H
 
-#include "Private/abstractstreamlogger.h"
+#include "abstractstreamlogger.h"
+#include <fstream>
 
 namespace GUtil
 {
@@ -27,20 +28,22 @@ namespace GUtil
         {
             Q_OBJECT
         public:
-            explicit FileLogger(const QString &, PubSubSystem *pss = 0, QObject *parent = 0);
-            virtual ~FileLogger();
+            explicit FileLogger(const QString &filename,
+                                PubSubSystem *pss = 0,
+                                QObject *parent = 0);
 
             // Clears the log file
             void ClearLog();
 
         protected:
+            virtual std::ostream &Stream();
+
             virtual bool PreLogMessage();
             virtual void PostLogMessage();
 
-            std::ofstream *FileStream();
-
         private:
             QString _filename;
+            std::ofstream _fstream;
 
         };
     }

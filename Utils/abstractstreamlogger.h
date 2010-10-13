@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef STREAMLOGGER_H
 #define STREAMLOGGER_H
 
-#include "Private/abstractlogger.h"
+#include "abstractlogger.h"
 
 namespace GUtil
 {
@@ -28,16 +28,12 @@ namespace GUtil
         {
             Q_OBJECT
         protected:
-            explicit AbstractStreamLogger(std::ostream *, PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit AbstractStreamLogger(PubSubSystem *pss = 0, QObject *parent = 0);
 
             virtual void LogMessage_protected(const QString &, MessageLevelEnum);
 
             // Use this to access the stream
-            std::ostream *Stream() const;
-
-
-        private:
-            std::ostream *_stream;
+            virtual std::ostream &Stream() = 0;
         };
     }
 }

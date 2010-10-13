@@ -14,39 +14,39 @@ limitations under the License.*/
 
 #include "myxmlstreamreader.h"
 #include <QXmlStreamWriter>
-using namespace GUtil::Custom;
+using namespace GUtil;
 
-myXmlStreamReader::myXmlStreamReader()
+Custom::myXmlStreamReader::myXmlStreamReader()
     :QXmlStreamReader()
 {
 
 }
 
-myXmlStreamReader::myXmlStreamReader(const QString &data)
+Custom::myXmlStreamReader::myXmlStreamReader(const QString &data)
     :QXmlStreamReader(data)
 {
 
 }
 
-myXmlStreamReader::myXmlStreamReader(QIODevice *data)
+Custom::myXmlStreamReader::myXmlStreamReader(QIODevice *data)
     :QXmlStreamReader(data)
 {
 
 }
 
-myXmlStreamReader::myXmlStreamReader(const QByteArray &data)
+Custom::myXmlStreamReader::myXmlStreamReader(const QByteArray &data)
     :QXmlStreamReader(data)
 {
 
 }
 
-myXmlStreamReader::myXmlStreamReader(const char *data)
+Custom::myXmlStreamReader::myXmlStreamReader(const char *data)
     :QXmlStreamReader(data)
 {
 
 }
 
-QString myXmlStreamReader::InnerText()
+QString Custom::myXmlStreamReader::InnerText()
 {
     QString ret = "";
     QXmlStreamWriter sw(&ret);
@@ -66,7 +66,7 @@ QString myXmlStreamReader::InnerText()
     return ret;
 }
 
-QString myXmlStreamReader::InnerXml()
+QString Custom::myXmlStreamReader::InnerXml()
 {
     QString ret;
     QXmlStreamWriter sw(&ret);
@@ -77,7 +77,7 @@ QString myXmlStreamReader::InnerXml()
     return ret;
 }
 
-void myXmlStreamReader::_read_inner_xml(QXmlStreamWriter &sw)
+void Custom::myXmlStreamReader::_read_inner_xml(QXmlStreamWriter &sw)
 {
     if(tokenType() == myXmlStreamReader::StartElement)
     {

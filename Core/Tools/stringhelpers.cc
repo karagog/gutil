@@ -21,19 +21,17 @@ limitations under the License.*/
 
 using namespace std;
 using namespace GUtil::Core;
-using namespace GUtil::Core::Tools;
-using namespace GUtil::Core::Tools::Private;
 
 static const char base64_digits[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char base64_padding = '=';
 
-bool StringHelpers::toInt(const string &s, int &res)
+bool Tools::StringHelpers::toInt(const string &s, int &res)
 {
     throw NotImplementedException();
     return true;
 }
 
-string StringHelpers::toLower(const string &s)
+string Tools::StringHelpers::toLower(const string &s)
 {
     string ret;
     for(int i = 0; i < (int)s.length(); i++)
@@ -41,7 +39,7 @@ string StringHelpers::toLower(const string &s)
     return ret;
 }
 
-string StringHelpers::toUpper(const string &s)
+string Tools::StringHelpers::toUpper(const string &s)
 {
     string ret;
     for(int i = 0; i < (int)s.length(); i++)
@@ -49,13 +47,13 @@ string StringHelpers::toUpper(const string &s)
     return ret;
 }
 
-string StringHelpers::baseName(const string &s)
+string Tools::StringHelpers::baseName(const string &s)
 {
     //Note: if the filename has a trailing '/', this will return a null string
     string retstring(s.c_str());
 
     // If we can't parse the path correctly, return null
-    if(!strings_p::translate_path(retstring))
+    if(!Tools::Private::strings_p::translate_path(retstring))
         return "";
 
     int lastSlash;
@@ -67,13 +65,13 @@ string StringHelpers::baseName(const string &s)
     return(retstring.substr(lastSlash + 1));
 }
 
-string StringHelpers::pathName(const string &s)
+string Tools::StringHelpers::pathName(const string &s)
 {
     //Note: if the filename has a trailing '/', this will return the full input string
     string retstring(s.c_str());
 
     // If we can't parse the path correctly, return null
-    if(!strings_p::translate_path(retstring))
+    if(!Tools::Private::strings_p::translate_path(retstring))
         return "";
 
     int lastSlash;
@@ -84,7 +82,7 @@ string StringHelpers::pathName(const string &s)
     return(retstring.substr(0, lastSlash + 1));
 }
 
-string StringHelpers::toBase16(const string &s)
+string Tools::StringHelpers::toBase16(const string &s)
 {
     string res;
     for(int i = 0; i < (int)s.size(); i++)
@@ -101,7 +99,7 @@ string StringHelpers::toBase16(const string &s)
     return res;
 }
 
-string StringHelpers::fromBase16(const string &s)
+string Tools::StringHelpers::fromBase16(const string &s)
 {
     if(s.size() % 2 != 0)
         throw Exception("Input string was not in the correct format");
@@ -121,7 +119,7 @@ string StringHelpers::fromBase16(const string &s)
     return res;
 }
 
-string StringHelpers::toBase64(const string &instr)
+string Tools::StringHelpers::toBase64(const string &instr)
 {
     string outstr = "";
 
@@ -178,7 +176,7 @@ string StringHelpers::toBase64(const string &instr)
     return outstr;
 }
 
-string StringHelpers::fromBase64(const string &instr)
+string Tools::StringHelpers::fromBase64(const string &instr)
 {
     string outstr = "";
 
@@ -246,7 +244,7 @@ string StringHelpers::fromBase64(const string &instr)
     return outstr;
 }
 
-char StringHelpers::charToHex(char c)
+char Tools::StringHelpers::charToHex(char c)
 {
     // Make it upper-case if it was lower
     if(c >= (char)0x61)
@@ -272,7 +270,7 @@ char StringHelpers::charToHex(char c)
     return ret;
 }
 
-char StringHelpers::hexToChar(char c)
+char Tools::StringHelpers::hexToChar(char c)
 {
     char ret;
 
@@ -291,7 +289,7 @@ char StringHelpers::hexToChar(char c)
     return ret;
 }
 
-void StringHelpers::showBits(char c, ostream &str)
+void Tools::StringHelpers::showBits(char c, ostream &str)
 {
     unsigned char mask = 0b10000000;
     for(int i = 0; i < 8; i++)

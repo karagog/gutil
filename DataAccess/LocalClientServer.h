@@ -31,7 +31,7 @@
 //{
 //    namespace DataAccess
 //    {
-//        class DA_UserMachineLock;
+//        class UserMachineLock;
 
 //        namespace DA_LocalClientServer_Private
 //        {
@@ -88,7 +88,7 @@
 //            // Call this to create a new socket endpoint.  Remember the ID for reference later
 //            QUuid createNewSocketWorker(QLocalSocket *);
 
-//            DA_UserMachineLock *_machine_lock;
+//            UserMachineLock *_machine_lock;
 
 //            QString socketIdentifier() const;
 

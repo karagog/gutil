@@ -12,11 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "DataAccess/DA_BinaryDataStore.h"
+#include "DataAccess/BinaryDataStore.h"
 #include "Core/exception.h"
 #include <QTest>
-using namespace GUtil::Core;
-using namespace GUtil::DataAccess;
+using namespace GUtil;
 
 
 class file_manager_test : public QObject
@@ -42,7 +41,7 @@ private Q_SLOTS:
     void test_remove();
 
 private:
-    DA_BinaryDataStore *fm;
+    DataAccess::BinaryDataStore *fm;
 
 };
 
@@ -50,7 +49,7 @@ private:
 file_manager_test::file_manager_test()// :
     //QObject(parent)
 {
-    fm = new DA_BinaryDataStore("filemanagertest");
+    fm = new DataAccess::BinaryDataStore("filemanagertest");
 }
 
 void file_manager_test::simple_startup_test()
@@ -85,7 +84,7 @@ void file_manager_test::test_reset()
     {
         fm->getFile(0);
     }
-    catch(Exception)
+    catch(Core::Exception)
     {
         exception_hit = true;
     }
@@ -95,7 +94,7 @@ void file_manager_test::test_reset()
 void file_manager_test::test_second_object()
 {
     fm->reset();
-    DA_BinaryDataStore *fm2 = new DA_BinaryDataStore("filemanagertest", false);
+    DataAccess::BinaryDataStore *fm2 = new DataAccess::BinaryDataStore("filemanagertest", false);
     QVERIFY(fm->addFile("test1") == 0);
     QVERIFY(fm2->addFile("test2") == 1);
     QVERIFY(fm->addFile("test3") == 2);

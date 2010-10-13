@@ -34,7 +34,7 @@
 //        : ValueBuffer(_transport = new LocalSocketTransport(new QLocalSocket(this)),
 //                 parent)
 //{
-//    _machine_lock = new DA_UserMachineLock(identifier, QString("%1.%2").arg(modifier).arg(MODIFIER_STRING), this);
+//    _machine_lock = new UserMachineLock(identifier, QString("%1.%2").arg(modifier).arg(MODIFIER_STRING), this);
 
 //    _socket_identifier = QString("%1.%2").arg(identifier).arg(modifier);
 //}

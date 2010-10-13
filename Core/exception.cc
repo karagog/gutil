@@ -13,41 +13,41 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "exception.h"
-using namespace GUtil::Core;
+using namespace GUtil;
 
-Exception::Exception()
+Core::Exception::Exception()
     :exception()
 {
 
 }
 
-Exception::Exception(const std::string & message)
+Core::Exception::Exception(const std::string & message)
     :exception()
 {
     _message = message;
 }
 
-std::string Exception::Message() const
+std::string Core::Exception::Message() const
 {
     return _message;
 }
 
-void Exception::SetMessage(const std::string &msg)
+void Core::Exception::SetMessage(const std::string &msg)
 {
     _message = msg;
 }
 
-void Exception::SetData(const std::string &key, const std::string &value)
+void Core::Exception::SetData(const std::string &key, const std::string &value)
 {
     _data[key] = value;
 }
 
-std::string Exception::GetData(const std::string &key) const
+std::string Core::Exception::GetData(const std::string &key) const
 {
     return _data.at(key);
 }
 
-std::vector<std::string> Exception::GetDataKeys(bool include_blanks) const
+std::vector<std::string> Core::Exception::GetDataKeys(bool include_blanks) const
 {
     std::vector<std::string> ret;
 
@@ -63,12 +63,12 @@ std::vector<std::string> Exception::GetDataKeys(bool include_blanks) const
     return ret;
 }
 
-std::string Exception::ToString() const
+std::string Core::Exception::ToString() const
 {
-    return "GUtil::" + ToString_protected();
+    return "GUtil::Core::" + ToString_protected();
 }
 
-std::string Exception::ToString_protected() const
+std::string Core::Exception::ToString_protected() const
 {
     return "Exception";
 }
@@ -77,19 +77,19 @@ std::string Exception::ToString_protected() const
 
 
 
-NotImplementedException::NotImplementedException()
+Core::NotImplementedException::NotImplementedException()
     :Exception()
 {
 
 }
 
-NotImplementedException::NotImplementedException(const std::string &message)
+Core::NotImplementedException::NotImplementedException(const std::string &message)
     :Exception(message)
 {
 
 }
 
-std::string NotImplementedException::ToString_protected() const
+std::string Core::NotImplementedException::ToString_protected() const
 {
     return "NotImplementedException";
 }

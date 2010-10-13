@@ -16,10 +16,9 @@ limitations under the License.*/
 #include "pubsubsystem.h"
 #include "Core/exception.h"
 #include <QDateTime>
-using namespace GUtil::Utils;
-using namespace GUtil::Core;
+using namespace GUtil;
 
-AbstractLogger::AbstractLogger(PubSubSystem *pss, QObject *parent)
+Utils::AbstractLogger::AbstractLogger(Utils::PubSubSystem *pss, QObject *parent)
     :QObject(parent)
 {
     _pubsub = pss;
@@ -34,37 +33,37 @@ AbstractLogger::AbstractLogger(PubSubSystem *pss, QObject *parent)
     }
 }
 
-AbstractLogger::~AbstractLogger()
+Utils::AbstractLogger::~AbstractLogger()
 {
 
 }
 
-void AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
+void Utils::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
 {
     _message_level = message_level;
 }
 
-AbstractLogger::MessageLevelEnum AbstractLogger::GetMessageLevel()
+Utils::AbstractLogger::MessageLevelEnum Utils::AbstractLogger::GetMessageLevel()
 {
     return _message_level;
 }
 
-void AbstractLogger::LogMessage(const QString &msg, const QString &title)
+void Utils::AbstractLogger::LogMessage(const QString &msg, const QString &title)
 {
     Log(msg, title, Info);
 }
 
-void AbstractLogger::LogWarning(const QString &msg, const QString &title)
+void Utils::AbstractLogger::LogWarning(const QString &msg, const QString &title)
 {
     Log(msg, title, Warning);
 }
 
-void AbstractLogger::LogError(const QString &msg, const QString &title)
+void Utils::AbstractLogger::LogError(const QString &msg, const QString &title)
 {
     Log(msg, title, Error);
 }
 
-void AbstractLogger::LogException(const Exception &ex)
+void Utils::AbstractLogger::LogException(const Core::Exception &ex)
 {
     QString data_string;
 
@@ -84,7 +83,12 @@ void AbstractLogger::LogException(const Exception &ex)
         Error);
 }
 
-void AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
+void Utils::AbstractLogger::LogException(const std::exception &ex)
+{
+	Log(QString::null, "Exception Caught: std::exception", Error);
+}
+
+void Utils::AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
 {
     if(message_level < _message_level)
         return;
@@ -100,7 +104,7 @@ void AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelE
     }
 }
 
-QString AbstractLogger::PrepareLogMessage(const QString &msg, const QString &title, MessageLevelEnum message_type)
+QString Utils::AbstractLogger::PrepareLogMessage(const QString &msg, const QString &title, Utils::AbstractLogger::MessageLevelEnum message_type, const QDateTime &dt)
 {
     QString msg_id;
     switch(message_type)
@@ -115,23 +119,23 @@ QString AbstractLogger::PrepareLogMessage(const QString &msg, const QString &tit
         msg_id = "ERROR";
         break;
     default:
-        throw NotImplementedException("Invalid Message Type");
+        throw Core::NotImplementedException("Invalid Message Type");
     }
 
-    return QString("%1  %2: %3\n%4\n\n")
-            .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+    return QString("%1  %2: %3%4\n\n\n")
+            .arg(dt.toString(Qt::ISODate))
             .arg(msg_id)
             .arg(title)
-            .arg(msg);
+            .arg(msg.length() == 0 ? QString::null : QString("\n%1").arg(msg));
 }
 
-bool AbstractLogger::PreLogMessage()
+bool Utils::AbstractLogger::PreLogMessage()
 {
     // Do nothing by default
     return true;
 }
 
-void AbstractLogger::PostLogMessage()
+void Utils::AbstractLogger::PostLogMessage()
 {
     // Do nothing by default
 }

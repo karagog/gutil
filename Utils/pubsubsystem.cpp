@@ -1,29 +1,28 @@
 #include "pubsubsystem.h"
 #include "Core/exception.h"
-using namespace GUtil::Core;
-using namespace GUtil::Utils;
+using namespace GUtil;
 
-PubSubSystem::PubSubSystem(QObject *parent) :
+Utils::PubSubSystem::PubSubSystem(QObject *parent) :
     QObject(parent)
 {
 }
 
-void PubSubSystem::PublishMessage(const QString& message, const QString& title)
+void Utils::PubSubSystem::PublishMessage(const QString& message, const QString& title)
 {
     emit NotifyMessage(message, title);
 }
 
-void PubSubSystem::PublishWarning(const QString& message, const QString& title)
+void Utils::PubSubSystem::PublishWarning(const QString& message, const QString& title)
 {
     emit NotifyWarning(message, title);
 }
 
-void PubSubSystem::PublishError(const QString& message, const QString& title)
+void Utils::PubSubSystem::PublishError(const QString& message, const QString& title)
 {
     emit NotifyError(message, title);
 }
 
-void PubSubSystem::PublishProgress(int progress, int id)
+void Utils::PubSubSystem::PublishProgress(int progress, int id)
 {
     emit PublishProgress(progress, id);
 

@@ -10,9 +10,9 @@
 #endif
 
 using namespace std;
-using namespace GUtil::Core::DataAccess;
+using namespace GUtil::Core;
 
-int cp_serial_t::configure(string COMPORT){
+int DataAccess::cp_serial_t::configure(string COMPORT){
 	// Function to configure port settings and open new com port
         //Returns -1 if error, 0 on success
 #ifdef linux
@@ -129,7 +129,7 @@ int cp_serial_t::configure(string COMPORT){
         return 0;
 }
 
-void cp_serial_t::Close(){
+void DataAccess::cp_serial_t::Close(){
 #ifdef linux
         close(handle);
 #else
@@ -138,7 +138,7 @@ void cp_serial_t::Close(){
 #endif
 }
 
-int cp_serial_t::read_bytes(string & ret,int num){
+int DataAccess::cp_serial_t::read_bytes(string & ret,int num){
         //Returns 0 if successful
                 //Sets 'ret' to a string made of the bytes read
 #ifdef _WIN32
@@ -162,7 +162,7 @@ int cp_serial_t::read_bytes(string & ret,int num){
         return(0);
 }
 
-int cp_serial_t::write_bytes(string bytes, int num){
+int DataAccess::cp_serial_t::write_bytes(string bytes, int num){
 #ifdef _WIN32
 	DWORD dwBytesWritten = 0;
 #else

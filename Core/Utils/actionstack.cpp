@@ -14,13 +14,13 @@ limitations under the License.*/
 
 #include "actionstack.h"
 using namespace std;
-using namespace GUtil::Core::Utils;
+using namespace GUtil::Core;
 
-ActionStack::ActionStack()
+Utils::ActionStack::ActionStack()
 {
 }
 
-void ActionStack::pushAction(action_t *a)
+void Utils::ActionStack::pushAction(action_t *a)
 {
     if(a == 0)
         return;
@@ -31,7 +31,7 @@ void ActionStack::pushAction(action_t *a)
         clean_stack(redo_stack);
 }
 
-action_t *ActionStack::popAction()
+Utils::action_t *Utils::ActionStack::popAction()
 {
     action_t *ret = 0;
     if(action_stack.size() > 0)
@@ -47,12 +47,12 @@ action_t *ActionStack::popAction()
     return ret;
 }
 
-bool ActionStack::carryOutAction(action_t *a, bool undo)
+bool Utils::ActionStack::carryOutAction(action_t *a, bool undo)
 {
     return a->carry_out(!undo);
 }
 
-bool ActionStack::undoLastAction()
+bool Utils::ActionStack::undoLastAction()
 {
     if(action_stack.size() == 0)
         return false;
@@ -62,7 +62,7 @@ bool ActionStack::undoLastAction()
     return ret->carry_out(false);
 }
 
-bool ActionStack::redoLastUndo()
+bool Utils::ActionStack::redoLastUndo()
 {
     if(redo_stack.size() == 0)
         return false;
@@ -72,7 +72,7 @@ bool ActionStack::redoLastUndo()
     return a->carry_out(true);
 }
 
-void ActionStack::clean_stack(std::stack<action_t *> &st)
+void Utils::ActionStack::clean_stack(std::stack<action_t *> &st)
 {
     while(st.size() > 0)
     {

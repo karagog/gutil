@@ -13,19 +13,19 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ireadonlyobject.h"
-using namespace GUtil::Interfaces;
+using namespace GUtil;
 
-IReadOnlyObject::IReadOnlyObject(bool readonly)
+Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
 {
     _readonly = readonly;
 }
 
-bool IReadOnlyObject::IsReadOnly()
+bool Interfaces::IReadOnlyObject::IsReadOnly()
 {
     return _readonly;
 }
 
-void IReadOnlyObject::SetReadOnly(bool readonly)
+void Interfaces::IReadOnlyObject::SetReadOnly(bool readonly)
 {
     _readonly = readonly;
 }

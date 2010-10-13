@@ -19,10 +19,9 @@ limitations under the License.*/
 #include <QShowEvent>
 #include <QEvent>
 #include <QHBoxLayout>
-using namespace GUtil::Controls;
-using namespace GUtil::EffectsWidgets;
+using namespace GUtil;
 
-line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int fade_duration) :
+Controls::line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int fade_duration) :
     QWidget(par)
 {
     button = new QPushButton(this);
@@ -51,7 +50,7 @@ line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int
     layout()->addWidget(button);
 
     // Attach a fader to the button
-    _fader = new FaderWidget(button,
+    _fader = new EffectsWidgets::FaderWidget(button,
                              fade_duration == -1 ? 500 : fade_duration,
                              350);
 
@@ -64,53 +63,53 @@ line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int
     setFocusPolicy(Qt::StrongFocus);
 }
 
-line_edit_with_button::~line_edit_with_button()
+Controls::line_edit_with_button::~line_edit_with_button()
 {
 }
 
-void line_edit_with_button::showButton()
+void Controls::line_edit_with_button::showButton()
 {
     if(button->isHidden())
         _fader->fadeIn();
 }
 
-void line_edit_with_button::hideButton()
+void Controls::line_edit_with_button::hideButton()
 {
     if(!button->isHidden())
         _fader->fadeIn();
 }
 
-void line_edit_with_button::toggleButton()
+void Controls::line_edit_with_button::toggleButton()
 {
     _fader->toggleFade();
 }
 
-void line_edit_with_button::focusInEvent(QFocusEvent *e)
+void Controls::line_edit_with_button::focusInEvent(QFocusEvent *e)
 {
     line_edit->event(e);
 }
 
-void line_edit_with_button::keyPressEvent(QKeyEvent *e)
+void Controls::line_edit_with_button::keyPressEvent(QKeyEvent *e)
 {
     line_edit->event(e);
 }
 
-void line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
+void Controls::line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
 {
     line_edit->event(e);
 }
 
-QPushButton *line_edit_with_button::pushButton() const
+QPushButton *Controls::line_edit_with_button::pushButton() const
 {
     return button;
 }
 
-QLineEdit *line_edit_with_button::lineEdit() const
+QLineEdit *Controls::line_edit_with_button::lineEdit() const
 {
     return line_edit;
 }
 
-FaderWidget * line_edit_with_button::faderWidget() const
+EffectsWidgets::FaderWidget *Controls::line_edit_with_button::faderWidget() const
 {
     return _fader;
 }

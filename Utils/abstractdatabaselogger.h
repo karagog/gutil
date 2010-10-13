@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef AbstractDatabaseLogger_H
 #define AbstractDatabaseLogger_H
 
-#include "Private/abstractlogger.h"
+#include "abstractlogger.h"
 #include <QSqlDatabase>
 
 namespace GUtil

@@ -14,21 +14,15 @@ limitations under the License.*/
 
 #include "abstractstreamlogger.h"
 #include <iostream>
-using namespace GUtil::Utils;
+using namespace GUtil;
 using namespace std;
 
-AbstractStreamLogger::AbstractStreamLogger(ostream *os, PubSubSystem *pss, QObject *parent) :
+Utils::AbstractStreamLogger::AbstractStreamLogger(PubSubSystem *pss, QObject *parent) :
     AbstractLogger(pss, parent)
 {
-    _stream = os;
 }
 
-void AbstractStreamLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
+void Utils::AbstractStreamLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
 {
-    (*_stream) << msg.toStdString();
-}
-
-std::ostream *AbstractStreamLogger::Stream() const
-{
-    return _stream;
+    Stream() << msg.toStdString();
 }

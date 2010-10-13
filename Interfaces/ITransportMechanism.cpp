@@ -13,15 +13,15 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ITransportMechanism.h"
-using namespace GUtil::Interfaces;
+using namespace GUtil;
 
-ITransportMechanism::ITransportMechanism(QObject *parent)
+Interfaces::ITransportMechanism::ITransportMechanism(QObject *parent)
     :QObject(parent)
 {
     _has_data = false;
 }
 
-void ITransportMechanism::sendData(const QByteArray &data)
+void Interfaces::ITransportMechanism::sendData(const QByteArray &data)
 {
     _lock.lock();
 
@@ -40,7 +40,7 @@ void ITransportMechanism::sendData(const QByteArray &data)
     emit notifyDataSent(data);
 }
 
-QByteArray ITransportMechanism::receiveData()
+QByteArray Interfaces::ITransportMechanism::receiveData()
 {
     _lock.lock();
 
@@ -60,7 +60,7 @@ QByteArray ITransportMechanism::receiveData()
     return ret;
 }
 
-void ITransportMechanism::trigger_update_has_data_available()
+void Interfaces::ITransportMechanism::trigger_update_has_data_available()
 {
     _lock.lock();
 
