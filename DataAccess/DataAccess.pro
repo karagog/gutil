@@ -4,21 +4,21 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    DA_UserMachineLock.h \
-    DA_BinaryDataStore.h \
-    DA_LocalClientServer.h \
-    DA_ConfigFile.h \
+    UserMachineLock.h \
+    BinaryDataStore.h \
+    LocalClientServer.h \
+    ConfigFile.h \
     Private/ValueBuffer.h \
     Private/Transports/filetransport.h \
     Private/io_queue_worker.h \
     Private/Transports/localsockettransport.h
 
 SOURCES += \
-    DA_UserMachineLock.cpp \
-    DA_BinaryDataStore.cpp \
+    UserMachineLock.cpp \
+    BinaryDataStore.cpp \
     src/qtlockedfile.cpp \
-    DA_LocalClientServer.cpp \
-    DA_ConfigFile.cpp \
+    LocalClientServer.cpp \
+    ConfigFile.cpp \
     Private/ValueBuffer.cpp \
     Private/Transports/filetransport.cpp \
     Private/io_queue_worker.cpp \
