@@ -23,10 +23,14 @@ namespace GUtil
         {
         public:
             bool IsReadOnly();
-            void SetReadOnly(bool readonly = true);
+            virtual void SetReadOnly(bool readonly = true);
+
+            // Throws a Core::ReadOnlyException if we're set to readonly
+            void FailIfReadOnly();
 
         protected:
             IReadOnlyObject(bool readonly = false);
+            IReadOnlyObject(const IReadOnlyObject &other);
 
         private:
             bool _readonly;

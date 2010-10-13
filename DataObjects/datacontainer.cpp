@@ -20,58 +20,55 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataObjects::DataContainer::DataContainer()
+    :Interfaces::IXmlSerializable(),
+    Interfaces::IReadOnlyObject()
 {}
 
 DataObjects::DataContainer::DataContainer(const DataContainer &other)
-{
-    foreach(QString k, other.keys())
-        setValue(k, other.getValue(k));
-}
+    :Interfaces::IXmlSerializable(),
+    Interfaces::IReadOnlyObject(other)
+{}
 
 void DataObjects::DataContainer::setValue(const QString &key, const QByteArray &value)
 {
-    _values[key] = value;
+    FailIfReadOnly();
+
+    _data[key] = value;
 }
 
 QByteArray DataObjects::DataContainer::getValue(const QString &key) const
 {
-    return _values.value(key);
+    return _data.value(key);
 }
 
 bool DataObjects::DataContainer::remove(const QString &key)
 {
-    QMap<QString, QByteArray>::iterator it = _values.find(key);
+    FailIfReadOnly();
 
-    if(it == _values.end())
+    QMap<QString, QByteArray>::iterator it = _data.find(key);
+
+    if(it == _data.end())
         return false;
 
-    _values.erase(it);
+    _data.erase(it);
     return true;
 }
 
 bool DataObjects::DataContainer::contains(const QString &key)
 {
-    return _values.contains(key);
+    return _data.contains(key);
 }
 
 void DataObjects::DataContainer::clear()
 {
-    _values.clear();
+    FailIfReadOnly();
+
+    _data.clear();
 }
 
 QStringList DataObjects::DataContainer::keys() const
 {
-    return _values.keys();
-}
-
-QByteArray &DataObjects::DataContainer::at(const QString &key)
-{
-    return _values[key];
-}
-
-QByteArray &DataObjects::DataContainer::operator [](const QString &key)
-{
-    return _values[key];
+    return _data.keys();
 }
 
 QByteArray DataObjects::DataContainer::toXml()
@@ -83,11 +80,11 @@ QByteArray DataObjects::DataContainer::toXml()
     sw.writeStartDocument();
     sw.writeStartElement("settings");
 
-    foreach(QString s, _values.keys())
+    foreach(QString s, _data.keys())
     {
         // Don't bother writing empty settings, because they'll be defaulted to a
         //  null string anyways if they're not found
-        QByteArray v = _values[s];
+        QByteArray v = _data[s];
         if(v.length() == 0)
             continue;
 
@@ -103,8 +100,10 @@ QByteArray DataObjects::DataContainer::toXml()
     return xmlstr;
 }
 
-void DataObjects::DataContainer::fromXml(const QByteArray &dat) throw()
+void DataObjects::DataContainer::fromXml(const QByteArray &dat)
 {
+    FailIfReadOnly();
+
     clear();
 
     QXmlStreamReader sr(dat);
@@ -119,7 +118,7 @@ void DataObjects::DataContainer::fromXml(const QByteArray &dat) throw()
         std::string tmp = Core::Tools::StringHelpers::fromBase64(
                 sr.attributes().value("v").toString().toStdString());
 
-        _values.insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));
+        _data.insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));
 
         // Read in the end element tag
         sr.readNext();

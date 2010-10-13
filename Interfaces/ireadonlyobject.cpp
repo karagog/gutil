@@ -13,11 +13,17 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ireadonlyobject.h"
+#include "Core/exception.h"
 using namespace GUtil;
 
 Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
 {
     _readonly = readonly;
+}
+
+Interfaces::IReadOnlyObject::IReadOnlyObject(const Interfaces::IReadOnlyObject &other)
+{
+    _readonly = other._readonly;
 }
 
 bool Interfaces::IReadOnlyObject::IsReadOnly()
@@ -28,4 +34,10 @@ bool Interfaces::IReadOnlyObject::IsReadOnly()
 void Interfaces::IReadOnlyObject::SetReadOnly(bool readonly)
 {
     _readonly = readonly;
+}
+
+void Interfaces::IReadOnlyObject::FailIfReadOnly()
+{
+    if(_readonly)
+        throw Core::ReadOnlyException();
 }

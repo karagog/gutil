@@ -93,3 +93,23 @@ std::string Core::NotImplementedException::ToString_protected() const
 {
     return "NotImplementedException";
 }
+
+
+
+
+Core::ReadOnlyException::ReadOnlyException()
+    :Exception()
+{
+
+}
+
+Core::ReadOnlyException::ReadOnlyException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::ReadOnlyException::ToString_protected() const
+{
+    return "ReadOnlyException";
+}

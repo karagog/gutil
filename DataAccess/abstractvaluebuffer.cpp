@@ -22,16 +22,13 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::AbstractValueBuffer::AbstractValueBuffer(
-        Interfaces::ITransportMechanism *transport_mechanism,
-		Utils::AbstractLogger *logger,
+        Utils::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
             Interfaces::IReadOnlyObject(false)
 {
-	_logger = logger;
+    _logger = logger;
     current_data = new DataObjects::DataContainer();
-
-    _transport = transport_mechanism;
 
     connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
 }
@@ -39,45 +36,7 @@ DataAccess::AbstractValueBuffer::AbstractValueBuffer(
 DataAccess::AbstractValueBuffer::~AbstractValueBuffer()
 {
     delete current_data;
-    delete _transport;
 }
-
-//void ValueBuffer::enQueue(bool copy)
-//{
-//    queue_lock.lockForWrite();
-//    _enQueue(copy);
-//    queue_lock.unlock();
-//}
-
-//void ValueBuffer::_enQueue(bool copy)
-//{
-//    if(copy)
-//        _values.enqueue(new DataObjects::DataContainer(*currentDataContainer()));
-//    else
-//        _values.enqueue(new DataObjects::DataContainer());
-//}
-
-//void ValueBuffer::deQueue()
-//{
-//    queue_lock.lockForWrite();
-//    _deQueue();
-//    queue_lock.unlock();
-//}
-
-//void ValueBuffer::_deQueue()
-//{
-//    _values.dequeue();
-//}
-
-//void ValueBuffer::makeReadOnly(bool val)
-//{
-//    _readonly = val;
-//}
-
-//bool ValueBuffer::IsReadOnly()
-//{
-//    return _readonly;
-//}
 
 bool DataAccess::AbstractValueBuffer::setValue(const QString &key, const QByteArray& value)
 {
@@ -98,22 +57,22 @@ bool DataAccess::AbstractValueBuffer::setValues(const QMap<QString, QByteArray> 
 
     current_data_lock.unlock();
 
-	return TriggerValueChanged();
+    return ValueChanged();
 }
 
-bool DataAccess::AbstractValueBuffer::TriggerValueChanged()
+bool DataAccess::AbstractValueBuffer::ValueChanged()
 {
-	try
-	{
-		value_changed();
-	}
-	catch(Core::Exception ex)
-	{
-		LogException(ex);
-		return false;
-	}
+    try
+    {
+        ValueChanged_protected();
+    }
+    catch(Core::Exception &ex)
+    {
+        LogException(ex);
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 QByteArray& DataAccess::AbstractValueBuffer::operator [](QString key)
@@ -159,7 +118,7 @@ void DataAccess::AbstractValueBuffer::clear()
     current_data->clear();
     current_data_lock.unlock();
 
-	TriggerValueChanged();
+    ValueChanged();
 }
 
 void DataAccess::AbstractValueBuffer::clearQueues()
@@ -194,7 +153,7 @@ bool DataAccess::AbstractValueBuffer::removeValue(const QStringList &keys)
 
     current_data_lock.unlock();
 
-    return TriggerValueChanged();
+    return ValueChanged();
 }
 
 void DataAccess::AbstractValueBuffer::importData(const QByteArray &dat)
@@ -276,11 +235,6 @@ Utils::AbstractLogger *DataAccess::AbstractValueBuffer::Logger() const
     return _logger;
 }
 
-Interfaces::ITransportMechanism *DataAccess::AbstractValueBuffer::Transport() const
-{
-    return _transport;
-}
-
 void DataAccess::AbstractValueBuffer::process_queues()
 {
     // Flush the queues
@@ -327,7 +281,7 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                _transport->sendData(ba);
+                Transport().sendData(ba);
         }
     }
 }

@@ -75,7 +75,7 @@ void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
     modifier = _modifier;
 }
 
-void DataAccess::ConfigFile::value_changed()
+void DataAccess::ConfigFile::ValueChanged_protected()
 {
     // Export the changed data to the config file
     throw Core::NotImplementedException();

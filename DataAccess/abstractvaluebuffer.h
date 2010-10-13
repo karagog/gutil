@@ -74,10 +74,13 @@ namespace GUtil
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
+            // The method of transport (could be file, socket, network I/O)
+            virtual Interfaces::ITransportMechanism &Transport() = 0;
+
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data
             // Throw exceptions when errors happen and they will be logged
-            virtual void value_changed() = 0;
+            virtual void ValueChanged_protected() = 0;
 
             // Forcefully remove all data from the queue
             void clearQueues();
@@ -85,8 +88,6 @@ namespace GUtil
             Utils::AbstractLogger *Logger() const;
             void LogException(const GUtil::Core::Exception &) const;
 
-            // The method of transport (could be file, socket, network I/O)
-            Interfaces::ITransportMechanism *Transport() const;
 
             enum QueueTypeEnum
             {
@@ -117,7 +118,7 @@ namespace GUtil
 
             QByteArray en_deQueueMessage(QueueTypeEnum, const QByteArray &msg, bool enqueue);
 
-            bool TriggerValueChanged();
+            bool ValueChanged();
 
             QMutex in_queue_mutex;
             QMutex out_queue_mutex;
@@ -132,7 +133,6 @@ namespace GUtil
 
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
-            Interfaces::ITransportMechanism *_transport;
             Utils::AbstractLogger *_logger;
 
         };

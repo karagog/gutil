@@ -60,7 +60,7 @@ namespace GUtil
             void notifyConfigurationUpdate();
 
         protected:
-            virtual void value_changed();
+            virtual void ValueChanged_protected();
 
             virtual void process_input_data(const QByteArray &);
 
