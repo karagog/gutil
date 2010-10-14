@@ -50,7 +50,7 @@ Controls::line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_vi
     layout()->addWidget(button);
 
     // Attach a fader to the button
-    _fader = new EffectsWidgets::FaderWidget(button,
+    _fader = new Controls::EffectsWidgets::FaderWidget(button,
                              fade_duration == -1 ? 500 : fade_duration,
                              350);
 
@@ -109,7 +109,7 @@ QLineEdit *Controls::line_edit_with_button::lineEdit() const
     return line_edit;
 }
 
-EffectsWidgets::FaderWidget *Controls::line_edit_with_button::faderWidget() const
+Controls::EffectsWidgets::FaderWidget *Controls::line_edit_with_button::faderWidget() const
 {
     return _fader;
 }

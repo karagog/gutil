@@ -21,7 +21,7 @@ using namespace GUtil;
 
 #define FADE_RESOLUTION 40
 
-EffectsWidgets::FaderWidget::FaderWidget(QWidget *par, int fade_duration, int start_delay)
+Controls::EffectsWidgets::FaderWidget::FaderWidget(QWidget *par, int fade_duration, int start_delay)
     : QWidget(par)
 {
     if (par)
@@ -42,7 +42,7 @@ EffectsWidgets::FaderWidget::FaderWidget(QWidget *par, int fade_duration, int st
     par->installEventFilter(this);
 }
 
-bool EffectsWidgets::FaderWidget::eventFilter(QObject *obj, QEvent *ev)
+bool Controls::EffectsWidgets::FaderWidget::eventFilter(QObject *obj, QEvent *ev)
 {
     bool ret = false;
 
@@ -58,27 +58,27 @@ bool EffectsWidgets::FaderWidget::eventFilter(QObject *obj, QEvent *ev)
     return ret;
 }
 
-QColor EffectsWidgets::FaderWidget::fadeColor() const
+QColor Controls::EffectsWidgets::FaderWidget::fadeColor() const
 {
     return color;
 }
 
-void EffectsWidgets::FaderWidget::setFadeColor(const QColor &newColor)
+void Controls::EffectsWidgets::FaderWidget::setFadeColor(const QColor &newColor)
 {
     color = newColor;
 }
 
-int EffectsWidgets::FaderWidget::fadeDuration() const
+int Controls::EffectsWidgets::FaderWidget::fadeDuration() const
 {
     return duration;
 }
 
-void EffectsWidgets::FaderWidget::setFadeDuration(int milliseconds)
+void Controls::EffectsWidgets::FaderWidget::setFadeDuration(int milliseconds)
 {
     duration = milliseconds;
 }
 
-void EffectsWidgets::FaderWidget::start_fading()
+void Controls::EffectsWidgets::FaderWidget::start_fading()
 {
     if(!fadelock.tryLock())
         return;
@@ -116,7 +116,7 @@ void EffectsWidgets::FaderWidget::start_fading()
         fadelock.unlock();
 }
 
-void EffectsWidgets::FaderWidget::_start()
+void Controls::EffectsWidgets::FaderWidget::_start()
 {
     if(_fade_in)
         parentWidget()->showNormal();
@@ -129,7 +129,7 @@ void EffectsWidgets::FaderWidget::_start()
     fadelock.unlock();
 }
 
-void EffectsWidgets::FaderWidget::paintEvent(QPaintEvent * /* event */)
+void Controls::EffectsWidgets::FaderWidget::paintEvent(QPaintEvent * /* event */)
 {
     QPainter painter(this);
     QColor semiTransparentColor = color;
@@ -178,7 +178,7 @@ void EffectsWidgets::FaderWidget::paintEvent(QPaintEvent * /* event */)
     }
 }
 
-void EffectsWidgets::FaderWidget::fadeIn(bool skip_fade)
+void Controls::EffectsWidgets::FaderWidget::fadeIn(bool skip_fade)
 {
     if(!thislock.tryLock())
         return;
@@ -190,7 +190,7 @@ void EffectsWidgets::FaderWidget::fadeIn(bool skip_fade)
     thislock.unlock();
 }
 
-void EffectsWidgets::FaderWidget::fadeOut(bool skip_fade)
+void Controls::EffectsWidgets::FaderWidget::fadeOut(bool skip_fade)
 {
     if(!thislock.tryLock())
         return;
@@ -202,7 +202,7 @@ void EffectsWidgets::FaderWidget::fadeOut(bool skip_fade)
     thislock.unlock();
 }
 
-void EffectsWidgets::FaderWidget::toggleFade(bool skip_fade)
+void Controls::EffectsWidgets::FaderWidget::toggleFade(bool skip_fade)
 {
     if(!thislock.tryLock())
         return;

@@ -5,8 +5,10 @@ DESTDIR = ../lib
 TEMPLATE = lib
 CONFIG += staticlib
 HEADERS += line_edit_with_button.h \
-    progressbarcontrol.h
+    progressbarcontrol.h \
+    EffectsWidgets/faderwidget.h
 SOURCES += line_edit_with_button.cpp \
-    progressbarcontrol.cpp
+    progressbarcontrol.cpp \
+    EffectsWidgets/faderwidget.cpp
 
 INCLUDEPATH += ..

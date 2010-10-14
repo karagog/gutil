@@ -126,8 +126,8 @@ string Tools::StringHelpers::toBase64(const string &instr)
     char mem;
     char mask1;
     char mask2;
-    const char orig_mask1 = 0b11111100;
-    const char orig_mask2 = 0b00000011;
+    const char orig_mask1 = 0b11111100 ;
+    const char orig_mask2 = 0b00000011 ;
     int shift;
     int i;
     for(i = 0; i < (int)instr.length(); i++)

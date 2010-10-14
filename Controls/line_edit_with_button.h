@@ -30,9 +30,12 @@ class QLineEdit;
 
 namespace GUtil
 {
-    namespace EffectsWidgets
+    namespace Controls
     {
-        class FaderWidget;
+        namespace EffectsWidgets
+        {
+            class FaderWidget;
+        }
     }
 
     namespace Controls
