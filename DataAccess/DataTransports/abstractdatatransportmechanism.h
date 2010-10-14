@@ -47,6 +47,10 @@ namespace GUtil
                 QByteArray receiveData();
 
 
+            public:
+                void operator << (const QByteArray &);
+                void operator >> (QByteArray &);
+
             signals:
 
                 // Tell the world about the new data that arrived asynchronously

@@ -60,6 +60,16 @@ QByteArray DataTransports::AbstractDataTransportMechanism::receiveData()
     return ret;
 }
 
+void DataTransports::AbstractDataTransportMechanism::operator << (const QByteArray &data)
+{
+    sendData(data);
+}
+
+void DataTransports::AbstractDataTransportMechanism::operator >> (QByteArray &data_target)
+{
+    data_target = receiveData();
+}
+
 void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_available()
 {
     _lock.lock();
