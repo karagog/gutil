@@ -27,11 +27,6 @@ bool Utils::AbstractDatabaseLogger::PreLogMessage()
     return true;
 }
 
-void Utils::AbstractDatabaseLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
-{
-
-}
-
 void Utils::AbstractDatabaseLogger::PostLogMessage()
 {
     // Close database connection

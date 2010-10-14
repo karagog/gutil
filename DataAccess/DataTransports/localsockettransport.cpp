@@ -1,8 +1,8 @@
 #include "localsockettransport.h"
-using namespace GUtil::DataAccess;
+using namespace GUtil;
 
-DataTransports::LocalSocketTransport::LocalSocketTransport(QLocalSocket *sock, QObject *parent)
-    :ITransportMechanism(parent)
+DataAccess::DataTransports::LocalSocketTransport::LocalSocketTransport(QLocalSocket *sock, QObject *parent)
+    :AbstractDataTransportMechanism(parent)
 {
     _sock = sock;
 }

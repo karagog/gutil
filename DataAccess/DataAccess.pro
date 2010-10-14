@@ -11,7 +11,9 @@ HEADERS += \
     abstractvaluebuffer.h \
     DataTransports/filetransport.h \
     io_queue_worker.h \
-    DataTransports/localsockettransport.h
+    DataTransports/localsockettransport.h \
+    DataTransports/abstractdatatransportmechanism.h \
+    DataTransports/streamtransport.h
 
 SOURCES += \
     UserMachineLock.cpp \
@@ -22,7 +24,9 @@ SOURCES += \
     abstractvaluebuffer.cpp \
     DataTransports/filetransport.cpp \
     io_queue_worker.cpp \
-    DataTransports/localsockettransport.cpp
+    DataTransports/localsockettransport.cpp \
+    DataTransports/abstractdatatransportmechanism.cpp \
+    DataTransports/streamtransport.cpp
 
 INCLUDEPATH += include ..
 QT += sql network

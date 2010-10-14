@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ireadonlyobject.h"
-using namespace GUtil;
+using namespace GUtil::Core;
 
 Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
 {
@@ -23,16 +23,18 @@ Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
 Interfaces::IReadOnlyObject::IReadOnlyObject(const Interfaces::IReadOnlyObject &other)
 {
     _init(other._my_readonly_bool);
-
-    // If the other guy is referencing a global boolean, then we reference it too
-    if(other._readonly_bool_reference != &other._my_readonly_bool)
-        SetReadonlyBooleanReference(*other._readonly_bool_reference);
 }
 
 void Interfaces::IReadOnlyObject::_init(bool readonly)
 {
     _my_readonly_bool = readonly;
     SetReadonlyBooleanReference(_my_readonly_bool);
+}
+
+std::string Interfaces::IReadOnlyObject::ReadonlyMessageIdentifier() const
+{
+    // This string is not too useful.  Derived classes should override to give more information
+    return "IReadonlyObject";
 }
 
 void Interfaces::IReadOnlyObject::SetReadonlyBooleanReference(bool &readonlybool)
@@ -60,8 +62,8 @@ void Interfaces::IReadOnlyObject::SetReadOnly(bool readonly)
     *_readonly_bool_reference = readonly;
 }
 
-void Interfaces::IReadOnlyObject::FailIfReadOnly() const throw(GUtil::Core::ReadOnlyException)
+void Interfaces::IReadOnlyObject::FailIfReadOnly() const throw(ReadOnlyException)
 {
     if(IsReadOnly())
-        throw Core::ReadOnlyException(ReadonlyMessageIdentifier());
+        throw ReadOnlyException(ReadonlyMessageIdentifier());
 }

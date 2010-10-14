@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef VARIABLECONTAINER_H
 #define VARIABLECONTAINER_H
 
-#include "Interfaces/ixmlserializable.h"
-#include "Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/ixmlserializable.h"
+#include "Core/Interfaces/ireadonlyobject.h"
 #include <QMap>
 #include <QString>
 #include <QByteArray>
@@ -28,15 +28,15 @@ namespace GUtil
     {
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
-        class DataContainer :   public Interfaces::IXmlSerializable,
-                                public Interfaces::IReadOnlyObject
+        class DataContainer :   public Core::Interfaces::IXmlSerializable,
+                                public Core::Interfaces::IReadOnlyObject
         {
         public:
             DataContainer();
             DataContainer(const DataContainer &);
 
-            virtual QByteArray toXml();
-            virtual void fromXml(const QByteArray &);
+            virtual std::string toXml();
+            virtual void fromXml(const std::string &) throw(GUtil::Core::XmlException);
 
             void setValue(const QString &, const QByteArray &);
             QByteArray getValue(const QString &) const;

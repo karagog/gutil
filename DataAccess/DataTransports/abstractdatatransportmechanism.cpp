@@ -12,16 +12,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ITransportMechanism.h"
-using namespace GUtil;
+#include "abstractdatatransportmechanism.h"
+using namespace GUtil::DataAccess;
 
-Interfaces::ITransportMechanism::ITransportMechanism(QObject *parent)
+DataTransports::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObject *parent)
     :QObject(parent)
 {
     _has_data = false;
 }
 
-void Interfaces::ITransportMechanism::sendData(const QByteArray &data)
+void DataTransports::AbstractDataTransportMechanism::sendData(const QByteArray &data)
 {
     _lock.lock();
 
@@ -40,7 +40,7 @@ void Interfaces::ITransportMechanism::sendData(const QByteArray &data)
     emit notifyDataSent(data);
 }
 
-QByteArray Interfaces::ITransportMechanism::receiveData()
+QByteArray DataTransports::AbstractDataTransportMechanism::receiveData()
 {
     _lock.lock();
 
@@ -60,7 +60,7 @@ QByteArray Interfaces::ITransportMechanism::receiveData()
     return ret;
 }
 
-void Interfaces::ITransportMechanism::trigger_update_has_data_available()
+void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_available()
 {
     _lock.lock();
 

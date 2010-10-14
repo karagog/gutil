@@ -12,22 +12,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IXMLSERIALIZABLE_H
-#define IXMLSERIALIZABLE_H
+#ifndef STREAMTRANSPORT_H
+#define STREAMTRANSPORT_H
 
-#include <QByteArray>
+#include "abstractdatatransportmechanism.h"
 
 namespace GUtil
 {
-    namespace Interfaces
+    namespace DataAccess
     {
-        class IXmlSerializable
+        namespace DataTransports
         {
-        public:
-            virtual QByteArray toXml() = 0;
-            virtual void fromXml(const QByteArray &) = 0;
-        };
+            class StreamTransport : public AbstractDataTransportMechanism
+            {
+                Q_OBJECT
+            public:
+                explicit StreamTransport(QObject *parent = 0);
+
+            signals:
+
+            public slots:
+
+            };
+        }
     }
 }
 
-#endif // IXMLSERIALIZABLE_H
+#endif // STREAMTRANSPORT_H

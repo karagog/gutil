@@ -30,8 +30,6 @@ namespace GUtil
         protected:
             explicit AbstractStreamLogger(PubSubSystem *pss = 0, QObject *parent = 0);
 
-            virtual void LogMessage_protected(const QString &, MessageLevelEnum);
-
             // Use this to access the stream
             virtual std::ostream &Stream() = 0;
         };

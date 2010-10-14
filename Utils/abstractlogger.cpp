@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "abstractlogger.h"
 #include "pubsubsystem.h"
 #include "Core/exception.h"
+#include "DataAccess/DataTransports/abstractdatatransportmechanism.h"
 #include <QDateTime>
 using namespace GUtil;
 
@@ -97,7 +98,7 @@ void Utils::AbstractLogger::Log(const QString &msg, const QString &title, Messag
 
     if(PreLogMessage())
     {
-        LogMessage_protected(log_message, message_level);
+        LogMessage_protected(log_message.toAscii(), message_level);
         PostLogMessage();
 
         emit NotifyMessageLogged(log_message, message_level);
@@ -133,6 +134,11 @@ bool Utils::AbstractLogger::PreLogMessage()
 {
     // Do nothing by default
     return true;
+}
+
+void Utils::AbstractLogger::LogMessage_protected(const QByteArray &log_message, MessageLevelEnum)
+{
+    TransportMechanism().sendData(log_message);
 }
 
 void Utils::AbstractLogger::PostLogMessage()

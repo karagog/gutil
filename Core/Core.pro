@@ -12,13 +12,16 @@ SOURCES += \
     Tools/encryption.cc \
     Utils/actionstack.cpp \
     Tools/cl_menu.cc \
-    DataAccess/da_serialport.cc
+    DataAccess/da_serialport.cc \
+    Interfaces/ireadonlyobject.cpp
 
-INCLUDEPATH += Tools/cryptopp_src .
+INCLUDEPATH += Tools/cryptopp_src ..
 
 HEADERS += Tools/stringhelpers.h \
     exception.h \
     Tools/encryption.h \
     Utils/actionstack.h \
     Tools/cl_menu.h \
-    DataAccess/da_serialport.h
+    DataAccess/da_serialport.h \
+    Interfaces/ireadonlyobject.h \
+    Interfaces/ixmlserializable.h

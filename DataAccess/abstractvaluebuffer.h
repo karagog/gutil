@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DO_VALUEBUFFER_H
 #define DO_VALUEBUFFER_H
 
-#include "Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/ireadonlyobject.h"
 #include <QMap>
 #include <QString>
 #include <QObject>
@@ -40,16 +40,16 @@ namespace GUtil
         class AbstractLogger;
     }
 
-    namespace Interfaces
-    {
-        class ITransportMechanism;
-    }
-
     namespace DataAccess
     {
+        namespace DataTransports
+        {
+            class AbstractDataTransportMechanism;
+        }
+
         // Serves as a generic class to hold values and send/receive them with
         //   the provided transport mechanism
-        class AbstractValueBuffer : public QObject, public GUtil::Interfaces::IReadOnlyObject
+        class AbstractValueBuffer : public QObject, public GUtil::Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
         public:
@@ -72,13 +72,13 @@ namespace GUtil
         protected:
 
             // No public constructor; this class must be derived
-            AbstractValueBuffer(Interfaces::ITransportMechanism *transport,
+            AbstractValueBuffer(DataTransports::AbstractDataTransportMechanism *transport,
                                 Utils::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
-            Interfaces::ITransportMechanism *Transport() const;
+            DataTransports::AbstractDataTransportMechanism *Transport() const;
 
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data
@@ -138,7 +138,7 @@ namespace GUtil
 
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
-            Interfaces::ITransportMechanism *_transport;
+            DataTransports::AbstractDataTransportMechanism *_transport;
             Utils::AbstractLogger *_logger;
 
         };

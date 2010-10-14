@@ -13,13 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "encryption.h"
+#include "Core/exception.h"
 #include "default.h"
 #include "hex.h"
 #include "base64.h"
 #include "files.h"
 #include "gzip.h"
 #include "osrng.h"
-#include "exception.h"
 using namespace std;
 using namespace GUtil::Core;
 

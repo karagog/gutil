@@ -21,7 +21,7 @@ limitations under the License.*/
 using namespace GUtil::DataAccess;
 
 DataTransports::FileTransport::FileTransport(const QString &filename, QObject *parent)
-    :ITransportMechanism(parent)
+    :AbstractDataTransportMechanism(parent)
 {
     _lf = new QtLockedFile(filename);
 
@@ -33,7 +33,7 @@ DataTransports::FileTransport::FileTransport(const QString &filename, QObject *p
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 }
 
-void DataTransports::FileTransport::send_data(const QByteArray &data) throw()
+void DataTransports::FileTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
 {
     _open_and_lock_file(true);
 
@@ -55,7 +55,7 @@ void DataTransports::FileTransport::send_data(const QByteArray &data) throw()
     _unlock_and_close_file();
 }
 
-QByteArray DataTransports::FileTransport::receive_data() throw()
+QByteArray DataTransports::FileTransport::receive_data() throw(Core::DataTransportException)
 {
     _open_and_lock_file(false);
 

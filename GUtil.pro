@@ -1,6 +1,6 @@
 
 TEMPLATE = subdirs
-SUBDIRS += Core Utils Tools DataAccess DataObjects Custom Controls EffectsWidgets Interfaces lib
+SUBDIRS += Core Utils Tools DataAccess DataObjects Custom Controls EffectsWidgets lib
 
 CONFIG += ordered
 

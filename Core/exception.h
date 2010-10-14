@@ -24,12 +24,12 @@ namespace GUtil
 {
     namespace Core
     {
+        // The base class for all of my exceptions
         class Exception : public std::exception
         {
         public:
-            Exception();
-            Exception(const std::string & message);
-            ~Exception() throw(){}
+            Exception(const std::string &message = "");
+            virtual ~Exception() throw(){}
 
             void SetMessage(const std::string &msg);
 
@@ -53,22 +53,58 @@ namespace GUtil
         };
 
 
+
+        // If a method is not yet implemented
         class NotImplementedException : public Exception
         {
         public:
-            NotImplementedException();
-            NotImplementedException(const std::string &message);
+            NotImplementedException(const std::string &message = "");
 
         protected:
             virtual std::string ToString_protected() const;
         };
 
 
+
+        // If you try to write to a readonly object it might throw this
         class ReadOnlyException : public Exception
         {
         public:
-            ReadOnlyException();
-            ReadOnlyException(const std::string &message);
+            ReadOnlyException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
+
+
+
+        // When there is an error with arguments/parameters
+        class ArgumentException : public Exception
+        {
+        public:
+            ArgumentException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
+
+
+
+        class DataTransportException : public Exception
+        {
+        public:
+            DataTransportException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
+
+
+
+        class XmlException : public Exception
+        {
+        public:
+            XmlException(const std::string &message = "");
 
         protected:
             virtual std::string ToString_protected() const;

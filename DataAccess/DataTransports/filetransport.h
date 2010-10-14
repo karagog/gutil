@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef FILETRANSPORT_H
 #define FILETRANSPORT_H
 
-#include "Interfaces/ITransportMechanism.h"
+#include "abstractdatatransportmechanism.h"
 #include <QDateTime>
 
 class QtLockedFile;
@@ -28,7 +28,7 @@ namespace GUtil
         namespace DataTransports
         {
             // A simple mechanism for exchanging data with a file
-            class FileTransport : public Interfaces::ITransportMechanism
+            class FileTransport : public AbstractDataTransportMechanism
             {
             public:
                 FileTransport(const QString &, QObject *parent = 0);
@@ -39,8 +39,8 @@ namespace GUtil
                 void reload();
 
             protected:
-                virtual void send_data(const QByteArray &) throw();
-                virtual QByteArray receive_data() throw();
+                virtual void send_data(const QByteArray &) throw(GUtil::Core::DataTransportException);
+                virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException);
 
                 virtual void update_has_data_variable(bool &has_data_variable);
 

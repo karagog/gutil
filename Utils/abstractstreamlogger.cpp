@@ -21,8 +21,3 @@ Utils::AbstractStreamLogger::AbstractStreamLogger(PubSubSystem *pss, QObject *pa
     AbstractLogger(pss, parent)
 {
 }
-
-void Utils::AbstractStreamLogger::LogMessage_protected(const QString &msg, MessageLevelEnum)
-{
-    Stream() << msg.toStdString();
-}

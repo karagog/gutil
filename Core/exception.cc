@@ -15,13 +15,7 @@ limitations under the License.*/
 #include "exception.h"
 using namespace GUtil;
 
-Core::Exception::Exception()
-    :exception()
-{
-
-}
-
-Core::Exception::Exception(const std::string & message)
+Core::Exception::Exception(const std::string &message)
     :exception()
 {
     _message = message;
@@ -65,23 +59,17 @@ std::vector<std::string> Core::Exception::GetDataKeys(bool include_blanks) const
 
 std::string Core::Exception::ToString() const
 {
-    return "GUtil::Core::" + ToString_protected();
+    return "GUtil::Core::" + ToString_protected() + "Exception";
 }
 
 std::string Core::Exception::ToString_protected() const
 {
-    return "Exception";
+    return "";
 }
 
 
 
 
-
-Core::NotImplementedException::NotImplementedException()
-    :Exception()
-{
-
-}
 
 Core::NotImplementedException::NotImplementedException(const std::string &message)
     :Exception(message)
@@ -91,17 +79,12 @@ Core::NotImplementedException::NotImplementedException(const std::string &messag
 
 std::string Core::NotImplementedException::ToString_protected() const
 {
-    return "NotImplementedException";
+    return "NotImplemented";
 }
 
 
 
 
-Core::ReadOnlyException::ReadOnlyException()
-    :Exception()
-{
-
-}
 
 Core::ReadOnlyException::ReadOnlyException(const std::string &message)
     :Exception(message)
@@ -111,5 +94,48 @@ Core::ReadOnlyException::ReadOnlyException(const std::string &message)
 
 std::string Core::ReadOnlyException::ToString_protected() const
 {
-    return "ReadOnlyException";
+    return "ReadOnly";
+}
+
+
+
+
+
+Core::ArgumentException::ArgumentException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::ArgumentException::ToString_protected() const
+{
+    return "Argument";
+}
+
+
+
+
+Core::DataTransportException::DataTransportException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::DataTransportException::ToString_protected() const
+{
+    return "DataTransport";
+}
+
+
+
+
+Core::XmlException::XmlException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::XmlException::ToString_protected() const
+{
+    return "Xml";
 }

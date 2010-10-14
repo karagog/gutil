@@ -25,6 +25,14 @@ namespace GUtil
         class Exception;
     }
 
+    namespace DataAccess
+    {
+        namespace DataTransports
+        {
+            class AbstractDataTransportMechanism;
+        }
+    }
+
     namespace Utils
     {
         class PubSubSystem;
@@ -66,7 +74,7 @@ namespace GUtil
             virtual ~AbstractLogger();
 
             // This function actually writes the message somewhere useful
-            virtual void LogMessage_protected(const QString &, MessageLevelEnum) = 0;
+            virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);
 
             // These happen before/after logging
             virtual bool PreLogMessage();
@@ -75,6 +83,11 @@ namespace GUtil
             // You can customize your own logging format
             virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum,
                                               const QDateTime &dt = QDateTime::currentDateTime());
+
+            // Derived classes must provide a transport by which to send log data.  This might be
+            //   a file transport (if you want to log to a file), but it could also log to a generic
+            //   stream or to a database using this abstract transport mechanism
+            virtual DataAccess::DataTransports::AbstractDataTransportMechanism &TransportMechanism() = 0;
 
 
         private:

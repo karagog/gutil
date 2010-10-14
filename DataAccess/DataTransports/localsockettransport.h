@@ -1,7 +1,7 @@
 #ifndef LOCALSOCKETTRANSPORT_H
 #define LOCALSOCKETTRANSPORT_H
 
-#include "Interfaces/ITransportMechanism.h"
+#include "abstractdatatransportmechanism.h"
 
 class QLocalSocket;
 
@@ -11,7 +11,7 @@ namespace GUtil
     {
         namespace DataTransports
         {
-            class LocalSocketTransport : public GUtil::Interfaces::ITransportMechanism
+            class LocalSocketTransport : public AbstractDataTransportMechanism
             {
                 Q_OBJECT
             public:

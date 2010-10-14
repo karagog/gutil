@@ -30,10 +30,9 @@ namespace GUtil
         {
             Q_OBJECT
         protected:
-			explicit AbstractDatabaseLogger(PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit AbstractDatabaseLogger(PubSubSystem *pss = 0, QObject *parent = 0);
 
             virtual bool PreLogMessage();
-            virtual void LogMessage_protected(const QString &, MessageLevelEnum);
             virtual void PostLogMessage();
 
         private:

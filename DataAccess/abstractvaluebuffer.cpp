@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
 #include "DataObjects/datacontainer.h"
-#include "Interfaces/ITransportMechanism.h"
+#include "DataTransports/abstractdatatransportmechanism.h"
 #include "Utils/abstractlogger.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
@@ -23,11 +23,11 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::AbstractValueBuffer::AbstractValueBuffer(
-        Interfaces::ITransportMechanism *transport,
+        DataAccess::DataTransports::AbstractDataTransportMechanism *transport,
         Utils::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
-            Interfaces::IReadOnlyObject(false)
+            Core::Interfaces::IReadOnlyObject(false)
 {
     _logger = logger;
     current_data = new DataObjects::DataContainer();
@@ -42,7 +42,7 @@ DataAccess::AbstractValueBuffer::~AbstractValueBuffer()
     delete _transport;
 }
 
-Interfaces::ITransportMechanism *DataAccess::AbstractValueBuffer::Transport() const
+DataAccess::DataTransports::AbstractDataTransportMechanism *DataAccess::AbstractValueBuffer::Transport() const
 {
     return _transport;
 }
@@ -172,7 +172,7 @@ void DataAccess::AbstractValueBuffer::enQueueCurrentData(bool clear)
     else
         current_data_lock.lockForRead();
 
-    enQueueMessage(OutQueue, current_data->toXml());
+    enQueueMessage(OutQueue, QString::fromStdString(current_data->toXml()).toAscii());
 
     if(clear)
         current_data->clear();

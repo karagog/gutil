@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef FILE_MANAGER_H
 #define FILE_MANAGER_H
 
-#include "Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/ireadonlyobject.h"
 #include <QString>
 #include <QMutex>
 #include <QSqlDatabase>
@@ -28,7 +28,7 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class BinaryDataStore : public Interfaces::IReadOnlyObject
+        class BinaryDataStore : public Core::Interfaces::IReadOnlyObject
         {
         public:
 

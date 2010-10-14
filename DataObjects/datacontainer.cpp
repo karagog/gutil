@@ -20,13 +20,13 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataObjects::DataContainer::DataContainer()
-    :Interfaces::IXmlSerializable(),
-    Interfaces::IReadOnlyObject()
+    :   Core::Interfaces::IXmlSerializable(),
+        Core::Interfaces::IReadOnlyObject()
 {}
 
 DataObjects::DataContainer::DataContainer(const DataContainer &other)
-    :Interfaces::IXmlSerializable(),
-    Interfaces::IReadOnlyObject(other)
+    :   Core::Interfaces::IXmlSerializable(),
+        Core::Interfaces::IReadOnlyObject(other)
 {}
 
 void DataObjects::DataContainer::setValue(const QString &key, const QByteArray &value)
@@ -76,9 +76,9 @@ std::string DataObjects::DataContainer::ReadonlyMessageIdentifier() const
     return "DataObjects::DataContainer";
 }
 
-QByteArray DataObjects::DataContainer::toXml()
+std::string DataObjects::DataContainer::toXml()
 {
-    QByteArray xmlstr;
+    QString xmlstr;
     QXmlStreamWriter sw(&xmlstr);
     sw.setAutoFormatting(false);
 
@@ -102,24 +102,27 @@ QByteArray DataObjects::DataContainer::toXml()
     sw.writeEndElement();
     sw.writeEndDocument();
 
-    return xmlstr;
+    return xmlstr.toStdString();
 }
 
-void DataObjects::DataContainer::fromXml(const QByteArray &dat)
+void DataObjects::DataContainer::fromXml(const std::string &dat) throw(Core::XmlException)
 {
     FailIfReadOnly();
 
     clear();
 
-    QXmlStreamReader sr(dat);
+    QXmlStreamReader sr(dat.c_str());
     //Read in the startDocument tag
     sr.readNext();
 
     if(!sr.readNextStartElement())  //Read in settings root
-        throw Core::Exception("XML not recognized");
+        throw Core::XmlException("Couldn't find first element");
 
     while(sr.readNextStartElement())
     {
+        if(!sr.attributes().hasAttribute("v"))
+            throw Core::XmlException("XML not in correct format");
+
         std::string tmp = Core::Tools::StringHelpers::fromBase64(
                 sr.attributes().value("v").toString().toStdString());
 
