@@ -78,7 +78,7 @@ namespace GUtil
                 //   to determine if there's data available.  This will depend
                 //   on the method of transport you're using.  Set the boolean
                 //   to true if there is data available.
-                virtual void update_has_data_variable(bool &has_data_variable) = 0;
+                virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException) = 0;
 
 
             protected slots:

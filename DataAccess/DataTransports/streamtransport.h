@@ -27,11 +27,39 @@ namespace GUtil
             {
                 Q_OBJECT
             public:
-                explicit StreamTransport(QObject *parent = 0);
+                explicit StreamTransport(std::istream *, std::ostream *, QObject *parent = 0);
+                explicit StreamTransport(std::iostream *, QObject *parent = 0);
 
-            signals:
 
-            public slots:
+            protected:
+                virtual void send_data(const QByteArray&) throw(GUtil::Core::DataTransportException);
+                virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException);
+
+                virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException);
+
+                void SetIStreamPollingEnabled(bool);
+                void SetIStreamPollingInterval(int new_interval = _default_polling_interval);
+
+                virtual void timerEvent(QTimerEvent *);
+
+
+            private:
+                void _pre_init();
+                void _post_init();
+
+                std::istream *_stream_in;
+                std::ostream *_stream_out;
+
+                std::iostream *_stream_inout;
+
+                std::ostream *get_ostream();
+                std::istream *get_istream();
+
+                int _timer_id;
+                int _polling_interval;
+
+                // By default we poll every 1 second, but you can change this by calling the functions above
+                static const int _default_polling_interval = 1000;
 
             };
         }

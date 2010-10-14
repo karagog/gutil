@@ -15,24 +15,36 @@ limitations under the License.*/
 #ifndef CONSOLELOGGER_H
 #define CONSOLELOGGER_H
 
-#include "abstractstreamlogger.h"
+#include "abstractlogger.h"
 #include <QObject>
 
 namespace GUtil
 {
+    namespace DataAccess
+    {
+        namespace DataTransports
+        {
+            class StreamTransport;
+        }
+    }
+
     namespace Utils
     {
         class PubSubSystem;
 
         // Logs to the console
-        class ConsoleLogger : public AbstractStreamLogger
+        class ConsoleLogger : public AbstractLogger
         {
             Q_OBJECT
         public:
             explicit ConsoleLogger(PubSubSystem *pss = 0, QObject *parent = 0);
 
         protected:
-            virtual std::ostream &Stream();
+            virtual DataAccess::DataTransports::AbstractDataTransportMechanism &TransportMechanism();
+
+        private:
+            DataAccess::DataTransports::StreamTransport *_my_stream_transport;
+
         };
     }
 }

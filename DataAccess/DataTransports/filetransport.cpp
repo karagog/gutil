@@ -66,7 +66,7 @@ QByteArray DataTransports::FileTransport::receive_data() throw(Core::DataTranspo
     return dat;
 }
 
-void DataTransports::FileTransport::update_has_data_variable(bool &has_data_variable)
+void DataTransports::FileTransport::update_has_data_variable(bool &has_data_variable) throw(Core::DataTransportException)
 {
     has_data_variable = false;
 
