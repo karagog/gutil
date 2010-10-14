@@ -71,6 +71,11 @@ QStringList DataObjects::DataContainer::keys() const
     return _data.keys();
 }
 
+std::string DataObjects::DataContainer::ReadonlyMessageIdentifier() const
+{
+    return "DataObjects::DataContainer";
+}
+
 QByteArray DataObjects::DataContainer::toXml()
 {
     QByteArray xmlstr;

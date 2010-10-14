@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include <QObject>
 #include <QString>
-#include <QMap>
 #include "abstractvaluebuffer.h"
 
 class QtLockedFile;
@@ -48,6 +47,7 @@ namespace GUtil
                                 Utils::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
+            virtual ~ConfigFile();
 
             QString fileName() const;
 
@@ -64,7 +64,9 @@ namespace GUtil
 
             virtual void process_input_data(const QByteArray &);
 
-            DataTransports::FileTransport *get_file_transport() const;
+            DataAccess::DataTransports::FileTransport *FileTransport() const;
+
+            virtual std::string ReadonlyMessageIdentifier() const;
 
         private slots:
             void catch_asynchronous_update(const QByteArray &);
@@ -74,6 +76,8 @@ namespace GUtil
 
             QString _identity;
             QString _modifier;
+
+            DataTransports::FileTransport *_file_transport;
 
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);

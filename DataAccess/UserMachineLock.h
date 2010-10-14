@@ -48,6 +48,9 @@ namespace GUtil
 
             QString fileName() const;
 
+        protected:
+            virtual std::string ReadonlyMessageIdentifier() const;
+
         private:
             QtLockedFile *_lf_lock;
         };

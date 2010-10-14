@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef FILE_MANAGER_H
 #define FILE_MANAGER_H
 
+#include "Interfaces/ireadonlyobject.h"
 #include <QString>
 #include <QMutex>
 #include <QSqlDatabase>
@@ -27,12 +28,12 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class BinaryDataStore
+        class BinaryDataStore : public Interfaces::IReadOnlyObject
         {
         public:
 
-            BinaryDataStore(const QString&, bool primary = true);
-            ~BinaryDataStore();
+            explicit BinaryDataStore(const QString&, bool primary = true);
+            virtual ~BinaryDataStore();
 
             //  (All of the public functions can be treated atomically,
             //   and can be executed safely from multiple threads)

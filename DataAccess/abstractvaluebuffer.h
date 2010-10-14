@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef DO_VALUEBUFFER_H
 #define DO_VALUEBUFFER_H
 
-#include "DataObjects/datacontainer.h"
 #include "Interfaces/ireadonlyobject.h"
 #include <QMap>
 #include <QString>
@@ -29,6 +28,11 @@ namespace GUtil
     namespace Core
     {
         class Exception;
+    }
+
+    namespace DataObjects
+    {
+        class DataContainer;
     }
 
     namespace Utils
@@ -54,7 +58,6 @@ namespace GUtil
 
             QByteArray value(const QString &key);
             QMap<QString, QByteArray> values(const QStringList &);
-            QByteArray& operator [](QString key);
 
             // Remove a specific key (or keys)
             bool removeValue(const QString &);
@@ -69,13 +72,13 @@ namespace GUtil
         protected:
 
             // No public constructor; this class must be derived
-            AbstractValueBuffer(Interfaces::ITransportMechanism *,
+            AbstractValueBuffer(Interfaces::ITransportMechanism *transport,
                                 Utils::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
-            virtual Interfaces::ITransportMechanism &Transport() = 0;
+            Interfaces::ITransportMechanism *Transport() const;
 
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data
@@ -108,6 +111,8 @@ namespace GUtil
             //   gets dequeued
             virtual void process_input_data(const QByteArray &) = 0;
 
+            virtual std::string ReadonlyMessageIdentifier() const;
+
 
         protected slots:
             // This is called automatically when the transport layer says there's new data
@@ -133,6 +138,7 @@ namespace GUtil
 
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
+            Interfaces::ITransportMechanism *_transport;
             Utils::AbstractLogger *_logger;
 
         };

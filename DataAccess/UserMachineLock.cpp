@@ -82,3 +82,8 @@ QString DataAccess::UserMachineLock::fileName() const
 {
     return _lf_lock->fileName();
 }
+
+std::string DataAccess::UserMachineLock::ReadonlyMessageIdentifier() const
+{
+    return "DataAccess::UserMachineLock";
+}

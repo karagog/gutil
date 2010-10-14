@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
+#include "DataObjects/datacontainer.h"
 #include "Interfaces/ITransportMechanism.h"
 #include "Utils/abstractlogger.h"
 #include "Core/Tools/stringhelpers.h"
@@ -22,6 +23,7 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::AbstractValueBuffer::AbstractValueBuffer(
+        Interfaces::ITransportMechanism *transport,
         Utils::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
@@ -30,12 +32,19 @@ DataAccess::AbstractValueBuffer::AbstractValueBuffer(
     _logger = logger;
     current_data = new DataObjects::DataContainer();
 
-    connect(_transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
+    _transport = transport;
+    connect(transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
 }
 
 DataAccess::AbstractValueBuffer::~AbstractValueBuffer()
 {
     delete current_data;
+    delete _transport;
+}
+
+Interfaces::ITransportMechanism *DataAccess::AbstractValueBuffer::Transport() const
+{
+    return _transport;
 }
 
 bool DataAccess::AbstractValueBuffer::setValue(const QString &key, const QByteArray& value)
@@ -47,14 +56,11 @@ bool DataAccess::AbstractValueBuffer::setValue(const QString &key, const QByteAr
 
 bool DataAccess::AbstractValueBuffer::setValues(const QMap<QString, QByteArray> &values)
 {
-    if(IsReadOnly())
-        return false;
+    FailIfReadOnly();
 
     current_data_lock.lockForWrite();
-
     foreach(QString s, values.keys())
         current_data->setValue(s, values[s]);
-
     current_data_lock.unlock();
 
     return ValueChanged();
@@ -73,11 +79,6 @@ bool DataAccess::AbstractValueBuffer::ValueChanged()
     }
 
     return true;
-}
-
-QByteArray& DataAccess::AbstractValueBuffer::operator [](QString key)
-{
-    return (*current_data)[key];
 }
 
 QByteArray DataAccess::AbstractValueBuffer::value(const QString &key)
@@ -111,8 +112,7 @@ bool DataAccess::AbstractValueBuffer::contains(const QString &key)
 
 void DataAccess::AbstractValueBuffer::clear()
 {
-    if(IsReadOnly())
-        return;
+    FailIfReadOnly();
 
     current_data_lock.lockForWrite();
     current_data->clear();
@@ -143,8 +143,7 @@ bool DataAccess::AbstractValueBuffer::removeValue(const QString &key)
 
 bool DataAccess::AbstractValueBuffer::removeValue(const QStringList &keys)
 {
-    if(IsReadOnly())
-        return false;
+    FailIfReadOnly();
 
     current_data_lock.lockForWrite();
 
@@ -281,7 +280,12 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                Transport().sendData(ba);
+                Transport()->sendData(ba);
         }
     }
+}
+
+std::string DataAccess::AbstractValueBuffer::ReadonlyMessageIdentifier() const
+{
+    return "DataAccess::AbstractValueBuffer";
 }

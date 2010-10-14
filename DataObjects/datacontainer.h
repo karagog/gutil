@@ -48,6 +48,9 @@ namespace GUtil
 
             QStringList keys() const;
 
+        protected:
+            virtual std::string ReadonlyMessageIdentifier() const;
+
         private:
             QMap<QString, QByteArray> _data;
 

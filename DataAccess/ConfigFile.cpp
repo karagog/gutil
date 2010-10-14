@@ -29,23 +29,25 @@ DataAccess::ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    Utils::AbstractLogger *logger,
                                    QObject *parent)
-    :DataAccess::AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(QString("%1.%2")
-                                   .arg(get_file_location(identifier))
-                                   .arg(modifier)),
-                 logger,
-                 parent)
+    :DataAccess::AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(
+            QString("%1.%2")
+            .arg(get_file_location(_identity))
+            .arg(_modifier)),
+                                     logger,
+                                     parent)
 {
     _init(identifier, modifier);
 }
 
 DataAccess::ConfigFile::ConfigFile(const DataAccess::ConfigFile &other, QObject *parent)
-    :AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(QString("%1.%2")
-                                   .arg(get_file_location(other._identity))
-                                   .arg(other._modifier)),
-                 other.Logger(),
-                 parent)
+    :AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(other.fileName()),
+                         other.Logger(), parent)
 {
     _init(other._identity, other._modifier);
+}
+
+DataAccess::ConfigFile::~ConfigFile()
+{
 }
 
 void DataAccess::ConfigFile::_init(const QString &identity, const QString &modifier)
@@ -53,20 +55,20 @@ void DataAccess::ConfigFile::_init(const QString &identity, const QString &modif
     _identity = identity;
     _modifier = modifier;
 
-    importData(get_file_transport()->fileData());
+    importData(_file_transport->fileData());
 
-    connect(get_file_transport(), SIGNAL(notifyNewData(QByteArray)),
+    connect(_file_transport, SIGNAL(notifyNewData(QByteArray)),
             this, SLOT(catch_asynchronous_update(QByteArray)));
 }
 
 QString DataAccess::ConfigFile::fileName() const
 {
-    return get_file_transport()->fileName();
+    return _file_transport->fileName();
 }
 
 void DataAccess::ConfigFile::reload()
 {
-    get_file_transport()->reload();
+    _file_transport->reload();
 }
 
 void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
@@ -88,7 +90,7 @@ void DataAccess::ConfigFile::process_input_data(const QByteArray &)
 
 }
 
-DataAccess::DataTransports::FileTransport *DataAccess::ConfigFile::get_file_transport() const
+DataAccess::DataTransports::FileTransport *DataAccess::ConfigFile::FileTransport() const
 {
     return (DataAccess::DataTransports::FileTransport *)Transport();
 }
@@ -132,4 +134,9 @@ void DataAccess::ConfigFile::catch_asynchronous_update(const QByteArray &dat)
     importData(dat);
 
     emit notifyConfigurationUpdate();
+}
+
+std::string DataAccess::ConfigFile::ReadonlyMessageIdentifier() const
+{
+    return "DataAccess::ConfigFile";
 }

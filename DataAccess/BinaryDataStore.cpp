@@ -51,6 +51,7 @@ QMap<QString, mutex_record_t *> mutexes;
 QReadWriteLock mutex_lock;
 
 DataAccess::BinaryDataStore::BinaryDataStore(const QString &id, bool primary)
+    :IReadOnlyObject(false)
 {
     my_id = id;
     file_location = get_file_loc(id);
@@ -87,6 +88,8 @@ DataAccess::BinaryDataStore::~BinaryDataStore()
 
 int DataAccess::BinaryDataStore::addFile(const QString &data)
 {
+    FailIfReadOnly();
+
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 
@@ -105,6 +108,8 @@ int DataAccess::BinaryDataStore::addFile(const QString &data)
 
 int DataAccess::BinaryDataStore::addFile(int id, const QString &data)
 {
+    FailIfReadOnly();
+
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 
@@ -142,6 +147,8 @@ void DataAccess::BinaryDataStore::_execute_insertion(QSqlQuery &q, int id, const
 
 void DataAccess::BinaryDataStore::removeFile(int id)
 {
+    FailIfReadOnly();
+
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 
@@ -192,6 +199,8 @@ QString DataAccess::BinaryDataStore::getFile(int id)
 // Clear all files
 void DataAccess::BinaryDataStore::reset()
 {
+    FailIfReadOnly();
+
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 
@@ -315,6 +324,8 @@ int DataAccess::BinaryDataStore::get_free_file_id(QSqlDatabase &dbase)
 
 bool DataAccess::BinaryDataStore::reserveIdList(const QList<int> &list)
 {
+    FailIfReadOnly();
+
     mutex_lock.lockForRead();
     mutexes.value(my_id)->mut->lockForWrite();
 

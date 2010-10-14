@@ -15,6 +15,9 @@ limitations under the License.*/
 #ifndef IREADONLYOBJECT_H
 #define IREADONLYOBJECT_H
 
+#include "Core/exception.h"
+#include <string>
+
 namespace GUtil
 {
     namespace Interfaces
@@ -22,18 +25,31 @@ namespace GUtil
         class IReadOnlyObject
         {
         public:
-            bool IsReadOnly();
+            // Use this function to track a global readonly bool variable
+            virtual void SetReadonlyBooleanReference(bool &readonlybool);
+            void ClearReadonlyBooleanReference();
+
+            // Will set this object's boolean to shadow the other's
+            void TrackReadonlyObject(const IReadOnlyObject &);
+
+            bool IsReadOnly() const;
             virtual void SetReadOnly(bool readonly = true);
 
-            // Throws a Core::ReadOnlyException if we're set to readonly
-            void FailIfReadOnly();
+            void FailIfReadOnly() const throw(GUtil::Core::ReadOnlyException);
 
         protected:
             IReadOnlyObject(bool readonly = false);
             IReadOnlyObject(const IReadOnlyObject &other);
 
+            // Derived classes return a useful string to identify the object
+            //  which threw a ReadOnlyException
+            virtual std::string ReadonlyMessageIdentifier() const = 0;
+
         private:
-            bool _readonly;
+            void _init(bool readonly);
+
+            bool *_readonly_bool_reference;
+            bool _my_readonly_bool;
         };
     }
 }
