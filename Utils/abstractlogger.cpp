@@ -138,7 +138,7 @@ bool Utils::AbstractLogger::PreLogMessage()
 
 void Utils::AbstractLogger::LogMessage_protected(const QByteArray &log_message, MessageLevelEnum)
 {
-    TransportMechanism().sendData(log_message);
+    TransportMechanism().SendData(log_message);
 }
 
 void Utils::AbstractLogger::PostLogMessage()

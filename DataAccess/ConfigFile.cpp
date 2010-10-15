@@ -55,7 +55,7 @@ void DataAccess::ConfigFile::_init(const QString &identity, const QString &modif
     _identity = identity;
     _modifier = modifier;
 
-    importData(_file_transport->fileData());
+    importData(_file_transport->FileData());
 
     connect(_file_transport, SIGNAL(notifyNewData(QByteArray)),
             this, SLOT(catch_asynchronous_update(QByteArray)));
@@ -63,12 +63,12 @@ void DataAccess::ConfigFile::_init(const QString &identity, const QString &modif
 
 QString DataAccess::ConfigFile::fileName() const
 {
-    return _file_transport->fileName();
+    return _file_transport->FileName();
 }
 
 void DataAccess::ConfigFile::reload()
 {
-    _file_transport->reload();
+    _file_transport->Reload();
 }
 
 void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)

@@ -19,9 +19,15 @@ DataTransports::AbstractDataTransportMechanism::AbstractDataTransportMechanism(Q
     :QObject(parent)
 {
     _has_data = false;
+    _cur_state = GoodState;
 }
 
-void DataTransports::AbstractDataTransportMechanism::sendData(const QByteArray &data)
+void DataTransports::AbstractDataTransportMechanism::Write(const QByteArray &data)
+{
+    SendData(data);
+}
+
+void DataTransports::AbstractDataTransportMechanism::SendData(const QByteArray &data)
 {
     _lock.lock();
 
@@ -40,7 +46,7 @@ void DataTransports::AbstractDataTransportMechanism::sendData(const QByteArray &
     emit notifyDataSent(data);
 }
 
-QByteArray DataTransports::AbstractDataTransportMechanism::receiveData()
+QByteArray DataTransports::AbstractDataTransportMechanism::ReceiveData()
 {
     _lock.lock();
 
@@ -49,6 +55,7 @@ QByteArray DataTransports::AbstractDataTransportMechanism::receiveData()
     {
         ret = last_data_received = receive_data();
     }
+    catch(Core::EndOfFileException &){}  // Quietly catch; returns null
     catch(...)
     {
         _lock.unlock();
@@ -60,14 +67,40 @@ QByteArray DataTransports::AbstractDataTransportMechanism::receiveData()
     return ret;
 }
 
-void DataTransports::AbstractDataTransportMechanism::operator << (const QByteArray &data)
+DataTransports::AbstractDataTransportMechanism &
+        DataTransports::AbstractDataTransportMechanism::operator << (const char*data)
 {
-    sendData(data);
+    SendData(QByteArray(data));
+    return *this;
+}
+
+DataTransports::AbstractDataTransportMechanism &
+        DataTransports::AbstractDataTransportMechanism::operator << (const std::string &data)
+{
+    SendData(QByteArray(data.c_str(), data.length()));
+    return *this;
+}
+
+DataTransports::AbstractDataTransportMechanism &
+        DataTransports::AbstractDataTransportMechanism::operator << (const QString &data)
+{
+    SendData(QByteArray(data.toStdString().c_str(), data.length()));
+    return *this;
 }
 
 void DataTransports::AbstractDataTransportMechanism::operator >> (QByteArray &data_target)
 {
-    data_target = receiveData();
+    data_target = ReceiveData();
+}
+
+void DataTransports::AbstractDataTransportMechanism::operator >> (QString &dt)
+{
+    dt = QString(ReceiveData());
+}
+
+void DataTransports::AbstractDataTransportMechanism::operator >> (std::string &dt)
+{
+    dt = QString(ReceiveData()).toStdString();
 }
 
 void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_available()
@@ -80,15 +113,23 @@ void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_ava
 
         while(_has_data)
         {
-            emit notifyNewData(last_data_received = receive_data());
+            try
+            {
+                last_data_received = receive_data();
+            }
+            catch(Core::EndOfFileException &)
+            {
+                break;
+            }
+
+            emit notifyNewData(last_data_received);
 
             update_has_data_variable(_has_data);
         }
     }
-    catch(...)
+    catch(Core::Exception &)
     {
-        _lock.unlock();
-        throw;
+        // Don't let exceptions crash us
     }
 
     _lock.unlock();

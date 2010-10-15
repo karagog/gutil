@@ -88,7 +88,8 @@ void DataAccess::DataTransports::StreamTransport::send_data(const QByteArray &da
         throw Core::DataTransportException("Stream write failed");
 }
 
-QByteArray DataAccess::DataTransports::StreamTransport::receive_data() throw(Core::DataTransportException)
+QByteArray DataAccess::DataTransports::StreamTransport::receive_data()
+        throw(Core::DataTransportException, Core::EndOfFileException)
 {
     QByteArray ret;
     char c;
@@ -100,6 +101,10 @@ QByteArray DataAccess::DataTransports::StreamTransport::receive_data() throw(Cor
     is->get(c);
     while(!(is->eof() || is->bad()))
     {
+        // Break on new line
+        if(c == '\n')
+            break;
+
         ret.append(c);
         is->get(c);
     }

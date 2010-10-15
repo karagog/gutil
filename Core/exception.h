@@ -109,6 +109,17 @@ namespace GUtil
         protected:
             virtual std::string ToString_protected() const;
         };
+
+
+
+        class EndOfFileException : public Exception
+        {
+        public:
+            EndOfFileException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
     }
 }
 

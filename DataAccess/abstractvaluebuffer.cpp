@@ -280,7 +280,7 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                Transport()->sendData(ba);
+                Transport()->SendData(ba);
         }
     }
 }

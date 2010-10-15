@@ -33,7 +33,9 @@ namespace GUtil
 
             protected:
                 virtual void send_data(const QByteArray&) throw(GUtil::Core::DataTransportException);
-                virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException);
+                virtual QByteArray receive_data()
+                        throw(GUtil::Core::DataTransportException,
+                              GUtil::Core::EndOfFileException);
 
                 virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException);
 

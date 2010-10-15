@@ -41,15 +41,27 @@ namespace GUtil
 
             public slots:
 
-                void sendData(const QByteArray &);
+                void SendData(const QByteArray &);
+                void Write(const QByteArray &);
 
                 // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
-                QByteArray receiveData();
+                QByteArray ReceiveData();
 
 
             public:
-                void operator << (const QByteArray &);
+
+                enum StateEnum
+                {
+                    GoodState,
+                    ErrorState
+                };
+
+                AbstractDataTransportMechanism &operator << (const char*);
+                AbstractDataTransportMechanism &operator << (const std::string &);
+                AbstractDataTransportMechanism &operator << (const QString &);
                 void operator >> (QByteArray &);
+                void operator >> (QString &);
+                void operator >> (std::string &);
 
             signals:
 
@@ -67,7 +79,9 @@ namespace GUtil
                 //  Note that locking is taken care of by this interface class,
                 //  so you can trust that these are atomic WRT each other
                 virtual void send_data(const QByteArray&) throw(GUtil::Core::DataTransportException) = 0;
-                virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException) = 0;
+                virtual QByteArray receive_data()
+                        throw(GUtil::Core::DataTransportException,
+                              GUtil::Core::EndOfFileException) = 0;
 
 
                 // A reference to the last data received
@@ -94,6 +108,8 @@ namespace GUtil
 
                 // Note: Only use 'has_data' and 'set_has_data' to change this boolean
                 bool _has_data;
+
+                StateEnum _cur_state;
 
             };
         }

@@ -139,3 +139,17 @@ std::string Core::XmlException::ToString_protected() const
 {
     return "Xml";
 }
+
+
+
+
+Core::EndOfFileException::EndOfFileException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::EndOfFileException::ToString_protected() const
+{
+    return "EndOfFile";
+}

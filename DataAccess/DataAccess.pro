@@ -13,7 +13,8 @@ HEADERS += \
     io_queue_worker.h \
     DataTransports/localsockettransport.h \
     DataTransports/abstractdatatransportmechanism.h \
-    DataTransports/streamtransport.h
+    DataTransports/streamtransport.h \
+    DataTransports/consoletransport.h
 
 SOURCES += \
     UserMachineLock.cpp \
@@ -26,7 +27,8 @@ SOURCES += \
     io_queue_worker.cpp \
     DataTransports/localsockettransport.cpp \
     DataTransports/abstractdatatransportmechanism.cpp \
-    DataTransports/streamtransport.cpp
+    DataTransports/streamtransport.cpp \
+    DataTransports/consoletransport.cpp
 
 INCLUDEPATH += include ..
 QT += sql network

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef FILETRANSPORT_H
 #define FILETRANSPORT_H
 
-#include "abstractdatatransportmechanism.h"
+#include "streamtransport.h"
 #include <QDateTime>
 
 class QtLockedFile;
@@ -28,15 +28,24 @@ namespace GUtil
         namespace DataTransports
         {
             // A simple mechanism for exchanging data with a file
-            class FileTransport : public AbstractDataTransportMechanism
+            class FileTransport : public StreamTransport
             {
             public:
-                FileTransport(const QString &, QObject *parent = 0);
+                FileTransport(const QString &filename, QObject *parent = 0);
 
-                QString fileName() const;
-                QByteArray fileData();
+                enum WriteModeEnum
+                {
+                    WriteAppend,
+                    WriteOver
+                };
 
-                void reload();
+                void SetWriteMode(WriteModeEnum);
+
+                QString FileName() const;
+                QByteArray FileData();
+
+                void Reload();
+
 
             protected:
                 virtual void send_data(const QByteArray &) throw(GUtil::Core::DataTransportException);
@@ -45,15 +54,18 @@ namespace GUtil
                 virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException);
 
             private:
-                QtLockedFile *_lf;
+                std::fstream *_file;
+                char *_filename;
+
+                WriteModeEnum _write_mode;
 
                 QFileSystemWatcher *_file_watcher;
 
                 QDateTime _last_update_time;
                 QByteArray _hash;
 
-                void _open_and_lock_file(bool for_write);
-                void _unlock_and_close_file();
+                void _open_file(bool for_write);
+                void _close_file();
             };
         }
     }

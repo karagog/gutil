@@ -15,15 +15,20 @@ limitations under the License.*/
 #include "filetransport.h"
 #include "qtlockedfile.h"
 #include "Core/exception.h"
+#include <fstream>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>
 using namespace GUtil::DataAccess;
+using namespace std;
 
 DataTransports::FileTransport::FileTransport(const QString &filename, QObject *parent)
-    :AbstractDataTransportMechanism(parent)
+    :DataTransports::StreamTransport(_file = new fstream(), parent)
 {
-    _lf = new QtLockedFile(filename);
+    _filename = new char[filename.length()];
+    strcpy(_filename, filename.toStdString().c_str());
+
+    SetWriteMode(WriteAppend);
 
     trigger_update_has_data_available();
 
@@ -33,35 +38,40 @@ DataTransports::FileTransport::FileTransport(const QString &filename, QObject *p
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 }
 
+void DataTransports::FileTransport::SetWriteMode(WriteModeEnum mode)
+{
+    _write_mode = mode;
+}
+
 void DataTransports::FileTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
 {
-    _open_and_lock_file(true);
+    _open_file(true);
 
-    if(!_lf->resize(0))
-    {
-        _unlock_and_close_file();
-        throw Core::Exception(_lf->errorString().toStdString());
-    }
+    if(!_file->is_open())
+        throw Core::DataTransportException(
+                QString("Could not open file for write: %1").arg(FileName()).toStdString());
 
     // At this point the settings file is ours for sole writing
-    if(data.length() != _lf->write(data))
+    _file->write(data.constData(), data.length());
+    if(_file->fail())
     {
-        QString err = _lf->errorString();
-        _unlock_and_close_file();
-        throw Core::Exception(QString("Couldn't write all the data to the file: %1")
-                               .arg(err).toStdString());
+        _close_file();
+        throw Core::DataTransportException("Write failed");
     }
 
-    _unlock_and_close_file();
+    _close_file();
 }
 
 QByteArray DataTransports::FileTransport::receive_data() throw(Core::DataTransportException)
 {
-    _open_and_lock_file(false);
+    _open_file(false);
 
-    QByteArray dat = _lf->readAll();
+    QByteArray dat = DataTransports::StreamTransport::receive_data();
 
-    _unlock_and_close_file();
+    _close_file();
+
+    _last_update_time = QFileInfo(FileName()).lastModified();
+    _hash = QCryptographicHash::hash(dat, QCryptographicHash::Md5);
 
     return dat;
 }
@@ -70,55 +80,64 @@ void DataTransports::FileTransport::update_has_data_variable(bool &has_data_vari
 {
     has_data_variable = false;
 
-    _open_and_lock_file(false);
-
-    QFileInfo fi(*_lf);
-    if(_last_update_time != fi.lastModified())
+    if(_last_update_time != QFileInfo(FileName()).lastModified())
     {
-        _last_update_time = fi.lastModified();
+        _open_file(false);
 
         // The modify times don't match, so read the data and determine if it's new or not
-        QByteArray tmphash = QCryptographicHash::hash(_lf->readAll(), QCryptographicHash::Md5);
+        QByteArray tmphash = QCryptographicHash::hash(
+                DataTransports::StreamTransport::receive_data(),
+                QCryptographicHash::Md5);
 
-        if(tmphash != _hash)
-        {
-            _hash = tmphash;
-            has_data_variable = true;
-        }
+        has_data_variable = tmphash != _hash;
+
+        _close_file();
     }
-
-    _unlock_and_close_file();
 }
 
-QString DataTransports::FileTransport::fileName() const
+QString DataTransports::FileTransport::FileName() const
 {
-    return _lf->fileName();
+    return QString(_filename);
 }
 
-QByteArray DataTransports::FileTransport::fileData()
+QByteArray DataTransports::FileTransport::FileData()
 {
     return receive_data();
 }
 
-void DataTransports::FileTransport::reload()
+void DataTransports::FileTransport::Reload()
 {
     emit notifyNewData(receive_data());
 }
 
-void DataTransports::FileTransport::_open_and_lock_file(bool for_write)
+void DataTransports::FileTransport::_open_file(bool for_write)
 {
-    if(!_lf->open(QtLockedFile::ReadWrite))
-        throw Core::Exception(_lf->errorString().toStdString());
+    ios_base::openmode md;
 
-    if(!_lf->lock(for_write ? QtLockedFile::WriteLock : QtLockedFile::ReadLock))
+    if(for_write)
     {
-        _lf->close();
-        throw Core::Exception(_lf->errorString().toStdString());
+        md = ios_base::out;
+
+        if(_write_mode == WriteAppend)
+            md |= ios_base::app;
+        else if(_write_mode == WriteOver)
+            md |= ios_base::trunc;
+        else
+            throw Core::NotImplementedException();
     }
+    else
+    {
+        md = ios_base::in;
+    }
+
+    _file->open(_filename, md);
+
+    if(!_file->is_open())
+        throw Core::DataTransportException(
+                QString("Could not open file: %1").arg(FileName()).toStdString());
 }
 
-void DataTransports::FileTransport::_unlock_and_close_file()
+void DataTransports::FileTransport::_close_file()
 {
-    _lf->unlock();
-    _lf->close();
+    _file->close();
 }
