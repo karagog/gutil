@@ -61,7 +61,7 @@ namespace GUtil
 
             virtual void process_input_data(const QByteArray &);
 
-            DataAccess::DataTransports::FileTransport *FileTransport() const;
+            DataAccess::DataTransports::FileTransport &FileTransport() const;
 
             virtual std::string ReadonlyMessageIdentifier() const;
 

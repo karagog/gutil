@@ -85,9 +85,9 @@ void DataAccess::ConfigFile::process_input_data(const QByteArray &)
 
 }
 
-DataAccess::DataTransports::FileTransport *DataAccess::ConfigFile::FileTransport() const
+DataAccess::DataTransports::FileTransport &DataAccess::ConfigFile::FileTransport() const
 {
-    return (DataAccess::DataTransports::FileTransport *)Transport();
+    return (DataAccess::DataTransports::FileTransport &)Transport();
 }
 
 QString DataAccess::ConfigFile::get_file_location(QString id)

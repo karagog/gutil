@@ -78,7 +78,7 @@ namespace GUtil
             virtual ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
-            DataTransports::AbstractDataTransportMechanism *Transport() const;
+            DataTransports::AbstractDataTransportMechanism &Transport() const;
 
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data

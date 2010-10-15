@@ -42,9 +42,9 @@ DataAccess::AbstractValueBuffer::~AbstractValueBuffer()
     delete _transport;
 }
 
-DataAccess::DataTransports::AbstractDataTransportMechanism *DataAccess::AbstractValueBuffer::Transport() const
+DataAccess::DataTransports::AbstractDataTransportMechanism &DataAccess::AbstractValueBuffer::Transport() const
 {
-    return _transport;
+    return *_transport;
 }
 
 bool DataAccess::AbstractValueBuffer::setValue(const QString &key, const QByteArray& value)
@@ -280,7 +280,7 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                Transport()->SendData(ba);
+                Transport().SendData(ba);
         }
     }
 }
