@@ -31,7 +31,7 @@ namespace GUtil
             class FileTransport : public StreamTransport
             {
             public:
-                FileTransport(const QString &filename, QObject *parent = 0);
+                FileTransport(const QString &filename = "", QObject *parent = 0);
 
                 enum WriteModeEnum
                 {
@@ -40,9 +40,13 @@ namespace GUtil
                 };
 
                 void SetWriteMode(WriteModeEnum);
+                WriteModeEnum GetWriteMode();
 
+                void SetFileName(const QString &);
                 QString FileName() const;
                 QByteArray FileData();
+
+                void TruncateFile();
 
 
             protected:
@@ -57,7 +61,7 @@ namespace GUtil
 
             private:
                 std::fstream *_file;
-                char *_filename;
+                std::string _filename;
 
                 WriteModeEnum _write_mode;
 

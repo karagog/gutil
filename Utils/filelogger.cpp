@@ -18,30 +18,25 @@ using namespace GUtil;
 using namespace std;
 
 Utils::FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent)
-    :AbstractStreamLogger(pss, parent)
+    :AbstractLogger(pss, parent)
 {
-    _filename = filename;
-}
-
-std::ostream &Utils::FileLogger::Stream()
-{
-    return _fstream;
-}
-
-bool Utils::FileLogger::PreLogMessage()
-{
-    _fstream.open(_filename.toStdString().c_str(), ios_base::app);
-
-    return _fstream.is_open();
-}
-
-void Utils::FileLogger::PostLogMessage()
-{
-    _fstream.close();
+    _file_transport.SetFileName(_filename = filename);
+    _file_transport.SetWriteMode(DataAccess::DataTransports::FileTransport::WriteAppend);
 }
 
 void Utils::FileLogger::ClearLog()
 {
-    _fstream.open(_filename.toStdString().c_str(), ios_base::trunc);
-    _fstream.close();
+    try
+    {
+        _file_transport.TruncateFile();
+    }
+    catch(Core::Exception &)
+    {
+
+    }
+}
+
+DataAccess::DataTransports::AbstractDataTransportMechanism &Utils::FileLogger::TransportMechanism()
+{
+    return _file_transport;
 }

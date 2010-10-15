@@ -25,22 +25,23 @@ using namespace std;
 DataTransports::FileTransport::FileTransport(const QString &filename, QObject *parent)
     :DataTransports::StreamTransport(_file = new fstream(), parent)
 {
-    _filename = new char[filename.length()];
-    strcpy(_filename, filename.toStdString().c_str());
+    _file_watcher = new QFileSystemWatcher(this);
+    connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 
+    SetFileName(filename);
     SetWriteMode(WriteAppend);
 
     trigger_update_has_data_available();
-
-    _file_watcher = new QFileSystemWatcher(this);
-    _file_watcher->addPath(filename);
-
-    connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 }
 
 void DataTransports::FileTransport::SetWriteMode(WriteModeEnum mode)
 {
     _write_mode = mode;
+}
+
+DataTransports::FileTransport::WriteModeEnum DataTransports::FileTransport::GetWriteMode()
+{
+    return _write_mode;
 }
 
 void DataTransports::FileTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
@@ -104,14 +105,35 @@ void DataTransports::FileTransport::update_has_data_variable(bool &has_data_vari
     }
 }
 
+void DataTransports::FileTransport::SetFileName(const QString &filename)
+{
+    if(_filename.length() > 0)
+        _file_watcher->removePath(QString::fromStdString(_filename));
+
+    _filename = filename.toStdString();
+
+    if(_filename.length() > 0)
+        _file_watcher->addPath(filename);
+}
+
 QString DataTransports::FileTransport::FileName() const
 {
-    return QString(_filename);
+    return QString::fromStdString(_filename);
 }
 
 QByteArray DataTransports::FileTransport::FileData()
 {
     return last_data_received;
+}
+
+void DataTransports::FileTransport::TruncateFile()
+{
+    FailIfReadOnly();
+
+    WriteModeEnum _md = GetWriteMode();
+    SetWriteMode(WriteOver);
+    Write("");
+    SetWriteMode(_md);
 }
 
 void DataTransports::FileTransport::_open_file(bool for_write)
@@ -134,7 +156,7 @@ void DataTransports::FileTransport::_open_file(bool for_write)
         md = ios_base::in;
     }
 
-    _file->open(_filename, md);
+    _file->open(_filename.c_str(), md);
 
     if(!_file->is_open())
         throw Core::DataTransportException(

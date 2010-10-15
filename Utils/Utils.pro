@@ -9,14 +9,12 @@ CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
     abstractlogger.cpp \
-    abstractstreamlogger.cpp \
     filelogger.cpp \
     consolelogger.cpp \
     abstractdatabaselogger.cpp
 HEADERS += \
     pubsubsystem.h \
     abstractlogger.h \
-    abstractstreamlogger.h \
     filelogger.h \
     consolelogger.h \
     abstractdatabaselogger.h

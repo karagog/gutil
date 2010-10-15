@@ -76,10 +76,6 @@ namespace GUtil
             // This function actually writes the message somewhere useful
             virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);
 
-            // These happen before/after logging
-            virtual bool PreLogMessage();
-            virtual void PostLogMessage();
-
             // You can customize your own logging format
             virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum,
                                               const QDateTime &dt = QDateTime::currentDateTime());

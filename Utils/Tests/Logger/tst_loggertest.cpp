@@ -43,23 +43,32 @@ void LoggerTest::test_normal_logging()
     ConsoleLogger clog(&pss, this);
     FileLogger flog("test_logging.log", &pss, this);
 
-    flog.ClearLog();
+    try
+    {
+        flog.ClearLog();
 
-    clog.LogMessage("This is a message", "Hello world");
-    flog.LogMessage("This is a message", "Hello world");
+        clog.LogMessage("This is a message", "Hello world");
+        flog.LogMessage("This is a message", "Hello world");
 
-    clog.LogError("Bar", "Foo");
-    flog.LogError("Bar", "Foo");
+        clog.LogError("Bar", "Foo");
+        flog.LogError("Bar", "Foo");
 
-    pss.PublishMessage("Message", "Title");
-    pss.PublishWarning("Warning");
-    pss.PublishError("Error");
+        pss.PublishMessage("Message", "Title");
+        pss.PublishWarning("Warning");
+        pss.PublishError("Error");
 
-    clog.SetMessageLevel(ConsoleLogger::Error);
-    flog.SetMessageLevel(ConsoleLogger::Error);
+        clog.SetMessageLevel(ConsoleLogger::Error);
+        flog.SetMessageLevel(ConsoleLogger::Error);
 
-    pss.PublishMessage("Shouldn't see this message");
-    pss.PublishWarning("Shouldn't see this warning");
+        pss.PublishMessage("Shouldn't see this message");
+        pss.PublishWarning("Shouldn't see this warning");
+    }
+    catch(GUtil::Core::Exception &ex)
+    {
+        clog.LogException(ex);
+        flog.LogException(ex);
+        QVERIFY(false);
+    }
 }
 
 void LoggerTest::test_exception_logging()

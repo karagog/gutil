@@ -15,7 +15,8 @@ limitations under the License.*/
 #ifndef FILELOGGER_H
 #define FILELOGGER_H
 
-#include "abstractstreamlogger.h"
+#include "abstractlogger.h"
+#include "DataAccess/DataTransports/filetransport.h"
 #include <fstream>
 
 namespace GUtil
@@ -24,7 +25,7 @@ namespace GUtil
     {
         class PubSubSystem;
 
-        class FileLogger : public AbstractStreamLogger
+        class FileLogger : public AbstractLogger
         {
             Q_OBJECT
         public:
@@ -36,14 +37,11 @@ namespace GUtil
             void ClearLog();
 
         protected:
-            virtual std::ostream &Stream();
-
-            virtual bool PreLogMessage();
-            virtual void PostLogMessage();
+            virtual DataAccess::DataTransports::AbstractDataTransportMechanism &TransportMechanism();
 
         private:
             QString _filename;
-            std::ofstream _fstream;
+            DataAccess::DataTransports::FileTransport _file_transport;
 
         };
     }

@@ -96,13 +96,16 @@ void Utils::AbstractLogger::Log(const QString &msg, const QString &title, Messag
 
     QString log_message = PrepareLogMessage(msg, title, message_level);
 
-    if(PreLogMessage())
+    try
     {
         LogMessage_protected(log_message.toAscii(), message_level);
-        PostLogMessage();
-
-        emit NotifyMessageLogged(log_message, message_level);
     }
+    catch(...)
+    {
+        return;
+    }
+
+    emit NotifyMessageLogged(log_message, message_level);
 }
 
 QString Utils::AbstractLogger::PrepareLogMessage(const QString &msg, const QString &title, Utils::AbstractLogger::MessageLevelEnum message_type, const QDateTime &dt)
@@ -130,18 +133,18 @@ QString Utils::AbstractLogger::PrepareLogMessage(const QString &msg, const QStri
             .arg(msg.length() == 0 ? QString::null : QString("\n%1").arg(msg));
 }
 
-bool Utils::AbstractLogger::PreLogMessage()
-{
-    // Do nothing by default
-    return true;
-}
+//bool Utils::AbstractLogger::PreLogMessage()
+//{
+//    // Do nothing by default
+//    return true;
+//}
 
 void Utils::AbstractLogger::LogMessage_protected(const QByteArray &log_message, MessageLevelEnum)
 {
     TransportMechanism().SendData(log_message);
 }
 
-void Utils::AbstractLogger::PostLogMessage()
-{
-    // Do nothing by default
-}
+//void Utils::AbstractLogger::PostLogMessage()
+//{
+//    // Do nothing by default
+//}
