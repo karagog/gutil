@@ -53,9 +53,6 @@ namespace GUtil
 
             void getIdentity(QString &identifier, QString &modifier);
 
-        public slots:
-            void reload();
-
         signals:
             void notifyConfigurationUpdate();
 

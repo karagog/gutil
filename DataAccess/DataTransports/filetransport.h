@@ -44,14 +44,16 @@ namespace GUtil
                 QString FileName() const;
                 QByteArray FileData();
 
-                void Reload();
-
 
             protected:
                 virtual void send_data(const QByteArray &) throw(GUtil::Core::DataTransportException);
                 virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException);
 
-                virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException);
+                virtual void update_has_data_variable(bool &has_data_variable)
+                        throw(GUtil::Core::DataTransportException);
+
+                // Has the file been updated since we've seen it?
+                bool has_been_updated();
 
             private:
                 std::fstream *_file;

@@ -66,11 +66,6 @@ QString DataAccess::ConfigFile::fileName() const
     return _file_transport->FileName();
 }
 
-void DataAccess::ConfigFile::reload()
-{
-    _file_transport->Reload();
-}
-
 void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
 {
     identifier = _identity;

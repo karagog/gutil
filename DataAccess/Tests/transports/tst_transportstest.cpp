@@ -66,9 +66,10 @@ void TransportsTest::test_file_transport()
 
     ft.SetWriteMode(FileTransport::WriteOver);
     ft.Write("Bogus data");
-    QVERIFY(ft.FileData() == "Bogus data");
+    QVERIFY2(ft.FileData() == "Bogus data", QString(ft.FileData()).toStdString().c_str());
+
     ft.Write("Hello World!");
-    QVERIFY(ft.FileData() == "Hello World!");
+    QVERIFY2(ft.FileData() == "Hello World!", QString(ft.FileData()).toStdString().c_str());
 
     ft.SetWriteMode(FileTransport::WriteAppend);
     ft.Write("7");

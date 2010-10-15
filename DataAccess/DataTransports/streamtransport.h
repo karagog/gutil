@@ -37,7 +37,8 @@ namespace GUtil
                         throw(GUtil::Core::DataTransportException,
                               GUtil::Core::EndOfFileException);
 
-                virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException);
+                virtual void update_has_data_variable(bool &has_data_variable)
+                        throw(GUtil::Core::DataTransportException);
 
                 void SetIStreamPollingEnabled(bool);
                 void SetIStreamPollingInterval(int new_interval = _default_polling_interval);

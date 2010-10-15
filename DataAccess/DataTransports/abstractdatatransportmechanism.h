@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QMutex>
 #include <QObject>
 #include "Core/exception.h"
+#include "Core/Interfaces/ireadonlyobject.h"
 
 namespace GUtil
 {
@@ -35,7 +36,7 @@ namespace GUtil
             // These functions simplify data transportation to send/receive commands.  The derived transport class
             //   will be responsible for the actual transport mechanism, including protocols and the data exchange.
 
-            class AbstractDataTransportMechanism : public QObject
+            class AbstractDataTransportMechanism : public QObject, public Core::Interfaces::IReadOnlyObject
             {
                 Q_OBJECT
 
@@ -92,7 +93,10 @@ namespace GUtil
                 //   to determine if there's data available.  This will depend
                 //   on the method of transport you're using.  Set the boolean
                 //   to true if there is data available.
-                virtual void update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException) = 0;
+                virtual void update_has_data_variable(bool &has_data_variable)
+                        throw(GUtil::Core::DataTransportException) = 0;
+
+                virtual QString ReadonlyMessageIdentifier();
 
 
             protected slots:

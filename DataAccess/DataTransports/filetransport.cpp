@@ -60,27 +60,36 @@ void DataTransports::FileTransport::send_data(const QByteArray &data) throw(Core
     }
 
     _close_file();
+
+    // We read in what we just wrote so we refresh our record of what's in the file
+    receive_data();
 }
 
 QByteArray DataTransports::FileTransport::receive_data() throw(Core::DataTransportException)
 {
     _open_file(false);
 
-    QByteArray dat = DataTransports::StreamTransport::receive_data();
+    last_data_received = DataTransports::StreamTransport::receive_data();
 
     _close_file();
 
     _last_update_time = QFileInfo(FileName()).lastModified();
-    _hash = QCryptographicHash::hash(dat, QCryptographicHash::Md5);
+    _hash = QCryptographicHash::hash(last_data_received, QCryptographicHash::Md5);
 
-    return dat;
+    return last_data_received;
 }
 
-void DataTransports::FileTransport::update_has_data_variable(bool &has_data_variable) throw(Core::DataTransportException)
+bool DataTransports::FileTransport::has_been_updated()
+{
+    return _last_update_time != QFileInfo(FileName()).lastModified();
+}
+
+void DataTransports::FileTransport::update_has_data_variable(bool &has_data_variable)
+        throw(Core::DataTransportException)
 {
     has_data_variable = false;
 
-    if(_last_update_time != QFileInfo(FileName()).lastModified())
+    if(has_been_updated())
     {
         _open_file(false);
 
@@ -102,12 +111,7 @@ QString DataTransports::FileTransport::FileName() const
 
 QByteArray DataTransports::FileTransport::FileData()
 {
-    return receive_data();
-}
-
-void DataTransports::FileTransport::Reload()
-{
-    emit notifyNewData(receive_data());
+    return last_data_received;
 }
 
 void DataTransports::FileTransport::_open_file(bool for_write)

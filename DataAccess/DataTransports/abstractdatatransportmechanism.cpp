@@ -16,7 +16,7 @@ limitations under the License.*/
 using namespace GUtil::DataAccess;
 
 DataTransports::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObject *parent)
-    :QObject(parent)
+    :QObject(parent), Core::Interfaces::IReadOnlyObject(false)
 {
     _has_data = false;
     _cur_state = GoodState;
@@ -29,6 +29,8 @@ void DataTransports::AbstractDataTransportMechanism::Write(const QByteArray &dat
 
 void DataTransports::AbstractDataTransportMechanism::SendData(const QByteArray &data)
 {
+    FailIfReadOnly();
+
     _lock.lock();
 
     try
@@ -77,15 +79,13 @@ DataTransports::AbstractDataTransportMechanism &
 DataTransports::AbstractDataTransportMechanism &
         DataTransports::AbstractDataTransportMechanism::operator << (const std::string &data)
 {
-    SendData(QByteArray(data.c_str(), data.length()));
-    return *this;
+    return *this<<data.c_str();
 }
 
 DataTransports::AbstractDataTransportMechanism &
         DataTransports::AbstractDataTransportMechanism::operator << (const QString &data)
 {
-    SendData(QByteArray(data.toStdString().c_str(), data.length()));
-    return *this;
+    return *this<<data.toStdString();
 }
 
 void DataTransports::AbstractDataTransportMechanism::operator >> (QByteArray &data_target)
@@ -95,12 +95,16 @@ void DataTransports::AbstractDataTransportMechanism::operator >> (QByteArray &da
 
 void DataTransports::AbstractDataTransportMechanism::operator >> (QString &dt)
 {
-    dt = QString(ReceiveData());
+    QByteArray res;
+    *this>>res;
+    dt = QString(res);
 }
 
 void DataTransports::AbstractDataTransportMechanism::operator >> (std::string &dt)
 {
-    dt = QString(ReceiveData()).toStdString();
+    QByteArray res;
+    *this>>res;
+    dt = QString(res).toStdString();
 }
 
 void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_available()
@@ -133,4 +137,9 @@ void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_ava
     }
 
     _lock.unlock();
+}
+
+QString DataTransports::AbstractDataTransportMechanism::ReadonlyMessageIdentifier()
+{
+    return "DataAccess::DataTransports::AbstractDataTransportMechanism";
 }
