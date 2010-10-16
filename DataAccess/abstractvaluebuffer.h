@@ -53,20 +53,20 @@ namespace GUtil
         {
             Q_OBJECT
         public:
-            bool setValue(const QString &key, const QByteArray& value);
-            virtual bool setValues(const QMap<QString, QByteArray> &);
+            bool SetValue(const QString &key, const QByteArray& value);
+            virtual bool SetValues(const QMap<QString, QByteArray> &);
 
-            QByteArray value(const QString &key);
-            QMap<QString, QByteArray> values(const QStringList &);
+            QByteArray Value(const QString &key);
+            QMap<QString, QByteArray> Values(const QStringList &);
 
             // Remove a specific key (or keys)
-            bool removeValue(const QString &);
-            bool removeValue(const QStringList &);
+            bool RemoveValue(const QString &);
+            bool RemoveValue(const QStringList &);
 
-            bool contains(const QString &key);
+            bool Contains(const QString &key);
 
             // Flushes the data queue and clears the current data container
-            void clear();
+            void Clear();
 
 
         protected:
@@ -83,7 +83,7 @@ namespace GUtil
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data
             // Throw exceptions when errors happen and they will be logged
-            virtual void ValueChanged_protected() = 0;
+            virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
             // Forcefully remove all data from the queue
             void clearQueues();
@@ -108,8 +108,10 @@ namespace GUtil
             void enQueueCurrentData(bool clear = true);
 
             // Subclasses implement this to process a new byte array after it
-            //   gets dequeued
-            virtual void process_input_data(const QByteArray &) = 0;
+            //   gets dequeued off the in_queue.
+            // The default implementation automatically loads the xml into the
+            //    current data container
+            virtual void process_input_data(const QByteArray &);
 
             virtual std::string ReadonlyMessageIdentifier() const;
 
@@ -124,6 +126,9 @@ namespace GUtil
             QByteArray en_deQueueMessage(QueueTypeEnum, const QByteArray &msg, bool enqueue);
 
             bool ValueChanged();
+
+            void _get_queue_and_mutex(QueueTypeEnum, QQueue<QByteArray> **, QMutex **)
+                    throw(GUtil::Core::Exception);
 
             QMutex in_queue_mutex;
             QMutex out_queue_mutex;

@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
+#include "DataObjects/datacontainer.h"
 #include "DataTransports/filetransport.h"
 #include "Core/exception.h"
 #include "Core/Tools/stringhelpers.h"
@@ -31,11 +32,14 @@ DataAccess::ConfigFile::ConfigFile(const QString &identifier,
                                    QObject *parent)
     :DataAccess::AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(
             QString("%1.%2")
-            .arg(get_file_location(_identity))
-            .arg(_modifier)),
+            .arg(get_file_location(identifier))
+            .arg(modifier)),
                                      logger,
                                      parent)
 {
+    // Set the file transport to overwrite the config file rather than append
+    FileTransport().SetWriteMode(DataAccess::DataTransports::FileTransport::WriteOver);
+
     _init(identifier, modifier);
 }
 
@@ -55,15 +59,12 @@ void DataAccess::ConfigFile::_init(const QString &identity, const QString &modif
     _identity = identity;
     _modifier = modifier;
 
-    importData(_file_transport->FileData());
-
-    connect(_file_transport, SIGNAL(notifyNewData(QByteArray)),
-            this, SLOT(catch_asynchronous_update(QByteArray)));
+    importData(FileTransport().FileData());
 }
 
 QString DataAccess::ConfigFile::fileName() const
 {
-    return _file_transport->FileName();
+    return FileTransport().FileName();
 }
 
 void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
@@ -72,17 +73,10 @@ void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
     modifier = _modifier;
 }
 
-void DataAccess::ConfigFile::ValueChanged_protected()
+void DataAccess::ConfigFile::ValueChanged_protected() throw(GUtil::Core::Exception)
 {
     // Export the changed data to the config file
-    throw Core::NotImplementedException();
-    //enQueue(true);
-    //exportData();
-}
-
-void DataAccess::ConfigFile::process_input_data(const QByteArray &)
-{
-
+    enQueueCurrentData(false);
 }
 
 DataAccess::DataTransports::FileTransport &DataAccess::ConfigFile::FileTransport() const
@@ -122,13 +116,6 @@ QString DataAccess::ConfigFile::get_file_location(QString id)
     }
 
     return _config_filename;
-}
-
-void DataAccess::ConfigFile::catch_asynchronous_update(const QByteArray &dat)
-{
-    importData(dat);
-
-    emit notifyConfigurationUpdate();
 }
 
 std::string DataAccess::ConfigFile::ReadonlyMessageIdentifier() const

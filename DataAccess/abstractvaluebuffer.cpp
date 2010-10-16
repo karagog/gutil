@@ -47,14 +47,19 @@ DataAccess::DataTransports::AbstractDataTransportMechanism &DataAccess::Abstract
     return *_transport;
 }
 
-bool DataAccess::AbstractValueBuffer::setValue(const QString &key, const QByteArray& value)
+void DataAccess::AbstractValueBuffer::ValueChanged_protected() throw(Core::Exception)
+{
+    // Do nothing by default
+}
+
+bool DataAccess::AbstractValueBuffer::SetValue(const QString &key, const QByteArray& value)
 {
     QMap<QString, QByteArray> m;
     m.insert(key, value);
-    return setValues(m);
+    return SetValues(m);
 }
 
-bool DataAccess::AbstractValueBuffer::setValues(const QMap<QString, QByteArray> &values)
+bool DataAccess::AbstractValueBuffer::SetValues(const QMap<QString, QByteArray> &values)
 {
     FailIfReadOnly();
 
@@ -81,12 +86,32 @@ bool DataAccess::AbstractValueBuffer::ValueChanged()
     return true;
 }
 
-QByteArray DataAccess::AbstractValueBuffer::value(const QString &key)
+void DataAccess::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
+                                                           QQueue<QByteArray> **q,
+                                                           QMutex **m)
+        throw(Core::Exception)
 {
-    return values(QStringList(key)).value(key);
+    switch(qt)
+    {
+    case InQueue:
+        *m = &in_queue_mutex;
+        *q = &in_queue;
+        break;
+    case OutQueue:
+        *m = &out_queue_mutex;
+        *q = &out_queue;
+        break;
+    default:
+        throw Core::NotImplementedException("Unrecognized queue type");
+    }
 }
 
-QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::values(const QStringList &keys)
+QByteArray DataAccess::AbstractValueBuffer::Value(const QString &key)
+{
+    return Values(QStringList(key)).value(key);
+}
+
+QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::Values(const QStringList &keys)
 {
     current_data_lock.lockForRead();
 
@@ -99,7 +124,7 @@ QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::values(const QStringL
     return ret;
 }
 
-bool DataAccess::AbstractValueBuffer::contains(const QString &key)
+bool DataAccess::AbstractValueBuffer::Contains(const QString &key)
 {
     current_data_lock.lockForRead();
 
@@ -110,7 +135,7 @@ bool DataAccess::AbstractValueBuffer::contains(const QString &key)
     return ret;
 }
 
-void DataAccess::AbstractValueBuffer::clear()
+void DataAccess::AbstractValueBuffer::Clear()
 {
     FailIfReadOnly();
 
@@ -134,14 +159,14 @@ void DataAccess::AbstractValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteAr
     lock.unlock();
 }
 
-bool DataAccess::AbstractValueBuffer::removeValue(const QString &key)
+bool DataAccess::AbstractValueBuffer::RemoveValue(const QString &key)
 {
     QStringList sl;
     sl.append(key);
-    return removeValue(sl);
+    return RemoveValue(sl);
 }
 
-bool DataAccess::AbstractValueBuffer::removeValue(const QStringList &keys)
+bool DataAccess::AbstractValueBuffer::RemoveValue(const QStringList &keys)
 {
     FailIfReadOnly();
 
@@ -167,15 +192,48 @@ void DataAccess::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByt
 
 void DataAccess::AbstractValueBuffer::enQueueCurrentData(bool clear)
 {
+    QString data;
+
     if(clear)
         current_data_lock.lockForWrite();
     else
         current_data_lock.lockForRead();
 
-    enQueueMessage(OutQueue, QString::fromStdString(current_data->toXml()).toAscii());
+    // Critical section for current data
+    try
+    {
+        data = QString::fromStdString(current_data->toXml());
 
-    if(clear)
-        current_data->clear();
+        if(clear)
+            current_data->clear();
+    }
+    catch(Core::Exception &ex)
+    {
+        current_data_lock.unlock();
+
+        LogException(ex);
+        return;
+    }
+
+    current_data_lock.unlock();
+
+    enQueueMessage(OutQueue, data.toAscii());
+}
+
+void DataAccess::AbstractValueBuffer::process_input_data(const QByteArray &data)
+{
+    current_data_lock.lockForWrite();
+    try
+    {
+        current_data->fromXml(QString(data).toStdString());
+    }
+    catch(Core::Exception &ex)
+    {
+        current_data_lock.unlock();
+
+        LogException(ex);
+        return;
+    }
 
     current_data_lock.unlock();
 }
@@ -185,26 +243,23 @@ QByteArray DataAccess::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
     return en_deQueueMessage(q, QByteArray(), false);
 }
 
-QByteArray DataAccess::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q, const QByteArray &msg, bool enqueue)
+QByteArray DataAccess::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
+                                                              const QByteArray &msg,
+                                                              bool enqueue)
 {
     QByteArray ret;
     QMutex *m;
     QQueue<QByteArray> *tmpq;
 
-    switch(q)
+    try
     {
-    case InQueue:
-        m = &in_queue_mutex;
-        tmpq = &in_queue;
-        break;
-    case OutQueue:
-        m = &out_queue_mutex;
-        tmpq = &out_queue;
-        break;
-    default:
+        _get_queue_and_mutex(q, &tmpq, &m);
+    }
+    catch(Core::Exception &ex)
+    {
+        LogException(ex);
         return ret;
     }
-
 
     m->lock();
     {
@@ -246,19 +301,14 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     QQueue<QByteArray> *queue;
     QMutex *mutex;
 
-    if(qt == InQueue)
+    try
     {
-        queue = &in_queue;
-        mutex = &in_queue_mutex;
+        _get_queue_and_mutex(qt, &queue, &mutex);
     }
-    else if (qt == OutQueue)
+    catch(Core::Exception &ex)
     {
-        queue = &out_queue;
-        mutex = &out_queue_mutex;
-    }
-    else
-    {
-        throw Core::Exception("Unrecognized queue type");
+        LogException(ex);
+        return;
     }
 
     bool queue_has_data = true;

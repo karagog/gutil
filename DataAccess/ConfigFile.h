@@ -57,24 +57,17 @@ namespace GUtil
             void notifyConfigurationUpdate();
 
         protected:
-            virtual void ValueChanged_protected();
-
-            virtual void process_input_data(const QByteArray &);
+            virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
             DataAccess::DataTransports::FileTransport &FileTransport() const;
 
             virtual std::string ReadonlyMessageIdentifier() const;
-
-        private slots:
-            void catch_asynchronous_update(const QByteArray &);
 
         private:
             bool _ignore_update;
 
             QString _identity;
             QString _modifier;
-
-            DataTransports::FileTransport *_file_transport;
 
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
