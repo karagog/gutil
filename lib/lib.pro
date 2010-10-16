@@ -13,8 +13,11 @@ extract_dataobjects.commands = ar -x libDataObjects.a
 extract_tools.commands = ar -x libTools.a
 extract_utils.commands = ar -x libUtils.a
 
-buildlib.commands = ar -ru ../libGUtil.a *.o
 
+BUILD_LIBRARY = "libGUtil.a"
+
+buildlib.commands = ar -ru $$BUILD_LIBRARY *.o
+copy_lib.commands = cp $$BUILD_LIBRARY ..
 cleanup.commands = rm *.o
 
 PRE_TARGETDEPS += \
@@ -26,6 +29,7 @@ PRE_TARGETDEPS += \
   extract_tools \
   extract_utils \
   buildlib \
+  copy_lib \
   cleanup \
 
 QMAKE_EXTRA_TARGETS += \
@@ -37,5 +41,6 @@ QMAKE_EXTRA_TARGETS += \
   extract_tools \
   extract_utils \
   buildlib \
+  copy_lib \
   cleanup
 
