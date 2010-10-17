@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "streamtransport.h"
 #include <iostream>
 #include <QTimerEvent>
+#include <QVariant>
 using namespace GUtil;
 using namespace std;
 
@@ -25,6 +26,8 @@ DataAccess::DataTransports::StreamTransport::StreamTransport(istream *is, ostrea
 
     _stream_in = is;
     _stream_out = os;
+
+    SetStopOnLineEnd(false);
 }
 
 DataAccess::DataTransports::StreamTransport::StreamTransport(iostream *ios, QObject *parent) :
@@ -88,31 +91,59 @@ void DataAccess::DataTransports::StreamTransport::send_data(const QByteArray &da
         throw Core::DataTransportException("Stream write failed");
 }
 
+#define CHAR_BUFFER_SIZE 1024
+
 QByteArray DataAccess::DataTransports::StreamTransport::receive_data()
         throw(Core::DataTransportException, Core::EndOfFileException)
 {
     QByteArray ret;
-    char c;
     istream *is = get_istream();
 
     if(is == 0)
         throw Core::DataTransportException("Input stream not set");
 
-    is->get(c);
-    while(!(is->eof() || is->bad()))
-    {
-        // Break on new line
-        if(c == '\n')
-            break;
+    char c[CHAR_BUFFER_SIZE];
+    std::string buf;
 
-        ret.append(c);
-        is->get(c);
+    if(_stop_on_line_end)
+    {
+        getline(*is, buf);
+        if(!is->fail())
+            ret.append(QByteArray(buf.c_str(), buf.length()));
     }
+    else
+    {
+        is->read(c, CHAR_BUFFER_SIZE);
+        while(is->gcount() > 0)
+        {
+            ret.append(c, is->gcount());
+            if(is->eof())
+                break;
+
+            is->getline(c, CHAR_BUFFER_SIZE);
+        }
+    }
+
+//    is->get(c);
+//    while(!(is->eof() || is->bad()))
+//    {
+//        // Break on new line
+//        if(_stop_on_line_end && (c == '\n'))
+//            break;
+
+//        ret.append(c);
+//        is->get(c);
+//    }
 
     if(is->bad())
         throw Core::DataTransportException("Stream read failed");
 
     return ret;
+}
+
+void DataAccess::DataTransports::StreamTransport::SetStopOnLineEnd(bool stp)
+{
+    _stop_on_line_end = stp;
 }
 
 void DataAccess::DataTransports::StreamTransport::update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException)

@@ -12,3 +12,5 @@ SOURCES += \
     myflattreemodel.cpp \
     myxmlstreamreader.cpp \
     gthread.cpp
+
+INCLUDEPATH += ..

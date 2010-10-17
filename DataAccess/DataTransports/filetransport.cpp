@@ -25,6 +25,8 @@ using namespace std;
 DataTransports::FileTransport::FileTransport(const QString &filename, QObject *parent)
     :DataTransports::StreamTransport(_file = new fstream(), parent)
 {
+    SetStopOnLineEnd(false);
+
     _file_watcher = new QFileSystemWatcher(this);
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(trigger_update_has_data_available()));
 
@@ -125,6 +127,11 @@ QByteArray DataTransports::FileTransport::FileData()
 {
     return last_data_received;
 }
+
+//void DataTransports::FileTransport::ReloadFile()
+//{
+//    ReceiveData();
+//}
 
 void DataTransports::FileTransport::TruncateFile()
 {

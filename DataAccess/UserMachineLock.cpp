@@ -14,76 +14,89 @@ limitations under the License.*/
 
 #include "UserMachineLock.h"
 #include "qtlockedfile.h"
-#include <QDir>
-#include <QUuid>
+#include <QDesktopServices>
 using namespace GUtil;
 
-DataAccess::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier,
-                                             Utils::AbstractLogger *logger, QObject *parent)
-    :ConfigFile(id, modifier, logger, parent)
+DataAccess::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier)
 {
-    SetReadOnly(true);
-    _lf_lock = new QtLockedFile(QString("%1.%2")
-                          .arg(ConfigFile::fileName())
-                          .arg("lockfile"));
+    _usermachinelockfile = new QtLockedFile();
+
+    SetUserMachineLockIdentifier(id, modifier);
 }
 
 DataAccess::UserMachineLock::~UserMachineLock()
 {
-    unlock();
+    UnlockForUserOnMachine();
 
-    delete _lf_lock;
+    delete _usermachinelockfile;
 }
 
-void DataAccess::UserMachineLock::lock()
+void DataAccess::UserMachineLock::SetUserMachineLockIdentifier(
+        const QString &identifier,
+        const QString &modifier)
 {
-    bool ret;
-    bool lock_failed = false;
-    QString errmsg;
-
-    if((ret = isLocked()));
-
-    else if(!(ret = _lf_lock->open(QFile::ReadWrite)))
-        errmsg = _lf_lock->errorString();
-
-    else if(!(ret = _lf_lock->lock(QtLockedFile::WriteLock, false)))
-    {
-        _lf_lock->close();
-        lock_failed = true;
-    }
-
-    // If we don't have a lock, then we're stuck in readonly mode
-    SetReadOnly(!ret);
-
-    if(!ret && !lock_failed)
-        throw Core::Exception(errmsg.toStdString());
-}
-
-void DataAccess::UserMachineLock::unlock()
-{
-    if(!isLocked())
+    if(identifier.length() == 0)
         return;
 
-    // If we don't have a lock, then we're stuck in readonly mode
-    SetReadOnly(true);
-
-    _lf_lock->unlock();
-    _lf_lock->close();
-
-    QFile::remove(_lf_lock->fileName());
+    SetUserMachineLockFileName(QString("%1/%2%3.MACHINE_LOCK")
+                               .arg(QDesktopServices::storageLocation(QDesktopServices::DataLocation))
+                               .arg(identifier)
+                               .arg(modifier.length() != 0 ?
+                                    QString(".%1").arg(modifier) :
+                                    QString::null));
 }
 
-bool DataAccess::UserMachineLock::isLocked() const
+void DataAccess::UserMachineLock::SetUserMachineLockFileName(const QString &fn)
 {
-    return _lf_lock->isLocked();
+    UnlockForUserOnMachine();
+
+    _usermachinelockfile->setFileName(fn);
 }
 
-QString DataAccess::UserMachineLock::fileName() const
+bool DataAccess::UserMachineLock::LockForUserOnMachine(bool block)
+            throw(Core::Exception)
 {
-    return _lf_lock->fileName();
+    if(FileNameForUserMachineLock() == QString::null)
+        throw Core::Exception("The machine-lock file has not been set.  You must "
+                              "provide an identifier and optional modifier to use "
+                              "this function");
+
+    if(IsLockedForUserOnMachine())
+    {
+        Core::Exception ex("Already locked!");
+        ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
+        throw ex;
+    }
+
+    else if(!_usermachinelockfile->open(QFile::ReadWrite))
+    {
+        Core::Exception ex("Couldn't open lockfile!");
+        ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
+        ex.SetData("Error", _usermachinelockfile->errorString().toStdString());
+        throw ex;
+    }
+
+    else if(!_usermachinelockfile->lock(QtLockedFile::WriteLock, block))
+        _usermachinelockfile->close();
+
+    return IsLockedForUserOnMachine();
 }
 
-std::string DataAccess::UserMachineLock::ReadonlyMessageIdentifier() const
+void DataAccess::UserMachineLock::UnlockForUserOnMachine()
 {
-    return "DataAccess::UserMachineLock";
+    if(!IsLockedForUserOnMachine())
+        return;
+
+    _usermachinelockfile->unlock();
+    _usermachinelockfile->close();
+}
+
+bool DataAccess::UserMachineLock::IsLockedForUserOnMachine() const
+{
+    return _usermachinelockfile->isLocked();
+}
+
+QString DataAccess::UserMachineLock::FileNameForUserMachineLock() const
+{
+    return _usermachinelockfile->fileName();
 }

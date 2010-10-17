@@ -40,6 +40,8 @@ namespace GUtil
                 virtual void update_has_data_variable(bool &has_data_variable)
                         throw(GUtil::Core::DataTransportException);
 
+                void SetStopOnLineEnd(bool stp);
+
                 void SetIStreamPollingEnabled(bool);
                 void SetIStreamPollingInterval(int new_interval = _default_polling_interval);
 
@@ -57,6 +59,8 @@ namespace GUtil
 
                 std::ostream *get_ostream();
                 std::istream *get_istream();
+
+                bool _stop_on_line_end;
 
                 int _timer_id;
                 int _polling_interval;

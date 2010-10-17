@@ -14,7 +14,8 @@ HEADERS += \
     DataTransports/localsockettransport.h \
     DataTransports/abstractdatatransportmechanism.h \
     DataTransports/streamtransport.h \
-    DataTransports/consoletransport.h
+    DataTransports/consoletransport.h \
+    DataObjects/datacontainer.h
 
 SOURCES += \
     UserMachineLock.cpp \
@@ -28,7 +29,8 @@ SOURCES += \
     DataTransports/localsockettransport.cpp \
     DataTransports/abstractdatatransportmechanism.cpp \
     DataTransports/streamtransport.cpp \
-    DataTransports/consoletransport.cpp
+    DataTransports/consoletransport.cpp \
+    DataObjects/datacontainer.cpp
 
 INCLUDEPATH += include ..
 QT += sql network

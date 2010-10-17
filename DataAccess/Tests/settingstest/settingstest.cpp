@@ -79,7 +79,8 @@ void settingsTest::initTestCase()
 //        QVERIFY(false);
 //    }
 
-    qDebug((QString("Settings initialized with file: ") + settings->fileName()).toStdString().c_str());
+    qDebug((QString("Settings initialized with file: %1").arg(settings->FileName()))
+           .toStdString().c_str());
 }
 
 void settingsTest::saving_value()
@@ -196,9 +197,9 @@ void settingsTest::test_reload()
 
     settings->SetValue(one, QByteArray("fart"));
 
-    //QVERIFY(newsettings.value(one) == "");
+    QVERIFY(newsettings.Value(one) == "");
 
-    //newsettings.();
+    newsettings.Reload();
     QVERIFY(newsettings.Value(one) == "fart");
 }
 
@@ -241,7 +242,7 @@ void settingsTest::test_erase_value()
         QVERIFY(false);
     }
 
-    //newsettings.reload();
+    newsettings.Reload();
     QVERIFY(newsettings.Value(tmpkey) == "");
     QVERIFY(newsettings.Value(permkey) == "value");
 }
@@ -268,7 +269,7 @@ void settingsTest::test_clear_all_values()
         QVERIFY(false);
     }
 
-    //newsettings.reload();
+    newsettings.Reload();
     QVERIFY(newsettings.Value(tmpkey) == "");
     QVERIFY(newsettings.Value(permkey) == "");
 }
@@ -276,7 +277,7 @@ void settingsTest::test_clear_all_values()
 void settingsTest::cleanupTestCase()
 {
     //QString probe = QString::fromStdString(GUtil::StringHelpers::pathName(settings->FileName().toStdString()));
-    QFile::remove(QString::fromStdString(Core::Tools::StringHelpers::pathName(settings->fileName().toStdString())));
+    QFile::remove(QString::fromStdString(Core::Tools::StringHelpers::pathName(settings->FileName().toStdString())));
 }
 
 QTEST_APPLESS_MAIN(settingsTest);

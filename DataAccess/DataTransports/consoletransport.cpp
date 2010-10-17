@@ -20,4 +20,5 @@ using namespace std;
 DataAccess::DataTransports::ConsoleTransport::ConsoleTransport(QObject *parent) :
     DataAccess::DataTransports::StreamTransport(&cin, &cout, parent)
 {
+    SetStopOnLineEnd(true);
 }

@@ -45,11 +45,11 @@ namespace GUtil
                 void SendData(const QByteArray &);
                 void Write(const QByteArray &);
 
-                // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
-                QByteArray ReceiveData();
-
 
             public:
+
+                // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
+                QByteArray ReceiveData();
 
                 enum StateEnum
                 {

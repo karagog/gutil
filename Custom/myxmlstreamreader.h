@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include "Core/exception.h"
 
 namespace GUtil
 {
@@ -30,6 +31,9 @@ namespace GUtil
             myXmlStreamReader(QIODevice *);
             myXmlStreamReader(const QByteArray &);
             myXmlStreamReader(const char *);
+
+            bool ReadStartDocument();
+            bool ReadTilNextStartElement();
 
             // Reads the inner Xml of the current start element, including itself
             //  and all children recursively.  It ends while pointing at the element's

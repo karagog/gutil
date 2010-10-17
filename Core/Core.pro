@@ -13,7 +13,8 @@ SOURCES += \
     Utils/actionstack.cpp \
     Tools/cl_menu.cc \
     DataAccess/da_serialport.cc \
-    Interfaces/ireadonlyobject.cpp
+    Interfaces/ireadonlyobject.cpp \
+    Interfaces/ixmlserializable.cpp
 
 INCLUDEPATH += Tools/cryptopp_src ..
 

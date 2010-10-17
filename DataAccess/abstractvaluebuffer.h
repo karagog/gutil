@@ -16,6 +16,7 @@ limitations under the License.*/
 #define DO_VALUEBUFFER_H
 
 #include "Core/Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/ixmlserializable.h"
 #include <QMap>
 #include <QString>
 #include <QObject>
@@ -30,11 +31,6 @@ namespace GUtil
         class Exception;
     }
 
-    namespace DataObjects
-    {
-        class DataContainer;
-    }
-
     namespace Utils
     {
         class AbstractLogger;
@@ -42,6 +38,11 @@ namespace GUtil
 
     namespace DataAccess
     {
+        namespace DataObjects
+        {
+            class DataContainer;
+        }
+
         namespace DataTransports
         {
             class AbstractDataTransportMechanism;
@@ -49,7 +50,9 @@ namespace GUtil
 
         // Serves as a generic class to hold values and send/receive them with
         //   the provided transport mechanism
-        class AbstractValueBuffer : public QObject, public GUtil::Core::Interfaces::IReadOnlyObject
+        class AbstractValueBuffer : public QObject,
+                                    public GUtil::Core::Interfaces::IReadOnlyObject,
+                                    public GUtil::Core::Interfaces::IXmlSerializable
         {
             Q_OBJECT
         public:
@@ -113,6 +116,10 @@ namespace GUtil
             //    current data container
             virtual void process_input_data(const QByteArray &);
 
+            virtual std::string ToXml();
+            virtual void FromXml(const std::string &) throw(GUtil::Core::XmlException);
+            virtual void SetXmlHumanReadableFormat(bool);
+
             virtual std::string ReadonlyMessageIdentifier() const;
 
 
@@ -136,7 +143,7 @@ namespace GUtil
             QQueue< QByteArray > out_queue;
 
             QReadWriteLock current_data_lock;
-            DataObjects::DataContainer *current_data;
+            DataAccess::DataObjects::DataContainer *current_data;
 
             void process_queues();
             void _flush_queue(QueueTypeEnum);

@@ -47,14 +47,15 @@ namespace GUtil
                                 Utils::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
-            virtual ~ConfigFile();
 
-            QString fileName() const;
+            void Reload();
 
-            void getIdentity(QString &identifier, QString &modifier);
+            QString FileName() const;
+
+            void GetIdentity(QString &identifier, QString &modifier);
 
         signals:
-            void notifyConfigurationUpdate();
+            void NotifyConfigurationUpdate();
 
         protected:
             virtual void ValueChanged_protected() throw(GUtil::Core::Exception);

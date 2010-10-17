@@ -14,9 +14,9 @@ limitations under the License.*/
 
 #ifndef APPLICATIONLOCK_H
 #define APPLICATIONLOCK_H
-#include <QString>
-#include "ConfigFile.h"
+
 #include "Core/exception.h"
+#include <QString>
 
 class QtLockedFile;
 
@@ -29,30 +29,31 @@ namespace GUtil
 
     namespace DataAccess
     {
-        // An easy to use inter-process locking mechanism, which also has a backend
-        //   datastore for setting and accessing persistent data
-        class UserMachineLock : public ConfigFile
+        // An easy to use inter-process locking mechanism.
+
+        // Classes can implement this interface to achieve locking across the
+        //    machine for the user who invokes it
+        class UserMachineLock
         {
         public:
-            UserMachineLock(const QString &,
-                               const QString &modifier = "",
-                               Utils::AbstractLogger *logger = 0,
-                               QObject *parent = 0);
-            ~UserMachineLock();
+            UserMachineLock(const QString &identifier = QString::null,
+                            const QString &modifier = QString::null);
+            virtual ~UserMachineLock();
 
-            // Using this class is as simple as these two functions
-            void lock();
-            void unlock();
+            void SetUserMachineLockIdentifier(const QString &identifier = QString::null,
+                                              const QString &modifier = QString::null);
+            void SetUserMachineLockFileName(const QString &);
 
-            bool isLocked() const;
+            // Use these functions to lock/unlock this object for the user's machine
+            bool LockForUserOnMachine(bool block = false) throw(GUtil::Core::Exception);
+            void UnlockForUserOnMachine();
 
-            QString fileName() const;
+            bool IsLockedForUserOnMachine() const;
 
-        protected:
-            virtual std::string ReadonlyMessageIdentifier() const;
+            QString FileNameForUserMachineLock() const;
 
         private:
-            QtLockedFile *_lf_lock;
+            QtLockedFile *_usermachinelockfile;
         };
     }
 }

@@ -46,6 +46,19 @@ Custom::myXmlStreamReader::myXmlStreamReader(const char *data)
 
 }
 
+bool Custom::myXmlStreamReader::ReadStartDocument()
+{
+    return readNext() == StartDocument;
+}
+
+bool Custom::myXmlStreamReader::ReadTilNextStartElement()
+{
+    while(readNext() != StartElement)
+        if(atEnd())
+            return false;
+    return true;
+}
+
 QString Custom::myXmlStreamReader::InnerText()
 {
     QString ret = "";

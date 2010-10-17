@@ -51,13 +51,13 @@ void TransportsTest::test_console_transport()
     std::string inval;
 
     ct<<"Hello World!\n\nYou must type an h: ";
-//    ct>>inval;
+    ct>>inval;
 
-//    QVERIFY2(inval == "h", inval.c_str());
+    QVERIFY2(inval == "h", inval.c_str());
 
-//    ct<<"Now type a k: ";
-//    ct>>inval;
-//    QVERIFY2(inval == "k", inval.c_str());
+    ct<<"Now type a k: ";
+    ct>>inval;
+    QVERIFY2(inval == "k", inval.c_str());
 }
 
 void TransportsTest::test_file_transport()
@@ -74,6 +74,14 @@ void TransportsTest::test_file_transport()
     ft.SetWriteMode(FileTransport::WriteAppend);
     ft.Write("7");
     QVERIFY(ft.FileData() == "Hello World!7");
+
+    ft.Write("\nNew line");
+
+    FileTransport ft2("Testfile.txt");
+    QVERIFY2(ft.FileData() == ft2.FileData(), QString("(%1, %2)")
+             .arg(QString(ft.FileData()))
+             .arg(QString(ft2.FileData())).toStdString().c_str()
+             );
 }
 
 QTEST_MAIN(TransportsTest);

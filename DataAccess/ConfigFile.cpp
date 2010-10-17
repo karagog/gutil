@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "DataTransports/filetransport.h"
 #include "Core/exception.h"
 #include "Core/Tools/stringhelpers.h"
+#include "Utils/abstractlogger.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -44,30 +45,33 @@ DataAccess::ConfigFile::ConfigFile(const QString &identifier,
 }
 
 DataAccess::ConfigFile::ConfigFile(const DataAccess::ConfigFile &other, QObject *parent)
-    :AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(other.fileName()),
+    :AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(other.FileName()),
                          other.Logger(), parent)
 {
     _init(other._identity, other._modifier);
 }
 
-DataAccess::ConfigFile::~ConfigFile()
-{
-}
-
 void DataAccess::ConfigFile::_init(const QString &identity, const QString &modifier)
 {
+    SetXmlHumanReadableFormat(true);
+
     _identity = identity;
     _modifier = modifier;
 
     importData(FileTransport().FileData());
 }
 
-QString DataAccess::ConfigFile::fileName() const
+void DataAccess::ConfigFile::Reload()
+{
+    importData(FileTransport().ReceiveData());
+}
+
+QString DataAccess::ConfigFile::FileName() const
 {
     return FileTransport().FileName();
 }
 
-void DataAccess::ConfigFile::getIdentity(QString &identifier, QString &modifier)
+void DataAccess::ConfigFile::GetIdentity(QString &identifier, QString &modifier)
 {
     identifier = _identity;
     modifier = _modifier;

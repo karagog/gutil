@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
-#include "DataObjects/datacontainer.h"
+#include "DataAccess/DataObjects/datacontainer.h"
 #include "DataTransports/abstractdatatransportmechanism.h"
 #include "Utils/abstractlogger.h"
 #include "Core/Tools/stringhelpers.h"
@@ -27,10 +27,11 @@ DataAccess::AbstractValueBuffer::AbstractValueBuffer(
         Utils::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
-            Core::Interfaces::IReadOnlyObject(false)
+            Core::Interfaces::IReadOnlyObject(false),
+            Core::Interfaces::IXmlSerializable(false)
 {
     _logger = logger;
-    current_data = new DataObjects::DataContainer();
+    current_data = new DataAccess::DataObjects::DataContainer();
 
     _transport = transport;
     connect(transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
@@ -65,7 +66,7 @@ bool DataAccess::AbstractValueBuffer::SetValues(const QMap<QString, QByteArray> 
 
     current_data_lock.lockForWrite();
     foreach(QString s, values.keys())
-        current_data->setValue(s, values[s]);
+        current_data->insert(s, values[s]);
     current_data_lock.unlock();
 
     return ValueChanged();
@@ -117,7 +118,7 @@ QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::Values(const QStringL
 
     QMap<QString, QByteArray> ret;
     foreach(QString s, keys)
-        ret[s] = current_data->getValue(s);
+        ret[s] = current_data->value(s);
 
     current_data_lock.unlock();
 
@@ -202,7 +203,7 @@ void DataAccess::AbstractValueBuffer::enQueueCurrentData(bool clear)
     // Critical section for current data
     try
     {
-        data = QString::fromStdString(current_data->toXml());
+        data = QString::fromStdString(current_data->ToXml());
 
         if(clear)
             current_data->clear();
@@ -225,7 +226,7 @@ void DataAccess::AbstractValueBuffer::process_input_data(const QByteArray &data)
     current_data_lock.lockForWrite();
     try
     {
-        current_data->fromXml(QString(data).toStdString());
+        current_data->FromXml(QString(data).toStdString());
     }
     catch(Core::Exception &ex)
     {
@@ -333,6 +334,26 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
                 Transport().SendData(ba);
         }
     }
+}
+
+std::string DataAccess::AbstractValueBuffer::ToXml()
+{
+    current_data_lock.lockForRead();
+    std::string ret = current_data->ToXml();
+    current_data_lock.unlock();
+    return ret;
+}
+
+void DataAccess::AbstractValueBuffer::FromXml(const std::string &xml) throw(Core::XmlException)
+{
+    enQueueMessage(InQueue, QByteArray(xml.c_str(), xml.length()));
+}
+
+void    DataAccess::AbstractValueBuffer::SetXmlHumanReadableFormat(bool h)
+{
+    Core::Interfaces::IXmlSerializable::SetXmlHumanReadableFormat(h);
+
+    current_data->SetXmlHumanReadableFormat(h);
 }
 
 std::string DataAccess::AbstractValueBuffer::ReadonlyMessageIdentifier() const

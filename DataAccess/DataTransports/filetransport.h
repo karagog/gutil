@@ -46,6 +46,7 @@ namespace GUtil
                 QString FileName() const;
                 QByteArray FileData();
 
+                //void ReloadFile();
                 void TruncateFile();
 
 
