@@ -21,24 +21,21 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace DataAccess
+    namespace Custom
     {
-        namespace DataObjects
+        // A class used to hold data and serialize
+        //   the values to xml or access them conveniently with string keys
+        class DataContainer :   public QMap<QString, QByteArray>,
+                                public Core::Interfaces::IXmlSerializable
         {
-            // A class used to hold data and serialize
-            //   the values to xml or access them conveniently with string keys
-            class DataContainer :   public QMap<QString, QByteArray>,
-                                    public Core::Interfaces::IXmlSerializable
-            {
-            public:
-                DataContainer();
-                DataContainer(const DataContainer &);
+        public:
+            DataContainer();
+            DataContainer(const DataContainer &);
 
-                virtual std::string ToXml();
-                virtual void FromXml(const std::string &) throw(GUtil::Core::XmlException);
+            virtual std::string ToXml();
+            virtual void FromXml(const std::string &) throw(GUtil::Core::XmlException);
 
-            };
-        }
+        };
     }
 }
 

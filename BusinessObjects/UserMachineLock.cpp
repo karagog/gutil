@@ -17,21 +17,21 @@ limitations under the License.*/
 #include <QDesktopServices>
 using namespace GUtil;
 
-DataAccess::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier)
+BusinessObjects::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier)
 {
     _usermachinelockfile = new QtLockedFile();
 
     SetUserMachineLockIdentifier(id, modifier);
 }
 
-DataAccess::UserMachineLock::~UserMachineLock()
+BusinessObjects::UserMachineLock::~UserMachineLock()
 {
     UnlockForUserOnMachine();
 
     delete _usermachinelockfile;
 }
 
-void DataAccess::UserMachineLock::SetUserMachineLockIdentifier(
+void BusinessObjects::UserMachineLock::SetUserMachineLockIdentifier(
         const QString &identifier,
         const QString &modifier)
 {
@@ -46,14 +46,14 @@ void DataAccess::UserMachineLock::SetUserMachineLockIdentifier(
                                     QString::null));
 }
 
-void DataAccess::UserMachineLock::SetUserMachineLockFileName(const QString &fn)
+void BusinessObjects::UserMachineLock::SetUserMachineLockFileName(const QString &fn)
 {
     UnlockForUserOnMachine();
 
     _usermachinelockfile->setFileName(fn);
 }
 
-bool DataAccess::UserMachineLock::LockForUserOnMachine(bool block)
+bool BusinessObjects::UserMachineLock::LockForUserOnMachine(bool block)
             throw(Core::Exception)
 {
     if(FileNameForUserMachineLock() == QString::null)
@@ -82,7 +82,7 @@ bool DataAccess::UserMachineLock::LockForUserOnMachine(bool block)
     return IsLockedForUserOnMachine();
 }
 
-void DataAccess::UserMachineLock::UnlockForUserOnMachine()
+void BusinessObjects::UserMachineLock::UnlockForUserOnMachine()
 {
     if(!IsLockedForUserOnMachine())
         return;
@@ -91,12 +91,12 @@ void DataAccess::UserMachineLock::UnlockForUserOnMachine()
     _usermachinelockfile->close();
 }
 
-bool DataAccess::UserMachineLock::IsLockedForUserOnMachine() const
+bool BusinessObjects::UserMachineLock::IsLockedForUserOnMachine() const
 {
     return _usermachinelockfile->isLocked();
 }
 
-QString DataAccess::UserMachineLock::FileNameForUserMachineLock() const
+QString BusinessObjects::UserMachineLock::FileNameForUserMachineLock() const
 {
     return _usermachinelockfile->fileName();
 }

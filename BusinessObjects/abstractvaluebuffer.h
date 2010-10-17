@@ -36,17 +36,18 @@ namespace GUtil
         class AbstractLogger;
     }
 
+    namespace Custom
+    {
+        class DataContainer;
+    }
+
     namespace DataAccess
     {
-        namespace DataObjects
-        {
-            class DataContainer;
-        }
+        class AbstractDataTransportMechanism;
+    }
 
-        namespace DataTransports
-        {
-            class AbstractDataTransportMechanism;
-        }
+    namespace BusinessObjects
+    {
 
         // Serves as a generic class to hold values and send/receive them with
         //   the provided transport mechanism
@@ -75,13 +76,13 @@ namespace GUtil
         protected:
 
             // No public constructor; this class must be derived
-            AbstractValueBuffer(DataTransports::AbstractDataTransportMechanism *transport,
+            AbstractValueBuffer(DataAccess::AbstractDataTransportMechanism *transport,
                                 Utils::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
-            DataTransports::AbstractDataTransportMechanism &Transport() const;
+            DataAccess::AbstractDataTransportMechanism &Transport() const;
 
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data
@@ -143,14 +144,14 @@ namespace GUtil
             QQueue< QByteArray > out_queue;
 
             QReadWriteLock current_data_lock;
-            DataAccess::DataObjects::DataContainer *current_data;
+            Custom::DataContainer *current_data;
 
             void process_queues();
             void _flush_queue(QueueTypeEnum);
 
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
-            DataTransports::AbstractDataTransportMechanism *_transport;
+            DataAccess::AbstractDataTransportMechanism *_transport;
             Utils::AbstractLogger *_logger;
 
         };

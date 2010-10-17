@@ -13,23 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacontainer.h"
-#include "Custom/myxmlstreamreader.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <Utils/filelogger.h>
 using namespace GUtil;
 
-DataAccess::DataObjects::DataContainer::DataContainer()
+Custom::DataContainer::DataContainer()
     : QMap<QString, QByteArray>(), Core::Interfaces::IXmlSerializable(false)
 {}
 
-DataAccess::DataObjects::DataContainer::DataContainer(const DataContainer &other)
+Custom::DataContainer::DataContainer(const DataContainer &other)
     : QMap<QString, QByteArray>(other), Core::Interfaces::IXmlSerializable(false)
 {}
 
-std::string DataAccess::DataObjects::DataContainer::ToXml()
+std::string Custom::DataContainer::ToXml()
 {
     QString xmlstr;
     QXmlStreamWriter sw(&xmlstr);
@@ -58,26 +56,18 @@ std::string DataAccess::DataObjects::DataContainer::ToXml()
     return xmlstr.toStdString();
 }
 
-void DataAccess::DataObjects::DataContainer::FromXml(const std::string &dat) throw(Core::XmlException)
+void Custom::DataContainer::FromXml(const std::string &dat) throw(Core::XmlException)
 {
     clear();
 
-    Utils::FileLogger fl("xml_log.log");
-    fl.LogMessage(QString::fromStdString(dat), "Reading xml document");
-
-    Custom::myXmlStreamReader sr(dat.c_str());
+    QXmlStreamReader sr(dat.c_str());
 
     //Read in the startDocument tag
-    if(!sr.ReadStartDocument())
+    if(!sr.readNextStartElement())
         throw Core::XmlException("Invalid Xml Document");
 
-    if(!sr.ReadTilNextStartElement())  //Read in settings root
-        return;
-
-    while(sr.ReadTilNextStartElement())
+    while(sr.readNextStartElement())
     {
-        fl.LogMessage(sr.name().toString());
-
         if(!sr.attributes().hasAttribute("v"))
             throw Core::XmlException("XML not in correct format");
 
@@ -87,6 +77,6 @@ void DataAccess::DataObjects::DataContainer::FromXml(const std::string &dat) thr
         insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));
 
         // Read in the end element tag
-        //sr.readNext();
+        sr.readNext();
     }
 }

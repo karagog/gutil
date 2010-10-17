@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
-#include "DataObjects/datacontainer.h"
-#include "DataTransports/filetransport.h"
+#include "Custom/datacontainer.h"
+#include "DataAccess/filetransport.h"
 #include "Core/exception.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Utils/abstractlogger.h"
@@ -27,11 +27,11 @@ limitations under the License.*/
 #include <QTimer>
 using namespace GUtil;
 
-DataAccess::ConfigFile::ConfigFile(const QString &identifier,
+BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    Utils::AbstractLogger *logger,
                                    QObject *parent)
-    :DataAccess::AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(
             QString("%1.%2")
             .arg(get_file_location(identifier))
             .arg(modifier)),
@@ -39,19 +39,19 @@ DataAccess::ConfigFile::ConfigFile(const QString &identifier,
                                      parent)
 {
     // Set the file transport to overwrite the config file rather than append
-    FileTransport().SetWriteMode(DataAccess::DataTransports::FileTransport::WriteOver);
+    FileTransport().SetWriteMode(DataAccess::FileTransport::WriteOver);
 
     _init(identifier, modifier);
 }
 
-DataAccess::ConfigFile::ConfigFile(const DataAccess::ConfigFile &other, QObject *parent)
-    :AbstractValueBuffer(new DataAccess::DataTransports::FileTransport(other.FileName()),
+BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(other.FileName()),
                          other.Logger(), parent)
 {
     _init(other._identity, other._modifier);
 }
 
-void DataAccess::ConfigFile::_init(const QString &identity, const QString &modifier)
+void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &modifier)
 {
     SetXmlHumanReadableFormat(true);
 
@@ -61,34 +61,34 @@ void DataAccess::ConfigFile::_init(const QString &identity, const QString &modif
     importData(FileTransport().FileData());
 }
 
-void DataAccess::ConfigFile::Reload()
+void BusinessObjects::ConfigFile::Reload()
 {
     importData(FileTransport().ReceiveData());
 }
 
-QString DataAccess::ConfigFile::FileName() const
+QString BusinessObjects::ConfigFile::FileName() const
 {
     return FileTransport().FileName();
 }
 
-void DataAccess::ConfigFile::GetIdentity(QString &identifier, QString &modifier)
+void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modifier)
 {
     identifier = _identity;
     modifier = _modifier;
 }
 
-void DataAccess::ConfigFile::ValueChanged_protected() throw(GUtil::Core::Exception)
+void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception)
 {
     // Export the changed data to the config file
     enQueueCurrentData(false);
 }
 
-DataAccess::DataTransports::FileTransport &DataAccess::ConfigFile::FileTransport() const
+DataAccess::FileTransport &BusinessObjects::ConfigFile::FileTransport() const
 {
-    return (DataAccess::DataTransports::FileTransport &)Transport();
+    return (DataAccess::FileTransport &)Transport();
 }
 
-QString DataAccess::ConfigFile::get_file_location(QString id)
+QString BusinessObjects::ConfigFile::get_file_location(QString id)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     QString fl = id.toLower() + ".config.xml";
@@ -122,7 +122,7 @@ QString DataAccess::ConfigFile::get_file_location(QString id)
     return _config_filename;
 }
 
-std::string DataAccess::ConfigFile::ReadonlyMessageIdentifier() const
+std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
 {
     return "DataAccess::ConfigFile";
 }

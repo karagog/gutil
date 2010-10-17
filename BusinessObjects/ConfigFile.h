@@ -30,11 +30,11 @@ namespace GUtil
 
     namespace DataAccess
     {
-        namespace DataTransports
-        {
-            class FileTransport;
-        }
+        class FileTransport;
+    }
 
+    namespace BusinessObjects
+    {
         // This class provices a persistent storage of variables.  You can store
         //   binary data as well as normal string data, because it translates strings
         //   into base64 before writing them to disk.
@@ -60,7 +60,7 @@ namespace GUtil
         protected:
             virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
-            DataAccess::DataTransports::FileTransport &FileTransport() const;
+            DataAccess::FileTransport &FileTransport() const;
 
             virtual std::string ReadonlyMessageIdentifier() const;
 

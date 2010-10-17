@@ -26,7 +26,7 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace DataAccess
+    namespace BusinessObjects
     {
         class BinaryDataStore : public Core::Interfaces::IReadOnlyObject
         {

@@ -19,7 +19,7 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace std;
 
-DataAccess::DataTransports::StreamTransport::StreamTransport(istream *is, ostream *os, QObject *parent) :
+DataAccess::StreamTransport::StreamTransport(istream *is, ostream *os, QObject *parent) :
     AbstractDataTransportMechanism(parent)
 {
     _pre_init();
@@ -30,7 +30,7 @@ DataAccess::DataTransports::StreamTransport::StreamTransport(istream *is, ostrea
     SetStopOnLineEnd(false);
 }
 
-DataAccess::DataTransports::StreamTransport::StreamTransport(iostream *ios, QObject *parent) :
+DataAccess::StreamTransport::StreamTransport(iostream *ios, QObject *parent) :
     AbstractDataTransportMechanism(parent)
 {
     _pre_init();
@@ -38,7 +38,7 @@ DataAccess::DataTransports::StreamTransport::StreamTransport(iostream *ios, QObj
     _stream_inout = ios;
 }
 
-void DataAccess::DataTransports::StreamTransport::_pre_init()
+void DataAccess::StreamTransport::_pre_init()
 {
     _timer_id = -1;
     _polling_interval = _default_polling_interval;
@@ -48,7 +48,7 @@ void DataAccess::DataTransports::StreamTransport::_pre_init()
     _stream_inout = 0;
 }
 
-void DataAccess::DataTransports::StreamTransport::SetIStreamPollingEnabled(bool val)
+void DataAccess::StreamTransport::SetIStreamPollingEnabled(bool val)
 {
     if(val && _timer_id == -1)
     {
@@ -61,7 +61,7 @@ void DataAccess::DataTransports::StreamTransport::SetIStreamPollingEnabled(bool 
     }
 }
 
-void DataAccess::DataTransports::StreamTransport::SetIStreamPollingInterval(int new_interval)
+void DataAccess::StreamTransport::SetIStreamPollingInterval(int new_interval)
 {
     _polling_interval = new_interval;
 
@@ -70,7 +70,7 @@ void DataAccess::DataTransports::StreamTransport::SetIStreamPollingInterval(int 
     SetIStreamPollingEnabled(true);
 }
 
-void DataAccess::DataTransports::StreamTransport::timerEvent(QTimerEvent *ev)
+void DataAccess::StreamTransport::timerEvent(QTimerEvent *ev)
 {
     // This is the function that polls whether the istream has data
     if(ev->timerId() == _timer_id)
@@ -79,7 +79,7 @@ void DataAccess::DataTransports::StreamTransport::timerEvent(QTimerEvent *ev)
     }
 }
 
-void DataAccess::DataTransports::StreamTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
+void DataAccess::StreamTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
 {
     ostream *os = get_ostream();
 
@@ -93,7 +93,7 @@ void DataAccess::DataTransports::StreamTransport::send_data(const QByteArray &da
 
 #define CHAR_BUFFER_SIZE 1024
 
-QByteArray DataAccess::DataTransports::StreamTransport::receive_data()
+QByteArray DataAccess::StreamTransport::receive_data()
         throw(Core::DataTransportException, Core::EndOfFileException)
 {
     QByteArray ret;
@@ -124,29 +124,18 @@ QByteArray DataAccess::DataTransports::StreamTransport::receive_data()
         }
     }
 
-//    is->get(c);
-//    while(!(is->eof() || is->bad()))
-//    {
-//        // Break on new line
-//        if(_stop_on_line_end && (c == '\n'))
-//            break;
-
-//        ret.append(c);
-//        is->get(c);
-//    }
-
     if(is->bad())
         throw Core::DataTransportException("Stream read failed");
 
     return ret;
 }
 
-void DataAccess::DataTransports::StreamTransport::SetStopOnLineEnd(bool stp)
+void DataAccess::StreamTransport::SetStopOnLineEnd(bool stp)
 {
     _stop_on_line_end = stp;
 }
 
-void DataAccess::DataTransports::StreamTransport::update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException)
+void DataAccess::StreamTransport::update_has_data_variable(bool &has_data_variable) throw(GUtil::Core::DataTransportException)
 {
     istream *is = get_istream();
 
@@ -157,7 +146,7 @@ void DataAccess::DataTransports::StreamTransport::update_has_data_variable(bool 
     has_data_variable = !(is->eof() || is->bad());
 }
 
-std::ostream *DataAccess::DataTransports::StreamTransport::get_ostream()
+std::ostream *DataAccess::StreamTransport::get_ostream()
 {
     if(_stream_inout == 0)
         return _stream_out;
@@ -165,7 +154,7 @@ std::ostream *DataAccess::DataTransports::StreamTransport::get_ostream()
         return _stream_inout;
 }
 
-std::istream *DataAccess::DataTransports::StreamTransport::get_istream()
+std::istream *DataAccess::StreamTransport::get_istream()
 {
     if(_stream_inout == 0)
         return _stream_in;

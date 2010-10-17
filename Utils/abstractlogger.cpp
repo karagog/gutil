@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "abstractlogger.h"
 #include "pubsubsystem.h"
 #include "Core/exception.h"
-#include "DataAccess/DataTransports/abstractdatatransportmechanism.h"
+#include "DataAccess/abstractdatatransportmechanism.h"
 #include <QDateTime>
 using namespace GUtil;
 

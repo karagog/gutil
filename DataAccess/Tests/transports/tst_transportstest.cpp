@@ -12,12 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "DataAccess/DataTransports/consoletransport.h"
-#include "DataAccess/DataTransports/filetransport.h"
+#include "DataAccess/consoletransport.h"
+#include "DataAccess/filetransport.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
-using namespace GUtil::DataAccess::DataTransports;
+using namespace GUtil::DataAccess;
 
 class TransportsTest : public QObject
 {

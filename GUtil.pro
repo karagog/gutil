@@ -1,6 +1,6 @@
 
 TEMPLATE = subdirs
-SUBDIRS += Core Utils Tools DataAccess Custom Controls lib
+SUBDIRS += Core Utils Tools Custom DataAccess BusinessObjects Controls lib
 
 CONFIG += ordered
 

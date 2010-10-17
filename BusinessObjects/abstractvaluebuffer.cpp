@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
-#include "DataAccess/DataObjects/datacontainer.h"
-#include "DataTransports/abstractdatatransportmechanism.h"
+#include "Custom/datacontainer.h"
+#include "DataAccess/abstractdatatransportmechanism.h"
 #include "Utils/abstractlogger.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
@@ -22,8 +22,8 @@ limitations under the License.*/
 #include <QtConcurrentRun>
 using namespace GUtil;
 
-DataAccess::AbstractValueBuffer::AbstractValueBuffer(
-        DataAccess::DataTransports::AbstractDataTransportMechanism *transport,
+BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
+        DataAccess::AbstractDataTransportMechanism *transport,
         Utils::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
@@ -31,36 +31,36 @@ DataAccess::AbstractValueBuffer::AbstractValueBuffer(
             Core::Interfaces::IXmlSerializable(false)
 {
     _logger = logger;
-    current_data = new DataAccess::DataObjects::DataContainer();
+    current_data = new Custom::DataContainer();
 
     _transport = transport;
     connect(transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
 }
 
-DataAccess::AbstractValueBuffer::~AbstractValueBuffer()
+BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
 {
     delete current_data;
     delete _transport;
 }
 
-DataAccess::DataTransports::AbstractDataTransportMechanism &DataAccess::AbstractValueBuffer::Transport() const
+DataAccess::AbstractDataTransportMechanism &BusinessObjects::AbstractValueBuffer::Transport() const
 {
     return *_transport;
 }
 
-void DataAccess::AbstractValueBuffer::ValueChanged_protected() throw(Core::Exception)
+void BusinessObjects::AbstractValueBuffer::ValueChanged_protected() throw(Core::Exception)
 {
     // Do nothing by default
 }
 
-bool DataAccess::AbstractValueBuffer::SetValue(const QString &key, const QByteArray& value)
+bool BusinessObjects::AbstractValueBuffer::SetValue(const QString &key, const QByteArray& value)
 {
     QMap<QString, QByteArray> m;
     m.insert(key, value);
     return SetValues(m);
 }
 
-bool DataAccess::AbstractValueBuffer::SetValues(const QMap<QString, QByteArray> &values)
+bool BusinessObjects::AbstractValueBuffer::SetValues(const QMap<QString, QByteArray> &values)
 {
     FailIfReadOnly();
 
@@ -72,7 +72,7 @@ bool DataAccess::AbstractValueBuffer::SetValues(const QMap<QString, QByteArray> 
     return ValueChanged();
 }
 
-bool DataAccess::AbstractValueBuffer::ValueChanged()
+bool BusinessObjects::AbstractValueBuffer::ValueChanged()
 {
     try
     {
@@ -87,7 +87,7 @@ bool DataAccess::AbstractValueBuffer::ValueChanged()
     return true;
 }
 
-void DataAccess::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
+void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
                                                            QQueue<QByteArray> **q,
                                                            QMutex **m)
         throw(Core::Exception)
@@ -107,12 +107,12 @@ void DataAccess::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
     }
 }
 
-QByteArray DataAccess::AbstractValueBuffer::Value(const QString &key)
+QByteArray BusinessObjects::AbstractValueBuffer::Value(const QString &key)
 {
     return Values(QStringList(key)).value(key);
 }
 
-QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::Values(const QStringList &keys)
+QMap<QString, QByteArray> BusinessObjects::AbstractValueBuffer::Values(const QStringList &keys)
 {
     current_data_lock.lockForRead();
 
@@ -125,7 +125,7 @@ QMap<QString, QByteArray> DataAccess::AbstractValueBuffer::Values(const QStringL
     return ret;
 }
 
-bool DataAccess::AbstractValueBuffer::Contains(const QString &key)
+bool BusinessObjects::AbstractValueBuffer::Contains(const QString &key)
 {
     current_data_lock.lockForRead();
 
@@ -136,7 +136,7 @@ bool DataAccess::AbstractValueBuffer::Contains(const QString &key)
     return ret;
 }
 
-void DataAccess::AbstractValueBuffer::Clear()
+void BusinessObjects::AbstractValueBuffer::Clear()
 {
     FailIfReadOnly();
 
@@ -147,27 +147,27 @@ void DataAccess::AbstractValueBuffer::Clear()
     ValueChanged();
 }
 
-void DataAccess::AbstractValueBuffer::clearQueues()
+void BusinessObjects::AbstractValueBuffer::clearQueues()
 {
     _clear_queue(in_queue_mutex, in_queue);
     _clear_queue(out_queue_mutex, out_queue);
 }
 
-void DataAccess::AbstractValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteArray > &queue)
+void BusinessObjects::AbstractValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteArray > &queue)
 {
     lock.lock();
     queue.clear();
     lock.unlock();
 }
 
-bool DataAccess::AbstractValueBuffer::RemoveValue(const QString &key)
+bool BusinessObjects::AbstractValueBuffer::RemoveValue(const QString &key)
 {
     QStringList sl;
     sl.append(key);
     return RemoveValue(sl);
 }
 
-bool DataAccess::AbstractValueBuffer::RemoveValue(const QStringList &keys)
+bool BusinessObjects::AbstractValueBuffer::RemoveValue(const QStringList &keys)
 {
     FailIfReadOnly();
 
@@ -181,17 +181,17 @@ bool DataAccess::AbstractValueBuffer::RemoveValue(const QStringList &keys)
     return ValueChanged();
 }
 
-void DataAccess::AbstractValueBuffer::importData(const QByteArray &dat)
+void BusinessObjects::AbstractValueBuffer::importData(const QByteArray &dat)
 {
     enQueueMessage(InQueue, dat);
 }
 
-void DataAccess::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
+void BusinessObjects::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
 {
     en_deQueueMessage(q, msg, true);
 }
 
-void DataAccess::AbstractValueBuffer::enQueueCurrentData(bool clear)
+void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
 {
     QString data;
 
@@ -221,7 +221,7 @@ void DataAccess::AbstractValueBuffer::enQueueCurrentData(bool clear)
     enQueueMessage(OutQueue, data.toAscii());
 }
 
-void DataAccess::AbstractValueBuffer::process_input_data(const QByteArray &data)
+void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &data)
 {
     current_data_lock.lockForWrite();
     try
@@ -239,12 +239,12 @@ void DataAccess::AbstractValueBuffer::process_input_data(const QByteArray &data)
     current_data_lock.unlock();
 }
 
-QByteArray DataAccess::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
+QByteArray BusinessObjects::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
 {
     return en_deQueueMessage(q, QByteArray(), false);
 }
 
-QByteArray DataAccess::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
+QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
                                                               const QByteArray &msg,
                                                               bool enqueue)
 {
@@ -279,25 +279,25 @@ QByteArray DataAccess::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
     return ret;
 }
 
-void DataAccess::AbstractValueBuffer::LogException(const GUtil::Core::Exception &ex) const
+void BusinessObjects::AbstractValueBuffer::LogException(const GUtil::Core::Exception &ex) const
 {
     if(_logger != 0)
         _logger->LogException(ex);
 }
 
-Utils::AbstractLogger *DataAccess::AbstractValueBuffer::Logger() const
+Utils::AbstractLogger *BusinessObjects::AbstractValueBuffer::Logger() const
 {
     return _logger;
 }
 
-void DataAccess::AbstractValueBuffer::process_queues()
+void BusinessObjects::AbstractValueBuffer::process_queues()
 {
     // Flush the queues
     _flush_queue(OutQueue);
     _flush_queue(InQueue);
 }
 
-void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
+void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 {
     QQueue<QByteArray> *queue;
     QMutex *mutex;
@@ -336,7 +336,7 @@ void DataAccess::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
 }
 
-std::string DataAccess::AbstractValueBuffer::ToXml()
+std::string BusinessObjects::AbstractValueBuffer::ToXml()
 {
     current_data_lock.lockForRead();
     std::string ret = current_data->ToXml();
@@ -344,19 +344,19 @@ std::string DataAccess::AbstractValueBuffer::ToXml()
     return ret;
 }
 
-void DataAccess::AbstractValueBuffer::FromXml(const std::string &xml) throw(Core::XmlException)
+void BusinessObjects::AbstractValueBuffer::FromXml(const std::string &xml) throw(Core::XmlException)
 {
     enQueueMessage(InQueue, QByteArray(xml.c_str(), xml.length()));
 }
 
-void    DataAccess::AbstractValueBuffer::SetXmlHumanReadableFormat(bool h)
+void BusinessObjects::AbstractValueBuffer::SetXmlHumanReadableFormat(bool h)
 {
     Core::Interfaces::IXmlSerializable::SetXmlHumanReadableFormat(h);
 
     current_data->SetXmlHumanReadableFormat(h);
 }
 
-std::string DataAccess::AbstractValueBuffer::ReadonlyMessageIdentifier() const
+std::string BusinessObjects::AbstractValueBuffer::ReadonlyMessageIdentifier() const
 {
     return "DataAccess::AbstractValueBuffer";
 }

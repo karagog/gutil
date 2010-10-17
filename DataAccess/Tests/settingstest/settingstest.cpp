@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "Core/Tools/stringhelpers.h"
-#include "DataAccess/ConfigFile.h"
+#include "BusinessObjects/ConfigFile.h"
 #include "Utils/filelogger.h"
 #include "Core/exception.h"
 #include <string>
@@ -52,7 +52,7 @@ private slots:
     void catch_save_signal_not_test();
 
 private:
-    DataAccess::ConfigFile *settings;
+    BusinessObjects::ConfigFile *settings;
 
     bool save_flag;
 };
@@ -62,7 +62,7 @@ settingsTest::settingsTest(QObject *parent) :
 {
     Utils::FileLogger *l = new Utils::FileLogger("SettingsTest.log", 0, this);
     l->ClearLog();
-    settings = new DataAccess::ConfigFile("GTestLib", "", l, this);
+    settings = new BusinessObjects::ConfigFile("GTestLib", "", l, this);
     settings->Clear();
 }
 
@@ -104,7 +104,7 @@ void settingsTest::reading_same_value()
     //create a new settings object and see if it has that key from test case 1
     //qDebug("Reading the value back in...");
 
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     QString probe = QString::fromAscii(newsettings.Value("testkey"));
     QVERIFY(probe == "testval");
@@ -119,7 +119,7 @@ void settingsTest::null_dat()
 {
     settings->SetValue("nulldata", QByteArray());
 
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     QString probe = QString::fromAscii(newsettings.Value("nulldata"));
     QVERIFY(probe == "");
@@ -153,7 +153,7 @@ void settingsTest::multiple_values()
     QVERIFY(output[two] == settings->Value(two));
 
     // Test that a new settings object will have the same values
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     QVERIFY(settings->Value(one) == newsettings.Value(one));
     QVERIFY(settings->Value(two) == newsettings.Value(two));
@@ -193,7 +193,7 @@ void settingsTest::test_reload()
 {
     QString one = "reloadtest1";
 
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     settings->SetValue(one, QByteArray("fart"));
 
@@ -211,7 +211,7 @@ void settingsTest::test_bin_dat()
 
     settings->SetValue("binary", str);
 
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     QVERIFY(newsettings.Value("binary") == settings->Value("binary"));
     QVERIFY(newsettings.Value("binary") == str);
@@ -225,7 +225,7 @@ void settingsTest::test_erase_value()
     settings->SetValue(tmpkey, QByteArray("nothing"));
     settings->SetValue(permkey, QByteArray("value"));
 
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     QString probe = newsettings.Value(tmpkey);
     probe = settings->Value(tmpkey);
@@ -255,7 +255,7 @@ void settingsTest::test_clear_all_values()
     settings->SetValue(tmpkey, "nothing");
     settings->SetValue(permkey, "value");
 
-    DataAccess::ConfigFile newsettings(*settings);
+    BusinessObjects::ConfigFile newsettings(*settings);
 
     QVERIFY(newsettings.Value(tmpkey) == "nothing");
     QVERIFY(newsettings.Value(permkey) == "value");

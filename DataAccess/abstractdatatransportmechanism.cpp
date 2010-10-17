@@ -13,21 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractdatatransportmechanism.h"
-using namespace GUtil::DataAccess;
+using namespace GUtil;
 
-DataTransports::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObject *parent)
+DataAccess::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObject *parent)
     :QObject(parent), Core::Interfaces::IReadOnlyObject(false)
 {
     _has_data = false;
     _cur_state = GoodState;
 }
 
-void DataTransports::AbstractDataTransportMechanism::Write(const QByteArray &data)
+void DataAccess::AbstractDataTransportMechanism::Write(const QByteArray &data)
 {
     SendData(data);
 }
 
-void DataTransports::AbstractDataTransportMechanism::SendData(const QByteArray &data)
+void DataAccess::AbstractDataTransportMechanism::SendData(const QByteArray &data)
 {
     FailIfReadOnly();
 
@@ -48,7 +48,7 @@ void DataTransports::AbstractDataTransportMechanism::SendData(const QByteArray &
     emit notifyDataSent(data);
 }
 
-QByteArray DataTransports::AbstractDataTransportMechanism::ReceiveData()
+QByteArray DataAccess::AbstractDataTransportMechanism::ReceiveData()
 {
     _lock.lock();
 
@@ -69,45 +69,45 @@ QByteArray DataTransports::AbstractDataTransportMechanism::ReceiveData()
     return ret;
 }
 
-DataTransports::AbstractDataTransportMechanism &
-        DataTransports::AbstractDataTransportMechanism::operator << (const char*data)
+DataAccess::AbstractDataTransportMechanism &
+        DataAccess::AbstractDataTransportMechanism::operator << (const char*data)
 {
     SendData(QByteArray(data));
     return *this;
 }
 
-DataTransports::AbstractDataTransportMechanism &
-        DataTransports::AbstractDataTransportMechanism::operator << (const std::string &data)
+DataAccess::AbstractDataTransportMechanism &
+        DataAccess::AbstractDataTransportMechanism::operator << (const std::string &data)
 {
     return *this<<data.c_str();
 }
 
-DataTransports::AbstractDataTransportMechanism &
-        DataTransports::AbstractDataTransportMechanism::operator << (const QString &data)
+DataAccess::AbstractDataTransportMechanism &
+        DataAccess::AbstractDataTransportMechanism::operator << (const QString &data)
 {
     return *this<<data.toStdString();
 }
 
-void DataTransports::AbstractDataTransportMechanism::operator >> (QByteArray &data_target)
+void DataAccess::AbstractDataTransportMechanism::operator >> (QByteArray &data_target)
 {
     data_target = ReceiveData();
 }
 
-void DataTransports::AbstractDataTransportMechanism::operator >> (QString &dt)
+void DataAccess::AbstractDataTransportMechanism::operator >> (QString &dt)
 {
     QByteArray res;
     *this>>res;
     dt = QString(res);
 }
 
-void DataTransports::AbstractDataTransportMechanism::operator >> (std::string &dt)
+void DataAccess::AbstractDataTransportMechanism::operator >> (std::string &dt)
 {
     QByteArray res;
     *this>>res;
     dt = QString(res).toStdString();
 }
 
-void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_available()
+void DataAccess::AbstractDataTransportMechanism::trigger_update_has_data_available()
 {
     _lock.lock();
 
@@ -139,7 +139,7 @@ void DataTransports::AbstractDataTransportMechanism::trigger_update_has_data_ava
     _lock.unlock();
 }
 
-QString DataTransports::AbstractDataTransportMechanism::ReadonlyMessageIdentifier()
+QString DataAccess::AbstractDataTransportMechanism::ReadonlyMessageIdentifier()
 {
     return "DataAccess::DataTransports::AbstractDataTransportMechanism";
 }

@@ -22,10 +22,7 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        namespace DataTransports
-        {
-            class StreamTransport;
-        }
+        class StreamTransport;
     }
 
     namespace Utils
@@ -40,10 +37,10 @@ namespace GUtil
             explicit ConsoleLogger(PubSubSystem *pss = 0, QObject *parent = 0);
 
         protected:
-            virtual DataAccess::DataTransports::AbstractDataTransportMechanism &TransportMechanism();
+            virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
 
         private:
-            DataAccess::DataTransports::StreamTransport *_my_stream_transport;
+            DataAccess::StreamTransport *_my_stream_transport;
 
         };
     }

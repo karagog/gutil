@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "myxmlstreamreader.h"
+#include "Core/exception.h"
 #include <QXmlStreamWriter>
 using namespace GUtil;
 
@@ -46,18 +47,18 @@ Custom::myXmlStreamReader::myXmlStreamReader(const char *data)
 
 }
 
-bool Custom::myXmlStreamReader::ReadStartDocument()
-{
-    return readNext() == StartDocument;
-}
+//bool Custom::myXmlStreamReader::ReadStartDocument()
+//{
+//    return readNext() == StartDocument;
+//}
 
-bool Custom::myXmlStreamReader::ReadTilNextStartElement()
-{
-    while(readNext() != StartElement)
-        if(atEnd())
-            return false;
-    return true;
-}
+//bool Custom::myXmlStreamReader::ReadTilNextStartElement()
+//{
+//    while(readNext() != StartElement)
+//        if(atEnd())
+//            return false;
+//    return true;
+//}
 
 QString Custom::myXmlStreamReader::InnerText()
 {

@@ -12,25 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CONSOLETRANSPORT_H
-#define CONSOLETRANSPORT_H
+#include "consoletransport.h"
+#include <iostream>
+using namespace GUtil;
+using namespace std;
 
-#include "streamtransport.h"
-
-namespace GUtil
+DataAccess::ConsoleTransport::ConsoleTransport(QObject *parent) :
+    DataAccess::StreamTransport(&cin, &cout, parent)
 {
-    namespace DataAccess
-    {
-        namespace DataTransports
-        {
-            class ConsoleTransport : public StreamTransport
-            {
-                Q_OBJECT
-            public:
-                explicit ConsoleTransport(QObject *parent = 0);
-            };
-        }
-    }
+    SetStopOnLineEnd(true);
 }
-
-#endif // CONSOLETRANSPORT_H

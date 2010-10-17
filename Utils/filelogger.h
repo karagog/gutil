@@ -16,7 +16,7 @@ limitations under the License.*/
 #define FILELOGGER_H
 
 #include "abstractlogger.h"
-#include "DataAccess/DataTransports/filetransport.h"
+#include "DataAccess/filetransport.h"
 #include <fstream>
 
 namespace GUtil
@@ -37,11 +37,11 @@ namespace GUtil
             void ClearLog();
 
         protected:
-            virtual DataAccess::DataTransports::AbstractDataTransportMechanism &TransportMechanism();
+            virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
 
         private:
             QString _filename;
-            DataAccess::DataTransports::FileTransport _file_transport;
+            DataAccess::FileTransport _file_transport;
 
         };
     }

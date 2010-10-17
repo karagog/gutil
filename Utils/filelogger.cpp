@@ -21,7 +21,7 @@ Utils::FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObjec
     :AbstractLogger(pss, parent)
 {
     _file_transport.SetFileName(_filename = filename);
-    _file_transport.SetWriteMode(DataAccess::DataTransports::FileTransport::WriteAppend);
+    _file_transport.SetWriteMode(DataAccess::FileTransport::WriteAppend);
 }
 
 void Utils::FileLogger::ClearLog()
@@ -36,7 +36,7 @@ void Utils::FileLogger::ClearLog()
     }
 }
 
-DataAccess::DataTransports::AbstractDataTransportMechanism &Utils::FileLogger::TransportMechanism()
+DataAccess::AbstractDataTransportMechanism &Utils::FileLogger::TransportMechanism()
 {
     return _file_transport;
 }

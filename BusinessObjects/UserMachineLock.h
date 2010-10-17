@@ -27,7 +27,7 @@ namespace GUtil
         class AbstractLogger;
     }
 
-    namespace DataAccess
+    namespace BusinessObjects
     {
         // An easy to use inter-process locking mechanism.
 

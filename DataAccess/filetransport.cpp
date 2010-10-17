@@ -19,11 +19,11 @@ limitations under the License.*/
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>
-using namespace GUtil::DataAccess;
+using namespace GUtil;
 using namespace std;
 
-DataTransports::FileTransport::FileTransport(const QString &filename, QObject *parent)
-    :DataTransports::StreamTransport(_file = new fstream(), parent)
+DataAccess::FileTransport::FileTransport(const QString &filename, QObject *parent)
+    :DataAccess::StreamTransport(_file = new fstream(), parent)
 {
     SetStopOnLineEnd(false);
 
@@ -36,17 +36,17 @@ DataTransports::FileTransport::FileTransport(const QString &filename, QObject *p
     trigger_update_has_data_available();
 }
 
-void DataTransports::FileTransport::SetWriteMode(WriteModeEnum mode)
+void DataAccess::FileTransport::SetWriteMode(WriteModeEnum mode)
 {
     _write_mode = mode;
 }
 
-DataTransports::FileTransport::WriteModeEnum DataTransports::FileTransport::GetWriteMode()
+DataAccess::FileTransport::WriteModeEnum DataAccess::FileTransport::GetWriteMode()
 {
     return _write_mode;
 }
 
-void DataTransports::FileTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
+void DataAccess::FileTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)
 {
     _open_file(true);
 
@@ -68,11 +68,11 @@ void DataTransports::FileTransport::send_data(const QByteArray &data) throw(Core
     receive_data();
 }
 
-QByteArray DataTransports::FileTransport::receive_data() throw(Core::DataTransportException)
+QByteArray DataAccess::FileTransport::receive_data() throw(Core::DataTransportException)
 {
     _open_file(false);
 
-    last_data_received = DataTransports::StreamTransport::receive_data();
+    last_data_received = DataAccess::StreamTransport::receive_data();
 
     _close_file();
 
@@ -82,12 +82,12 @@ QByteArray DataTransports::FileTransport::receive_data() throw(Core::DataTranspo
     return last_data_received;
 }
 
-bool DataTransports::FileTransport::has_been_updated()
+bool DataAccess::FileTransport::has_been_updated()
 {
     return _last_update_time != QFileInfo(FileName()).lastModified();
 }
 
-void DataTransports::FileTransport::update_has_data_variable(bool &has_data_variable)
+void DataAccess::FileTransport::update_has_data_variable(bool &has_data_variable)
         throw(Core::DataTransportException)
 {
     has_data_variable = false;
@@ -98,7 +98,7 @@ void DataTransports::FileTransport::update_has_data_variable(bool &has_data_vari
 
         // The modify times don't match, so read the data and determine if it's new or not
         QByteArray tmphash = QCryptographicHash::hash(
-                DataTransports::StreamTransport::receive_data(),
+                DataAccess::StreamTransport::receive_data(),
                 QCryptographicHash::Md5);
 
         has_data_variable = tmphash != _hash;
@@ -107,7 +107,7 @@ void DataTransports::FileTransport::update_has_data_variable(bool &has_data_vari
     }
 }
 
-void DataTransports::FileTransport::SetFileName(const QString &filename)
+void DataAccess::FileTransport::SetFileName(const QString &filename)
 {
     if(_filename.length() > 0)
         _file_watcher->removePath(QString::fromStdString(_filename));
@@ -118,12 +118,12 @@ void DataTransports::FileTransport::SetFileName(const QString &filename)
         _file_watcher->addPath(filename);
 }
 
-QString DataTransports::FileTransport::FileName() const
+QString DataAccess::FileTransport::FileName() const
 {
     return QString::fromStdString(_filename);
 }
 
-QByteArray DataTransports::FileTransport::FileData()
+QByteArray DataAccess::FileTransport::FileData()
 {
     return last_data_received;
 }
@@ -133,7 +133,7 @@ QByteArray DataTransports::FileTransport::FileData()
 //    ReceiveData();
 //}
 
-void DataTransports::FileTransport::TruncateFile()
+void DataAccess::FileTransport::TruncateFile()
 {
     FailIfReadOnly();
 
@@ -143,7 +143,7 @@ void DataTransports::FileTransport::TruncateFile()
     SetWriteMode(_md);
 }
 
-void DataTransports::FileTransport::_open_file(bool for_write)
+void DataAccess::FileTransport::_open_file(bool for_write)
 {
     ios_base::openmode md;
 
@@ -170,7 +170,7 @@ void DataTransports::FileTransport::_open_file(bool for_write)
                 QString("Could not open file: %1").arg(FileName()).toStdString());
 }
 
-void DataTransports::FileTransport::_close_file()
+void DataAccess::FileTransport::_close_file()
 {
     _file->close();
 }

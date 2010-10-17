@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "consolelogger.h"
 #include "pubsubsystem.h"
-#include "DataAccess/DataTransports/streamtransport.h"
+#include "DataAccess/streamtransport.h"
 #include <iostream>
 using namespace GUtil;
 using namespace std;
@@ -22,10 +22,10 @@ using namespace std;
 Utils::ConsoleLogger::ConsoleLogger(PubSubSystem *pss, QObject *parent)
     :AbstractLogger(pss, parent)
 {
-    _my_stream_transport = new DataAccess::DataTransports::StreamTransport(0, &cout, this);
+    _my_stream_transport = new DataAccess::StreamTransport(0, &cout, this);
 }
 
-DataAccess::DataTransports::AbstractDataTransportMechanism &Utils::ConsoleLogger::TransportMechanism()
+DataAccess::AbstractDataTransportMechanism &Utils::ConsoleLogger::TransportMechanism()
 {
     return *_my_stream_transport;
 }
