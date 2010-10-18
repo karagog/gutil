@@ -15,7 +15,6 @@ limitations under the License.*/
 #include "abstractvaluebuffer.h"
 #include "Custom/datacontainer.h"
 #include "DataAccess/abstractdatatransportmechanism.h"
-#include "BusinessObjects/globallogger.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
@@ -78,7 +77,7 @@ bool BusinessObjects::AbstractValueBuffer::ValueChanged()
     }
     catch(Core::Exception &ex)
     {
-        BusinessObjects::GlobalLogger::LogException(ex);
+        LogException(ex);
         return false;
     }
 
@@ -210,7 +209,7 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     {
         current_data_lock.unlock();
 
-        BusinessObjects::GlobalLogger::LogException(ex);
+        LogException(ex);
         return;
     }
 
@@ -230,7 +229,7 @@ void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &
     {
         current_data_lock.unlock();
 
-        BusinessObjects::GlobalLogger::LogException(ex);
+        LogException(ex);
         return;
     }
 
@@ -256,7 +255,7 @@ QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum
     }
     catch(Core::Exception &ex)
     {
-        BusinessObjects::GlobalLogger::LogException(ex);
+        LogException(ex);
         return ret;
     }
 
@@ -295,7 +294,7 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
     catch(Core::Exception &ex)
     {
-        BusinessObjects::GlobalLogger::LogException(ex);
+        LogException(ex);
         return;
     }
 

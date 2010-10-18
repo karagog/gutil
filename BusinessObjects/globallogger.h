@@ -16,7 +16,6 @@ limitations under the License.*/
 #define GLOBALLOGGER_H
 
 #include <QObject>
-class QString;
 
 namespace GUtil
 {
@@ -29,47 +28,44 @@ namespace GUtil
     {
         class AbstractLogger;
 
-        // A static class to manage a global set of logging objects
         class GlobalLogger : public QObject
         {
             Q_OBJECT
         public:
+            // You shouldn't ever have to instantiate one of these yourself
+            explicit GlobalLogger(QObject *parent = 0);
 
-            // Use this for connecting to the static slots
+            // You can use this instance to connect to the static slots
             static GlobalLogger *Instance();
 
-            // Returns the logger id by which you can reference the inserted logger
-            static int SetupLogger(GUtil::BusinessObjects::AbstractLogger *, int logger_id = -1);
-            static int SetupDefaultLogger(const QString &filename);
+            static int SetupLogger(AbstractLogger *);
 
-            static void TakeDownLogger(int);
-            static void TakeDownDefaultLogger();
+            static int SetupFileLogger(const QString &filename);
+            static int SetupConsoleLogger();
 
-            static void ClearLog(int logger_id = 0);
+            static void TakedownLogger(int logger_id = -1);
 
+            static void ClearLog(int logger_id = -1);
+
+            static void SetDefaultLogger(int);
+            static int GetDefaultLogger();
 
         public slots:
             static void LogMessage(const QString &msg = QString::null,
                                    const QString &title = QString::null,
-                                   int logger_id = 0);
+                                   int logger_id = -1);
             static void LogWarning(const QString &msg = QString::null,
                                    const QString &title = QString::null,
-                                   int logger_id = 0);
+                                   int logger_id = -1);
             static void LogError(const QString &msg = QString::null,
                                  const QString &title = QString::null,
-                                 int logger_id = 0);
+                                 int logger_id = -1);
 
-            static void LogException(const GUtil::Core::Exception &, int logger_id = 0);
-            static void LogException(const std::exception &, int logger_id = 0);
+            static void LogException(const GUtil::Core::Exception &, int logger_id = -1);
+            static void LogException(const std::exception &, int logger_id = -1);
 
-            // The message type enum is declared in abstractlogger
-            static void Log(const QString &, const QString &, int logger_id, int message_type_enum);
+            static void Log(const QString &, const QString &, int logger_id, int message_level);
 
-        protected:
-            GlobalLogger();
-
-        private:
-            static void _takedown_logger(int);
         };
     }
 }

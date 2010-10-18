@@ -16,6 +16,7 @@ HEADERS += \
     abstractlogger.h \
     abstractdatabaselogger.h \
     io_queue_worker.h \
+    igloballogger.h \
     globallogger.h
 
 SOURCES += \
@@ -29,6 +30,7 @@ SOURCES += \
     abstractlogger.cpp \
     abstractdatabaselogger.cpp \
     io_queue_worker.cpp \
+    igloballogger.cpp \
     globallogger.cpp
 
 INCLUDEPATH += .. ../include

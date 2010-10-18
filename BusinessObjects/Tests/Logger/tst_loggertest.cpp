@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "BusinessObjects/filelogger.h"
 #include "BusinessObjects/consolelogger.h"
 #include "BusinessObjects/globallogger.h"
+#include "BusinessObjects/igloballogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include <QtConcurrentRun>
@@ -24,7 +25,7 @@ using namespace GUtil::Core;
 using namespace GUtil::Utils;
 using namespace GUtil::BusinessObjects;
 
-class LoggerTest : public QObject
+class LoggerTest : public QObject, public IGlobalLogger
 {
     Q_OBJECT
 
@@ -32,7 +33,7 @@ public:
     LoggerTest();
 
 signals:
-    void notify_message(const QString &);
+    void notify_message(const QString &, const QString &);
 
 protected:
     static void log_repetetive(int id);
@@ -54,14 +55,15 @@ LoggerTest::LoggerTest()
 
 void LoggerTest::initTestCase()
 {
-    GlobalLogger::SetupDefaultLogger("global.log");
-    connect(this, SIGNAL(notify_message(QString)), GlobalLogger::Instance(), SLOT(LogMessage(QString)));
+    GlobalLogger::SetupFileLogger("global.log");
+    connect(this, SIGNAL(notify_message(QString, QString)),
+            GlobalLogger::Instance(), SLOT(LogMessage(QString, QString)));
     GlobalLogger::ClearLog();
 }
 
 void LoggerTest::cleanupTestCase()
 {
-    GlobalLogger::TakeDownDefaultLogger();
+    TakeDownLogger();
 }
 
 void LoggerTest::test_normal_logging()
@@ -160,9 +162,26 @@ void LoggerTest::test_exception_logging()
 
 void LoggerTest::test_global_logging()
 {
-    GlobalLogger::LogMessage("Hello World!");
+    GlobalLogger::LogMessage("Hello World!", "From the static global implementation");
 
-    emit notify_message("From the static slot");
+    LogMessage("Hello World!", "From my own logging implementation:");
+
+    emit notify_message("Hello World!", "From the static slot");
+
+
+    // Now test a secondary log file and log to it:
+    int id = SetupLogger(new FileLogger("global.2.log"));
+    ClearLog(id);
+
+    LogMessage("Hello second log!", "", id);
+    GlobalLogger::LogMessage("Hi", "From the static global implementation", id);
+    GlobalLogger::TakedownLogger(id);
+
+    LogMessage("You shouldn't see this message!", "", id);
+
+    // Verify that the next logger gets the same id as the last one we took down
+    QVERIFY(SetupLogger(new ConsoleLogger()) == id);
+    TakeDownLogger(id);
 }
 
 void LoggerTest::test_concurrent()
