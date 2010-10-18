@@ -14,8 +14,10 @@ limitations under the License.*/
 
 #include "BusinessObjects/filelogger.h"
 #include "BusinessObjects/consolelogger.h"
+#include "BusinessObjects/globallogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
+#include <QtConcurrentRun>
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 using namespace GUtil::Core;
@@ -29,13 +31,37 @@ class LoggerTest : public QObject
 public:
     LoggerTest();
 
+signals:
+    void notify_message(const QString &);
+
+protected:
+    static void log_repetetive(int id);
+
 private Q_SLOTS:
+    void initTestCase();
     void test_normal_logging();
     void test_exception_logging();
+
+    void test_global_logging();
+    void test_concurrent();
+
+    void cleanupTestCase();
 };
 
 LoggerTest::LoggerTest()
 {
+}
+
+void LoggerTest::initTestCase()
+{
+    GlobalLogger::SetupDefaultLogger("global.log");
+    connect(this, SIGNAL(notify_message(QString)), GlobalLogger::Instance(), SLOT(LogMessage(QString)));
+    GlobalLogger::ClearLog();
+}
+
+void LoggerTest::cleanupTestCase()
+{
+    GlobalLogger::TakeDownDefaultLogger();
 }
 
 void LoggerTest::test_normal_logging()
@@ -131,6 +157,36 @@ void LoggerTest::test_exception_logging()
         flog.LogException(ex);
     }
 }
+
+void LoggerTest::test_global_logging()
+{
+    GlobalLogger::LogMessage("Hello World!");
+
+    emit notify_message("From the static slot");
+}
+
+void LoggerTest::test_concurrent()
+{
+    QFuture<void> f1 = QtConcurrent::run(log_repetetive, 1);
+    QFuture<void> f2 = QtConcurrent::run(log_repetetive, 2);
+    QFuture<void> f3 = QtConcurrent::run(log_repetetive, 3);
+    QFuture<void> f4 = QtConcurrent::run(log_repetetive, 4);
+
+    f1.waitForFinished();
+    f2.waitForFinished();
+    f3.waitForFinished();
+    f4.waitForFinished();
+}
+
+void LoggerTest::log_repetetive(int id)
+{
+    for(int i = 0; i < 10; i++)
+        GlobalLogger::LogMessage(QVariant(id).toString(), QString("Concurrent message #%1").arg(i));
+}
+
+
+
+
 
 QTEST_APPLESS_MAIN(LoggerTest);
 

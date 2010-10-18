@@ -49,6 +49,11 @@ BusinessObjects::AbstractLogger::MessageLevelEnum BusinessObjects::AbstractLogge
     return _message_level;
 }
 
+void BusinessObjects::AbstractLogger::ClearLog()
+{
+    // Do nothing by default
+}
+
 void BusinessObjects::AbstractLogger::LogMessage(const QString &msg, const QString &title)
 {
     Log(msg, title, Info);
@@ -86,7 +91,7 @@ void BusinessObjects::AbstractLogger::LogException(const Core::Exception &ex)
 
 void BusinessObjects::AbstractLogger::LogException(const std::exception &ex)
 {
-	Log(QString::null, "Exception Caught: std::exception", Error);
+    Log(QString::null, "Exception Caught: std::exception", Error);
 }
 
 void BusinessObjects::AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)

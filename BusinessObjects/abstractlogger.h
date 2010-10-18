@@ -52,6 +52,10 @@ namespace GUtil
             void SetMessageLevel(MessageLevelEnum);
             MessageLevelEnum GetMessageLevel();
 
+            // Clears the log file
+            virtual void ClearLog();
+
+            virtual ~AbstractLogger();
 
         public slots:
             void LogMessage(const QString &message, const QString &title = QString::null);
@@ -71,7 +75,6 @@ namespace GUtil
 
         protected:
             explicit AbstractLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
-            virtual ~AbstractLogger();
 
             // This function actually writes the message somewhere useful
             virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);

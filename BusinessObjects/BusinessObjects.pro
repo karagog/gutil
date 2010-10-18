@@ -15,7 +15,8 @@ HEADERS += \
     consolelogger.h \
     abstractlogger.h \
     abstractdatabaselogger.h \
-    io_queue_worker.h
+    io_queue_worker.h \
+    globallogger.h
 
 SOURCES += \
     UserMachineLock.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
     consolelogger.cpp \
     abstractlogger.cpp \
     abstractdatabaselogger.cpp \
-    io_queue_worker.cpp
+    io_queue_worker.cpp \
+    globallogger.cpp
 
 INCLUDEPATH += .. ../include

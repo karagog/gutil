@@ -36,8 +36,7 @@ namespace GUtil
                                 Utils::PubSubSystem *pss = 0,
                                 QObject *parent = 0);
 
-            // Clears the log file
-            void ClearLog();
+            virtual void ClearLog();
 
         protected:
             virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
