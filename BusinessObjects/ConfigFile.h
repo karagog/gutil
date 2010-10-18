@@ -44,7 +44,6 @@ namespace GUtil
             Q_OBJECT
         public:
             explicit ConfigFile(const QString &, const QString &modifier = "",
-                                BusinessObjects::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
 

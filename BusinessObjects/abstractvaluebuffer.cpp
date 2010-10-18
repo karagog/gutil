@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "abstractvaluebuffer.h"
 #include "Custom/datacontainer.h"
 #include "DataAccess/abstractdatatransportmechanism.h"
-#include "BusinessObjects/abstractlogger.h"
+#include "BusinessObjects/globallogger.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
@@ -24,13 +24,11 @@ using namespace GUtil;
 
 BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::AbstractDataTransportMechanism *transport,
-        BusinessObjects::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
             Core::Interfaces::IReadOnlyObject(false),
             Core::Interfaces::IXmlSerializable(false)
 {
-    _logger = logger;
     current_data = new Custom::DataContainer();
 
     _transport = transport;
@@ -80,7 +78,7 @@ bool BusinessObjects::AbstractValueBuffer::ValueChanged()
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        BusinessObjects::GlobalLogger::LogException(ex);
         return false;
     }
 
@@ -212,7 +210,7 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     {
         current_data_lock.unlock();
 
-        LogException(ex);
+        BusinessObjects::GlobalLogger::LogException(ex);
         return;
     }
 
@@ -232,7 +230,7 @@ void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &
     {
         current_data_lock.unlock();
 
-        LogException(ex);
+        BusinessObjects::GlobalLogger::LogException(ex);
         return;
     }
 
@@ -258,7 +256,7 @@ QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        BusinessObjects::GlobalLogger::LogException(ex);
         return ret;
     }
 
@@ -279,17 +277,6 @@ QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum
     return ret;
 }
 
-void BusinessObjects::AbstractValueBuffer::LogException(const GUtil::Core::Exception &ex) const
-{
-    if(_logger != 0)
-        _logger->LogException(ex);
-}
-
-BusinessObjects::AbstractLogger *BusinessObjects::AbstractValueBuffer::Logger() const
-{
-    return _logger;
-}
-
 void BusinessObjects::AbstractValueBuffer::process_queues()
 {
     // Flush the queues
@@ -308,7 +295,7 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        BusinessObjects::GlobalLogger::LogException(ex);
         return;
     }
 

@@ -73,7 +73,6 @@ namespace GUtil
 
             // No public constructor; this class must be derived
             AbstractValueBuffer(DataAccess::AbstractDataTransportMechanism *transport,
-                                BusinessObjects::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
@@ -87,9 +86,6 @@ namespace GUtil
 
             // Forcefully remove all data from the queue
             void clearQueues();
-
-            BusinessObjects::AbstractLogger *Logger() const;
-            void LogException(const GUtil::Core::Exception &) const;
 
 
             enum QueueTypeEnum
@@ -148,7 +144,6 @@ namespace GUtil
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
             DataAccess::AbstractDataTransportMechanism *_transport;
-            BusinessObjects::AbstractLogger *_logger;
 
         };
     }

@@ -13,11 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
-//#include "Custom/datacontainer.h"
 #include "DataAccess/filetransport.h"
 #include "Core/exception.h"
 #include "Core/Tools/stringhelpers.h"
-#include "BusinessObjects/abstractlogger.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -29,13 +27,11 @@ using namespace GUtil;
 
 BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
-                                   BusinessObjects::AbstractLogger *logger,
                                    QObject *parent)
     :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(
             QString("%1.%2")
             .arg(get_file_location(identifier))
             .arg(modifier)),
-                                     logger,
                                      parent)
 {
     // Set the file transport to overwrite the config file rather than append
@@ -45,8 +41,7 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
 }
 
 BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
-    :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(other.FileName()),
-                         other.Logger(), parent)
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(other.FileName()), parent)
 {
     _init(other._identity, other._modifier);
 }

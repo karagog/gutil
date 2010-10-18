@@ -59,8 +59,8 @@ namespace GUtil
                                  const QString &title = QString::null,
                                  int logger_id = 0);
 
-            static void LogException(const GUtil::Core::Exception &, int logger_id);
-            static void LogException(const std::exception &, int logger_id);
+            static void LogException(const GUtil::Core::Exception &, int logger_id = 0);
+            static void LogException(const std::exception &, int logger_id = 0);
 
             // The message type enum is declared in abstractlogger
             static void Log(const QString &, const QString &, int logger_id, int message_type_enum);
