@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "abstractvaluebuffer.h"
 #include "Custom/datacontainer.h"
 #include "DataAccess/abstractdatatransportmechanism.h"
-#include "Utils/abstractlogger.h"
+#include "BusinessObjects/abstractlogger.h"
 #include "Core/Tools/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
@@ -24,7 +24,7 @@ using namespace GUtil;
 
 BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::AbstractDataTransportMechanism *transport,
-        Utils::AbstractLogger *logger,
+        BusinessObjects::AbstractLogger *logger,
         QObject *parent)
             :QObject(parent),
             Core::Interfaces::IReadOnlyObject(false),
@@ -285,7 +285,7 @@ void BusinessObjects::AbstractValueBuffer::LogException(const GUtil::Core::Excep
         _logger->LogException(ex);
 }
 
-Utils::AbstractLogger *BusinessObjects::AbstractValueBuffer::Logger() const
+BusinessObjects::AbstractLogger *BusinessObjects::AbstractValueBuffer::Logger() const
 {
     return _logger;
 }

@@ -13,21 +13,20 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractdatabaselogger.h"
-#include "pubsubsystem.h"
 using namespace GUtil;
 
-Utils::AbstractDatabaseLogger::AbstractDatabaseLogger(PubSubSystem *pss, QObject *parent) :
-    AbstractLogger(pss, parent)
+BusinessObjects::AbstractDatabaseLogger::AbstractDatabaseLogger(Utils::PubSubSystem *pss, QObject *parent)
+    :BusinessObjects::AbstractLogger(pss, parent)
 {
 }
 
-bool Utils::AbstractDatabaseLogger::PreLogMessage()
+bool BusinessObjects::AbstractDatabaseLogger::PreLogMessage()
 {
     // Set up database connection
     return true;
 }
 
-void Utils::AbstractDatabaseLogger::PostLogMessage()
+void BusinessObjects::AbstractDatabaseLogger::PostLogMessage()
 {
     // Close database connection
 }

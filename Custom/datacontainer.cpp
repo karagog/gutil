@@ -62,7 +62,6 @@ void Custom::DataContainer::FromXml(const std::string &dat) throw(Core::XmlExcep
 
     QXmlStreamReader sr(dat.c_str());
 
-    //Read in the startDocument tag
     if(!sr.readNextStartElement())
         throw Core::XmlException("Invalid Xml Document");
 

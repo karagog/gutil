@@ -115,7 +115,18 @@ void DataAccess::FileTransport::SetFileName(const QString &filename)
     _filename = filename.toStdString();
 
     if(_filename.length() > 0)
+    {
+        QFile f(filename);
+
+        // Create the file if it doesn't exist
+        if(!f.exists())
+        {
+            f.open(QFile::WriteOnly);
+            f.close();
+        }
+
         _file_watcher->addPath(filename);
+    }
 }
 
 QString DataAccess::FileTransport::FileName() const

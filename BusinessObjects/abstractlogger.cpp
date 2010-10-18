@@ -13,13 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractlogger.h"
-#include "pubsubsystem.h"
+#include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include "DataAccess/abstractdatatransportmechanism.h"
 #include <QDateTime>
 using namespace GUtil;
 
-Utils::AbstractLogger::AbstractLogger(Utils::PubSubSystem *pss, QObject *parent)
+BusinessObjects::AbstractLogger::AbstractLogger(Utils::PubSubSystem *pss, QObject *parent)
     :QObject(parent)
 {
     _pubsub = pss;
@@ -34,37 +34,37 @@ Utils::AbstractLogger::AbstractLogger(Utils::PubSubSystem *pss, QObject *parent)
     }
 }
 
-Utils::AbstractLogger::~AbstractLogger()
+BusinessObjects::AbstractLogger::~AbstractLogger()
 {
 
 }
 
-void Utils::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
+void BusinessObjects::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
 {
     _message_level = message_level;
 }
 
-Utils::AbstractLogger::MessageLevelEnum Utils::AbstractLogger::GetMessageLevel()
+BusinessObjects::AbstractLogger::MessageLevelEnum BusinessObjects::AbstractLogger::GetMessageLevel()
 {
     return _message_level;
 }
 
-void Utils::AbstractLogger::LogMessage(const QString &msg, const QString &title)
+void BusinessObjects::AbstractLogger::LogMessage(const QString &msg, const QString &title)
 {
     Log(msg, title, Info);
 }
 
-void Utils::AbstractLogger::LogWarning(const QString &msg, const QString &title)
+void BusinessObjects::AbstractLogger::LogWarning(const QString &msg, const QString &title)
 {
     Log(msg, title, Warning);
 }
 
-void Utils::AbstractLogger::LogError(const QString &msg, const QString &title)
+void BusinessObjects::AbstractLogger::LogError(const QString &msg, const QString &title)
 {
     Log(msg, title, Error);
 }
 
-void Utils::AbstractLogger::LogException(const Core::Exception &ex)
+void BusinessObjects::AbstractLogger::LogException(const Core::Exception &ex)
 {
     QString data_string;
 
@@ -84,12 +84,12 @@ void Utils::AbstractLogger::LogException(const Core::Exception &ex)
         Error);
 }
 
-void Utils::AbstractLogger::LogException(const std::exception &ex)
+void BusinessObjects::AbstractLogger::LogException(const std::exception &ex)
 {
 	Log(QString::null, "Exception Caught: std::exception", Error);
 }
 
-void Utils::AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
+void BusinessObjects::AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
 {
     if(message_level < _message_level)
         return;
@@ -108,7 +108,11 @@ void Utils::AbstractLogger::Log(const QString &msg, const QString &title, Messag
     emit NotifyMessageLogged(log_message, message_level);
 }
 
-QString Utils::AbstractLogger::PrepareLogMessage(const QString &msg, const QString &title, Utils::AbstractLogger::MessageLevelEnum message_type, const QDateTime &dt)
+QString BusinessObjects::AbstractLogger::PrepareLogMessage(
+        const QString &msg,
+        const QString &title,
+        BusinessObjects::AbstractLogger::MessageLevelEnum message_type,
+        const QDateTime &dt)
 {
     QString msg_id;
     switch(message_type)
@@ -133,18 +137,7 @@ QString Utils::AbstractLogger::PrepareLogMessage(const QString &msg, const QStri
             .arg(msg.length() == 0 ? QString::null : QString("\n%1").arg(msg));
 }
 
-//bool Utils::AbstractLogger::PreLogMessage()
-//{
-//    // Do nothing by default
-//    return true;
-//}
-
-void Utils::AbstractLogger::LogMessage_protected(const QByteArray &log_message, MessageLevelEnum)
+void BusinessObjects::AbstractLogger::LogMessage_protected(const QByteArray &log_message, MessageLevelEnum)
 {
     TransportMechanism().SendData(log_message);
 }
-
-//void Utils::AbstractLogger::PostLogMessage()
-//{
-//    // Do nothing by default
-//}

@@ -12,14 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Utils/filelogger.h"
-#include "Utils/consolelogger.h"
+#include "BusinessObjects/filelogger.h"
+#include "BusinessObjects/consolelogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 using namespace GUtil::Core;
 using namespace GUtil::Utils;
+using namespace GUtil::BusinessObjects;
 
 class LoggerTest : public QObject
 {

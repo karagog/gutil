@@ -31,11 +31,6 @@ namespace GUtil
         class Exception;
     }
 
-    namespace Utils
-    {
-        class AbstractLogger;
-    }
-
     namespace Custom
     {
         class DataContainer;
@@ -48,6 +43,7 @@ namespace GUtil
 
     namespace BusinessObjects
     {
+        class AbstractLogger;
 
         // Serves as a generic class to hold values and send/receive them with
         //   the provided transport mechanism
@@ -77,7 +73,7 @@ namespace GUtil
 
             // No public constructor; this class must be derived
             AbstractValueBuffer(DataAccess::AbstractDataTransportMechanism *transport,
-                                Utils::AbstractLogger *logger = 0,
+                                BusinessObjects::AbstractLogger *logger = 0,
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
@@ -92,7 +88,7 @@ namespace GUtil
             // Forcefully remove all data from the queue
             void clearQueues();
 
-            Utils::AbstractLogger *Logger() const;
+            BusinessObjects::AbstractLogger *Logger() const;
             void LogException(const GUtil::Core::Exception &) const;
 
 
@@ -152,7 +148,7 @@ namespace GUtil
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
             DataAccess::AbstractDataTransportMechanism *_transport;
-            Utils::AbstractLogger *_logger;
+            BusinessObjects::AbstractLogger *_logger;
 
         };
     }

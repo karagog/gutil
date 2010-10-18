@@ -28,13 +28,16 @@ namespace GUtil
     namespace Utils
     {
         class PubSubSystem;
+    }
 
+    namespace BusinessObjects
+    {
         // Logs to the console
         class ConsoleLogger : public AbstractLogger
         {
             Q_OBJECT
         public:
-            explicit ConsoleLogger(PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit ConsoleLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
 
         protected:
             virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();

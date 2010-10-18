@@ -13,11 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
-#include "Custom/datacontainer.h"
+//#include "Custom/datacontainer.h"
 #include "DataAccess/filetransport.h"
 #include "Core/exception.h"
 #include "Core/Tools/stringhelpers.h"
-#include "Utils/abstractlogger.h"
+#include "BusinessObjects/abstractlogger.h"
 #include "qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -29,7 +29,7 @@ using namespace GUtil;
 
 BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
-                                   Utils::AbstractLogger *logger,
+                                   BusinessObjects::AbstractLogger *logger,
                                    QObject *parent)
     :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(
             QString("%1.%2")

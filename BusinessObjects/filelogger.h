@@ -12,32 +12,42 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef AbstractDatabaseLogger_H
-#define AbstractDatabaseLogger_H
+#ifndef FILELOGGER_H
+#define FILELOGGER_H
 
 #include "abstractlogger.h"
-#include <QSqlDatabase>
+#include "DataAccess/filetransport.h"
+#include <fstream>
 
 namespace GUtil
 {
     namespace Utils
     {
         class PubSubSystem;
+    }
 
-        // Logs stuff to a database
-
-        class AbstractDatabaseLogger : public AbstractLogger
+    namespace BusinessObjects
+    {
+        class FileLogger : public AbstractLogger
         {
             Q_OBJECT
-        protected:
-            explicit AbstractDatabaseLogger(PubSubSystem *pss = 0, QObject *parent = 0);
+        public:
+            explicit FileLogger(const QString &filename,
+                                Utils::PubSubSystem *pss = 0,
+                                QObject *parent = 0);
 
-            virtual bool PreLogMessage();
-            virtual void PostLogMessage();
+            // Clears the log file
+            void ClearLog();
+
+        protected:
+            virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
 
         private:
-            QSqlDatabase _dbase;
+            QString _filename;
+            DataAccess::FileTransport _file_transport;
+
         };
     }
 }
-#endif // AbstractDatabaseLogger_H
+
+#endif // FILELOGGER_H

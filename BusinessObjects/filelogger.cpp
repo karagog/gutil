@@ -13,18 +13,17 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "filelogger.h"
-#include "pubsubsystem.h"
 using namespace GUtil;
 using namespace std;
 
-Utils::FileLogger::FileLogger(const QString &filename, PubSubSystem *pss, QObject *parent)
-    :AbstractLogger(pss, parent)
+BusinessObjects::FileLogger::FileLogger(const QString &filename, Utils::PubSubSystem *pss, QObject *parent)
+    :BusinessObjects::AbstractLogger(pss, parent)
 {
     _file_transport.SetFileName(_filename = filename);
     _file_transport.SetWriteMode(DataAccess::FileTransport::WriteAppend);
 }
 
-void Utils::FileLogger::ClearLog()
+void BusinessObjects::FileLogger::ClearLog()
 {
     try
     {
@@ -36,7 +35,7 @@ void Utils::FileLogger::ClearLog()
     }
 }
 
-DataAccess::AbstractDataTransportMechanism &Utils::FileLogger::TransportMechanism()
+DataAccess::AbstractDataTransportMechanism &BusinessObjects::FileLogger::TransportMechanism()
 {
     return _file_transport;
 }

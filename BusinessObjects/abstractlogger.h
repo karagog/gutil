@@ -25,15 +25,18 @@ namespace GUtil
         class Exception;
     }
 
+    namespace Utils
+    {
+        class PubSubSystem;
+    }
+
     namespace DataAccess
     {
         class AbstractDataTransportMechanism;
     }
 
-    namespace Utils
+    namespace BusinessObjects
     {
-        class PubSubSystem;
-
         class AbstractLogger : public QObject
         {
             Q_OBJECT
@@ -67,7 +70,7 @@ namespace GUtil
 
 
         protected:
-            explicit AbstractLogger(PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit AbstractLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
             virtual ~AbstractLogger();
 
             // This function actually writes the message somewhere useful
@@ -84,7 +87,7 @@ namespace GUtil
 
 
         private:
-            PubSubSystem *_pubsub;
+            Utils::PubSubSystem *_pubsub;
             MessageLevelEnum _message_level;
 
         };
