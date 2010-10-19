@@ -4,10 +4,12 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
+    filetransport.h \
     localsockettransport.h \
     abstractdatatransportmechanism.h \
     streamtransport.h \
-    consoletransport.h
+    consoletransport.h \
+    abstractqiodevicetransport.h
 
 SOURCES += \
     ../src/qtlockedfile.cpp \
@@ -15,7 +17,8 @@ SOURCES += \
     localsockettransport.cpp \
     abstractdatatransportmechanism.cpp \
     streamtransport.cpp \
-    consoletransport.cpp
+    consoletransport.cpp \
+    abstractqiodevicetransport.cpp
 
 INCLUDEPATH += ../include ..
 QT += sql network

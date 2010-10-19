@@ -1,23 +1,26 @@
 #ifndef LOCALSOCKETTRANSPORT_H
 #define LOCALSOCKETTRANSPORT_H
 
-#include "abstractdatatransportmechanism.h"
-
-class QLocalSocket;
+#include "abstractqiodevicetransport.h"
+#include <QLocalSocket>
 
 namespace GUtil
 {
     namespace DataAccess
     {
-        class LocalSocketTransport : public AbstractDataTransportMechanism
+        class LocalSocketTransport : public AbstractQIODeviceTransport
         {
             Q_OBJECT
         public:
-            explicit LocalSocketTransport(QLocalSocket *sock, QObject *parent = 0);
+            explicit LocalSocketTransport(QLocalSocket *sock = 0, QObject *parent = 0);
 
+            void ConnectToServer(const QString &) throw(GUtil::Core::DataTransportException);
+            void DisconnectFromServer();
 
-        private:
-            QLocalSocket *_sock;
+            QString ServerName() const;
+
+        protected:
+            QLocalSocket &Socket() const;
 
         };
     }
