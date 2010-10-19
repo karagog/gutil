@@ -6,10 +6,12 @@ TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
-    usermachinelock.cpp
+    usermachinelock.cpp \
+    widgethelpers.cpp
 
 HEADERS += \
     pubsubsystem.h \
-    usermachinelock.h
+    usermachinelock.h \
+    widgethelpers.h
 
 INCLUDEPATH += .. ../include

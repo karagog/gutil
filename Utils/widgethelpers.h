@@ -19,7 +19,7 @@ class QWidget;
 
 namespace GUtil
 {
-    namespace Tools
+    namespace Utils
     {
         class WidgetHelpers
         {

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QWidget>
 using namespace GUtil;
 
-void Tools::WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
+void Utils::WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
 {
     QPoint p = main->pos();
 
@@ -29,7 +29,7 @@ void Tools::WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
                  p.y() + (myCenter.y() - hisCenter.y()));
 }
 
-void Tools::WidgetHelpers::centerInScreen(QWidget *w)
+void Utils::WidgetHelpers::centerInScreen(QWidget *w)
 {
     QRect r = QApplication::desktop()->availableGeometry();
     w->move(r.width() / 2 - (w->size().width() / 2),
