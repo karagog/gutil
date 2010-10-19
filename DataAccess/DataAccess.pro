@@ -9,7 +9,8 @@ HEADERS += \
     abstractdatatransportmechanism.h \
     streamtransport.h \
     consoletransport.h \
-    abstractqiodevicetransport.h
+    abstractqiodevicetransport.h \
+    processtransport.h
 
 SOURCES += \
     filetransport.cpp \
@@ -17,7 +18,8 @@ SOURCES += \
     abstractdatatransportmechanism.cpp \
     streamtransport.cpp \
     consoletransport.cpp \
-    abstractqiodevicetransport.cpp
+    abstractqiodevicetransport.cpp \
+    processtransport.cpp
 
 INCLUDEPATH += ..
 QT += sql network
