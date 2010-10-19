@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QString>
 
 class QtLockedFile;
+class QMutex;
 
 namespace GUtil
 {
@@ -49,6 +50,13 @@ namespace GUtil
 
         private:
             QtLockedFile *_usermachinelockfile;
+
+			bool _grab_mutex();
+			void _release_mutex();
+
+			QMutex *_get_mutex_reference();
+
+			bool _i_own_mutex;
         };
     }
 }
