@@ -22,25 +22,25 @@ limitations under the License.*/
 #include <QApplication>
 using namespace GUtil;
 
-QMap<int, BusinessObjects::AbstractLogger *> global_logger_list;
+QMap<int, Logging::AbstractLogger *> global_logger_list;
 QReadWriteLock global_logger_list_lock;
 
-BusinessObjects::IGlobalLogger::IGlobalLogger()
+Logging::IGlobalLogger::IGlobalLogger()
 {
     _default_logger_id = 0;
 }
 
-BusinessObjects::IGlobalLogger::~IGlobalLogger()
+Logging::IGlobalLogger::~IGlobalLogger()
 {
 
 }
 
-int BusinessObjects::IGlobalLogger::SetupLogger(BusinessObjects::AbstractLogger *logger)
+int Logging::IGlobalLogger::SetupLogger(Logging::AbstractLogger *logger)
 {
     return _setup_logger(logger, -1);
 }
 
-int BusinessObjects::IGlobalLogger::_setup_logger(BusinessObjects::AbstractLogger *logger, int logger_id)
+int Logging::IGlobalLogger::_setup_logger(Logging::AbstractLogger *logger, int logger_id)
 {
     global_logger_list_lock.lockForWrite();;
     {
@@ -61,17 +61,17 @@ int BusinessObjects::IGlobalLogger::_setup_logger(BusinessObjects::AbstractLogge
     return logger_id;
 }
 
-int BusinessObjects::IGlobalLogger::SetupFileLogger(const QString &filename)
+int Logging::IGlobalLogger::SetupFileLogger(const QString &filename)
 {
-    return _setup_logger(new BusinessObjects::FileLogger(filename, 0, qApp), GetDefaultLogger());
+    return _setup_logger(new Logging::FileLogger(filename, 0, qApp), GetDefaultLogger());
 }
 
-int BusinessObjects::IGlobalLogger::SetupConsoleLogger()
+int Logging::IGlobalLogger::SetupConsoleLogger()
 {
-    return _setup_logger(new BusinessObjects::ConsoleLogger(0, qApp), GetDefaultLogger());
+    return _setup_logger(new Logging::ConsoleLogger(0, qApp), GetDefaultLogger());
 }
 
-void BusinessObjects::IGlobalLogger::TakeDownLogger(int logger_id)
+void Logging::IGlobalLogger::TakeDownLogger(int logger_id)
 {
     _translate_logger_id(logger_id);
 
@@ -80,17 +80,17 @@ void BusinessObjects::IGlobalLogger::TakeDownLogger(int logger_id)
     global_logger_list_lock.unlock();
 }
 
-void BusinessObjects::IGlobalLogger::SetDefaultLogger(int new_id)
+void Logging::IGlobalLogger::SetDefaultLogger(int new_id)
 {
     _default_logger_id = new_id;
 }
 
-int BusinessObjects::IGlobalLogger::GetDefaultLogger()
+int Logging::IGlobalLogger::GetDefaultLogger()
 {
     return _default_logger_id;
 }
 
-void BusinessObjects::IGlobalLogger::ClearLog(int logger_id)
+void Logging::IGlobalLogger::ClearLog(int logger_id)
 {
     _translate_logger_id(logger_id);
 
@@ -100,7 +100,7 @@ void BusinessObjects::IGlobalLogger::ClearLog(int logger_id)
     global_logger_list_lock.unlock();
 }
 
-void BusinessObjects::IGlobalLogger::_takedown_logger(int logger_id)
+void Logging::IGlobalLogger::_takedown_logger(int logger_id)
 {
     if(global_logger_list.contains(logger_id))
     {
@@ -109,42 +109,30 @@ void BusinessObjects::IGlobalLogger::_takedown_logger(int logger_id)
     }
 }
 
-void BusinessObjects::IGlobalLogger::_translate_logger_id(int &id)
+void Logging::IGlobalLogger::_translate_logger_id(int &id)
 {
     if(id == -1)
         id = GetDefaultLogger();
 }
 
-void BusinessObjects::IGlobalLogger::LogMessage(const QString &msg,
+void Logging::IGlobalLogger::LogMessage(const QString &msg,
                        const QString &title,
                        int logger_id)
 {
-    Log(msg, title, logger_id, (int)BusinessObjects::AbstractLogger::Info);
+    Log(msg, title, logger_id, (int)Logging::AbstractLogger::Info);
 }
 
-void BusinessObjects::IGlobalLogger::LogWarning(const QString &msg, const QString &title, int logger_id)
+void Logging::IGlobalLogger::LogWarning(const QString &msg, const QString &title, int logger_id)
 {
-    Log(msg, title, logger_id, (int)BusinessObjects::AbstractLogger::Info);
+    Log(msg, title, logger_id, (int)Logging::AbstractLogger::Info);
 }
 
-void BusinessObjects::IGlobalLogger::LogError(const QString &msg, const QString &title, int logger_id)
+void Logging::IGlobalLogger::LogError(const QString &msg, const QString &title, int logger_id)
 {
-    Log(msg, title, logger_id, (int)BusinessObjects::AbstractLogger::Error);
+    Log(msg, title, logger_id, (int)Logging::AbstractLogger::Error);
 }
 
-void BusinessObjects::IGlobalLogger::LogException(const Core::Exception &ex, int logger_id)
-{
-    _translate_logger_id(logger_id);
-
-    global_logger_list_lock.lockForRead();
-
-    if(global_logger_list.contains(logger_id))
-        global_logger_list.value(logger_id)->LogException(ex);
-
-    global_logger_list_lock.unlock();
-}
-
-void BusinessObjects::IGlobalLogger::LogException(const std::exception &ex, int logger_id)
+void Logging::IGlobalLogger::LogException(const Core::Exception &ex, int logger_id)
 {
     _translate_logger_id(logger_id);
 
@@ -156,7 +144,19 @@ void BusinessObjects::IGlobalLogger::LogException(const std::exception &ex, int 
     global_logger_list_lock.unlock();
 }
 
-void BusinessObjects::IGlobalLogger::Log(const QString &msg,
+void Logging::IGlobalLogger::LogException(const std::exception &ex, int logger_id)
+{
+    _translate_logger_id(logger_id);
+
+    global_logger_list_lock.lockForRead();
+
+    if(global_logger_list.contains(logger_id))
+        global_logger_list.value(logger_id)->LogException(ex);
+
+    global_logger_list_lock.unlock();
+}
+
+void Logging::IGlobalLogger::Log(const QString &msg,
                                         const QString &title,
                                         int logger_id,
                                         int message_type_enum)
@@ -168,7 +168,7 @@ void BusinessObjects::IGlobalLogger::Log(const QString &msg,
     if(global_logger_list.contains(logger_id))
         global_logger_list.value(logger_id)->Log(
                 msg, title,
-                (BusinessObjects::AbstractLogger::MessageLevelEnum)message_type_enum);
+                (Logging::AbstractLogger::MessageLevelEnum)message_type_enum);
 
     global_logger_list_lock.unlock();
 }

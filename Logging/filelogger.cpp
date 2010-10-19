@@ -12,21 +12,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "abstractdatabaselogger.h"
+#include "filelogger.h"
 using namespace GUtil;
+using namespace std;
 
-BusinessObjects::AbstractDatabaseLogger::AbstractDatabaseLogger(Utils::PubSubSystem *pss, QObject *parent)
-    :BusinessObjects::AbstractLogger(pss, parent)
+Logging::FileLogger::FileLogger(const QString &filename, Utils::PubSubSystem *pss, QObject *parent)
+    :Logging::AbstractLogger(pss, parent)
 {
+    _file_transport.SetFileName(_filename = filename);
+    _file_transport.SetWriteMode(DataAccess::FileTransport::WriteAppend);
 }
 
-bool BusinessObjects::AbstractDatabaseLogger::PreLogMessage()
+void Logging::FileLogger::ClearLog()
 {
-    // Set up database connection
-    return true;
+    try
+    {
+        _file_transport.TruncateFile();
+    }
+    catch(Core::Exception &)
+    {
+
+    }
 }
 
-void BusinessObjects::AbstractDatabaseLogger::PostLogMessage()
+DataAccess::AbstractDataTransportMechanism &Logging::FileLogger::TransportMechanism()
 {
-    // Close database connection
+    return _file_transport;
 }

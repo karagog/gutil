@@ -12,41 +12,41 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CONSOLELOGGER_H
-#define CONSOLELOGGER_H
+#ifndef FILELOGGER_H
+#define FILELOGGER_H
 
 #include "abstractlogger.h"
-#include <QObject>
+#include "DataAccess/filetransport.h"
+#include <fstream>
 
 namespace GUtil
 {
-    namespace DataAccess
-    {
-        class StreamTransport;
-    }
-
     namespace Utils
     {
         class PubSubSystem;
     }
 
-    namespace BusinessObjects
+    namespace Logging
     {
-        // Logs to the console
-        class ConsoleLogger : public AbstractLogger
+        class FileLogger : public AbstractLogger
         {
             Q_OBJECT
         public:
-            explicit ConsoleLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit FileLogger(const QString &filename,
+                                Utils::PubSubSystem *pss = 0,
+                                QObject *parent = 0);
+
+            virtual void ClearLog();
 
         protected:
             virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
 
         private:
-            DataAccess::StreamTransport *_my_stream_transport;
+            QString _filename;
+            DataAccess::FileTransport _file_transport;
 
         };
     }
 }
 
-#endif // CONSOLELOGGER_H
+#endif // FILELOGGER_H

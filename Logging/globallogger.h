@@ -24,7 +24,7 @@ namespace GUtil
         class Exception;
     }
 
-    namespace BusinessObjects
+    namespace Logging
     {
         class AbstractLogger;
 

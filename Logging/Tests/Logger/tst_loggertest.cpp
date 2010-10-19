@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "BusinessObjects/filelogger.h"
-#include "BusinessObjects/consolelogger.h"
-#include "BusinessObjects/globallogger.h"
-#include "BusinessObjects/igloballogger.h"
+#include "Logging/filelogger.h"
+#include "Logging/consolelogger.h"
+#include "Logging/globallogger.h"
+#include "Logging/igloballogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include <QtConcurrentRun>
@@ -23,7 +23,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 using namespace GUtil::Core;
 using namespace GUtil::Utils;
-using namespace GUtil::BusinessObjects;
+using namespace GUtil::Logging;
 
 class LoggerTest : public QObject, public IGlobalLogger
 {

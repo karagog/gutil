@@ -11,13 +11,7 @@ HEADERS += \
     LocalClientServer.h \
     ConfigFile.h \
     abstractvaluebuffer.h \
-    filelogger.h \
-    consolelogger.h \
-    abstractlogger.h \
-    abstractdatabaselogger.h \
-    io_queue_worker.h \
-    igloballogger.h \
-    globallogger.h
+    io_queue_worker.h
 
 SOURCES += \
     UserMachineLock.cpp \
@@ -25,12 +19,6 @@ SOURCES += \
     LocalClientServer.cpp \
     ConfigFile.cpp \
     abstractvaluebuffer.cpp \
-    filelogger.cpp \
-    consolelogger.cpp \
-    abstractlogger.cpp \
-    abstractdatabaselogger.cpp \
-    io_queue_worker.cpp \
-    igloballogger.cpp \
-    globallogger.cpp
+    io_queue_worker.cpp
 
 INCLUDEPATH += .. ../include

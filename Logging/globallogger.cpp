@@ -16,35 +16,35 @@ limitations under the License.*/
 #include "igloballogger.h"
 using namespace GUtil;
 
-BusinessObjects::GlobalLogger this_instance;
-BusinessObjects::IGlobalLogger global_logger;
+Logging::GlobalLogger this_instance;
+Logging::IGlobalLogger global_logger;
 
-BusinessObjects::GlobalLogger::GlobalLogger(QObject *parent) :
+Logging::GlobalLogger::GlobalLogger(QObject *parent) :
     QObject(parent)
 {
 }
 
-BusinessObjects::GlobalLogger *BusinessObjects::GlobalLogger::Instance()
+Logging::GlobalLogger *Logging::GlobalLogger::Instance()
 {
     return &this_instance;
 }
 
-int BusinessObjects::GlobalLogger::SetupLogger(BusinessObjects::AbstractLogger *l)
+int Logging::GlobalLogger::SetupLogger(Logging::AbstractLogger *l)
 {
     return global_logger.SetupLogger(l);
 }
 
-int BusinessObjects::GlobalLogger::SetupFileLogger(const QString &filename)
+int Logging::GlobalLogger::SetupFileLogger(const QString &filename)
 {
     return global_logger.SetupFileLogger(filename);
 }
 
-int BusinessObjects::GlobalLogger::SetupConsoleLogger()
+int Logging::GlobalLogger::SetupConsoleLogger()
 {
     return global_logger.SetupConsoleLogger();
 }
 
-void BusinessObjects::GlobalLogger::TakedownLogger(int logger_id)
+void Logging::GlobalLogger::TakedownLogger(int logger_id)
 {
     if(logger_id == -1)
         global_logger.TakeDownLogger();
@@ -52,7 +52,7 @@ void BusinessObjects::GlobalLogger::TakedownLogger(int logger_id)
         global_logger.TakeDownLogger(logger_id);
 }
 
-void BusinessObjects::GlobalLogger::ClearLog(int logger_id)
+void Logging::GlobalLogger::ClearLog(int logger_id)
 {
     if(logger_id == -1)
         global_logger.ClearLog();
@@ -60,17 +60,17 @@ void BusinessObjects::GlobalLogger::ClearLog(int logger_id)
         global_logger.ClearLog(logger_id);
 }
 
-void BusinessObjects::GlobalLogger::SetDefaultLogger(int id)
+void Logging::GlobalLogger::SetDefaultLogger(int id)
 {
     global_logger.SetDefaultLogger(id);
 }
 
-int BusinessObjects::GlobalLogger::GetDefaultLogger()
+int Logging::GlobalLogger::GetDefaultLogger()
 {
     return global_logger.GetDefaultLogger();
 }
 
-void BusinessObjects::GlobalLogger::LogMessage(const QString &msg, const QString &title, int logger_id)
+void Logging::GlobalLogger::LogMessage(const QString &msg, const QString &title, int logger_id)
 {
     if(logger_id == -1)
         global_logger.LogMessage(msg, title);
@@ -78,7 +78,7 @@ void BusinessObjects::GlobalLogger::LogMessage(const QString &msg, const QString
         global_logger.LogMessage(msg, title, logger_id);
 }
 
-void BusinessObjects::GlobalLogger::LogWarning(const QString &msg, const QString &title, int logger_id)
+void Logging::GlobalLogger::LogWarning(const QString &msg, const QString &title, int logger_id)
 {
     if(logger_id == -1)
         global_logger.LogWarning(msg, title);
@@ -86,7 +86,7 @@ void BusinessObjects::GlobalLogger::LogWarning(const QString &msg, const QString
         global_logger.LogWarning(msg, title, logger_id);
 }
 
-void BusinessObjects::GlobalLogger::LogError(const QString &msg, const QString &title, int logger_id)
+void Logging::GlobalLogger::LogError(const QString &msg, const QString &title, int logger_id)
 {
     if(logger_id == -1)
         global_logger.LogError(msg, title);
@@ -94,7 +94,7 @@ void BusinessObjects::GlobalLogger::LogError(const QString &msg, const QString &
         global_logger.LogError(msg, title, logger_id);
 }
 
-void BusinessObjects::GlobalLogger::LogException(const GUtil::Core::Exception &ex, int logger_id)
+void Logging::GlobalLogger::LogException(const GUtil::Core::Exception &ex, int logger_id)
 {
     if(logger_id == -1)
         global_logger.LogException(ex);
@@ -102,7 +102,7 @@ void BusinessObjects::GlobalLogger::LogException(const GUtil::Core::Exception &e
         global_logger.LogException(ex, logger_id);
 }
 
-void BusinessObjects::GlobalLogger::LogException(const std::exception &ex, int logger_id)
+void Logging::GlobalLogger::LogException(const std::exception &ex, int logger_id)
 {
     if(logger_id == -1)
         global_logger.LogException(ex);
@@ -110,7 +110,7 @@ void BusinessObjects::GlobalLogger::LogException(const std::exception &ex, int l
         global_logger.LogException(ex, logger_id);
 }
 
-void BusinessObjects::GlobalLogger::Log(const QString &msg,
+void Logging::GlobalLogger::Log(const QString &msg,
                                         const QString &title,
                                         int logger_id,
                                         int message_level)

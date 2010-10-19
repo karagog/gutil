@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DO_VALUEBUFFER_H
 #define DO_VALUEBUFFER_H
 
-#include "BusinessObjects/igloballogger.h"
+#include "Logging/igloballogger.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/ixmlserializable.h"
 #include <QMap>
@@ -44,12 +44,10 @@ namespace GUtil
 
     namespace BusinessObjects
     {
-        class AbstractLogger;
-
         // Serves as a generic class to hold values and send/receive them with
         //   the provided transport mechanism
         class AbstractValueBuffer : public QObject,
-                                    public GUtil::BusinessObjects::IGlobalLogger,
+                                    public GUtil::Logging::IGlobalLogger,
                                     public GUtil::Core::Interfaces::IReadOnlyObject,
                                     public GUtil::Core::Interfaces::IXmlSerializable
         {

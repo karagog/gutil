@@ -25,7 +25,7 @@ namespace GUtil
         class PubSubSystem;
     }
 
-    namespace BusinessObjects
+    namespace Logging
     {
         // Logs stuff to a database
 

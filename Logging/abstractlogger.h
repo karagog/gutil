@@ -35,7 +35,7 @@ namespace GUtil
         class AbstractDataTransportMechanism;
     }
 
-    namespace BusinessObjects
+    namespace Logging
     {
         class AbstractLogger : public QObject
         {
