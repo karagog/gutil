@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef WIDGETHELPERS_H
 #define WIDGETHELPERS_H
 
+template <class T> class QList;
 class QWidget;
 
 namespace GUtil
@@ -26,10 +27,14 @@ namespace GUtil
         public:
 
             // Center the second widget over the first one
-            static void centerOverWidget(QWidget *, QWidget *);
+            static void CenterOverWidget(QWidget *, QWidget *);
 
             // Put the widget in the center of the screen
-            static void centerInScreen(QWidget *);
+            static void CenterInScreen(QWidget *);
+
+            // Lines up the widgets and spaces them evenly
+            static void AlignWidgets(const QList<QWidget *>&,
+                                     bool horizontally = true);
 
         };
     }

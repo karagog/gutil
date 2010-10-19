@@ -41,7 +41,10 @@ namespace GUtil
             void SetUserMachineLockFileName(const QString &);
 
             // Use these functions to lock/unlock this object for the user's machine
-            bool LockForUserOnMachine(bool block = false) throw(GUtil::Core::Exception);
+            void LockForUserOnMachine(bool block = false)
+                    throw(GUtil::Core::LockException,
+                          GUtil::Core::Exception);
+            bool TryLockForUserOnMachine();
             void UnlockForUserOnMachine();
 
             bool IsLockedForUserOnMachine() const;
@@ -51,7 +54,7 @@ namespace GUtil
         private:
             QtLockedFile *_usermachinelockfile;
 
-			bool _grab_mutex();
+                        bool _grab_mutex(bool block);
 			void _release_mutex();
 
 			QMutex *_get_mutex_reference();

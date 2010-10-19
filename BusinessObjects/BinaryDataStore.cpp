@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "BinaryDataStore.h"
-#include "Core/Tools/stringhelpers.h"
-#include "Core/Tools/encryption.h"
+#include "Core/Utils/stringhelpers.h"
+#include "Core/Utils/encryption.h"
 #include "Core/exception.h"
 #include <QDesktopServices>
 #include <QFile>

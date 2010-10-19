@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacontainer.h"
-#include "Core/Tools/stringhelpers.h"
+#include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -45,7 +45,7 @@ std::string Custom::DataContainer::ToXml()
             continue;
 
         sw.writeStartElement(s);
-        sw.writeAttribute("v", QString::fromStdString(Core::Tools::StringHelpers::toBase64(
+        sw.writeAttribute("v", QString::fromStdString(Core::Utils::StringHelpers::toBase64(
                 std::string(v.constData(), v.length()))));
         sw.writeEndElement();
     }
@@ -70,7 +70,7 @@ void Custom::DataContainer::FromXml(const std::string &dat) throw(Core::XmlExcep
         if(!sr.attributes().hasAttribute("v"))
             throw Core::XmlException("XML not in correct format");
 
-        std::string tmp = Core::Tools::StringHelpers::fromBase64(
+        std::string tmp = Core::Utils::StringHelpers::fromBase64(
                 sr.attributes().value("v").toString().toStdString());
 
         insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));

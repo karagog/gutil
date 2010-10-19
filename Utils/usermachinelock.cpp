@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "UserMachineLock.h"
+#include "usermachinelock.h"
 #include "ThirdParty/QtLockedFile/qtlockedfile.h"
 #include <QFileInfo>
 #include <QMap>
@@ -25,7 +25,7 @@ QMutex process_locks_lock;
 
 Utils::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier)
 {
-	_i_own_mutex = false;
+    _i_own_mutex = false;
 
     _usermachinelockfile = new QtLockedFile();
 
@@ -61,32 +61,46 @@ void Utils::UserMachineLock::SetUserMachineLockFileName(const QString &fn)
     _usermachinelockfile->setFileName(fn);
 }
 
-bool Utils::UserMachineLock::LockForUserOnMachine(bool block)
-            throw(Core::Exception)
+void Utils::UserMachineLock::LockForUserOnMachine(bool block)
+        throw(Core::LockException, Core::Exception)
 {
     // Lock the local mutex
-	if(!_grab_mutex())
-		throw Core::Exception("Already locked by another such object in this process!");
+    if(!_grab_mutex(block))
+        throw Core::LockException("Already locked by another such object in this process!");
 
-	// Then open the file in preparation for locking
+    // Then open the file in preparation for locking
     else if(!_usermachinelockfile->open(QFile::ReadWrite))
     {
         Core::Exception ex("Couldn't open lockfile!");
         ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
         ex.SetData("Error", _usermachinelockfile->errorString().toStdString());
 
-		_release_mutex();
+        _release_mutex();
         throw ex;
     }
 
-	// Then actually lock the file
+    // Then actually lock the file
     else if(!_usermachinelockfile->lock(QtLockedFile::WriteLock, block))
-	{
+    {
         _usermachinelockfile->close();
-		_release_mutex();
-	}
+        _release_mutex();
 
-    return IsLockedForUserOnMachine();
+        throw Core::LockException("Already locked by another process");
+    }
+}
+
+bool Utils::UserMachineLock::TryLockForUserOnMachine()
+{
+    try
+    {
+        LockForUserOnMachine(false);
+    }
+    catch(Core::Exception &)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void Utils::UserMachineLock::UnlockForUserOnMachine()
@@ -97,7 +111,7 @@ void Utils::UserMachineLock::UnlockForUserOnMachine()
     _usermachinelockfile->unlock();
     _usermachinelockfile->close();
 
-	_release_mutex();
+    _release_mutex();
 }
 
 bool Utils::UserMachineLock::IsLockedForUserOnMachine() const
@@ -110,41 +124,47 @@ QString Utils::UserMachineLock::FileNameForUserMachineLock() const
     return QFileInfo(*_usermachinelockfile).absoluteFilePath();
 }
 
-bool Utils::UserMachineLock::_grab_mutex()
+bool Utils::UserMachineLock::_grab_mutex(bool block)
 {
-	if(FileNameForUserMachineLock() == QString::null)
+    if(FileNameForUserMachineLock() == QString::null)
         throw Core::Exception("The machine-lock file has not been set.  You must "
                               "provide an identifier and optional modifier to use this function");
 
-	if(IsLockedForUserOnMachine())
+    if(IsLockedForUserOnMachine())
     {
         Core::Exception ex("Already locked!");
         ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
         throw ex;
     }
 
-	if(!_get_mutex_reference()->tryLock())
-		return false;
 
-	return _i_own_mutex = true;
+    if(block)
+    {
+        _get_mutex_reference()->lock();
+        _i_own_mutex = true;
+    }
+    else
+        _i_own_mutex = _get_mutex_reference()->tryLock();
+
+    return _i_own_mutex;
 }
 
 void Utils::UserMachineLock::_release_mutex()
 {
-	_get_mutex_reference()->unlock();
-	_i_own_mutex = false;
+    _get_mutex_reference()->unlock();
+    _i_own_mutex = false;
 }
 
 QMutex *Utils::UserMachineLock::_get_mutex_reference()
 {
-	process_locks_lock.lock();
+    process_locks_lock.lock();
 
-	QString s = FileNameForUserMachineLock();
-	if(!process_locks.contains(s))
-		process_locks.insert(s, new QMutex());
+    QString s = FileNameForUserMachineLock();
+    if(!process_locks.contains(s))
+        process_locks.insert(s, new QMutex());
 
-	QMutex *ret = process_locks.value(s);
+    QMutex *ret = process_locks.value(s);
 
-	process_locks_lock.unlock();
-	return ret;
+    process_locks_lock.unlock();
+    return ret;
 }

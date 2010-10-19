@@ -18,7 +18,8 @@ SOURCES += \
 
 INCLUDEPATH += .. ../ThirdParty/CryptoPP
 
-HEADERS += Tools/stringhelpers.h \
+HEADERS += \
+    Utils/stringhelpers.h \
     exception.h \
     Utils/encryption.h \
     BusinessObjects/actionstack.h \

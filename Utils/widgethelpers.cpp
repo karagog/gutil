@@ -13,12 +13,14 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "widgethelpers.h"
+#include "Core/exception.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QWidget>
+#include <QList>
 using namespace GUtil;
 
-void Utils::WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
+void Utils::WidgetHelpers::CenterOverWidget(QWidget *main, QWidget *child)
 {
     QPoint p = main->pos();
 
@@ -29,9 +31,16 @@ void Utils::WidgetHelpers::centerOverWidget(QWidget *main, QWidget *child)
                  p.y() + (myCenter.y() - hisCenter.y()));
 }
 
-void Utils::WidgetHelpers::centerInScreen(QWidget *w)
+void Utils::WidgetHelpers::CenterInScreen(QWidget *w)
 {
     QRect r = QApplication::desktop()->availableGeometry();
     w->move(r.width() / 2 - (w->size().width() / 2),
             r.height() / 2 - (w->size().height() / 2));
+}
+
+void Utils::WidgetHelpers::AlignWidgets(
+        const QList<QWidget *>&wl,
+        bool horizontally)
+{
+    throw Core::NotImplementedException();
 }

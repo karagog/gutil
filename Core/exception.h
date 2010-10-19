@@ -120,6 +120,17 @@ namespace GUtil
         protected:
             virtual std::string ToString_protected() const;
         };
+
+
+
+        class LockException : public Exception
+        {
+        public:
+            LockException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
     }
 }
 

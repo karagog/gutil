@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "ConfigFile.h"
 #include "DataAccess/filetransport.h"
 #include "Core/exception.h"
-#include "Core/Tools/stringhelpers.h"
+#include "Core/Utils/stringhelpers.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileSystemWatcher>

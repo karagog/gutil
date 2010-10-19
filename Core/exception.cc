@@ -153,3 +153,16 @@ std::string Core::EndOfFileException::ToString_protected() const
 {
     return "EndOfFile";
 }
+
+
+
+Core::LockException::LockException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::LockException::ToString_protected() const
+{
+    return "Locking";
+}

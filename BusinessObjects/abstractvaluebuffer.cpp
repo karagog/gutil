@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "abstractvaluebuffer.h"
 #include "Custom/datacontainer.h"
 #include "DataAccess/abstractdatatransportmechanism.h"
-#include "Core/Tools/stringhelpers.h"
+#include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
