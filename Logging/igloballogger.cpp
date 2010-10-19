@@ -63,12 +63,12 @@ int Logging::IGlobalLogger::_setup_logger(Logging::AbstractLogger *logger, int l
 
 int Logging::IGlobalLogger::SetupFileLogger(const QString &filename)
 {
-    return _setup_logger(new Logging::FileLogger(filename, 0, qApp), GetDefaultLogger());
+    return _setup_logger(new Logging::FileLogger(filename, qApp), GetDefaultLogger());
 }
 
 int Logging::IGlobalLogger::SetupConsoleLogger()
 {
-    return _setup_logger(new Logging::ConsoleLogger(0, qApp), GetDefaultLogger());
+    return _setup_logger(new Logging::ConsoleLogger(qApp), GetDefaultLogger());
 }
 
 void Logging::IGlobalLogger::TakeDownLogger(int logger_id)

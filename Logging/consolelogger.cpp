@@ -13,13 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "consolelogger.h"
-#include "DataAccess/streamtransport.h"
 #include <iostream>
 using namespace GUtil;
 using namespace std;
 
-Logging::ConsoleLogger::ConsoleLogger(Utils::PubSubSystem *pss, QObject *parent)
-    :Logging::AbstractLogger(pss, parent)
+Logging::ConsoleLogger::ConsoleLogger(QObject *parent)
+    :Logging::AbstractLogger(parent)
 {
     _my_stream_transport = new DataAccess::StreamTransport(0, &cout, this);
 }

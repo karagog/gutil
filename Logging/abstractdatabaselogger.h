@@ -20,11 +20,6 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace Utils
-    {
-        class PubSubSystem;
-    }
-
     namespace Logging
     {
         // Logs stuff to a database
@@ -33,10 +28,7 @@ namespace GUtil
         {
             Q_OBJECT
         protected:
-            explicit AbstractDatabaseLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
-
-            virtual bool PreLogMessage();
-            virtual void PostLogMessage();
+            explicit AbstractDatabaseLogger(QObject *parent = 0);
 
         private:
             QSqlDatabase _dbase;

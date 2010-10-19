@@ -16,20 +16,11 @@ limitations under the License.*/
 #define CONSOLELOGGER_H
 
 #include "abstractlogger.h"
+#include "DataAccess/streamtransport.h"
 #include <QObject>
 
 namespace GUtil
 {
-    namespace DataAccess
-    {
-        class StreamTransport;
-    }
-
-    namespace Utils
-    {
-        class PubSubSystem;
-    }
-
     namespace Logging
     {
         // Logs to the console
@@ -37,7 +28,7 @@ namespace GUtil
         {
             Q_OBJECT
         public:
-            explicit ConsoleLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit ConsoleLogger(QObject *parent = 0);
 
         protected:
             virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();

@@ -69,8 +69,11 @@ void LoggerTest::cleanupTestCase()
 void LoggerTest::test_normal_logging()
 {
     PubSubSystem pss;
-    ConsoleLogger clog(&pss, this);
-    FileLogger flog("test_logging.log", &pss, this);
+    ConsoleLogger clog(this);
+    FileLogger flog("test_logging.log", this);
+
+    connect(&pss, SIGNAL(NotifyMessage(QString,QString)), &clog, SLOT(LogMessage(QString,QString)));
+    connect(&pss, SIGNAL(NotifyMessage(QString,QString)), &flog, SLOT(LogMessage(QString,QString)));
 
     try
     {
@@ -102,8 +105,8 @@ void LoggerTest::test_normal_logging()
 
 void LoggerTest::test_exception_logging()
 {
-    ConsoleLogger clog(0, this);
-    FileLogger flog("test_exceptions.log", 0, this);
+    ConsoleLogger clog(this);
+    FileLogger flog("test_exceptions.log", this);
 
     flog.ClearLog();
 

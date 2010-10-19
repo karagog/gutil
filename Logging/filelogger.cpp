@@ -16,10 +16,10 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace std;
 
-Logging::FileLogger::FileLogger(const QString &filename, Utils::PubSubSystem *pss, QObject *parent)
-    :Logging::AbstractLogger(pss, parent)
+Logging::FileLogger::FileLogger(const QString &filename, QObject *parent)
+    :Logging::AbstractLogger(parent)
 {
-    _file_transport.SetFileName(_filename = filename);
+    _file_transport.SetFileName(filename);
     _file_transport.SetWriteMode(DataAccess::FileTransport::WriteAppend);
 }
 
@@ -38,4 +38,9 @@ void Logging::FileLogger::ClearLog()
 DataAccess::AbstractDataTransportMechanism &Logging::FileLogger::TransportMechanism()
 {
     return _file_transport;
+}
+
+QString Logging::FileLogger::FileName() const
+{
+    return _file_transport.FileName();
 }

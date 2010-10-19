@@ -21,28 +21,22 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace Utils
-    {
-        class PubSubSystem;
-    }
-
     namespace Logging
     {
         class FileLogger : public AbstractLogger
         {
             Q_OBJECT
         public:
-            explicit FileLogger(const QString &filename,
-                                Utils::PubSubSystem *pss = 0,
-                                QObject *parent = 0);
+            explicit FileLogger(const QString &filename, QObject *parent = 0);
 
             virtual void ClearLog();
+
+            QString FileName() const;
 
         protected:
             virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
 
         private:
-            QString _filename;
             DataAccess::FileTransport _file_transport;
 
         };

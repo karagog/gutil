@@ -13,25 +13,15 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractlogger.h"
-#include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include "DataAccess/abstractdatatransportmechanism.h"
 #include <QDateTime>
 using namespace GUtil;
 
-Logging::AbstractLogger::AbstractLogger(Utils::PubSubSystem *pss, QObject *parent)
+Logging::AbstractLogger::AbstractLogger(QObject *parent)
     :QObject(parent)
 {
-    _pubsub = pss;
-
     _message_level = Info;
-
-    if(pss != 0)
-    {
-        connect(pss, SIGNAL(NotifyMessage(QString,QString)), this, SLOT(LogMessage(QString,QString)));
-        connect(pss, SIGNAL(NotifyWarning(QString,QString)), this, SLOT(LogWarning(QString,QString)));
-        connect(pss, SIGNAL(NotifyError(QString,QString)), this, SLOT(LogError(QString,QString)));
-    }
 }
 
 Logging::AbstractLogger::~AbstractLogger()

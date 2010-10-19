@@ -15,18 +15,7 @@ limitations under the License.*/
 #include "abstractdatabaselogger.h"
 using namespace GUtil;
 
-Logging::AbstractDatabaseLogger::AbstractDatabaseLogger(Utils::PubSubSystem *pss, QObject *parent)
-    :Logging::AbstractLogger(pss, parent)
+Logging::AbstractDatabaseLogger::AbstractDatabaseLogger(QObject *parent)
+    :Logging::AbstractLogger(parent)
 {
-}
-
-bool Logging::AbstractDatabaseLogger::PreLogMessage()
-{
-    // Set up database connection
-    return true;
-}
-
-void Logging::AbstractDatabaseLogger::PostLogMessage()
-{
-    // Close database connection
 }

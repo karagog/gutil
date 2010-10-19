@@ -25,11 +25,6 @@ namespace GUtil
         class Exception;
     }
 
-    namespace Utils
-    {
-        class PubSubSystem;
-    }
-
     namespace DataAccess
     {
         class AbstractDataTransportMechanism;
@@ -74,7 +69,7 @@ namespace GUtil
 
 
         protected:
-            explicit AbstractLogger(Utils::PubSubSystem *pss = 0, QObject *parent = 0);
+            explicit AbstractLogger(QObject *parent = 0);
 
             // This function actually writes the message somewhere useful
             virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);
@@ -90,7 +85,6 @@ namespace GUtil
 
 
         private:
-            Utils::PubSubSystem *_pubsub;
             MessageLevelEnum _message_level;
 
         };
