@@ -12,7 +12,7 @@ extract_dataaccess.commands = ar -x libDataAccess.a
 extract_logging.commands = ar -x libLogging.a
 #extract_dataobjects.commands = ar -x libDataObjects.a
 extract_businessobjects.commands = ar -x libBusinessObjects.a
-extract_tools.commands = ar -x libTools.a
+#extract_tools.commands = ar -x libTools.a
 extract_utils.commands = ar -x libUtils.a
 
 
@@ -30,7 +30,7 @@ PRE_TARGETDEPS += \
   extract_logging \
   #extract_dataobjects \
   extract_businessobjects \
-  extract_tools \
+  #extract_tools \
   extract_utils \
   buildlib \
   copy_lib \
@@ -44,7 +44,7 @@ QMAKE_EXTRA_TARGETS += \
   extract_logging \
   #extract_dataobjects \
   extract_businessobjects \
-  extract_tools \
+  #extract_tools \
   extract_utils \
   buildlib \
   copy_lib \

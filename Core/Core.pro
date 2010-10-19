@@ -6,23 +6,23 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 SOURCES += \
-    Tools/Private/strings_p.cc \
-    Tools/stringhelpers.cc \
+    Utils/Private/strings_p.cc \
+    Utils/stringhelpers.cc \
     exception.cc \
-    Tools/encryption.cc \
-    Utils/actionstack.cpp \
-    Tools/cl_menu.cc \
+    Utils/encryption.cc \
+    BusinessObjects/actionstack.cpp \
+    Utils/cl_menu.cc \
     DataAccess/da_serialport.cc \
     Interfaces/ireadonlyobject.cpp \
     Interfaces/ixmlserializable.cpp
 
-INCLUDEPATH += Tools/cryptopp_src ..
+INCLUDEPATH += .. ../ThirdParty/CryptoPP
 
 HEADERS += Tools/stringhelpers.h \
     exception.h \
-    Tools/encryption.h \
-    Utils/actionstack.h \
-    Tools/cl_menu.h \
+    Utils/encryption.h \
+    BusinessObjects/actionstack.h \
+    Utils/cl_menu.h \
     DataAccess/da_serialport.h \
     Interfaces/ireadonlyobject.h \
     Interfaces/ixmlserializable.h

@@ -23,7 +23,7 @@ namespace GUtil
 {
     namespace Core
     {
-        namespace Tools
+        namespace Utils
         {
             class StringHelpers
             {

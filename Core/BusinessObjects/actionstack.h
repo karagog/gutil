@@ -21,7 +21,7 @@ namespace GUtil
 {
     namespace Core
     {
-        namespace Utils
+        namespace BusinessObjects
         {
             // Derive from this class to make action objects that undo what you want
             class action_t

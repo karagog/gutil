@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "strings_p.h"
 using namespace std;
-using namespace GUtil::Core::Tools::Private;
+using namespace GUtil::Core::Utils::Private;
 
 bool strings_p::translate_path(string &path)
 {
