@@ -28,7 +28,7 @@ int get_input(istream & in, int & result, int lowlimit, int highlimit){
 	while(!in.fail()){
 		istringstream tempstream(templine.c_str());				//Turn the line into a stream
 		tempstream >> tempselection;						//Grab the first word from the line (until whitespace)
-                if(Tools::StringHelpers::toInt(tempselection,selection)){		//If the selection was a valid number
+                if(Utils::StringHelpers::toInt(tempselection,selection)){		//If the selection was a valid number
 			if((selection >= lowlimit) && (selection <= highlimit)){	//If the selection is in bounds
 				//result = selection - 1;
 				result = selection;
@@ -88,7 +88,7 @@ bool get_yes_no(istream & str){
 	}
 
 	//At this point first_word is the word of interest; parse this for a valid 'yes'
-        first_word = Tools::StringHelpers::toLower(first_word);
+        first_word = Utils::StringHelpers::toLower(first_word);
 	if(first_word == "yes" || first_word == "y")
 		return(true);
 	return(false);

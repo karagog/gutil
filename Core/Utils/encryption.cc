@@ -23,11 +23,11 @@ limitations under the License.*/
 using namespace std;
 using namespace GUtil::Core;
 
-int Tools::CryptoHelpers::DEFAULT_COMPRESSION_LEVEL = CryptoPP::Gzip::DEFAULT_DEFLATE_LEVEL;
-int Tools::CryptoHelpers::MIN_COMPRESSION_LEVEL = CryptoPP::Gzip::MIN_DEFLATE_LEVEL;
-int Tools::CryptoHelpers::MAX_COMPRESSION_LEVEL = CryptoPP::Gzip::MAX_DEFLATE_LEVEL;
+int Utils::CryptoHelpers::DEFAULT_COMPRESSION_LEVEL = CryptoPP::Gzip::DEFAULT_DEFLATE_LEVEL;
+int Utils::CryptoHelpers::MIN_COMPRESSION_LEVEL = CryptoPP::Gzip::MIN_DEFLATE_LEVEL;
+int Utils::CryptoHelpers::MAX_COMPRESSION_LEVEL = CryptoPP::Gzip::MAX_DEFLATE_LEVEL;
 
-string Tools::CryptoHelpers::encryptString(const string &instr, const string &passPhrase)
+string Utils::CryptoHelpers::encryptString(const string &instr, const string &passPhrase)
 {
     string outstr;
 
@@ -47,7 +47,7 @@ string Tools::CryptoHelpers::encryptString(const string &instr, const string &pa
     return outstr;
 }
 
-string Tools::CryptoHelpers::decryptString(const string &instr, const string &passPhrase)
+string Utils::CryptoHelpers::decryptString(const string &instr, const string &passPhrase)
 {
     string outstr;
 
@@ -67,7 +67,7 @@ string Tools::CryptoHelpers::decryptString(const string &instr, const string &pa
     return outstr;
 }
 
-void Tools::CryptoHelpers::encryptFile(const char *in, const char *out, const char *passPhrase)
+void Utils::CryptoHelpers::encryptFile(const char *in, const char *out, const char *passPhrase)
 {
     try
     {
@@ -79,7 +79,7 @@ void Tools::CryptoHelpers::encryptFile(const char *in, const char *out, const ch
     }
 }
 
-void Tools::CryptoHelpers::decryptFile(const char *in, const char *out, const char *passPhrase)
+void Utils::CryptoHelpers::decryptFile(const char *in, const char *out, const char *passPhrase)
 {
     try
     {
@@ -91,7 +91,7 @@ void Tools::CryptoHelpers::decryptFile(const char *in, const char *out, const ch
     }
 }
 
-string Tools::CryptoHelpers::compress(const string &instr, int level)
+string Utils::CryptoHelpers::compress(const string &instr, int level)
 {
     string ret;
 
@@ -124,7 +124,7 @@ string Tools::CryptoHelpers::compress(const string &instr, int level)
     return "1" + ret;
 }
 
-string Tools::CryptoHelpers::decompress(const string &instr)
+string Utils::CryptoHelpers::decompress(const string &instr)
 {
     string tmp;
 
@@ -162,7 +162,7 @@ string Tools::CryptoHelpers::decompress(const string &instr)
     return tmp;
 }
 
-string Tools::CryptoHelpers::toBase64(const string &instr)
+string Utils::CryptoHelpers::toBase64(const string &instr)
 {
     string tmp;
 
@@ -173,7 +173,7 @@ string Tools::CryptoHelpers::toBase64(const string &instr)
     return tmp;
 }
 
-string Tools::CryptoHelpers::fromBase64(const string &instr)
+string Utils::CryptoHelpers::fromBase64(const string &instr)
 {
     string tmp;
 
@@ -190,7 +190,7 @@ string Tools::CryptoHelpers::fromBase64(const string &instr)
     return tmp;
 }
 
-string Tools::CryptoHelpers::toBase16(const string &instr)
+string Utils::CryptoHelpers::toBase16(const string &instr)
 {
     string tmp;
 
@@ -201,7 +201,7 @@ string Tools::CryptoHelpers::toBase16(const string &instr)
     return tmp;
 }
 
-string Tools::CryptoHelpers::fromBase16(const string &instr)
+string Utils::CryptoHelpers::fromBase16(const string &instr)
 {
     string tmp;
 
@@ -218,13 +218,13 @@ string Tools::CryptoHelpers::fromBase16(const string &instr)
     return tmp;
 }
 
-int Tools::CryptoHelpers::rand()
+int Utils::CryptoHelpers::rand()
 {
     CryptoPP::AutoSeededRandomPool rng;
     return rng.GenerateWord32();
 }
 
-string Tools::CryptoHelpers::randData(int size, int seed)
+string Utils::CryptoHelpers::randData(int size, int seed)
 {
     CryptoPP::RandomPool *rng;
     if(seed == -1)

@@ -14,4 +14,4 @@ HEADERS += \
     usermachinelock.h \
     widgethelpers.h
 
-INCLUDEPATH += .. ../include
+INCLUDEPATH += ..

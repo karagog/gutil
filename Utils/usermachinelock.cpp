@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "UserMachineLock.h"
-#include "qtlockedfile.h"
+#include "ThirdParty/QtLockedFile/qtlockedfile.h"
 #include <QDesktopServices>
 using namespace GUtil;
 

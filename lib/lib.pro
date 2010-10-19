@@ -16,11 +16,20 @@ extract_thirdparty.commands = ar -x libThirdParty.a
 extract_utils.commands = ar -x libUtils.a
 
 
+win32{
+	COPY = copy
+	REMOVE = del
+}
+unix{
+	COPY = cp
+	REMOVE = rm
+}
+
 BUILD_LIBRARY = libGUtil.a
 
 buildlib.commands = ar -rus $$BUILD_LIBRARY *.o
-copy_lib.commands = cp $$BUILD_LIBRARY ..
-cleanup.commands = rm *.o
+copy_lib.commands = $$COPY $$BUILD_LIBRARY ..
+cleanup.commands = $$REMOVE *.o
 
 PRE_TARGETDEPS += \
   extract_thirdparty \
