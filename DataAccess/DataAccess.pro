@@ -20,7 +20,7 @@ SOURCES += \
     consoletransport.cpp \
     abstractqiodevicetransport.cpp
 
-INCLUDEPATH += ../include ..
+INCLUDEPATH += ..
 QT += sql network
 
 win32 {

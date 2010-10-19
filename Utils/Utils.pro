@@ -5,9 +5,11 @@ DESTDIR = ../lib
 TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += \
-    pubsubsystem.cpp
+    pubsubsystem.cpp \
+    usermachinelock.cpp
 
 HEADERS += \
-    pubsubsystem.h
+    pubsubsystem.h \
+    usermachinelock.h
 
-INCLUDEPATH += ..
+INCLUDEPATH += .. ../include

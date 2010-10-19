@@ -24,11 +24,6 @@ namespace GUtil
 {
     namespace Utils
     {
-        class AbstractLogger;
-    }
-
-    namespace BusinessObjects
-    {
         // An easy to use inter-process locking mechanism.
 
         // Classes can implement this interface to achieve locking across the

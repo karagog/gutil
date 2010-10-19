@@ -15,7 +15,7 @@
 //#ifndef DA_LOCALCLIENTSERVER_H
 //#define DA_LOCALCLIENTSERVER_H
 
-//#include "Private/ValueBuffer.h"
+//#include "abstractvaluebuffer.h"
 //#include <QString>
 //#include <QList>
 //#include <QMap>
@@ -29,23 +29,9 @@
 
 //namespace GUtil
 //{
-//    namespace DataAccess
+//    namespace BusinessObjects
 //    {
 //        class UserMachineLock;
-
-//        namespace DA_LocalClientServer_Private
-//        {
-//            class IO_Queue;
-//        }
-
-//        namespace Private
-//        {
-//            namespace Transports
-//            {
-//                class IODevice_Transportort;
-//            }
-//        }
-
 //        class parameter_t
 //        {
 //        public:
@@ -60,7 +46,7 @@
 //        // Terminate the session on either the client or server with the 'goodbye' function
 
 //        // The base class for both client and server endpoints (abstract)
-//        class DA_LocalSocket : public Private::ValueBuffer
+//        class LocalClientServer : public AbstractValueBuffer
 //        {
 //            Q_OBJECT
 //        signals:
@@ -69,8 +55,8 @@
 
 //        protected:
 
-//            DA_LocalSocket(const QString &, const QString &, QObject *parent = 0);
-//            ~DA_LocalSocket();
+//            LocalClientServer(const QString &, const QString &, QObject *parent = 0);
+//            ~LocalClientServer();
 
 //            void sendMessage(QUuid, const QList<parameter_t> &params);
 //            void broadcastMessage(const QList<parameter_t> &);
@@ -112,7 +98,7 @@
 
 
 //        // Use this class as the server endpoint
-//        class DA_LocalServer : public DA_LocalSocket
+//        class DA_LocalServer : public LocalClientServer
 //        {
 //            Q_OBJECT
 //        protected:
