@@ -12,7 +12,6 @@ HEADERS += \
     abstractqiodevicetransport.h
 
 SOURCES += \
-    ../src/qtlockedfile.cpp \
     filetransport.cpp \
     localsockettransport.cpp \
     abstractdatatransportmechanism.cpp \
@@ -22,10 +21,3 @@ SOURCES += \
 
 INCLUDEPATH += ..
 QT += sql network
-
-win32 {
-    SOURCES += ../src/qtlockedfile_win.cpp
-}
-unix {
-    SOURCES += ../src/qtlockedfile_unix.cpp
-}

@@ -14,6 +14,7 @@ UNAME = $(shell uname)
 #ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 ISX86 = 1
 ISMINGW = $(shell uname | $(EGREP) -c "MINGW32")
+OUTPUT = ../../lib
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -129,6 +130,7 @@ install:
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
+	$(CP) $@ $(OUTPUT)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) -L. -lcryptopp $(LDFLAGS) $(LDLIBS)

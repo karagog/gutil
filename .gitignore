@@ -7,6 +7,7 @@ debug
 *.dll
 *.user
 *.exe
+*.out
 
 # The user can add this specially if they need it
 Makefile*
