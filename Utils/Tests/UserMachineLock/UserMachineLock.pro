@@ -17,5 +17,5 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-INCLUDEPATH += ../..
-LIBS += -L../../lib -lGUtil
+INCLUDEPATH += ../../..
+LIBS += -L../../../lib -lGUtil

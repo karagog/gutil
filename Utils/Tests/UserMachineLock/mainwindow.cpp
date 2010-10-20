@@ -19,7 +19,7 @@ void MainWindow::lock()
     {
         LockForUserOnMachine();
     }
-    catch(Core::Exception &ex)
+    catch(Core::LockException &ex)
     {
         QMessageBox::warning(this, "Lock Failed",
                              QString::fromStdString(ex.Message()));
