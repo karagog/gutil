@@ -15,12 +15,12 @@ namespace GUtil
         {
             Q_OBJECT
         public:
-            explicit ProcessTransport(QProcess *, QObject *parent = 0);
+            explicit ProcessTransport(QObject *parent = 0);
+            explicit ProcessTransport(QProcess *p, QObject *parent = 0);
             explicit ProcessTransport(const QString &exe_name,
                                       const QStringList &args,
                                       QObject *parent = 0);
 
-        protected:
             QProcess &Process() const;
 
         private:

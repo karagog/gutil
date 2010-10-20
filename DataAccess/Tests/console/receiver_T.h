@@ -12,24 +12,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CONSOLETRANSPORT_H
-#define CONSOLETRANSPORT_H
+#ifndef RECEIVER_T_H
+#define RECEIVER_T_H
 
-#include "streamtransport.h"
+#include <QObject>
+#include "DataAccess/consoletransport.h"
 
-namespace GUtil
+extern GUtil::DataAccess::ConsoleTransport *ct;
+
+class receiver_t : public QObject
 {
-    namespace DataAccess
+    Q_OBJECT
+public:
+    receiver_t():QObject(){}
+    virtual ~receiver_t(){}
+
+public slots:
+    void user_entered_data(const QByteArray &data)
     {
-        class ConsoleTransport : public StreamTransport
-        {
-            Q_OBJECT
-        public:
-            explicit ConsoleTransport(QObject *parent = 0);
-
-            static void WriteOut(const QString &);
-        };
+        ct->Write(QString("You just entered \"%1\"\n").arg(data.constData()).toAscii());
     }
-}
+};
 
-#endif // CONSOLETRANSPORT_H
+#endif // RECEIVER_T_H

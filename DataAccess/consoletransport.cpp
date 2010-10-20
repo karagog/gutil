@@ -21,4 +21,11 @@ DataAccess::ConsoleTransport::ConsoleTransport(QObject *parent) :
     DataAccess::StreamTransport(&cin, &cout, parent)
 {
     SetStopOnLineEnd(true);
+    SetIStreamPollingEnabled(true);
+}
+
+void DataAccess::ConsoleTransport::WriteOut(const QString &data)
+{
+    DataAccess::ConsoleTransport ct;
+    ct.Write(data.toAscii());
 }

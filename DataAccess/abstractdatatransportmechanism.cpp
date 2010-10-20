@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractdatatransportmechanism.h"
+#include <QWaitCondition>
 using namespace GUtil;
 
 DataAccess::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObject *parent)
@@ -117,17 +118,21 @@ void DataAccess::AbstractDataTransportMechanism::trigger_update_has_data_availab
 
         while(_has_data)
         {
+            QByteArray tmpdata;
             try
             {
-                last_data_received = receive_data();
+                tmpdata = last_data_received = receive_data();
             }
             catch(Core::EndOfFileException &)
             {
                 break;
             }
 
-            emit notifyNewData(last_data_received);
+            _lock.unlock();
 
+            emit notifyNewData(tmpdata);
+
+            _lock.lock();
             update_has_data_variable(_has_data);
         }
     }

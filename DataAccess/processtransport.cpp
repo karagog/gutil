@@ -2,8 +2,14 @@
 #include <QProcess>
 using namespace GUtil;
 
+DataAccess::ProcessTransport::ProcessTransport(QObject *parent)
+    :AbstractQIODeviceTransport(new QProcess(parent), parent)
+{
+    _init();
+}
+
 DataAccess::ProcessTransport::ProcessTransport(QProcess *p, QObject *parent)
-    :AbstractQIODeviceTransport(p, parent)
+    :AbstractQIODeviceTransport(p == 0 ? new QProcess(parent) : p, parent)
 {
     _init();
 }

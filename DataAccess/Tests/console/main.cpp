@@ -12,24 +12,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CONSOLETRANSPORT_H
-#define CONSOLETRANSPORT_H
+#include <QtCore/QCoreApplication>
+#include "DataAccess/consoletransport.h"
+#include "receiver_T.h"
+using namespace GUtil::DataAccess;
 
-#include "streamtransport.h"
+ConsoleTransport *ct;
 
-namespace GUtil
+receiver_t receiver;
+
+int main(int argc, char *argv[])
 {
-    namespace DataAccess
-    {
-        class ConsoleTransport : public StreamTransport
-        {
-            Q_OBJECT
-        public:
-            explicit ConsoleTransport(QObject *parent = 0);
+    QCoreApplication a(argc, argv);
 
-            static void WriteOut(const QString &);
-        };
-    }
+    ct = new ConsoleTransport(&a);
+
+    a.connect(ct, SIGNAL(notifyNewData(QByteArray)),
+              &receiver, SLOT(user_entered_data(QByteArray)));
+
+    return a.exec();
 }
-
-#endif // CONSOLETRANSPORT_H
