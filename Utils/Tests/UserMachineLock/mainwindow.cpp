@@ -9,7 +9,7 @@ using namespace GUtil;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    UserMachineLock("User_machine_lock_test"),
+    UserMachineMutex("User_machine_lock_test"),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);

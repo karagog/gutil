@@ -12,18 +12,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "usermachinelock.h"
+#include "usermachinemutex.h"
 #include "ThirdParty/QtLockedFile/qtlockedfile.h"
 #include <QFileInfo>
-#include <QMap>
-#include <QMutex>
 #include <QDesktopServices>
 using namespace GUtil;
 
-QMap<QString, QMutex *> process_locks;
-QMutex process_locks_lock;
+QMap<QString, QMutex *> Utils::UserMachineMutex::process_locks;
+QMutex Utils::UserMachineMutex::process_locks_lock;
 
-Utils::UserMachineLock::UserMachineLock(const QString &id, const QString &modifier)
+Utils::UserMachineMutex::UserMachineMutex(const QString &id, const QString &modifier)
 {
     _i_own_mutex = false;
 
@@ -32,14 +30,14 @@ Utils::UserMachineLock::UserMachineLock(const QString &id, const QString &modifi
     SetUserMachineLockIdentifier(id, modifier);
 }
 
-Utils::UserMachineLock::~UserMachineLock()
+Utils::UserMachineMutex::~UserMachineMutex()
 {
     UnlockForUserOnMachine();
 
     delete _usermachinelockfile;
 }
 
-void Utils::UserMachineLock::SetUserMachineLockIdentifier(
+void Utils::UserMachineMutex::SetUserMachineLockIdentifier(
         const QString &identifier,
         const QString &modifier)
 {
@@ -54,14 +52,14 @@ void Utils::UserMachineLock::SetUserMachineLockIdentifier(
                                     QString::null));
 }
 
-void Utils::UserMachineLock::SetUserMachineLockFileName(const QString &fn)
+void Utils::UserMachineMutex::SetUserMachineLockFileName(const QString &fn)
 {
     UnlockForUserOnMachine();
 
     _usermachinelockfile->setFileName(fn);
 }
 
-void Utils::UserMachineLock::LockForUserOnMachine(bool block)
+void Utils::UserMachineMutex::LockForUserOnMachine(bool block)
         throw(Core::LockException, Core::Exception)
 {
     // Lock the local mutex
@@ -96,7 +94,7 @@ void Utils::UserMachineLock::LockForUserOnMachine(bool block)
     }
 }
 
-bool Utils::UserMachineLock::TryLockForUserOnMachine()
+bool Utils::UserMachineMutex::TryLockForUserOnMachine()
 {
     try
     {
@@ -110,7 +108,7 @@ bool Utils::UserMachineLock::TryLockForUserOnMachine()
     return true;
 }
 
-void Utils::UserMachineLock::UnlockForUserOnMachine()
+void Utils::UserMachineMutex::UnlockForUserOnMachine()
 {
     if(!IsLockedForUserOnMachine())
         return;
@@ -121,17 +119,17 @@ void Utils::UserMachineLock::UnlockForUserOnMachine()
     _release_mutex();
 }
 
-bool Utils::UserMachineLock::IsLockedForUserOnMachine() const
+bool Utils::UserMachineMutex::IsLockedForUserOnMachine() const
 {
     return _i_own_mutex;
 }
 
-QString Utils::UserMachineLock::FileNameForUserMachineLock() const
+QString Utils::UserMachineMutex::FileNameForUserMachineLock() const
 {
     return QFileInfo(*_usermachinelockfile).absoluteFilePath();
 }
 
-void Utils::UserMachineLock::_grab_mutex(bool block)
+void Utils::UserMachineMutex::_grab_mutex(bool block)
 {
     if(FileNameForUserMachineLock() == QString::null)
         throw Core::Exception("The machine-lock file has not been set.  You must "
@@ -153,13 +151,13 @@ void Utils::UserMachineLock::_grab_mutex(bool block)
         throw Core::LockException("Lock held by someone else in this process!");
 }
 
-void Utils::UserMachineLock::_release_mutex()
+void Utils::UserMachineMutex::_release_mutex()
 {
     _get_mutex_reference()->unlock();
     _i_own_mutex = false;
 }
 
-QMutex *Utils::UserMachineLock::_get_mutex_reference()
+QMutex *Utils::UserMachineMutex::_get_mutex_reference()
 {
     process_locks_lock.lock();
 

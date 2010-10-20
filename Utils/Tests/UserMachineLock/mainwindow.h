@@ -2,14 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "Utils/usermachinelock.h"
+#include "Utils/usermachinemutex.h"
 
 namespace Ui {
     class MainWindow;
 }
 
 class MainWindow : public QMainWindow,
-                    public GUtil::Utils::UserMachineLock
+                    public GUtil::Utils::UserMachineMutex
 {
     Q_OBJECT
 

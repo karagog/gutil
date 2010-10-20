@@ -17,6 +17,8 @@ limitations under the License.*/
 
 #include "Core/exception.h"
 #include <QString>
+#include <QMap>
+#include <QMutex>
 
 class QtLockedFile;
 class QMutex;
@@ -29,12 +31,12 @@ namespace GUtil
 
         // Classes can implement this interface to achieve locking across the
         //    machine for the user who invokes it
-        class UserMachineLock
+        class UserMachineMutex
         {
         public:
-            UserMachineLock(const QString &identifier = QString::null,
+            UserMachineMutex(const QString &identifier = QString::null,
                             const QString &modifier = QString::null);
-            virtual ~UserMachineLock();
+            virtual ~UserMachineMutex();
 
             void SetUserMachineLockIdentifier(const QString &identifier = QString::null,
                                               const QString &modifier = QString::null);
@@ -60,6 +62,10 @@ namespace GUtil
             QMutex *_get_mutex_reference();
 
             bool _i_own_mutex;
+
+            // All of these objects share these global variables
+            static QMap<QString, QMutex *> process_locks;
+            static QMutex process_locks_lock;
         };
     }
 }
