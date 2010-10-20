@@ -82,7 +82,10 @@ void Logging::IGlobalLogger::TakeDownLogger(int logger_id)
 
 void Logging::IGlobalLogger::SetDefaultLogger(int new_id)
 {
-    _default_logger_id = new_id;
+    global_logger_list_lock.lockForRead();
+    if(global_logger_list.contains(new_id))
+        _default_logger_id = new_id;
+    global_logger_list_lock.unlock();
 }
 
 int Logging::IGlobalLogger::GetDefaultLogger()

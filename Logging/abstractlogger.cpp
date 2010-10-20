@@ -136,3 +136,8 @@ void Logging::AbstractLogger::LogMessage_protected(const QByteArray &log_message
 {
     TransportMechanism().SendData(log_message);
 }
+
+DataAccess::AbstractDataTransportMechanism &Logging::AbstractLogger::TransportMechanism()
+{
+    throw Core::NotImplementedException("A transport mechanism was not supplied to this logger");
+}
