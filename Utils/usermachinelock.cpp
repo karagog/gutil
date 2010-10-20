@@ -65,27 +65,34 @@ void Utils::UserMachineLock::LockForUserOnMachine(bool block)
         throw(Core::LockException, Core::Exception)
 {
     // Lock the local mutex
-    if(!_grab_mutex(block))
-        throw Core::LockException("Already locked by another such object in this process!");
-
-    // Then open the file in preparation for locking
-    else if(!_usermachinelockfile->open(QFile::ReadWrite))
+    try
     {
-        Core::Exception ex("Couldn't open lockfile!");
-        ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
-        ex.SetData("Error", _usermachinelockfile->errorString().toStdString());
+        _grab_mutex(block);
 
-        _release_mutex();
-        throw ex;
+        // Then open the file in preparation for locking
+        if(!_usermachinelockfile->open(QFile::ReadWrite))
+        {
+            Core::Exception ex("Couldn't open lockfile!");
+            ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
+            ex.SetData("Error", _usermachinelockfile->errorString().toStdString());
+
+            _release_mutex();
+            throw ex;
+        }
+
+        // Then actually lock the file
+        else if(!_usermachinelockfile->lock(QtLockedFile::WriteLock, block))
+        {
+            _usermachinelockfile->close();
+            _release_mutex();
+
+            throw Core::LockException("Already locked by another process");
+        }
     }
-
-    // Then actually lock the file
-    else if(!_usermachinelockfile->lock(QtLockedFile::WriteLock, block))
+    catch(Core::LockException &le)
     {
-        _usermachinelockfile->close();
-        _release_mutex();
-
-        throw Core::LockException("Already locked by another process");
+        le.SetData("Filename", FileNameForUserMachineLock().toStdString());
+        throw;
     }
 }
 
@@ -124,18 +131,14 @@ QString Utils::UserMachineLock::FileNameForUserMachineLock() const
     return QFileInfo(*_usermachinelockfile).absoluteFilePath();
 }
 
-bool Utils::UserMachineLock::_grab_mutex(bool block)
+void Utils::UserMachineLock::_grab_mutex(bool block)
 {
     if(FileNameForUserMachineLock() == QString::null)
         throw Core::Exception("The machine-lock file has not been set.  You must "
                               "provide an identifier and optional modifier to use this function");
 
     if(IsLockedForUserOnMachine())
-    {
-        Core::Exception ex("Already locked!");
-        ex.SetData("Filename", FileNameForUserMachineLock().toStdString());
-        throw ex;
-    }
+        throw Core::LockException("I already own the lock!");
 
 
     if(block)
@@ -146,7 +149,8 @@ bool Utils::UserMachineLock::_grab_mutex(bool block)
     else
         _i_own_mutex = _get_mutex_reference()->tryLock();
 
-    return _i_own_mutex;
+    if(!_i_own_mutex)
+        throw Core::LockException("Lock held by someone else in this process!");
 }
 
 void Utils::UserMachineLock::_release_mutex()

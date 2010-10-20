@@ -54,12 +54,12 @@ namespace GUtil
         private:
             QtLockedFile *_usermachinelockfile;
 
-                        bool _grab_mutex(bool block);
-			void _release_mutex();
+            void _grab_mutex(bool block);
+            void _release_mutex();
 
-			QMutex *_get_mutex_reference();
+            QMutex *_get_mutex_reference();
 
-			bool _i_own_mutex;
+            bool _i_own_mutex;
         };
     }
 }

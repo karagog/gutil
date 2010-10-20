@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "Core/exception.h"
+#include "Logging/globallogger.h"
 #include <QMessageBox>
 using namespace GUtil::Utils;
+using namespace GUtil::Logging;
 using namespace GUtil;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -21,8 +23,12 @@ void MainWindow::lock()
     }
     catch(Core::LockException &ex)
     {
-        QMessageBox::warning(this, "Lock Failed",
-                             QString::fromStdString(ex.Message()));
+        GlobalLogger::LogException(ex);
+        return;
+    }
+    catch(Core::Exception &ex)
+    {
+        GlobalLogger::LogException(ex);
         return;
     }
 
