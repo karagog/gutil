@@ -21,11 +21,21 @@ DataAccess::ConsoleTransport::ConsoleTransport(QObject *parent) :
     DataAccess::StreamTransport(&cin, &cout, parent)
 {
     SetStopOnLineEnd(true);
-    SetIStreamPollingEnabled(true);
+    //SetIStreamPollingEnabled(true);
 }
 
-void DataAccess::ConsoleTransport::WriteOut(const QString &data)
+void DataAccess::ConsoleTransport::WriteLine(const QByteArray &data)
 {
-    DataAccess::ConsoleTransport ct;
-    ct.Write(data.toAscii());
+    WriteLine(QString(data));
+}
+
+void DataAccess::ConsoleTransport::WriteLine(const QString &data)
+{
+    QString data_copy = data;
+
+    if(data.length() == 0 ||
+       data_copy.at(data_copy.length() - 1) != '\n')
+        data_copy.append('\n');
+
+    Write(data_copy.toAscii());
 }

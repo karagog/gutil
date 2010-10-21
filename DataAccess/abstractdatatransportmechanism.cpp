@@ -17,7 +17,7 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObject *parent)
-    :QObject(parent), Core::Interfaces::IReadOnlyObject(false)
+    :QThread(parent), Core::Interfaces::IReadOnlyObject(false)
 {
     _has_data = false;
     _cur_state = GoodState;

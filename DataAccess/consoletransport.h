@@ -27,7 +27,9 @@ namespace GUtil
         public:
             explicit ConsoleTransport(QObject *parent = 0);
 
-            static void WriteOut(const QString &);
+        public slots:
+            void WriteLine(const QByteArray &);
+            void WriteLine(const QString &);
         };
     }
 }

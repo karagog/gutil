@@ -13,9 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "streamtransport.h"
+#include "Custom/gthread.h"
 #include <iostream>
 #include <QTimerEvent>
 #include <QVariant>
+#include <QtConcurrentRun>
 using namespace GUtil;
 using namespace std;
 
@@ -28,6 +30,9 @@ DataAccess::StreamTransport::StreamTransport(istream *is, ostream *os, QObject *
     _stream_out = os;
 
     SetStopOnLineEnd(false);
+
+    setTerminationEnabled(true);
+    start();
 }
 
 DataAccess::StreamTransport::StreamTransport(iostream *ios, QObject *parent) :
@@ -36,47 +41,40 @@ DataAccess::StreamTransport::StreamTransport(iostream *ios, QObject *parent) :
     _pre_init();
 
     _stream_inout = ios;
+
+    start();
+}
+
+void DataAccess::StreamTransport::run()
+{
+    while(true)
+    {
+        string data;
+        istream *is = get_istream();
+
+        if(is != 0)
+        {
+            getline(*is, data);
+
+            if(!(is->eof() || is->bad()))
+                emit notifyNewData(QByteArray(data.c_str(), data.length()));
+        }
+    }
+}
+
+DataAccess::StreamTransport::~StreamTransport()
+{
+    terminate();
+    wait();
 }
 
 void DataAccess::StreamTransport::_pre_init()
 {
     _timer_id = -1;
-    _polling_interval = _default_polling_interval;
 
     _stream_in = 0;
     _stream_out = 0;
     _stream_inout = 0;
-}
-
-void DataAccess::StreamTransport::SetIStreamPollingEnabled(bool val)
-{
-    if(val && _timer_id == -1)
-    {
-        _timer_id = startTimer(_polling_interval);
-    }
-    else if(!val && _timer_id != -1)
-    {
-        killTimer(_timer_id);
-        _timer_id = -1;
-    }
-}
-
-void DataAccess::StreamTransport::SetIStreamPollingInterval(int new_interval)
-{
-    _polling_interval = new_interval;
-
-    // Reset the polling
-    SetIStreamPollingEnabled(false);
-    SetIStreamPollingEnabled(true);
-}
-
-void DataAccess::StreamTransport::timerEvent(QTimerEvent *ev)
-{
-    // This is the function that polls whether the istream has data
-    if(ev->timerId() == _timer_id)
-    {
-        trigger_update_has_data_available();
-    }
 }
 
 void DataAccess::StreamTransport::send_data(const QByteArray &data) throw(Core::DataTransportException)

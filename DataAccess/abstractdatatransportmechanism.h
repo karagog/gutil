@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QByteArray>
 #include <QMutex>
-#include <QObject>
+#include <QThread>
 #include "Core/exception.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 
@@ -34,7 +34,7 @@ namespace GUtil
         // These functions simplify data transportation to send/receive commands.  The derived transport class
         //   will be responsible for the actual transport mechanism, including protocols and the data exchange.
 
-        class AbstractDataTransportMechanism : public QObject, public Core::Interfaces::IReadOnlyObject
+        class AbstractDataTransportMechanism : public QThread, public Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
 
