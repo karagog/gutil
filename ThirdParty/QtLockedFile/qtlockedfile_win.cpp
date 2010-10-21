@@ -44,7 +44,6 @@
 ** 
 ****************************************************************************/
 
-
 #include "qtlockedfile.h"
 #include <qt_windows.h>
 #include <QtCore/QFileInfo>
@@ -212,4 +211,3 @@ QtLockedFile::~QtLockedFile()
     if (wmutex)
         CloseHandle(wmutex);
 }
-
