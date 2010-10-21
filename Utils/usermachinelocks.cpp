@@ -94,7 +94,8 @@ void Utils::MachineLockBase::SetUserMachineLockFileName(const QString &fn)
 {
     UnlockForMachine();
 
-    _usermachinelockfile->setFileName(fn);
+    delete _usermachinelockfile;
+    _usermachinelockfile = new QtLockedFile(fn);
 }
 
 void Utils::MachineLockBase::lock(bool for_read, bool block)

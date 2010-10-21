@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&ui->line_edit->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(set_lock_file(QString)));
 
     set_lock_file();
+
+    ui->cmb_lockSelect->setCurrentIndex(1);
 }
 
 void MainWindow::get_file()
@@ -51,6 +53,8 @@ void MainWindow::set_lock_file(const QString &new_filename)
         _mutex->SetUserMachineLockFileName(new_filename);
         _rw_lock->SetUserMachineLockFileName(new_filename);
     }
+
+    ui->lbl_filename->setText(_mutex->FileNameForMachineLock());
 }
 
 void MainWindow::lockWrite()
@@ -95,10 +99,8 @@ void MainWindow::lock(bool for_read)
 
 void MainWindow::unlock()
 {
-    if(using_mutex())
-        _mutex->UnlockForMachine();
-    else
-        _rw_lock->UnlockForMachine();
+    _mutex->UnlockForMachine();
+    _rw_lock->UnlockForMachine();
 
     ui->lbl_status->clear();
 }

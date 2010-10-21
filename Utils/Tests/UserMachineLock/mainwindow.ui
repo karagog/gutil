@@ -36,6 +36,13 @@
      <widget class="GUtil::Controls::line_edit_with_button" name="line_edit" native="true"/>
     </item>
     <item>
+     <widget class="QLabel" name="lbl_filename">
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="lbl_status">
       <property name="text">
        <string/>
