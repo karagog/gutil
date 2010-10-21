@@ -23,6 +23,11 @@ DataAccess::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObje
     _cur_state = GoodState;
 }
 
+DataAccess::AbstractDataTransportMechanism::~AbstractDataTransportMechanism()
+{
+
+}
+
 void DataAccess::AbstractDataTransportMechanism::Write(const QByteArray &data)
 {
     SendData(data);

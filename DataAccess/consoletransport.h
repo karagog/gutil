@@ -16,6 +16,7 @@ limitations under the License.*/
 #define CONSOLETRANSPORT_H
 
 #include "streamtransport.h"
+#include <QMutex>
 
 namespace GUtil
 {
@@ -26,10 +27,25 @@ namespace GUtil
             Q_OBJECT
         public:
             explicit ConsoleTransport(QObject *parent = 0);
+            virtual ~ConsoleTransport();
 
         public slots:
             void WriteLine(const QByteArray &);
             void WriteLine(const QString &);
+
+
+        protected:
+            virtual void send_data(const QByteArray &)throw(GUtil::Core::DataTransportException);
+            virtual QByteArray receive_data()throw(GUtil::Core::DataTransportException,
+                                                   GUtil::Core::EndOfFileException);
+
+        private:
+
+            // Only one of these objects can interface with the console
+            static QMutex console_mutex;
+
+            bool _initialized;
+            void _fail_if_not_initialized();
         };
     }
 }

@@ -14,14 +14,22 @@ limitations under the License.*/
 
 #include "consoletransport.h"
 #include <iostream>
+#include <QWaitCondition>
 using namespace GUtil;
 using namespace std;
+
+QMutex DataAccess::ConsoleTransport::console_mutex;
 
 DataAccess::ConsoleTransport::ConsoleTransport(QObject *parent) :
     DataAccess::StreamTransport(&cin, &cout, parent)
 {
-    SetStopOnLineEnd(true);
-    //SetIStreamPollingEnabled(true);
+    _initialized = console_mutex.tryLock();
+}
+
+DataAccess::ConsoleTransport::~ConsoleTransport()
+{
+    if(_initialized)
+        console_mutex.unlock();
 }
 
 void DataAccess::ConsoleTransport::WriteLine(const QByteArray &data)
@@ -38,4 +46,27 @@ void DataAccess::ConsoleTransport::WriteLine(const QString &data)
         data_copy.append('\n');
 
     Write(data_copy.toAscii());
+}
+
+void DataAccess::ConsoleTransport::send_data(const QByteArray &d)
+        throw(GUtil::Core::DataTransportException)
+{
+    _fail_if_not_initialized();
+
+    StreamTransport::send_data(d);
+}
+
+QByteArray DataAccess::ConsoleTransport::receive_data()
+        throw(GUtil::Core::DataTransportException,
+              GUtil::Core::EndOfFileException)
+{
+    _fail_if_not_initialized();
+
+    return StreamTransport::receive_data();
+}
+
+void DataAccess::ConsoleTransport::_fail_if_not_initialized()
+{
+    if(!_initialized)
+        throw Core::DataTransportException("The console is already in use");
 }

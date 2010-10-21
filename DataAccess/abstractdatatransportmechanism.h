@@ -46,6 +46,8 @@ namespace GUtil
 
         public:
 
+            virtual ~AbstractDataTransportMechanism();
+
             // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
             QByteArray ReceiveData();
 
