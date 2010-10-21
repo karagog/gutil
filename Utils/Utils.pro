@@ -6,12 +6,12 @@ TEMPLATE = lib
 CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
-    usermachinemutex.cpp \
+    usermachinelocks.cpp \
     widgethelpers.cpp
 
 HEADERS += \
     pubsubsystem.h \
-    usermachinemutex.h \
+    usermachinelocks.h \
     widgethelpers.h
 
 INCLUDEPATH += ..

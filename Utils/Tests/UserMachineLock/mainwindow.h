@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "Utils/usermachinemutex.h"
+#include "Utils/usermachinelocks.h"
 
 namespace Ui {
     class MainWindow;

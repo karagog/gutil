@@ -19,7 +19,7 @@ void MainWindow::lock()
 {
     try
     {
-        LockForUserOnMachine();
+        LockMutexOnMachine();
     }
     catch(Core::LockException &ex)
     {
@@ -37,7 +37,7 @@ void MainWindow::lock()
 
 void MainWindow::unlock()
 {
-    UnlockForUserOnMachine();
+    UnlockForMachine();
     ui->lbl_status->clear();
 }
 
