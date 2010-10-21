@@ -16,6 +16,26 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QComboBox" name="cmb_lockSelect">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <item>
+       <property name="text">
+        <string>Mutex Lock</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Read-Write Lock</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="GUtil::Controls::line_edit_with_button" name="line_edit" native="true"/>
+    </item>
+    <item>
      <widget class="QLabel" name="lbl_status">
       <property name="text">
        <string/>
@@ -23,9 +43,16 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="btn_lock">
+     <widget class="QPushButton" name="btn_lockRead">
       <property name="text">
-       <string>Acquire Lock</string>
+       <string>Lock Read</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_lockWrite">
+      <property name="text">
+       <string>Lock Write</string>
       </property>
      </widget>
     </item>
@@ -59,13 +86,21 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>GUtil::Controls::line_edit_with_button</class>
+   <extends>QWidget</extends>
+   <header>Controls/line_edit_with_button.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>btn_lock</sender>
+   <sender>btn_lockWrite</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>lock()</slot>
+   <slot>lockWrite()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>139</x>
@@ -73,7 +108,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>161</x>
-     <y>194</y>
+     <y>196</y>
     </hint>
    </hints>
   </connection>
@@ -93,9 +128,43 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>cmb_lockSelect</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>combo_box_index_changed(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>53</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_lockRead</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>lockRead()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>177</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>lock()</slot>
+  <slot>lockRead()</slot>
   <slot>unlock()</slot>
+  <slot>combo_box_index_changed(int)</slot>
+  <slot>lockWrite()</slot>
  </slots>
 </ui>

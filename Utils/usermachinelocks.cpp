@@ -18,25 +18,44 @@ limitations under the License.*/
 #include <QDesktopServices>
 using namespace GUtil;
 
-QMap<QString, QReadWriteLock *> Utils::AbstractMachineLock::process_locks;
-QReadWriteLock Utils::AbstractMachineLock::process_locks_lock;
-Custom::GSemaphore Utils::AbstractMachineLock::process_locks_sem;
+QMap<QString, QReadWriteLock *> Utils::MachineLockBase::process_locks;
+QReadWriteLock Utils::MachineLockBase::process_locks_lock;
+Custom::GSemaphore Utils::MachineLockBase::process_locks_sem;
 
-Utils::AbstractMachineLock::AbstractMachineLock(const QString &id, const QString &modifier)
+Utils::MachineLockBase::MachineLockBase(const QString &id, const QString &modifier)
+{
+    _pre_init();
+
+    SetUserMachineLockIdentifier(id, modifier);
+
+    _post_init();
+}
+
+Utils::MachineLockBase::MachineLockBase(const QString &file_name)
+{
+    _pre_init();
+
+    SetUserMachineLockFileName(file_name);
+
+    _post_init();
+}
+
+void Utils::MachineLockBase::_pre_init()
 {
     _i_own_lock = false;
     _i_have_read_lock = false;
 
     _usermachinelockfile = new QtLockedFile();
+}
 
-    SetUserMachineLockIdentifier(id, modifier);
-
+void Utils::MachineLockBase::_post_init()
+{
     process_locks_lock.lockForWrite();
     process_locks_sem.Up();
     process_locks_lock.unlock();
 }
 
-Utils::AbstractMachineLock::~AbstractMachineLock()
+Utils::MachineLockBase::~MachineLockBase()
 {
     UnlockForMachine();
 
@@ -55,29 +74,30 @@ Utils::AbstractMachineLock::~AbstractMachineLock()
     process_locks_lock.unlock();
 }
 
-void Utils::AbstractMachineLock::SetUserMachineLockIdentifier(
+void Utils::MachineLockBase::SetUserMachineLockIdentifier(
         const QString &identifier,
         const QString &modifier)
 {
     if(identifier.length() == 0)
         return;
 
-    SetUserMachineLockFileName(QString("%1/%2%3.MACHINE_LOCK")
+    SetUserMachineLockFileName(QString("%1/%2%3.%4")
                                .arg(QDesktopServices::storageLocation(QDesktopServices::DataLocation))
                                .arg(identifier)
                                .arg(modifier.length() != 0 ?
                                     QString(".%1").arg(modifier) :
-                                    QString::null));
+                                    QString::null)
+                               .arg(string_modifier()));
 }
 
-void Utils::AbstractMachineLock::SetUserMachineLockFileName(const QString &fn)
+void Utils::MachineLockBase::SetUserMachineLockFileName(const QString &fn)
 {
     UnlockForMachine();
 
     _usermachinelockfile->setFileName(fn);
 }
 
-void Utils::AbstractMachineLock::_lock(bool for_read, bool block)
+void Utils::MachineLockBase::lock(bool for_read, bool block)
 {
     try
     {
@@ -112,9 +132,7 @@ void Utils::AbstractMachineLock::_lock(bool for_read, bool block)
     }
 }
 
-
-
-void Utils::AbstractMachineLock::UnlockForMachine()
+void Utils::MachineLockBase::UnlockForMachine()
 {
     if(!IsLockedOnMachine())
         return;
@@ -125,19 +143,19 @@ void Utils::AbstractMachineLock::UnlockForMachine()
     _release_lock();
 }
 
-bool Utils::AbstractMachineLock::IsLockedOnMachine() const
+bool Utils::MachineLockBase::IsLockedOnMachine() const
 {
     return _i_own_lock;
 }
 
-QString Utils::AbstractMachineLock::FileNameForMachineLock() const
+QString Utils::MachineLockBase::FileNameForMachineLock() const
 {
     return QFileInfo(*_usermachinelockfile).absoluteFilePath();
 }
 
-void Utils::AbstractMachineLock::_grab_lock_in_process(bool for_read, bool block)
+void Utils::MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
 {
-    if(FileNameForMachineLock() == QString::null)
+    if(FileNameForMachineLock().isEmpty())
         throw Core::Exception("The machine-lock file has not been set.  You must "
                               "provide an identifier and optional modifier to use this function");
 
@@ -169,13 +187,13 @@ void Utils::AbstractMachineLock::_grab_lock_in_process(bool for_read, bool block
         throw Core::LockException("Lock held by someone else in this process!");
 }
 
-void Utils::AbstractMachineLock::_release_lock()
+void Utils::MachineLockBase::_release_lock()
 {
     _get_lock_reference().unlock();
     _i_own_lock = false;
 }
 
-QReadWriteLock &Utils::AbstractMachineLock::_get_lock_reference()
+QReadWriteLock &Utils::MachineLockBase::_get_lock_reference()
 {
     process_locks_lock.lockForRead();
 
@@ -193,7 +211,12 @@ QReadWriteLock &Utils::AbstractMachineLock::_get_lock_reference()
 
 
 Utils::UserMachineReadWriteLock::UserMachineReadWriteLock(const QString &identifier, const QString &modifier)
-    :AbstractMachineLock(identifier, modifier)
+    :MachineLockBase(identifier, modifier)
+{
+}
+
+Utils::UserMachineReadWriteLock::UserMachineReadWriteLock(const QString &file_name)
+    :MachineLockBase(file_name)
 {
 }
 
@@ -201,14 +224,14 @@ void Utils::UserMachineReadWriteLock::LockForReadOnMachine(bool block)
         throw(Core::LockException, Core::Exception)
 {
     // Lock the local mutex
-    _lock(true, block);
+    lock(true, block);
 }
 
 void Utils::UserMachineReadWriteLock::LockForWriteOnMachine(bool block)
         throw(GUtil::Core::LockException,
               GUtil::Core::Exception)
 {
-    _lock(false, block);
+    lock(false, block);
 }
 
 bool Utils::UserMachineReadWriteLock::HasReadLockOnMachine() const
@@ -221,10 +244,22 @@ bool Utils::UserMachineReadWriteLock::HasWriteLockOnMachine() const
     return IsLockedOnMachine() && !_i_have_read_lock;
 }
 
+QString Utils::UserMachineReadWriteLock::string_modifier() const
+{
+    return "MACHINE_RW_LOCK";
+}
+
+
+
 
 
 Utils::UserMachineMutex::UserMachineMutex(const QString &identifier, const QString &modifier)
-    :AbstractMachineLock(identifier, modifier)
+    :MachineLockBase(identifier, modifier)
+{
+}
+
+Utils::UserMachineMutex::UserMachineMutex(const QString &file_name)
+    :MachineLockBase(file_name)
 {
 }
 
@@ -232,5 +267,10 @@ void Utils::UserMachineMutex::LockMutexOnMachine(bool block)
         throw(GUtil::Core::LockException,
               GUtil::Core::Exception)
 {
-    _lock(false, block);
+    lock(false, block);
+}
+
+QString Utils::UserMachineMutex::string_modifier() const
+{
+    return "MACHINE_LOCK";
 }

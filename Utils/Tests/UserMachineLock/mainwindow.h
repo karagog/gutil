@@ -8,8 +8,7 @@ namespace Ui {
     class MainWindow;
 }
 
-class MainWindow : public QMainWindow,
-                    public GUtil::Utils::UserMachineMutex
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -18,11 +17,27 @@ public:
     ~MainWindow();
 
 protected slots:
-    void lock();
+    void lockWrite();
+    void lockRead();
     void unlock();
+
+    void get_file();
+    void set_lock_file(const QString &fn = "");
+
+    void combo_box_index_changed(int);
 
 private:
     Ui::MainWindow *ui;
+
+    void lock(bool for_read);
+    void set_mutex_lock(bool);
+
+    bool using_mutex();
+
+    GUtil::Utils::MachineLockBase *_get_lock();
+
+    GUtil::Utils::UserMachineMutex *_mutex;
+    GUtil::Utils::UserMachineReadWriteLock *_rw_lock;
 };
 
 #endif // MAINWINDOW_H
