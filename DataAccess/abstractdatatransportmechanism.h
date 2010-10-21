@@ -76,6 +76,8 @@ namespace GUtil
 
             explicit AbstractDataTransportMechanism(QObject *parent = 0);
 
+            virtual void run();
+
             // Derived classes must implement these functions
             //  Note that locking is taken care of by this interface class,
             //  so you can trust that these are atomic WRT each other

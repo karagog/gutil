@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractdatatransportmechanism.h"
+#include "Core/exception.h"
 #include <QWaitCondition>
 using namespace GUtil;
 
@@ -26,6 +27,11 @@ DataAccess::AbstractDataTransportMechanism::AbstractDataTransportMechanism(QObje
 DataAccess::AbstractDataTransportMechanism::~AbstractDataTransportMechanism()
 {
 
+}
+
+void DataAccess::AbstractDataTransportMechanism::run()
+{
+    throw Core::NotImplementedException();
 }
 
 void DataAccess::AbstractDataTransportMechanism::Write(const QByteArray &data)
