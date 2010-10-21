@@ -16,6 +16,8 @@ limitations under the License.*/
 #define LINE_EDIT_WITH_BUTTON_H
 
 #include <QWidget>
+#include <QPushButton>
+#include <QLineEdit>
 
 namespace Ui {
     class line_edit_with_button;
@@ -47,8 +49,8 @@ namespace GUtil
                                   int fade_duration = -1);
             ~line_edit_with_button();
 
-            QPushButton *pushButton() const;
-            QLineEdit *lineEdit() const;
+            QPushButton &pushButton();
+            QLineEdit &lineEdit();
             EffectsWidgets::FaderWidget *faderWidget() const;
 
         public slots:
@@ -63,8 +65,8 @@ namespace GUtil
             void keyReleaseEvent(QKeyEvent *);
 
         private:
-            QPushButton *button;
-            QLineEdit *line_edit;
+            QPushButton button;
+            QLineEdit line_edit;
 
             EffectsWidgets::FaderWidget *_fader;
         };

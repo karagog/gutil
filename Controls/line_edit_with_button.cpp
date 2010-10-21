@@ -14,8 +14,6 @@ limitations under the License.*/
 
 #include "line_edit_with_button.h"
 #include "EffectsWidgets/faderwidget.h"
-#include <QPushButton>
-#include <QLineEdit>
 #include <QShowEvent>
 #include <QEvent>
 #include <QHBoxLayout>
@@ -24,33 +22,31 @@ using namespace GUtil;
 Controls::line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_visible, int fade_duration) :
     QWidget(par)
 {
-    button = new QPushButton(this);
-    line_edit = new QLineEdit(this);
-    button->hide();
+    button.hide();
 
-    button->setText("...");
+    button.setText("...");
 
     QSizePolicy p1;
     p1.setHorizontalPolicy(QSizePolicy::Expanding);
     p1.setVerticalPolicy(QSizePolicy::Expanding);
     p1.setHorizontalStretch(1);
-    button->setSizePolicy(p1);
-    button->setMaximumWidth(40);
+    button.setSizePolicy(p1);
+    button.setMaximumWidth(40);
 
     QSizePolicy p2;
     p2.setHorizontalPolicy(QSizePolicy::Expanding);
     p2.setVerticalPolicy(QSizePolicy::Expanding);
     p2.setHorizontalStretch(8);
-    line_edit->setSizePolicy(p2);
+    line_edit.setSizePolicy(p2);
 
     setLayout(new QHBoxLayout(this));
     layout()->setContentsMargins(0,0,0,0);
     layout()->setSpacing(0);
-    layout()->addWidget(line_edit);
-    layout()->addWidget(button);
+    layout()->addWidget(&line_edit);
+    layout()->addWidget(&button);
 
     // Attach a fader to the button
-    _fader = new Controls::EffectsWidgets::FaderWidget(button,
+    _fader = new Controls::EffectsWidgets::FaderWidget(&button,
                              fade_duration == -1 ? 500 : fade_duration,
                              350);
 
@@ -58,8 +54,8 @@ Controls::line_edit_with_button::line_edit_with_button(QWidget *par, bool btn_vi
         _fader->fadeIn();
 
     // Set up the focus policies so that my child widgets NEVER get focus
-    line_edit->setFocusPolicy(Qt::NoFocus);
-    button->setFocusPolicy(Qt::NoFocus);
+    line_edit.setFocusPolicy(Qt::NoFocus);
+    button.setFocusPolicy(Qt::NoFocus);
     setFocusPolicy(Qt::StrongFocus);
 }
 
@@ -69,13 +65,13 @@ Controls::line_edit_with_button::~line_edit_with_button()
 
 void Controls::line_edit_with_button::showButton()
 {
-    if(button->isHidden())
+    if(button.isHidden())
         _fader->fadeIn();
 }
 
 void Controls::line_edit_with_button::hideButton()
 {
-    if(!button->isHidden())
+    if(!button.isHidden())
         _fader->fadeIn();
 }
 
@@ -86,25 +82,25 @@ void Controls::line_edit_with_button::toggleButton()
 
 void Controls::line_edit_with_button::focusInEvent(QFocusEvent *e)
 {
-    line_edit->event(e);
+    line_edit.event(e);
 }
 
 void Controls::line_edit_with_button::keyPressEvent(QKeyEvent *e)
 {
-    line_edit->event(e);
+    line_edit.event(e);
 }
 
 void Controls::line_edit_with_button::keyReleaseEvent(QKeyEvent *e)
 {
-    line_edit->event(e);
+    line_edit.event(e);
 }
 
-QPushButton *Controls::line_edit_with_button::pushButton() const
+QPushButton &Controls::line_edit_with_button::pushButton()
 {
     return button;
 }
 
-QLineEdit *Controls::line_edit_with_button::lineEdit() const
+QLineEdit &Controls::line_edit_with_button::lineEdit()
 {
     return line_edit;
 }
