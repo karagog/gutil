@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "giodevice.h"
 #include <QMutex>
+#include <QWaitCondition>
 #include <QQueue>
 
 namespace GUtil
@@ -32,6 +33,8 @@ namespace GUtil
 
             void Engage();
             void Disengage();
+
+            bool IsEngaged();
 
             virtual bool HasDataAvailable();
 
@@ -57,6 +60,8 @@ namespace GUtil
 
             // Only one of these objects can interface with the console
             static QMutex console_mutex;
+
+            QWaitCondition condition_new_line_available;
 
             bool _engaged;
             void _fail_if_not_initialized();

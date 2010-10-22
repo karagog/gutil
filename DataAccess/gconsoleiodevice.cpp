@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "gconsoleiodevice.h"
 #include <cstdio>
-#include <QWaitCondition>
 using namespace GUtil;
 using namespace std;
 
@@ -23,6 +22,8 @@ QMutex DataAccess::GConsoleIODevice::console_mutex;
 DataAccess::GConsoleIODevice::GConsoleIODevice(QObject *parent)
     :GIODevice(parent)
 {
+    _engaged = false;
+
     Engage();
 }
 
@@ -39,6 +40,11 @@ void DataAccess::GConsoleIODevice::Engage()
 void DataAccess::GConsoleIODevice::Disengage()
 {
     SetEngaged(false);
+}
+
+bool DataAccess::GConsoleIODevice::IsEngaged()
+{
+    return _engaged;
 }
 
 void DataAccess::GConsoleIODevice::SetEngaged(bool engage)
@@ -72,6 +78,7 @@ bool DataAccess::GConsoleIODevice::HasDataAvailable()
 void DataAccess::GConsoleIODevice::run()
 {
     QString buf;
+
     while(true)
     {
         char c = (char)getchar();
@@ -79,6 +86,8 @@ void DataAccess::GConsoleIODevice::run()
         if(c == '\n')
         {
             _messages_received.enqueue(buf);
+
+            condition_new_line_available.wakeAll();
             emit ReadyRead();
             buf.clear();
         }
@@ -117,10 +126,13 @@ QByteArray DataAccess::GConsoleIODevice::receive_data()
         throw(GUtil::Core::DataTransportException,
               GUtil::Core::EndOfFileException)
 {
-    if(HasDataAvailable())
-        return _messages_received.dequeue().toAscii();
-    else
-        return QByteArray();
+    if(!HasDataAvailable())
+    {
+        // Wait for new line to become available
+        condition_new_line_available.wait(&console_mutex);
+    }
+
+    return _messages_received.dequeue().toAscii();
 }
 
 void DataAccess::GConsoleIODevice::_fail_if_not_initialized()
