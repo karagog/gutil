@@ -14,7 +14,8 @@ namespace GUtil
         public:
             explicit LocalSocketTransport(QLocalSocket *sock = 0, QObject *parent = 0);
 
-            void ConnectToServer(const QString &) throw(GUtil::Core::DataTransportException);
+            void ConnectToServer(const QString &)
+                    throw(GUtil::Core::DataTransportException);
             void DisconnectFromServer();
 
             QString ServerName() const;

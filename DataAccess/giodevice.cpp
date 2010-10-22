@@ -45,7 +45,7 @@ void DataAccess::GIODevice::SendData(const QByteArray &data)
 {
     FailIfReadOnly();
 
-    _lock.lock();
+    this_giodevice_lock.lock();
 
     try
     {
@@ -53,30 +53,36 @@ void DataAccess::GIODevice::SendData(const QByteArray &data)
     }
     catch(...)
     {
-        _lock.unlock();
+        this_giodevice_lock.unlock();
         throw;
     }
 
-    _lock.unlock();
+    this_giodevice_lock.unlock();
 }
 
-QByteArray DataAccess::GIODevice::ReceiveData()
+QByteArray DataAccess::GIODevice::ReceiveData(bool block)
 {
-    _lock.lock();
+    this_giodevice_lock.lock();
+
+    if(block && !HasDataAvailable())
+    {
+        // Wait for new line to become available
+        condition_new_data_available.wait(&this_giodevice_lock);
+    }
 
     QByteArray ret;
     try
     {
         ret = receive_data();
     }
-    catch(Core::EndOfFileException &){}  // Quietly catch; returns null
+    //catch(Core::EndOfFileException &){}
     catch(...)
     {
-        _lock.unlock();
+        this_giodevice_lock.unlock();
         throw;
     }
 
-    _lock.unlock();
+    this_giodevice_lock.unlock();
 
     return ret;
 }
@@ -121,6 +127,7 @@ void DataAccess::GIODevice::operator >> (std::string &dt)
 
 void DataAccess::GIODevice::raiseReadyRead()
 {
+    condition_new_data_available.wakeAll();
     emit ReadyRead();
 }
 

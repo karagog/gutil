@@ -43,16 +43,14 @@ void DataAccess::GQIODevice::send_data(const QByteArray &data)
 }
 
 QByteArray DataAccess::GQIODevice::receive_data()
-        throw(Core::DataTransportException,
-              Core::EndOfFileException)
+        throw(Core::DataTransportException)
 {
     _fail_if_not_open();
 
-    if(IODevice().atEnd())
-        throw Core::EndOfFileException();
-
+    bool has_data = HasDataAvailable();
     QByteArray ret = IODevice().readAll();
-    if(ret.isNull())
+
+    if(has_data && ret.length() == 0)
     {
         Core::DataTransportException ex("Read 0 bytes!");
         ex.SetData("err", IODevice().errorString().toStdString());

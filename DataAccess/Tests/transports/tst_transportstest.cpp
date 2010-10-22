@@ -53,25 +53,25 @@ void TransportsTest::cleanupTestCase()
 
 void TransportsTest::test_console_transport()
 {
-    try
-    {
-        GConsoleIODevice ct;
-        std::string inval;
+//    try
+//    {
+//        GConsoleIODevice ct;
+//        std::string inval;
 
-        ct<<"Hello World!\n\nYou must type an h: ";
-        ct>>inval;
+//        ct<<"Hello World!\n\nYou must type an h: ";
+//        ct>>inval;
 
-        QVERIFY2(inval == "h", inval.c_str());
+//        QVERIFY2(inval == "h", inval.c_str());
 
-        ct<<"Now type a k: ";
-        ct>>inval;
-        QVERIFY2(inval == "k", inval.c_str());
-    }
-    catch(Core::Exception &ex)
-    {
-        GlobalLogger::LogException(ex);
-        QVERIFY2(false, "Check log for details");
-    }
+//        ct<<"Now type a k: ";
+//        ct>>inval;
+//        QVERIFY2(inval == "k", inval.c_str());
+//    }
+//    catch(Core::Exception &ex)
+//    {
+//        GlobalLogger::LogException(ex);
+//        QVERIFY2(false, "Check log for details");
+//    }
 }
 
 void TransportsTest::test_file_transport()

@@ -13,16 +13,28 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QtCore/QCoreApplication>
-#include "DataAccess/consoletransport.h"
+#include "DataAccess/gconsoleiodevice.h"
 using namespace GUtil::DataAccess;
 
 // A simple program that repeats everything you give it on stdin out to stdout
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+//    QCoreApplication a(argc, argv);
 
-    ConsoleTransport *ct = new ConsoleTransport(&a);
-    a.connect(ct, SIGNAL(notifyNewData(QByteArray)), ct, SLOT(WriteLine(QByteArray)));
+//    GConsoleIODevice *ct = new GConsoleIODevice(&a);
+//    a.connect(ct, SIGNAL(ReadyRead()), ct, SLOT(WriteLine(QByteArray)));
 
-    return a.exec();
+//    return a.exec();
+
+    GConsoleIODevice c;
+    while(true)
+    {
+        QString tmp;
+        c>>tmp;
+
+        if(tmp == "quit")
+            break;
+
+        c<<tmp<<"\n";
+    }
 }

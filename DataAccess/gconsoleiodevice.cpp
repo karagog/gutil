@@ -17,7 +17,7 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace std;
 
-QMutex DataAccess::GConsoleIODevice::console_mutex;
+QMutex DataAccess::GConsoleIODevice::global_console_mutex;
 
 DataAccess::GConsoleIODevice::GConsoleIODevice(QObject *parent)
     :GIODevice(parent)
@@ -54,7 +54,7 @@ void DataAccess::GConsoleIODevice::SetEngaged(bool engage)
         if(_engaged)
             return;
 
-        _engaged = console_mutex.tryLock();
+        _engaged = global_console_mutex.tryLock();
         start();
     }
     else
@@ -66,7 +66,7 @@ void DataAccess::GConsoleIODevice::SetEngaged(bool engage)
         wait();
 
         _engaged = false;
-        console_mutex.unlock();
+        global_console_mutex.unlock();
     }
 }
 
@@ -86,9 +86,7 @@ void DataAccess::GConsoleIODevice::run()
         if(c == '\n')
         {
             _messages_received.enqueue(buf);
-
-            condition_new_line_available.wakeAll();
-            emit ReadyRead();
+            raiseReadyRead();
             buf.clear();
         }
         else if(c == (char)8)   // erase if the user pressed backspace
@@ -96,11 +94,6 @@ void DataAccess::GConsoleIODevice::run()
         else
             buf.append(c);
     }
-}
-
-void DataAccess::GConsoleIODevice::WriteLine(const QByteArray &data)
-{
-    WriteLine(QString(data));
 }
 
 void DataAccess::GConsoleIODevice::WriteLine(const QString &data)
@@ -114,6 +107,11 @@ void DataAccess::GConsoleIODevice::WriteLine(const QString &data)
     Write(data_copy.toAscii());
 }
 
+QString DataAccess::GConsoleIODevice::ReadLine(bool block)
+{
+    return ReceiveData(block);
+}
+
 void DataAccess::GConsoleIODevice::send_data(const QByteArray &d)
         throw(GUtil::Core::DataTransportException)
 {
@@ -123,16 +121,14 @@ void DataAccess::GConsoleIODevice::send_data(const QByteArray &d)
 }
 
 QByteArray DataAccess::GConsoleIODevice::receive_data()
-        throw(GUtil::Core::DataTransportException,
-              GUtil::Core::EndOfFileException)
+        throw(GUtil::Core::DataTransportException)
 {
-    if(!HasDataAvailable())
-    {
-        // Wait for new line to become available
-        condition_new_line_available.wait(&console_mutex);
-    }
+    QByteArray ret;
 
-    return _messages_received.dequeue().toAscii();
+    if(HasDataAvailable())
+        ret = _messages_received.dequeue().toAscii();
+
+    return ret;
 }
 
 void DataAccess::GConsoleIODevice::_fail_if_not_initialized()

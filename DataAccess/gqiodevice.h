@@ -35,9 +35,10 @@ namespace GUtil
         protected:
             QIODevice &IODevice() const;
 
-            virtual void send_data(const QByteArray &) throw(GUtil::Core::DataTransportException);
-            virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException,
-                                                    GUtil::Core::EndOfFileException);
+            virtual void send_data(const QByteArray &)
+                    throw(GUtil::Core::DataTransportException);
+            virtual QByteArray receive_data()
+                    throw(GUtil::Core::DataTransportException);
 
         private:
             void _fail_if_not_open();

@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "giodevice.h"
 #include <QMutex>
-#include <QWaitCondition>
 #include <QQueue>
 
 namespace GUtil
@@ -39,17 +38,18 @@ namespace GUtil
             virtual bool HasDataAvailable();
 
         public slots:
-            void WriteLine(const QByteArray &);
             void WriteLine(const QString &);
+            QString ReadLine(bool block = true);
 
             // stops/starts the object from listening to cin/cout
             void SetEngaged(bool);
 
         protected:
             // Just reads/writes to stdin/out
-            virtual void send_data(const QByteArray &)throw(GUtil::Core::DataTransportException);
-            virtual QByteArray receive_data()throw(GUtil::Core::DataTransportException,
-                                                   GUtil::Core::EndOfFileException);
+            virtual void send_data(const QByteArray &)
+                    throw(GUtil::Core::DataTransportException);
+            virtual QByteArray receive_data()
+                    throw(GUtil::Core::DataTransportException);
 
             // We continually read cin on a separate thread
             virtual void run();
@@ -59,9 +59,7 @@ namespace GUtil
             QQueue<QString> _messages_received;
 
             // Only one of these objects can interface with the console
-            static QMutex console_mutex;
-
-            QWaitCondition condition_new_line_available;
+            static QMutex global_console_mutex;
 
             bool _engaged;
             void _fail_if_not_initialized();

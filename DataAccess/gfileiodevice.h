@@ -50,8 +50,10 @@ namespace GUtil
 
 
         protected:
-            virtual void send_data(const QByteArray &) throw(GUtil::Core::DataTransportException);
-            virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException);
+            virtual void send_data(const QByteArray &)
+                    throw(GUtil::Core::DataTransportException);
+            virtual QByteArray receive_data()
+                    throw(GUtil::Core::DataTransportException);
 
             QFile &File() const;
 

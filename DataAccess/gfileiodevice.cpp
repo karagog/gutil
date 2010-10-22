@@ -40,7 +40,8 @@ DataAccess::GFileIODevice::WriteModeEnum DataAccess::GFileIODevice::GetWriteMode
     return _write_mode;
 }
 
-void DataAccess::GFileIODevice::send_data(const QByteArray &data) throw(Core::DataTransportException)
+void DataAccess::GFileIODevice::send_data(const QByteArray &data)
+        throw(Core::DataTransportException)
 {
     _open_file(true);
 
@@ -50,7 +51,8 @@ void DataAccess::GFileIODevice::send_data(const QByteArray &data) throw(Core::Da
     _close_file();
 }
 
-QByteArray DataAccess::GFileIODevice::receive_data() throw(Core::DataTransportException)
+QByteArray DataAccess::GFileIODevice::receive_data()
+        throw(Core::DataTransportException)
 {
     _open_file(false);
 
@@ -133,7 +135,7 @@ QString DataAccess::GFileIODevice::FileName() const
 
 QByteArray DataAccess::GFileIODevice::FileData()
 {
-    return ReceiveData();
+    return ReceiveData(false);
 }
 
 void DataAccess::GFileIODevice::TruncateFile()

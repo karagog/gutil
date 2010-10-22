@@ -9,7 +9,7 @@ DataAccess::GProcessIODevice::GProcessIODevice(QObject *parent)
 }
 
 DataAccess::GProcessIODevice::GProcessIODevice(QProcess *p, QObject *parent)
-    :GQIODevice(p == 0 ? new QProcess(parent) : p, parent)
+    :GQIODevice(p, parent)
 {
     _init();
 }

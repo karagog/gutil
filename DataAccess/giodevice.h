@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <QByteArray>
 #include <QMutex>
+#include <QWaitCondition>
 #include <QThread>
 #include "Core/exception.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -49,8 +50,8 @@ namespace GUtil
         public:
             virtual ~GIODevice();
 
-            // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
-            QByteArray ReceiveData();
+            // Note: You can rely on the signal 'ReadyRead' to get the new data, but you can also call this manually
+            QByteArray ReceiveData(bool block = true);
 
             virtual bool HasDataAvailable() = 0;
 
@@ -70,20 +71,24 @@ namespace GUtil
             // Derived classes must implement these functions
             //  Note that locking is taken care of by this interface class,
             //  so you can trust that these are atomic WRT each other
-            virtual void send_data(const QByteArray&) throw(GUtil::Core::DataTransportException) = 0;
+            virtual void send_data(const QByteArray&)
+                    throw(GUtil::Core::DataTransportException) = 0;
             virtual QByteArray receive_data()
-                    throw(GUtil::Core::DataTransportException,
-                          GUtil::Core::EndOfFileException) = 0;
+                    throw(GUtil::Core::DataTransportException) = 0;
 
             virtual QString ReadonlyMessageIdentifier();
+
+            // Derived classes can wait on this condition to block until
+            //   new data is available
+            QWaitCondition condition_new_data_available;
 
         protected slots:
             // This emits the readyRead signal
             void raiseReadyRead();
 
         private:
-            // Protects us so we can be re-entrant when using the transport
-            QMutex _lock;
+            // Protects us so we can be thread-safe
+            QMutex this_giodevice_lock;
 
         };
     }
