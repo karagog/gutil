@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IODEVICETRANSPORT_H
-#define IODEVICETRANSPORT_H
+#ifndef GQIODEVICE_H
+#define GQIODEVICE_H
 
 #include "giodevice.h"
 #include <QObject>
@@ -48,4 +48,4 @@ namespace GUtil
     }
 }
 
-#endif // IODEVICETRANSPORT_H
+#endif // GQIODEVICE_H

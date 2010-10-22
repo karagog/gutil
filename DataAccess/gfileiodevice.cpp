@@ -21,7 +21,7 @@ using namespace GUtil;
 using namespace std;
 
 DataAccess::GFileIODevice::GFileIODevice(const QString &filename, QObject *parent)
-    :GQIODevice(new QFile(this), parent)
+    :GQIODevice(new QFile, parent)
 {
     _file_watcher = new QFileSystemWatcher(this);
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(raiseReadyRead()));
