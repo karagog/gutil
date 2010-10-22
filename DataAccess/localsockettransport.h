@@ -1,14 +1,14 @@
 #ifndef LOCALSOCKETTRANSPORT_H
 #define LOCALSOCKETTRANSPORT_H
 
-#include "abstractqiodevicetransport.h"
+#include "gqiodevice.h"
 #include <QLocalSocket>
 
 namespace GUtil
 {
     namespace DataAccess
     {
-        class LocalSocketTransport : public AbstractQIODeviceTransport
+        class LocalSocketTransport : public GQIODevice
         {
             Q_OBJECT
         public:

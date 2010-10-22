@@ -39,7 +39,7 @@ namespace GUtil
 
     namespace DataAccess
     {
-        class AbstractDataTransportMechanism;
+        class GIODevice;
     }
 
     namespace BusinessObjects
@@ -72,12 +72,12 @@ namespace GUtil
         protected:
 
             // No public constructor; this class must be derived
-            AbstractValueBuffer(DataAccess::AbstractDataTransportMechanism *transport,
+            AbstractValueBuffer(DataAccess::GIODevice *transport,
                                 QObject *parent = 0);
             virtual ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
-            DataAccess::AbstractDataTransportMechanism &Transport() const;
+            DataAccess::GIODevice &Transport() const;
 
             // This function is called whenever a value changes; derived classes
             //   can take advantage of this to export data or do whatever with the changed data
@@ -143,7 +143,7 @@ namespace GUtil
 
             void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
-            DataAccess::AbstractDataTransportMechanism *_transport;
+            DataAccess::GIODevice *_transport;
 
         };
     }

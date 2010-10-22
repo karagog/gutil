@@ -12,32 +12,40 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CONSOLELOGGER_H
-#define CONSOLELOGGER_H
+#ifndef IODEVICETRANSPORT_H
+#define IODEVICETRANSPORT_H
 
-#include "abstractlogger.h"
-#include "DataAccess/gconsoleiodevice.h"
+#include "giodevice.h"
 #include <QObject>
+
+class QIODevice;
 
 namespace GUtil
 {
-    namespace Logging
+    namespace DataAccess
     {
-        // Logs to the console
-        class ConsoleLogger : public AbstractLogger
+        class GQIODevice : public GIODevice
         {
             Q_OBJECT
         public:
-            explicit ConsoleLogger(QObject *parent = 0);
+            explicit GQIODevice(QIODevice *, QObject *parent = 0);
+
+            virtual bool HasDataAvailable();
 
         protected:
-            virtual DataAccess::GIODevice &TransportMechanism();
+            QIODevice &IODevice() const;
+
+            virtual void send_data(const QByteArray &) throw(GUtil::Core::DataTransportException);
+            virtual QByteArray receive_data() throw(GUtil::Core::DataTransportException,
+                                                    GUtil::Core::EndOfFileException);
 
         private:
-            DataAccess::GConsoleIODevice *_my_console_io_device;
+            void _fail_if_not_open();
+
+            QIODevice *_io_device;
 
         };
     }
 }
 
-#endif // CONSOLELOGGER_H
+#endif // IODEVICETRANSPORT_H

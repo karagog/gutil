@@ -20,7 +20,7 @@ Logging::FileLogger::FileLogger(const QString &filename, QObject *parent)
     :Logging::AbstractLogger(parent)
 {
     _file_transport.SetFileName(filename);
-    _file_transport.SetWriteMode(DataAccess::FileTransport::WriteAppend);
+    _file_transport.SetWriteMode(DataAccess::GFileIODevice::WriteAppend);
 }
 
 void Logging::FileLogger::ClearLog()
@@ -35,7 +35,7 @@ void Logging::FileLogger::ClearLog()
     }
 }
 
-DataAccess::AbstractDataTransportMechanism &Logging::FileLogger::TransportMechanism()
+DataAccess::GIODevice &Logging::FileLogger::TransportMechanism()
 {
     return _file_transport;
 }

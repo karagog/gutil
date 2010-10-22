@@ -1,6 +1,6 @@
 #ifndef PROCESSTRANSPORT_H
 #define PROCESSTRANSPORT_H
-#include "abstractqiodevicetransport.h"
+#include "gqiodevice.h"
 
 class QProcess;
 class QString;
@@ -11,13 +11,13 @@ namespace GUtil
     namespace DataAccess
     {
         // Conducts data transport between a processes via stdin/stdout
-        class ProcessTransport : public AbstractQIODeviceTransport
+        class GProcessIODevice : public GQIODevice
         {
             Q_OBJECT
         public:
-            explicit ProcessTransport(QObject *parent = 0);
-            explicit ProcessTransport(QProcess *p, QObject *parent = 0);
-            explicit ProcessTransport(const QString &exe_name,
+            explicit GProcessIODevice(QObject *parent = 0);
+            explicit GProcessIODevice(QProcess *p, QObject *parent = 0);
+            explicit GProcessIODevice(const QString &exe_name,
                                       const QStringList &args,
                                       QObject *parent = 0);
 

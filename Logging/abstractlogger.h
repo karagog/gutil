@@ -27,7 +27,7 @@ namespace GUtil
 
     namespace DataAccess
     {
-        class AbstractDataTransportMechanism;
+        class GIODevice;
     }
 
     namespace Logging
@@ -81,7 +81,7 @@ namespace GUtil
             // Derived classes must provide a transport by which to send log data.  This might be
             //   a file transport (if you want to log to a file), but it could also log to a generic
             //   stream or to a database using this abstract transport mechanism
-            virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
+            virtual DataAccess::GIODevice &TransportMechanism();
 
 
         private:

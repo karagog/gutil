@@ -13,17 +13,15 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "consolelogger.h"
-#include <iostream>
 using namespace GUtil;
-using namespace std;
 
 Logging::ConsoleLogger::ConsoleLogger(QObject *parent)
     :Logging::AbstractLogger(parent)
 {
-    _my_stream_transport = new DataAccess::StreamTransport(0, &cout, this);
+    _my_console_io_device = new DataAccess::GConsoleIODevice(this);
 }
 
-DataAccess::AbstractDataTransportMechanism &Logging::ConsoleLogger::TransportMechanism()
+DataAccess::GIODevice &Logging::ConsoleLogger::TransportMechanism()
 {
-    return *_my_stream_transport;
+    return *_my_console_io_device;
 }

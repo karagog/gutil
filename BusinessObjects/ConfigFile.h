@@ -30,7 +30,7 @@ namespace GUtil
 
     namespace DataAccess
     {
-        class FileTransport;
+        class GFileIODevice;
     }
 
     namespace BusinessObjects
@@ -59,7 +59,7 @@ namespace GUtil
         protected:
             virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
-            DataAccess::FileTransport &FileTransport() const;
+            DataAccess::GFileIODevice &FileTransport() const;
 
             virtual std::string ReadonlyMessageIdentifier() const;
 

@@ -34,48 +34,37 @@ namespace GUtil
         // These functions simplify data transportation to send/receive commands.  The derived transport class
         //   will be responsible for the actual transport mechanism, including protocols and the data exchange.
 
-        class AbstractDataTransportMechanism : public QThread, public Core::Interfaces::IReadOnlyObject
+        class GIODevice : public QThread, public Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
 
         public slots:
-
             void SendData(const QByteArray &);
             void Write(const QByteArray &);
 
+        signals:
+            // This signal happens when there's new data available
+            void ReadyRead();
 
         public:
-
-            virtual ~AbstractDataTransportMechanism();
+            virtual ~GIODevice();
 
             // Note: You can rely on the signal 'notifyNewData' to get the new data, but you can also call this manually
             QByteArray ReceiveData();
 
-            enum StateEnum
-            {
-                GoodState,
-                ErrorState
-            };
+            virtual bool HasDataAvailable() = 0;
 
-            AbstractDataTransportMechanism &operator << (const char*);
-            AbstractDataTransportMechanism &operator << (const std::string &);
-            AbstractDataTransportMechanism &operator << (const QString &);
+            GIODevice &operator << (const char*);
+            GIODevice &operator << (const std::string &);
+            GIODevice &operator << (const QString &);
             void operator >> (QByteArray &);
             void operator >> (QString &);
             void operator >> (std::string &);
 
-        signals:
-
-            // Tell the world about the new data that arrived asynchronously
-            void notifyNewData(const QByteArray &);
-
-            void notifyDataSent(const QByteArray &);
-
-
         protected:
+            explicit GIODevice(QObject *parent = 0);
 
-            explicit AbstractDataTransportMechanism(QObject *parent = 0);
-
+            // Because we're a QThread, we can implement this function to run when 'start()' is called
             virtual void run();
 
             // Derived classes must implement these functions
@@ -86,36 +75,15 @@ namespace GUtil
                     throw(GUtil::Core::DataTransportException,
                           GUtil::Core::EndOfFileException) = 0;
 
-
-            // A reference to the last data received
-            QByteArray last_data_received;
-
-
-            // You must derive from this function to program special logic
-            //   to determine if there's data available.  This will depend
-            //   on the method of transport you're using.  Set the boolean
-            //   to true if there is data available.
-            virtual void update_has_data_variable(bool &has_data_variable)
-                    throw(GUtil::Core::DataTransportException) = 0;
-
             virtual QString ReadonlyMessageIdentifier();
 
-
         protected slots:
-
-            // Connect this to an update signal, or call it manually to force an update
-            void trigger_update_has_data_available();
-
+            // This emits the readyRead signal
+            void raiseReadyRead();
 
         private:
-
             // Protects us so we can be re-entrant when using the transport
             QMutex _lock;
-
-            // Note: Only use 'has_data' and 'set_has_data' to change this boolean
-            bool _has_data;
-
-            StateEnum _cur_state;
 
         };
     }

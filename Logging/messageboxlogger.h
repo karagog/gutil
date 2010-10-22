@@ -16,7 +16,7 @@ limitations under the License.*/
 #define MESSAGEBOXLOGGER_H
 
 #include "abstractlogger.h"
-#include "DataAccess/abstractdatatransportmechanism.h"
+#include "DataAccess/giodevice.h"
 
 namespace GUtil
 {

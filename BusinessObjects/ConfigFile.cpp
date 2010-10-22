@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
-#include "DataAccess/filetransport.h"
+#include "DataAccess/gfileiodevice.h"
 #include "Core/exception.h"
 #include "Core/Utils/stringhelpers.h"
 #include <QXmlStreamReader>
@@ -27,20 +27,20 @@ using namespace GUtil;
 BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
-    :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(
             QString("%1.%2")
             .arg(get_file_location(identifier))
             .arg(modifier)),
                                      parent)
 {
     // Set the file transport to overwrite the config file rather than append
-    FileTransport().SetWriteMode(DataAccess::FileTransport::WriteOver);
+    FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
 
     _init(identifier, modifier);
 }
 
 BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
-    :BusinessObjects::AbstractValueBuffer(new DataAccess::FileTransport(other.FileName()), parent)
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent)
 {
     _init(other._identity, other._modifier);
 }
@@ -77,9 +77,9 @@ void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception
     enQueueCurrentData(false);
 }
 
-DataAccess::FileTransport &BusinessObjects::ConfigFile::FileTransport() const
+DataAccess::GFileIODevice &BusinessObjects::ConfigFile::FileTransport() const
 {
-    return (DataAccess::FileTransport &)Transport();
+    return (DataAccess::GFileIODevice &)Transport();
 }
 
 QString BusinessObjects::ConfigFile::get_file_location(QString id)

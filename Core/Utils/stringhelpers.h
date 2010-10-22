@@ -16,7 +16,6 @@ limitations under the License.*/
 #define STRINGHELPERS_H
 
 #include <string>
-#include <iostream>
 using namespace std;
 
 namespace GUtil

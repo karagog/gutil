@@ -4,22 +4,20 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    filetransport.h \
+    gfileiodevice.h \
     localsockettransport.h \
-    abstractdatatransportmechanism.h \
-    streamtransport.h \
-    consoletransport.h \
-    abstractqiodevicetransport.h \
-    processtransport.h
+    giodevice.h \
+    gconsoleiodevice.h \
+    gqiodevice.h \
+    gprocessiodevice.h
 
 SOURCES += \
-    filetransport.cpp \
+    gfileiodevice.cpp \
     localsockettransport.cpp \
-    abstractdatatransportmechanism.cpp \
-    streamtransport.cpp \
-    consoletransport.cpp \
-    abstractqiodevicetransport.cpp \
-    processtransport.cpp
+    giodevice.cpp \
+    gconsoleiodevice.cpp \
+    gqiodevice.cpp \
+    gprocessiodevice.cpp
 
 INCLUDEPATH += ..
 QT += sql network

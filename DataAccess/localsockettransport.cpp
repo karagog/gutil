@@ -16,7 +16,7 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::LocalSocketTransport::LocalSocketTransport(QLocalSocket *sock, QObject *parent)
-    :AbstractQIODeviceTransport(sock == 0 ? new QLocalSocket(this) : sock,
+    :GQIODevice(sock == 0 ? new QLocalSocket(this) : sock,
                                 parent)
 {
 }

@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <cassert>
 #include <map>
 #include <cctype>
+#include <ostream>
 
 using namespace std;
 using namespace GUtil::Core;

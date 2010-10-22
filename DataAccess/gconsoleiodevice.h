@@ -15,36 +15,50 @@ limitations under the License.*/
 #ifndef CONSOLETRANSPORT_H
 #define CONSOLETRANSPORT_H
 
-#include "streamtransport.h"
+#include "giodevice.h"
 #include <QMutex>
+#include <QQueue>
 
 namespace GUtil
 {
     namespace DataAccess
     {
-        class ConsoleTransport : public StreamTransport
+        class GConsoleIODevice : public GIODevice
         {
             Q_OBJECT
         public:
-            explicit ConsoleTransport(QObject *parent = 0);
-            virtual ~ConsoleTransport();
+            explicit GConsoleIODevice(QObject *parent = 0);
+            virtual ~GConsoleIODevice();
+
+            void Engage();
+            void Disengage();
+
+            virtual bool HasDataAvailable();
 
         public slots:
             void WriteLine(const QByteArray &);
             void WriteLine(const QString &);
 
+            // stops/starts the object from listening to cin/cout
+            void SetEngaged(bool);
 
         protected:
+            // Just reads/writes to stdin/out
             virtual void send_data(const QByteArray &)throw(GUtil::Core::DataTransportException);
             virtual QByteArray receive_data()throw(GUtil::Core::DataTransportException,
                                                    GUtil::Core::EndOfFileException);
 
+            // We continually read cin on a separate thread
+            virtual void run();
+
         private:
+
+            QQueue<QString> _messages_received;
 
             // Only one of these objects can interface with the console
             static QMutex console_mutex;
 
-            bool _initialized;
+            bool _engaged;
             void _fail_if_not_initialized();
         };
     }

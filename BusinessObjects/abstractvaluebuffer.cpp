@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
 #include "Custom/datacontainer.h"
-#include "DataAccess/abstractdatatransportmechanism.h"
+#include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
@@ -22,7 +22,7 @@ limitations under the License.*/
 using namespace GUtil;
 
 BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
-        DataAccess::AbstractDataTransportMechanism *transport,
+        DataAccess::GIODevice *transport,
         QObject *parent)
             :QObject(parent),
             Core::Interfaces::IReadOnlyObject(false),
@@ -40,7 +40,7 @@ BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
     delete _transport;
 }
 
-DataAccess::AbstractDataTransportMechanism &BusinessObjects::AbstractValueBuffer::Transport() const
+DataAccess::GIODevice &BusinessObjects::AbstractValueBuffer::Transport() const
 {
     return *_transport;
 }

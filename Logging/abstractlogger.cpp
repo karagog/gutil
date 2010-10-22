@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "abstractlogger.h"
 #include "Core/exception.h"
-#include "DataAccess/abstractdatatransportmechanism.h"
+#include "DataAccess/giodevice.h"
 #include <QDateTime>
 using namespace GUtil;
 
@@ -137,7 +137,7 @@ void Logging::AbstractLogger::LogMessage_protected(const QByteArray &log_message
     TransportMechanism().SendData(log_message);
 }
 
-DataAccess::AbstractDataTransportMechanism &Logging::AbstractLogger::TransportMechanism()
+DataAccess::GIODevice &Logging::AbstractLogger::TransportMechanism()
 {
     throw Core::NotImplementedException("A transport mechanism was not supplied to this logger");
 }

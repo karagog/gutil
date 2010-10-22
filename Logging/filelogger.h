@@ -16,7 +16,7 @@ limitations under the License.*/
 #define FILELOGGER_H
 
 #include "abstractlogger.h"
-#include "DataAccess/filetransport.h"
+#include "DataAccess/gfileiodevice.h"
 #include <fstream>
 
 namespace GUtil
@@ -34,10 +34,10 @@ namespace GUtil
             QString FileName() const;
 
         protected:
-            virtual DataAccess::AbstractDataTransportMechanism &TransportMechanism();
+            virtual DataAccess::GIODevice &TransportMechanism();
 
         private:
-            DataAccess::FileTransport _file_transport;
+            DataAccess::GFileIODevice _file_transport;
 
         };
     }

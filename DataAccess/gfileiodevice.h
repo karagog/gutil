@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef FILETRANSPORT_H
 #define FILETRANSPORT_H
 
-#include "streamtransport.h"
+#include "DataAccess/gqiodevice.h"
 #include <QDateTime>
 
-class QtLockedFile;
+class QFile;
 class QFileSystemWatcher;
 
 namespace GUtil
@@ -26,10 +26,10 @@ namespace GUtil
     namespace DataAccess
     {
         // A mechanism for exchanging data with a file
-        class FileTransport : public StreamTransport
+        class GFileIODevice : public GQIODevice
         {
         public:
-            FileTransport(const QString &filename = "", QObject *parent = 0);
+            GFileIODevice(const QString &filename = "", QObject *parent = 0);
 
             enum WriteModeEnum
             {
@@ -40,11 +40,12 @@ namespace GUtil
             void SetWriteMode(WriteModeEnum);
             WriteModeEnum GetWriteMode();
 
+            virtual bool HasDataAvailable();
+
             void SetFileName(const QString &);
             QString FileName() const;
             QByteArray FileData();
 
-            //void ReloadFile();
             void TruncateFile();
 
 
@@ -55,13 +56,12 @@ namespace GUtil
             virtual void update_has_data_variable(bool &has_data_variable)
                     throw(GUtil::Core::DataTransportException);
 
+            QFile &File() const;
+
             // Has the file been updated since we've seen it?
             bool has_been_updated();
 
         private:
-            std::fstream *_file;
-            std::string _filename;
-
             WriteModeEnum _write_mode;
 
             QFileSystemWatcher *_file_watcher;
