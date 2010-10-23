@@ -61,7 +61,6 @@ QByteArray DataAccess::GFileIODevice::receive_data()
     _close_file();
 
     _last_update_time = QFileInfo(FileName()).lastModified();
-    _hash = QCryptographicHash::hash(ret, QCryptographicHash::Md5);
 
     return ret;
 }
@@ -73,32 +72,7 @@ bool DataAccess::GFileIODevice::has_been_updated()
 
 bool DataAccess::GFileIODevice::HasDataAvailable()
 {
-    bool ret = false;
-
-    if(has_been_updated())
-    {
-        _open_file(false);
-
-        QByteArray tmphash;
-        bool errors = false;
-        try
-        {
-            // The modify times don't match, so read the data and determine if it's new or not
-            tmphash = QCryptographicHash::hash(
-                    ReceiveData(),
-                    QCryptographicHash::Md5);
-        }
-        catch(...)
-        {
-            errors = true;
-        }
-        _close_file();
-
-        if(!errors)
-            ret  = tmphash != _hash;
-    }
-
-    return ret;
+    return has_been_updated();
 }
 
 QFile &DataAccess::GFileIODevice::File() const

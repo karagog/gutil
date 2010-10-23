@@ -64,9 +64,7 @@ namespace GUtil
             WriteModeEnum _write_mode;
 
             QFileSystemWatcher *_file_watcher;
-
             QDateTime _last_update_time;
-            QByteArray _hash;
 
             void _open_file(bool for_write);
             void _close_file();

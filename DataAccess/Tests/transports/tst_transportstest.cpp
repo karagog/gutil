@@ -53,49 +53,57 @@ void TransportsTest::cleanupTestCase()
 
 void TransportsTest::test_console_transport()
 {
-//    try
-//    {
-//        GConsoleIODevice ct;
-//        std::string inval;
+    try
+    {
+        GConsoleIODevice ct;
+        std::string inval;
 
-//        ct<<"Hello World!\n\nYou must type an h: ";
-//        ct>>inval;
+        ct<<"Hello World!\n\nYou must type an h: ";
+        ct>>inval;
 
-//        QVERIFY2(inval == "h", inval.c_str());
+        QVERIFY2(inval == "h", inval.c_str());
 
-//        ct<<"Now type a k: ";
-//        ct>>inval;
-//        QVERIFY2(inval == "k", inval.c_str());
-//    }
-//    catch(Core::Exception &ex)
-//    {
-//        GlobalLogger::LogException(ex);
-//        QVERIFY2(false, "Check log for details");
-//    }
+        ct<<"Now type a k: ";
+        ct>>inval;
+        QVERIFY2(inval == "k", inval.c_str());
+    }
+    catch(Core::Exception &ex)
+    {
+        GlobalLogger::LogException(ex);
+        QVERIFY2(false, "Check log for details");
+    }
 }
 
 void TransportsTest::test_file_transport()
 {
-    GFileIODevice ft("Testfile.txt");
+    try
+    {
+        GFileIODevice ft("Testfile.txt");
 
-    ft.SetWriteMode(GFileIODevice::WriteOver);
-    ft.Write("Bogus data");
-    QVERIFY2(ft.FileData() == "Bogus data", QString(ft.FileData()).toStdString().c_str());
+        ft.SetWriteMode(GFileIODevice::WriteOver);
+        ft.Write("Bogus data");
+        QVERIFY2(ft.FileData() == "Bogus data", QString(ft.FileData()).toStdString().c_str());
 
-    ft.Write("Hello World!");
-    QVERIFY2(ft.FileData() == "Hello World!", QString(ft.FileData()).toStdString().c_str());
+        ft.Write("Hello World!");
+        QVERIFY2(ft.FileData() == "Hello World!", QString(ft.FileData()).toStdString().c_str());
 
-    ft.SetWriteMode(GFileIODevice::WriteAppend);
-    ft.Write("7");
-    QVERIFY(ft.FileData() == "Hello World!7");
+        ft.SetWriteMode(GFileIODevice::WriteAppend);
+        ft.Write("7");
+        QVERIFY(ft.FileData() == "Hello World!7");
 
-    ft.Write("\nNew line");
+        ft.Write("\nNew line");
 
-    GFileIODevice ft2("Testfile.txt");
-    QVERIFY2(ft.FileData() == ft2.FileData(), QString("(%1, %2)")
-             .arg(QString(ft.FileData()))
-             .arg(QString(ft2.FileData())).toStdString().c_str()
-             );
+        GFileIODevice ft2("Testfile.txt");
+        QVERIFY2(ft.FileData() == ft2.FileData(), QString("(%1, %2)")
+                 .arg(QString(ft.FileData()))
+                 .arg(QString(ft2.FileData())).toStdString().c_str()
+                 );
+    }
+    catch(Core::Exception &ex)
+    {
+        GlobalLogger::LogException(ex);
+        throw;
+    }
 }
 
 QTEST_MAIN(TransportsTest);
