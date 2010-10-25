@@ -90,8 +90,8 @@ namespace GUtil
                     throw(GUtil::Core::LockException,
                           GUtil::Core::Exception);
 
-            bool HasReadLockOnMachine() const;
-            bool HasWriteLockOnMachine() const;
+            bool IsLockedForReadOnMachine() const;
+            bool IsLockedForWriteOnMachine() const;
 
         protected:
             virtual QString string_modifier() const;

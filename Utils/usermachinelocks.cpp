@@ -235,12 +235,12 @@ void Utils::UserMachineReadWriteLock::LockForWriteOnMachine(bool block)
     lock(false, block);
 }
 
-bool Utils::UserMachineReadWriteLock::HasReadLockOnMachine() const
+bool Utils::UserMachineReadWriteLock::IsLockedForReadOnMachine() const
 {
     return IsLockedOnMachine() && _i_have_read_lock;
 }
 
-bool Utils::UserMachineReadWriteLock::HasWriteLockOnMachine() const
+bool Utils::UserMachineReadWriteLock::IsLockedForWriteOnMachine() const
 {
     return IsLockedOnMachine() && !_i_have_read_lock;
 }
