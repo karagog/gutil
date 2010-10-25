@@ -53,6 +53,14 @@ namespace GUtil
 
             void GetIdentity(QString &identifier, QString &modifier);
 
+            virtual QByteArray get_current_data();
+            virtual QString import_current_data();
+
+            // If the configuration is supposed to be interfaced with humans,
+            //  then set this to true
+            void SetHumanReadable(bool);
+            bool IsHumanReadable();
+
         signals:
             void NotifyConfigurationUpdate();
 
@@ -64,7 +72,6 @@ namespace GUtil
             virtual std::string ReadonlyMessageIdentifier() const;
 
         private:
-            bool _ignore_update;
 
             QString _identity;
             QString _modifier;

@@ -26,12 +26,12 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         QObject *parent)
             :QObject(parent),
             Core::Interfaces::IReadOnlyObject(false),
-            Core::Interfaces::IXmlSerializable(false)
+            Interfaces::IQXmlSerializable(false)
 {
     current_data = new Custom::DataContainer();
 
     _transport = transport;
-    connect(transport, SIGNAL(notifyNewData(QByteArray)), this, SLOT(importData(QByteArray)));
+    connect(transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
 }
 
 BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
@@ -178,9 +178,21 @@ bool BusinessObjects::AbstractValueBuffer::RemoveValue(const QStringList &keys)
     return ValueChanged();
 }
 
-void BusinessObjects::AbstractValueBuffer::importData(const QByteArray &dat)
+void BusinessObjects::AbstractValueBuffer::importData()
 {
-    enQueueMessage(InQueue, dat);
+    QString data;
+
+    try
+    {
+        data = import_current_data();
+    }
+    catch(Core::Exception &ex)
+    {
+        LogException(ex);
+        return;
+    }
+
+    enQueueMessage(InQueue, data.toAscii());
 }
 
 void BusinessObjects::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
@@ -200,7 +212,7 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     // Critical section for current data
     try
     {
-        data = QString::fromStdString(current_data->ToXml());
+        data = get_current_data();
 
         if(clear)
             current_data->clear();
@@ -218,12 +230,22 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     enQueueMessage(OutQueue, data.toAscii());
 }
 
+QByteArray BusinessObjects::AbstractValueBuffer::get_current_data()
+{
+    return current_data->ToXmlQString().toAscii();
+}
+
+QString BusinessObjects::AbstractValueBuffer::import_current_data()
+{
+    return QString(Transport().ReceiveData(false));
+}
+
 void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &data)
 {
     current_data_lock.lockForWrite();
     try
     {
-        current_data->FromXml(QString(data).toStdString());
+        current_data->FromXmlQString(QString(data));
     }
     catch(Core::Exception &ex)
     {
@@ -322,17 +344,19 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
 }
 
-std::string BusinessObjects::AbstractValueBuffer::ToXml()
+void BusinessObjects::AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw)
 {
     current_data_lock.lockForRead();
-    std::string ret = current_data->ToXml();
+    current_data->WriteXml(sw);
     current_data_lock.unlock();
-    return ret;
 }
 
-void BusinessObjects::AbstractValueBuffer::FromXml(const std::string &xml) throw(Core::XmlException)
+void BusinessObjects::AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
+        throw(Core::XmlException)
 {
-    enQueueMessage(InQueue, QByteArray(xml.c_str(), xml.length()));
+    Custom::DataContainer tmp;
+    tmp.ReadXml(sr);
+    enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
 }
 
 void BusinessObjects::AbstractValueBuffer::SetXmlHumanReadableFormat(bool h)

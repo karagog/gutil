@@ -51,7 +51,8 @@ namespace GUtil
             virtual ~GIODevice();
 
             // Note: You can rely on the signal 'ReadyRead' to get the new data, but you can also call this manually
-            QByteArray ReceiveData(bool block = true);
+            QByteArray ReceiveData(bool block = true)
+                    throw(Core::DataTransportException);
 
             virtual bool HasDataAvailable() = 0;
 

@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "Logging/igloballogger.h"
 #include "Core/Interfaces/ireadonlyobject.h"
-#include "Core/Interfaces/ixmlserializable.h"
+#include "Interfaces/iqxmlserializable.h"
 #include <QMap>
 #include <QString>
 #include <QObject>
@@ -49,7 +49,7 @@ namespace GUtil
         class AbstractValueBuffer : public QObject,
                                     public GUtil::Logging::IGlobalLogger,
                                     public GUtil::Core::Interfaces::IReadOnlyObject,
-                                    public GUtil::Core::Interfaces::IXmlSerializable
+                                    public GUtil::Interfaces::IQXmlSerializable
         {
             Q_OBJECT
         public:
@@ -84,6 +84,10 @@ namespace GUtil
             // Throw exceptions when errors happen and they will be logged
             virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
+            // If you need to do some special data processing, reimplement these
+            virtual QByteArray get_current_data();
+            virtual QString import_current_data();
+
             // Forcefully remove all data from the queue
             void clearQueues();
 
@@ -109,8 +113,9 @@ namespace GUtil
             //    current data container
             virtual void process_input_data(const QByteArray &);
 
-            virtual std::string ToXml();
-            virtual void FromXml(const std::string &) throw(GUtil::Core::XmlException);
+            virtual void WriteXml(QXmlStreamWriter &);
+            virtual void ReadXml(QXmlStreamReader &)
+                    throw(GUtil::Core::XmlException);
             virtual void SetXmlHumanReadableFormat(bool);
 
             virtual std::string ReadonlyMessageIdentifier() const;
@@ -118,7 +123,7 @@ namespace GUtil
 
         protected slots:
             // This is called automatically when the transport layer says there's new data
-            void importData(const QByteArray &);
+            void importData();
 
 
         private:

@@ -12,12 +12,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ixmlserializable.h"
+#include "iqxmlserializable.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-std::string Interfaces::IXmlSerializable::ToXml()
+Interfaces::IQXmlSerializable::IQXmlSerializable(bool human_readable)
+    :Core::Interfaces::IXmlSerializable(human_readable)
+{
+
+}
+
+std::string Interfaces::IQXmlSerializable::ToXmlString()
+{
+    return ToXmlQString().toStdString();
+}
+
+void Interfaces::IQXmlSerializable::FromXmlString(const std::string &xml)
+        throw(GUtil::Core::XmlException)
+{
+    FromXmlQString(QString::fromStdString(xml));
+}
+
+QString Interfaces::IQXmlSerializable::ToXmlQString()
 {
     QString ret;
     QXmlStreamWriter w(&ret);
@@ -25,12 +42,12 @@ std::string Interfaces::IXmlSerializable::ToXml()
 
     WriteXml(w);
 
-    return ret.toStdString();
+    return ret;
 }
 
-void Interfaces::IXmlSerializable::FromXml(const std::string &xml)
+void Interfaces::IQXmlSerializable::FromXmlQString(const QString &xml)
         throw(GUtil::Core::XmlException)
 {
-    QXmlStreamReader r(xml.c_str());
+    QXmlStreamReader r(xml);
     ReadXml(r);
 }

@@ -20,20 +20,16 @@ limitations under the License.*/
 using namespace GUtil;
 
 Custom::DataContainer::DataContainer()
-    : QMap<QString, QByteArray>(), Core::Interfaces::IXmlSerializable(false)
+    : QMap<QString, QByteArray>(), Interfaces::IQXmlSerializable(false)
 {}
 
 Custom::DataContainer::DataContainer(const DataContainer &other)
-    : QMap<QString, QByteArray>(other), Core::Interfaces::IXmlSerializable(false)
+    : QMap<QString, QByteArray>(other), Interfaces::IQXmlSerializable(false)
 {}
 
-std::string Custom::DataContainer::ToXml()
+void Custom::DataContainer::WriteXml(QXmlStreamWriter &sw)
 {
-    QString xmlstr;
-    QXmlStreamWriter sw(&xmlstr);
     sw.setAutoFormatting(IsXmlHumanReadableFormat());
-
-    sw.writeStartDocument();
     sw.writeStartElement("settings");
 
     foreach(QString s, keys())
@@ -51,24 +47,28 @@ std::string Custom::DataContainer::ToXml()
     }
 
     sw.writeEndElement();
-    sw.writeEndDocument();
-
-    return xmlstr.toStdString();
 }
 
-void Custom::DataContainer::FromXml(const std::string &dat) throw(Core::XmlException)
+#define READ_ERR_STRING "XML not in correct format"
+
+void Custom::DataContainer::ReadXml(QXmlStreamReader &sr)
+        throw(Core::XmlException)
 {
     clear();
 
-    QXmlStreamReader sr(dat.c_str());
-
     if(!sr.readNextStartElement())
-        throw Core::XmlException("Invalid Xml Document");
+    {
+        Core::XmlException ex(READ_ERR_STRING);
+        ex.SetData("err", sr.errorString().toStdString());
+        throw ex;
+    }
+
+    QString start_name = sr.name().toString();
 
     while(sr.readNextStartElement())
     {
         if(!sr.attributes().hasAttribute("v"))
-            throw Core::XmlException("XML not in correct format");
+            throw Core::XmlException(READ_ERR_STRING);
 
         std::string tmp = Core::Utils::StringHelpers::fromBase64(
                 sr.attributes().value("v").toString().toStdString());
@@ -76,6 +76,24 @@ void Custom::DataContainer::FromXml(const std::string &dat) throw(Core::XmlExcep
         insert(sr.name().toString(), QByteArray(tmp.c_str(), tmp.length()));
 
         // Read in the end element tag
-        sr.readNext();
+        while(sr.readNext() != QXmlStreamReader::EndElement)
+        {
+            if(sr.tokenType() == QXmlStreamReader::Invalid)
+            {
+                Core::XmlException ex(READ_ERR_STRING);
+                ex.SetData("err", sr.errorString().toStdString());
+                throw ex;
+            }
+            else if(sr.tokenType() == QXmlStreamReader::StartElement)
+            {
+                Core::XmlException ex(READ_ERR_STRING);
+                ex.SetData("err", "Encountered unexpected start element");
+                throw ex;
+            }
+        }
+
+        // Stop when we hit the end of the tag we started on
+        if(sr.name() == start_name)
+            break;
     }
 }

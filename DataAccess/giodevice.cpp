@@ -61,6 +61,7 @@ void DataAccess::GIODevice::SendData(const QByteArray &data)
 }
 
 QByteArray DataAccess::GIODevice::ReceiveData(bool block)
+        throw(Core::DataTransportException)
 {
     this_giodevice_lock.lock();
 

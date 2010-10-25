@@ -6,6 +6,6 @@ CONFIG += staticlib
 INCLUDEPATH += ..
 
 HEADERS += \
-    ixmlserializable.h
+    iqxmlserializable.h
 SOURCES += \
-    ixmlserializable.cpp
+    iqxmlserializable.cpp

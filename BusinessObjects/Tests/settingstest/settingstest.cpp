@@ -12,9 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Core/Tools/stringhelpers.h"
+#include "Core/Utils/stringhelpers.h"
 #include "BusinessObjects/ConfigFile.h"
-#include "Utils/filelogger.h"
+#include "Logging/globallogger.h"
 #include "Core/exception.h"
 #include <string>
 #include <QFile>
@@ -60,9 +60,10 @@ private:
 settingsTest::settingsTest(QObject *parent) :
     QObject(parent)
 {
-    Utils::FileLogger *l = new Utils::FileLogger("SettingsTest.log", 0, this);
-    l->ClearLog();
-    settings = new BusinessObjects::ConfigFile("GTestLib", "", l, this);
+    Logging::GlobalLogger::SetupFileLogger("SettingsTest.log");
+    Logging::GlobalLogger::ClearLog();
+
+    settings = new BusinessObjects::ConfigFile("GTestLib", "", this);
     settings->Clear();
 }
 
@@ -277,7 +278,7 @@ void settingsTest::test_clear_all_values()
 void settingsTest::cleanupTestCase()
 {
     //QString probe = QString::fromStdString(GUtil::StringHelpers::pathName(settings->FileName().toStdString()));
-    QFile::remove(QString::fromStdString(Core::Tools::StringHelpers::pathName(settings->FileName().toStdString())));
+    QFile::remove(QString::fromStdString(Core::Utils::StringHelpers::pathName(settings->FileName().toStdString())));
 }
 
 QTEST_APPLESS_MAIN(settingsTest);

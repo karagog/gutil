@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "DataAccess/gfileiodevice.h"
 #include "Core/exception.h"
 #include "Core/Utils/stringhelpers.h"
+#include "Core/Utils/encryption.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileSystemWatcher>
@@ -32,7 +33,9 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
             .arg(get_file_location(identifier))
             .arg(modifier)),
                                      parent)
-{
+{   
+    SetHumanReadable(true);
+
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
 
@@ -47,17 +50,17 @@ BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other
 
 void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &modifier)
 {
-    SetXmlHumanReadableFormat(true);
+    SetHumanReadable(false);
 
     _identity = identity;
     _modifier = modifier;
 
-    importData(FileTransport().FileData());
+    importData();
 }
 
 void BusinessObjects::ConfigFile::Reload()
 {
-    importData(FileTransport().ReceiveData());
+    importData();
 }
 
 QString BusinessObjects::ConfigFile::FileName() const
@@ -75,6 +78,40 @@ void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception
 {
     // Export the changed data to the config file
     enQueueCurrentData(false);
+}
+
+QByteArray BusinessObjects::ConfigFile::get_current_data()
+{
+    QByteArray ba = AbstractValueBuffer::get_current_data();
+
+    if(!IsHumanReadable())
+    {
+        // Compress the configuration data
+        std::string tmpres =
+                Core::Utils::CryptoHelpers::compress(
+                        std::string(ba.constData(), ba.length()));
+        ba = QByteArray(tmpres.c_str(), tmpres.length());
+    }
+
+    return ba;
+}
+
+QString BusinessObjects::ConfigFile::import_current_data()
+{
+    QString data = AbstractValueBuffer::import_current_data();
+
+    // try to decompress it,
+    try
+    {
+        std::string tmpres = Core::Utils::CryptoHelpers::decompress(
+                std::string(data.toStdString().c_str(), data.length()));
+
+        data = QString(tmpres.c_str());
+    }
+    catch(Core::Exception)
+    {}
+
+    return data;
 }
 
 DataAccess::GFileIODevice &BusinessObjects::ConfigFile::FileTransport() const
@@ -119,4 +156,14 @@ QString BusinessObjects::ConfigFile::get_file_location(QString id)
 std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
 {
     return "DataAccess::ConfigFile";
+}
+
+void BusinessObjects::ConfigFile::SetHumanReadable(bool hr)
+{
+    SetXmlHumanReadableFormat(hr);
+}
+
+bool BusinessObjects::ConfigFile::IsHumanReadable()
+{
+    return IsXmlHumanReadableFormat();
 }

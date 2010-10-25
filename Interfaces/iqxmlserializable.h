@@ -12,19 +12,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IXMLSERIALIZABLE_H
-#define IXMLSERIALIZABLE_H
+#ifndef IQXMLSERIALIZABLE_H
+#define IQXMLSERIALIZABLE_H
 
 #include "Core/Interfaces/ixmlserializable.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
+class QString;
+class QByteArray;
 
 namespace GUtil
 {
     namespace Interfaces
     {
-        class IXmlSerializable : public GUtil::Core::Interfaces::IXmlSerializable
+        class IQXmlSerializable : public GUtil::Core::Interfaces::IXmlSerializable
         {
         public:
 
@@ -33,14 +35,22 @@ namespace GUtil
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException) = 0;
 
+            virtual QString ToXmlQString();
+            virtual void FromXmlQString(const QString &)
+                    throw(GUtil::Core::XmlException);
+
             // These functions satisfy the core ixmlserializable interface,
             //   building off the new interface's functions
-            virtual std::string ToXml();
-            virtual void FromXml(const std::string &)
+            virtual std::string ToXmlString();
+            virtual void FromXmlString(const std::string &)
                     throw(GUtil::Core::XmlException);
+
+        protected:
+
+            IQXmlSerializable(bool human_readable = false);
 
         };
     }
 }
 
-#endif // IXMLSERIALIZABLE_H
+#endif // IQXMLSERIALIZABLE_H
