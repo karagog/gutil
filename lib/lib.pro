@@ -7,10 +7,10 @@ TARGET = dummy_ignorethislib
 #  libraries, then bundle them up in the new one
 extract_controls.commands = ar -x libControls.a
 extract_core.commands = ar -x libCore.a
+extract_interfaces.commands = ar -x libInterfaces.a
 extract_custom.commands = ar -x libCustom.a
 extract_dataaccess.commands = ar -x libDataAccess.a
 extract_logging.commands = ar -x libLogging.a
-#extract_dataobjects.commands = ar -x libDataObjects.a
 extract_businessobjects.commands = ar -x libBusinessObjects.a
 extract_thirdparty.commands = ar -x libThirdParty.a
 extract_utils.commands = ar -x libUtils.a
@@ -24,28 +24,28 @@ cleanup.commands = rm *.o
 
 PRE_TARGETDEPS += \
   extract_thirdparty \
-  extract_controls \
   extract_core \
+  extract_interfaces \
+  extract_utils \
   extract_custom \
   extract_dataaccess \
   extract_logging \
-  #extract_dataobjects \
   extract_businessobjects \
-  extract_utils \
+  extract_controls \
   buildlib \
   copy_lib \
   cleanup \
 
 QMAKE_EXTRA_TARGETS += \
   extract_thirdparty \
-  extract_controls \
   extract_core \
+  extract_interfaces \
+  extract_utils \
   extract_custom \
   extract_dataaccess \
   extract_logging \
-  #extract_dataobjects \
   extract_businessobjects \
-  extract_utils \
+  extract_controls \
   buildlib \
   copy_lib \
   cleanup

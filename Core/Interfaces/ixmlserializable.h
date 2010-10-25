@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IXMLSERIALIZABLE_H
-#define IXMLSERIALIZABLE_H
+#ifndef CORE_IXMLSERIALIZABLE_H
+#define CORE_IXMLSERIALIZABLE_H
 
 #include <Core/exception.h>
 #include <string>
@@ -28,9 +28,10 @@ namespace GUtil
             {
             public:
                 virtual std::string ToXml() = 0;
-                virtual void FromXml(const std::string &) throw(GUtil::Core::XmlException) = 0;
+                virtual void FromXml(const std::string &)
+                        throw(GUtil::Core::XmlException) = 0;
 
-                virtual void SetXmlHumanReadableFormat(bool HumanReadable);
+                void SetXmlHumanReadableFormat(bool HumanReadable);
                 bool IsXmlHumanReadableFormat();
 
             protected:
@@ -43,4 +44,4 @@ namespace GUtil
     }
 }
 
-#endif // IXMLSERIALIZABLE_H
+#endif // CORE_IXMLSERIALIZABLE_H
