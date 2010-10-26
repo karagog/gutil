@@ -19,20 +19,70 @@ limitations under the License.*/
 #include <QXmlStreamWriter>
 using namespace GUtil;
 
-Custom::DataContainer::DataContainer()
-    : QMap<QString, QByteArray>(), Interfaces::IQXmlSerializable(false)
+Custom::DataContainer::DataContainer(QObject *p)
+    :
+    QAbstractListModel(p),
+    Interfaces::IQXmlSerializable(false),
+    Core::Interfaces::IReadOnlyObject(false)
 {}
 
-Custom::DataContainer::DataContainer(const DataContainer &other)
-    : QMap<QString, QByteArray>(other), Interfaces::IQXmlSerializable(false)
-{}
+
+
+
+
+
+
+
+
+
+
+int Custom::DataContainer::rowCount(const QModelIndex &) const
+{
+    return _key_list.length();
+}
+
+QVariant Custom::DataContainer::data(const QModelIndex &index, int role) const
+{
+    QVariant ret;
+    if(!index.isValid())
+        return ret;
+
+    int row = index.row();
+    int col = index.column();
+
+    if(col < 0 || col > 1)
+        return ret;
+
+    switch((Qt::ItemDataRole)role)
+    {
+    case Qt::DisplayRole:
+        if(col == 0)
+            ret = _key_list[row];
+        else if(col == 1)
+            ret = _data[_key_list[row]];
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+bool Custom::DataContainer::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if(IsReadOnly())
+        return false;
+}
+
+
+
+
 
 void Custom::DataContainer::WriteXml(QXmlStreamWriter &sw)
 {
     sw.setAutoFormatting(IsXmlHumanReadableFormat());
     sw.writeStartElement("settings");
 
-    foreach(QString s, keys())
+    foreach(QString s, _key_list)
     {
         // Don't bother writing empty settings, because they'll be defaulted to a
         //  null string anyways if they're not found
@@ -96,4 +146,12 @@ void Custom::DataContainer::ReadXml(QXmlStreamReader &sr)
         if(sr.name() == start_name)
             break;
     }
+}
+
+
+void Custom::DataContainer::SetReadOnly(bool readonly)
+{
+    Core::Interfaces::IReadOnlyObject::SetReadOnly(readonly);
+
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }

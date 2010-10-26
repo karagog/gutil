@@ -16,8 +16,12 @@ limitations under the License.*/
 #define VARIABLECONTAINER_H
 
 #include "Interfaces/iqxmlserializable.h"
-#include <QMap>
+#include "Core/Interfaces/ireadonlyobject.h"
+#include <QList>
+#include <QPair>
+#include <QString>
 #include <QByteArray>
+#include <QAbstractListModel>
 
 namespace GUtil
 {
@@ -25,16 +29,48 @@ namespace GUtil
     {
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
-        class DataContainer :   public QMap<QString, QByteArray>,
-                                public Interfaces::IQXmlSerializable
+        class DataContainer :   public QAbstractListModel,
+                                public Interfaces::IQXmlSerializable,
+                                public Core::Interfaces::IReadOnlyObject
         {
+            Q_OBJECT
         public:
-            DataContainer();
-            DataContainer(const DataContainer &);
+            DataContainer(QObject *parent = 0);
 
+            QList<QByteArray> Values(const QString &key);
+            QPair<QString, QByteArray> Value(int) const;
+
+            virtual void SetValue(int, const QString &key, const QByteArray &value);
+
+            void InsertValue(int, const QString &key, const QByteArray &value);
+            QPair<QString, QByteArray> RemoveValue(int);
+            virtual void SwapIndexes(int one, int two);
+
+            int Size() const;
+
+
+            // Interface for IQXmlSerializable
             virtual void WriteXml(QXmlStreamWriter &);
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
+
+
+            // Interface for QAbstractListModel
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual int columnCount(const QModelIndex &parent) const;
+
+            virtual QVariant data(const QModelIndex &index, int role) const;
+            virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
+
+            virtual bool insertRows(int row, int count, const QModelIndex &parent);
+            virtual bool removeRows(int row, int count, const QModelIndex &parent);
+
+            virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+            virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+
+        private:
+            QList< QPair<QString, QByteArray> > _data;
 
         };
     }
