@@ -25,8 +25,8 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
         QObject *parent)
             :QObject(parent),
-            Core::Interfaces::IReadOnlyObject(false),
-            Interfaces::IQXmlSerializable(false)
+            Interfaces::IQXmlSerializable(false),
+            Core::Interfaces::IReadOnlyObject(false)
 {
     current_data = new Custom::DataContainer();
 
@@ -77,7 +77,7 @@ bool BusinessObjects::AbstractValueBuffer::ValueChanged()
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        Logging::GlobalLogger::LogException(ex);
         return false;
     }
 
@@ -188,7 +188,7 @@ void BusinessObjects::AbstractValueBuffer::importData()
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        Logging::GlobalLogger::LogException(ex);
         return;
     }
 
@@ -221,7 +221,7 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     {
         current_data_lock.unlock();
 
-        LogException(ex);
+        Logging::GlobalLogger::LogException(ex);
         return;
     }
 
@@ -251,7 +251,7 @@ void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &
     {
         current_data_lock.unlock();
 
-        LogException(ex);
+        Logging::GlobalLogger::LogException(ex);
         return;
     }
 
@@ -277,7 +277,7 @@ QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        Logging::GlobalLogger::LogException(ex);
         return ret;
     }
 
@@ -316,7 +316,7 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
     catch(Core::Exception &ex)
     {
-        LogException(ex);
+        Logging::GlobalLogger::LogException(ex);
         return;
     }
 

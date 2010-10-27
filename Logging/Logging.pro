@@ -8,7 +8,6 @@ CONFIG += staticlib
 INCLUDEPATH += ..
 
 HEADERS += \
-    igloballogger.h \
     globallogger.h \
     filelogger.h \
     consolelogger.h \
@@ -17,7 +16,6 @@ HEADERS += \
     messageboxlogger.h
 
 SOURCES += \
-    igloballogger.cpp \
     globallogger.cpp \
     filelogger.cpp \
     consolelogger.cpp \

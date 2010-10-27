@@ -15,56 +15,68 @@ limitations under the License.*/
 #ifndef GLOBALLOGGER_H
 #define GLOBALLOGGER_H
 
-#include <QObject>
+#include "Core/exception.h"
+#include <QString>
+#include <QMap>
+
+class QReadWriteLock;
 
 namespace GUtil
 {
-    namespace Core
-    {
-        class Exception;
-    }
-
     namespace Logging
     {
         class AbstractLogger;
 
-        class GlobalLogger : public QObject
+        class GlobalLogger
         {
-            Q_OBJECT
         public:
-            // You shouldn't ever have to instantiate one of these yourself
-            explicit GlobalLogger(QObject *parent = 0);
 
-            // You can use this instance to connect to the static slots
-            static GlobalLogger *Instance();
+            // You can pass one of these as a logger Id to reference
+            enum LoggerIdEnum
+            {
+                DefaultId = -2,
+                NewId = -1
+            };
 
-            static int SetupLogger(AbstractLogger *);
+            static int SetupLogger(AbstractLogger *, int logger_id = NewId);
+            static int SetupDefaultLogger(AbstractLogger *);
 
-            static int SetupFileLogger(const QString &filename);
-            static int SetupConsoleLogger();
+            static void TakeDownLogger(int logger_id = DefaultId);
+            static void ClearLog(int logger_id = DefaultId);
 
-            static void TakedownLogger(int logger_id = -1);
+            static void SetDefaultLoggerID(int);
+            static int GetDefaultLoggerID();
 
-            static void ClearLog(int logger_id = -1);
 
-            static void SetDefaultLogger(int);
-            static int GetDefaultLogger();
-
-        public slots:
+            // Global Logging Methods:
             static void LogMessage(const QString &msg = QString::null,
                                    const QString &title = QString::null,
-                                   int logger_id = -1);
+                                   int logger_id = DefaultId);
             static void LogWarning(const QString &msg = QString::null,
                                    const QString &title = QString::null,
-                                   int logger_id = -1);
+                                   int logger_id = DefaultId);
             static void LogError(const QString &msg = QString::null,
                                  const QString &title = QString::null,
-                                 int logger_id = -1);
+                                 int logger_id = DefaultId);
 
-            static void LogException(const GUtil::Core::Exception &, int logger_id = -1);
-            static void LogException(const std::exception &, int logger_id = -1);
+            static void LogException(const GUtil::Core::Exception &, int logger_id = DefaultId);
+            static void LogException(const std::exception &, int logger_id = DefaultId);
 
             static void Log(const QString &, const QString &, int logger_id, int message_level);
+
+
+        private:
+
+            static QMap<int, Logging::AbstractLogger *> _logger_list;
+            static QReadWriteLock _logger_list_lock;
+
+            static int _setup_logger(GUtil::Logging::AbstractLogger *, int logger_id);
+            static void _takedown_logger(int logger_id);
+
+            static void _translate_logger_id(int &, bool allow_new_id)
+                    throw(GUtil::Core::ArgumentException);
+
+            static int _default_logger_id;
 
         };
     }

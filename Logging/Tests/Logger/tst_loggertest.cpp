@@ -15,7 +15,6 @@ limitations under the License.*/
 #include "Logging/filelogger.h"
 #include "Logging/consolelogger.h"
 #include "Logging/globallogger.h"
-#include "Logging/igloballogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include <QtConcurrentRun>
@@ -25,7 +24,7 @@ using namespace GUtil::Core;
 using namespace GUtil::Utils;
 using namespace GUtil::Logging;
 
-class LoggerTest : public QObject, public IGlobalLogger
+class LoggerTest : public QObject
 {
     Q_OBJECT
 
@@ -55,15 +54,13 @@ LoggerTest::LoggerTest()
 
 void LoggerTest::initTestCase()
 {
-    GlobalLogger::SetupFileLogger("global.log");
-    connect(this, SIGNAL(notify_message(QString, QString)),
-            GlobalLogger::Instance(), SLOT(LogMessage(QString, QString)));
+    GlobalLogger::SetupDefaultLogger(new FileLogger("global.log", this));
     GlobalLogger::ClearLog();
 }
 
 void LoggerTest::cleanupTestCase()
 {
-    TakeDownLogger();
+    GlobalLogger::TakeDownLogger();
 }
 
 void LoggerTest::test_normal_logging()
@@ -165,26 +162,24 @@ void LoggerTest::test_exception_logging()
 
 void LoggerTest::test_global_logging()
 {
-    GlobalLogger::LogMessage("Hello World!", "From the static global implementation");
+    GlobalLogger::LogMessage("Hello World!", "Called as a function");
 
-    LogMessage("Hello World!", "From my own logging implementation:");
-
-    emit notify_message("Hello World!", "From the static slot");
+    emit notify_message("Hello World!", "Called with the static slot");
 
 
     // Now test a secondary log file and log to it:
-    int id = SetupLogger(new FileLogger("global.2.log"));
-    ClearLog(id);
+    int id = GlobalLogger::SetupLogger(new FileLogger("global.2.log"));
+    GlobalLogger::ClearLog(id);
 
-    LogMessage("Hello second log!", "", id);
-    GlobalLogger::LogMessage("Hi", "From the static global implementation", id);
-    GlobalLogger::TakedownLogger(id);
+    GlobalLogger::LogMessage(QVariant(id).toString(), "Hello second log!", id);
 
-    LogMessage("You shouldn't see this message!", "", id);
+    // Test that the log doesn't exist after we take it down
+    GlobalLogger::TakeDownLogger(id);
+    GlobalLogger::LogMessage("You shouldn't see this message!", "", id);
 
     // Verify that the next logger gets the same id as the last one we took down
-    QVERIFY(SetupLogger(new ConsoleLogger()) == id);
-    TakeDownLogger(id);
+    QVERIFY(GlobalLogger::SetupLogger(new ConsoleLogger()) == id);
+    GlobalLogger::TakeDownLogger(id);
 }
 
 void LoggerTest::test_concurrent()

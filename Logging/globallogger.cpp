@@ -13,101 +13,196 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "globallogger.h"
-#include "igloballogger.h"
+#include "Logging/abstractlogger.h"
+#include <QReadWriteLock>
+#include <QVariant>
+#include <QApplication>
 using namespace GUtil;
 
-Logging::GlobalLogger this_instance;
-Logging::IGlobalLogger global_logger;
+// Global variables
+QMap<int, Logging::AbstractLogger *> Logging::GlobalLogger::_logger_list;
+QReadWriteLock Logging::GlobalLogger::_logger_list_lock;
 
-Logging::GlobalLogger::GlobalLogger(QObject *parent) :
-    QObject(parent)
+int Logging::GlobalLogger::_default_logger_id = 0;
+
+
+
+int Logging::GlobalLogger::SetupLogger(Logging::AbstractLogger *l, int logger_id)
 {
+    int ret;
+    _logger_list_lock.lockForWrite();
+    try
+    {
+        ret = _setup_logger(l, logger_id);
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
+    return ret;
 }
 
-Logging::GlobalLogger *Logging::GlobalLogger::Instance()
+int Logging::GlobalLogger::SetupDefaultLogger(Logging::AbstractLogger *l)
 {
-    return &this_instance;
+    return SetupLogger(l, DefaultId);
 }
 
-int Logging::GlobalLogger::SetupLogger(Logging::AbstractLogger *l)
+int Logging::GlobalLogger::_setup_logger(Logging::AbstractLogger *logger, int logger_id)
 {
-    return global_logger.SetupLogger(l);
+    _translate_logger_id(logger_id, true);
+    _takedown_logger(logger_id);
+    _logger_list.insert(logger_id, logger);
+    return logger_id;
 }
 
-int Logging::GlobalLogger::SetupFileLogger(const QString &filename)
+void Logging::GlobalLogger::TakeDownLogger(int logger_id)
 {
-    return global_logger.SetupFileLogger(filename);
+    _logger_list_lock.lockForWrite();
+    try
+    {
+        _takedown_logger(logger_id);
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
 }
 
-int Logging::GlobalLogger::SetupConsoleLogger()
+void Logging::GlobalLogger::_takedown_logger(int logger_id)
 {
-    return global_logger.SetupConsoleLogger();
+    _translate_logger_id(logger_id, false);
+
+    if(_logger_list.contains(logger_id))
+    {
+        _logger_list.value(logger_id)->deleteLater();
+        _logger_list.remove(logger_id);
+    }
 }
 
-void Logging::GlobalLogger::TakedownLogger(int logger_id)
+void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
+        throw(Core::ArgumentException)
 {
-    if(logger_id == -1)
-        global_logger.TakeDownLogger();
-    else
-        global_logger.TakeDownLogger(logger_id);
+    if(id == DefaultId)
+        id = _default_logger_id;
+    else if(id == NewId)
+    {
+        if(!allow_new_id)
+            throw Core::ArgumentException("Can't create new ID here");
+
+        // Auto-assign a logger id
+        id = 1;
+        while(_logger_list.contains(id))
+            id++;
+    }
+    else if(id < 0)
+    {
+        Core::ArgumentException ex("Logger ID not recognized");
+        ex.SetData("id", QVariant(id).toString().toStdString());
+        throw ex;
+    }
 }
 
 void Logging::GlobalLogger::ClearLog(int logger_id)
 {
-    if(logger_id == -1)
-        global_logger.ClearLog();
-    else
-        global_logger.ClearLog(logger_id);
+    if(logger_id == NewId)
+        return;
+
+    _logger_list_lock.lockForRead();
+    try
+    {
+        _translate_logger_id(logger_id, false);
+
+        if(_logger_list.contains(logger_id))
+            _logger_list.value(logger_id)->ClearLog();
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
 }
 
-void Logging::GlobalLogger::SetDefaultLogger(int id)
+void Logging::GlobalLogger::SetDefaultLoggerID(int new_id)
 {
-    global_logger.SetDefaultLogger(id);
+    _logger_list_lock.lockForWrite();
+    try
+    {
+        _translate_logger_id(new_id, false);
+
+        if(_logger_list.contains(new_id))
+            _default_logger_id = new_id;
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
 }
 
-int Logging::GlobalLogger::GetDefaultLogger()
+int Logging::GlobalLogger::GetDefaultLoggerID()
 {
-    return global_logger.GetDefaultLogger();
+    int ret;
+    _logger_list_lock.lockForRead();
+    {
+        ret = _default_logger_id;
+    }
+    _logger_list_lock.unlock();
+    return ret;
 }
 
 void Logging::GlobalLogger::LogMessage(const QString &msg, const QString &title, int logger_id)
 {
-    if(logger_id == -1)
-        global_logger.LogMessage(msg, title);
-    else
-        global_logger.LogMessage(msg, title, logger_id);
+    Log(msg, title, logger_id, (int)Logging::AbstractLogger::Info);
 }
 
 void Logging::GlobalLogger::LogWarning(const QString &msg, const QString &title, int logger_id)
 {
-    if(logger_id == -1)
-        global_logger.LogWarning(msg, title);
-    else
-        global_logger.LogWarning(msg, title, logger_id);
+    Log(msg, title, logger_id, (int)Logging::AbstractLogger::Warning);
 }
 
 void Logging::GlobalLogger::LogError(const QString &msg, const QString &title, int logger_id)
 {
-    if(logger_id == -1)
-        global_logger.LogError(msg, title);
-    else
-        global_logger.LogError(msg, title, logger_id);
+    Log(msg, title, logger_id, (int)Logging::AbstractLogger::Error);
 }
 
 void Logging::GlobalLogger::LogException(const GUtil::Core::Exception &ex, int logger_id)
 {
-    if(logger_id == -1)
-        global_logger.LogException(ex);
-    else
-        global_logger.LogException(ex, logger_id);
+    _logger_list_lock.lockForRead();
+    try
+    {
+        _translate_logger_id(logger_id, false);
+        if(_logger_list.contains(logger_id))
+            _logger_list.value(logger_id)->LogException(ex);
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
 }
 
 void Logging::GlobalLogger::LogException(const std::exception &ex, int logger_id)
 {
-    if(logger_id == -1)
-        global_logger.LogException(ex);
-    else
-        global_logger.LogException(ex, logger_id);
+    _logger_list_lock.lockForRead();
+    try
+    {
+        _translate_logger_id(logger_id, false);
+        if(_logger_list.contains(logger_id))
+            _logger_list.value(logger_id)->LogException(ex);
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
 }
 
 void Logging::GlobalLogger::Log(const QString &msg,
@@ -115,5 +210,22 @@ void Logging::GlobalLogger::Log(const QString &msg,
                                         int logger_id,
                                         int message_level)
 {
-    global_logger.Log(msg, title, logger_id, message_level);
+    _logger_list_lock.lockForRead();
+    try
+    {
+        _translate_logger_id(logger_id, false);
+
+        if(_logger_list.contains(logger_id))
+        {
+            _logger_list.value(logger_id)->Log(
+                    msg, title,
+                    (Logging::AbstractLogger::MessageLevelEnum)message_level);
+        }
+    }
+    catch(...)
+    {
+        _logger_list_lock.unlock();
+        throw;
+    }
+    _logger_list_lock.unlock();
 }
