@@ -54,7 +54,7 @@ LoggerTest::LoggerTest()
 
 void LoggerTest::initTestCase()
 {
-    GlobalLogger::SetupDefaultLogger(new FileLogger("global.log", this));
+    GlobalLogger::SetupDefaultLogger(new FileLogger("global.log"));
     GlobalLogger::ClearLog();
 }
 
@@ -65,12 +65,8 @@ void LoggerTest::cleanupTestCase()
 
 void LoggerTest::test_normal_logging()
 {
-    PubSubSystem pss;
-    ConsoleLogger clog(this);
-    FileLogger flog("test_logging.log", this);
-
-    connect(&pss, SIGNAL(NotifyMessage(QString,QString)), &clog, SLOT(LogMessage(QString,QString)));
-    connect(&pss, SIGNAL(NotifyMessage(QString,QString)), &flog, SLOT(LogMessage(QString,QString)));
+    ConsoleLogger clog;
+    FileLogger flog("test_logging.log");
 
     try
     {
@@ -82,15 +78,11 @@ void LoggerTest::test_normal_logging()
         clog.LogError("Bar", "Foo");
         flog.LogError("Bar", "Foo");
 
-        pss.PublishMessage("Message", "Title");
-        pss.PublishWarning("Warning");
-        pss.PublishError("Error");
-
         clog.SetMessageLevel(ConsoleLogger::Error);
         flog.SetMessageLevel(ConsoleLogger::Error);
 
-        pss.PublishMessage("Shouldn't see this message");
-        pss.PublishWarning("Shouldn't see this warning");
+        flog.LogMessage("Shouldn't see this message");
+        flog.LogWarning("Shouldn't see this warning");
     }
     catch(GUtil::Core::Exception &ex)
     {
@@ -102,8 +94,8 @@ void LoggerTest::test_normal_logging()
 
 void LoggerTest::test_exception_logging()
 {
-    ConsoleLogger clog(this);
-    FileLogger flog("test_exceptions.log", this);
+    ConsoleLogger clog;
+    FileLogger flog("test_exceptions.log");
 
     flog.ClearLog();
 
@@ -163,8 +155,6 @@ void LoggerTest::test_exception_logging()
 void LoggerTest::test_global_logging()
 {
     GlobalLogger::LogMessage("Hello World!", "Called as a function");
-
-    emit notify_message("Hello World!", "Called with the static slot");
 
 
     // Now test a secondary log file and log to it:

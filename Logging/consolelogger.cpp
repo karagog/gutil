@@ -15,13 +15,12 @@ limitations under the License.*/
 #include "consolelogger.h"
 using namespace GUtil;
 
-Logging::ConsoleLogger::ConsoleLogger(QObject *parent)
-    :Logging::AbstractLogger(parent)
+Logging::ConsoleLogger::ConsoleLogger()
+    :AbstractLogger()
 {
-    _my_console_io_device = new DataAccess::GConsoleIODevice(this);
 }
 
 DataAccess::GIODevice &Logging::ConsoleLogger::TransportMechanism()
 {
-    return *_my_console_io_device;
+    return _my_console_io_device;
 }

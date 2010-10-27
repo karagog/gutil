@@ -26,15 +26,14 @@ namespace GUtil
         // Logs to the console
         class ConsoleLogger : public AbstractLogger
         {
-            Q_OBJECT
         public:
-            explicit ConsoleLogger(QObject *parent = 0);
+            explicit ConsoleLogger();
 
         protected:
             virtual DataAccess::GIODevice &TransportMechanism();
 
         private:
-            DataAccess::GConsoleIODevice *_my_console_io_device;
+            DataAccess::GConsoleIODevice _my_console_io_device;
 
         };
     }

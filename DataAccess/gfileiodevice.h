@@ -29,7 +29,7 @@ namespace GUtil
         class GFileIODevice : public GQIODevice
         {
         public:
-            GFileIODevice(const QString &filename = "", QObject *parent = 0);
+            explicit GFileIODevice(const QString &filename = QString::null, QObject *parent = 0);
 
             enum WriteModeEnum
             {

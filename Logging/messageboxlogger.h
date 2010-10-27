@@ -16,7 +16,6 @@ limitations under the License.*/
 #define MESSAGEBOXLOGGER_H
 
 #include "abstractlogger.h"
-#include "DataAccess/giodevice.h"
 
 namespace GUtil
 {
@@ -24,9 +23,8 @@ namespace GUtil
     {
         class MessageBoxLogger : public AbstractLogger
         {
-            Q_OBJECT
         public:
-            explicit MessageBoxLogger(QObject *parent = 0);
+            explicit MessageBoxLogger();
 
         protected:
             virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);

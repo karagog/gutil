@@ -21,28 +21,27 @@ namespace GUtil
 {
     namespace Utils
     {
-        // This class is reentrant, so feel free to access it from multiple threads
-
-        // It holds QVariant data in case you want to store some state inside it
         class PubSubSystem : public QObject
         {
             Q_OBJECT
         public:
             explicit PubSubSystem(QObject *parent = 0);
 
-        signals:
-            void NotifyMessage(QString message, QString title);
-            void NotifyWarning(QString message, QString title);
-            void NotifyError(QString message, QString title);
-
-            void NotifyProgress(int progress, int id);
 
         public slots:
-            virtual void PublishMessage(const QString& message, const QString& title = QString::null);
-            virtual void PublishWarning(const QString& message, const QString& title = QString::null);
-            virtual void PublishError(const QString& message, const QString& title = QString::null);
+            void PublishMessage(const QByteArray &);
 
-            virtual void PublishProgress(int progress, int id = -1);
+
+        signals:
+            void NotifyMessage(const QByteArray &);
+
+
+        protected:
+
+            // Derived classes can override this function to do other interesting things
+            //   with the published message
+            virtual void on_message_published(const QByteArray &);
+
 
         };
     }

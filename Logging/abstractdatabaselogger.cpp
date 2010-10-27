@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "abstractdatabaselogger.h"
 using namespace GUtil;
 
-Logging::AbstractDatabaseLogger::AbstractDatabaseLogger(QObject *parent)
-    :Logging::AbstractLogger(parent)
+Logging::AbstractDatabaseLogger::AbstractDatabaseLogger()
+    :AbstractLogger()
 {
 }

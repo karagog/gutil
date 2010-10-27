@@ -16,7 +16,7 @@ limitations under the License.*/
 #define LOGGER_H
 
 #include <QDateTime>
-#include <QObject>
+#include <QString>
 
 namespace GUtil
 {
@@ -32,9 +32,8 @@ namespace GUtil
 
     namespace Logging
     {
-        class AbstractLogger : public QObject
+        class AbstractLogger
         {
-            Q_OBJECT
         public:
             enum MessageLevelEnum
             {
@@ -42,6 +41,18 @@ namespace GUtil
                 Warning = 1,
                 Error = 2
             };
+
+
+            // These are the logging functions
+            void LogMessage(const QString &message, const QString &title = QString::null);
+            void LogWarning(const QString &message, const QString &title = QString::null);
+            void LogError(const QString &message, const QString &title = QString::null);
+
+            void LogException(const GUtil::Core::Exception &ex);
+                        void LogException(const std::exception &ex);
+
+            void Log(const QString &message, const QString &title, MessageLevelEnum);
+
 
             // Determines the level under which we won't log anything
             void SetMessageLevel(MessageLevelEnum);
@@ -52,24 +63,9 @@ namespace GUtil
 
             virtual ~AbstractLogger();
 
-        public slots:
-            void LogMessage(const QString &message, const QString &title = QString::null);
-            void LogWarning(const QString &message, const QString &title = QString::null);
-            void LogError(const QString &message, const QString &title = QString::null);
-
-            void LogException(const GUtil::Core::Exception &ex);
-			void LogException(const std::exception &ex);
-
-            void Log(const QString &message, const QString &title, MessageLevelEnum);
-
-
-        signals:
-            // Every time we log a message
-            void NotifyMessageLogged(const QString &, MessageLevelEnum);
-
 
         protected:
-            explicit AbstractLogger(QObject *parent = 0);
+            explicit AbstractLogger();
 
             // This function actually writes the message somewhere useful
             virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);

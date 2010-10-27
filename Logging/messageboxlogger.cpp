@@ -1,11 +1,10 @@
 #include "messageboxlogger.h"
 #include "Core/exception.h"
 #include <QMessageBox>
-#include <QApplication>
 using namespace GUtil;
 
-Logging::MessageBoxLogger::MessageBoxLogger(QObject *parent)
-    :AbstractLogger(parent)
+Logging::MessageBoxLogger::MessageBoxLogger()
+    :AbstractLogger()
 {
 }
 

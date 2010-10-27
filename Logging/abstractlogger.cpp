@@ -18,16 +18,12 @@ limitations under the License.*/
 #include <QDateTime>
 using namespace GUtil;
 
-Logging::AbstractLogger::AbstractLogger(QObject *parent)
-    :QObject(parent)
+Logging::AbstractLogger::AbstractLogger()
 {
     _message_level = Info;
 }
 
-Logging::AbstractLogger::~AbstractLogger()
-{
-
-}
+Logging::AbstractLogger::~AbstractLogger(){}
 
 void Logging::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
 {
@@ -41,7 +37,7 @@ Logging::AbstractLogger::MessageLevelEnum Logging::AbstractLogger::GetMessageLev
 
 void Logging::AbstractLogger::ClearLog()
 {
-    // Do nothing by default
+    // Do nothing by default; subclasses define how to clear the log
 }
 
 void Logging::AbstractLogger::LogMessage(const QString &msg, const QString &title)
@@ -99,8 +95,6 @@ void Logging::AbstractLogger::Log(const QString &msg, const QString &title, Mess
     {
         return;
     }
-
-    emit NotifyMessageLogged(log_message, message_level);
 }
 
 QString Logging::AbstractLogger::PrepareLogMessage(
