@@ -51,7 +51,7 @@ namespace GUtil
             void LogException(const GUtil::Core::Exception &ex);
                         void LogException(const std::exception &ex);
 
-            void Log(const QString &message, const QString &title, MessageLevelEnum);
+            virtual void Log(const QString &message, const QString &title, MessageLevelEnum);
 
 
             // Determines the level under which we won't log anything
@@ -68,7 +68,7 @@ namespace GUtil
             explicit AbstractLogger();
 
             // This function actually writes the message somewhere useful
-            virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);
+            virtual void Log_protected(const QByteArray &, MessageLevelEnum);
 
             // You can customize your own logging format
             virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum,

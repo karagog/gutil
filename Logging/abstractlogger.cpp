@@ -89,7 +89,7 @@ void Logging::AbstractLogger::Log(const QString &msg, const QString &title, Mess
 
     try
     {
-        LogMessage_protected(log_message.toAscii(), message_level);
+        Log_protected(log_message.toAscii(), message_level);
     }
     catch(...)
     {
@@ -126,7 +126,7 @@ QString Logging::AbstractLogger::PrepareLogMessage(
             .arg(msg.length() == 0 ? QString::null : QString("\n%1").arg(msg));
 }
 
-void Logging::AbstractLogger::LogMessage_protected(const QByteArray &log_message, MessageLevelEnum)
+void Logging::AbstractLogger::Log_protected(const QByteArray &log_message, MessageLevelEnum)
 {
     TransportMechanism().SendData(log_message);
 }

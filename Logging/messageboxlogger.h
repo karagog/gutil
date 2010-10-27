@@ -27,7 +27,7 @@ namespace GUtil
             explicit MessageBoxLogger();
 
         protected:
-            virtual void LogMessage_protected(const QByteArray &, MessageLevelEnum);
+            virtual void Log_protected(const QByteArray &, MessageLevelEnum);
         };
     }
 }

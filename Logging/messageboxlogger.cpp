@@ -8,7 +8,7 @@ Logging::MessageBoxLogger::MessageBoxLogger()
 {
 }
 
-void Logging::MessageBoxLogger::LogMessage_protected(const QByteArray &msg, MessageLevelEnum l)
+void Logging::MessageBoxLogger::Log_protected(const QByteArray &msg, MessageLevelEnum l)
 {
     switch(l)
     {
