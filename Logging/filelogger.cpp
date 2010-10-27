@@ -35,7 +35,7 @@ void Logging::FileLogger::ClearLog()
     }
 }
 
-DataAccess::GIODevice &Logging::FileLogger::TransportMechanism()
+DataAccess::GIODevice &Logging::FileLogger::IODevice()
 {
     return _file_transport;
 }

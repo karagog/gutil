@@ -53,31 +53,29 @@ namespace GUtil
 
             virtual void Log(const QString &message, const QString &title, MessageLevelEnum);
 
+            // Clears the log file
+            virtual void ClearLog();
 
             // Determines the level under which we won't log anything
             void SetMessageLevel(MessageLevelEnum);
             MessageLevelEnum GetMessageLevel();
 
-            // Clears the log file
-            virtual void ClearLog();
-
-            virtual ~AbstractLogger();
-
 
         protected:
             explicit AbstractLogger();
 
-            // This function actually writes the message somewhere useful
+            // This function actually writes the data to someplace useful
             virtual void Log_protected(const QByteArray &, MessageLevelEnum);
 
-            // You can customize your own logging format
-            virtual QString PrepareLogMessage(const QString &, const QString &, MessageLevelEnum,
+            // You can customize your own logging format here
+            virtual QString prepare_log_message(const QString &, const QString &, MessageLevelEnum,
                                               const QDateTime &dt = QDateTime::currentDateTime());
 
-            // Derived classes must provide a transport by which to send log data.  This might be
+            // Derived classes must provide a transport by which to send log data (if they don't
+            //   override the 'Log_protected' method).  This might be
             //   a file transport (if you want to log to a file), but it could also log to a generic
-            //   stream or to a database using this abstract transport mechanism
-            virtual DataAccess::GIODevice &TransportMechanism();
+            //   stream or to a database using this io device
+            virtual DataAccess::GIODevice &IODevice();
 
 
         private:

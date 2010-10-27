@@ -30,7 +30,7 @@ namespace GUtil
             explicit ConsoleLogger();
 
         protected:
-            virtual DataAccess::GIODevice &TransportMechanism();
+            virtual DataAccess::GIODevice &IODevice();
 
         private:
             DataAccess::GConsoleIODevice _my_console_io_device;

@@ -24,6 +24,9 @@ namespace GUtil
     namespace Logging
     {
         // A logger class that logs to a group of loggers
+
+        // This class is thread-safe
+
         class GroupLogger : public AbstractLogger
         {
         public:

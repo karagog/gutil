@@ -33,7 +33,7 @@ namespace GUtil
             QString FileName() const;
 
         protected:
-            virtual DataAccess::GIODevice &TransportMechanism();
+            virtual DataAccess::GIODevice &IODevice();
 
         private:
             DataAccess::GFileIODevice _file_transport;

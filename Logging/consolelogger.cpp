@@ -20,7 +20,7 @@ Logging::ConsoleLogger::ConsoleLogger()
 {
 }
 
-DataAccess::GIODevice &Logging::ConsoleLogger::TransportMechanism()
+DataAccess::GIODevice &Logging::ConsoleLogger::IODevice()
 {
     return _my_console_io_device;
 }
