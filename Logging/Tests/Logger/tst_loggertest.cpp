@@ -180,7 +180,12 @@ void LoggerTest::test_global_logging()
     float tmpf = tmpd;
     dLogVariable(tmpd);
     dLogVariable(tmpf);
+
     dLogVariable("Hello World! ");
+
+    bool tmpb = true;
+    dLogVariable(tmpb);
+
 
     // Setup the default logger
     int id = GlobalLogger::SetupDefaultLogger(new FileLogger("global.log"));

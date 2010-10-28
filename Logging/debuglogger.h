@@ -15,116 +15,20 @@ limitations under the License.*/
 #ifndef DEBUGLOGGER_H
 #define DEBUGLOGGER_H
 
-#ifdef DEBUG_LOGGING
-
-#define DEFAULT_LOG_FILENAME "debug.log"
-
-
-#include <QVariant>
-#include "globallogger.h"
-#include "filelogger.h"
 
 // Use these defines to log (or not log) based on the preprocessor definition
-#define dSetupLogFile( fn ) DebugLogger::SetupLogFile(fn)
-#define dClearLog()         DebugLogger::ClearLog()
+#ifdef DEBUG_LOGGING
 
-#define dLogVariable( v )   DebugLogger::LogVariable(__FILE__, __LINE__, #v, v)
+#define dSetupLogFile( fn ) GUtil::Logging::DebugLogger::SetupLogFile(fn)
+#define dClearLog()         GUtil::Logging::DebugLogger::ClearLog()
 
-#define dLogMessage( m )    DebugLogger::LogMessage(__FILE__, __LINE__, m)
-#define dLogWarning( m )    DebugLogger::LogWarning(__FILE__, __LINE__, m)
-#define dLogError( m )      DebugLogger::LogError(__FILE__, __LINE__, m)
+#define dLogVariable( v )   GUtil::Logging::DebugLogger::LogVariable(__FILE__, __LINE__, #v, v)
 
-#define dLogException( e )  DebugLogger::LogException(e)
+#define dLogMessage( m )    GUtil::Logging::DebugLogger::LogMessage(__FILE__, __LINE__, m)
+#define dLogWarning( m )    GUtil::Logging::DebugLogger::LogWarning(__FILE__, __LINE__, m)
+#define dLogError( m )      GUtil::Logging::DebugLogger::LogError(__FILE__, __LINE__, m)
 
-
-
-// A class to wrap debug logging functionality (DO NOT USE DIRECTLY, USE MACROS DEFINED ABOVE!)
-class DebugLogger
-{
-public:
-    static void SetupLogFile(const QString &fn){
-        GUtil::Logging::GlobalLogger::SetupLogger(
-                new GUtil::Logging::FileLogger(fn),
-                GUtil::Logging::GlobalLogger::DebugId);
-
-        _initialized = true;
-
-        ClearLog();
-    }
-
-    static void ClearLog(){
-        _check_if_initialized();
-
-        GUtil::Logging::GlobalLogger::ClearLog(GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-    static void LogVariable(const char *file, int line, const QString &var_name, const QVariant &var){
-        _check_if_initialized();
-
-        QString msg = QString("Variable '%1'    Value: '%2'").arg(var_name).arg(var.toString());
-
-        GUtil::Logging::GlobalLogger::LogMessage(
-                msg,
-                _create_title(file, line),
-                GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-    static void LogMessage(const char *file, int line, const QString &msg){
-        _check_if_initialized();
-
-        GUtil::Logging::GlobalLogger::LogMessage(
-                msg,
-                _create_title(file, line),
-                GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-    static void LogWarning(const char *file, int line, const QString &msg){
-        _check_if_initialized();
-
-        GUtil::Logging::GlobalLogger::LogError(
-                msg,
-                _create_title(file, line),
-                GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-    static void LogError(const char *file, int line, const QString &msg){
-        _check_if_initialized();
-
-        GUtil::Logging::GlobalLogger::LogError(
-                msg,
-                _create_title(file, line),
-                GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-    static void LogException(const GUtil::Core::Exception &ex){
-        _check_if_initialized();
-
-        GUtil::Logging::GlobalLogger::LogException(ex, GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-    static void LogException(const std::exception &ex){
-        _check_if_initialized();
-
-        GUtil::Logging::GlobalLogger::LogException(ex, GUtil::Logging::GlobalLogger::DebugId);
-    }
-
-
-private:
-
-    static bool _initialized;
-
-    static QString _create_title(const char *file, int line){
-        return QString("%1    Line #%2:").arg(file).arg(line);
-    }
-
-    static void _check_if_initialized(){
-        if(!_initialized)
-            SetupLogFile(DEFAULT_LOG_FILENAME);
-    }
-
-};
-
-bool DebugLogger::_initialized = false;
+#define dLogException( e )  GUtil::Logging::DebugLogger::LogException(e)
 
 #else
 
@@ -140,5 +44,49 @@ bool DebugLogger::_initialized = false;
 #define dLogException( e )
 
 #endif
+
+
+
+
+#include "globallogger.h"
+#include "filelogger.h"
+#include <QVariant>
+
+#define DEFAULT_LOG_FILENAME "debug.log"
+
+namespace GUtil
+{
+    namespace Logging
+    {
+        // A class to wrap debug logging functionality (DO NOT USE DIRECTLY, USE MACROS DEFINED ABOVE!)
+        class DebugLogger
+        {
+        public:
+            static void SetupLogFile(const QString &fn);
+            static void ClearLog();
+
+            static void LogVariable(const char *file, int line,
+                                    const QString &var_name, const QVariant &var);
+            static void LogMessage(const char *file, int line,
+                                   const QString &msg);
+            static void LogWarning(const char *file, int line,
+                                   const QString &msg);
+            static void LogError(const char *file, int line,
+                                 const QString &msg);
+
+            static void LogException(const GUtil::Core::Exception &ex);
+            static void LogException(const std::exception &ex);
+
+
+        private:
+
+            static bool _initialized;
+
+            static QString _create_title(const char *file, int line);
+            static void _check_if_initialized();
+
+        };
+    }
+}
 
 #endif // DEBUGLOGGER_H

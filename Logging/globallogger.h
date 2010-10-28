@@ -34,7 +34,7 @@ namespace GUtil
             // You can pass one of these as a logger Id to reference
             enum LoggerIdEnum
             {
-                DebugId = -3,
+                DebugId = -3,   // A special id for the debug logger
                 DefaultId = -2,
                 NewId = -1
             };
