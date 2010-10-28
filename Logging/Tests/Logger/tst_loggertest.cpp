@@ -168,6 +168,20 @@ void LoggerTest::test_global_logging()
     // Log to the debug log
     dLogMessage("Hello World!");
 
+    // Test logging a variable
+    int test_variable = 77;
+    dLogVariable(test_variable);
+
+    // Try different kinds of variables
+    QString tmps("Hello!");
+    dLogVariable(tmps.toAscii());
+
+    double tmpd = .4524123;
+    float tmpf = tmpd;
+    dLogVariable(tmpd);
+    dLogVariable(tmpf);
+    dLogVariable("Hello World! ");
+
     // Setup the default logger
     int id = GlobalLogger::SetupDefaultLogger(new FileLogger("global.log"));
     GlobalLogger::ClearLog();
@@ -189,8 +203,6 @@ void LoggerTest::test_global_logging()
 
 void LoggerTest::test_concurrent()
 {
-    // Note: This function crashes in debug mode.  I believe this is because of a failure in the
-    //  QTest framework, not the correctness of the code
     QFuture<void> f1 = QtConcurrent::run(log_repetetive, 1);
     QFuture<void> f2 = QtConcurrent::run(log_repetetive, 2);
     QFuture<void> f3 = QtConcurrent::run(log_repetetive, 3);

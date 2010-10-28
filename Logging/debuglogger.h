@@ -17,15 +17,18 @@ limitations under the License.*/
 
 #ifdef DEBUG_LOGGING
 
-#include <QString>
+#define DEFAULT_LOG_FILENAME "debug.log"
+
+
+#include <QVariant>
 #include "globallogger.h"
 #include "filelogger.h"
-
-#define DEFAULT_LOG_FILENAME "debug.log"
 
 // Use these defines to log (or not log) based on the preprocessor definition
 #define dSetupLogFile( fn ) DebugLogger::SetupLogFile(fn)
 #define dClearLog()         DebugLogger::ClearLog()
+
+#define dLogVariable( v )   DebugLogger::LogVariable(__FILE__, __LINE__, #v, v)
 
 #define dLogMessage( m )    DebugLogger::LogMessage(__FILE__, __LINE__, m)
 #define dLogWarning( m )    DebugLogger::LogWarning(__FILE__, __LINE__, m)
@@ -35,7 +38,7 @@ limitations under the License.*/
 
 
 
-// A class to wrap debug logging functionality (DO NOT USE DIRECTLY)
+// A class to wrap debug logging functionality (DO NOT USE DIRECTLY, USE MACROS DEFINED ABOVE!)
 class DebugLogger
 {
 public:
@@ -55,11 +58,23 @@ public:
         GUtil::Logging::GlobalLogger::ClearLog(GUtil::Logging::GlobalLogger::DebugId);
     }
 
+    static void LogVariable(const char *file, int line, const QString &var_name, const QVariant &var){
+        _check_if_initialized();
+
+        QString msg = QString("Variable '%1'    Value: '%2'").arg(var_name).arg(var.toString());
+
+        GUtil::Logging::GlobalLogger::LogMessage(
+                msg,
+                _create_title(file, line),
+                GUtil::Logging::GlobalLogger::DebugId);
+    }
+
     static void LogMessage(const char *file, int line, const QString &msg){
         _check_if_initialized();
 
         GUtil::Logging::GlobalLogger::LogMessage(
-                _modify_message(file, line, msg), "",
+                msg,
+                _create_title(file, line),
                 GUtil::Logging::GlobalLogger::DebugId);
     }
 
@@ -67,7 +82,8 @@ public:
         _check_if_initialized();
 
         GUtil::Logging::GlobalLogger::LogError(
-                _modify_message(file, line, msg), "",
+                msg,
+                _create_title(file, line),
                 GUtil::Logging::GlobalLogger::DebugId);
     }
 
@@ -75,7 +91,8 @@ public:
         _check_if_initialized();
 
         GUtil::Logging::GlobalLogger::LogError(
-                _modify_message(file, line, msg), "",
+                msg,
+                _create_title(file, line),
                 GUtil::Logging::GlobalLogger::DebugId);
     }
 
@@ -96,15 +113,13 @@ private:
 
     static bool _initialized;
 
-    static QString _modify_message(const char *file, int line, const QString &msg){
-        return QString("%1  %2: %3").arg(file).arg(line).arg(msg);
+    static QString _create_title(const char *file, int line){
+        return QString("%1    Line #%2:").arg(file).arg(line);
     }
 
     static void _check_if_initialized(){
         if(!_initialized)
-        {
             SetupLogFile(DEFAULT_LOG_FILENAME);
-        }
     }
 
 };
@@ -115,6 +130,8 @@ bool DebugLogger::_initialized = false;
 
 #define dSetupLogFile( fn )
 #define dClearLog()
+
+#define dLogVariable( v )
 
 #define dLogMessage( m )
 #define dLogWarning( m )

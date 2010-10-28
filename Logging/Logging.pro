@@ -25,3 +25,5 @@ SOURCES += \
     abstractdatabaselogger.cpp \
     messageboxlogger.cpp \
     grouplogger.cpp
+
+DEFINES += DEBUG_LOGGING
