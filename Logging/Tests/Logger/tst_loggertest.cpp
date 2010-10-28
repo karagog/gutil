@@ -35,7 +35,7 @@ signals:
     void notify_message(const QString &, const QString &);
 
 protected:
-    void log_repetetive(int id);
+    static void log_repetetive(int id);
 
 private Q_SLOTS:
     void initTestCase();
@@ -49,6 +49,12 @@ private Q_SLOTS:
 
     void cleanupTestCase();
 };
+
+void LoggerTest::log_repetetive(int id)
+{
+    for(int i = 0; i < 10; i++)
+        GlobalLogger::LogMessage(QVariant(id).toString(), QString("Concurrent message #%1").arg(i));
+}
 
 LoggerTest::LoggerTest()
 {
@@ -176,10 +182,12 @@ void LoggerTest::test_global_logging()
 
 void LoggerTest::test_concurrent()
 {
-    QFuture<void> f1 = QtConcurrent::run(this, &LoggerTest::log_repetetive, 1);
-    QFuture<void> f2 = QtConcurrent::run(this, &LoggerTest::log_repetetive, 2);
-    QFuture<void> f3 = QtConcurrent::run(this, &LoggerTest::log_repetetive, 3);
-    QFuture<void> f4 = QtConcurrent::run(this, &LoggerTest::log_repetetive, 4);
+    // Note: This function crashes in debug mode.  I believe this is because of a failure in the
+    //  QTest framework, not the correctness of the code
+    QFuture<void> f1 = QtConcurrent::run(log_repetetive, 1);
+    QFuture<void> f2 = QtConcurrent::run(log_repetetive, 2);
+    QFuture<void> f3 = QtConcurrent::run(log_repetetive, 3);
+    QFuture<void> f4 = QtConcurrent::run(log_repetetive, 4);
 
     f1.waitForFinished();
     f2.waitForFinished();
@@ -202,12 +210,6 @@ void LoggerTest::test_grouplogger()
     f2.LogMessage("This is only in log 2");
 
     g.LogMessage("This message is in both logs");
-}
-
-void LoggerTest::log_repetetive(int id)
-{
-    for(int i = 0; i < 10; i++)
-        GlobalLogger::LogMessage(QVariant(id).toString(), QString("Concurrent message #%1").arg(i));
 }
 
 
