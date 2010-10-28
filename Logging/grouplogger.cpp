@@ -17,6 +17,9 @@ using namespace GUtil;
 
 void Logging::GroupLogger::Log(const QString &message, const QString &title, MessageLevelEnum lvl)
 {
+    if(lvl < MessageLevel())
+        return;
+
     // Log the message to all of our loggers
     _logger_list_lock.lockForRead();
     {

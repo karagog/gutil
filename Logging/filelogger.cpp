@@ -35,9 +35,9 @@ void Logging::FileLogger::ClearLog()
     }
 }
 
-DataAccess::GIODevice &Logging::FileLogger::IODevice()
+void Logging::FileLogger::Log_protected(const QByteArray &dat, MessageLevelEnum)
 {
-    return _file_transport;
+    _file_transport.Write(dat);
 }
 
 QString Logging::FileLogger::FileName() const

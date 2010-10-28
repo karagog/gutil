@@ -28,7 +28,7 @@ void Logging::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
     _message_level = message_level;
 }
 
-Logging::AbstractLogger::MessageLevelEnum Logging::AbstractLogger::GetMessageLevel()
+Logging::AbstractLogger::MessageLevelEnum Logging::AbstractLogger::MessageLevel()
 {
     return _message_level;
 }
@@ -80,7 +80,7 @@ void Logging::AbstractLogger::LogException(const std::exception &ex)
 
 void Logging::AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
 {
-    if(message_level < _message_level)
+    if(message_level < MessageLevel())
         return;
 
     QString log_message = prepare_log_message(msg, title, message_level);
@@ -122,14 +122,4 @@ QString Logging::AbstractLogger::prepare_log_message(
             .arg(msg_id)
             .arg(title)
             .arg(msg.length() == 0 ? QString::null : QString("\n%1").arg(msg));
-}
-
-void Logging::AbstractLogger::Log_protected(const QByteArray &log_message, MessageLevelEnum)
-{
-    IODevice().SendData(log_message);
-}
-
-DataAccess::GIODevice &Logging::AbstractLogger::IODevice()
-{
-    throw Core::NotImplementedException("A transport mechanism was not supplied to this logger");
 }

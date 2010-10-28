@@ -33,6 +33,8 @@ namespace GUtil
             virtual void Log(const QString &message, const QString &title, MessageLevelEnum msg_lvl);
             virtual void ClearLog();
 
+            virtual void Log_protected(const QByteArray &, MessageLevelEnum){}  // Unused function
+
             // This class does not take responsibility for the abstract loggers;
             //   i.e. You are responsible for deleting it yourself!
             void AddLogger(AbstractLogger *);

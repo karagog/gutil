@@ -51,6 +51,7 @@ namespace GUtil
             void LogException(const GUtil::Core::Exception &ex);
                         void LogException(const std::exception &ex);
 
+            // Derived classes can customize the log method, but for most people you will want
             virtual void Log(const QString &message, const QString &title, MessageLevelEnum);
 
             // Clears the log file
@@ -58,24 +59,18 @@ namespace GUtil
 
             // Determines the level under which we won't log anything
             void SetMessageLevel(MessageLevelEnum);
-            MessageLevelEnum GetMessageLevel();
+            MessageLevelEnum MessageLevel();
 
 
         protected:
             explicit AbstractLogger();
 
-            // This function actually writes the data to someplace useful
-            virtual void Log_protected(const QByteArray &, MessageLevelEnum);
+            // Derived classes must provide a method to put the log message somewhere
+            virtual void Log_protected(const QByteArray &, MessageLevelEnum) = 0;
 
             // You can customize your own logging format here
             virtual QString prepare_log_message(const QString &, const QString &, MessageLevelEnum,
                                               const QDateTime &dt = QDateTime::currentDateTime());
-
-            // Derived classes must provide a transport by which to send log data (if they don't
-            //   override the 'Log_protected' method).  This might be
-            //   a file transport (if you want to log to a file), but it could also log to a generic
-            //   stream or to a database using this io device
-            virtual DataAccess::GIODevice &IODevice();
 
 
         private:
