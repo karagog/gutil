@@ -14,7 +14,8 @@ HEADERS += \
     abstractlogger.h \
     abstractdatabaselogger.h \
     messageboxlogger.h \
-    grouplogger.h
+    grouplogger.h \
+    debuglogger.h
 
 SOURCES += \
     globallogger.cpp \

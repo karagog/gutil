@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "Logging/consolelogger.h"
 #include "Logging/globallogger.h"
 #include "Logging/grouplogger.h"
+#include "Logging/debuglogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include <QtConcurrentRun>
@@ -62,8 +63,7 @@ LoggerTest::LoggerTest()
 
 void LoggerTest::initTestCase()
 {
-    GlobalLogger::SetupDefaultLogger(new FileLogger("global.log"));
-    GlobalLogger::ClearLog();
+
 }
 
 void LoggerTest::cleanupTestCase()
@@ -83,8 +83,8 @@ void LoggerTest::test_normal_logging()
         clog.LogMessage("This is a message", "Hello world");
         flog.LogMessage("This is a message", "Hello world");
 
-        clog.LogError(ERROR_LOCATION, "Bar", "Foo");
-        flog.LogError(ERROR_LOCATION, "Bar", "Foo");
+        clog.LogError("Bar", "Foo");
+        flog.LogError("Bar", "Foo");
 
         clog.SetMessageLevel(ConsoleLogger::Error);
         flog.SetMessageLevel(ConsoleLogger::Error);
@@ -162,14 +162,21 @@ void LoggerTest::test_exception_logging()
 
 void LoggerTest::test_global_logging()
 {
-    GlobalLogger::LogMessage("Hello World!", "Called as a function");
+    // Note: You can customize your own logfile like this, otherwise accept the default one
+    //dSetupLogFile("newdebug.log");
 
+    // Log to the debug log
+    dLogMessage("Hello World!");
+
+    // Setup the default logger
+    int id = GlobalLogger::SetupDefaultLogger(new FileLogger("global.log"));
+    GlobalLogger::ClearLog();
+    GlobalLogger::LogMessage(QVariant(id).toString(), "Hello global log!");
 
     // Now test a secondary log file and log to it:
-    int id = GlobalLogger::SetupLogger(new FileLogger("global.2.log"));
+    id = GlobalLogger::SetupLogger(new FileLogger("global2.log"));
     GlobalLogger::ClearLog(id);
-
-    GlobalLogger::LogMessage(QVariant(id).toString(), "Hello second log!", id);
+    GlobalLogger::LogMessage(QVariant(id).toString(), "Hello global log!", id);
 
     // Test that the log doesn't exist after we take it down
     GlobalLogger::TakeDownLogger(id);

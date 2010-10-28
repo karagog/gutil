@@ -33,6 +33,7 @@ int Logging::GlobalLogger::SetupLogger(Logging::AbstractLogger *l, int logger_id
     _logger_list_lock.lockForWrite();
     try
     {
+        _translate_logger_id(logger_id, true);
         ret = _setup_logger(l, logger_id);
     }
     catch(...)
@@ -51,7 +52,6 @@ int Logging::GlobalLogger::SetupDefaultLogger(Logging::AbstractLogger *l)
 
 int Logging::GlobalLogger::_setup_logger(Logging::AbstractLogger *logger, int logger_id)
 {
-    _translate_logger_id(logger_id, true);
     _takedown_logger(logger_id);
     _logger_list.insert(logger_id, logger);
     return logger_id;
@@ -62,6 +62,7 @@ void Logging::GlobalLogger::TakeDownLogger(int logger_id)
     _logger_list_lock.lockForWrite();
     try
     {
+        _translate_logger_id(logger_id, false);
         _takedown_logger(logger_id);
     }
     catch(...)
@@ -74,8 +75,6 @@ void Logging::GlobalLogger::TakeDownLogger(int logger_id)
 
 void Logging::GlobalLogger::_takedown_logger(int logger_id)
 {
-    _translate_logger_id(logger_id, false);
-
     if(_logger_list.contains(logger_id))
     {
         delete _logger_list.value(logger_id);
@@ -86,7 +85,8 @@ void Logging::GlobalLogger::_takedown_logger(int logger_id)
 void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
         throw(Core::ArgumentException)
 {
-    if(id == DefaultId)
+    if(id == DebugId);
+    else if(id == DefaultId)
         id = _default_logger_id;
     else if(id == NewId)
     {
@@ -206,9 +206,9 @@ void Logging::GlobalLogger::LogException(const std::exception &ex, int logger_id
 }
 
 void Logging::GlobalLogger::Log(const QString &msg,
-                                        const QString &title,
-                                        int logger_id,
-                                        int message_level)
+                                const QString &title,
+                                int logger_id,
+                                int message_level)
 {
     _logger_list_lock.lockForRead();
     try

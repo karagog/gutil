@@ -34,6 +34,7 @@ namespace GUtil
             // You can pass one of these as a logger Id to reference
             enum LoggerIdEnum
             {
+                DebugId = -3,
                 DefaultId = -2,
                 NewId = -1
             };
@@ -49,20 +50,31 @@ namespace GUtil
 
 
             // Global Logging Methods:
-            static void LogMessage(const QString &msg = QString::null,
-                                   const QString &title = QString::null,
-                                   int logger_id = DefaultId);
-            static void LogWarning(const QString &msg = QString::null,
-                                   const QString &title = QString::null,
-                                   int logger_id = DefaultId);
-            static void LogError(const QString &msg = QString::null,
-                                 const QString &title = QString::null,
-                                 int logger_id = DefaultId);
+            static void LogMessage(
+                    const QString &msg,
+                    const QString &title = QString::null,
+                    int logger_id = DefaultId);
+
+            static void LogWarning(
+                    const QString &msg,
+                    const QString &title = QString::null,
+                    int logger_id = DefaultId);
+
+            static void LogError(
+                    const QString &msg,
+                    const QString &title = QString::null,
+                    int logger_id = DefaultId);
 
             static void LogException(const GUtil::Core::Exception &, int logger_id = DefaultId);
             static void LogException(const std::exception &, int logger_id = DefaultId);
 
-            static void Log(const QString &, const QString &, int logger_id, int message_level);
+
+        protected:
+
+            static void Log(const QString &,
+                            const QString &,
+                            int logger_id,
+                            int message_level);
 
 
         private:

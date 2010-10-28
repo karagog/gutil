@@ -20,3 +20,5 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../.. ../..
 LIBS += -L../../.. -lGUtil
+
+DEFINES += DEBUG_LOGGING

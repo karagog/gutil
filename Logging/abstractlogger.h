@@ -18,10 +18,6 @@ limitations under the License.*/
 #include <QDateTime>
 #include <QString>
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define ERROR_LOCATION __FILE__ ": " TOSTRING(__LINE__)
-
 namespace GUtil
 {
     namespace Core
@@ -50,9 +46,7 @@ namespace GUtil
             // These are the logging functions
             void LogMessage(const QString &message, const QString &title = QString::null);
             void LogWarning(const QString &message, const QString &title = QString::null);
-
-            // Pass in the ERROR_LOCATION as the first parameter
-            void LogError(const char *err_loc, const QString &message, const QString &title = QString::null);
+            void LogError(const QString &message, const QString &title = QString::null);
 
             void LogException(const GUtil::Core::Exception &ex);
                         void LogException(const std::exception &ex);
