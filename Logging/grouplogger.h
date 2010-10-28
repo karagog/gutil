@@ -16,7 +16,7 @@ limitations under the License.*/
 #define LOGGERGROUP_H
 
 #include "abstractlogger.h"
-#include <QSet>
+#include <QList>
 #include <QReadWriteLock>
 
 namespace GUtil
@@ -30,23 +30,19 @@ namespace GUtil
         class GroupLogger : public AbstractLogger
         {
         public:
-            GroupLogger();
-
             virtual void Log(const QString &message, const QString &title, MessageLevelEnum msg_lvl);
             virtual void ClearLog();
 
+            // This class does not take responsibility for the abstract loggers;
+            //   i.e. You are responsible for deleting it yourself!
             void AddLogger(AbstractLogger *);
-            void RemoveLogger(AbstractLogger *, bool delete_it = true);
-            void RemoveAllLoggers(bool delete_them = true);
-            bool ContainsLogger(AbstractLogger *);
+
+            void RemoveLogger(AbstractLogger *);
 
 
         private:
-            QSet<AbstractLogger*> _logger_set;
-            QReadWriteLock _logger_set_lock;
-
-            void _remove_logger(AbstractLogger *, bool);
-
+            QList<AbstractLogger *> _logger_list;
+            QReadWriteLock _logger_list_lock;
 
         };
     }

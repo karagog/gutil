@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "Logging/filelogger.h"
 #include "Logging/consolelogger.h"
 #include "Logging/globallogger.h"
+#include "Logging/grouplogger.h"
 #include "Utils/pubsubsystem.h"
 #include "Core/exception.h"
 #include <QtConcurrentRun>
@@ -27,7 +28,6 @@ using namespace GUtil::Logging;
 class LoggerTest : public QObject
 {
     Q_OBJECT
-
 public:
     LoggerTest();
 
@@ -44,6 +44,8 @@ private Q_SLOTS:
 
     void test_global_logging();
     void test_concurrent();
+
+    void test_grouplogger();
 
     void cleanupTestCase();
 };
@@ -183,6 +185,20 @@ void LoggerTest::test_concurrent()
     f2.waitForFinished();
     f3.waitForFinished();
     f4.waitForFinished();
+}
+
+void LoggerTest::test_grouplogger()
+{
+    GroupLogger g;
+    FileLogger f1("group_test1.log");
+    FileLogger f2("group_test2.log");
+    g.AddLogger(&f1);
+    g.AddLogger(&f2);
+
+    f1.LogMessage("This is only in log 1");
+    f2.LogMessage("This is only in log 2");
+
+    g.LogMessage("This message is in both logs");
 }
 
 void LoggerTest::log_repetetive(int id)

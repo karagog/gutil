@@ -15,81 +15,42 @@ limitations under the License.*/
 #include "grouplogger.h"
 using namespace GUtil;
 
-Logging::GroupLogger::GroupLogger()
-    :AbstractLogger()
-{
-}
-
 void Logging::GroupLogger::Log(const QString &message, const QString &title, MessageLevelEnum lvl)
 {
     // Log the message to all of our loggers
-    _logger_set_lock.lockForRead();
+    _logger_list_lock.lockForRead();
     {
-        foreach(Logging::AbstractLogger *l, _logger_set)
+        foreach(AbstractLogger *l, _logger_list)
             l->Log(message, title, lvl);
     }
-    _logger_set_lock.unlock();
+    _logger_list_lock.unlock();
 }
 
 void Logging::GroupLogger::ClearLog()
 {
     // Clear all of our loggers
-    _logger_set_lock.lockForRead();
+    _logger_list_lock.lockForRead();
     {
-        foreach(Logging::AbstractLogger *l, _logger_set)
+        foreach(AbstractLogger *l, _logger_list)
             l->ClearLog();
     }
-    _logger_set_lock.unlock();
+    _logger_list_lock.unlock();
 }
 
 void Logging::GroupLogger::AddLogger(AbstractLogger *l)
 {
-    _logger_set_lock.lockForWrite();
+    _logger_list_lock.lockForWrite();
     {
-        _logger_set.insert(l);
+        _logger_list.append(l);
     }
-    _logger_set_lock.unlock();
+    _logger_list_lock.unlock();
 }
 
-void Logging::GroupLogger::RemoveLogger(AbstractLogger *l, bool delete_it)
+void Logging::GroupLogger::RemoveLogger(AbstractLogger *l)
 {
-    _logger_set_lock.lockForWrite();
+    _logger_list_lock.lockForWrite();
     {
-        _remove_logger(l, delete_it);
+        _logger_list.removeAll(l);
     }
-    _logger_set_lock.unlock();
-}
-
-void Logging::GroupLogger::RemoveAllLoggers(bool delete_them)
-{
-    _logger_set_lock.lockForWrite();
-    {
-        foreach(AbstractLogger *l, _logger_set)
-            _remove_logger(l, delete_them);
-    }
-    _logger_set_lock.unlock();
-}
-
-void Logging::GroupLogger::_remove_logger(AbstractLogger *l, bool del)
-{
-    if(_logger_set.contains(l))
-    {
-        _logger_set.remove(l);
-
-        if(del)
-            delete l;
-    }
-}
-
-bool Logging::GroupLogger::ContainsLogger(AbstractLogger *l)
-{
-    bool ret;
-
-    _logger_set_lock.lockForRead();
-    {
-        ret = _logger_set.contains(l);
-    }
-    _logger_set_lock.unlock();
-
-    return ret;
+    _logger_list_lock.unlock();
 }
