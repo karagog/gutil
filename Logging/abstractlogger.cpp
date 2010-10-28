@@ -48,9 +48,9 @@ void Logging::AbstractLogger::LogWarning(const QString &msg, const QString &titl
     Log(msg, title, Warning);
 }
 
-void Logging::AbstractLogger::LogError(const QString &msg, const QString &title)
+void Logging::AbstractLogger::LogError(const char *err_loc, const QString &msg, const QString &title)
 {
-    Log(msg, title, Error);
+    Log(QString("%1 -- %2").arg(err_loc).arg(msg), title, Error);
 }
 
 void Logging::AbstractLogger::LogException(const Core::Exception &ex)

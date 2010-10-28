@@ -83,8 +83,8 @@ void LoggerTest::test_normal_logging()
         clog.LogMessage("This is a message", "Hello world");
         flog.LogMessage("This is a message", "Hello world");
 
-        clog.LogError("Bar", "Foo");
-        flog.LogError("Bar", "Foo");
+        clog.LogError(ERROR_LOCATION, "Bar", "Foo");
+        flog.LogError(ERROR_LOCATION, "Bar", "Foo");
 
         clog.SetMessageLevel(ConsoleLogger::Error);
         flog.SetMessageLevel(ConsoleLogger::Error);
