@@ -26,4 +26,5 @@ HEADERS += \
     Utils/cl_menu.h \
     DataAccess/da_serialport.h \
     Interfaces/ireadonlyobject.h \
-    Interfaces/ixmlserializable.h
+    Interfaces/ixmlserializable.h \
+    Interfaces/istringable.h
