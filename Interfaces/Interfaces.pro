@@ -9,4 +9,5 @@ HEADERS += \
     iqxmlserializable.h \
     iqstringable.h
 SOURCES += \
-    iqxmlserializable.cpp
+    iqxmlserializable.cpp \
+    iqstringable.cpp

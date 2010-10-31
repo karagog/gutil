@@ -26,7 +26,7 @@ namespace GUtil
             class IStringable
             {
             public:
-                std::string ToString() const = 0;
+                virtual std::string ToString() const = 0;
             };
         }
     }

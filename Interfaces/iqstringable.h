@@ -15,16 +15,19 @@ limitations under the License.*/
 #ifndef IQSTRINGABLE_H
 #define IQSTRINGABLE_H
 
+#include "Core/Interfaces/istringable.h"
 #include <QString>
 
 namespace GUtil
 {
     namespace Interfaces
     {
-        class IQStringable
+        class IQStringable : public GUtil::Core::Interfaces::IStringable
         {
         public:
-            QString ToQString() const = 0;
+            virtual QString ToQString() const = 0;
+
+            virtual std::string ToString() const;
         };
     }
 }
