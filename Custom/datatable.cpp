@@ -12,16 +12,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "datacontainer.h"
+#include "datatable.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 using namespace GUtil;
 
-Custom::DataContainer::DataContainer(QObject *p)
+Custom::DataTable::DataTable(QObject *p)
     :
-    QAbstractListModel(p),
+    QAbstractTableModel(p),
     Interfaces::IQXmlSerializable(false),
     Core::Interfaces::IReadOnlyObject(false)
 {}
@@ -36,12 +36,12 @@ Custom::DataContainer::DataContainer(QObject *p)
 
 
 
-int Custom::DataContainer::rowCount(const QModelIndex &) const
+int Custom::DataTable::rowCount(const QModelIndex &) const
 {
     return _key_list.length();
 }
 
-QVariant Custom::DataContainer::data(const QModelIndex &index, int role) const
+QVariant Custom::DataTable::data(const QModelIndex &index, int role) const
 {
     QVariant ret;
     if(!index.isValid())
@@ -67,7 +67,7 @@ QVariant Custom::DataContainer::data(const QModelIndex &index, int role) const
     return ret;
 }
 
-bool Custom::DataContainer::setData(const QModelIndex &index, const QVariant &value, int role)
+bool Custom::DataTable::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if(IsReadOnly())
         return false;
@@ -77,7 +77,7 @@ bool Custom::DataContainer::setData(const QModelIndex &index, const QVariant &va
 
 
 
-void Custom::DataContainer::WriteXml(QXmlStreamWriter &sw)
+void Custom::DataTable::WriteXml(QXmlStreamWriter &sw)
 {
     sw.setAutoFormatting(IsXmlHumanReadableFormat());
     sw.writeStartElement("settings");
@@ -101,7 +101,7 @@ void Custom::DataContainer::WriteXml(QXmlStreamWriter &sw)
 
 #define READ_ERR_STRING "XML not in correct format"
 
-void Custom::DataContainer::ReadXml(QXmlStreamReader &sr)
+void Custom::DataTable::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
     clear();
@@ -149,7 +149,7 @@ void Custom::DataContainer::ReadXml(QXmlStreamReader &sr)
 }
 
 
-void Custom::DataContainer::SetReadOnly(bool readonly)
+void Custom::DataTable::SetReadOnly(bool readonly)
 {
     Core::Interfaces::IReadOnlyObject::SetReadOnly(readonly);
 

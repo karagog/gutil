@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QPair>
 #include <QString>
 #include <QByteArray>
-#include <QAbstractListModel>
+#include <QAbstractTableModel>
 
 namespace GUtil
 {
@@ -29,13 +29,13 @@ namespace GUtil
     {
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
-        class DataContainer :   public QAbstractListModel,
-                                public Interfaces::IQXmlSerializable,
-                                public Core::Interfaces::IReadOnlyObject
+        class DataTable :   public QAbstractTableModel,
+                            public Interfaces::IQXmlSerializable,
+                            public Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
         public:
-            DataContainer(QObject *parent = 0);
+            DataTable(QObject *parent = 0);
 
             QList<QByteArray> Values(const QString &key);
             QPair<QString, QByteArray> Value(int) const;

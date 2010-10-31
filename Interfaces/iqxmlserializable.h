@@ -31,7 +31,7 @@ namespace GUtil
         public:
 
             // Implement these to have a consistent xml interface across objects
-            virtual void WriteXml(QXmlStreamWriter &) = 0;
+            virtual void WriteXml(QXmlStreamWriter &) const = 0;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException) = 0;
 

@@ -34,7 +34,7 @@ namespace GUtil
 
     namespace Custom
     {
-        class DataContainer;
+        class DataTable;
     }
 
     namespace DataAccess
@@ -140,7 +140,7 @@ namespace GUtil
             QQueue< QByteArray > out_queue;
 
             QReadWriteLock current_data_lock;
-            Custom::DataContainer *current_data;
+            Custom::DataTable *current_data;
 
             void process_queues();
             void _flush_queue(QueueTypeEnum);

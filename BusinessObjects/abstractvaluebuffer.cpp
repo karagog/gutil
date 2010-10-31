@@ -28,7 +28,7 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
             Interfaces::IQXmlSerializable(false),
             Core::Interfaces::IReadOnlyObject(false)
 {
-    current_data = new Custom::DataContainer();
+    current_data = new Custom::DataTable();
 
     _transport = transport;
     connect(transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
@@ -354,7 +354,7 @@ void BusinessObjects::AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw)
 void BusinessObjects::AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
-    Custom::DataContainer tmp;
+    Custom::DataTable tmp;
     tmp.ReadXml(sr);
     enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
 }
