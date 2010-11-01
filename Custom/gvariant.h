@@ -31,6 +31,7 @@ namespace GUtil
             GVariant(Type);
             GVariant(const QString &);
             GVariant(const QByteArray &);
+            GVariant(const QChar &);
             GVariant(int);
             GVariant(uint);
             GVariant(char *);
@@ -45,6 +46,9 @@ namespace GUtil
             GVariant(const QRegExp &);
             GVariant(const QUrl &);
             GVariant(const QList<QVariant> &);
+            GVariant(const QVariantMap &);
+            GVariant(const QRect &);
+            GVariant(const QSize &);
 
             void WriteXml(QXmlStreamWriter &) const;
             void ReadXml(QXmlStreamReader &)
