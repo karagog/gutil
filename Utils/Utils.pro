@@ -7,11 +7,13 @@ CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
     usermachinelocks.cpp \
-    widgethelpers.cpp
+    widgethelpers.cpp \
+    qstringhelpers.cpp
 
 HEADERS += \
     pubsubsystem.h \
     usermachinelocks.h \
-    widgethelpers.h
+    widgethelpers.h \
+    qstringhelpers.h
 
 INCLUDEPATH += ..
