@@ -19,4 +19,6 @@ SOURCES += tst_gvarianttest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../lib -lGUtil -lcryptopp
+LIBS += -L../../../lib -lGUtil
+
+DEFINES += DEBUG_LOGGING

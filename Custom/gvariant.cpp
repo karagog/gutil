@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gvariant.h"
-#include "Core/Utils/encryption.h"
+#include "Utils/qstringhelpers.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QDate>
@@ -138,13 +138,12 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     switch(type())
     {
     case String:
-        sw.writeAttribute("d", QString::fromStdString(Core::Utils::CryptoHelpers::toBase64(
-                toString().toStdString())));
+        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toString()));
         break;
     case ByteArray:
         ba = toByteArray();
-        sw.writeAttribute("d", QString::fromStdString(Core::Utils::CryptoHelpers::toBase64(
-                std::string(ba.constData(), ba.length()))));
+        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(
+                QString::fromStdString(std::string(ba.constData(), ba.length()))));
         break;
     case Int:
         sw.writeAttribute("d", toString());
@@ -194,8 +193,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         foreach(QString z, toStringList())
         {
             sw.writeStartElement("i");
-            sw.writeAttribute("d", QString::fromStdString(
-                    Core::Utils::CryptoHelpers::toBase64(z.toStdString())));
+            sw.writeAttribute("d", Utils::QStringHelpers::toBase64(z));
             sw.writeEndElement();
         }
         break;
@@ -229,13 +227,14 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         if(sr.name() != XMLID)
             throw Core::XmlException();
 
-        Type type = (Type)sr.attributes().value("t").toString().toInt();
+        Type type = (Type)sr.attributes().at(0).value().toString().toInt();
 
         clear();
         convert(type);
 
-        const QString d = sr.attributes().at(0).value().toString();
+        const QString d = sr.attributes().at(1).value().toString();
 
+        QString sByteArray;
         QStringList slDate;
         QStringList slTime;
         QStringList slDateTime1;
@@ -250,10 +249,11 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         switch(type)
         {
         case String:
-            setValue(d);
+            setValue(Utils::QStringHelpers::fromBase64(d));
             break;
         case ByteArray:
-            setValue(d);
+            sByteArray = Utils::QStringHelpers::fromBase64(d);
+            setValue(QByteArray(sByteArray.toStdString().c_str(), sByteArray.length()));
             break;
         case Int:
             setValue(d.toInt());
@@ -300,9 +300,11 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                 if(!sr.readNextStartElement())
                     throw Core::XmlException();
 
-                slStringList.append(sr.attributes().at(0).value().toString());
+                slStringList.append(Utils::QStringHelpers::fromBase64(
+                        sr.attributes().at(0).value().toString()));
                 while(sr.readNext() != QXmlStreamReader::EndElement);
             }
+            setValue(lensl);
             break;
         case RegExp:
             slRegExp = sr.attributes().at(1).value().toString().split(",");
