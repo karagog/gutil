@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QBitArray>
 #include <QRegExp>
 #include <QStringList>
+#include <QUrl>
 using namespace GUtil;
 
 #define XMLID "GVariant"
@@ -127,16 +128,23 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     sw.writeStartElement(XMLID);
     sw.writeAttribute("t", QVariant((int)type()).toString());
 
+    QByteArray ba;
+    QDate d;
+    QTime t;
+    QDateTime dt;
+    QBitArray bia;
+    QString s;
+    QRegExp re;
     switch(type())
     {
     case String:
-        sw.writeAttribute("d", Core::Utils::CryptoHelpers::toBase64(
-                toString().toStdString()));
+        sw.writeAttribute("d", QString::fromStdString(Core::Utils::CryptoHelpers::toBase64(
+                toString().toStdString())));
         break;
     case ByteArray:
-        QByteArray ba = toByteArray();
-        sw.writeAttribute("d", Core::Utils::CryptoHelpers::toBase64(
-                std::string(ba.constData(), ba.length())));
+        ba = toByteArray();
+        sw.writeAttribute("d", QString::fromStdString(Core::Utils::CryptoHelpers::toBase64(
+                std::string(ba.constData(), ba.length()))));
         break;
     case Int:
         sw.writeAttribute("d", toString());
@@ -151,11 +159,11 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         sw.writeAttribute("d", toString());
         break;
     case Date:
-        QDate d = toDate();
+        d = toDate();
         sw.writeAttribute("d", QString("%1,%2,%3").arg(d.year()).arg(d.month()).arg(d.day()));
         break;
     case Time:
-        QTime t = toTime();
+        t = toTime();
         sw.writeAttribute("d", QString("%1,%2,%3,%4")
                           .arg(t.hour())
                           .arg(t.minute())
@@ -163,7 +171,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
                           .arg(t.msec()));
         break;
     case DateTime:
-        QDateTime dt = toDateTime();
+        dt = toDateTime();
         sw.writeAttribute("d", QString("%1,%2,%3;%4,%5,%6,%7;%8")
                           .arg(dt.date().year())
                           .arg(dt.date().month())
@@ -175,22 +183,24 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
                           .arg((int)dt.timeSpec()));
         break;
     case BitArray:
-        QBitArray bia = toBitArray();
-        QString s = "";
+        bia = toBitArray();
+        s = "";
         for(int i = bia.size() - 1; i >= 0; i--)
             s.append(bia.at(i) ? "1" : "0");
         sw.writeAttribute("d", s);
         break;
     case StringList:
+        sw.writeAttribute("s", QString(toStringList().length()));
         foreach(QString z, toStringList())
         {
             sw.writeStartElement("i");
-            sw.writeAttribute("d", Core::Utils::CryptoHelpers::toBase64(z.toStdString()));
+            sw.writeAttribute("d", QString::fromStdString(
+                    Core::Utils::CryptoHelpers::toBase64(z.toStdString())));
             sw.writeEndElement();
         }
         break;
     case RegExp:
-        QRegExp re = toRegExp();
+        re = toRegExp();
         sw.writeAttribute("d", re.pattern());
         sw.writeAttribute("e", QString("%1,%2")
                           .arg((int)re.caseSensitivity())
@@ -200,6 +210,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         sw.writeAttribute("d", toString());
         break;
     case List:
+        sw.writeAttribute("s", QString(toList().length()));
         foreach(QVariant v, toList())
             Custom::GVariant(v).WriteXml(sw);
         break;
@@ -213,24 +224,29 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         throw(GUtil::Core::XmlException)
 {
-    clear();
-
     if(sr.readNextStartElement())
     {
         if(sr.name() != XMLID)
             throw Core::XmlException();
 
-        bool ok;
-        QString val = sr.attributes().value("t").toString();
-        Type type = (Type)val.toInt(&ok);
-        if(!ok)
-            throw Core::XmlException(QString("Invalid variant type: %1").arg(val));
+        Type type = (Type)sr.attributes().value("t").toString().toInt();
 
+        clear();
         convert(type);
 
+        const QString d = sr.attributes().at(0).value().toString();
 
-        QString d = sr.attributes().value("d").toString();
-
+        QStringList slDate;
+        QStringList slTime;
+        QStringList slDateTime1;
+        QStringList slDateTime2;
+        QStringList slDateTime3;
+        QBitArray baBitArray;
+        QStringList slStringList;
+        int lensl;
+        int lenl;
+        QStringList slRegExp;
+        QVariantList vl;
         switch(type)
         {
         case String:
@@ -252,28 +268,58 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             setValue(d.toDouble());
             break;
         case Date:
-            QStringList slDate = d.split(",");
+            slDate = d.split(",");
             setValue(QDate(slDate.at(0).toInt(), slDate.at(1).toInt(), slDate.at(2).toInt()));
             break;
         case Time:
-            QStringList slTime = d.split(",");
+            slTime = d.split(",");
             setValue(QDate(slTime.at(0).toInt(), slTime.at(1).toInt(), slTime.at(2).toInt()));
             break;
         case DateTime:
-            QStringList slDateTime1 = d.split(";");
-            QStringList slDateTime2 = slDateTime1.at(0).split(",");
-            QStringList slDateTime3 = slDateTime1.at(1).split(",");
-
+            slDateTime1 = d.split(";");
+            slDateTime2 = slDateTime1.at(0).split(",");
+            slDateTime3 = slDateTime1.at(1).split(",");
+            setValue(QDateTime(QDate(slDateTime2.at(0).toInt(),
+                                      slDateTime2.at(1).toInt(),
+                                      slDateTime2.at(2).toInt()),
+                               QTime(slDateTime3.at(0).toInt(),
+                                     slDateTime3.at(1).toInt(),
+                                     slDateTime3.at(2).toInt(),
+                                     slDateTime3.at(3).toInt()),
+                               (Qt::TimeSpec)slDateTime1.at(2).toInt()));
             break;
         case BitArray:
+            baBitArray.resize(d.length());
+            for(int i = 0; i < d.length(); i++)
+                baBitArray.setBit(i, d.at(i) == '1' ? true : false);
             break;
         case StringList:
+            lensl = sr.attributes().at(1).value().toString().toInt();
+            for(int i = 0; i < lensl; i++)
+            {
+                if(!sr.readNextStartElement())
+                    throw Core::XmlException();
+
+                slStringList.append(sr.attributes().at(0).value().toString());
+                while(sr.readNext() != QXmlStreamReader::EndElement);
+            }
             break;
         case RegExp:
+            slRegExp = sr.attributes().at(1).value().toString().split(",");
+            setValue(QRegExp(d, (Qt::CaseSensitivity)slRegExp.at(0).toInt(),
+                             (QRegExp::PatternSyntax)slRegExp.at(1).toInt()));
             break;
         case Url:
+            setValue(QUrl(d));
             break;
         case List:
+            lenl = sr.attributes().at(1).value().toString().toInt();
+            for(int i = 0; i < lenl; i++)
+            {
+                Custom::GVariant gv;
+                gv.ReadXml(sr);
+                vl.append(gv);
+            }
             break;
         default:
             break;
