@@ -12,20 +12,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ixmlserializable.h"
-using namespace GUtil;
+#ifndef QSTRINGHELPERS_H
+#define QSTRINGHELPERS_H
 
-Core::Interfaces::IXmlSerializable::IXmlSerializable(bool human_format)
+class QString;
+
+namespace GUtil
 {
-    SetXmlHumanReadableFormat(human_format);
+    namespace Utils
+    {
+        class StringHelpers
+        {
+        public:
+            static QString toBase64(const QString &);
+            static QString fromBase64(const QString &);
+
+            static QString toBase16(const QString &);
+            static QString fromBase16(const QString &);
+        };
+    }
 }
 
-void Core::Interfaces::IXmlSerializable::SetXmlHumanReadableFormat(bool HumanReadable)
-{
-    _ixmlserial_humanFormat = HumanReadable;
-}
-
-bool Core::Interfaces::IXmlSerializable::IsXmlHumanReadableFormat() const
-{
-    return _ixmlserial_humanFormat;
-}
+#endif // QSTRINGHELPERS_H

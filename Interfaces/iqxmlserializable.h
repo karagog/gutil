@@ -31,19 +31,21 @@ namespace GUtil
         public:
 
             // Implement these to have a consistent xml interface across objects
-            virtual void WriteXml(QXmlStreamWriter &) = 0;
+            virtual void WriteXml(QXmlStreamWriter &) const = 0;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException) = 0;
 
-            virtual QString ToXmlQString();
+            virtual QString ToXmlQString() const;
             virtual void FromXmlQString(const QString &)
                     throw(GUtil::Core::XmlException);
 
             // These functions satisfy the core ixmlserializable interface,
             //   building off the new interface's functions
-            virtual std::string ToXmlString();
+            virtual std::string ToXmlString() const;
             virtual void FromXmlString(const std::string &)
                     throw(GUtil::Core::XmlException);
+
+            void CopyIQXmlInterface(const IQXmlSerializable &);
 
         protected:
 

@@ -1,156 +1,156 @@
-/*Copyright 2010 George Karagoulis
+///*Copyright 2010 George Karagoulis
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+//Licensed under the Apache License, Version 2.0 (the "License");
+//you may not use this file except in compliance with the License.
+//You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.*/
+//Unless required by applicable law or agreed to in writing, software
+//distributed under the License is distributed on an "AS IS" BASIS,
+//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//See the License for the specific language governing permissions and
+//limitations under the License.*/
 
-#ifndef DO_VALUEBUFFER_H
-#define DO_VALUEBUFFER_H
+//#ifndef DO_VALUEBUFFER_H
+//#define DO_VALUEBUFFER_H
 
-#include "Logging/globallogger.h"
-#include "Core/Interfaces/ireadonlyobject.h"
-#include "Interfaces/iqxmlserializable.h"
-#include <QMap>
-#include <QString>
-#include <QObject>
-#include <QQueue>
-#include <QReadWriteLock>
-#include <QMutex>
+//#include "Logging/globallogger.h"
+//#include "Core/Interfaces/ireadonlyobject.h"
+//#include "Interfaces/iqxmlserializable.h"
+//#include <QMap>
+//#include <QString>
+//#include <QObject>
+//#include <QQueue>
+//#include <QReadWriteLock>
+//#include <QMutex>
 
-namespace GUtil
-{
-    namespace Core
-    {
-        class Exception;
-    }
+//namespace GUtil
+//{
+//    namespace Core
+//    {
+//        class Exception;
+//    }
 
-    namespace Custom
-    {
-        class DataContainer;
-    }
+//    namespace Custom
+//    {
+//        class DataTable;
+//    }
 
-    namespace DataAccess
-    {
-        class GIODevice;
-    }
+//    namespace DataAccess
+//    {
+//        class GIODevice;
+//    }
 
-    namespace BusinessObjects
-    {
-        // Serves as a generic class to hold values and send/receive them with
-        //   the provided transport mechanism
-        class AbstractValueBuffer : public QObject,
-                                    public GUtil::Interfaces::IQXmlSerializable,
-                                    public GUtil::Core::Interfaces::IReadOnlyObject
-        {
-            Q_OBJECT
-        public:
-            bool SetValue(const QString &key, const QByteArray& value);
-            virtual bool SetValues(const QMap<QString, QByteArray> &);
+//    namespace BusinessObjects
+//    {
+//        // Serves as a generic class to hold values and send/receive them with
+//        //   the provided transport mechanism
+//        class AbstractValueBuffer : public QObject,
+//                                    public GUtil::Interfaces::IQXmlSerializable,
+//                                    public GUtil::Core::Interfaces::IReadOnlyObject
+//        {
+//            Q_OBJECT
+//        public:
+//            bool SetValue(const QString &key, const QByteArray& value);
+//            virtual bool SetValues(const QMap<QString, QByteArray> &);
 
-            QByteArray Value(const QString &key);
-            QMap<QString, QByteArray> Values(const QStringList &);
+//            QByteArray Value(const QString &key);
+//            QMap<QString, QByteArray> Values(const QStringList &);
 
-            // Remove a specific key (or keys)
-            bool RemoveValue(const QString &);
-            bool RemoveValue(const QStringList &);
+//            // Remove a specific key (or keys)
+//            bool RemoveValue(const QString &);
+//            bool RemoveValue(const QStringList &);
 
-            bool Contains(const QString &key);
+//            bool Contains(const QString &key);
 
-            // Flushes the data queue and clears the current data container
-            void Clear();
-
-
-        protected:
-
-            // No public constructor; this class must be derived
-            AbstractValueBuffer(DataAccess::GIODevice *transport,
-                                QObject *parent = 0);
-            virtual ~AbstractValueBuffer();
-
-            // The method of transport (could be file, socket, network I/O)
-            DataAccess::GIODevice &Transport() const;
-
-            // This function is called whenever a value changes; derived classes
-            //   can take advantage of this to export data or do whatever with the changed data
-            // Throw exceptions when errors happen and they will be logged
-            virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
-
-            // If you need to do some special data processing, reimplement these
-            virtual QByteArray get_current_data();
-            virtual QString import_current_data();
-
-            // Forcefully remove all data from the queue
-            void clearQueues();
+//            // Flushes the data queue and clears the current data container
+//            void Clear();
 
 
-            enum QueueTypeEnum
-            {
-                InQueue,
-                OutQueue
-            };
+//        protected:
 
-            // Use this to safely remove an item from the in_queue
-            QByteArray deQueueMessage(QueueTypeEnum);
+//            // No public constructor; this class must be derived
+//            AbstractValueBuffer(DataAccess::GIODevice *transport,
+//                                QObject *parent = 0);
+//            virtual ~AbstractValueBuffer();
 
-            // Use this to add a byte array to the current queue
-            void enQueueMessage(QueueTypeEnum, const QByteArray &);
+//            // The method of transport (could be file, socket, network I/O)
+//            DataAccess::GIODevice &Transport() const;
 
-            // Use this to prepare to enqueue the current message for sending
-            void enQueueCurrentData(bool clear = true);
+//            // This function is called whenever a value changes; derived classes
+//            //   can take advantage of this to export data or do whatever with the changed data
+//            // Throw exceptions when errors happen and they will be logged
+//            virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
-            // Subclasses implement this to process a new byte array after it
-            //   gets dequeued off the in_queue.
-            // The default implementation automatically loads the xml into the
-            //    current data container
-            virtual void process_input_data(const QByteArray &);
+//            // If you need to do some special data processing, reimplement these
+//            virtual QByteArray get_current_data();
+//            virtual QString import_current_data();
 
-            virtual void WriteXml(QXmlStreamWriter &);
-            virtual void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
-            virtual void SetXmlHumanReadableFormat(bool);
-
-            virtual std::string ReadonlyMessageIdentifier() const;
+//            // Forcefully remove all data from the queue
+//            void clearQueues();
 
 
-        protected slots:
-            // This is called automatically when the transport layer says there's new data
-            void importData();
+//            enum QueueTypeEnum
+//            {
+//                InQueue,
+//                OutQueue
+//            };
+
+//            // Use this to safely remove an item from the in_queue
+//            QByteArray deQueueMessage(QueueTypeEnum);
+
+//            // Use this to add a byte array to the current queue
+//            void enQueueMessage(QueueTypeEnum, const QByteArray &);
+
+//            // Use this to prepare to enqueue the current message for sending
+//            void enQueueCurrentData(bool clear = true);
+
+//            // Subclasses implement this to process a new byte array after it
+//            //   gets dequeued off the in_queue.
+//            // The default implementation automatically loads the xml into the
+//            //    current data container
+//            virtual void process_input_data(const QByteArray &);
+
+//            virtual void WriteXml(QXmlStreamWriter &);
+//            virtual void ReadXml(QXmlStreamReader &)
+//                    throw(GUtil::Core::XmlException);
+//            virtual void SetXmlHumanReadableFormat(bool);
+
+//            virtual std::string ReadonlyMessageIdentifier() const;
 
 
-        private:
+//        protected slots:
+//            // This is called automatically when the transport layer says there's new data
+//            void importData();
 
-            QByteArray en_deQueueMessage(QueueTypeEnum, const QByteArray &msg, bool enqueue);
 
-            bool ValueChanged();
+//        private:
 
-            void _get_queue_and_mutex(QueueTypeEnum, QQueue<QByteArray> **, QMutex **)
-                    throw(GUtil::Core::Exception);
+//            QByteArray en_deQueueMessage(QueueTypeEnum, const QByteArray &msg, bool enqueue);
 
-            QMutex in_queue_mutex;
-            QMutex out_queue_mutex;
-            QQueue< QByteArray > in_queue;
-            QQueue< QByteArray > out_queue;
+//            bool ValueChanged();
 
-            QReadWriteLock current_data_lock;
-            Custom::DataContainer *current_data;
+//            void _get_queue_and_mutex(QueueTypeEnum, QQueue<QByteArray> **, QMutex **)
+//                    throw(GUtil::Core::Exception);
 
-            void process_queues();
-            void _flush_queue(QueueTypeEnum);
+//            QMutex in_queue_mutex;
+//            QMutex out_queue_mutex;
+//            QQueue< QByteArray > in_queue;
+//            QQueue< QByteArray > out_queue;
 
-            void _clear_queue(QMutex &, QQueue< QByteArray > &);
+//            QReadWriteLock current_data_lock;
+//            Custom::DataTable *current_data;
 
-            DataAccess::GIODevice *_transport;
+//            void process_queues();
+//            void _flush_queue(QueueTypeEnum);
 
-        };
-    }
-}
+//            void _clear_queue(QMutex &, QQueue< QByteArray > &);
 
-#endif // DO_VALUEBUFFER_H
+//            DataAccess::GIODevice *_transport;
+
+//        };
+//    }
+//}
+
+//#endif // DO_VALUEBUFFER_H

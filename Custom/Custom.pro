@@ -7,14 +7,16 @@ HEADERS += \
     myflattreemodel.h \
     myxmlstreamreader.h \
     gthread.h \
-    datacontainer.h \
-    gsemaphore.h
+    datatable.h \
+    gsemaphore.h \
+    gvariant.h
 
 SOURCES += \
     myflattreemodel.cpp \
     myxmlstreamreader.cpp \
     gthread.cpp \
-    datacontainer.cpp \
-    gsemaphore.cpp
+    datatable.cpp \
+    gsemaphore.cpp \
+    gvariant.cpp
 
 INCLUDEPATH += ..
