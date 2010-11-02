@@ -9,6 +9,7 @@ extract_controls.commands = ar -x libControls.a
 extract_core.commands = ar -x libCore.a
 extract_interfaces.commands = ar -x libInterfaces.a
 extract_custom.commands = ar -x libCustom.a
+extract_dataobjects.commands = ar -x libDataObjects.a
 extract_dataaccess.commands = ar -x libDataAccess.a
 extract_logging.commands = ar -x libLogging.a
 extract_businessobjects.commands = ar -x libBusinessObjects.a
@@ -28,6 +29,7 @@ PRE_TARGETDEPS += \
   extract_interfaces \
   extract_utils \
   extract_custom \
+  extract_dataobjects \
   extract_dataaccess \
   extract_logging \
   extract_businessobjects \
@@ -42,6 +44,7 @@ QMAKE_EXTRA_TARGETS += \
   extract_interfaces \
   extract_utils \
   extract_custom \
+  extract_dataobjects \
   extract_dataaccess \
   extract_logging \
   extract_businessobjects \

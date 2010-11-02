@@ -19,7 +19,7 @@
 //#include <QXmlStreamWriter>
 //using namespace GUtil;
 
-//Custom::DataTable::DataTable(QObject *p)
+//DataObjects::DataTable::DataTable(QObject *p)
 //    :
 //    QAbstractTableModel(p),
 //    Interfaces::IQXmlSerializable(false),
@@ -36,12 +36,12 @@
 
 
 
-//int Custom::DataTable::rowCount(const QModelIndex &) const
+//int DataObjects::DataTable::rowCount(const QModelIndex &) const
 //{
 //    return _key_list.length();
 //}
 
-//QVariant Custom::DataTable::data(const QModelIndex &index, int role) const
+//QVariant DataObjects::DataTable::data(const QModelIndex &index, int role) const
 //{
 //    QVariant ret;
 //    if(!index.isValid())
@@ -67,7 +67,7 @@
 //    return ret;
 //}
 
-//bool Custom::DataTable::setData(const QModelIndex &index, const QVariant &value, int role)
+//bool DataObjects::DataTable::setData(const QModelIndex &index, const QVariant &value, int role)
 //{
 //    if(IsReadOnly())
 //        return false;
@@ -77,7 +77,7 @@
 
 
 
-//void Custom::DataTable::WriteXml(QXmlStreamWriter &sw)
+//void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw)
 //{
 //    sw.setAutoFormatting(IsXmlHumanReadableFormat());
 //    sw.writeStartElement("settings");
@@ -101,7 +101,7 @@
 
 //#define READ_ERR_STRING "XML not in correct format"
 
-//void Custom::DataTable::ReadXml(QXmlStreamReader &sr)
+//void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
 //        throw(Core::XmlException)
 //{
 //    clear();
@@ -149,7 +149,7 @@
 //}
 
 
-//void Custom::DataTable::SetReadOnly(bool readonly)
+//void DataObjects::DataTable::SetReadOnly(bool readonly)
 //{
 //    Core::Interfaces::IReadOnlyObject::SetReadOnly(readonly);
 

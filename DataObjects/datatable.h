@@ -25,7 +25,7 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace Custom
+    namespace DataObjects
     {
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
