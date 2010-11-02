@@ -231,10 +231,17 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     case List:
         sw.writeAttribute("s", QString("%1").arg(toList().length()));
         foreach(QVariant v, toList())
-            Custom::GVariant(v).WriteXml(sw);
+            GVariant(v).WriteXml(sw);
         break;
     case Map:
-        throw Core::NotImplementedException();
+        sw.writeAttribute("s", QString("%1").arg(toMap().keys().length()));
+        foreach(QString z, toMap().keys())
+        {
+            sw.writeStartElement("i");
+            sw.writeAttribute("k", Utils::QStringHelpers::toBase64(z));
+            GVariant(toMap().value(z)).WriteXml(sw);
+            sw.writeEndElement();
+        }
         break;
     case Size:
         sw.writeAttribute("d", QString("%1,%2")
@@ -277,6 +284,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         QStringList sltemp3;
         QBitArray baBitArray;
         QVariantList vl;
+        QVariantMap vm;
         switch(type)
         {
         case String:
@@ -365,7 +373,21 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             setValue(vl);
             break;
         case Map:
-            throw Core::NotImplementedException();
+            tmpint = d.toInt();
+            for(int i = 0; i < tmpint; i++)
+            {
+                if(!sr.readNextStartElement())
+                    throw Core::XmlException();
+
+                QString key = Utils::QStringHelpers::fromBase64(
+                        sr.attributes().at(0).value().toString());
+                GVariant gv;
+                gv.ReadXml(sr);
+                vm.insert(key, gv);
+
+                while(sr.readNext() != QXmlStreamReader::EndElement);
+            }
+            setValue(vm);
             break;
         case Size:
             sltemp1 = d.split(",");

@@ -215,6 +215,17 @@ void GVariantTest::test_collections()
     QVERIFY(gv2 == sl);
     QVERIFY(gv2 != slbad);
 
+    // QVariantMap
+    QVariantMap vm;
+    vm.insert("one", slbad);
+    vm.insert("two", sl);
+    gv1 = vm;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    gv1.SetXmlHumanReadableFormat(true);
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == vm);
+
     // VariantList
     QVariantList vl1, vl2;
     vl1.append(sl);
@@ -225,9 +236,7 @@ void GVariantTest::test_collections()
     gv1 = vl2;
     gv2.FromXmlQString(gv1.ToXmlQString());
     gv1.SetXmlHumanReadableFormat(true);
-    gv2.SetXmlHumanReadableFormat(true);
     qDebug(gv1.ToXmlString().c_str());
-    qDebug(gv2.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == vl2);
 }
