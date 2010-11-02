@@ -20,6 +20,8 @@ Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
     _init(readonly);
 }
 
+Interfaces::IReadOnlyObject::~IReadOnlyObject(){}
+
 Interfaces::IReadOnlyObject::IReadOnlyObject(const Interfaces::IReadOnlyObject &other)
 {
     _init(other._my_readonly_bool);

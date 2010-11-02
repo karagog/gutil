@@ -26,8 +26,9 @@ namespace GUtil
         {
         public:
             virtual QString ToQString() const = 0;
-
             virtual std::string ToString() const;
+
+            virtual ~IQStringable();
         };
     }
 }

@@ -27,6 +27,7 @@ namespace GUtil
             class IReadOnlyObject
             {
             public:
+
                 // Use this function to track a global readonly bool variable
                 virtual void SetReadonlyBooleanReference(bool &readonlybool);
                 void ClearReadonlyBooleanReference();
@@ -38,6 +39,8 @@ namespace GUtil
                 virtual void SetReadOnly(bool readonly = true);
 
                 void FailIfReadOnly() const throw(GUtil::Core::ReadOnlyException);
+
+                virtual ~IReadOnlyObject();
 
             protected:
                 IReadOnlyObject(bool readonly = false);

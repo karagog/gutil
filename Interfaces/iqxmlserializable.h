@@ -45,6 +45,8 @@ namespace GUtil
             virtual void FromXmlString(const std::string &)
                     throw(GUtil::Core::XmlException);
 
+            virtual ~IQXmlSerializable();
+
         protected:
 
             IQXmlSerializable();

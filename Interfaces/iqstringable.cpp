@@ -15,6 +15,8 @@ limitations under the License.*/
 #include "iqstringable.h"
 using namespace GUtil;
 
+Interfaces::IQStringable::~IQStringable(){}
+
 std::string Interfaces::IQStringable::ToString() const
 {
     return ToQString().toStdString();
