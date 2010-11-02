@@ -17,15 +17,14 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-Interfaces::IQXmlSerializable::IQXmlSerializable(bool human_readable)
-    :Core::Interfaces::IXmlSerializable(human_readable)
+Interfaces::IQXmlSerializable::IQXmlSerializable()
 {
 
 }
 
-std::string Interfaces::IQXmlSerializable::ToXmlString() const
+std::string Interfaces::IQXmlSerializable::ToXmlString(bool h) const
 {
-    return ToXmlQString().toStdString();
+    return ToXmlQString(h).toStdString();
 }
 
 void Interfaces::IQXmlSerializable::FromXmlString(const std::string &xml)
@@ -34,11 +33,11 @@ void Interfaces::IQXmlSerializable::FromXmlString(const std::string &xml)
     FromXmlQString(QString::fromStdString(xml));
 }
 
-QString Interfaces::IQXmlSerializable::ToXmlQString() const
+QString Interfaces::IQXmlSerializable::ToXmlQString(bool h) const
 {
     QString ret;
     QXmlStreamWriter w(&ret);
-    w.setAutoFormatting(IsXmlHumanReadableFormat());
+    w.setAutoFormatting(h);
 
     WriteXml(w);
 
@@ -50,9 +49,4 @@ void Interfaces::IQXmlSerializable::FromXmlQString(const QString &xml)
 {
     QXmlStreamReader r(xml);
     ReadXml(r);
-}
-
-void Interfaces::IQXmlSerializable::CopyIQXmlInterface(const Interfaces::IQXmlSerializable &o)
-{
-    this->SetXmlHumanReadableFormat(o.IsXmlHumanReadableFormat());
 }

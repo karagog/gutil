@@ -209,8 +209,7 @@ void GVariantTest::test_collections()
     sl<<"two"<<"three"<<"four";
     gv1 = sl;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    gv1.SetXmlHumanReadableFormat(true);
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == sl);
     QVERIFY(gv2 != slbad);
@@ -221,8 +220,7 @@ void GVariantTest::test_collections()
     vm.insert("two", sl);
     gv1 = vm;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    gv1.SetXmlHumanReadableFormat(true);
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == vm);
 
@@ -235,8 +233,7 @@ void GVariantTest::test_collections()
     vl2.append("Hello!");
     gv1 = vl2;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    gv1.SetXmlHumanReadableFormat(true);
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == vl2);
 }

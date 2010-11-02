@@ -27,18 +27,9 @@ namespace GUtil
             class IXmlSerializable
             {
             public:
-                virtual std::string ToXmlString() const = 0;
+                virtual std::string ToXmlString(bool human_readable) const = 0;
                 virtual void FromXmlString(const std::string &)
                         throw(GUtil::Core::XmlException) = 0;
-
-                void SetXmlHumanReadableFormat(bool HumanReadable);
-                bool IsXmlHumanReadableFormat() const;
-
-            protected:
-                IXmlSerializable(bool human_format);
-
-            private:
-                bool _ixmlserial_humanFormat;
             };
         }
     }
