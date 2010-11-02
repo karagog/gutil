@@ -1,5 +1,6 @@
 #include <QtCore/QString>
 #include <QtTest/QtTest>
+#include <QTime>
 #include "Custom/gvariant.h"
 #include "Logging/debuglogger.h"
 using namespace GUtil::Custom;
@@ -77,17 +78,87 @@ void GVariantTest::test_basic_types()
 
     // Float
     gv1 = (float)5.68921;
-    qDebug(gv1.ToXmlString().c_str());
     gv2.FromXmlQString(gv1.ToXmlQString());
-    QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == 5.68921);
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv2 == (float)5.68921);
+    QVERIFY(gv1 == (float)5.68921);
 
     qDebug(gv1.ToXmlString().c_str());
 }
 
 void GVariantTest::test_simple_qt_types()
 {
+    // Strings
+    GVariant gv1 = "Hello!";
+    GVariant gv2;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == "Hello!");
 
+    QString tmps;
+    tmps.append((char)0x00);
+    tmps.append((char)0x01);
+    tmps.append((char)0x02);
+    gv1 = tmps;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == tmps);
+
+    // Byte Arrays
+    QByteArray ba;
+    ba.append((char)0x02);
+    ba.append((char)0x01);
+    ba.append((char)0x00);
+    gv1 = ba;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == ba);
+
+    // QDates
+    QDate dt(2005, 4, 20);
+    gv1 = dt;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == dt);
+
+    // QTimes
+    QTime tm(1, 2, 3, 4);
+    gv1 = tm;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == tm);
+
+    tm = QTime(1, 2);
+    gv1 = tm;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == tm);
+
+    // QDateTimes
+    QDateTime dtt(dt, tm);
+    gv1 = dtt;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == dtt);
+
+    // Bit arrays
+    QBitArray b(4);
+    b.setBit(0, 1);
+    b.setBit(1, 1);
+    b.setBit(2, 0);
+    b.setBit(3, 1);
+    gv1 = b;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == b);
 }
 
 void GVariantTest::test_collections()

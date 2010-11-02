@@ -85,7 +85,7 @@ Custom::GVariant::GVariant(double d)
 }
 
 Custom::GVariant::GVariant(float f)
-    :QVariant(f)
+    :QVariant((double)f)
 {
 }
 
@@ -330,7 +330,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         case BitArray:
             baBitArray.resize(d.length());
             for(int i = 0; i < d.length(); i++)
-                baBitArray.setBit(i, d.at(i) == '1' ? true : false);
+                baBitArray.setBit(d.length() - i - 1, d.at(i) == '1' ? true : false);
             setValue(baBitArray);
             break;
         case StringList:
