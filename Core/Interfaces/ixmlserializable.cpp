@@ -25,7 +25,7 @@ void Core::Interfaces::IXmlSerializable::SetXmlHumanReadableFormat(bool HumanRea
     _ixmlserial_humanFormat = HumanReadable;
 }
 
-bool Core::Interfaces::IXmlSerializable::IsXmlHumanReadableFormat()
+bool Core::Interfaces::IXmlSerializable::IsXmlHumanReadableFormat() const
 {
     return _ixmlserial_humanFormat;
 }

@@ -42,18 +42,17 @@ namespace GUtil
             GVariant(const QTime &);
             GVariant(const QDateTime &);
             GVariant(const QBitArray &);
-            GVariant(const QStringList &);
             GVariant(const QRegExp &);
             GVariant(const QUrl &);
-            GVariant(const QList<QVariant> &);
-            GVariant(const QVariantMap &);
             GVariant(const QRect &);
             GVariant(const QSize &);
+            GVariant(const QStringList &);
+            GVariant(const QVariantList &);
+            GVariant(const QVariantMap &);
 
             void WriteXml(QXmlStreamWriter &) const;
             void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
-
         };
     }
 }

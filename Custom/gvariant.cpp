@@ -211,7 +211,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         sw.writeAttribute("d", tmps);
         break;
     case StringList:
-        sw.writeAttribute("s", QString(toStringList().length()));
+        sw.writeAttribute("s", QString("%1").arg(toStringList().length()));
         foreach(QString z, toStringList())
         {
             sw.writeStartElement("i");
@@ -229,7 +229,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         sw.writeAttribute("d", toString());
         break;
     case List:
-        sw.writeAttribute("s", QString(toList().length()));
+        sw.writeAttribute("s", QString("%1").arg(toList().length()));
         foreach(QVariant v, toList())
             Custom::GVariant(v).WriteXml(sw);
         break;
@@ -334,7 +334,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             setValue(baBitArray);
             break;
         case StringList:
-            tmpint = sr.attributes().at(1).value().toString().toInt();
+            tmpint = d.toInt();
             for(int i = 0; i < tmpint; i++)
             {
                 if(!sr.readNextStartElement())
@@ -347,7 +347,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             setValue(sltemp1);
             break;
         case RegExp:
-            sltemp1 = sr.attributes().at(1).value().toString().split(",");
+            sltemp1 = sr.attributes().at(2).value().toString().split(",");
             setValue(QRegExp(d, (Qt::CaseSensitivity)sltemp1.at(0).toInt(),
                              (QRegExp::PatternSyntax)sltemp1.at(1).toInt()));
             break;
@@ -355,7 +355,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             setValue(QUrl(d));
             break;
         case List:
-            tmpint = sr.attributes().at(1).value().toString().toInt();
+            tmpint = d.toInt();
             for(int i = 0; i < tmpint; i++)
             {
                 Custom::GVariant gv;
@@ -384,3 +384,10 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         while(sr.readNext() != QXmlStreamReader::EndElement);
     }
 }
+
+//Custom::GVariant &Custom::GVariant::operator =(const GVariant &o)
+//{
+//    *this = (const QVariant &)o;
+//    this->CopyIQXmlInterface(o);
+//    return *this;
+//}

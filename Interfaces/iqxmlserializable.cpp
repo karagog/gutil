@@ -23,7 +23,7 @@ Interfaces::IQXmlSerializable::IQXmlSerializable(bool human_readable)
 
 }
 
-std::string Interfaces::IQXmlSerializable::ToXmlString()
+std::string Interfaces::IQXmlSerializable::ToXmlString() const
 {
     return ToXmlQString().toStdString();
 }
@@ -34,7 +34,7 @@ void Interfaces::IQXmlSerializable::FromXmlString(const std::string &xml)
     FromXmlQString(QString::fromStdString(xml));
 }
 
-QString Interfaces::IQXmlSerializable::ToXmlQString()
+QString Interfaces::IQXmlSerializable::ToXmlQString() const
 {
     QString ret;
     QXmlStreamWriter w(&ret);
@@ -50,4 +50,9 @@ void Interfaces::IQXmlSerializable::FromXmlQString(const QString &xml)
 {
     QXmlStreamReader r(xml);
     ReadXml(r);
+}
+
+void Interfaces::IQXmlSerializable::CopyIQXmlInterface(const Interfaces::IQXmlSerializable &o)
+{
+    this->SetXmlHumanReadableFormat(o.IsXmlHumanReadableFormat());
 }

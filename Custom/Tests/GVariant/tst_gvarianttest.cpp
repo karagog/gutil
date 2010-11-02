@@ -1,6 +1,10 @@
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QTime>
+#include <QRegExp>
+#include <QSize>
+#include <QVariantList>
+#include <QVariantMap>
 #include "Custom/gvariant.h"
 #include "Logging/debuglogger.h"
 using namespace GUtil::Custom;
@@ -159,11 +163,70 @@ void GVariantTest::test_simple_qt_types()
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == b);
+
+    // QRegExp
+    QRegExp exp("&pattern/>", Qt::CaseInsensitive, QRegExp::Wildcard);
+    QRegExp wrong("&pattern/>", Qt::CaseSensitive, QRegExp::Wildcard);
+    gv1 = exp;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == exp);
+    QVERIFY(gv1 != wrong);
+
+    // QUrl
+    QUrl u("http://tempzone.com");
+    gv1 = u;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == u);
+
+    // QRect
+    QRect rect(1,2,3,4);
+    gv1 = rect;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == rect);
+
+    // QSize
+    QSize sz(1, 2);
+    gv1 = sz;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == sz);
 }
 
 void GVariantTest::test_collections()
 {
+    GVariant gv1, gv2;
+    gv1.SetXmlHumanReadableFormat(true);
 
+    // Stringlist
+    QStringList slbad("one");
+    QStringList sl("one");
+    sl<<"two"<<"three"<<"four";
+    gv1 = sl;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == sl);
+    QVERIFY(gv2 != slbad);
+
+    // VariantList
+    QVariantList vl1, vl2;
+    vl1.append(sl);
+    vl1.append(slbad);
+    vl2.append(vl1);
+    vl2.append(5);
+    vl2.append("Hello!");
+    gv1 = vl2;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == vl2);
 }
 
 QTEST_APPLESS_MAIN(GVariantTest);
