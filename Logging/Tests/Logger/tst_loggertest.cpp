@@ -238,7 +238,6 @@ void LoggerTest::test_grouplogger()
 
 
 
-
 QTEST_APPLESS_MAIN(LoggerTest);
 
 #include "tst_loggertest.moc"

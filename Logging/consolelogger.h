@@ -26,6 +26,9 @@ namespace GUtil
         // Logs to the console
         class ConsoleLogger : public AbstractLogger
         {
+        public:
+            virtual ~ConsoleLogger();
+
         protected:
             virtual void Log_protected(const QByteArray &, MessageLevelEnum);
 

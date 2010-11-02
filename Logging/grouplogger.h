@@ -41,6 +41,7 @@ namespace GUtil
 
             void RemoveLogger(AbstractLogger *);
 
+            virtual ~GroupLogger();
 
         private:
             QList<AbstractLogger *> _logger_list;

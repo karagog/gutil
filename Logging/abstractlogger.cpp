@@ -23,6 +23,10 @@ Logging::AbstractLogger::AbstractLogger()
     _message_level = Info;
 }
 
+Logging::AbstractLogger::~AbstractLogger()
+{
+}
+
 void Logging::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
 {
     _message_level = message_level;

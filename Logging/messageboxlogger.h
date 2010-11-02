@@ -25,6 +25,7 @@ namespace GUtil
         {
         public:
             explicit MessageBoxLogger();
+            virtual ~MessageBoxLogger();
 
         protected:
             virtual void Log_protected(const QByteArray &, MessageLevelEnum);

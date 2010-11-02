@@ -15,6 +15,10 @@ limitations under the License.*/
 #include "consolelogger.h"
 using namespace GUtil;
 
+Logging::ConsoleLogger::~ConsoleLogger()
+{
+}
+
 void Logging::ConsoleLogger::Log_protected(const QByteArray &dat, MessageLevelEnum)
 {
     _my_console_io_device.Write(dat);

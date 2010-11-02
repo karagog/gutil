@@ -19,3 +19,8 @@ Logging::AbstractDatabaseLogger::AbstractDatabaseLogger()
     :AbstractLogger()
 {
 }
+
+Logging::AbstractDatabaseLogger::~AbstractDatabaseLogger()
+{
+
+}

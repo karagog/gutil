@@ -28,6 +28,7 @@ namespace GUtil
         {
         protected:
             explicit AbstractDatabaseLogger();
+            virtual ~AbstractDatabaseLogger();
 
         private:
             QSqlDatabase _dbase;

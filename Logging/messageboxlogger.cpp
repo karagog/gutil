@@ -8,6 +8,11 @@ Logging::MessageBoxLogger::MessageBoxLogger()
 {
 }
 
+Logging::MessageBoxLogger::~MessageBoxLogger()
+{
+
+}
+
 void Logging::MessageBoxLogger::Log_protected(const QByteArray &msg, MessageLevelEnum l)
 {
     switch(l)

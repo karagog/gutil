@@ -27,6 +27,7 @@ namespace GUtil
         {
         public:
             explicit FileLogger(const QString &filename);
+            virtual ~FileLogger();
 
             virtual void ClearLog();
 

@@ -61,6 +61,7 @@ namespace GUtil
             void SetMessageLevel(MessageLevelEnum);
             MessageLevelEnum MessageLevel();
 
+            virtual ~AbstractLogger();
 
         protected:
             explicit AbstractLogger();

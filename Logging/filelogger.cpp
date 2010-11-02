@@ -23,6 +23,10 @@ Logging::FileLogger::FileLogger(const QString &filename)
     _file_transport.SetWriteMode(DataAccess::GFileIODevice::WriteAppend);
 }
 
+Logging::FileLogger::~FileLogger()
+{
+}
+
 void Logging::FileLogger::ClearLog()
 {
     try
