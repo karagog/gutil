@@ -202,7 +202,6 @@ void GVariantTest::test_simple_qt_types()
 void GVariantTest::test_collections()
 {
     GVariant gv1, gv2;
-    gv1.SetXmlHumanReadableFormat(true);
 
     // Stringlist
     QStringList slbad("one");
@@ -210,6 +209,7 @@ void GVariantTest::test_collections()
     sl<<"two"<<"three"<<"four";
     gv1 = sl;
     gv2.FromXmlQString(gv1.ToXmlQString());
+    gv1.SetXmlHumanReadableFormat(true);
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == sl);
@@ -224,7 +224,10 @@ void GVariantTest::test_collections()
     vl2.append("Hello!");
     gv1 = vl2;
     gv2.FromXmlQString(gv1.ToXmlQString());
+    gv1.SetXmlHumanReadableFormat(true);
+    gv2.SetXmlHumanReadableFormat(true);
     qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv2.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2 == vl2);
 }

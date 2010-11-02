@@ -362,6 +362,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                 gv.ReadXml(sr);
                 vl.append(gv);
             }
+            setValue(vl);
             break;
         case Map:
             throw Core::NotImplementedException();
