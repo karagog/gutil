@@ -16,9 +16,11 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "DataAccess/giodevice.h"
 #include <QDateTime>
+#include <QCoreApplication>
 using namespace GUtil;
 
-Logging::AbstractLogger::AbstractLogger()
+Logging::AbstractLogger::AbstractLogger(QObject *parent)
+    :QObject(parent == 0 ? qApp : parent)
 {
     _message_level = Info;
 }

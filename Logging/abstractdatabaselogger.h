@@ -26,8 +26,9 @@ namespace GUtil
 
         class AbstractDatabaseLogger : public AbstractLogger
         {
+            Q_OBJECT
         protected:
-            explicit AbstractDatabaseLogger();
+            explicit AbstractDatabaseLogger(QObject *parent = 0);
             virtual ~AbstractDatabaseLogger();
 
         private:

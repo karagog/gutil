@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <QDateTime>
 #include <QString>
+#include <QObject>
 
 namespace GUtil
 {
@@ -32,8 +33,9 @@ namespace GUtil
 
     namespace Logging
     {
-        class AbstractLogger
+        class AbstractLogger : public QObject
         {
+            Q_OBJECT
         public:
             enum MessageLevelEnum
             {
@@ -64,7 +66,7 @@ namespace GUtil
             virtual ~AbstractLogger();
 
         protected:
-            explicit AbstractLogger();
+            explicit AbstractLogger(QObject *parent = 0);
 
             // Derived classes must provide a method to put the log message somewhere
             virtual void Log_protected(const QByteArray &, MessageLevelEnum) = 0;

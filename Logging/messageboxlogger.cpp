@@ -3,8 +3,8 @@
 #include <QMessageBox>
 using namespace GUtil;
 
-Logging::MessageBoxLogger::MessageBoxLogger()
-    :AbstractLogger()
+Logging::MessageBoxLogger::MessageBoxLogger(QObject *parent)
+    :AbstractLogger(parent)
 {
 }
 

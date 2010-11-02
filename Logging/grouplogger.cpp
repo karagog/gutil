@@ -15,9 +15,14 @@ limitations under the License.*/
 #include "grouplogger.h"
 using namespace GUtil;
 
-Logging::GroupLogger::~GroupLogger()
+Logging::GroupLogger::GroupLogger(QObject *parent)
+    :AbstractLogger(parent)
 {
 
+}
+
+Logging::GroupLogger::~GroupLogger()
+{
 }
 
 void Logging::GroupLogger::Log(const QString &message, const QString &title, MessageLevelEnum lvl)

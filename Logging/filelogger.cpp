@@ -16,8 +16,8 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace std;
 
-Logging::FileLogger::FileLogger(const QString &filename)
-    :AbstractLogger()
+Logging::FileLogger::FileLogger(const QString &filename, QObject *parent)
+    :AbstractLogger(parent)
 {
     _file_transport.SetFileName(filename);
     _file_transport.SetWriteMode(DataAccess::GFileIODevice::WriteAppend);

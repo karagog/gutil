@@ -29,7 +29,11 @@ namespace GUtil
 
         class GroupLogger : public AbstractLogger
         {
+            Q_OBJECT
         public:
+            explicit GroupLogger(QObject *parent = 0);
+            virtual ~GroupLogger();
+
             virtual void Log(const QString &message, const QString &title, MessageLevelEnum msg_lvl);
             virtual void ClearLog();
 
@@ -40,8 +44,6 @@ namespace GUtil
             void AddLogger(AbstractLogger *);
 
             void RemoveLogger(AbstractLogger *);
-
-            virtual ~GroupLogger();
 
         private:
             QList<AbstractLogger *> _logger_list;

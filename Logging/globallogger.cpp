@@ -77,7 +77,7 @@ void Logging::GlobalLogger::_takedown_logger(int logger_id)
 {
     if(_logger_list.contains(logger_id))
     {
-        delete _logger_list.value(logger_id);
+        _logger_list.value(logger_id)->deleteLater();
         _logger_list.remove(logger_id);
     }
 }

@@ -15,6 +15,12 @@ limitations under the License.*/
 #include "consolelogger.h"
 using namespace GUtil;
 
+Logging::ConsoleLogger::ConsoleLogger(QObject *parent)
+    :AbstractLogger(parent)
+{
+
+}
+
 Logging::ConsoleLogger::~ConsoleLogger()
 {
 }

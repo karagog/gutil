@@ -26,7 +26,9 @@ namespace GUtil
         // Logs to the console
         class ConsoleLogger : public AbstractLogger
         {
+            Q_OBJECT
         public:
+            explicit ConsoleLogger(QObject *parent = 0);
             virtual ~ConsoleLogger();
 
         protected:

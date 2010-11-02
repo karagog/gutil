@@ -25,8 +25,9 @@ namespace GUtil
     {
         class FileLogger : public AbstractLogger
         {
+            Q_OBJECT
         public:
-            explicit FileLogger(const QString &filename);
+            explicit FileLogger(const QString &filename, QObject *parent = 0);
             virtual ~FileLogger();
 
             virtual void ClearLog();

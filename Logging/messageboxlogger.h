@@ -23,8 +23,9 @@ namespace GUtil
     {
         class MessageBoxLogger : public AbstractLogger
         {
+            Q_OBJECT
         public:
-            explicit MessageBoxLogger();
+            explicit MessageBoxLogger(QObject *parent = 0);
             virtual ~MessageBoxLogger();
 
         protected:
