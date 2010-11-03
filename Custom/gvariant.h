@@ -50,14 +50,13 @@ namespace GUtil
             GVariant(const QVariantList &);
             GVariant(const QVariantMap &);
 
-            QVariant toVariant();
-
-            static QString ConvertToXmlQString(const QVariant &);
-            static GVariant ConvertFromXmlQString(const QString &);
-
             void WriteXml(QXmlStreamWriter &) const;
             void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
+
+            static QString ConvertToXmlQString(const QVariant &, bool human_readable = false);
+            static GVariant ConvertFromXmlQString(const QString &);
+
         };
     }
 }

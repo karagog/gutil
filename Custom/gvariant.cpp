@@ -97,14 +97,9 @@ Custom::GVariant::GVariant(const QRect &r)
 Custom::GVariant::GVariant(const QSize &s)
     :QVariant(s){}
 
-QVariant Custom::GVariant::toVariant()
+QString Custom::GVariant::ConvertToXmlQString(const QVariant &v, bool h)
 {
-    return (QVariant)*this;
-}
-
-QString Custom::GVariant::ConvertToXmlQString(const QVariant &v)
-{
-    return GVariant(v).ToXmlQString();
+    return GVariant(v).ToXmlQString(h);
 }
 
 Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
@@ -245,7 +240,9 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         clear();
         convert(type);
 
-        const QString d = sr.attributes().at(1).value().toString();
+        QString d;
+        if(sr.attributes().count() > 1)
+            d = sr.attributes().at(1).value().toString();
 
         int tmpint;
         QString tmps;
@@ -377,10 +374,3 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         while(sr.readNext() != QXmlStreamReader::EndElement);
     }
 }
-
-//Custom::GVariant &Custom::GVariant::operator =(const GVariant &o)
-//{
-//    *this = (const QVariant &)o;
-//    this->CopyIQXmlInterface(o);
-//    return *this;
-//}
