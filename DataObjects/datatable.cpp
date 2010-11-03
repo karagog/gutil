@@ -22,9 +22,7 @@
 //DataObjects::DataTable::DataTable(QObject *p)
 //    :
 //    QAbstractTableModel(p),
-//    Interfaces::IQXmlSerializable(false),
-//    Core::Interfaces::IReadOnlyObject(false)
-//{}
+//    Core::Interfaces::IReadOnlyObject(false){}
 
 
 

@@ -4,9 +4,11 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    datatable.h
+    datatable.h \
+    dataset.h
 
 SOURCES += \
-    datatable.cpp
+    datatable.cpp \
+    dataset.cpp
 
 INCLUDEPATH += ..

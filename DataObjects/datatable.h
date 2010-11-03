@@ -12,15 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef VARIABLECONTAINER_H
-#define VARIABLECONTAINER_H
+#ifndef DATATABLE_H
+#define DATATABLE_H
 
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
-#include <QList>
-#include <QPair>
-#include <QString>
-#include <QByteArray>
+#include "Custom/gvariant.h"
+#include <QVariantList>
 #include <QAbstractTableModel>
 
 namespace GUtil
@@ -46,16 +44,14 @@ namespace GUtil
             QPair<QString, QByteArray> RemoveValue(int);
             virtual void SwapIndexes(int one, int two);
 
-            int Size() const;
-
 
             // Interface for IQXmlSerializable
-            virtual void WriteXml(QXmlStreamWriter &);
+            virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
 
 
-            // Interface for QAbstractListModel
+            // Interface for QAbstractTableModel
             virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
             virtual int columnCount(const QModelIndex &parent) const;
 
@@ -68,12 +64,8 @@ namespace GUtil
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-
-        private:
-            QList< QPair<QString, QByteArray> > _data;
-
         };
     }
 }
 
-#endif // VARIABLECONTAINER_H
+#endif // DATATABLE_H
