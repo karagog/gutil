@@ -26,122 +26,92 @@ limitations under the License.*/
 #include <QVariantMap>
 using namespace GUtil;
 
-#define XMLID "GVariant"
+#define XMLID "V"
 
 Custom::GVariant::GVariant()
-    :QVariant()
-{
-}
+    :QVariant(){}
 
 Custom::GVariant::GVariant(const QVariant &o)
-    :QVariant(o)
-{
-}
+    :QVariant(o){}
 
 Custom::GVariant::GVariant(Type t)
-    :QVariant(t)
-{
-}
+    :QVariant(t){}
 
 Custom::GVariant::GVariant(const QString &s)
-    :QVariant(s)
-{
-}
+    :QVariant(s){}
 
 Custom::GVariant::GVariant(const QByteArray &b)
-    :QVariant(b)
-{
-}
+    :QVariant(b){}
 
 Custom::GVariant::GVariant(const QChar &c)
-    :QVariant(c)
-{
-
-}
+    :QVariant(c){}
 
 Custom::GVariant::GVariant(int i)
-    :QVariant(i)
-{
-}
+    :QVariant(i){}
 
 Custom::GVariant::GVariant(uint i)
-    :QVariant(i)
-{
-}
+    :QVariant(i){}
 
 Custom::GVariant::GVariant(char *c)
-    :QVariant(c)
-{
-}
+    :QVariant(c){}
 
 Custom::GVariant::GVariant(bool b)
-    :QVariant(b)
-{
-}
+    :QVariant(b){}
 
 Custom::GVariant::GVariant(double d)
-    :QVariant(d)
-{
-}
+    :QVariant(d){}
 
 Custom::GVariant::GVariant(float f)
-    :QVariant((double)f)
-{
-}
+    :QVariant((double)f){}
 
 Custom::GVariant::GVariant(const QDate &d)
-    :QVariant(d)
-{
-}
+    :QVariant(d){}
 
 Custom::GVariant::GVariant(const QTime &t)
-    :QVariant(t)
-{
-}
+    :QVariant(t){}
 
 Custom::GVariant::GVariant(const QDateTime &d)
-    :QVariant(d)
-{
-}
+    :QVariant(d){}
 
 Custom::GVariant::GVariant(const QBitArray &b)
-    :QVariant(b)
-{
-}
+    :QVariant(b){}
 
 Custom::GVariant::GVariant(const QStringList &s)
-    :QVariant(s)
-{
-}
+    :QVariant(s){}
 
 Custom::GVariant::GVariant(const QRegExp &r)
-    :QVariant(r)
-{
-}
+    :QVariant(r){}
 
 Custom::GVariant::GVariant(const QUrl &u)
-    :QVariant(u)
-{
-}
+    :QVariant(u){}
 
 Custom::GVariant::GVariant(const QList<QVariant> &l)
-    :QVariant(l)
-{
-}
+    :QVariant(l){}
 
 Custom::GVariant::GVariant(const QVariantMap &v)
-    :QVariant(v)
-{
-}
+    :QVariant(v){}
 
 Custom::GVariant::GVariant(const QRect &r)
-    :QVariant(r)
-{
-}
+    :QVariant(r){}
 
 Custom::GVariant::GVariant(const QSize &s)
-    :QVariant(s)
+    :QVariant(s){}
+
+QVariant Custom::GVariant::toVariant()
 {
+    return (QVariant)*this;
+}
+
+QString Custom::GVariant::ConvertToXmlQString(const QVariant &v)
+{
+    return GVariant(v).ToXmlQString();
+}
+
+Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
+{
+    GVariant ret;
+    ret.FromXmlQString(xml);
+    return ret;
 }
 
 
