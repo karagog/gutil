@@ -12,8 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gvariant.h"
+#include "qvarianthelpers.h"
 #include "Utils/qstringhelpers.h"
+#include "Core/exception.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QDate>
@@ -28,156 +29,92 @@ using namespace GUtil;
 
 #define XMLID "V"
 
-Custom::GVariant::GVariant()
-    :QVariant(){}
-
-Custom::GVariant::GVariant(const QVariant &o)
-    :QVariant(o){}
-
-Custom::GVariant::GVariant(Type t)
-    :QVariant(t){}
-
-Custom::GVariant::GVariant(const QString &s)
-    :QVariant(s){}
-
-Custom::GVariant::GVariant(const QByteArray &b)
-    :QVariant(b){}
-
-Custom::GVariant::GVariant(const QChar &c)
-    :QVariant(c){}
-
-Custom::GVariant::GVariant(int i)
-    :QVariant(i){}
-
-Custom::GVariant::GVariant(uint i)
-    :QVariant(i){}
-
-Custom::GVariant::GVariant(char *c)
-    :QVariant(c){}
-
-Custom::GVariant::GVariant(bool b)
-    :QVariant(b){}
-
-Custom::GVariant::GVariant(double d)
-    :QVariant(d){}
-
-Custom::GVariant::GVariant(float f)
-    :QVariant((double)f){}
-
-Custom::GVariant::GVariant(const QDate &d)
-    :QVariant(d){}
-
-Custom::GVariant::GVariant(const QTime &t)
-    :QVariant(t){}
-
-Custom::GVariant::GVariant(const QDateTime &d)
-    :QVariant(d){}
-
-Custom::GVariant::GVariant(const QBitArray &b)
-    :QVariant(b){}
-
-Custom::GVariant::GVariant(const QStringList &s)
-    :QVariant(s){}
-
-Custom::GVariant::GVariant(const QRegExp &r)
-    :QVariant(r){}
-
-Custom::GVariant::GVariant(const QUrl &u)
-    :QVariant(u){}
-
-Custom::GVariant::GVariant(const QList<QVariant> &l)
-    :QVariant(l){}
-
-Custom::GVariant::GVariant(const QVariantMap &v)
-    :QVariant(v){}
-
-Custom::GVariant::GVariant(const QRect &r)
-    :QVariant(r){}
-
-Custom::GVariant::GVariant(const QSize &s)
-    :QVariant(s){}
-
-QString Custom::GVariant::ConvertToXmlQString(const QVariant &v, bool h)
+QString DataObjects::QVariantHelpers::ConvertToXmlQString(const QVariant &v, bool h)
 {
-    return GVariant(v).ToXmlQString(h);
-}
+    QString ret;
+    QXmlStreamWriter sw(&ret);
+    sw.setAutoFormatting(h);
 
-Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
-{
-    GVariant ret;
-    ret.FromXmlQString(xml);
+    _write_xml(v, sw);
+
     return ret;
 }
 
+DataObjects::QVariant Custom::QVariantHelpers::ConvertFromXmlQString(const QString &xml)
+{
+    QXmlStreamReader sr(xml);
+    return _read_xml(sr);
+}
 
 
 
 
-void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
+
+void DataObjects::QVariantHelpers::_write_xml(const QVariant &v, QXmlStreamWriter &sw)
 {
     sw.writeStartElement(XMLID);
-    sw.writeAttribute("t", QVariant((int)type()).toString());
+    sw.writeAttribute("t", QVariant((int)v.type()).toString());
 
     QString tmps;
-    switch(type())
+    switch(v.type())
     {
     case String:
-        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toString()));
+        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(v.toString()));
         break;
     case ByteArray:
         sw.writeAttribute("d", Utils::QStringHelpers::toBase64(
                 QString::fromStdString(
-                        std::string(toByteArray().constData(),
-                                    toByteArray().length()))));
+                        std::string(v.toByteArray().constData(),
+                                    v.toByteArray().length()))));
         break;
     case Char:
-        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toChar()));
+        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(v.toChar()));
         break;
     case Int:
-        sw.writeAttribute("d", toString());
+        sw.writeAttribute("d", v.toString());
         break;
     case UInt:
-        sw.writeAttribute("d", toString());
+        sw.writeAttribute("d", v.toString());
         break;
     case Bool:
-        sw.writeAttribute("d", toBool() ? "1" : "0");
+        sw.writeAttribute("d", v.toBool() ? "1" : "0");
         break;
     case Double:
-        sw.writeAttribute("d", toString());
+        sw.writeAttribute("d", v.toString());
         break;
     case Date:
         sw.writeAttribute("d", QString("%1,%2,%3")
-                          .arg(toDate().year())
-                          .arg(toDate().month())
-                          .arg(toDate().day()));
+                          .arg(v.toDate().year())
+                          .arg(v.toDate().month())
+                          .arg(v.toDate().day()));
         break;
     case Time:
         sw.writeAttribute("d", QString("%1,%2,%3,%4")
-                          .arg(toTime().hour())
-                          .arg(toTime().minute())
-                          .arg(toTime().second())
-                          .arg(toTime().msec()));
+                          .arg(v.toTime().hour())
+                          .arg(v.toTime().minute())
+                          .arg(v.toTime().second())
+                          .arg(v.toTime().msec()));
         break;
     case DateTime:
         sw.writeAttribute("d", QString("%1,%2,%3;%4,%5,%6,%7;%8")
-                          .arg(toDateTime().date().year())
-                          .arg(toDateTime().date().month())
-                          .arg(toDateTime().date().day())
-                          .arg(toDateTime().time().hour())
-                          .arg(toDateTime().time().minute())
-                          .arg(toDateTime().time().second())
-                          .arg(toDateTime().time().msec())
-                          .arg((int)toDateTime().timeSpec()));
+                          .arg(v.toDateTime().date().year())
+                          .arg(v.toDateTime().date().month())
+                          .arg(v.toDateTime().date().day())
+                          .arg(v.toDateTime().time().hour())
+                          .arg(v.toDateTime().time().minute())
+                          .arg(v.toDateTime().time().second())
+                          .arg(v.toDateTime().time().msec())
+                          .arg((int)v.toDateTime().timeSpec()));
         break;
     case BitArray:
         tmps = "";
-        for(int i = toBitArray().size() - 1; i >= 0; i--)
-            tmps.append(toBitArray().at(i) ? "1" : "0");
+        for(int i = v.toBitArray().size() - 1; i >= 0; i--)
+            tmps.append(v.toBitArray().at(i) ? "1" : "0");
         sw.writeAttribute("d", tmps);
         break;
     case StringList:
-        sw.writeAttribute("s", QString("%1").arg(toStringList().length()));
-        foreach(QString z, toStringList())
+        sw.writeAttribute("s", QString("%1").arg(v.toStringList().length()));
+        foreach(QString z, v.toStringList())
         {
             sw.writeStartElement("i");
             sw.writeAttribute("d", Utils::QStringHelpers::toBase64(z));
@@ -185,18 +122,18 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         }
         break;
     case RegExp:
-        sw.writeAttribute("d", toRegExp().pattern());
+        sw.writeAttribute("d", v.toRegExp().pattern());
         sw.writeAttribute("e", QString("%1,%2")
-                          .arg((int)toRegExp().caseSensitivity())
-                          .arg((int)toRegExp().patternSyntax()));
+                          .arg((int)v.toRegExp().caseSensitivity())
+                          .arg((int)v.toRegExp().patternSyntax()));
         break;
     case Url:
-        sw.writeAttribute("d", toString());
+        sw.writeAttribute("d", v.toString());
         break;
     case List:
-        sw.writeAttribute("s", QString("%1").arg(toList().length()));
-        foreach(QVariant v, toList())
-            GVariant(v).WriteXml(sw);
+        sw.writeAttribute("s", QString("%1").arg(v.toList().length()));
+        foreach(QVariant u, v.toList())
+            Conv(u).WriteXml(sw);
         break;
     case Map:
         sw.writeAttribute("s", QString("%1").arg(toMap().keys().length()));
@@ -204,7 +141,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         {
             sw.writeStartElement("i");
             sw.writeAttribute("k", Utils::QStringHelpers::toBase64(z));
-            GVariant(toMap().value(z)).WriteXml(sw);
+            QVariantHelpers(toMap().value(z)).WriteXml(sw);
             sw.writeEndElement();
         }
         break;
@@ -227,9 +164,11 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     sw.writeEndElement();
 }
 
-void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
+QVariant DataObjects::QVariantHelpers::_read_xml(QXmlStreamReader &sr)
         throw(GUtil::Core::XmlException)
 {
+    QVariant ret;
+
     if(sr.readNextStartElement())
     {
         if(sr.name() != XMLID)
@@ -237,8 +176,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
 
         Type type = (Type)sr.attributes().at(0).value().toString().toInt();
 
-        clear();
-        convert(type);
+        ret.convert(type);
 
         QString d;
         if(sr.attributes().count() > 1)
@@ -255,36 +193,36 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         switch(type)
         {
         case String:
-            setValue(Utils::QStringHelpers::fromBase64(d));
+            ret.setValue(Utils::QStringHelpers::fromBase64(d));
             break;
         case ByteArray:
             tmps = Utils::QStringHelpers::fromBase64(d);
-            setValue(QByteArray(tmps.toStdString().c_str(), tmps.length()));
+            ret.setValue(QByteArray(tmps.toStdString().c_str(), tmps.length()));
             break;
         case Char:
-            setValue(Utils::QStringHelpers::fromBase64(d).at(0));
+            ret.setValue(Utils::QStringHelpers::fromBase64(d).at(0));
             break;
         case Int:
-            setValue(d.toInt());
+            ret.setValue(d.toInt());
             break;
         case UInt:
-            setValue(d.toUInt());
+            ret.setValue(d.toUInt());
             break;
         case Bool:
-            setValue(d == "1" ? true : false);
+            ret.setValue(d == "1" ? true : false);
             break;
         case Double:
-            setValue(d.toDouble());
+            ret.setValue(d.toDouble());
             break;
         case Date:
             sltemp1 = d.split(",");
-            setValue(QDate(sltemp1.at(0).toInt(),
+            ret.setValue(QDate(sltemp1.at(0).toInt(),
                            sltemp1.at(1).toInt(),
                            sltemp1.at(2).toInt()));
             break;
         case Time:
             sltemp1 = d.split(",");
-            setValue(QTime(sltemp1.at(0).toInt(),
+            ret.setValue(QTime(sltemp1.at(0).toInt(),
                            sltemp1.at(1).toInt(),
                            sltemp1.at(2).toInt(),
                            sltemp1.at(3).toInt()));
@@ -293,7 +231,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             sltemp1 = d.split(";");
             sltemp2 = sltemp1.at(0).split(",");
             sltemp3 = sltemp1.at(1).split(",");
-            setValue(QDateTime(QDate(sltemp2.at(0).toInt(),
+            ret.setValue(QDateTime(QDate(sltemp2.at(0).toInt(),
                                       sltemp2.at(1).toInt(),
                                       sltemp2.at(2).toInt()),
                                QTime(sltemp3.at(0).toInt(),
@@ -306,7 +244,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             baBitArray.resize(d.length());
             for(int i = 0; i < d.length(); i++)
                 baBitArray.setBit(d.length() - i - 1, d.at(i) == '1' ? true : false);
-            setValue(baBitArray);
+            ret.setValue(baBitArray);
             break;
         case StringList:
             tmpint = d.toInt();
@@ -319,11 +257,11 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                         sr.attributes().at(0).value().toString()));
                 while(sr.readNext() != QXmlStreamReader::EndElement);
             }
-            setValue(sltemp1);
+            ret.setValue(sltemp1);
             break;
         case RegExp:
             sltemp1 = sr.attributes().at(2).value().toString().split(",");
-            setValue(QRegExp(d, (Qt::CaseSensitivity)sltemp1.at(0).toInt(),
+            ret.setValue(QRegExp(d, (Qt::CaseSensitivity)sltemp1.at(0).toInt(),
                              (QRegExp::PatternSyntax)sltemp1.at(1).toInt()));
             break;
         case Url:
@@ -333,11 +271,11 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             tmpint = d.toInt();
             for(int i = 0; i < tmpint; i++)
             {
-                Custom::GVariant gv;
+                Custom::QVariantHelpers gv;
                 gv.ReadXml(sr);
                 vl.append(gv);
             }
-            setValue(vl);
+            ret.setValue(vl);
             break;
         case Map:
             tmpint = d.toInt();
@@ -348,21 +286,21 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
 
                 QString key = Utils::QStringHelpers::fromBase64(
                         sr.attributes().at(0).value().toString());
-                GVariant gv;
+                QVariantHelpers gv;
                 gv.ReadXml(sr);
                 vm.insert(key, gv);
 
                 while(sr.readNext() != QXmlStreamReader::EndElement);
             }
-            setValue(vm);
+            ret.setValue(vm);
             break;
         case Size:
             sltemp1 = d.split(",");
-            setValue(QSize(sltemp1.at(0).toInt(), sltemp1.at(1).toInt()));
+            ret.setValue(QSize(sltemp1.at(0).toInt(), sltemp1.at(1).toInt()));
             break;
         case Rect:
             sltemp1 = d.split(",");
-            setValue(QRect(sltemp1.at(0).toInt(),
+            ret.setValue(QRect(sltemp1.at(0).toInt(),
                            sltemp1.at(1).toInt(),
                            sltemp1.at(2).toInt(),
                            sltemp1.at(3).toInt()));

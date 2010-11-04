@@ -12,51 +12,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GVARIANT_H
-#define GVARIANT_H
+#ifndef QVARIANTHELPERS_H
+#define QVARIANTHELPERS_H
 
-#include "Interfaces/iqxmlserializable.h"
 #include <QVariant>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace GUtil
 {
-    namespace Custom
+    namespace DataObjects
     {
-        class GVariant :    public QVariant,
-                            public GUtil::Interfaces::IQXmlSerializable
+        class QVariantHelpers
         {
         public:
-            GVariant();
-            GVariant(const QVariant &);
-            GVariant(Type);
-            GVariant(const QString &);
-            GVariant(const QByteArray &);
-            GVariant(const QChar &);
-            GVariant(int);
-            GVariant(uint);
-            GVariant(char *);
-            GVariant(bool);
-            GVariant(double);
-            GVariant(float);
-            GVariant(const QDate &);
-            GVariant(const QTime &);
-            GVariant(const QDateTime &);
-            GVariant(const QBitArray &);
-            GVariant(const QRegExp &);
-            GVariant(const QUrl &);
-            GVariant(const QRect &);
-            GVariant(const QSize &);
-            GVariant(const QStringList &);
-            GVariant(const QVariantList &);
-            GVariant(const QVariantMap &);
-
-            void WriteXml(QXmlStreamWriter &) const;
-            void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
 
             static QString ConvertToXmlQString(const QVariant &, bool human_readable = false);
-            static GVariant ConvertFromXmlQString(const QString &);
+            static QVariant ConvertFromXmlQString(const QString &);
 
+        private:
+            static void _read_xml(QXmlStreamReader &);
+            static void _write_xml(const QVariant &, QXmlStreamWriter &);
         };
     }
 }
