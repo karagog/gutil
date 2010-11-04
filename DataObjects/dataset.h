@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "qvarianthelpers.h"
 #include "Interfaces/iqxmlserializable.h"
+#include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QAbstractItemModel>
 #include <QVariantList>
@@ -30,8 +31,9 @@ namespace GUtil
         class DataTable;
 
         class DataSet : public QAbstractItemModel,
-                        public GUtil::Interfaces::IQXmlSerializable,
-                        public GUtil::Core::Interfaces::IReadOnlyObject
+                        public Interfaces::IQXmlSerializable,
+                        public Core::Interfaces::IReadOnlyObject,
+                        public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
 

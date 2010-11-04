@@ -16,6 +16,7 @@ limitations under the License.*/
 #define DATATABLE_H
 
 #include "Interfaces/iqxmlserializable.h"
+#include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "dataset.h"
 #include <QVariantList>
@@ -29,7 +30,8 @@ namespace GUtil
         //   the values to xml or access them conveniently with string keys
         class DataTable :   public QAbstractTableModel,
                             public Interfaces::IQXmlSerializable,
-                            public Core::Interfaces::IReadOnlyObject
+                            public Core::Interfaces::IReadOnlyObject,
+                            public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
         public:
