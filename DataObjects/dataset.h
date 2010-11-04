@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ABSTRACTDATATUPLE_H
 #define ABSTRACTDATATUPLE_H
 
-#include "Custom/gvariant.h"
+#include "qvarianthelpers.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QAbstractItemModel>
@@ -38,7 +38,7 @@ namespace GUtil
             friend class DataTable;
 
         public:
-            DataSet();
+            DataSet(QObject *parent = 0);
             virtual ~DataSet();
 
             QPointer<DataTable> AddTable(int column_count = 0);
@@ -51,6 +51,8 @@ namespace GUtil
 
             void CommitChanges();
             void RejectChanges();
+
+            bool Dirty() const;
 
             // IQXmlSerializable
             void WriteXml(QXmlStreamWriter &) const;
@@ -66,19 +68,27 @@ namespace GUtil
             void set_row_values(int table_index, int row_index, const QVariantList &values);
             QVariantList get_row_values(int table_index, int row_index) const;
 
+            void set_table_values(int table_index, const QList<QVariantList> &values);
+            QList<QVariantList> get_table_values(int table_index) const;
+
+            QStringList get_column_keys(int table_index) const;
+
             // Derived classes can override this function to do special things when you commit data
             virtual void commit_reject_changes(bool commit);
 
         private:
+            QList< QList< QList< QVariant > > > data;
             QList< QList< QList< QVariant > > > _orig_data;
-            QList< QList< QList< QVariant > > > _new_data;
             QList< QPointer<DataTable> > _tables;
 
             // Column keys/labels for each corresponding table
             QList<QStringList> _keys;
             QList<QStringList> _labels;
 
+            QString _get_label(int table, int column) const;
+
             bool _auto_commit;
+            bool _dirty;
         };
     }
 }

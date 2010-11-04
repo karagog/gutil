@@ -5,10 +5,12 @@ CONFIG += staticlib
 
 HEADERS += \
     datatable.h \
-    dataset.h
+    dataset.h \
+    qvarianthelpers.h
 
 SOURCES += \
     datatable.cpp \
-    dataset.cpp
+    dataset.cpp \
+    qvarianthelpers.h
 
 INCLUDEPATH += ..

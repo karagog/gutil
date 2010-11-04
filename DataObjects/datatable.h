@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
-#include "Custom/gvariant.h"
+#include "dataset.h"
 #include <QVariantList>
 #include <QAbstractTableModel>
 
@@ -33,7 +33,7 @@ namespace GUtil
         {
             Q_OBJECT
         public:
-            DataTable(QObject *parent = 0);
+            DataTable(int table_index = -1, DataSet *ds = 0);
 
             QList<QByteArray> Values(const QString &key);
             QPair<QString, QByteArray> Value(int) const;
@@ -50,10 +50,12 @@ namespace GUtil
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
 
+            virtual void SetReadOnly(bool readonly);
+
 
             // Interface for QAbstractTableModel
             virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-            virtual int columnCount(const QModelIndex &parent) const;
+            virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
             virtual QVariant data(const QModelIndex &index, int role) const;
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -64,6 +66,10 @@ namespace GUtil
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
+        private:
+            DataSet *_dataset;
+
+            int _index;
         };
     }
 }
