@@ -7,7 +7,9 @@ INCLUDEPATH += ..
 
 HEADERS += \
     iqxmlserializable.h \
-    iqstringable.h
+    iqstringable.h \
+    iupdatable.h
 SOURCES += \
     iqxmlserializable.cpp \
-    iqstringable.cpp
+    iqstringable.cpp \
+    iupdatable.cpp
