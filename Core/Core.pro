@@ -13,7 +13,8 @@ SOURCES += \
     BusinessObjects/actionstack.cpp \
     Utils/cl_menu.cc \
     DataAccess/da_serialport.cc \
-    Interfaces/ireadonlyobject.cpp
+    Interfaces/ireadonlyobject.cpp \
+    Interfaces/iupdatable.cpp
 
 INCLUDEPATH += .. ../ThirdParty/CryptoPP
 
@@ -26,4 +27,5 @@ HEADERS += \
     DataAccess/da_serialport.h \
     Interfaces/ireadonlyobject.h \
     Interfaces/ixmlserializable.h \
-    Interfaces/istringable.h
+    Interfaces/istringable.h \
+    Interfaces/iupdatable.h

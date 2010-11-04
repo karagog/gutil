@@ -15,29 +15,30 @@ limitations under the License.*/
 #include "iupdatable.h"
 using namespace GUtil;
 
-Interfaces::IUpdatable::IUpdatable(bool dirty)
+Core::Interfaces::IUpdatable::IUpdatable(bool dirty)
 {
     _dirty = dirty;
 }
 
-Interfaces::IUpdatable::IUpdatable(const IUpdatable &o)
+Core::Interfaces::IUpdatable::IUpdatable(const IUpdatable &o)
 {
     *this = o;
 }
 
-Interfaces::IUpdatable::~IUpdatable(){}
+Core::Interfaces::IUpdatable::~IUpdatable(){}
 
-bool Interfaces::IUpdatable::IsDirty() const
+bool Core::Interfaces::IUpdatable::IsDirty() const
 {
     return _dirty;
 }
 
-void Interfaces::IUpdatable::SetDirty(bool d)
+void Core::Interfaces::IUpdatable::SetDirty(bool d)
 {
     _dirty = d;
 }
 
-Interfaces::IUpdatable &Interfaces::IUpdatable::operator =(const Interfaces::IUpdatable &o)
+Core::Interfaces::IUpdatable &Core::Interfaces::IUpdatable::operator =
+        (const Core::Interfaces::IUpdatable &o)
 {
     _dirty = o._dirty;
     return *this;
