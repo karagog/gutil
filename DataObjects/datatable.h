@@ -16,16 +16,19 @@ limitations under the License.*/
 #define DATATABLE_H
 
 #include "Interfaces/iqxmlserializable.h"
+#include "Interfaces/icollection.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
-#include "dataset.h"
-#include <QVariantList>
+#include <QStringList>
 #include <QAbstractTableModel>
 
 namespace GUtil
 {
     namespace DataObjects
     {
+        class DataSet;
+        class DataRow;
+
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
         class DataTable :   public QAbstractTableModel,
@@ -35,7 +38,7 @@ namespace GUtil
         {
             Q_OBJECT
         public:
-            DataTable(int table_index = -1, DataSet *ds = 0);
+            DataTable();
 
             QList<QByteArray> Values(const QString &key);
             QPair<QString, QByteArray> Value(int) const;
@@ -68,10 +71,32 @@ namespace GUtil
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
+        protected:
+            DataTable(DataSet *ds);
+
         private:
             DataSet *_dataset;
 
-            int _index;
+            QList<DataRow *> _data;
+
+            QStringList _keys;
+            QStringList _labels;
+
+        };
+
+
+        class DataTableCollection : public Interfaces::ICollection<DataTable *>
+        {
+            friend class DataSet;
+
+        protected:
+            DataTableCollection(DataSet *);
+
+            virtual void onAdd(const DataTable* &, int index);
+            virtual void onRemove(const DataTable* &);
+
+        private:
+            DataSet *_ds;
         };
     }
 }

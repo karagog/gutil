@@ -15,21 +15,20 @@ limitations under the License.*/
 #ifndef ABSTRACTDATATUPLE_H
 #define ABSTRACTDATATUPLE_H
 
+#include "datatable.h"
 #include "qvarianthelpers.h"
 #include "Interfaces/iqxmlserializable.h"
+#include "Interfaces/icollection.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QAbstractItemModel>
 #include <QVariantList>
-#include <QPointer>
 #include <QStringList>
 
 namespace GUtil
 {
     namespace DataObjects
     {
-        class DataTable;
-
         class DataSet : public QAbstractItemModel,
                         public Interfaces::IQXmlSerializable,
                         public Core::Interfaces::IReadOnlyObject,
@@ -43,9 +42,7 @@ namespace GUtil
             DataSet(QObject *parent = 0);
             virtual ~DataSet();
 
-            QPointer<DataTable> AddTable(int column_count = 0);
-            QPointer<DataTable> AddTable(const QStringList &col_keys,
-                                         const QStringList &col_labels = QStringList());
+            DataTableCollection &Tables();
 
             // Should we commit changes right away, or wait 'til someone calls 'CommitChanges'?
             void SetAutoCommitChanges(bool);
@@ -79,15 +76,8 @@ namespace GUtil
             virtual void commit_reject_changes(bool commit);
 
         private:
-            QList< QList< QList< QVariant > > > data;
-            QList< QList< QList< QVariant > > > _orig_data;
-            QList< QPointer<DataTable> > _tables;
 
-            // Column keys/labels for each corresponding table
-            QList<QStringList> _keys;
-            QList<QStringList> _labels;
-
-            QString _get_label(int table, int column) const;
+            DataTableCollection *_tables;
 
             bool _auto_commit;
             bool _dirty;

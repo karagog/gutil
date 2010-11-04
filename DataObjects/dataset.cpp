@@ -12,7 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 #include "dataset.h"
-#include "datatable.h"
 #include <QCoreApplication>
 #include <QVariantList>
 using namespace GUtil;
@@ -22,9 +21,19 @@ DataObjects::DataSet::DataSet(QObject *parent)
 {
     _auto_commit = false;
     _dirty = false;
+
+    _tables = new DataTableCollection(this);
 }
 
-DataObjects::DataSet::~DataSet(){}
+DataObjects::DataSet::~DataSet()
+{
+    delete _tables;
+}
+
+DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
+{
+    return *_tables;
+}
 
 void DataObjects::DataSet::set_value(int table_index,
                                      int row_index,
@@ -59,40 +68,9 @@ QList<QVariantList> DataObjects::DataSet::get_table_values(int table_index) cons
     return data[table_index];
 }
 
-
-
-QPointer<DataObjects::DataTable> DataObjects::DataSet::AddTable(int column_count)
-{
-    QStringList keys;
-    for(int i = 0; i < column_count; i++)
-        keys<<QString("%1").arg(i);
-
-    return AddTable(keys);
-}
-
-QPointer<DataObjects::DataTable> DataObjects::DataSet::AddTable(const QStringList &col_keys,
-                                                   const QStringList &col_labels)
-{
-    QPointer<DataTable> ret = new DataTable(_tables.count(), this);
-
-    _tables.append(ret);
-    _keys.append(col_keys);
-    _labels.append(col_labels);
-
-    return ret;
-}
-
 QStringList DataObjects::DataSet::get_column_keys(int index) const
 {
-    return _keys.at(index);
-}
-
-QString DataObjects::DataSet::_get_label(int table, int column) const
-{
-    QString ret;
-    if(column < _labels.at(table).length())
-        ret = _labels.at(table).at(column);
-    return ret;
+    //return _keys.at(index);
 }
 
 
@@ -122,11 +100,11 @@ void DataObjects::DataSet::commit_reject_changes(bool commit)
 {
     if(commit)
     {
-        _orig_data = data;
+        //_orig_data = data;
     }
     else
     {
-        data = _orig_data;
+        //data = _orig_data;
     }
 }
 
