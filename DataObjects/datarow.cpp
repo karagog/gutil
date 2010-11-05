@@ -35,6 +35,8 @@ DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRo
     ClearValues();
     for(int i = 0; i < o.Size(); i++)
         SetValue(i, o.Value(i));
+
+    return *this;
 }
 
 DataObjects::DataTable &DataObjects::DataRow::Table()

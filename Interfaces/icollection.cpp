@@ -20,6 +20,12 @@ template <typename T> Interfaces::ICollection<T>::ICollection(int size)
     Resize(size);
 }
 
+template <typename T> Interfaces::ICollection<T>::ICollection(
+        const Interfaces::ICollection<T> &o)
+{
+    *this = o;
+}
+
 template <typename T> Interfaces::ICollection<T>::~ICollection(){}
 
 template <typename T> void Interfaces::ICollection<T>::Add(const T &value)
@@ -70,6 +76,19 @@ template <typename T> T &Interfaces::ICollection<T>::operator [](int index)
     FailIfReadOnly();
 
     return _collection[index];
+}
+
+template <typename T> Interfaces::ICollection<T> &
+        Interfaces::ICollection<T>::operator =(const Interfaces::ICollection<T> &o)
+{
+    FailIfReadOnly();
+
+    ClearValues();
+
+    foreach(T item, o._collection)
+        _collection.append(item);
+
+    return *this;
 }
 
 template <typename T> int Interfaces::ICollection<T>::Count() const

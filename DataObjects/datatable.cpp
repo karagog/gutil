@@ -28,6 +28,14 @@ DataObjects::DataTable::DataTable(int num_cols)
     _init(0, num_cols);
 }
 
+DataObjects::DataTable::DataTable(const DataTable &o)
+    :QAbstractTableModel(qApp)
+{
+    _init(0, 0);
+
+    *this = o;
+}
+
 DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent, int num_cols)
     :QAbstractTableModel(ds_parent)
 {
@@ -46,6 +54,18 @@ void DataObjects::DataTable::_init(DataSet *ds, int num_cols)
     for(int i = 0; i < num_cols; i++)
         sl.append(QString("%1").arg(i));
     SetColumnHeaders(sl);
+}
+
+DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
+{
+    this->dataset = o.dataset;
+
+    _keys = o._keys;
+    _labels = o._labels;
+
+    *_rows = *o._rows;
+
+    return *this;
 }
 
 DataObjects::DataRowCollection &DataObjects::DataTable::Rows()

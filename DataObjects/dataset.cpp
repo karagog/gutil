@@ -35,11 +35,10 @@ DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
     return *_tables;
 }
 
-DataObjects::DataTable *DataObjects::DataSet::AddTable(int num_col)
+DataObjects::DataTable &DataObjects::DataSet::AddTable(int num_cols)
 {
-    DataObjects::DataTable *dt = new DataObjects::DataTable();
-    Tables().Add(dt);
-    return dt;
+    Tables().Add(DataObjects::DataTable(num_cols));
+    return Tables()[Tables().Count() - 1];
 }
 
 

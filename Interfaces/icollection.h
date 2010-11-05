@@ -26,6 +26,8 @@ namespace GUtil
         {
         public:
             ICollection(int size = 0);
+            ICollection(const ICollection<T> &);
+            virtual ~ICollection();
 
             void Add(const T &value);
             void Insert(int index, const T &value);
@@ -34,6 +36,7 @@ namespace GUtil
             T Value(int index) const;
 
             T &operator [](int index);
+            ICollection<T> &operator =(const ICollection<T> &);
 
             void Remove(int index);
             void ClearValues();
@@ -42,8 +45,6 @@ namespace GUtil
             int Size() const;
             void Resize(int);
 
-            virtual ~ICollection();
-
         protected:
 
             // the void * points to the object added (type T)
@@ -51,8 +52,6 @@ namespace GUtil
 
         private:
             QList<T> _collection;
-
-            Q_DISABLE_COPY(ICollection)
         };
     }
 }

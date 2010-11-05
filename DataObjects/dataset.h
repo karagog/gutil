@@ -44,7 +44,7 @@ namespace GUtil
 
             DataTableCollection &Tables();
 
-            DataTable *AddTable(int num_col = 0);
+            DataTable &AddTable(int num_cols = 0);
 
             // Should we commit changes right away, or wait 'til someone calls 'CommitChanges'?
             void SetAutoCommitChanges(bool);

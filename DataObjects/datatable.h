@@ -43,6 +43,7 @@ namespace GUtil
 
         public:
             DataTable(int num_cols = 0);
+            DataTable(const DataTable &);
             virtual ~DataTable();
 
             DataRowCollection &Rows();
@@ -56,6 +57,8 @@ namespace GUtil
             void ClearColumns();
 
             int ColumnCount() const;
+
+            DataTable &operator =(const DataTable &);
 
             // Interface for IQXmlSerializable
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -92,12 +95,10 @@ namespace GUtil
 
             void _init(DataSet *, int);
 
-            Q_DISABLE_COPY(DataTable)
-
         };
 
 
-        class DataTableCollection : public Interfaces::ICollection<DataTable *>
+        class DataTableCollection : public Interfaces::ICollection<DataTable>
         {
             friend class DataSet;
 
