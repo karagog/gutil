@@ -15,28 +15,44 @@ limitations under the License.*/
 #ifndef ICOLLECTION_H
 #define ICOLLECTION_H
 
+#include "Core/Interfaces/ireadonlyobject.h"
 #include <QList>
 
 namespace GUtil
 {
     namespace Interfaces
     {
-        template <typename T> class ICollection
+        template <typename T> class ICollection : public Core::Interfaces::IReadOnlyObject
         {
         public:
+            ICollection(int size = 0);
 
             void Add(const T &value);
-            void Insert(const T &value, int index);
+            void Insert(int index, const T &value);
+
+            void SetValue(int index, const T &);
+            T Value(int index) const;
+
+            T &operator [](int index);
+
             void Remove(int index);
+            void ClearValues();
+
+            int Count() const;
+            int Size() const;
+            void Resize(int);
 
             virtual ~ICollection();
 
         protected:
-            virtual void onAdd(const T &, int index);
-            virtual void onRemove(const T &);
+
+            // the void * points to the object added (type T)
+            virtual void onAdd(void *, int index);
 
         private:
-            QList<T> _collection;
+            QList<T *> _collection;
+
+            Q_DISABLE_COPY(ICollection)
         };
     }
 }

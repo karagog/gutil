@@ -44,6 +44,8 @@ namespace GUtil
 
             DataTableCollection &Tables();
 
+            DataTable *AddTable(int num_col = 0);
+
             // Should we commit changes right away, or wait 'til someone calls 'CommitChanges'?
             void SetAutoCommitChanges(bool);
             bool AutoCommitChanges() const;
@@ -60,18 +62,6 @@ namespace GUtil
 
         protected:
 
-            // Friend classes can use these functions to access the backend datastore
-            void set_value(int table_index, int row_index, int col_index, const QVariant &value);
-            QVariant get_value(int table_index, int row_index, int col_index) const;
-
-            void set_row_values(int table_index, int row_index, const QVariantList &values);
-            QVariantList get_row_values(int table_index, int row_index) const;
-
-            void set_table_values(int table_index, const QList<QVariantList> &values);
-            QList<QVariantList> get_table_values(int table_index) const;
-
-            QStringList get_column_keys(int table_index) const;
-
             // Derived classes can override this function to do special things when you commit data
             virtual void commit_reject_changes(bool commit);
 
@@ -81,6 +71,8 @@ namespace GUtil
 
             bool _auto_commit;
             bool _dirty;
+
+            Q_DISABLE_COPY(DataSet)
         };
     }
 }

@@ -15,26 +15,89 @@ limitations under the License.*/
 #include "icollection.h"
 using namespace GUtil;
 
+template <typename T> Interfaces::ICollection<T>::ICollection(int size)
+{
+    Resize(size);
+}
+
 template <typename T> Interfaces::ICollection<T>::~ICollection(){}
 
 template <typename T> void Interfaces::ICollection<T>::Add(const T &value)
 {
+    FailIfReadOnly();
+
     int index = _collection.size();
     Insert(value, index);
 }
 
-template <typename T> void Interfaces::ICollection<T>::Insert(const T &value, int index)
+template <typename T> void Interfaces::ICollection<T>::Insert(int index, const T &value)
 {
-    _collection.insert(index, value);
+    FailIfReadOnly();
 
-    onAdd(value, index);
+    _collection.insert(index, 0);
+    SetValue(index, value);
+
+    onAdd((void *)&value, index);
+}
+
+template <typename T> T Interfaces::ICollection<T>::Value(int index) const
+{
+    return *_collection.at(index);
+}
+
+template <typename T> void Interfaces::ICollection<T>::SetValue(int index, const T &value)
+{
+    FailIfReadOnly();
+
+    _collection[index] = new T(value);
 }
 
 template <typename T> void Interfaces::ICollection<T>::Remove(int index)
 {
+    FailIfReadOnly();
+
+    delete _collection.at(index);
+
     _collection.removeAt(index);
 }
 
-template <typename T> void Interfaces::ICollection<T>::onAdd(const T &, int index){}
+template <typename T> void Interfaces::ICollection<T>::ClearValues()
+{
+    while(Count() > 0)
+        Remove(0);
+}
 
-template <typename T> void Interfaces::ICollection<T>::onRemove(const T &){}
+template <typename T> T &Interfaces::ICollection<T>::operator [](int index)
+{
+    FailIfReadOnly();
+
+    return *_collection[index];
+}
+
+template <typename T> int Interfaces::ICollection<T>::Count() const
+{
+    return Size();
+}
+
+template <typename T> int Interfaces::ICollection<T>::Size() const
+{
+   return _collection.length();
+}
+
+template <typename T> void Interfaces::ICollection<T>::Resize(int len)
+{
+    FailIfReadOnly();
+
+    if(len > _collection.count())
+    {
+        while(_collection.count() < len)
+            _collection.append(T());
+    }
+    else if(len < _collection.count())
+    {
+        while(_collection.count() > len)
+            _collection.removeLast();
+    }
+}
+
+template <typename T> void Interfaces::ICollection<T>::onAdd(void *, int){}

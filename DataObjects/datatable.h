@@ -15,10 +15,12 @@ limitations under the License.*/
 #ifndef DATATABLE_H
 #define DATATABLE_H
 
+#include "datarow.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Interfaces/icollection.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
+#include <QVariantList>
 #include <QStringList>
 #include <QAbstractTableModel>
 
@@ -27,7 +29,6 @@ namespace GUtil
     namespace DataObjects
     {
         class DataSet;
-        class DataRow;
 
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
@@ -37,18 +38,24 @@ namespace GUtil
                             public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
+
+            friend class DataTableCollection;
+
         public:
-            DataTable();
+            DataTable(int num_cols = 0);
+            virtual ~DataTable();
 
-            QList<QByteArray> Values(const QString &key);
-            QPair<QString, QByteArray> Value(int) const;
+            DataRowCollection &Rows();
 
-            virtual void SetValue(int, const QString &key, const QByteArray &value);
+            DataRow &AddRow(const QVariantList &values = QVariantList());
 
-            void InsertValue(int, const QString &key, const QByteArray &value);
-            QPair<QString, QByteArray> RemoveValue(int);
-            virtual void SwapIndexes(int one, int two);
+            void AddColumn(const QString &key, const QString &label = QString::null);
+            void SetColumnHeaders(const QStringList &keys, const QStringList &labels = QStringList());
+            void SetColumnLabel(int col_index, const QString &);
+            void SetColumnKey(int col_index, const QString &);
+            void ClearColumns();
 
+            int ColumnCount() const;
 
             // Interface for IQXmlSerializable
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -72,15 +79,20 @@ namespace GUtil
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
         protected:
-            DataTable(DataSet *ds);
+            DataTable(DataSet *ds, int num_cols = 0);
+
+            DataSet *dataset;
 
         private:
-            DataSet *_dataset;
 
-            QList<DataRow *> _data;
+            DataRowCollection *_rows;
 
             QStringList _keys;
             QStringList _labels;
+
+            void _init(DataSet *, int);
+
+            Q_DISABLE_COPY(DataTable)
 
         };
 
@@ -92,8 +104,7 @@ namespace GUtil
         protected:
             DataTableCollection(DataSet *);
 
-            virtual void onAdd(const DataTable* &, int index);
-            virtual void onRemove(const DataTable* &);
+            virtual void onAdd(void *, int index);
 
         private:
             DataSet *_ds;

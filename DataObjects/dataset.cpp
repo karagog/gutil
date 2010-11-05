@@ -35,56 +35,17 @@ DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
     return *_tables;
 }
 
-void DataObjects::DataSet::set_value(int table_index,
-                                     int row_index,
-                                     int col_index,
-                                     const QVariant &value)
+DataObjects::DataTable *DataObjects::DataSet::AddTable(int num_col)
 {
-    data[table_index][row_index][col_index] = value;
-}
-
-QVariant DataObjects::DataSet::get_value(int table_index, int row_index, int col_index) const
-{
-    return data.at(table_index).at(row_index).at(col_index);
-}
-
-void DataObjects::DataSet::set_row_values(int table_index, int row_index, const QVariantList &values)
-{
-    data[table_index][row_index] = values;
-}
-
-QVariantList DataObjects::DataSet::get_row_values(int table_index, int row_index) const
-{
-    return data.at(table_index).at(row_index);
-}
-
-void DataObjects::DataSet::set_table_values(int table_index, const QList<QVariantList> &values)
-{
-    data[table_index] = values;
-}
-
-QList<QVariantList> DataObjects::DataSet::get_table_values(int table_index) const
-{
-    return data[table_index];
-}
-
-QStringList DataObjects::DataSet::get_column_keys(int index) const
-{
-    //return _keys.at(index);
+    DataObjects::DataTable *dt = new DataObjects::DataTable();
+    Tables().Add(dt);
+    return dt;
 }
 
 
 
 
 
-
-
-
-
-bool DataObjects::DataSet::Dirty() const
-{
-    return _dirty;
-}
 
 void DataObjects::DataSet::CommitChanges()
 {
