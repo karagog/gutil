@@ -131,6 +131,17 @@ namespace GUtil
         protected:
             virtual std::string ToString_protected() const;
         };
+
+
+
+        class NullReferenceException : public Exception
+        {
+        public:
+            NullReferenceException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
     }
 }
 

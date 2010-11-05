@@ -166,3 +166,16 @@ std::string Core::LockException::ToString_protected() const
 {
     return "Locking";
 }
+
+
+
+Core::NullReferenceException::NullReferenceException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::NullReferenceException::ToString_protected() const
+{
+    return "NullReference";
+}
