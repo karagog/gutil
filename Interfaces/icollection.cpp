@@ -49,14 +49,12 @@ template <typename T> void Interfaces::ICollection<T>::SetValue(int index, const
 {
     FailIfReadOnly();
 
-    _collection[index] = new T(value);
+    _collection[index] = value;
 }
 
 template <typename T> void Interfaces::ICollection<T>::Remove(int index)
 {
     FailIfReadOnly();
-
-    delete _collection.at(index);
 
     _collection.removeAt(index);
 }
@@ -71,7 +69,7 @@ template <typename T> T &Interfaces::ICollection<T>::operator [](int index)
 {
     FailIfReadOnly();
 
-    return *_collection[index];
+    return _collection[index];
 }
 
 template <typename T> int Interfaces::ICollection<T>::Count() const

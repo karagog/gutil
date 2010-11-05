@@ -50,7 +50,7 @@ namespace GUtil
             virtual void onAdd(void *, int index);
 
         private:
-            QList<T *> _collection;
+            QList<T> _collection;
 
             Q_DISABLE_COPY(ICollection)
         };
