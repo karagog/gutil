@@ -22,11 +22,17 @@ DataSetTest::DataSetTest()
 void DataSetTest::testCase1()
 {
     DataTable dt(3);
-    dt.AddRow();
+    DataRow &dr = dt.AddRow();
 
-    dt.Rows()[0][0] = "HI";
-    dt.Rows()[0][1] = "2";
-    dt.Rows()[0][2] = "3";
+    qDebug(QString("%1").arg(dr.ColumnCount()).toStdString().c_str());
+
+    dt.Rows()[0]->At(0) = "HI";
+    dt.Rows()[0]->At(1) = "2";
+    dt.Rows()[0]->At(2) = "3";
+
+    qDebug(dt.Rows()[0]->Value(0).toString().toStdString().c_str());
+    qDebug(dt.Rows()[0]->Value(1).toString().toStdString().c_str());
+    qDebug(dt.Rows()[0]->Value(2).toString().toStdString().c_str());
 }
 
 void DataSetTest::testCase1_data()

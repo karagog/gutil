@@ -75,12 +75,17 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
 
 DataObjects::DataRow &DataObjects::DataTable::AddRow(const QVariantList &values)
 {
-    DataObjects::DataRow dr(this, ColumnCount());
+    DataObjects::DataRow *dr = new DataObjects::DataRow(this);
     for(int i = 0; i < values.length(); i++)
-        dr.SetValue(i, values.at(i));
+        dr->SetValue(i, values.at(i));
 
     _rows->Add(dr);
-    return (*_rows)[_rows->Count() - 1];
+    return *_rows->Value(_rows->Count() - 1);
+}
+
+void DataObjects::DataTable::RemoveRow(int row_index)
+{
+    _rows->Remove(row_index);
 }
 
 void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
@@ -157,6 +162,29 @@ bool DataObjects::DataTable::setData(const QModelIndex &index, const QVariant &v
 {
     if(IsReadOnly())
         return false;
+}
+
+bool DataObjects::DataTable::insertRows(int row, int count, const QModelIndex &parent)
+{
+
+}
+
+bool DataObjects::DataTable::removeRows(int row, int count, const QModelIndex &parent)
+{
+
+}
+
+QVariant DataObjects::DataTable::headerData(
+        int section,
+        Qt::Orientation orientation,
+        int role) const
+{
+
+}
+
+Qt::ItemFlags DataObjects::DataTable::flags(const QModelIndex &index) const
+{
+
 }
 
 

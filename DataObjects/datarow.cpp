@@ -13,27 +13,42 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datarow.h"
+#include "datatable.h"
 using namespace GUtil;
 
-DataObjects::DataRow::DataRow(DataObjects::DataTable *dt, int len)
-    :Interfaces::ICollection<QVariant>(len)
+DataObjects::DataRow::DataRow()
 {
-    table = dt;
+    _init_data_row(0);
 }
 
-DataObjects::DataRow::~DataRow(){}
+DataObjects::DataRow::DataRow(DataObjects::DataTable *dt)
+{
+    _init_data_row(dt);
+}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
 {
     *this = o;
 }
 
+DataObjects::DataRow::~DataRow(){}
+
+void DataObjects::DataRow::_init_data_row(DataTable *dt)
+{
+    table = dt;
+
+    if(table != 0)
+        Resize(table->columnCount());
+}
+
 DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRow &o)
 {
+    table->removeRow(row_index);
     table = o.table;
 
     ClearValues();
-    for(int i = 0; i < o.Size(); i++)
+
+    for(int i = 0; i < o.ColumnCount(); i++)
         SetValue(i, o.Value(i));
 
     return *this;
@@ -44,9 +59,19 @@ DataObjects::DataTable &DataObjects::DataRow::Table()
     return *table;
 }
 
+QVariant &DataObjects::DataRow::At(int index)
+{
+    return (*this)[index];
+}
+
 int DataObjects::DataRow::Index() const
 {
     return row_index;
+}
+
+int DataObjects::DataRow::ColumnCount() const
+{
+    return table->ColumnCount();
 }
 
 void DataObjects::DataRow::WriteXml(QXmlStreamWriter &) const
@@ -73,7 +98,10 @@ DataObjects::DataRowCollection::~DataRowCollection(){}
 
 void DataObjects::DataRowCollection::onAdd(void *v, int index)
 {
-    DataRow *dr = (DataRow *)v;
+    DataRow *dr = *((DataRow **)v);
+    if(dr == 0)
+        dr = new DataObjects::DataRow(_table);
+
     dr->table = _table;
     dr->row_index = index;
 }

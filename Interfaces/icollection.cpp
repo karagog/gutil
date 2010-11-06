@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "icollection.h"
+//#include "icollection.h"
 using namespace GUtil;
 
 template <typename T> Interfaces::ICollection<T>::ICollection(int size)
@@ -33,22 +33,22 @@ template <typename T> void Interfaces::ICollection<T>::Add(const T &value)
     FailIfReadOnly();
 
     int index = _collection.size();
-    Insert(value, index);
+    _collection.append(value);
+    onAdd((void *)&_collection[index], index);
 }
 
 template <typename T> void Interfaces::ICollection<T>::Insert(int index, const T &value)
 {
     FailIfReadOnly();
 
-    _collection.insert(index, 0);
-    SetValue(index, value);
+    _collection.insert(index, value);
 
-    onAdd((void *)&value, index);
+    onAdd((void *)&_collection[index], index);
 }
 
 template <typename T> T Interfaces::ICollection<T>::Value(int index) const
 {
-    return *_collection.at(index);
+    return _collection.at(index);
 }
 
 template <typename T> void Interfaces::ICollection<T>::SetValue(int index, const T &value)

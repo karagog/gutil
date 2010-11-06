@@ -26,7 +26,7 @@ namespace GUtil
         {
         public:
             ICollection(int size = 0);
-            ICollection(const ICollection<T> &);
+            ICollection(const ICollection<T> &o);
             virtual ~ICollection();
 
             void Add(const T &value);
@@ -55,5 +55,7 @@ namespace GUtil
         };
     }
 }
+
+#include "icollection.cpp"
 
 #endif // ICOLLECTION_H

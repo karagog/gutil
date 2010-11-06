@@ -11,5 +11,4 @@ HEADERS += \
     icollection.h
 SOURCES += \
     iqxmlserializable.cpp \
-    iqstringable.cpp \
-    icollection.cpp
+    iqstringable.cpp

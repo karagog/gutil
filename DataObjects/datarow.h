@@ -32,13 +32,17 @@ namespace GUtil
             friend class DataRowCollection;
 
         public:
+            DataRow();
             DataRow(const DataRow &);
 
             DataRow &operator =(const DataRow &);
 
             DataTable &Table();
 
+            QVariant &At(int index);
+
             int Index() const;
+            int ColumnCount() const;
 
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
@@ -47,16 +51,21 @@ namespace GUtil
             virtual ~DataRow();
 
         protected:
-            DataRow(DataTable *dt = 0, int len = 0);
+            DataRow(DataTable *dt);
 
             DataTable *table;
             int row_index;
+
+        private:
+            void _init_data_row(DataTable *);
 
         };
 
 
 
-        class DataRowCollection : public Interfaces::ICollection<DataRow>
+
+
+        class DataRowCollection : public Interfaces::ICollection<DataRow *>
         {
             friend class DataTable;
 
