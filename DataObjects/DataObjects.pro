@@ -13,7 +13,7 @@ HEADERS += \
 SOURCES += \
     datatable.cpp \
     dataset.cpp \
-    qvarianthelpers.h \
+    qvarianthelpers.cpp \
     datarow.cpp \
     datatuple.cpp
 

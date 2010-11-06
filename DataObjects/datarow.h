@@ -41,7 +41,10 @@ namespace GUtil
             DataRow(const DataRow &);
             DataRow &operator =(const DataRow &);
 
+            DataRow Clone() const;
+
             QVariant &operator [](int index);
+            QVariant &operator [](const QString &column_header);
 
             DataTable &Table();
 
@@ -56,6 +59,8 @@ namespace GUtil
 
         protected:
             DataRow(DataTable *dt);
+
+            void set_number_of_columns(int);
 
             DataTable *table;
             int row_index;

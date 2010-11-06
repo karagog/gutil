@@ -73,14 +73,22 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
     return *_rows;
 }
 
-DataObjects::DataRow &DataObjects::DataTable::AddRow(const QVariantList &values)
+DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
+{
+    _rows->Add(r);
+    DataObjects::DataRow &mr = (*_rows)[_rows->Count() - 1];
+
+    mr.set_number_of_columns(ColumnCount());
+    return mr;
+}
+
+DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &values)
 {
     DataObjects::DataRow dr(this);
     for(int i = 0; i < values.length(); i++)
         dr[i] = values.at(i);
 
-    _rows->Add(dr);
-    return (*_rows)[_rows->Count() - 1];
+    return dr;
 }
 
 void DataObjects::DataTable::RemoveRow(int row_index)
@@ -132,6 +140,19 @@ void DataObjects::DataTable::ClearColumns()
 int DataObjects::DataTable::ColumnCount() const
 {
     return _keys.count();
+}
+
+int DataObjects::DataTable::GetColumnIndex(const QString &key) const
+{
+    int ret = -1;
+    for(int i = 0; i < ColumnCount(); i++)
+        if(_keys[i] == key)
+        {
+            ret = i;
+            break;
+        }
+
+    return ret;
 }
 
 

@@ -60,6 +60,15 @@ DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRo
     return *this;
 }
 
+DataObjects::DataRow DataObjects::DataRow::Clone() const
+{
+    DataObjects::DataRow ret(table);
+
+    *ret._tuple = *_tuple;
+
+    return ret;
+}
+
 void DataObjects::DataRow::_detach_tuple()
 {
     _tuple_semaphore->Down();
@@ -93,7 +102,21 @@ void DataObjects::DataRow::_attach_tuple(DataTuple *t, Custom::GSemaphore *sem_o
 
 QVariant &DataObjects::DataRow::operator [](int index)
 {
+    if(index < 0 || index >= _tuple->Count())
+        throw Core::IndexOutOfRangeException(
+                QString("Tried to index %1 of %2")
+                .arg(index).arg(_tuple->Count()).toStdString());
+
     return (*_tuple)[index];
+}
+
+QVariant &DataObjects::DataRow::operator [](const QString &column_header)
+{
+    int index = Table().GetColumnIndex(column_header);
+    if(index == -1)
+        throw Core::IndexOutOfRangeException(
+                QString("Column not found: '%1'").arg(column_header).toStdString());
+    return (*this)[index];
 }
 
 DataObjects::DataTable &DataObjects::DataRow::Table()
@@ -111,15 +134,20 @@ int DataObjects::DataRow::ColumnCount() const
     return table->ColumnCount();
 }
 
-void DataObjects::DataRow::WriteXml(QXmlStreamWriter &) const
+void DataObjects::DataRow::set_number_of_columns(int cols)
 {
-
+    _tuple->Resize(cols);
 }
 
-void DataObjects::DataRow::ReadXml(QXmlStreamReader &)
+void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
+{
+    _tuple->WriteXml(sw);
+}
+
+void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
-
+    _tuple->ReadXml(sr);
 }
 
 

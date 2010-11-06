@@ -28,22 +28,27 @@ template <typename T> Interfaces::ICollection<T>::ICollection(
 
 template <typename T> Interfaces::ICollection<T>::~ICollection(){}
 
-template <typename T> void Interfaces::ICollection<T>::Add(const T &value)
+template <typename T> T &Interfaces::ICollection<T>::Add(const T &value)
 {
     FailIfReadOnly();
 
     int index = _collection.size();
     _collection.append(value);
+
     onAdd((void *)&_collection[index], index);
+
+    return _collection[index];
 }
 
-template <typename T> void Interfaces::ICollection<T>::Insert(int index, const T &value)
+template <typename T> T &Interfaces::ICollection<T>::Insert(int index, const T &value)
 {
     FailIfReadOnly();
 
     _collection.insert(index, value);
 
     onAdd((void *)&_collection[index], index);
+
+    return _collection[index];
 }
 
 template <typename T> T Interfaces::ICollection<T>::Value(int index) const
@@ -51,11 +56,13 @@ template <typename T> T Interfaces::ICollection<T>::Value(int index) const
     return _collection.at(index);
 }
 
-template <typename T> void Interfaces::ICollection<T>::SetValue(int index, const T &value)
+template <typename T> T &Interfaces::ICollection<T>::SetValue(int index, const T &value)
 {
     FailIfReadOnly();
 
     _collection[index] = value;
+
+    return _collection[index];
 }
 
 template <typename T> void Interfaces::ICollection<T>::Remove(int index)

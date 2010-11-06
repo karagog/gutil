@@ -29,10 +29,10 @@ namespace GUtil
             ICollection(const ICollection<T> &o);
             virtual ~ICollection();
 
-            void Add(const T &value);
-            void Insert(int index, const T &value);
+            T &Add(const T &value);
+            T &Insert(int index, const T &value);
 
-            void SetValue(int index, const T &);
+            T &SetValue(int index, const T &);
             T Value(int index) const;
 
             T &operator [](int index);

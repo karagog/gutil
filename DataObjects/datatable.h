@@ -48,7 +48,8 @@ namespace GUtil
 
             DataRowCollection &Rows();
 
-            DataRow &AddRow(const QVariantList &values = QVariantList());
+            DataRow AddRow(const DataRow &);
+            DataRow CreateRow(const QVariantList &values = QVariantList());
             void RemoveRow(int row_index);
 
             void AddColumn(const QString &key, const QString &label = QString::null);
@@ -58,6 +59,8 @@ namespace GUtil
             void ClearColumns();
 
             int ColumnCount() const;
+
+            int GetColumnIndex(const QString &key) const;
 
             DataTable &operator =(const DataTable &);
 

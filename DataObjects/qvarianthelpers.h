@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef QVARIANTHELPERS_H
 #define QVARIANTHELPERS_H
 
+#include "Core/exception.h"
 #include <QVariant>
 
 class QXmlStreamReader;
@@ -31,9 +32,9 @@ namespace GUtil
             static QString ConvertToXmlQString(const QVariant &, bool human_readable = false);
             static QVariant ConvertFromXmlQString(const QString &);
 
-        private:
-            static void _read_xml(QXmlStreamReader &);
-            static void _write_xml(const QVariant &, QXmlStreamWriter &);
+            static void WriteXml(const QVariant &, QXmlStreamWriter &);
+            static QVariant ReadXml(QXmlStreamReader &)
+                    throw(Core::XmlException);
         };
     }
 }

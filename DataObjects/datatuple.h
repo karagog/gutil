@@ -16,18 +16,25 @@ limitations under the License.*/
 #define DATATUPLE_H
 
 #include "Interfaces/icollection.h"
+#include "Interfaces/iqxmlserializable.h"
 #include <QVariant>
 
 namespace GUtil
 {
     namespace DataObjects
     {
-        class DataTuple : public Interfaces::ICollection<QVariant>
+        class DataTuple :   public Interfaces::ICollection<QVariant>,
+                            public Interfaces::IQXmlSerializable
         {
         public:
             DataTuple(int size = 0);
             DataTuple(const DataTuple &);
             virtual ~DataTuple();
+
+            virtual void WriteXml(QXmlStreamWriter &) const;
+            virtual void ReadXml(QXmlStreamReader &)
+                    throw(Core::XmlException);
+
         };
     }
 }
