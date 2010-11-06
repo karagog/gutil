@@ -115,7 +115,8 @@ void LoggerTest::test_exception_logging()
         ex.SetData("thirdkey", "ERROR");
         ex.SetData("thirdkey", "this works");
         ex.SetData("fourthkey", "");
-        throw ex;
+
+        THROW_GUTIL_EXCEPTION(ex)
     }
     catch(Exception &ex)
     {
@@ -131,7 +132,7 @@ void LoggerTest::test_exception_logging()
     {
         try
         {
-            throw NotImplementedException();
+            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException, "Boo!")
         }
         catch(Exception &ex)
         {

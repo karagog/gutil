@@ -179,3 +179,16 @@ std::string Core::NullReferenceException::ToString_protected() const
 {
     return "NullReference";
 }
+
+
+
+Core::IndexOutOfRangeException::IndexOutOfRangeException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::IndexOutOfRangeException::ToString_protected() const
+{
+    return "IndexOutOfRange";
+}

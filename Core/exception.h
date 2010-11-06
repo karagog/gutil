@@ -20,6 +20,20 @@ limitations under the License.*/
 #include <vector>
 #include <map>
 
+// Use these convenient macros to insert the file/line data in the exception
+#define THROW_GUTIL_EXCEPTION( except ) \
+            char tmp_line[10];  \
+            ex.SetData("line", std::string(itoa(__LINE__, tmp_line, 10))); \
+            ex.SetData("file", std::string(__FILE__)); \
+            throw except;
+
+#define THROW_NEW_GUTIL_EXCEPTION( except, message ) \
+            except ex(message); \
+            char tmp_line[10];  \
+            ex.SetData("line", std::string(itoa(__LINE__, tmp_line, 10))); \
+            ex.SetData("file", std::string(__FILE__)); \
+            throw ex;
+
 namespace GUtil
 {
     namespace Core
@@ -138,6 +152,17 @@ namespace GUtil
         {
         public:
             NullReferenceException(const std::string &message = "");
+
+        protected:
+            virtual std::string ToString_protected() const;
+        };
+
+
+
+        class IndexOutOfRangeException : public Exception
+        {
+        public:
+            IndexOutOfRangeException(const std::string &message = "");
 
         protected:
             virtual std::string ToString_protected() const;
