@@ -21,12 +21,17 @@ limitations under the License.*/
 
 namespace GUtil
 {
+    namespace Custom
+    {
+        class GSemaphore;
+    }
+
     namespace DataObjects
     {
         class DataTable;
+        class DataTuple;
 
-        class DataRow : public Interfaces::ICollection<QVariant>,
-                        public Interfaces::IQXmlSerializable
+        class DataRow : public Interfaces::IQXmlSerializable
         {
             friend class DataTable;
             friend class DataRowCollection;
@@ -34,12 +39,11 @@ namespace GUtil
         public:
             DataRow();
             DataRow(const DataRow &);
-
             DataRow &operator =(const DataRow &);
 
-            DataTable &Table();
+            QVariant &operator [](int index);
 
-            QVariant &At(int index);
+            DataTable &Table();
 
             int Index() const;
             int ColumnCount() const;
@@ -59,13 +63,18 @@ namespace GUtil
         private:
             void _init_data_row(DataTable *);
 
+            DataTuple *_tuple;
+            Custom::GSemaphore *_tuple_semaphore;
+
+            void _detach_tuple();
+            void _attach_tuple(DataTuple *, Custom::GSemaphore *);
         };
 
 
 
 
 
-        class DataRowCollection : public Interfaces::ICollection<DataRow *>
+        class DataRowCollection : public Interfaces::ICollection<DataRow>
         {
             friend class DataTable;
 
