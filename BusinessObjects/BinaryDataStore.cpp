@@ -143,7 +143,9 @@ void BusinessObjects::BinaryDataStore::_execute_insertion(QSqlQuery &q, int id, 
     q.bindValue(":id", id);
     q.bindValue(":data", data, QSql::Binary);
     if(!q.exec())
-        throw Core::Exception(q.lastError().text().toStdString());
+    {
+        THROW_GUTIL_EXCEPTION( Core::Exception(q.lastError().text().toStdString()) )
+    }
 }
 
 void BusinessObjects::BinaryDataStore::removeFile(int id)
@@ -194,7 +196,7 @@ QString BusinessObjects::BinaryDataStore::getFile(int id)
     dbase.close();
     mutexes.value(my_id)->mut->unlock();
     mutex_lock.unlock();
-    throw Core::Exception("File not found");
+    THROW_GUTIL_EXCEPTION( Core::Exception("File not found") )
 }
 
 // Clear all files
@@ -227,7 +229,7 @@ void BusinessObjects::BinaryDataStore::prep_database(QSqlDatabase &dbase)
     {
         mutexes.value(my_id)->mut->unlock();
         mutex_lock.unlock();
-        throw Core::Exception("Cannot open database");
+        THROW_GUTIL_EXCEPTION( Core::Exception("Cannot open database") )
     }
 }
 

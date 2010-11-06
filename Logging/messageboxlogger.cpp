@@ -27,6 +27,6 @@ void Logging::MessageBoxLogger::Log_protected(const QByteArray &msg, MessageLeve
         QMessageBox::critical(0, "ERROR!", QString(msg));
         break;
     default:
-        throw Core::NotImplementedException();
+        THROW_GUTIL_EXCEPTION( Core::NotImplementedException() )
     }
 }

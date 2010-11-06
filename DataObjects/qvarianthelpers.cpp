@@ -172,8 +172,10 @@ QVariant DataObjects::QVariantHelpers::ReadXml(QXmlStreamReader &sr)
     if(sr.readNextStartElement())
     {
         if(sr.name() != QVARIANT_XML_ID)
-            throw Core::XmlException(QString("Unrecognized XML node: %1")
-                                     .arg(sr.name().toString()).toStdString());
+        {
+            THROW_GUTIL_EXCEPTION( Core::XmlException(QString("Unrecognized XML node: %1")
+                                     .arg(sr.name().toString()).toStdString()) )
+        }
 
         QVariant::Type type = (QVariant::Type)sr.attributes().at(0).value().toString().toInt();
 
@@ -252,7 +254,9 @@ QVariant DataObjects::QVariantHelpers::ReadXml(QXmlStreamReader &sr)
             for(int i = 0; i < tmpint; i++)
             {
                 if(!sr.readNextStartElement())
-                    throw Core::XmlException();
+                {
+                    THROW_GUTIL_EXCEPTION( Core::XmlException() )
+                }
 
                 sltemp1.append(Utils::QStringHelpers::fromBase64(
                         sr.attributes().at(0).value().toString()));
@@ -279,7 +283,9 @@ QVariant DataObjects::QVariantHelpers::ReadXml(QXmlStreamReader &sr)
             for(int i = 0; i < tmpint; i++)
             {
                 if(!sr.readNextStartElement())
-                    throw Core::XmlException();
+                {
+                    THROW_GUTIL_EXCEPTION( Core::XmlException() )
+                }
 
                 QString key = Utils::QStringHelpers::fromBase64(
                         sr.attributes().at(0).value().toString());

@@ -103,9 +103,11 @@ void DataObjects::DataRow::_attach_tuple(DataTuple *t, Custom::GSemaphore *sem_o
 QVariant &DataObjects::DataRow::operator [](int index)
 {
     if(index < 0 || index >= _tuple->Count())
-        throw Core::IndexOutOfRangeException(
+    {
+        THROW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException(
                 QString("Tried to index %1 of %2")
-                .arg(index).arg(_tuple->Count()).toStdString());
+                .arg(index).arg(_tuple->Count()).toStdString()) )
+    }
 
     return (*_tuple)[index];
 }
@@ -114,8 +116,10 @@ QVariant &DataObjects::DataRow::operator [](const QString &column_header)
 {
     int index = Table().GetColumnIndex(column_header);
     if(index == -1)
-        throw Core::IndexOutOfRangeException(
-                QString("Column not found: '%1'").arg(column_header).toStdString());
+    {
+        THROW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException(
+                QString("Column not found: '%1'").arg(column_header).toStdString()) )
+    }
     return (*this)[index];
 }
 

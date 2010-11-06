@@ -99,7 +99,9 @@ void DataObjects::DataTable::RemoveRow(int row_index)
 void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
 {
     if(_keys.contains(key))
-        throw Core::Exception("Key already exists in columns");
+    {
+        THROW_GUTIL_EXCEPTION( Core::Exception("Key already exists in columns") )
+    }
 
     _keys.append(key);
     _labels.append(label);

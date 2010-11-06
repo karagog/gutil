@@ -38,7 +38,7 @@ void DataAccess::GQIODevice::send_data(const QByteArray &data)
     {
         Core::DataTransportException ex("Write failed");
         ex.SetData("err", IODevice().errorString().toStdString());
-        throw ex;
+        THROW_GUTIL_EXCEPTION( ex )
     }
 }
 
@@ -54,7 +54,7 @@ QByteArray DataAccess::GQIODevice::receive_data()
     {
         Core::DataTransportException ex("Read 0 bytes!");
         ex.SetData("err", IODevice().errorString().toStdString());
-        throw ex;
+        THROW_GUTIL_EXCEPTION( ex )
     }
 
     return ret;
@@ -71,5 +71,7 @@ bool DataAccess::GQIODevice::HasDataAvailable()
 void DataAccess::GQIODevice::_fail_if_not_open()
 {
     if(!IODevice().isOpen())
-        throw Core::DataTransportException("IO Device is not open!");
+    {
+        THROW_GUTIL_EXCEPTION( Core::DataTransportException("IO Device is not open!") )
+    }
 }

@@ -134,5 +134,7 @@ QByteArray DataAccess::GConsoleIODevice::receive_data()
 void DataAccess::GConsoleIODevice::_fail_if_not_initialized()
 {
     if(!_engaged)
-        throw Core::DataTransportException("The console is already in use");
+    {
+        THROW_GUTIL_EXCEPTION( Core::DataTransportException("The console is already in use") )
+    }
 }

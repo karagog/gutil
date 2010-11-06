@@ -135,7 +135,9 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
         else if(_write_mode == WriteOver)
             flags |= QFile::Truncate;
         else
-            throw Core::NotImplementedException();
+        {
+            THROW_GUTIL_EXCEPTION( Core::NotImplementedException() )
+        }
     }
     else
     {
@@ -149,7 +151,7 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
         Core::DataTransportException ex(
                 QString("Could not open file: %1").arg(FileName()).toStdString());
         ex.SetData("err", File().errorString().toStdString());
-        throw ex;
+        THROW_GUTIL_EXCEPTION( ex )
     }
 }
 

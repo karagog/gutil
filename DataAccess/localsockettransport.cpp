@@ -32,7 +32,9 @@ void DataAccess::LocalSocketTransport::ConnectToServer(const QString &server_nam
     Socket().connectToServer(server_name);
 
     if(!Socket().waitForConnected(5000))
-        throw Core::DataTransportException(Socket().errorString().toStdString());
+    {
+        THROW_GUTIL_EXCEPTION( Core::DataTransportException(Socket().errorString().toStdString()) )
+    }
 }
 
 void DataAccess::LocalSocketTransport::DisconnectFromServer()
