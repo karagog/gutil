@@ -41,6 +41,7 @@ namespace GUtil
         public:
             DataRow();
             DataRow(const DataRow &);
+            virtual ~DataRow();
 
             DataRow Clone() const;
 
@@ -50,6 +51,10 @@ namespace GUtil
             QVariant &operator [](int index);
             QVariant &operator [](const QString &column_header);
 
+            QVariant At(int index) const;
+
+            static bool Equal(const DataRow &, const DataRow &);
+
             DataTable &Table();
 
             int Index() const;
@@ -58,8 +63,6 @@ namespace GUtil
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(Core::XmlException);
-
-            virtual ~DataRow();
 
         protected:
             DataRow(DataTable *dt);

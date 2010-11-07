@@ -149,11 +149,17 @@ void DataSetTest::test_dataRows()
         // They're not equal, because after cloning the row identifier is unique
         QVERIFY(r3 != r2);
 
+        // But their data should be the same if we compare it
+        QVERIFY(DataRow::Equal(r3, r2));
+
         // A change to either of the first two doesn't affect the cloned row
         r2[0] = "1";
         QVERIFY(r2[0] == "1");
         QVERIFY(r1[0] == "1");
         QVERIFY(r3[0] != "1");
+
+        // Make sure the equal operator works the other way around too
+        QVERIFY(!DataRow::Equal(r3, r2));
     }
     catch(Core::Exception &ex)
     {

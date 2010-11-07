@@ -120,6 +120,28 @@ void DataObjects::DataRow::set_number_of_columns(int cols)
     row_data->tuple.Resize(cols);
 }
 
+QVariant DataObjects::DataRow::At(int index) const
+{
+    return row_data->tuple.Value(index);
+}
+
+bool DataObjects::DataRow::Equal(const DataObjects::DataRow &lhs,
+                                 const DataObjects::DataRow &rhs)
+{
+    bool ret = false;
+    if(lhs.ColumnCount() == rhs.ColumnCount())
+    {
+        int i;
+        for(i = 0; i < lhs.ColumnCount(); i++)
+            if(lhs.At(i) != rhs.At(i))
+                break;
+
+        if(i == lhs.ColumnCount())
+            ret = true;
+    }
+    return ret;
+}
+
 
 
 
