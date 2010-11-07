@@ -69,7 +69,7 @@ QVariant &DataObjects::DataRow::operator [](int index)
     if(index < 0 || index >= row_data->tuple.Count())
         THROW_NEW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException,
                 QString("Tried index %1 of %2")
-                .arg(index).arg(row_data->tuple.Count()).toStdString() )
+                .arg(index).arg(row_data->tuple.Count()).toStdString() );
 
     return row_data->tuple[index];
 }
@@ -79,14 +79,14 @@ QVariant &DataObjects::DataRow::operator [](const QString &column_header)
     int index = Table().GetColumnIndex(column_header);
     if(index == -1)
         THROW_NEW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException,
-                QString("Column not found: '%1'").arg(column_header).toStdString() )
+                QString("Column not found: '%1'").arg(column_header).toStdString() );
     return (*this)[index];
 }
 
 DataObjects::DataTable &DataObjects::DataRow::Table()
 {
     if(row_data->table == 0)
-        THROW_NEW_GUTIL_EXCEPTION( Core::NullReferenceException, "Table not set" )
+        THROW_NEW_GUTIL_EXCEPTION( Core::NullReferenceException, "Table not set" );
 
     return *row_data->table;
 }

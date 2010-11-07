@@ -79,6 +79,13 @@ DataObjects::DataRow DataObjects::DataTable::AddRow(DataObjects::DataRow &r)
     return (*_rows)[_rows->Count() - 1];
 }
 
+DataObjects::DataRow DataObjects::DataTable::AddNewRow(const QVariantList &values)
+{
+    DataObjects::DataRow dr = CreateRow(values);
+    AddRow(dr);
+    return dr;
+}
+
 DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &values)
 {
     DataObjects::DataRow dr(this);
@@ -93,13 +100,23 @@ void DataObjects::DataTable::RemoveRow(int row_index)
     _rows->Remove(row_index);
 }
 
+void DataObjects::DataTable::Clear()
+{
+    Rows().ClearValues();
+
+    ClearColumns();
+}
+
 void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
 {
     if(_keys.contains(key))
-        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" )
+        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" );
 
     _keys.append(key);
     _labels.append(label);
+
+    for(int i = 0; i < Rows().Count(); i++)
+        Rows()[i].set_number_of_columns(ColumnCount());
 }
 
 void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QStringList &labels)
@@ -109,13 +126,8 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
     foreach(QString k, keys)
         AddColumn(k);
 
-    for(int i = 0; i < ColumnCount(); i++)
-    {
-        QString s;
-        if(labels.length() != 0)
-            s = labels.at(i);
-        _labels.append(s);
-    }
+    for(int i = 0; i < labels.length(); i++)
+        _labels[i] = labels.at(i);
 }
 
 void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
@@ -126,7 +138,7 @@ void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
 void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
 {
     if(l.length() != ColumnCount())
-        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Incorrect number of columns" )
+        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Incorrect number of columns" );
 
     _labels = l;
 }
@@ -134,7 +146,7 @@ void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
 void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
 {
     if(_keys.contains(k))
-        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" )
+        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" );
 
     _keys[col_index] = k;
 }
@@ -169,6 +181,16 @@ int DataObjects::DataTable::GetColumnIndex(const QString &key) const
         }
 
     return ret;
+}
+
+QString DataObjects::DataTable::GetColumnKey(int ind) const
+{
+    return _keys.at(ind);
+}
+
+QString DataObjects::DataTable::GetColumnLabel(int ind) const
+{
+    return _labels.at(ind);
 }
 
 
@@ -227,10 +249,21 @@ Qt::ItemFlags DataObjects::DataTable::flags(const QModelIndex &index) const
 
 
 
+#define DATATABLE_XML_ID  "DataTable"
 
 void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
 {
+    sw.writeStartElement(DATATABLE_XML_ID);
+    sw.writeAttribute("s", QString("%1").arg(_rows->Count()));
 
+    // Write our column data
+    DataObjects::QVariantHelpers::WriteXml(_keys, sw);
+    DataObjects::QVariantHelpers::WriteXml(_labels, sw);
+
+    for(int i = 0; i < _rows->Count(); i++)
+        _rows->Value(i).WriteXml(sw);
+
+    sw.writeEndElement();
 }
 
 #define READ_ERR_STRING "XML not in correct format"
@@ -238,7 +271,27 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
 void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
+    Clear();
 
+    if(sr.readNextStartElement())
+    {
+        if(sr.name() != DATATABLE_XML_ID)
+            THROW_NEW_GUTIL_EXCEPTION( Core::XmlException, "Unrecognized XML Node" );
+
+        int sz = sr.attributes().at(0).value().toString().toInt();
+
+        _keys = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+        _labels = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+
+        for(int i = 0; i < sz; i++)
+        {
+            DataObjects::DataRow dr = AddNewRow();
+            dr.ReadXml(sr);
+        }
+
+        while(sr.readNext() != QXmlStreamReader::EndElement ||
+              sr.name() != DATATABLE_XML_ID);
+    }
 }
 
 

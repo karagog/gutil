@@ -33,7 +33,7 @@ DataAccess::GIODevice::~GIODevice()
 
 void DataAccess::GIODevice::run()
 {
-    THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "This IO does not support threading" )
+    THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "This IO does not support threading" );
 }
 
 void DataAccess::GIODevice::Write(const QByteArray &data)

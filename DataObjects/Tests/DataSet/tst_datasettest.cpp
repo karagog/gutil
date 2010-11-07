@@ -72,6 +72,48 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt.ColumnCount() == 1);
         QVERIFY(dr.ColumnCount() == 1);
 
+        // The column resize shouldn't affect the data in the first column
+        QVERIFY(dr[0] == "HI");
+
+        dt.AddColumn("second", "two");
+        QVERIFY(dt.ColumnCount() == 2);
+        QVERIFY(dr.ColumnCount() == 2);
+
+        // Make sure the new column is null at first
+        QVERIFY(dr["second"] == QVariant());
+
+        dr["second"] = "v";
+        QVERIFY(dr["second"] == "v");
+        QVERIFY(dr[1] == "v");
+        QVERIFY(dt.Rows()[0]["second"] == "v");
+
+        DataRow dr2 = dt.AddNewRow();
+        QVERIFY(dr2.ColumnCount() == 2);
+        QVERIFY(dt.Rows().Count() == 2);
+        QVERIFY(dr2[0] == QVariant());
+        QVERIFY(dr2[1] == QVariant());
+
+        dr2[0] = "Hello World!";
+        QVERIFY(dr2[0] == "Hello World!");
+
+        // Test the xml import/export
+        QString xml = dt.ToXmlQString(true);
+        qDebug(xml.toStdString().c_str());
+
+        DataTable dt2;
+        dt2.FromXmlQString(xml);
+        QVERIFY(dt2.Rows().Count() == 2);
+        QVERIFY(dt2.ColumnCount() == 2);
+
+        QVERIFY(dt2.GetColumnKey(0) == "OneColumn");
+        QVERIFY(dt2.GetColumnKey(1) == "second");
+        QVERIFY(dt2.GetColumnLabel(0) == "");
+        QVERIFY(dt2.GetColumnLabel(1) == "two");
+
+        QVERIFY(dt2.Rows()[0][0] == "HI");
+        QVERIFY(dt2.Rows()[0]["second"] == "v");
+        QVERIFY(dt2.Rows()[1][0] == "Hello World!");
+        QVERIFY(dt2.Rows()[1]["second"] == QVariant());
     }
     catch(Core::Exception &ex)
     {
@@ -98,6 +140,7 @@ void DataSetTest::test_dataRows()
         r1[0] = "Value";
         QVERIFY(r1[0] == r2[0]);
         QVERIFY(r1[0] == "Value");
+        QVERIFY(r2[0] == "Value");
         QVERIFY(r1["0"] == "Value");
 
         DataRow r3 = r2.Clone();
@@ -111,7 +154,6 @@ void DataSetTest::test_dataRows()
         QVERIFY(r2[0] == "1");
         QVERIFY(r1[0] == "1");
         QVERIFY(r3[0] != "1");
-
     }
     catch(Core::Exception &ex)
     {

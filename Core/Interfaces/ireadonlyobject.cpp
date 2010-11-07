@@ -68,5 +68,5 @@ void Interfaces::IReadOnlyObject::FailIfReadOnly() const
         throw(ReadOnlyException)
 {
     if(IsReadOnly())
-        THROW_NEW_GUTIL_EXCEPTION( ReadOnlyException, ReadonlyMessageIdentifier() )
+        THROW_NEW_GUTIL_EXCEPTION( ReadOnlyException, ReadonlyMessageIdentifier() );
 }

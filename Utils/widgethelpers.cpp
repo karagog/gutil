@@ -42,5 +42,5 @@ void Utils::WidgetHelpers::AlignWidgets(
         const QList<QWidget *>&wl,
         bool horizontally)
 {
-    THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "" )
+    THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "" );
 }

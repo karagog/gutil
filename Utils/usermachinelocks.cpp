@@ -112,7 +112,7 @@ void Utils::MachineLockBase::lock(bool for_read, bool block)
 
             _release_lock();
 
-            THROW_GUTIL_EXCEPTION( ex )
+            THROW_GUTIL_EXCEPTION( ex );
         }
 
         // Then actually lock the file
@@ -123,7 +123,7 @@ void Utils::MachineLockBase::lock(bool for_read, bool block)
             _usermachinelockfile->close();
             _release_lock();
 
-            THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "Already locked by another process" )
+            THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "Already locked by another process" );
         }
     }
     catch(Core::LockException &le)
@@ -158,10 +158,10 @@ void Utils::MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
 {
     if(FileNameForMachineLock().isEmpty())
         THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "The machine-lock file has not been set.  You must "
-                              "provide an identifier and optional modifier to use this function" )
+                              "provide an identifier and optional modifier to use this function" );
 
     if(IsLockedOnMachine())
-        THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "I already own the lock!" )
+        THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "I already own the lock!" );
 
 
     QReadWriteLock &l = _get_lock_reference();
@@ -185,7 +185,7 @@ void Utils::MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
     if(_i_own_lock)
         _i_have_read_lock = for_read;
     else
-        THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "Lock held by someone else in this process!" )
+        THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "Lock held by someone else in this process!" );
 }
 
 void Utils::MachineLockBase::_release_lock()
