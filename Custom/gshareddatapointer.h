@@ -28,6 +28,7 @@ namespace GUtil
                 public QExplicitlySharedDataPointer<T>
         {
         private:
+
             class SharedLock : public QSharedData, public QReadWriteLock
             {
             public:

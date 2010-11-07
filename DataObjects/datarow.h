@@ -18,9 +18,9 @@ limitations under the License.*/
 #include "Interfaces/icollection.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "DataObjects/datatuple.h"
+#include "Custom/gshareddatapointer.h"
 #include <QVariant>
 #include <QUuid>
-#include <QExplicitlySharedDataPointer>
 
 namespace GUtil
 {
@@ -82,7 +82,7 @@ namespace GUtil
             };
 
 
-            QExplicitlySharedDataPointer<RowData> row_data;
+            Custom::GSharedDataPointer<RowData> row_data;
 
         private:
             void _init_data_row(DataTable *);
