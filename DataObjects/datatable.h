@@ -48,14 +48,16 @@ namespace GUtil
 
             DataRowCollection &Rows();
 
-            DataRow AddRow(const DataRow &);
+            DataRow AddRow(DataRow &);
             DataRow CreateRow(const QVariantList &values = QVariantList());
             void RemoveRow(int row_index);
 
             void AddColumn(const QString &key, const QString &label = QString::null);
             void SetColumnHeaders(const QStringList &keys, const QStringList &labels = QStringList());
             void SetColumnLabel(int col_index, const QString &);
+            void SetColumnLabels(const QStringList &);
             void SetColumnKey(int col_index, const QString &);
+            void SetColumnKeys(const QStringList &);
             void ClearColumns();
 
             int ColumnCount() const;

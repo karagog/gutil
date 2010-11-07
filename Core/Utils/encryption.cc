@@ -39,9 +39,9 @@ string Utils::CryptoHelpers::encryptString(const string &instr, const string &pa
         encryptor.Put((byte *)instr.c_str(), instr.length());
         encryptor.MessageEnd();
     }
-    catch(CryptoPP::Exception ex)
+    catch(CryptoPP::Exception &ex)
     {
-        THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+        THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
     }
 
     return outstr;
@@ -59,9 +59,9 @@ string Utils::CryptoHelpers::decryptString(const string &instr, const string &pa
         decryptor.Put((byte *)instr.c_str(), instr.length());
         decryptor.MessageEnd();
     }
-    catch(CryptoPP::Exception ex)
+    catch(CryptoPP::Exception &ex)
     {
-        THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+        THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
     }
 
     return outstr;
@@ -73,9 +73,9 @@ void Utils::CryptoHelpers::encryptFile(const char *in, const char *out, const ch
     {
         CryptoPP::FileSource f(in, true, new CryptoPP::DefaultEncryptorWithMAC(passPhrase, new CryptoPP::FileSink(out)));
     }
-    catch(CryptoPP::Exception ex)
+    catch(CryptoPP::Exception &ex)
     {
-        THROW_GUTIL_EXCEPTION(Exception(ex.GetWhat()))
+        THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
     }
 }
 
@@ -85,9 +85,9 @@ void Utils::CryptoHelpers::decryptFile(const char *in, const char *out, const ch
     {
         CryptoPP::FileSource f(in, true, new CryptoPP::DefaultDecryptorWithMAC(passPhrase, new CryptoPP::FileSink(out)));
     }
-    catch(CryptoPP::Exception ex)
+    catch(CryptoPP::Exception &ex)
     {
-        THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+        THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
     }
 }
 
@@ -109,9 +109,9 @@ string Utils::CryptoHelpers::compress(const string &instr, int level)
             zipper.Put((byte*)instr.c_str(), instr.length());
             zipper.MessageEnd();
         }
-        catch(CryptoPP::Exception ex)
+        catch(CryptoPP::Exception &ex)
         {
-            THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+            THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
         }
     }
 
@@ -150,9 +150,9 @@ string Utils::CryptoHelpers::decompress(const string &instr)
             {
                 CryptoPP::StringSource(newstr, true, new CryptoPP::Gunzip(new CryptoPP::StringSink(tmp)));
             }
-            catch(CryptoPP::Exception ex)
+            catch(CryptoPP::Exception &ex)
             {
-                THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+                THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
             }
         }
         else
@@ -182,9 +182,9 @@ string Utils::CryptoHelpers::fromBase64(const string &instr)
         CryptoPP::StringSource(instr, true,
                                new CryptoPP::Base64Decoder(new CryptoPP::StringSink(tmp)));
     }
-    catch(CryptoPP::Exception ex)
+    catch(CryptoPP::Exception &ex)
     {
-        THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+        THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
     }
 
     return tmp;
@@ -210,9 +210,9 @@ string Utils::CryptoHelpers::fromBase16(const string &instr)
         CryptoPP::StringSource(instr, true,
                                new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
     }
-    catch(CryptoPP::Exception ex)
+    catch(CryptoPP::Exception &ex)
     {
-        THROW_GUTIL_EXCEPTION( Exception(ex.GetWhat()) )
+        THROW_NEW_GUTIL_EXCEPTION( Exception, ex.GetWhat() )
     }
 
     return tmp;

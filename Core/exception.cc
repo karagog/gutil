@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "exception.h"
+#include <cstdio>
 using namespace GUtil;
 
 Core::Exception::Exception(const std::string &message)

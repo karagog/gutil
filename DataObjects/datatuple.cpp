@@ -48,10 +48,8 @@ void DataObjects::DataTuple::ReadXml(QXmlStreamReader &sr)
     if(sr.readNextStartElement())
     {
         if(sr.name() != TUPLE_XML_ID)
-        {
-            THROW_GUTIL_EXCEPTION( Core::XmlException(QString("Unrecognized XML node: %1")
-                                     .arg(sr.name().toString()).toStdString()) )
-        }
+            THROW_NEW_GUTIL_EXCEPTION( Core::XmlException, QString("Unrecognized XML node: %1")
+                                     .arg(sr.name().toString()).toStdString() )
 
         int cnt = sr.attributes().at(0).value().toString().toInt();
 

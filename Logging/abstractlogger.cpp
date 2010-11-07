@@ -120,7 +120,7 @@ QString Logging::AbstractLogger::prepare_log_message(
         msg_id = "ERROR";
         break;
     default:
-        THROW_GUTIL_EXCEPTION( Core::NotImplementedException("Invalid Message Type") )
+        THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "Invalid Message Type" )
     }
 
     return QString("%1  %2: %3%4\n\n\n")

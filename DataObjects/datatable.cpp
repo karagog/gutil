@@ -73,13 +73,10 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
     return *_rows;
 }
 
-DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
+DataObjects::DataRow DataObjects::DataTable::AddRow(DataObjects::DataRow &r)
 {
-    _rows->Add(r);
-    DataObjects::DataRow &mr = (*_rows)[_rows->Count() - 1];
-
-    mr.set_number_of_columns(ColumnCount());
-    return mr;
+    Rows().Add(r);
+    return (*_rows)[_rows->Count() - 1];
 }
 
 DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &values)
@@ -99,9 +96,7 @@ void DataObjects::DataTable::RemoveRow(int row_index)
 void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
 {
     if(_keys.contains(key))
-    {
-        THROW_GUTIL_EXCEPTION( Core::Exception("Key already exists in columns") )
-    }
+        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" )
 
     _keys.append(key);
     _labels.append(label);
@@ -128,9 +123,28 @@ void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
     _labels[col_index] = l;
 }
 
+void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
+{
+    if(l.length() != ColumnCount())
+        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Incorrect number of columns" )
+
+    _labels = l;
+}
+
 void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
 {
+    if(_keys.contains(k))
+        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" )
+
     _keys[col_index] = k;
+}
+
+void DataObjects::DataTable::SetColumnKeys(const QStringList &k)
+{
+    ClearColumns();
+
+    foreach(QString s, k)
+        AddColumn(s);
 }
 
 void DataObjects::DataTable::ClearColumns()

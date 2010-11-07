@@ -17,7 +17,10 @@ limitations under the License.*/
 
 #include "Interfaces/icollection.h"
 #include "Interfaces/iqxmlserializable.h"
+#include "DataObjects/datatuple.h"
 #include <QVariant>
+#include <QUuid>
+#include <QExplicitlySharedDataPointer>
 
 namespace GUtil
 {
@@ -29,7 +32,6 @@ namespace GUtil
     namespace DataObjects
     {
         class DataTable;
-        class DataTuple;
 
         class DataRow : public Interfaces::IQXmlSerializable
         {
@@ -39,10 +41,12 @@ namespace GUtil
         public:
             DataRow();
             DataRow(const DataRow &);
-            DataRow &operator =(const DataRow &);
 
             DataRow Clone() const;
 
+            DataRow &operator =(const DataRow &);
+            bool operator ==(const DataRow &) const;
+            bool operator !=(const DataRow &) const;
             QVariant &operator [](int index);
             QVariant &operator [](const QString &column_header);
 
@@ -60,19 +64,26 @@ namespace GUtil
         protected:
             DataRow(DataTable *dt);
 
+            void set_table(DataTable *);
             void set_number_of_columns(int);
 
-            DataTable *table;
-            int row_index;
+            class RowData : public QSharedData
+            {
+            public:
+                RowData(DataTable *t = 0);
+                RowData(const RowData &);
+
+                DataTable *table;
+                DataTuple tuple;
+                QUuid identifier;
+            };
+
+
+            QExplicitlySharedDataPointer<RowData> row_data;
 
         private:
             void _init_data_row(DataTable *);
 
-            DataTuple *_tuple;
-            Custom::GSemaphore *_tuple_semaphore;
-
-            void _detach_tuple();
-            void _attach_tuple(DataTuple *, Custom::GSemaphore *);
         };
 
 
@@ -81,11 +92,15 @@ namespace GUtil
 
         class DataRowCollection : public Interfaces::ICollection<DataRow>
         {
+            friend class DataRow;
             friend class DataTable;
 
         protected:
             DataRowCollection(DataTable *);
             virtual ~DataRowCollection();
+
+            // Returns -1 if not found
+            int find_row_by_id(const QUuid &row_id);
 
             virtual void onAdd(void *, int);
 

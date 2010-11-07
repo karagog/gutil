@@ -135,9 +135,7 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
         else if(_write_mode == WriteOver)
             flags |= QFile::Truncate;
         else
-        {
-            THROW_GUTIL_EXCEPTION( Core::NotImplementedException() )
-        }
+            THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "" )
     }
     else
     {
