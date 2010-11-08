@@ -17,7 +17,7 @@ using namespace GUtil;
 
 Core::Interfaces::IUpdatable::IUpdatable(bool dirty)
 {
-    _dirty = dirty;
+    _iupdatable_is_dirty = dirty;
 }
 
 Core::Interfaces::IUpdatable::IUpdatable(const IUpdatable &o)
@@ -29,12 +29,12 @@ Core::Interfaces::IUpdatable::~IUpdatable(){}
 
 bool Core::Interfaces::IUpdatable::IsDirty() const
 {
-    return _dirty;
+    return _iupdatable_is_dirty;
 }
 
 void Core::Interfaces::IUpdatable::SetDirty(bool d)
 {
-    onSetDirty(_dirty = d);
+    onSetDirty(_iupdatable_is_dirty = d);
 }
 
 void Core::Interfaces::IUpdatable::onSetDirty(bool){}
@@ -42,6 +42,6 @@ void Core::Interfaces::IUpdatable::onSetDirty(bool){}
 Core::Interfaces::IUpdatable &Core::Interfaces::IUpdatable::operator =
         (const Core::Interfaces::IUpdatable &o)
 {
-    _dirty = o._dirty;
+    _iupdatable_is_dirty = o._iupdatable_is_dirty;
     return *this;
 }

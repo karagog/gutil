@@ -36,7 +36,7 @@ namespace GUtil
                 virtual void onSetDirty(bool);
 
             private:
-                bool _dirty;
+                bool _iupdatable_is_dirty;
             };
         }
     }
