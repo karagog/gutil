@@ -73,7 +73,7 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
     return *_rows;
 }
 
-DataObjects::DataRow DataObjects::DataTable::AddRow(DataObjects::DataRow &r)
+DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
 {
     Rows().Add(r);
     return (*_rows)[_rows->Count() - 1];

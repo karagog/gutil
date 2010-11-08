@@ -48,7 +48,7 @@ namespace GUtil
 
             DataRowCollection &Rows();
 
-            DataRow AddRow(DataRow &);
+            DataRow AddRow(const DataRow &);
             DataRow AddNewRow(const QVariantList &values = QVariantList());
             DataRow CreateRow(const QVariantList &values = QVariantList());
             void RemoveRow(int row_index);
