@@ -34,8 +34,10 @@ bool Core::Interfaces::IUpdatable::IsDirty() const
 
 void Core::Interfaces::IUpdatable::SetDirty(bool d)
 {
-    _dirty = d;
+    onSetDirty(_dirty = d);
 }
+
+void Core::Interfaces::IUpdatable::onSetDirty(bool){}
 
 Core::Interfaces::IUpdatable &Core::Interfaces::IUpdatable::operator =
         (const Core::Interfaces::IUpdatable &o)

@@ -32,6 +32,9 @@ namespace GUtil
                 
                 IUpdatable &operator =(const IUpdatable &);
                 
+            protected:
+                virtual void onSetDirty(bool);
+
             private:
                 bool _dirty;
             };
