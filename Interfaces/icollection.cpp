@@ -33,9 +33,9 @@ template <typename T> T &Interfaces::ICollection<T>::Add(const T &value)
     FailIfReadOnly();
 
     int index = _collection.size();
-    _collection.append(value);
 
-    onAdd((void *)&_collection[index], index);
+    _collection.append(value);
+    onAdd(&_collection[index]);
 
     return _collection[index];
 }
@@ -124,4 +124,4 @@ template <typename T> void Interfaces::ICollection<T>::Resize(int len)
     }
 }
 
-template <typename T> void Interfaces::ICollection<T>::onAdd(void *, int){}
+template <typename T> void Interfaces::ICollection<T>::onAdd(T *){}

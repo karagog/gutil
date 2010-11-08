@@ -20,7 +20,6 @@ limitations under the License.*/
 #include "DataObjects/datatuple.h"
 #include "Custom/gshareddatapointer.h"
 #include <QVariant>
-#include <QUuid>
 
 namespace GUtil
 {
@@ -78,7 +77,6 @@ namespace GUtil
 
                 DataTable *table;
                 DataTuple tuple;
-                QUuid identifier;
             };
 
 
@@ -103,9 +101,9 @@ namespace GUtil
             virtual ~DataRowCollection();
 
             // Returns -1 if not found
-            int find_row_by_id(const QUuid &row_id);
+            int find_row_by_id(const DataRow::RowData * const) const;
 
-            virtual void onAdd(void *, int);
+            virtual void onAdd(DataRow *);
 
         private:
             DataTable *_table;

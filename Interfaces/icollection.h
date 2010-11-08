@@ -47,8 +47,7 @@ namespace GUtil
 
         protected:
 
-            // the void * points to the object added (type T)
-            virtual void onAdd(void *, int index);
+            virtual void onAdd(T *);
 
         private:
             QList<T> _collection;

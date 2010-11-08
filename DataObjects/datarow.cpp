@@ -49,7 +49,7 @@ DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRo
 
 bool DataObjects::DataRow::operator ==(const DataObjects::DataRow &o) const
 {
-    return row_data->identifier == o.row_data->identifier;
+    return row_data == o.row_data;
 }
 
 bool DataObjects::DataRow::operator !=(const DataRow &o) const
@@ -96,7 +96,7 @@ int DataObjects::DataRow::Index() const
     if(row_data->table == 0)
         return -1;
 
-    return row_data->table->Rows().find_row_by_id(row_data->identifier);
+    return row_data->table->Rows().find_row_by_id(row_data.constData());
 }
 
 int DataObjects::DataRow::ColumnCount() const
@@ -162,7 +162,6 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
 DataObjects::DataRow::RowData::RowData(DataObjects::DataTable *t)
 {
     table = t;
-    identifier = QUuid::createUuid();
 }
 
 DataObjects::DataRow::RowData::RowData(const DataObjects::DataRow::RowData &o)
@@ -170,8 +169,6 @@ DataObjects::DataRow::RowData::RowData(const DataObjects::DataRow::RowData &o)
 {
     table = o.table;
     tuple = o.tuple;
-
-    identifier = QUuid::createUuid();
 }
 
 
@@ -193,13 +190,14 @@ DataObjects::DataRowCollection::DataRowCollection(DataTable *dt)
 
 DataObjects::DataRowCollection::~DataRowCollection(){}
 
-int DataObjects::DataRowCollection::find_row_by_id(const QUuid &row_id)
+int DataObjects::DataRowCollection::find_row_by_id(
+        const DataObjects::DataRow::RowData * const row_id) const
 {
     int ret = -1;
 
     for(int i = 0; i < Count(); i++)
     {
-        if(Value(i).row_data->identifier == row_id)
+        if(Value(i).row_data == row_id)
         {
             ret = i;
             break;
@@ -209,10 +207,8 @@ int DataObjects::DataRowCollection::find_row_by_id(const QUuid &row_id)
     return ret;
 }
 
-void DataObjects::DataRowCollection::onAdd(void *v, int index)
+void DataObjects::DataRowCollection::onAdd(DataRow *dr)
 {
-    DataObjects::DataRow *dr = (DataObjects::DataRow *)v;
-
     dr->row_data->table = _table;
     dr->set_number_of_columns(_table->ColumnCount());
 }
