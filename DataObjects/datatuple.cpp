@@ -53,7 +53,7 @@ void DataObjects::DataTuple::ReadXml(QXmlStreamReader &sr)
 
         int cnt = sr.attributes().at(0).value().toString().toInt();
 
-        ClearValues();
+        Clear();
 
         for(int i = 0; i < cnt; i++)
             Add(DataObjects::QVariantHelpers::ReadXml(sr));

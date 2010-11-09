@@ -39,7 +39,7 @@ namespace GUtil
             virtual ICollection<T> &operator =(const ICollection<T> &);
 
             void Remove(int index);
-            void ClearValues();
+            void Clear();
 
             int Count() const;
             int Size() const;

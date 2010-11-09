@@ -31,7 +31,7 @@ template <typename T> void Interfaces::ICollection<T>::_copy(Interfaces::ICollec
 {
     lhs.FailIfReadOnly();
 
-    lhs.ClearValues();
+    lhs.Clear();
 
     foreach(T item, rhs._collection)
         lhs._collection.append(item);
@@ -83,7 +83,7 @@ template <typename T> void Interfaces::ICollection<T>::Remove(int index)
     _collection.removeAt(index);
 }
 
-template <typename T> void Interfaces::ICollection<T>::ClearValues()
+template <typename T> void Interfaces::ICollection<T>::Clear()
 {
     while(Count() > 0)
         Remove(0);

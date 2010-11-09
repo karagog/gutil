@@ -99,7 +99,7 @@ void DataObjects::DataTable::RemoveRow(int row_index)
 
 void DataObjects::DataTable::Clear()
 {
-    Rows().ClearValues();
+    Rows().Clear();
 
     ClearColumns();
 }
