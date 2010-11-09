@@ -47,21 +47,21 @@ void GSharedDataPointerTest::test_Idiot()
     GSharedDataPointer<SharedData> p1 = new SharedData;
     GSharedDataPointer<SharedData> p2(p1);
 
-    p1.Lock();
-    QVERIFY(!p1.TryLock());
-    QVERIFY(!p2.TryLock());
+    p1.SharedLock().Lock();
+    QVERIFY(!p1.SharedLock().TryLock());
+    QVERIFY(!p2.SharedLock().TryLock());
 
 
     p2.detach();
 
     // Now that we're detached we should have our own lock
-    QVERIFY(p2.TryLock());
-    p2.Unlock();
+    QVERIFY(p2.SharedLock().TryLock());
+    p2.SharedLock().Unlock();
 
     // You can detach even while holding the lock, but chances are it's a bug in
     //  your code
     p1 = p2;
-    QVERIFY(p1.TryLock());
+    QVERIFY(p1.SharedLock().TryLock());
 }
 
 void GSharedDataPointerTest::test_Equality()
@@ -76,8 +76,8 @@ void GSharedDataPointerTest::test_Equality()
     p1->value = '2';
     QVERIFY(p2->value = '2');
 
-    p1.Lock();
-    QVERIFY(!p2.TryLock());
+    p1.SharedLock().Lock();
+    QVERIFY(!p2.SharedLock().TryLock());
 }
 
 QTEST_APPLESS_MAIN(GSharedDataPointerTest);
