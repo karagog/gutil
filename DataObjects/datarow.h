@@ -97,8 +97,10 @@ namespace GUtil
             friend class DataTable;
 
         protected:
-            DataRowCollection(DataTable *);
+            DataRowCollection(DataTable *t = 0);
             virtual ~DataRowCollection();
+
+            virtual DataRowCollection &operator =(const DataRowCollection &);
 
             // Returns -1 if not found
             int find_row_by_id(const DataRow::RowData * const) const;

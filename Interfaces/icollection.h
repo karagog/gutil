@@ -36,7 +36,7 @@ namespace GUtil
             T Value(int index) const;
 
             T &operator [](int index);
-            ICollection<T> &operator =(const ICollection<T> &);
+            virtual ICollection<T> &operator =(const ICollection<T> &);
 
             void Remove(int index);
             void ClearValues();

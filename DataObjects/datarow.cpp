@@ -190,6 +190,14 @@ DataObjects::DataRowCollection::DataRowCollection(DataTable *dt)
 
 DataObjects::DataRowCollection::~DataRowCollection(){}
 
+DataObjects::DataRowCollection &DataObjects::DataRowCollection::operator =
+        (const DataObjects::DataRowCollection &o)
+{
+    _table = o._table;
+    ((Interfaces::ICollection<DataRow> &)*this) = o;
+    return *this;
+}
+
 int DataObjects::DataRowCollection::find_row_by_id(
         const DataObjects::DataRow::RowData * const row_id) const
 {
