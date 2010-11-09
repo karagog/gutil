@@ -215,8 +215,8 @@ int DataObjects::DataRowCollection::find_row_by_id(
     return ret;
 }
 
-void DataObjects::DataRowCollection::onAdd(DataRow *dr)
+void DataObjects::DataRowCollection::onAdd(DataRow &dr)
 {
-    dr->row_data->table = _table;
-    dr->set_number_of_columns(_table->ColumnCount());
+    dr.row_data->table = _table;
+    dr.set_number_of_columns(_table->ColumnCount());
 }

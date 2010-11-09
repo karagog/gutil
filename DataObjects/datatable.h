@@ -130,7 +130,7 @@ namespace GUtil
         protected:
             DataTableCollection(DataSet *);
 
-            virtual void onAdd(DataTable *);
+            virtual void onAdd(DataTable &);
 
         private:
             DataSet *_ds;

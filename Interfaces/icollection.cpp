@@ -23,7 +23,18 @@ template <typename T> Interfaces::ICollection<T>::ICollection(int size)
 template <typename T> Interfaces::ICollection<T>::ICollection(
         const Interfaces::ICollection<T> &o)
 {
-    *this = o;
+    _copy(*this, o);
+}
+
+template <typename T> void Interfaces::ICollection<T>::_copy(Interfaces::ICollection<T> &lhs,
+                                       const Interfaces::ICollection<T> &rhs)
+{
+    lhs.FailIfReadOnly();
+
+    lhs.ClearValues();
+
+    foreach(T item, rhs._collection)
+        lhs._collection.append(item);
 }
 
 template <typename T> Interfaces::ICollection<T>::~ICollection(){}
@@ -35,7 +46,7 @@ template <typename T> T &Interfaces::ICollection<T>::Add(const T &value)
     int index = _collection.size();
 
     _collection.append(value);
-    onAdd(&_collection[index]);
+    onAdd(_collection[index]);
 
     return _collection[index];
 }
@@ -88,12 +99,7 @@ template <typename T> T &Interfaces::ICollection<T>::operator [](int index)
 template <typename T> Interfaces::ICollection<T> &
         Interfaces::ICollection<T>::operator =(const Interfaces::ICollection<T> &o)
 {
-    FailIfReadOnly();
-
-    ClearValues();
-
-    foreach(T item, o._collection)
-        _collection.append(item);
+    _copy(*this, o);
 
     return *this;
 }
@@ -124,4 +130,4 @@ template <typename T> void Interfaces::ICollection<T>::Resize(int len)
     }
 }
 
-template <typename T> void Interfaces::ICollection<T>::onAdd(T *){}
+template <typename T> void Interfaces::ICollection<T>::onAdd(T &){}

@@ -343,7 +343,7 @@ DataObjects::DataTableCollection::DataTableCollection(DataObjects::DataSet *ds)
     _ds = ds;
 }
 
-void DataObjects::DataTableCollection::onAdd(DataObjects::DataTable *tbl)
+void DataObjects::DataTableCollection::onAdd(DataObjects::DataTable &tbl)
 {
-    tbl->table_data->dataset = _ds;
+    tbl.table_data->dataset = _ds;
 }

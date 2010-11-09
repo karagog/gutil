@@ -105,7 +105,7 @@ namespace GUtil
             // Returns -1 if not found
             int find_row_by_id(const DataRow::RowData * const) const;
 
-            virtual void onAdd(DataRow *);
+            virtual void onAdd(DataRow &);
 
         private:
             DataTable *_table;

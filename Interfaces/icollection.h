@@ -47,10 +47,12 @@ namespace GUtil
 
         protected:
 
-            virtual void onAdd(T *);
+            virtual void onAdd(T &);
 
         private:
             QList<T> _collection;
+
+            static void _copy(ICollection<T> &, const ICollection<T> &);
         };
     }
 }
