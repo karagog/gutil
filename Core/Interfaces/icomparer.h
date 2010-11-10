@@ -25,14 +25,22 @@ namespace GUtil
             template <class T, class U> class IComparerDifferent
             {
             public:
-                virtual bool Compare(const T &, const U &) const = 0;
+
+                // Return negative if LHS is less than RHS, 0 if equal
+                virtual int Compare(const T &lhs, const U &rhs) const = 0;
+
+                virtual ~IComparerDifferent(){}
             };
 
 
 
             // A class to compare two objects of like types
             template <class T> class IComparer : public IComparerDifferent<T, T>
-            {};
+            {
+            public:
+
+                virtual ~IComparer(){}
+            };
         }
     }
 }

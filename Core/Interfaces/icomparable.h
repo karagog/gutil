@@ -24,7 +24,9 @@ namespace GUtil
             template <class T> class IComparable
             {
             public:
-                virtual bool Compare(const T &) = 0;
+
+                // Return negative if this is less than the other, 0 if equal
+                virtual int Compare(const T &) const = 0;
 
                 virtual ~IComparable(){}
             };
