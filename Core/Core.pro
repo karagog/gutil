@@ -29,4 +29,5 @@ HEADERS += \
     Interfaces/ixmlserializable.h \
     Interfaces/istringable.h \
     Interfaces/iupdatable.h \
-    Interfaces/icomparable.h
+    Interfaces/icomparable.h \
+    Interfaces/icomparer.h
