@@ -7,14 +7,12 @@ HEADERS += \
     datatable.h \
     dataset.h \
     qvarianthelpers.h \
-    datarow.h \
-    datatuple.h
+    datarow.h
 
 SOURCES += \
     datatable.cpp \
     dataset.cpp \
     qvarianthelpers.cpp \
-    datarow.cpp \
-    datatuple.cpp
+    datarow.cpp
 
 INCLUDEPATH += ..

@@ -15,6 +15,9 @@ limitations under the License.*/
 #include "datarow.h"
 #include "datatable.h"
 #include "Custom/gsemaphore.h"
+#include "qvarianthelpers.h"
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
 using namespace GUtil;
 
 DataObjects::DataRow::DataRow()
@@ -29,7 +32,7 @@ DataObjects::DataRow::DataRow(DataObjects::DataTable *dt)
 
 DataObjects::DataRow::DataRow(const DataRow &o)
 {
-    *this = o;
+    _copy(*this, o);
 }
 
 DataObjects::DataRow::~DataRow(){}
@@ -43,8 +46,13 @@ void DataObjects::DataRow::_init_data_row(DataTable *dt)
 
 DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRow &o)
 {
-    row_data = o.row_data;
+    _copy(*this, o);
     return *this;
+}
+
+void DataObjects::DataRow::_copy(DataRow &t, const DataRow &o)
+{
+    t.row_data = o.row_data;
 }
 
 bool DataObjects::DataRow::operator ==(const DataObjects::DataRow &o) const
@@ -101,10 +109,7 @@ int DataObjects::DataRow::Index() const
 
 int DataObjects::DataRow::ColumnCount() const
 {
-    if(row_data->table == 0)
-        return 0;
-
-    return row_data->table->ColumnCount();
+    return row_data->tuple.Count();
 }
 
 void DataObjects::DataRow::set_table(DataObjects::DataTable *t)
@@ -145,16 +150,38 @@ bool DataObjects::DataRow::Equal(const DataObjects::DataRow &lhs,
 
 
 
+#define ROW_XML_ID "Row"
 
 void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
 {
-    row_data->tuple.WriteXml(sw);
+    sw.writeStartElement(ROW_XML_ID);
+    sw.writeAttribute("s", QString("%1").arg(ColumnCount()));
+
+    for(int i = 0; i < ColumnCount(); i++)
+        DataObjects::QVariantHelpers::WriteXml(row_data->tuple.Value(i), sw);
+
+    sw.writeEndElement();
 }
 
 void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
-    row_data->tuple.ReadXml(sr);
+    if(sr.readNextStartElement())
+    {
+        if(sr.name() != ROW_XML_ID)
+            THROW_NEW_GUTIL_EXCEPTION( Core::XmlException, QString("Unrecognized XML node: %1")
+                                     .arg(sr.name().toString()).toStdString() );
+
+        int cnt = sr.attributes().at(0).value().toString().toInt();
+
+        row_data->tuple.Clear();
+
+        for(int i = 0; i < cnt; i++)
+            row_data->tuple.Add(DataObjects::QVariantHelpers::ReadXml(sr));
+
+        while(sr.readNext() != QXmlStreamReader::EndElement ||
+              sr.name() != ROW_XML_ID);
+    }
 }
 
 

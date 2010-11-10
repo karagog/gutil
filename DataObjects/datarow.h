@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "Interfaces/icollection.h"
 #include "Interfaces/iqxmlserializable.h"
-#include "DataObjects/datatuple.h"
 #include "Custom/gshareddatapointer.h"
 #include <QVariant>
 
@@ -44,7 +43,7 @@ namespace GUtil
 
             DataRow Clone() const;
 
-            DataRow &operator =(const DataRow &);
+            virtual DataRow &operator =(const DataRow &);
             bool operator ==(const DataRow &) const;
             bool operator !=(const DataRow &) const;
             QVariant &operator [](int index);
@@ -76,7 +75,7 @@ namespace GUtil
                 RowData(const RowData &);
 
                 DataTable *table;
-                DataTuple tuple;
+                Interfaces::ICollection<QVariant> tuple;
             };
 
 
@@ -84,6 +83,8 @@ namespace GUtil
 
         private:
             void _init_data_row(DataTable *);
+
+            static void _copy(DataRow &, const DataRow &);
 
         };
 
