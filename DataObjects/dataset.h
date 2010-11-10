@@ -16,9 +16,9 @@ limitations under the License.*/
 #define ABSTRACTDATATUPLE_H
 
 #include "datatable.h"
+#include "collection.h"
 #include "qvarianthelpers.h"
 #include "Interfaces/iqxmlserializable.h"
-#include "Interfaces/icollection.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QAbstractItemModel>

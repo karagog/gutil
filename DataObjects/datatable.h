@@ -16,9 +16,9 @@ limitations under the License.*/
 #define DATATABLE_H
 
 #include "datarow.h"
+#include "collection.h"
 #include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
-#include "Interfaces/icollection.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QVariantList>
@@ -123,7 +123,7 @@ namespace GUtil
         };
 
 
-        class DataTableCollection : public Interfaces::ICollection<DataTable>
+        class DataTableCollection : public Collection<DataTable>
         {
             friend class DataSet;
 

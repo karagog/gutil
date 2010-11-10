@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATAROW_H
 #define DATAROW_H
 
-#include "Interfaces/icollection.h"
+#include "collection.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/gshareddatapointer.h"
 #include <QVariant>
@@ -75,7 +75,7 @@ namespace GUtil
                 RowData(const RowData &);
 
                 DataTable *table;
-                Interfaces::ICollection<QVariant> tuple;
+                Collection<QVariant> tuple;
             };
 
 
@@ -92,7 +92,7 @@ namespace GUtil
 
 
 
-        class DataRowCollection : public Interfaces::ICollection<DataRow>
+        class DataRowCollection : public Collection<DataRow>
         {
             friend class DataRow;
             friend class DataTable;

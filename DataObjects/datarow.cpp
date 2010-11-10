@@ -221,7 +221,7 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::operator =
         (const DataObjects::DataRowCollection &o)
 {
     _table = o._table;
-    ((Interfaces::ICollection<DataRow> &)*this) = o;
+    ((Collection<DataRow> &)*this) = o;
     return *this;
 }
 

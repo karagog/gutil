@@ -12,22 +12,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-//#include "icollection.h"
 using namespace GUtil;
 
-template <typename T> Interfaces::ICollection<T>::ICollection(int size)
+template <typename T> DataObjects::Collection<T>::Collection(int size)
 {
     Resize(size);
 }
 
-template <typename T> Interfaces::ICollection<T>::ICollection(
-        const Interfaces::ICollection<T> &o)
+template <typename T> DataObjects::Collection<T>::Collection(
+        const DataObjects::Collection<T> &o)
 {
     _copy(*this, o);
 }
 
-template <typename T> void Interfaces::ICollection<T>::_copy(Interfaces::ICollection<T> &lhs,
-                                       const Interfaces::ICollection<T> &rhs)
+template <typename T> void DataObjects::Collection<T>::_copy(DataObjects::Collection<T> &lhs,
+                                       const DataObjects::Collection<T> &rhs)
 {
     lhs.FailIfReadOnly();
 
@@ -37,9 +36,9 @@ template <typename T> void Interfaces::ICollection<T>::_copy(Interfaces::ICollec
         lhs._collection.append(item);
 }
 
-template <typename T> Interfaces::ICollection<T>::~ICollection(){}
+template <typename T> DataObjects::Collection<T>::~Collection(){}
 
-template <typename T> T &Interfaces::ICollection<T>::Add(const T &value)
+template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
 {
     FailIfReadOnly();
 
@@ -51,7 +50,7 @@ template <typename T> T &Interfaces::ICollection<T>::Add(const T &value)
     return _collection[index];
 }
 
-template <typename T> T &Interfaces::ICollection<T>::Insert(int index, const T &value)
+template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &value)
 {
     FailIfReadOnly();
 
@@ -62,12 +61,12 @@ template <typename T> T &Interfaces::ICollection<T>::Insert(int index, const T &
     return _collection[index];
 }
 
-template <typename T> T Interfaces::ICollection<T>::Value(int index) const
+template <typename T> T DataObjects::Collection<T>::Value(int index) const
 {
     return _collection.at(index);
 }
 
-template <typename T> T &Interfaces::ICollection<T>::SetValue(int index, const T &value)
+template <typename T> T &DataObjects::Collection<T>::SetValue(int index, const T &value)
 {
     FailIfReadOnly();
 
@@ -76,45 +75,45 @@ template <typename T> T &Interfaces::ICollection<T>::SetValue(int index, const T
     return _collection[index];
 }
 
-template <typename T> void Interfaces::ICollection<T>::Remove(int index)
+template <typename T> void DataObjects::Collection<T>::Remove(int index)
 {
     FailIfReadOnly();
 
     _collection.removeAt(index);
 }
 
-template <typename T> void Interfaces::ICollection<T>::Clear()
+template <typename T> void DataObjects::Collection<T>::Clear()
 {
     while(Count() > 0)
         Remove(0);
 }
 
-template <typename T> T &Interfaces::ICollection<T>::operator [](int index)
+template <typename T> T &DataObjects::Collection<T>::operator [](int index)
 {
     FailIfReadOnly();
 
     return _collection[index];
 }
 
-template <typename T> Interfaces::ICollection<T> &
-        Interfaces::ICollection<T>::operator =(const Interfaces::ICollection<T> &o)
+template <typename T> DataObjects::Collection<T> &
+        DataObjects::Collection<T>::operator =(const DataObjects::Collection<T> &o)
 {
     _copy(*this, o);
 
     return *this;
 }
 
-template <typename T> int Interfaces::ICollection<T>::Count() const
+template <typename T> int DataObjects::Collection<T>::Count() const
 {
     return Size();
 }
 
-template <typename T> int Interfaces::ICollection<T>::Size() const
+template <typename T> int DataObjects::Collection<T>::Size() const
 {
    return _collection.length();
 }
 
-template <typename T> void Interfaces::ICollection<T>::Resize(int len)
+template <typename T> void DataObjects::Collection<T>::Resize(int len)
 {
     FailIfReadOnly();
 
@@ -130,4 +129,4 @@ template <typename T> void Interfaces::ICollection<T>::Resize(int len)
     }
 }
 
-template <typename T> void Interfaces::ICollection<T>::onAdd(T &){}
+template <typename T> void DataObjects::Collection<T>::onAdd(T &){}

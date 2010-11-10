@@ -12,22 +12,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ICOLLECTION_H
-#define ICOLLECTION_H
+#ifndef COLLECTION_H
+#define COLLECTION_H
 
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QList>
 
 namespace GUtil
 {
-    namespace Interfaces
+    namespace DataObjects
     {
-        template <typename T> class ICollection : public Core::Interfaces::IReadOnlyObject
+        template <typename T> class Collection : public Core::Interfaces::IReadOnlyObject
         {
         public:
-            ICollection(int size = 0);
-            ICollection(const ICollection<T> &o);
-            virtual ~ICollection();
+            Collection(int size = 0);
+            Collection(const Collection<T> &o);
+            virtual ~Collection();
 
             T &Add(const T &value);
             T &Insert(int index, const T &value);
@@ -36,7 +36,7 @@ namespace GUtil
             T Value(int index) const;
 
             T &operator [](int index);
-            virtual ICollection<T> &operator =(const ICollection<T> &);
+            virtual Collection<T> &operator =(const Collection<T> &);
 
             void Remove(int index);
             void Clear();
@@ -52,11 +52,11 @@ namespace GUtil
         private:
             QList<T> _collection;
 
-            static void _copy(ICollection<T> &, const ICollection<T> &);
+            static void _copy(Collection<T> &, const Collection<T> &);
         };
     }
 }
 
-#include "icollection.cpp"
+#include "collection.cpp"
 
-#endif // ICOLLECTION_H
+#endif // Collection_H
