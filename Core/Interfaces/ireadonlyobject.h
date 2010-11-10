@@ -38,7 +38,8 @@ namespace GUtil
                 bool IsReadOnly() const;
                 virtual void SetReadOnly(bool readonly = true);
 
-                void FailIfReadOnly() const throw(GUtil::Core::ReadOnlyException);
+                void FailIfReadOnly() const
+                        throw(GUtil::Core::ReadOnlyException);
 
                 virtual ~IReadOnlyObject();
 
