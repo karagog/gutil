@@ -30,4 +30,6 @@ HEADERS += \
     Interfaces/istringable.h \
     Interfaces/iupdatable.h \
     Interfaces/icomparable.h \
-    Interfaces/icomparer.h
+    Interfaces/icomparer.h \
+    Interfaces/iequatable.h \
+    Interfaces/iequalitycomparer.h
