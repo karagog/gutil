@@ -60,7 +60,8 @@ void DataSetTest::test_dataRows()
         QVERIFY(r2[0] == "Value");
         QVERIFY(r1["0"] == "Value");
 
-        DataRow r3 = r2.Clone();
+        DataRow r3;
+        r3.CloneFrom(r2);
         QVERIFY(r3[0] == "Value");
 
         // They're not equal, because after cloning the row identifier is unique

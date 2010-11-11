@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/iequatable.h"
+#include "Core/Interfaces/iclonable.h"
 #include <QList>
 
 namespace GUtil
@@ -28,7 +29,8 @@ namespace GUtil
         {
         public:
             Collection(int size = 0);
-            Collection(const Collection<T> &o);
+            Collection(const Collection<T> &);
+            Collection(const QList<T> &);
             virtual ~Collection();
 
             T &Add(const T &value);
@@ -37,11 +39,8 @@ namespace GUtil
             T &SetValue(int index, const T &);
             T Value(int index) const;
 
-            T &operator [](int index);
+            virtual T &operator [](int index);
             virtual Collection<T> &operator =(const Collection<T> &);
-
-            bool operator ==(const Collection<T> &) const;
-            virtual bool Equals(const Collection<T> &) const;
 
             void Remove(int index);
             void Clear();
@@ -53,6 +52,11 @@ namespace GUtil
             bool Contains(const T &) const;
             int IndexOf(const T &) const;
 
+            bool operator ==(const Collection<T> &) const;
+            virtual bool Equals(const Collection<T> &) const;
+
+            virtual Collection<T> &CloneOnto(Collection<T> &) const;
+
         protected:
 
             virtual void onAdd(T &);
@@ -60,7 +64,6 @@ namespace GUtil
         private:
             QList<T> _collection;
 
-            static void _copy(Collection<T> &, const Collection<T> &);
         };
     }
 }

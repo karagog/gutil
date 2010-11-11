@@ -22,18 +22,13 @@ template <typename T> DataObjects::Collection<T>::Collection(int size)
 template <typename T> DataObjects::Collection<T>::Collection(
         const DataObjects::Collection<T> &o)
 {
-    _copy(*this, o);
+    o.Clone(*this);
 }
 
-template <typename T> void DataObjects::Collection<T>::_copy(DataObjects::Collection<T> &lhs,
-                                       const DataObjects::Collection<T> &rhs)
+
+template <typename T> DataObjects::Collection<T>::Collection(const QList<T> &o)
 {
-    lhs.FailIfReadOnly();
-
-    lhs.Clear();
-
-    foreach(T item, rhs._collection)
-        lhs._collection.append(item);
+    _collection = o;
 }
 
 template <typename T> DataObjects::Collection<T>::~Collection(){}
@@ -108,9 +103,7 @@ template <typename T> T &DataObjects::Collection<T>::operator [](int index)
 template <typename T> DataObjects::Collection<T> &
         DataObjects::Collection<T>::operator =(const DataObjects::Collection<T> &o)
 {
-    _copy(*this, o);
-
-    return *this;
+    return o.CloneOnto(*this);
 }
 
 template <typename T> bool DataObjects::Collection<T>::operator ==(
@@ -149,6 +142,15 @@ template <typename T> void DataObjects::Collection<T>::Resize(int len)
         while(_collection.count() > len)
             _collection.removeLast();
     }
+}
+
+template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::CloneOnto(
+        DataObjects::Collection<T> &o) const
+{
+    o.FailIfReadOnly();
+
+    o._collection = _collection;
+    return o;
 }
 
 template <typename T> void DataObjects::Collection<T>::onAdd(T &){}

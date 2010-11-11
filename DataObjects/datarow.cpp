@@ -32,7 +32,7 @@ DataObjects::DataRow::DataRow(DataObjects::DataTable *dt)
 
 DataObjects::DataRow::DataRow(const DataRow &o)
 {
-    _copy(*this, o);
+    row_data = o.row_data;
 }
 
 DataObjects::DataRow::~DataRow(){}
@@ -46,13 +46,8 @@ void DataObjects::DataRow::_init_data_row(DataTable *dt)
 
 DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRow &o)
 {
-    _copy(*this, o);
+    row_data = o.row_data;
     return *this;
-}
-
-void DataObjects::DataRow::_copy(DataRow &t, const DataRow &o)
-{
-    t.row_data = o.row_data;
 }
 
 bool DataObjects::DataRow::operator ==(const DataObjects::DataRow &o) const
@@ -65,11 +60,11 @@ bool DataObjects::DataRow::operator !=(const DataRow &o) const
     return !(*this == o);
 }
 
-DataObjects::DataRow DataObjects::DataRow::Clone() const
+DataObjects::DataRow &DataObjects::DataRow::CloneOnto(DataObjects::DataRow &o) const
 {
-    DataObjects::DataRow ret(*this);
-    ret.row_data.detach();
-    return ret;
+    o = *this;
+    o.row_data.detach();
+    return o;
 }
 
 QVariant &DataObjects::DataRow::operator [](int index)
@@ -222,6 +217,14 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::operator =
     _table = o._table;
     ((Collection<DataRow> &)*this) = o;
     return *this;
+}
+
+DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneOnto(
+        DataObjects::DataRowCollection &o) const
+{
+    o._table = _table;
+    Collection<DataRow>::CloneOnto(o);
+    return o;
 }
 
 int DataObjects::DataRowCollection::find_row_by_id(

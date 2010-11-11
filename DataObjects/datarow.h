@@ -17,8 +17,9 @@ limitations under the License.*/
 
 #include "collection.h"
 #include "Interfaces/iqxmlserializable.h"
-#include "Core/Interfaces/iequatable.h"
 #include "Custom/gshareddatapointer.h"
+#include "Core/Interfaces/iequatable.h"
+#include "Core/Interfaces/iclonable.h"
 #include <QVariant>
 
 namespace GUtil
@@ -33,7 +34,8 @@ namespace GUtil
         class DataTable;
 
         class DataRow : public Interfaces::IQXmlSerializable,
-                        public Core::Interfaces::IEquatable<DataRow>
+                        public Core::Interfaces::IEquatable<DataRow>,
+                        public Core::Interfaces::IClonable<DataRow>
         {
             friend class DataTable;
             friend class DataRowCollection;
@@ -43,8 +45,6 @@ namespace GUtil
             DataRow(const DataRow &);
             virtual ~DataRow();
 
-            DataRow Clone() const;
-
             virtual DataRow &operator =(const DataRow &);
             bool operator ==(const DataRow &) const;
             bool operator !=(const DataRow &) const;
@@ -53,13 +53,19 @@ namespace GUtil
 
             QVariant At(int index) const;
 
-            virtual bool Equals(const DataRow &) const;
-
             DataTable &Table();
 
             int Index() const;
             int ColumnCount() const;
 
+
+            // IEquatable interface:
+            virtual bool Equals(const DataRow &) const;
+
+            // IClonable interface:
+            virtual DataRow &CloneOnto(DataRow &) const;
+
+            // IQXmlSerializable interface:
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(Core::XmlException);
@@ -86,18 +92,22 @@ namespace GUtil
         private:
             void _init_data_row(DataTable *);
 
-            static void _copy(DataRow &, const DataRow &);
-
         };
 
 
 
 
 
-        class DataRowCollection : public Collection<DataRow>
+        class DataRowCollection :   public Collection<DataRow>,
+                                    public Core::Interfaces::IClonable<DataRowCollection>
         {
             friend class DataRow;
             friend class DataTable;
+
+        public:
+
+            // IClonable interface
+            virtual DataRowCollection &CloneOnto(DataRowCollection &) const;
 
         protected:
             DataRowCollection(DataTable *t = 0);
