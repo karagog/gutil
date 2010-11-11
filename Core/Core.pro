@@ -32,4 +32,5 @@ HEADERS += \
     Interfaces/icomparable.h \
     Interfaces/icomparer.h \
     Interfaces/iequatable.h \
-    Interfaces/iequalitycomparer.h
+    Interfaces/iequalitycomparer.h \
+    Interfaces/iclonable.h
