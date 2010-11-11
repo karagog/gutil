@@ -45,6 +45,9 @@ namespace GUtil
             int Size() const;
             void Resize(int);
 
+            bool Contains(const T &) const;
+            int IndexOf(const T &) const;
+
         protected:
 
             virtual void onAdd(T &);
