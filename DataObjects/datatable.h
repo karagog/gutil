@@ -104,7 +104,7 @@ namespace GUtil
             class TableData : public QSharedData
             {
             public:
-                TableData(DataTable *parent_table = 0);
+                TableData(DataTable *parent_table);
                 TableData(const TableData &);
 
                 DataSet *dataset;
@@ -125,17 +125,7 @@ namespace GUtil
 
 
         class DataTableCollection : public Collection<DataTable>
-        {
-            friend class DataSet;
-
-        protected:
-            DataTableCollection(DataSet *);
-
-            virtual void onAdd(DataTable &);
-
-        private:
-            DataSet *_ds;
-        };
+        {};
     }
 }
 

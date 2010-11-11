@@ -20,11 +20,6 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-DataObjects::DataRow::DataRow()
-{
-    _init_data_row(0);
-}
-
 DataObjects::DataRow::DataRow(DataObjects::DataTable *dt)
 {
     _init_data_row(dt);
@@ -244,8 +239,7 @@ int DataObjects::DataRowCollection::find_row_by_id(
     return ret;
 }
 
-void DataObjects::DataRowCollection::onAdd(DataRow &dr)
+DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item() const
 {
-    dr.row_data->table = _table;
-    dr.set_number_of_columns(_table ? _table->ColumnCount() : 0);
+    return DataRow(_table);
 }

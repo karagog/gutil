@@ -45,13 +45,9 @@ void DataSetTest::test_dataRows()
     {
         DataTable t(1);
         DataRow r1 = t.CreateRow();
-        DataRow r2;
+        DataRow r2(r1);
 
-        // A null row has no index
-        QVERIFY(r2.Index() == -1);
-
-        // Setting them equal will tie their shared data pointers together
-        r2 = r1;
+        QVERIFY(r1 == r2);
 
         // Both data rows should be looking at the same data source
         r1[0] = "Value";
@@ -60,9 +56,8 @@ void DataSetTest::test_dataRows()
         QVERIFY(r2[0] == "Value");
         QVERIFY(r1["0"] == "Value");
 
-        DataRow r3;
+        DataRow r3 = t.CreateRow();
         r3.CloneFrom(r2);
-        QVERIFY(r3[0] == "Value");
 
         // They're not equal, because after cloning the row identifier is unique
         QVERIFY(r3 != r2);

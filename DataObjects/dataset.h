@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "datatable.h"
 #include "collection.h"
 #include "qvarianthelpers.h"
+#include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -64,6 +65,13 @@ namespace GUtil
 
             // Derived classes can override this function to do special things when you commit data
             virtual void commit_reject_changes(bool commit);
+
+            class SetData : public QSharedData
+            {
+            public:
+                SetData();
+                SetData(const SetData &);
+            };
 
         private:
 

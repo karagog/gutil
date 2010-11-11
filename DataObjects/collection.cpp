@@ -38,9 +38,7 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
     FailIfReadOnly();
 
     int index = _collection.size();
-
     _collection.append(value);
-    onAdd(_collection[index]);
 
     return _collection[index];
 }
@@ -50,8 +48,6 @@ template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &
     FailIfReadOnly();
 
     _collection.insert(index, value);
-
-    onAdd((void *)&_collection[index], index);
 
     return _collection[index];
 }
@@ -135,12 +131,12 @@ template <typename T> void DataObjects::Collection<T>::Resize(int len)
     if(len > _collection.count())
     {
         while(_collection.count() < len)
-            _collection.append(T());
+            Add(create_blank_item());
     }
     else if(len < _collection.count())
     {
         while(_collection.count() > len)
-            _collection.removeLast();
+            Remove(_collection.count() - 1);
     }
 }
 
@@ -152,5 +148,3 @@ template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::Cl
     o._collection = _collection;
     return o;
 }
-
-template <typename T> void DataObjects::Collection<T>::onAdd(T &){}

@@ -41,7 +41,7 @@ namespace GUtil
             friend class DataRowCollection;
 
         public:
-            DataRow();
+
             DataRow(const DataRow &);
             virtual ~DataRow();
 
@@ -76,6 +76,12 @@ namespace GUtil
             void set_table(DataTable *);
             void set_number_of_columns(int);
 
+            class QVariantCollection : public Collection<QVariant>
+            {
+            protected:
+                virtual inline QVariant create_blank_item() const{ return QVariant(); }
+            };
+
             class RowData : public QSharedData
             {
             public:
@@ -83,7 +89,7 @@ namespace GUtil
                 RowData(const RowData &);
 
                 DataTable *table;
-                Collection<QVariant> tuple;
+                QVariantCollection tuple;
             };
 
 
@@ -118,8 +124,7 @@ namespace GUtil
             // Returns -1 if not found
             int find_row_by_id(const DataRow::RowData * const) const;
 
-            // Executed when a row is added; used to set the table property on the row
-            virtual void onAdd(DataRow &);
+            virtual DataRow create_blank_item() const;
 
         private:
             DataTable *_table;

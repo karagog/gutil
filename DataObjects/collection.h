@@ -53,13 +53,20 @@ namespace GUtil
             int IndexOf(const T &) const;
 
             bool operator ==(const Collection<T> &) const;
+
+            // The IEquatable interface:
             virtual bool Equals(const Collection<T> &) const;
 
+            // The IClonable interface
             virtual Collection<T> &CloneOnto(Collection<T> &) const;
 
         protected:
 
-            virtual void onAdd(T &);
+            // Derived classes use this method to instantiate blank items for the resize method
+            virtual T create_blank_item() const{
+                THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException,
+                                          "Derived class must override this method!");
+            }
 
         private:
             QList<T> _collection;

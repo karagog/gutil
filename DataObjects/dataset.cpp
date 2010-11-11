@@ -22,7 +22,7 @@ DataObjects::DataSet::DataSet(QObject *parent)
     _auto_commit = false;
     _dirty = false;
 
-    _tables = new DataTableCollection(this);
+    _tables = new DataTableCollection();
 }
 
 DataObjects::DataSet::~DataSet()
