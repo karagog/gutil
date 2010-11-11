@@ -16,13 +16,15 @@ limitations under the License.*/
 #define COLLECTION_H
 
 #include "Core/Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/iequatable.h"
 #include <QList>
 
 namespace GUtil
 {
     namespace DataObjects
     {
-        template <typename T> class Collection : public Core::Interfaces::IReadOnlyObject
+        template <typename T> class Collection :    public Core::Interfaces::IReadOnlyObject,
+                                                    public Core::Interfaces::IEquatable< Collection<T> >
         {
         public:
             Collection(int size = 0);
@@ -37,6 +39,9 @@ namespace GUtil
 
             T &operator [](int index);
             virtual Collection<T> &operator =(const Collection<T> &);
+
+            bool operator ==(const Collection<T> &) const;
+            virtual bool Equals(const Collection<T> &) const;
 
             void Remove(int index);
             void Clear();

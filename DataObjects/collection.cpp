@@ -113,6 +113,18 @@ template <typename T> DataObjects::Collection<T> &
     return *this;
 }
 
+template <typename T> bool DataObjects::Collection<T>::operator ==(
+        const DataObjects::Collection<T> &rhs) const
+{
+    return Equals(rhs);
+}
+
+template <typename T> bool DataObjects::Collection<T>::Equals(
+        const DataObjects::Collection<T> &rhs) const
+{
+    return _collection == rhs._collection;
+}
+
 template <typename T> int DataObjects::Collection<T>::Count() const
 {
     return Size();
