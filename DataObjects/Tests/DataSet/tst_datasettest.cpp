@@ -26,12 +26,63 @@ public:
     DataSetTest();
 
 private Q_SLOTS:
-    void test_dataTable();
+
+    // test rows
     void test_dataRows();
+
+    // test the data table
+    void test_dataTable();
+
 };
 
 DataSetTest::DataSetTest()
 {
+}
+
+void DataSetTest::test_dataRows()
+{
+    try
+    {
+        DataTable t(1);
+        DataRow r1 = t.CreateRow();
+        DataRow r2;
+
+        // A null row has no index
+        QVERIFY(r2.Index() == -1);
+
+        // Setting them equal will tie their shared data pointers together
+        r2 = r1;
+
+        // Both data rows should be looking at the same data source
+        r1[0] = "Value";
+        QVERIFY(r1[0] == r2[0]);
+        QVERIFY(r1[0] == "Value");
+        QVERIFY(r2[0] == "Value");
+        QVERIFY(r1["0"] == "Value");
+
+        DataRow r3 = r2.Clone();
+        QVERIFY(r3[0] == "Value");
+
+        // They're not equal, because after cloning the row identifier is unique
+        QVERIFY(r3 != r2);
+
+        // But their data should be the same if we compare it
+        QVERIFY(r3.Equals(r2));
+
+        // A change to either of the first two doesn't affect the cloned row
+        r2[0] = "1";
+        QVERIFY(r2[0] == "1");
+        QVERIFY(r1[0] == "1");
+        QVERIFY(r3[0] != "1");
+
+        // Make sure the equal operator works the other way around too
+        QVERIFY(!r3.Equals(r2));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QVERIFY(false);
+    }
 }
 
 void DataSetTest::test_dataTable()
@@ -105,10 +156,10 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt2.Rows().Count() == 2);
         QVERIFY(dt2.ColumnCount() == 2);
 
-        QVERIFY(dt2.GetColumnKey(0) == "OneColumn");
-        QVERIFY(dt2.GetColumnKey(1) == "second");
-        QVERIFY(dt2.GetColumnLabel(0) == "");
-        QVERIFY(dt2.GetColumnLabel(1) == "two");
+        QVERIFY(dt2.ColumnKeys()[0] == "OneColumn");
+        QVERIFY(dt2.ColumnKeys()[1] == "second");
+        QVERIFY(dt2.ColumnLabels()[0] == "");
+        QVERIFY(dt2.ColumnLabels()[1] == "two");
 
         QVERIFY(dt2.Rows()[0][0] == "HI");
         QVERIFY(dt2.Rows()[0]["second"] == "v");
@@ -122,51 +173,7 @@ void DataSetTest::test_dataTable()
     }
 }
 
-void DataSetTest::test_dataRows()
-{
-    try
-    {
-        DataTable t(1);
-        DataRow r1 = t.CreateRow();
-        DataRow r2;
 
-        // A null row has no index
-        QVERIFY(r2.Index() == -1);
-
-        // Setting them equal will tie their shared data pointers together
-        r2 = r1;
-
-        // Both data rows should be looking at the same data source
-        r1[0] = "Value";
-        QVERIFY(r1[0] == r2[0]);
-        QVERIFY(r1[0] == "Value");
-        QVERIFY(r2[0] == "Value");
-        QVERIFY(r1["0"] == "Value");
-
-        DataRow r3 = r2.Clone();
-        QVERIFY(r3[0] == "Value");
-
-        // They're not equal, because after cloning the row identifier is unique
-        QVERIFY(r3 != r2);
-
-        // But their data should be the same if we compare it
-        QVERIFY(DataRow::Equal(r3, r2));
-
-        // A change to either of the first two doesn't affect the cloned row
-        r2[0] = "1";
-        QVERIFY(r2[0] == "1");
-        QVERIFY(r1[0] == "1");
-        QVERIFY(r3[0] != "1");
-
-        // Make sure the equal operator works the other way around too
-        QVERIFY(!DataRow::Equal(r3, r2));
-    }
-    catch(Core::Exception &ex)
-    {
-        dLogException(ex);
-        QVERIFY(false);
-    }
-}
 
 
 

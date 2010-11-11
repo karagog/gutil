@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "collection.h"
 #include "Interfaces/iqxmlserializable.h"
+#include "Core/Interfaces/iequatable.h"
 #include "Custom/gshareddatapointer.h"
 #include <QVariant>
 
@@ -31,7 +32,8 @@ namespace GUtil
     {
         class DataTable;
 
-        class DataRow : public Interfaces::IQXmlSerializable
+        class DataRow : public Interfaces::IQXmlSerializable,
+                        public Core::Interfaces::IEquatable<DataRow>
         {
             friend class DataTable;
             friend class DataRowCollection;
@@ -51,7 +53,7 @@ namespace GUtil
 
             QVariant At(int index) const;
 
-            static bool Equal(const DataRow &, const DataRow &);
+            virtual bool Equals(const DataRow &) const;
 
             DataTable &Table();
 
@@ -106,10 +108,12 @@ namespace GUtil
             // Returns -1 if not found
             int find_row_by_id(const DataRow::RowData * const) const;
 
+            // Executed when a row is added; used to set the table property on the row
             virtual void onAdd(DataRow &);
 
         private:
             DataTable *_table;
+
         };
     }
 }

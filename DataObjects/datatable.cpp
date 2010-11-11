@@ -24,7 +24,7 @@ using namespace GUtil;
 
 DataObjects::DataTable::DataTable(int num_cols)
     :QAbstractTableModel(qApp),
-    table_data(new TableData())
+    table_data(new TableData(this))
 {
     _init(0, num_cols);
 }
@@ -32,12 +32,12 @@ DataObjects::DataTable::DataTable(int num_cols)
 DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
     :QAbstractTableModel(qApp)
 {
-    *this = o;
+    _copy(*this, o);
 }
 
 DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent, int num_cols)
     :QAbstractTableModel(ds_parent),
-    table_data(new TableData())
+    table_data(new TableData(this))
 {
     _init(ds_parent, num_cols);
 }
@@ -56,8 +56,14 @@ void DataObjects::DataTable::_init(DataSet *ds, int num_cols)
 
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
 {
-    table_data = o.table_data;
+    _copy(*this, o);
     return *this;
+}
+
+void DataObjects::DataTable::_copy(DataObjects::DataTable &lhs,
+                                   const DataObjects::DataTable &rhs)
+{
+    lhs.table_data = rhs.table_data;
 }
 
 bool DataObjects::DataTable::operator ==(const DataObjects::DataTable &o) const
@@ -315,8 +321,9 @@ void DataObjects::DataTable::SetReadOnly(bool readonly)
 
 
 
-DataObjects::DataTable::TableData::TableData()
-    :QSharedData(){}
+DataObjects::DataTable::TableData::TableData(DataObjects::DataTable *t)
+    :QSharedData(), rows(t)
+{}
 
 DataObjects::DataTable::TableData::TableData(
         const DataObjects::DataTable::TableData &d)

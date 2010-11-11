@@ -58,7 +58,7 @@ namespace GUtil
             GSharedLock &SharedLock(){ return _lock; }
 
             void detach(){
-                QExplicitlySharedDataPointer<T>::reset();
+                QExplicitlySharedDataPointer<T>::detach();
                 _lock.Detach();
             }
 

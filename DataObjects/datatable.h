@@ -68,7 +68,7 @@ namespace GUtil
 
             int GetColumnIndex(const QString &key) const;
 
-            DataTable &operator =(const DataTable &);
+            virtual DataTable &operator =(const DataTable &);
             bool operator ==(const DataTable &) const;
 
             DataSet *DataSetParent() const;
@@ -104,7 +104,7 @@ namespace GUtil
             class TableData : public QSharedData
             {
             public:
-                TableData();
+                TableData(DataTable *parent_table = 0);
                 TableData(const TableData &);
 
                 DataSet *dataset;
@@ -119,6 +119,7 @@ namespace GUtil
         private:
 
             void _init(DataSet *, int);
+            static void _copy(DataTable &, const DataTable &);
 
         };
 

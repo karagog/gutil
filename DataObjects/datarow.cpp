@@ -130,18 +130,17 @@ QVariant DataObjects::DataRow::At(int index) const
     return row_data->tuple.Value(index);
 }
 
-bool DataObjects::DataRow::Equal(const DataObjects::DataRow &lhs,
-                                 const DataObjects::DataRow &rhs)
+bool DataObjects::DataRow::Equals(const DataObjects::DataRow &rhs) const
 {
     bool ret = false;
-    if(lhs.ColumnCount() == rhs.ColumnCount())
+    if(ColumnCount() == rhs.ColumnCount())
     {
         int i;
-        for(i = 0; i < lhs.ColumnCount(); i++)
-            if(lhs.At(i) != rhs.At(i))
+        for(i = 0; i < ColumnCount(); i++)
+            if(At(i) != rhs.At(i))
                 break;
 
-        if(i == lhs.ColumnCount())
+        if(i == ColumnCount())
             ret = true;
     }
     return ret;
@@ -245,5 +244,5 @@ int DataObjects::DataRowCollection::find_row_by_id(
 void DataObjects::DataRowCollection::onAdd(DataRow &dr)
 {
     dr.row_data->table = _table;
-    dr.set_number_of_columns(_table->ColumnCount());
+    dr.set_number_of_columns(_table ? _table->ColumnCount() : 0);
 }
