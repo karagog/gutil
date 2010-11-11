@@ -16,6 +16,7 @@ limitations under the License.*/
 #define DATAROW_H
 
 #include "collection.h"
+#include "qvariantcollection.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/gshareddatapointer.h"
 #include "Core/Interfaces/iequatable.h"
@@ -75,12 +76,6 @@ namespace GUtil
 
             void set_table(DataTable *);
             void set_number_of_columns(int);
-
-            class QVariantCollection : public Collection<QVariant>
-            {
-            protected:
-                virtual inline QVariant create_blank_item() const{ return QVariant(); }
-            };
 
             class RowData : public QSharedData
             {

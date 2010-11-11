@@ -39,8 +39,8 @@ namespace GUtil
             T &SetValue(int index, const T &);
             T Value(int index) const;
 
-            virtual T &operator [](int index);
-            virtual Collection<T> &operator =(const Collection<T> &);
+            T &operator [](int index);
+            Collection<T> &operator =(const Collection<T> &);
 
             void Remove(int index);
             void Clear();

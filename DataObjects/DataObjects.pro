@@ -8,7 +8,8 @@ HEADERS += \
     dataset.h \
     qvarianthelpers.h \
     datarow.h \
-    collection.h
+    collection.h \
+    qvariantcollection.h
 
 SOURCES += \
     datatable.cpp \
