@@ -25,7 +25,8 @@ namespace GUtil
     namespace DataObjects
     {
         template <typename T> class Collection :    public Core::Interfaces::IReadOnlyObject,
-                                                    public Core::Interfaces::IEquatable< Collection<T> >
+                                                    public Core::Interfaces::IEquatable< Collection<T> >,
+                                                    public Core::Interfaces::IClonable< Collection<T> >
         {
         public:
             Collection(int size = 0);

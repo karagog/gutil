@@ -86,7 +86,7 @@ template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) cons
 
 template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
 {
-    return _collection.IndexOf(o);
+    return _collection.indexOf(o);
 }
 
 template <typename T> T &DataObjects::Collection<T>::operator [](int index)

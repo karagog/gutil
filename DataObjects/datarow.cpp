@@ -94,7 +94,7 @@ int DataObjects::DataRow::Index() const
     if(row_data->table == 0)
         return -1;
 
-    return row_data->table->Rows().find_row_by_id(row_data.constData());
+    return row_data->table->Rows().IndexOf(*this);
 }
 
 int DataObjects::DataRow::ColumnCount() const
@@ -220,23 +220,6 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneOnto(
     o._table = _table;
     Collection<DataRow>::CloneOnto(o);
     return o;
-}
-
-int DataObjects::DataRowCollection::find_row_by_id(
-        const DataObjects::DataRow::RowData * const row_id) const
-{
-    int ret = -1;
-
-    for(int i = 0; i < Count(); i++)
-    {
-        if(Value(i).row_data == row_id)
-        {
-            ret = i;
-            break;
-        }
-    }
-
-    return ret;
 }
 
 DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item() const
