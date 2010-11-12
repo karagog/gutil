@@ -54,6 +54,11 @@ void DataObjects::DataTable::_init(DataSet *ds, int num_cols)
     SetColumnHeaders(sl);
 }
 
+DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
+{
+    return Rows()[ind];
+}
+
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
 {
     _copy(*this, o);

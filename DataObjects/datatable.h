@@ -68,7 +68,8 @@ namespace GUtil
 
             int GetColumnIndex(const QString &key) const;
 
-            virtual DataTable &operator =(const DataTable &);
+            DataRow &operator [](int);
+            DataTable &operator =(const DataTable &);
             bool operator ==(const DataTable &) const;
 
             DataSet *DataSetParent() const;
