@@ -55,7 +55,7 @@ bool DataObjects::DataRow::operator !=(const DataRow &o) const
     return !(*this == o);
 }
 
-DataObjects::DataRow &DataObjects::DataRow::CloneOnto(DataObjects::DataRow &o) const
+DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) const
 {
     o = *this;
     o.row_data.detach();
@@ -214,11 +214,11 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::operator =
     return *this;
 }
 
-DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneOnto(
+DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
         DataObjects::DataRowCollection &o) const
 {
     o._table = _table;
-    Collection<DataRow>::CloneOnto(o);
+    Collection<DataRow>::CloneTo(o);
     return o;
 }
 

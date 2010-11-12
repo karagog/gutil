@@ -59,7 +59,7 @@ namespace GUtil
             virtual bool Equals(const Collection<T> &) const;
 
             // The IClonable interface
-            virtual Collection<T> &CloneOnto(Collection<T> &) const;
+            virtual Collection<T> &CloneTo(Collection<T> &) const;
 
         protected:
 

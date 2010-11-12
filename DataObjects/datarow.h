@@ -59,7 +59,7 @@ namespace GUtil
             virtual bool Equals(const DataRow &) const;
 
             // IClonable interface:
-            virtual DataRow &CloneOnto(DataRow &) const;
+            virtual DataRow &CloneTo(DataRow &) const;
 
             // IQXmlSerializable interface:
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -103,7 +103,7 @@ namespace GUtil
         public:
 
             // IClonable interface
-            virtual DataRowCollection &CloneOnto(DataRowCollection &) const;
+            virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
         protected:
             DataRowCollection(DataTable *t = 0);

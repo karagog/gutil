@@ -99,7 +99,7 @@ template <typename T> T &DataObjects::Collection<T>::operator [](int index)
 template <typename T> DataObjects::Collection<T> &
         DataObjects::Collection<T>::operator =(const DataObjects::Collection<T> &o)
 {
-    return o.CloneOnto(*this);
+    return o.CloneTo(*this);
 }
 
 template <typename T> bool DataObjects::Collection<T>::operator ==(
@@ -140,7 +140,7 @@ template <typename T> void DataObjects::Collection<T>::Resize(int len)
     }
 }
 
-template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::CloneOnto(
+template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::CloneTo(
         DataObjects::Collection<T> &o) const
 {
     o.FailIfReadOnly();
