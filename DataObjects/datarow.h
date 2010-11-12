@@ -25,11 +25,6 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace Custom
-    {
-        class GSemaphore;
-    }
-
     namespace DataObjects
     {
         class DataTable;
