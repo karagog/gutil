@@ -100,14 +100,12 @@ namespace GUtil
             friend class DataTable;
             friend class RowData;
 
-        public:
-
-            // IClonable interface:
-            virtual DataRowCollection &CloneTo(DataRowCollection &) const;
-
         protected:
             DataRowCollection(DataTable *t = 0);
+
+            // Protect our clonable interface
             DataRowCollection(const DataRowCollection &);
+            virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
             virtual DataRow create_blank_item() const;
 

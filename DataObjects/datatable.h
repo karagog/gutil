@@ -138,12 +138,12 @@ namespace GUtil
             friend class DataSet;
             friend class TableData;
 
-        public:
-            virtual DataTableCollection &CloneTo(DataTableCollection &) const;
-
         protected:
             DataTableCollection(DataSet *);
+
+            // Protect our clonable interface
             DataTableCollection(const DataTableCollection &);
+            virtual DataTableCollection &CloneTo(DataTableCollection &) const;
 
             virtual void on_add(DataTable &) const;
             virtual DataTable create_blank_item() const;
