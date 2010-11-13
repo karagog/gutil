@@ -213,7 +213,12 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
         DataObjects::DataRowCollection &o) const
 {
     o._table = _table;
-    Collection<DataRow>::CloneTo(o);
+    o.Resize(Size());
+
+    // Clone each row explicitly; each row must detach itself from the shared pointer
+    for(int i = 0; i < Count(); i++)
+        this->Value(i).CloneTo(o[i]);
+
     return o;
 }
 
