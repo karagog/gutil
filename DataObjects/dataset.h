@@ -44,17 +44,15 @@ namespace GUtil
             virtual ~DataSet();
 
             DataTableCollection &Tables();
+            int TableCount() const;
 
-            DataTable &AddTable(int num_cols = 0);
+            DataTable &operator [](int);
+            DataTable &operator [](const QString &table_name);
 
-            // Should we commit changes right away, or wait 'til someone calls 'CommitChanges'?
-            void SetAutoCommitChanges(bool);
-            bool AutoCommitChanges() const;
+            int GetTableIndex(const QString &table_name) const;
 
-            void CommitChanges();
-            void RejectChanges();
-
-            bool Dirty() const;
+            virtual void CommitChanges();
+            virtual void RejectChanges();
 
             // IQXmlSerializable
             void WriteXml(QXmlStreamWriter &) const;
@@ -69,16 +67,15 @@ namespace GUtil
             class SetData : public QSharedData
             {
             public:
-                SetData();
+                SetData(DataSet *);
                 SetData(const SetData &);
+
+                DataTableCollection tables;
             };
 
+            Custom::GSharedDataPointer<SetData> set_data;
+
         private:
-
-            DataTableCollection *_tables;
-
-            bool _auto_commit;
-            bool _dirty;
 
             Q_DISABLE_COPY(DataSet)
         };

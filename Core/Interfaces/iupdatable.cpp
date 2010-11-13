@@ -34,7 +34,8 @@ bool Core::Interfaces::IUpdatable::IsDirty() const
 
 void Core::Interfaces::IUpdatable::SetDirty(bool d)
 {
-    onSetDirty(_iupdatable_is_dirty = d);
+    if(_iupdatable_is_dirty != d)
+        onSetDirty(_iupdatable_is_dirty = d);
 }
 
 void Core::Interfaces::IUpdatable::onSetDirty(bool){}
@@ -44,4 +45,14 @@ Core::Interfaces::IUpdatable &Core::Interfaces::IUpdatable::operator =
 {
     _iupdatable_is_dirty = o._iupdatable_is_dirty;
     return *this;
+}
+
+void Core::Interfaces::IUpdatable::CommitChanges()
+{
+    SetDirty(false);
+}
+
+void Core::Interfaces::IUpdatable::RejectChanges()
+{
+    SetDirty(false);
 }

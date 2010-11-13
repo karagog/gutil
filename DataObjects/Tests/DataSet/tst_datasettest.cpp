@@ -85,7 +85,7 @@ void DataSetTest::test_dataTable()
 {
     try
     {
-        DataTable dt(3);
+        DataTable dt("test_table", 3);
         DataRow dr = dt.CreateRow();
 
         // The row doesn't have an index yet
@@ -149,6 +149,7 @@ void DataSetTest::test_dataTable()
 
         DataTable dt2;
         dt2.FromXmlQString(xml);
+        QVERIFY(dt2.Name() == "test_table");
         QVERIFY(dt2.Rows().Count() == 2);
         QVERIFY(dt2.ColumnCount() == 2);
 

@@ -36,7 +36,8 @@ namespace GUtil
         class DataTable :   public QAbstractTableModel,
                             public Interfaces::IQXmlSerializable,
                             public Core::Interfaces::IReadOnlyObject,
-                            public Core::Interfaces::IUpdatable
+                            public Core::Interfaces::IUpdatable,
+                            public Core::Interfaces::IClonable<DataTable>
         {
             Q_OBJECT
 
@@ -44,6 +45,7 @@ namespace GUtil
 
         public:
             DataTable(int num_cols = 0);
+            DataTable(const QString &table_name, int num_cols = 0);
             DataTable(const DataTable &);
             virtual ~DataTable();
 
@@ -76,7 +78,12 @@ namespace GUtil
             DataRowCollection &Rows();
             QStringList ColumnKeys() const;
             QStringList ColumnLabels() const;
+            QString Name() const;
+            void SetTableName(const QString &) const;
 
+
+            // Interface for IClonable:
+            virtual DataTable &CloneTo(DataTable &) const;
 
             // Interface for IQXmlSerializable
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -100,7 +107,7 @@ namespace GUtil
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
         protected:
-            DataTable(DataSet *ds, int num_cols = 0);
+            DataTable(DataSet *ds);
 
             class TableData : public QSharedData
             {
@@ -112,6 +119,7 @@ namespace GUtil
                 DataRowCollection rows;
                 QStringList keys;
                 QStringList labels;
+                QString name;
             };
 
             Custom::GSharedDataPointer<TableData> table_data;
@@ -119,13 +127,30 @@ namespace GUtil
 
         private:
 
-            void _init(DataSet *, int);
+            void _init(DataSet *, const QString &, int);
 
         };
 
 
-        class DataTableCollection : public Collection<DataTable>
-        {};
+        class DataTableCollection : public Collection<DataTable>,
+                                    public Core::Interfaces::IClonable<DataTableCollection>
+        {
+            friend class DataSet;
+
+        public:
+            DataTableCollection(const DataTableCollection &);
+
+            virtual DataTableCollection &CloneTo(DataTableCollection &) const;
+
+        protected:
+            DataTableCollection(DataSet *);
+            virtual void on_add(DataTable &) const;
+
+            virtual DataTable create_blank_item() const;
+
+        private:
+            DataSet *_dataset;
+        };
     }
 }
 

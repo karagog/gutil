@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "datatable.h"
 #include "dataset.h"
 #include "datarow.h"
-#include "Core/Utils/stringhelpers.h"
+#include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -26,7 +26,14 @@ DataObjects::DataTable::DataTable(int num_cols)
     :QAbstractTableModel(qApp),
     table_data(new TableData(this))
 {
-    _init(0, num_cols);
+    _init(0, QString::null, num_cols);
+}
+
+DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
+    :QAbstractTableModel(qApp),
+    table_data(new TableData(this))
+{
+    _init(0, nm, num_cols);
 }
 
 DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
@@ -35,18 +42,19 @@ DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
     *this = o;
 }
 
-DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent, int num_cols)
+DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent)
     :QAbstractTableModel(ds_parent),
     table_data(new TableData(this))
 {
-    _init(ds_parent, num_cols);
+    _init(ds_parent, QString::null, 0);
 }
 
 DataObjects::DataTable::~DataTable(){}
 
-void DataObjects::DataTable::_init(DataSet *ds, int num_cols)
+void DataObjects::DataTable::_init(DataSet *ds, const QString &name, int num_cols)
 {
     table_data->dataset = ds;
+    table_data->name = name;
 
     QStringList sl;
     for(int i = 0; i < num_cols; i++)
@@ -205,6 +213,16 @@ QStringList DataObjects::DataTable::ColumnLabels() const
     return table_data->labels;
 }
 
+QString DataObjects::DataTable::Name() const
+{
+    return table_data->name;
+}
+
+void DataObjects::DataTable::SetTableName(const QString &n) const
+{
+    table_data->name = n;
+}
+
 
 
 
@@ -267,6 +285,9 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
 {
     sw.writeStartElement(DATATABLE_XML_ID);
     sw.writeAttribute("s", QString("%1").arg(RowCount()));
+    sw.writeAttribute("n", QString("%1").arg(
+            Utils::QStringHelpers::toBase64(Name())
+            ));
 
     // Write our column data
     DataObjects::QVariantHelpers::WriteXml(ColumnKeys(), sw);
@@ -292,6 +313,9 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 
+        table_data->name = Utils::QStringHelpers::fromBase64(
+                sr.attributes().at(1).value().toString());
+
         table_data->keys = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
         table_data->labels = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
 
@@ -314,6 +338,13 @@ void DataObjects::DataTable::SetReadOnly(bool readonly)
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
+DataObjects::DataTable &DataObjects::DataTable::CloneTo(DataObjects::DataTable &t) const
+{
+    t = *this;
+    t.table_data.detach();
+    return t;
+}
+
 
 
 
@@ -329,7 +360,43 @@ DataObjects::DataTable::TableData::TableData(
             :QSharedData(d),
             rows(d.rows),
             keys(d.keys),
-            labels(d.labels)
+            labels(d.labels),
+            name(d.name)
 {
     dataset = d.dataset;
 }
+
+
+
+
+DataObjects::DataTableCollection::DataTableCollection(DataObjects::DataSet *d)
+{
+    _dataset = d;
+}
+
+DataObjects::DataTableCollection::DataTableCollection(const DataTableCollection &o)
+{
+    o.CloneTo(*this);
+}
+
+DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
+        DataTableCollection &o) const
+{
+    o.Resize(Size());
+
+    for(int i = 0; i < Size(); i++)
+        this->Value(i).CloneTo(o[i]);
+
+    return o;
+}
+
+void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
+{
+    t.table_data->dataset = _dataset;
+}
+
+DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() const
+{
+    return DataTable(_dataset);
+}
+

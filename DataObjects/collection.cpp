@@ -40,6 +40,8 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
     int index = _collection.size();
     _collection.append(value);
 
+    on_add(_collection[index]);
+
     return _collection[index];
 }
 

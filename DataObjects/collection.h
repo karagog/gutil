@@ -62,6 +62,9 @@ namespace GUtil
 
         protected:
 
+            // Derived classes can do things to the added object by overriding
+            virtual void on_add(T &) const{}
+
             // Derived classes use this method to instantiate blank items for the resize method
             virtual T create_blank_item() const{
                 THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException,

@@ -14,46 +14,69 @@ limitations under the License.*/
 #include "dataset.h"
 #include <QCoreApplication>
 #include <QVariantList>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
 using namespace GUtil;
 
 DataObjects::DataSet::DataSet(QObject *parent)
-    :QAbstractItemModel(parent == 0 ? qApp : parent)
+    :QAbstractItemModel(parent == 0 ? qApp : parent),
+    set_data(new SetData(this))
 {
-    _auto_commit = false;
-    _dirty = false;
-
-    _tables = new DataTableCollection();
 }
 
-DataObjects::DataSet::~DataSet()
-{
-    delete _tables;
-}
+DataObjects::DataSet::~DataSet(){}
 
 DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
 {
-    return *_tables;
+    return set_data->tables;
 }
 
-DataObjects::DataTable &DataObjects::DataSet::AddTable(int num_cols)
+int DataObjects::DataSet::TableCount() const
 {
-    Tables().Add(DataObjects::DataTable(num_cols));
-    return Tables()[Tables().Count() - 1];
+    return set_data->tables.Count();
 }
 
+DataObjects::DataTable &DataObjects::DataSet::operator [](int i)
+{
+    return set_data->tables[i];
+}
 
+DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &name)
+{
+    int ind = GetTableIndex(name);
+    if(ind == -1)
+        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
+                                  QString("Table '%1' does not exist in dataset")
+                                  .arg(name).toStdString());
 
+    return Tables()[ind];
+}
 
+int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
+{
+    int ret = -1;
+    for(int i = 0; i < TableCount(); i++)
+    {
+        if(set_data->tables.Value(i).Name() == table_name)
+        {
+            ret = i;
+            break;
+        }
+    }
+    return ret;
+}
 
 
 void DataObjects::DataSet::CommitChanges()
 {
     commit_reject_changes(true);
+    IUpdatable::CommitChanges();
 }
 
 void DataObjects::DataSet::RejectChanges()
 {
     commit_reject_changes(false);
+    IUpdatable::RejectChanges();
 }
 
 void DataObjects::DataSet::commit_reject_changes(bool commit)
@@ -68,21 +91,19 @@ void DataObjects::DataSet::commit_reject_changes(bool commit)
     }
 }
 
-void DataObjects::DataSet::SetAutoCommitChanges(bool val)
-{
-    _auto_commit = val;
-}
-
-bool DataObjects::DataSet::AutoCommitChanges() const
-{
-    return _auto_commit;
-}
 
 
+#define DATASET_XML_ID "DataSet"
 
 void DataObjects::DataSet::WriteXml(QXmlStreamWriter &sw) const
 {
+    sw.writeStartElement(DATASET_XML_ID);
+    sw.writeAttribute("s", QString("%1").arg(TableCount()));
 
+    for(int i = 0; i < TableCount(); i++)
+        set_data->tables.Value(i).WriteXml(sw);
+
+    sw.writeEndElement();
 }
 
 void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
@@ -90,3 +111,20 @@ void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
 {
 
 }
+
+
+
+
+
+DataObjects::DataSet::SetData::SetData(DataSet *ds)
+    :tables(ds)
+{
+
+}
+
+DataObjects::DataSet::SetData::SetData(const DataObjects::DataSet::SetData &o)
+    :tables(o.tables)
+{
+}
+
+
