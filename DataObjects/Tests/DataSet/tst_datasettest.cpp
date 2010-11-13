@@ -30,6 +30,9 @@ private Q_SLOTS:
     // test rows
     void test_dataRows();
 
+    // Test the row error cases
+    void test_row_errors();
+
     // test the data table
     void test_dataTable();
 
@@ -79,6 +82,60 @@ void DataSetTest::test_dataRows()
         dLogException(ex);
         QVERIFY(false);
     }
+}
+
+void DataSetTest::test_row_errors()
+{
+    DataTable t;
+
+    QVERIFY(t.ColumnCount() == 0);
+
+    // You shouldn't be able to initialize a row with more data than it has columns
+    bool exception_hit = false;
+    try
+    {
+        DataRow r = t.CreateRow(QVariantList() << "oops!");
+    }
+    catch(Core::IndexOutOfRangeException &ex)
+    {
+        exception_hit = true;
+    }
+
+    QVERIFY(exception_hit);
+    exception_hit = false;
+
+    // But you should be able to initialize it with less data than it has columns
+    t.AddColumn("one");
+    t.AddColumn("two");
+
+    QVERIFY(t.ColumnCount() == 2);
+    DataRow r = t.AddNewRow(QVariantList() << "Yay!");
+
+    QVERIFY(r.ColumnCount() == 2);
+    QVERIFY(t[0]["one"] == "Yay!");
+    QVERIFY(t[0]["two"] == QVariant());
+    QVERIFY(r[0] == "Yay!");
+    QVERIFY(r[1] == QVariant());
+
+
+    // Now test what happens when moving rows between data tables
+    DataTable t2(2);
+    try
+    {
+        // We shouldn't be able to add a foreign row to the table
+        t2.AddRow(r);
+    }
+    catch(Core::ArgumentException &)
+    {
+        exception_hit = true;
+    }
+
+    QVERIFY(exception_hit);
+
+    // But we can 'import' it as a clone
+    DataRow r2 = t2.ImportRow(r);
+    QVERIFY(r2 != r);
+    QVERIFY(r2.Equals(r));
 }
 
 void DataSetTest::test_dataTable()

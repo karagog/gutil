@@ -20,10 +20,9 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-DataObjects::DataRow::DataRow(DataObjects::DataTable *dt)
-{
-    _init_data_row(dt);
-}
+DataObjects::DataRow::DataRow(DataObjects::DataTable *dt, const QVariantList &vals)
+    :row_data(new RowData(dt, vals))
+{}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
 {
@@ -31,13 +30,6 @@ DataObjects::DataRow::DataRow(const DataRow &o)
 }
 
 DataObjects::DataRow::~DataRow(){}
-
-void DataObjects::DataRow::_init_data_row(DataTable *dt)
-{
-    row_data = new RowData();
-
-    set_table(dt);
-}
 
 DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRow &o)
 {
@@ -102,12 +94,9 @@ int DataObjects::DataRow::ColumnCount() const
     return row_data->tuple.Count();
 }
 
-void DataObjects::DataRow::set_table(DataObjects::DataTable *t)
+void DataObjects::DataRow::set_table(DataObjects::DataTable *dt)
 {
-    row_data->table = t;
-
-    if(t)
-        set_number_of_columns(t->ColumnCount());
+    row_data->SetTable(dt);
 }
 
 void DataObjects::DataRow::set_number_of_columns(int cols)
@@ -175,16 +164,24 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
 
 
 
-DataObjects::DataRow::RowData::RowData(DataObjects::DataTable *t)
+DataObjects::DataRow::RowData::RowData(DataObjects::DataTable *t,
+                                       const QVariantList &vals)
+                                           :tuple(vals)
 {
-    table = t;
+    SetTable(t);
 }
 
 DataObjects::DataRow::RowData::RowData(const DataObjects::DataRow::RowData &o)
     :QSharedData(o),
     tuple(o.tuple)
 {
-    table = o.table;
+    SetTable(o.table);
+}
+
+void DataObjects::DataRow::RowData::SetTable(DataTable *dt)
+{
+    if((table = dt))
+        tuple.Resize(dt->ColumnCount());
 }
 
 

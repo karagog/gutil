@@ -67,7 +67,7 @@ namespace GUtil
                     throw(Core::XmlException);
 
         protected:
-            DataRow(DataTable *dt);
+            DataRow(DataTable *dt = 0, const QVariantList &values = QVariantList());
 
             void set_table(DataTable *);
             void set_number_of_columns(int);
@@ -75,18 +75,17 @@ namespace GUtil
             class RowData : public QSharedData
             {
             public:
-                RowData(DataTable *t = 0);
+                RowData(DataTable *t, const QVariantList &vals);
                 RowData(const RowData &);
 
                 DataTable *table;
                 QVariantCollection tuple;
+
+                void SetTable(DataTable *);
             };
 
 
             Custom::GSharedDataPointer<RowData> row_data;
-
-        private:
-            void _init_data_row(DataTable *);
 
         };
 

@@ -75,6 +75,20 @@ template <typename T> void DataObjects::Collection<T>::Remove(int index)
     _collection.removeAt(index);
 }
 
+template <typename T> void DataObjects::Collection<T>::RemoveOne(const T &i)
+{
+    FailIfReadOnly();
+
+    _collection.removeOne(i);
+}
+
+template <typename T> void DataObjects::Collection<T>::RemoveAll(const T &i)
+{
+    FailIfReadOnly();
+
+    _collection.removeAll(i);
+}
+
 template <typename T> void DataObjects::Collection<T>::Clear()
 {
     while(Count() > 0)
@@ -83,7 +97,7 @@ template <typename T> void DataObjects::Collection<T>::Clear()
 
 template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) const
 {
-    return _collection.contain(o);
+    return _collection.contains(o);
 }
 
 template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const

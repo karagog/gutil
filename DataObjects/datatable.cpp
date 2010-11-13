@@ -84,30 +84,52 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
 }
 
 DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
+        throw(Core::ArgumentException)
 {
+    if(r.row_data->table != this)
+        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
+                                  "The row does not belong to this table.  Maybe "
+                                  "you meant 'ImportRow'?");
+    else if(Rows().Contains(r))
+        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
+                                  "This row already exists in the table");
+
     Rows().Add(r);
-    return Rows()[Rows().Count() - 1];
+    return Rows().Value(Rows().Count() - 1);
 }
 
 DataObjects::DataRow DataObjects::DataTable::AddNewRow(const QVariantList &values)
 {
-    DataObjects::DataRow dr = CreateRow(values);
+    DataRow dr(CreateRow(values));
     AddRow(dr);
     return dr;
 }
 
 DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &values)
 {
-    DataObjects::DataRow dr(this);
+    DataRow dr(this);
     for(int i = 0; i < values.length(); i++)
         dr[i] = values.at(i);
 
     return dr;
 }
 
+DataObjects::DataRow DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
+{
+    DataRow tmpr;
+    r.CloneTo(tmpr);
+    tmpr.set_table(this);
+    return this->AddRow(tmpr);
+}
+
 void DataObjects::DataTable::RemoveRow(int row_index)
 {
     Rows().Remove(row_index);
+}
+
+void DataObjects::DataTable::RemoveRow(const DataRow &r)
+{
+    Rows().RemoveOne(r);
 }
 
 void DataObjects::DataTable::Clear()
@@ -120,7 +142,8 @@ void DataObjects::DataTable::Clear()
 void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
 {
     if(ColumnKeys().contains(key))
-        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" );
+        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
+                                  "Key already exists in columns");
 
     table_data->keys.append(key);
     table_data->labels.append(label);
@@ -148,7 +171,8 @@ void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
 void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
 {
     if(l.length() != ColumnCount())
-        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Incorrect number of columns" );
+        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
+                                  "Incorrect number of columns");
 
     table_data->labels = l;
 }
@@ -156,7 +180,8 @@ void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
 void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
 {
     if(ColumnKeys().contains(k))
-        THROW_NEW_GUTIL_EXCEPTION( Core::Exception, "Key already exists in columns" );
+        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
+                                  "Key already exists in columns");
 
     table_data->keys[col_index] = k;
 }

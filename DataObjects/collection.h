@@ -43,6 +43,8 @@ namespace GUtil
             T &operator [](int index);
 
             void Remove(int index);
+            void RemoveOne(const T &);
+            void RemoveAll(const T &);
             void Clear();
 
             int Count() const;

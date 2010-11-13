@@ -30,6 +30,9 @@ namespace GUtil
             inline QVariantCollection(int size = 0)
                 : Collection<QVariant>(size){}
 
+            inline QVariantCollection(const QVariantList &v)
+                : Collection<QVariant>(v){}
+
         protected:
             virtual inline QVariant create_blank_item() const{
                 return QVariant();

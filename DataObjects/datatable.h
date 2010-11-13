@@ -49,10 +49,18 @@ namespace GUtil
             DataTable(const DataTable &);
             virtual ~DataTable();
 
-            DataRow AddRow(const DataRow &);
+            // The row must have been created by this table, otherwise call ImportRow
+            DataRow AddRow(const DataRow &)
+                    throw(Core::ArgumentException);
+
             DataRow AddNewRow(const QVariantList &values = QVariantList());
             DataRow CreateRow(const QVariantList &values = QVariantList());
+
+            // Clones the row and adds the clone to this table
+            DataRow ImportRow(const DataRow &);
+
             void RemoveRow(int row_index);
+            void RemoveRow(const DataRow &);
 
             // Clears all data and columns
             void Clear();
