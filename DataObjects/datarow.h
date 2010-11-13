@@ -78,10 +78,13 @@ namespace GUtil
                 RowData(DataTable *t, const QVariantList &vals);
                 RowData(const RowData &);
 
-                DataTable *table;
+                DataTable *Table() const;
+                void SetTable(DataTable *);
+
                 QVariantCollection tuple;
 
-                void SetTable(DataTable *);
+            private:
+                DataTable *_table;
             };
 
 

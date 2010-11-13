@@ -75,18 +75,18 @@ QVariant &DataObjects::DataRow::operator [](const QString &column_header)
 
 DataObjects::DataTable &DataObjects::DataRow::Table()
 {
-    if(row_data->table == 0)
+    if(row_data->Table() == 0)
         THROW_NEW_GUTIL_EXCEPTION( Core::NullReferenceException, "Table not set" );
 
-    return *row_data->table;
+    return *row_data->Table();
 }
 
 int DataObjects::DataRow::Index() const
 {
-    if(row_data->table == 0)
+    if(row_data->Table() == 0)
         return -1;
 
-    return row_data->table->Rows().IndexOf(*this);
+    return row_data->Table()->Rows().IndexOf(*this);
 }
 
 int DataObjects::DataRow::ColumnCount() const
@@ -175,12 +175,17 @@ DataObjects::DataRow::RowData::RowData(const DataObjects::DataRow::RowData &o)
     :QSharedData(o),
     tuple(o.tuple)
 {
-    SetTable(o.table);
+    SetTable(o._table);
+}
+
+DataObjects::DataTable *DataObjects::DataRow::RowData::Table() const
+{
+    return _table;
 }
 
 void DataObjects::DataRow::RowData::SetTable(DataTable *dt)
 {
-    if((table = dt))
+    if((_table = dt))
         tuple.Resize(dt->ColumnCount());
 }
 

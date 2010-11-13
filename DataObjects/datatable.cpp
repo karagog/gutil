@@ -86,7 +86,7 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
 DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
         throw(Core::ArgumentException)
 {
-    if(r.row_data->table != this)
+    if(r.row_data->Table() != this)
         THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
                                   "The row does not belong to this table.  Maybe "
                                   "you meant 'ImportRow'?");
