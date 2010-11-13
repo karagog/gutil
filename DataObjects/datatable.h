@@ -136,16 +136,16 @@ namespace GUtil
                                     public Core::Interfaces::IClonable<DataTableCollection>
         {
             friend class DataSet;
+            friend class TableData;
 
         public:
-            DataTableCollection(const DataTableCollection &);
-
             virtual DataTableCollection &CloneTo(DataTableCollection &) const;
 
         protected:
             DataTableCollection(DataSet *);
-            virtual void on_add(DataTable &) const;
+            DataTableCollection(const DataTableCollection &);
 
+            virtual void on_add(DataTable &) const;
             virtual DataTable create_blank_item() const;
 
         private:
