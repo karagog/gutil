@@ -97,19 +97,17 @@ namespace GUtil
         class DataRowCollection :   public Collection<DataRow>,
                                     public Core::Interfaces::IClonable<DataRowCollection>
         {
-            friend class DataRow;
             friend class DataTable;
 
         public:
 
-            // IClonable interface
+            DataRowCollection(const DataRowCollection &);
+
+            // IClonable interface:
             virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
         protected:
             DataRowCollection(DataTable *t = 0);
-            virtual ~DataRowCollection();
-
-            DataRowCollection &operator =(const DataRowCollection &);
 
             virtual DataRow create_blank_item() const;
 

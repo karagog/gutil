@@ -41,7 +41,6 @@ namespace GUtil
             T Value(int index) const;
 
             T &operator [](int index);
-            Collection<T> &operator =(const Collection<T> &);
 
             void Remove(int index);
             void Clear();

@@ -22,7 +22,7 @@ template <typename T> DataObjects::Collection<T>::Collection(int size)
 template <typename T> DataObjects::Collection<T>::Collection(
         const DataObjects::Collection<T> &o)
 {
-    o.Clone(*this);
+    o.CloneTo(*this);
 }
 
 
@@ -94,12 +94,6 @@ template <typename T> T &DataObjects::Collection<T>::operator [](int index)
     FailIfReadOnly();
 
     return _collection[index];
-}
-
-template <typename T> DataObjects::Collection<T> &
-        DataObjects::Collection<T>::operator =(const DataObjects::Collection<T> &o)
-{
-    return o.CloneTo(*this);
 }
 
 template <typename T> bool DataObjects::Collection<T>::operator ==(

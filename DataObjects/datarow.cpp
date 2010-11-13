@@ -27,7 +27,7 @@ DataObjects::DataRow::DataRow(DataObjects::DataTable *dt)
 
 DataObjects::DataRow::DataRow(const DataRow &o)
 {
-    row_data = o.row_data;
+    *this = o;
 }
 
 DataObjects::DataRow::~DataRow(){}
@@ -181,10 +181,10 @@ DataObjects::DataRow::RowData::RowData(DataObjects::DataTable *t)
 }
 
 DataObjects::DataRow::RowData::RowData(const DataObjects::DataRow::RowData &o)
-    :QSharedData(o)
+    :QSharedData(o),
+    tuple(o.tuple)
 {
     table = o.table;
-    tuple = o.tuple;
 }
 
 
@@ -204,14 +204,9 @@ DataObjects::DataRowCollection::DataRowCollection(DataTable *dt)
     _table = dt;
 }
 
-DataObjects::DataRowCollection::~DataRowCollection(){}
-
-DataObjects::DataRowCollection &DataObjects::DataRowCollection::operator =
-        (const DataObjects::DataRowCollection &o)
+DataObjects::DataRowCollection::DataRowCollection(const DataObjects::DataRowCollection &o)
 {
-    _table = o._table;
-    ((Collection<DataRow> &)*this) = o;
-    return *this;
+    o.CloneTo(*this);
 }
 
 DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(

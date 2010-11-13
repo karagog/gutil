@@ -120,7 +120,6 @@ namespace GUtil
         private:
 
             void _init(DataSet *, int);
-            static void _copy(DataTable &, const DataTable &);
 
         };
 

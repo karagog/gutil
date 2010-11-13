@@ -32,7 +32,7 @@ DataObjects::DataTable::DataTable(int num_cols)
 DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
     :QAbstractTableModel(qApp)
 {
-    _copy(*this, o);
+    *this = o;
 }
 
 DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent, int num_cols)
@@ -61,14 +61,8 @@ DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
 
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
 {
-    _copy(*this, o);
+    table_data = o.table_data;
     return *this;
-}
-
-void DataObjects::DataTable::_copy(DataObjects::DataTable &lhs,
-                                   const DataObjects::DataTable &rhs)
-{
-    lhs.table_data = rhs.table_data;
 }
 
 bool DataObjects::DataTable::operator ==(const DataObjects::DataTable &o) const
@@ -332,10 +326,10 @@ DataObjects::DataTable::TableData::TableData(DataObjects::DataTable *t)
 
 DataObjects::DataTable::TableData::TableData(
         const DataObjects::DataTable::TableData &d)
-            :QSharedData(d)
+            :QSharedData(d),
+            rows(d.rows),
+            keys(d.keys),
+            labels(d.labels)
 {
     dataset = d.dataset;
-    rows = d.rows;
-    keys = d.keys;
-    labels = d.labels;
 }
