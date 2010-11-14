@@ -113,7 +113,7 @@ DataObjects::DataRow DataObjects::DataTable::AddNewRow(const QVariantList &value
 DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &values)
 {
     DataRow dr(this);
-    for(int i = 0; i < values.length(); i++)
+    for(int i = 0; i < values.length() && i < ColumnCount(); i++)
         dr[i] = values.at(i);
 
     return dr;
@@ -121,10 +121,10 @@ DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &value
 
 DataObjects::DataRow DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
 {
-    DataRow tmpr;
+    DataRow tmpr(r);
     r.CloneTo(tmpr);
     tmpr.row_data().SetTable(this);
-    return this->AddRow(tmpr);
+    return AddRow(tmpr);
 }
 
 void DataObjects::DataTable::RemoveRow(int row_index)

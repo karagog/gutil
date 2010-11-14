@@ -91,7 +91,7 @@ int DataObjects::DataRow::Index() const
 
 int DataObjects::DataRow::ColumnCount() const
 {
-    return _row_data->tuple.Count();
+    return _row_data->Table()->ColumnCount();
 }
 
 DataObjects::DataRow::RowData &DataObjects::DataRow::row_data() const

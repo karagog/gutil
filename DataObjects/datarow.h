@@ -93,7 +93,7 @@ namespace GUtil
 
         protected:
 
-            DataRow(DataTable *dt = 0, const QVariantList &values = QVariantList());
+            DataRow(DataTable *dt, const QVariantList &values = QVariantList());
 
             void set_number_of_columns(int);
 

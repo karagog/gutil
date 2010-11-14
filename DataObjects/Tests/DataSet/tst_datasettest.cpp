@@ -90,26 +90,18 @@ void DataSetTest::test_row_errors()
 
     QVERIFY(t.ColumnCount() == 0);
 
-    // You shouldn't be able to initialize a row with more data than it has columns
-    bool exception_hit = false;
-    try
-    {
-        DataRow r = t.CreateRow(QVariantList() << "oops!");
-    }
-    catch(Core::IndexOutOfRangeException &ex)
-    {
-        exception_hit = true;
-    }
+    // If you initialize a row with more data than it has columns, then the extra
+    //  data gets thrown out
 
-    QVERIFY(exception_hit);
-    exception_hit = false;
+    DataRow r = t.CreateRow(QVariantList() << "oops!");
+    QVERIFY(r.ColumnCount() == 0);
 
     // But you should be able to initialize it with less data than it has columns
     t.AddColumn("one");
     t.AddColumn("two");
 
     QVERIFY(t.ColumnCount() == 2);
-    DataRow r = t.AddNewRow(QVariantList() << "Yay!");
+    r = t.AddNewRow(QVariantList() << "Yay!");
 
     QVERIFY(r.ColumnCount() == 2);
     QVERIFY(t[0]["one"] == "Yay!");
@@ -120,6 +112,7 @@ void DataSetTest::test_row_errors()
 
     // Now test what happens when moving rows between data tables
     DataTable t2(2);
+    bool exception_hit = false;
     try
     {
         // We shouldn't be able to add a foreign row to the table
