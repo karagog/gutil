@@ -29,12 +29,36 @@ namespace GUtil
     {
         class DataTable;
 
+        // Defines a row in a data table
+
         class DataRow : public Interfaces::IQXmlSerializable,
                         public Core::Interfaces::IEquatable<DataRow>,
                         public Core::Interfaces::IClonable<DataRow>
         {
             friend class DataTable;
             friend class DataRowCollection;
+
+        protected:
+
+            // All the row's data is in this shared object
+            class RowData : public QSharedData
+            {
+            public:
+                RowData(DataTable *t, const QVariantList &vals);
+                RowData(const RowData &);
+
+                DataTable *Table() const;
+                void SetTable(DataTable *);
+
+                QVariantCollection tuple;
+
+            private:
+                DataTable *_table;
+            };
+
+            // Friend classes can access it via this method:
+            RowData &row_data() const;
+
 
         public:
 
@@ -66,29 +90,17 @@ namespace GUtil
             virtual void ReadXml(QXmlStreamReader &)
                     throw(Core::XmlException);
 
+
         protected:
+
             DataRow(DataTable *dt = 0, const QVariantList &values = QVariantList());
 
-            void set_table(DataTable *);
             void set_number_of_columns(int);
 
-            class RowData : public QSharedData
-            {
-            public:
-                RowData(DataTable *t, const QVariantList &vals);
-                RowData(const RowData &);
 
-                DataTable *Table() const;
-                void SetTable(DataTable *);
+        private:
 
-                QVariantCollection tuple;
-
-            private:
-                DataTable *_table;
-            };
-
-
-            Custom::GSharedDataPointer<RowData> row_data;
+            Custom::GSharedDataPointer<RowData> _row_data;
 
         };
 
@@ -103,6 +115,7 @@ namespace GUtil
             friend class RowData;
 
         protected:
+
             DataRowCollection(DataTable *t = 0);
 
             // Protect our clonable interface
@@ -111,7 +124,9 @@ namespace GUtil
 
             virtual DataRow create_blank_item() const;
 
+
         private:
+
             DataTable *_table;
 
         };

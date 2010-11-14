@@ -24,14 +24,14 @@ using namespace GUtil;
 
 DataObjects::DataTable::DataTable(int num_cols)
     :QAbstractTableModel(qApp),
-    table_data(new TableData(this))
+    _table_data(new TableData(this))
 {
     _init(0, QString::null, num_cols);
 }
 
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
     :QAbstractTableModel(qApp),
-    table_data(new TableData(this))
+    _table_data(new TableData(this))
 {
     _init(0, nm, num_cols);
 }
@@ -44,7 +44,7 @@ DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
 
 DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent)
     :QAbstractTableModel(ds_parent),
-    table_data(new TableData(this))
+    _table_data(new TableData(this))
 {
     _init(ds_parent, QString::null, 0);
 }
@@ -53,13 +53,18 @@ DataObjects::DataTable::~DataTable(){}
 
 void DataObjects::DataTable::_init(DataSet *ds, const QString &name, int num_cols)
 {
-    table_data->dataset = ds;
-    table_data->name = name;
+    _table_data->dataset = ds;
+    _table_data->name = name;
 
     QStringList sl;
     for(int i = 0; i < num_cols; i++)
         sl.append(QString("%1").arg(i));
     SetColumnHeaders(sl);
+}
+
+DataObjects::DataTable::TableData &DataObjects::DataTable::table_data() const
+{
+    return *_table_data;
 }
 
 DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
@@ -69,24 +74,24 @@ DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
 
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
 {
-    table_data = o.table_data;
+    _table_data = o._table_data;
     return *this;
 }
 
 bool DataObjects::DataTable::operator ==(const DataObjects::DataTable &o) const
 {
-    return table_data == o.table_data;
+    return _table_data == o._table_data;
 }
 
 DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
 {
-    return table_data->rows;
+    return _table_data->rows;
 }
 
 DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
         throw(Core::ArgumentException)
 {
-    if(r.row_data->Table() != this)
+    if(r._row_data->Table() != this)
         THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
                                   "The row does not belong to this table.  Maybe "
                                   "you meant 'ImportRow'?");
@@ -118,7 +123,7 @@ DataObjects::DataRow DataObjects::DataTable::ImportRow(const DataObjects::DataRo
 {
     DataRow tmpr;
     r.CloneTo(tmpr);
-    tmpr.set_table(this);
+    tmpr.row_data().SetTable(this);
     return this->AddRow(tmpr);
 }
 
@@ -145,8 +150,8 @@ void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
         THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
                                   "Key already exists in columns");
 
-    table_data->keys.append(key);
-    table_data->labels.append(label);
+    _table_data->keys.append(key);
+    _table_data->labels.append(label);
 
     for(int i = 0; i < Rows().Count(); i++)
         Rows()[i].set_number_of_columns(ColumnCount());
@@ -160,12 +165,12 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
         AddColumn(k);
 
     for(int i = 0; i < labels.length(); i++)
-        table_data->labels[i] = labels.at(i);
+        _table_data->labels[i] = labels.at(i);
 }
 
 void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
 {
-    table_data->labels[col_index] = l;
+    _table_data->labels[col_index] = l;
 }
 
 void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
@@ -174,7 +179,7 @@ void DataObjects::DataTable::SetColumnLabels(const QStringList &l)
         THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
                                   "Incorrect number of columns");
 
-    table_data->labels = l;
+    _table_data->labels = l;
 }
 
 void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
@@ -183,7 +188,7 @@ void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
         THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
                                   "Key already exists in columns");
 
-    table_data->keys[col_index] = k;
+    _table_data->keys[col_index] = k;
 }
 
 void DataObjects::DataTable::SetColumnKeys(const QStringList &k)
@@ -196,18 +201,18 @@ void DataObjects::DataTable::SetColumnKeys(const QStringList &k)
 
 void DataObjects::DataTable::ClearColumns()
 {
-    table_data->keys.clear();
-    table_data->labels.clear();
+    _table_data->keys.clear();
+    _table_data->labels.clear();
 }
 
 int DataObjects::DataTable::RowCount() const
 {
-    return table_data->rows.Count();
+    return _table_data->rows.Count();
 }
 
 int DataObjects::DataTable::ColumnCount() const
 {
-    return table_data->keys.count();
+    return _table_data->keys.count();
 }
 
 int DataObjects::DataTable::GetColumnIndex(const QString &key) const
@@ -225,27 +230,27 @@ int DataObjects::DataTable::GetColumnIndex(const QString &key) const
 
 DataObjects::DataSet *DataObjects::DataTable::DataSetParent() const
 {
-    return table_data->dataset;
+    return _table_data->dataset;
 }
 
 QStringList DataObjects::DataTable::ColumnKeys() const
 {
-    return table_data->keys;
+    return _table_data->keys;
 }
 
 QStringList DataObjects::DataTable::ColumnLabels() const
 {
-    return table_data->labels;
+    return _table_data->labels;
 }
 
 QString DataObjects::DataTable::Name() const
 {
-    return table_data->name;
+    return _table_data->name;
 }
 
 void DataObjects::DataTable::SetTableName(const QString &n) const
 {
-    table_data->name = n;
+    _table_data->name = n;
 }
 
 
@@ -319,7 +324,7 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
     DataObjects::QVariantHelpers::WriteXml(ColumnLabels(), sw);
 
     for(int i = 0; i < RowCount(); i++)
-        table_data->rows.Value(i).WriteXml(sw);
+        _table_data->rows.Value(i).WriteXml(sw);
 
     sw.writeEndElement();
 }
@@ -338,11 +343,11 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 
-        table_data->name = Utils::QStringHelpers::fromBase64(
+        _table_data->name = Utils::QStringHelpers::fromBase64(
                 sr.attributes().at(1).value().toString());
 
-        table_data->keys = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
-        table_data->labels = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+        _table_data->keys = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+        _table_data->labels = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
 
         for(int i = 0; i < sz; i++)
         {
@@ -366,7 +371,7 @@ void DataObjects::DataTable::SetReadOnly(bool readonly)
 DataObjects::DataTable &DataObjects::DataTable::CloneTo(DataObjects::DataTable &t) const
 {
     t = *this;
-    t.table_data.detach();
+    t._table_data.detach();
     return t;
 }
 
@@ -417,7 +422,7 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
 
 void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
 {
-    t.table_data->dataset = _dataset;
+    t._table_data->dataset = _dataset;
 }
 
 DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() const

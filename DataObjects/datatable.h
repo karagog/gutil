@@ -43,7 +43,28 @@ namespace GUtil
 
             friend class DataTableCollection;
 
+        protected:
+
+            // All the table's data is contained in this shared data class
+            class TableData : public QSharedData
+            {
+            public:
+                TableData(DataTable *parent_table);
+                TableData(const TableData &);
+
+                DataSet *dataset;
+                DataRowCollection rows;
+                QStringList keys;
+                QStringList labels;
+                QString name;
+            };
+
+            // Friend classes can access the data through this method:
+            TableData &table_data() const;
+
+
         public:
+
             DataTable(int num_cols = 0);
             DataTable(const QString &table_name, int num_cols = 0);
             DataTable(const DataTable &);
@@ -114,28 +135,17 @@ namespace GUtil
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
+
         protected:
+
             DataTable(DataSet *ds);
-
-            class TableData : public QSharedData
-            {
-            public:
-                TableData(DataTable *parent_table);
-                TableData(const TableData &);
-
-                DataSet *dataset;
-                DataRowCollection rows;
-                QStringList keys;
-                QStringList labels;
-                QString name;
-            };
-
-            Custom::GSharedDataPointer<TableData> table_data;
 
 
         private:
 
             void _init(DataSet *, const QString &, int);
+
+            Custom::GSharedDataPointer<TableData> _table_data;
 
         };
 
@@ -147,6 +157,7 @@ namespace GUtil
             friend class TableData;
 
         protected:
+
             DataTableCollection(DataSet *);
 
             // Protect our clonable interface
@@ -156,8 +167,11 @@ namespace GUtil
             virtual void on_add(DataTable &) const;
             virtual DataTable create_blank_item() const;
 
+
         private:
+
             DataSet *_dataset;
+
         };
     }
 }
