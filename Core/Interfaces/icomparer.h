@@ -29,6 +29,12 @@ namespace GUtil
                 // Return negative if LHS is less than RHS, 0 if equal
                 virtual int Compare(const T &lhs, const U &rhs) const = 0;
 
+                // A convenient pointer compare
+                virtual inline int Compare(const T* const lhs, const T* const rhs) const
+                {
+                    return Compare(*lhs, *rhs);
+                }
+
                 virtual ~IComparerDifferent(){}
             };
 
@@ -40,6 +46,35 @@ namespace GUtil
             public:
 
                 virtual ~IComparer(){}
+            };
+
+
+
+            // The default comparer only requires a less-than operator
+            template <class T> class DefaultComparer : public IComparer<T>
+            {
+            public:
+
+                virtual int Compare(const T&lhs, const T& rhs) const
+                {
+                    int ret = 0;
+
+                    if(lhs < rhs)
+                        ret = -1;
+                    else if(rhs < lhs)
+                        ret = 1;
+
+                    return ret;
+                }
+
+                virtual inline int Compare(const T* const lhs, const T* const rhs) const
+                {
+                    // We call the base implementation manually because it gets
+                    //  shadowed by the doubly-overridden method
+                    return IComparer<T>::Compare(lhs, rhs);
+                }
+
+                virtual ~DefaultComparer(){}
             };
         }
     }
