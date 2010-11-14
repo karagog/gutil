@@ -40,7 +40,7 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
     int index = _collection.size();
     _collection.append(value);
 
-    on_add(_collection[index]);
+    on_add(&_collection[index]);
 
     return _collection[index];
 }
@@ -50,6 +50,8 @@ template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &
     FailIfReadOnly();
 
     _collection.insert(index, value);
+
+    on_add(&_collection[index]);
 
     return _collection[index];
 }
@@ -72,6 +74,8 @@ template <typename T> void DataObjects::Collection<T>::Remove(int index)
 {
     FailIfReadOnly();
 
+    on_remove(&_collection[index]);
+
     _collection.removeAt(index);
 }
 
@@ -79,14 +83,18 @@ template <typename T> void DataObjects::Collection<T>::RemoveOne(const T &i)
 {
     FailIfReadOnly();
 
-    _collection.removeOne(i);
+    int ind = _collection.indexOf(i);
+    if(ind >= 0)
+        Remove(ind);
 }
 
 template <typename T> void DataObjects::Collection<T>::RemoveAll(const T &i)
 {
     FailIfReadOnly();
 
-    _collection.removeAll(i);
+    int ind = 0;
+    while((ind = _collection.indexOf(i, ind)) >= 0)
+        Remove(ind);
 }
 
 template <typename T> void DataObjects::Collection<T>::Clear()
@@ -116,6 +124,12 @@ template <typename T> bool DataObjects::Collection<T>::operator ==(
         const DataObjects::Collection<T> &rhs) const
 {
     return Equals(rhs);
+}
+
+template <typename T> bool DataObjects::Collection<T>::operator !=(
+        const Collection<T> &rhs) const
+{
+    return !(*this == rhs);
 }
 
 template <typename T> bool DataObjects::Collection<T>::Equals(

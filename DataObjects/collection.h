@@ -29,6 +29,7 @@ namespace GUtil
                                                     public Core::Interfaces::IClonable< Collection<T> >
         {
         public:
+
             Collection(int size = 0);
             Collection(const Collection<T> &);
             Collection(const QList<T> &);
@@ -55,6 +56,7 @@ namespace GUtil
             int IndexOf(const T &) const;
 
             bool operator ==(const Collection<T> &) const;
+            bool operator !=(const Collection<T> &) const;
 
             // The IEquatable interface:
             virtual bool Equals(const Collection<T> &) const;
@@ -62,10 +64,12 @@ namespace GUtil
             // The IClonable interface
             virtual Collection<T> &CloneTo(Collection<T> &) const;
 
+
         protected:
 
-            // Derived classes can do things to the added object by overriding
-            virtual void on_add(T &) const{}
+            // Derived classes can do things to the added/removed object by overriding
+            virtual void on_add(T *) const{}
+            virtual void on_remove(T *) const{}
 
             // Derived classes use this method to instantiate blank items for the resize method
             virtual T create_blank_item() const{
@@ -73,7 +77,9 @@ namespace GUtil
                                           "Derived class must override this method!");
             }
 
+
         private:
+
             QList<T> _collection;
 
         };
