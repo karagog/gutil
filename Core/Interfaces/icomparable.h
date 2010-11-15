@@ -28,6 +28,20 @@ namespace GUtil
                 // Return negative if this is less than the other, 0 if equal
                 virtual int Compare(const T &) const = 0;
 
+
+                // These functions are designed for convenience
+                virtual bool operator <(const T &o) const{
+                    return Compare(o) < 0;
+                }
+
+                virtual bool operator >(const T &o) const{
+                    return Compare(o) > 0;
+                }
+
+                virtual bool operator ==(const T &o) const{
+                    return Compare(o) == 0;
+                }
+
                 virtual ~IComparable(){}
             };
         }

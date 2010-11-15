@@ -27,6 +27,10 @@ namespace GUtil
 
                 virtual bool Equals(const T &) const = 0;
 
+                virtual inline bool operator ==(const T &o) const{
+                    return Equals(o);
+                }
+
                 virtual ~IEquatable(){}
             };
         }
