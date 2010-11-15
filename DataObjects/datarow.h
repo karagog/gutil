@@ -78,12 +78,11 @@ namespace GUtil
             int Index() const;
             int ColumnCount() const;
 
+            DataRow Clone() const;
 
             // IEquatable interface:
             virtual bool Equals(const DataRow &) const;
 
-            // IClonable interface:
-            virtual DataRow &CloneTo(DataRow &) const;
 
             // IQXmlSerializable interface:
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -94,6 +93,9 @@ namespace GUtil
         protected:
 
             DataRow(DataTable *dt, const QVariantList &values = QVariantList());
+
+            // IClonable interface:
+            virtual DataRow &CloneTo(DataRow &) const;
 
             void set_number_of_columns(int);
 
@@ -124,6 +126,8 @@ namespace GUtil
 
             virtual DataRow create_blank_item() const;
 
+            virtual void validate_new_item(const DataRow &) const
+                    throw(Core::ValidationException);
 
         private:
 

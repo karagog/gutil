@@ -31,16 +31,36 @@ namespace GUtil
     {
         class DataSet;
 
+        class ColumnCollection : public Collection< QPair<QString, QString> >
+        {
+        public:
+
+            QString Key(int) const;
+            QString Label(int) const;
+
+
+        protected:
+
+            virtual QPair<QString, QString> create_blank_item() const;
+
+            virtual void validate_new_item(const QPair<QString, QString> &) const
+                    throw(Core::ValidationException);
+
+        };
+
+
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
         class DataTable :   public QAbstractTableModel,
                             public Interfaces::IQXmlSerializable,
                             public Core::Interfaces::IReadOnlyObject,
                             public Core::Interfaces::IUpdatable,
-                            public Core::Interfaces::IClonable<DataTable>
+                            public Core::Interfaces::IClonable<DataTable>,
+                            public Core::Interfaces::IEquatable<DataTable>
         {
             Q_OBJECT
 
+            friend class DataSet;
             friend class DataTableCollection;
 
         protected:
@@ -71,8 +91,7 @@ namespace GUtil
             virtual ~DataTable();
 
             // The row must have been created by this table, otherwise call ImportRow
-            DataRow AddRow(const DataRow &)
-                    throw(Core::ArgumentException);
+            DataRow AddRow(const DataRow &);
 
             DataRow AddNewRow(const QVariantList &values = QVariantList());
             DataRow CreateRow(const QVariantList &values = QVariantList());
@@ -102,6 +121,7 @@ namespace GUtil
             DataRow &operator [](int);
             DataTable &operator =(const DataTable &);
             bool operator ==(const DataTable &) const;
+            bool operator !=(const DataTable &) const;
 
             DataSet *DataSetParent() const;
             DataRowCollection &Rows();
@@ -110,9 +130,11 @@ namespace GUtil
             QString Name() const;
             void SetTableName(const QString &) const;
 
+            DataTable Clone() const;
 
-            // Interface for IClonable:
-            virtual DataTable &CloneTo(DataTable &) const;
+
+            // Interface for IEquatable:
+            virtual bool Equals(const DataTable &) const;
 
             // Interface for IQXmlSerializable
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -140,6 +162,10 @@ namespace GUtil
 
             DataTable(DataSet *ds);
 
+            virtual DataTable &CloneTo(DataTable &) const;
+
+            virtual void commit_reject_changes(bool commit);
+
 
         private:
 
@@ -166,6 +192,9 @@ namespace GUtil
 
             virtual void on_add(DataTable &) const;
             virtual DataTable create_blank_item() const;
+
+            virtual void validate_new_item(const DataTable &) const
+                    throw(Core::ValidationException);
 
 
         private:

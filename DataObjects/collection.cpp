@@ -37,6 +37,8 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
 {
     FailIfReadOnly();
 
+    validate_new_item(value);
+
     int index = _collection.size();
     _collection.append(value);
 
@@ -48,6 +50,8 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
 template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &value)
 {
     FailIfReadOnly();
+
+    validate_new_item(value);
 
     _collection.insert(index, value);
 

@@ -193,3 +193,16 @@ std::string Core::IndexOutOfRangeException::ToString_protected() const
 {
     return "IndexOutOfRange";
 }
+
+
+
+Core::ValidationException::ValidationException(const std::string &message)
+    :Exception(message)
+{
+
+}
+
+std::string Core::ValidationException::ToString_protected() const
+{
+    return "Validation";
+}

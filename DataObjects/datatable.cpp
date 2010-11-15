@@ -83,24 +83,54 @@ bool DataObjects::DataTable::operator ==(const DataObjects::DataTable &o) const
     return _table_data == o._table_data;
 }
 
+bool DataObjects::DataTable::operator !=(const DataObjects::DataTable &o) const
+{
+    return !(*this == o);
+}
+
+bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
+{
+    bool ret = true;
+
+    if(_table_data != t._table_data)
+    {
+        if(ColumnCount() == t.ColumnCount())
+        {
+            for(int i = 0; ret && i < ColumnCount(); i++)
+            {
+                ret = (_table_data->keys.at(i) == t._table_data->keys.at(i)) &&
+                      (_table_data->labels.at(i) == t._table_data->labels.at(i));
+            }
+
+            if(ret)
+            {
+                if(RowCount() == t.RowCount())
+                {
+                    for(int i = 0; ret && i < RowCount(); i++)
+                    {
+                        ret = _table_data->rows.Value(i).Equals(
+                                t._table_data->rows.Value(i));
+                    }
+                }
+                else
+                    ret = false;
+            }
+        }
+        else
+            ret = false;
+    }
+
+    return ret;
+}
+
 DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
 {
     return _table_data->rows;
 }
 
 DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
-        throw(Core::ArgumentException)
 {
-    if(r._row_data->Table() != this)
-        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
-                                  "The row does not belong to this table.  Maybe "
-                                  "you meant 'ImportRow'?");
-    else if(Rows().Contains(r))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ArgumentException,
-                                  "This row already exists in the table");
-
-    Rows().Add(r);
-    return Rows().Value(Rows().Count() - 1);
+    return Rows().Add(r);
 }
 
 DataObjects::DataRow DataObjects::DataTable::AddNewRow(const QVariantList &values)
@@ -334,6 +364,8 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
 void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
+    FailIfReadOnly();
+
     Clear();
 
     if(sr.readNextStartElement())
@@ -373,6 +405,24 @@ DataObjects::DataTable &DataObjects::DataTable::CloneTo(DataObjects::DataTable &
     t = *this;
     t._table_data.detach();
     return t;
+}
+
+DataObjects::DataTable DataObjects::DataTable::Clone() const
+{
+    DataTable t(*this);
+    return CloneTo(t);
+}
+
+void DataObjects::DataTable::commit_reject_changes(bool commit)
+{
+    if(commit)
+    {
+
+    }
+    else
+    {
+
+    }
 }
 
 
@@ -415,7 +465,7 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
     o.Resize(Size());
 
     for(int i = 0; i < Size(); i++)
-        this->Value(i).CloneTo(o[i]);
+        Value(i).CloneTo(o[i]);
 
     return o;
 }
@@ -430,3 +480,35 @@ DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() con
     return DataTable(_dataset);
 }
 
+void DataObjects::DataTableCollection::validate_new_item(const DataTable &t) const
+        throw(Core::ValidationException)
+{
+    if(Contains(t))
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "Table already exists in data set");
+}
+
+
+
+
+
+QString DataObjects::ColumnCollection::Key(int ind) const
+{
+    return Value(ind).first;
+}
+
+QString DataObjects::ColumnCollection::Label(int ind) const
+{
+    return Value(ind).second;
+}
+
+QPair<QString, QString> DataObjects::ColumnCollection::create_blank_item() const
+{
+    return QPair<QString, QString>();
+}
+
+void DataObjects::ColumnCollection::validate_new_item(const QPair<QString, QString> &) const
+        throw(Core::ValidationException)
+{
+
+}

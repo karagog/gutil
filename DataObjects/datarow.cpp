@@ -54,6 +54,12 @@ DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) con
     return o;
 }
 
+DataObjects::DataRow DataObjects::DataRow::Clone() const
+{
+    DataRow dr(*this);
+    return CloneTo(dr);
+}
+
 QVariant &DataObjects::DataRow::operator [](int index)
 {
     if(index < 0 || index >= _row_data->tuple.Count())
@@ -219,7 +225,7 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
 
     // Clone each row explicitly; each row must detach itself from the shared pointer
     for(int i = 0; i < Count(); i++)
-        this->Value(i).CloneTo(o[i]);
+        Value(i).CloneTo(o[i]);
 
     return o;
 }
@@ -227,4 +233,17 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
 DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item() const
 {
     return DataRow(_table);
+}
+
+void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow &r) const
+        throw(Core::ValidationException)
+{
+    if(r.row_data().Table() != _table)
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "The row does not belong to this table.  "
+                                  "If you still want to add it, then call 'ImportRow' "
+                                  "on the parent table.");
+    else if(Contains(r))
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "Row already exists in the table");
 }

@@ -33,36 +33,15 @@ namespace GUtil
         class DataSet : public QAbstractItemModel,
                         public Interfaces::IQXmlSerializable,
                         public Core::Interfaces::IReadOnlyObject,
-                        public Core::Interfaces::IUpdatable
+                        public Core::Interfaces::IUpdatable,
+                        public Core::Interfaces::IEquatable<DataSet>,
+                        public Core::Interfaces::IClonable<DataSet>
         {
             Q_OBJECT
 
             friend class DataTable;
 
-        public:
-            DataSet(QObject *parent = 0);
-            virtual ~DataSet();
-
-            DataTableCollection &Tables();
-            int TableCount() const;
-
-            DataTable &operator [](int);
-            DataTable &operator [](const QString &table_name);
-
-            int GetTableIndex(const QString &table_name) const;
-
-            virtual void CommitChanges();
-            virtual void RejectChanges();
-
-            // IQXmlSerializable
-            void WriteXml(QXmlStreamWriter &) const;
-            void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
-
         protected:
-
-            // Derived classes can override this function to do special things when you commit data
-            virtual void commit_reject_changes(bool commit);
 
             class SetData : public QSharedData
             {
@@ -73,11 +52,68 @@ namespace GUtil
                 DataTableCollection tables;
             };
 
-            Custom::GSharedDataPointer<SetData> set_data;
+            SetData &set_data() const;
+
+
+        public:
+            DataSet(QObject *parent = 0);
+            DataSet(const DataSet &);
+            virtual ~DataSet();
+
+            DataTableCollection &Tables();
+            int TableCount() const;
+            DataTable &AddTable(const DataTable &);
+            void Clear();
+
+            DataSet &operator =(const DataSet &);
+            DataTable &operator [](int);
+            DataTable &operator [](const QString &table_name);
+            bool operator ==(const DataSet &) const;
+            bool operator !=(const DataSet &) const;
+
+            int GetTableIndex(const QString &table_name) const;
+
+            DataSet Clone() const;
+
+
+            // IEquatable interface:
+            virtual bool Equals(const DataSet &) const;
+
+            // IQXmlSerializable
+            void WriteXml(QXmlStreamWriter &) const;
+            void ReadXml(QXmlStreamReader &)
+                    throw(GUtil::Core::XmlException);
+
+            // QAbstractItemModel:
+            virtual QModelIndex index(int, int, const QModelIndex &) const;
+            virtual QModelIndex parent(const QModelIndex &child) const;
+
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+            virtual QVariant data(const QModelIndex &index, int role) const;
+            virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
+
+            virtual bool insertRows(int row, int count, const QModelIndex &parent);
+            virtual bool removeRows(int row, int count, const QModelIndex &parent);
+
+            virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+            virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+
+        protected:
+
+            // IUpdatable interface:
+            virtual void commit_reject_changes(bool commit);
+
+            // IClonable interface:
+            virtual DataSet &CloneTo(DataSet &) const;
+
 
         private:
 
-            Q_DISABLE_COPY(DataSet)
+            Custom::GSharedDataPointer<SetData> _set_data;
+
         };
     }
 }

@@ -77,6 +77,10 @@ namespace GUtil
                                           "Derived class must override this method!");
             }
 
+            // Derived classes use this to reject new items for any reason
+            virtual void validate_new_item(const T &) const
+                    throw(Core::ValidationException){}
+
 
         private:
 
