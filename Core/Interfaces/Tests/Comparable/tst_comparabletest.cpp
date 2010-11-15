@@ -27,7 +27,6 @@ public:
 
 private Q_SLOTS:
     void test_default_comparer();
-    void test_pointer_comparer();
 };
 
 ComparableTest::ComparableTest()
@@ -36,42 +35,28 @@ ComparableTest::ComparableTest()
 
 void ComparableTest::test_default_comparer()
 {
-
-}
-
-void ComparableTest::test_pointer_comparer()
-{
     int a = 0;
     int b = 1;
 
-    DefaultComparer<int> pc;
-    QVERIFY(pc.Compare(&a, &b) < 0);
-    QVERIFY(pc.Compare(a, b) < 0);
-    QVERIFY(pc.Compare(&b, &a) > 0);
-    QVERIFY(pc.Compare(b, a) > 0);
+    DefaultComparer<int> dc;
+    QVERIFY(dc.Compare(a, b) < 0);
+    QVERIFY(dc.Compare(b, a) > 0);
 
-    IComparer<int> *ic = &pc;
-    QVERIFY(ic->Compare(&b, &a) > 0);
+    IComparer<int> *ic = &dc;
     QVERIFY(ic->Compare(b, a) > 0);
-    QVERIFY(ic->Compare(&a, &b) < 0);
     QVERIFY(ic->Compare(a, b) < 0);
 
 
-    DefaultEqualityComparer<int> pec;
-    QVERIFY(!pec.Equal(&a, &b));
-    QVERIFY(!pec.Equal(a, b));
+    DefaultEqualityComparer<int> dec;
+    QVERIFY(!dec.Equal(a, b));
 
-    IEqualityComparer<int> *iec = &pec;
-    iec = &pec;
-    QVERIFY(!iec->Equal(&a, &b));
+    IEqualityComparer<int> *iec = &dec;
     QVERIFY(!iec->Equal(a, b));
 
 
     b = 0;
-    QVERIFY(pec.Equal(&a, &b));
-    QVERIFY(pec.Equal(a, b));
-    QVERIFY(iec->Equal(&a, &b));
     QVERIFY(iec->Equal(a, b));
+    QVERIFY(ic->Compare(a, b) == 0);
 }
 
 QTEST_APPLESS_MAIN(ComparableTest);

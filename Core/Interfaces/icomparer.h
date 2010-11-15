@@ -67,13 +67,6 @@ namespace GUtil
                     return ret;
                 }
 
-                virtual inline int Compare(const T* const lhs, const T* const rhs) const
-                {
-                    // We call the base implementation manually because it gets
-                    //  shadowed by the doubly-overridden method
-                    return IComparer<T>::Compare(lhs, rhs);
-                }
-
                 virtual ~DefaultComparer(){}
             };
         }

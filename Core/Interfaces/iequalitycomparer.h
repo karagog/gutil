@@ -28,12 +28,6 @@ namespace GUtil
 
                 virtual bool Equal(const T &lhs, const U &rhs) const = 0;
 
-                // A convenient pointer comparer
-                virtual inline bool Equal(const T* const lhs, const T* const rhs) const
-                {
-                    return Equal(*lhs, *rhs);
-                }
-
                 virtual ~IEqualityComparerDifferent(){}
             };
 
@@ -59,13 +53,6 @@ namespace GUtil
 
                 virtual bool Equal(const T &lhs, const T &rhs) const{
                     return lhs == rhs;
-                }
-
-                virtual inline bool Equal(const T* const lhs, const T* const rhs) const
-                {
-                    // We call the base implementation manually because it gets
-                    //  shadowed by the doubly-overridden method
-                    return IEqualityComparer<T>::Equal(lhs, rhs);
                 }
 
                 virtual ~DefaultEqualityComparer(){}
