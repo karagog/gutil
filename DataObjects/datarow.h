@@ -15,8 +15,7 @@ limitations under the License.*/
 #ifndef DATAROW_H
 #define DATAROW_H
 
-#include "collection.h"
-#include "qvariantcollection.h"
+#include "shareddataobjects.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/gshareddatapointer.h"
 #include "Core/Interfaces/iequatable.h"
@@ -27,8 +26,6 @@ namespace GUtil
 {
     namespace DataObjects
     {
-        class DataTable;
-
         // Defines a row in a data table
 
         class DataRow : public Interfaces::IQXmlSerializable,
@@ -37,28 +34,6 @@ namespace GUtil
         {
             friend class DataTable;
             friend class DataRowCollection;
-
-        protected:
-
-            // All the row's data is in this shared object
-            class RowData : public QSharedData
-            {
-            public:
-                RowData(DataTable *t, const QVariantList &vals);
-                RowData(const RowData &);
-
-                DataTable *Table() const;
-                void SetTable(DataTable *);
-
-                QVariantCollection tuple;
-
-            private:
-                DataTable *_table;
-            };
-
-            // Friend classes can access it via this method:
-            RowData &row_data() const;
-
 
         public:
 
@@ -94,6 +69,9 @@ namespace GUtil
 
             DataRow(DataTable *dt, const QVariantList &values = QVariantList());
 
+            // Friend classes can access our data via this method
+            SharedRowData &row_data() const;
+
             // IClonable interface:
             virtual DataRow &CloneTo(DataRow &) const;
 
@@ -102,36 +80,7 @@ namespace GUtil
 
         private:
 
-            Custom::GSharedDataPointer<RowData> _row_data;
-
-        };
-
-
-
-
-
-        class DataRowCollection :   public Collection<DataRow>,
-                                    public Core::Interfaces::IClonable<DataRowCollection>
-        {
-            friend class DataTable;
-            friend class RowData;
-
-        protected:
-
-            DataRowCollection(DataTable *t = 0);
-
-            // Protect our clonable interface
-            DataRowCollection(const DataRowCollection &);
-            virtual DataRowCollection &CloneTo(DataRowCollection &) const;
-
-            virtual DataRow create_blank_item() const;
-
-            virtual void validate_new_item(const DataRow &) const
-                    throw(Core::ValidationException);
-
-        private:
-
-            DataTable *_table;
+            Custom::GSharedDataPointer<SharedRowData> _row_data;
 
         };
     }

@@ -20,7 +20,7 @@ using namespace GUtil;
 
 DataObjects::DataSet::DataSet(QObject *parent)
     :QAbstractItemModel(parent == 0 ? qApp : parent),
-    _set_data(new SetData(this))
+    _set_data(new SharedSetData(this))
 {}
 
 DataObjects::DataSet::DataSet(const DataObjects::DataSet &o)
@@ -244,18 +244,5 @@ Qt::ItemFlags DataObjects::DataSet::flags(const QModelIndex &index) const
 }
 
 
-
-
-
-DataObjects::DataSet::SetData::SetData(DataSet *ds)
-    :tables(ds)
-{
-
-}
-
-DataObjects::DataSet::SetData::SetData(const DataObjects::DataSet::SetData &o)
-    :tables(o.tables)
-{
-}
 
 

@@ -31,24 +31,6 @@ namespace GUtil
     {
         class DataSet;
 
-        class ColumnCollection : public Collection< QPair<QString, QString> >
-        {
-        public:
-
-            QString Key(int) const;
-            QString Label(int) const;
-
-
-        protected:
-
-            virtual QPair<QString, QString> create_blank_item() const;
-
-            virtual void validate_new_item(const QPair<QString, QString> &) const
-                    throw(Core::ValidationException);
-
-        };
-
-
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
         class DataTable :   public QAbstractTableModel,
@@ -62,26 +44,6 @@ namespace GUtil
 
             friend class DataSet;
             friend class DataTableCollection;
-
-        protected:
-
-            // All the table's data is contained in this shared data class
-            class TableData : public QSharedData
-            {
-            public:
-                TableData(DataTable *parent_table);
-                TableData(const TableData &);
-
-                DataSet *dataset;
-                DataRowCollection rows;
-                QStringList keys;
-                QStringList labels;
-                QString name;
-            };
-
-            // Friend classes can access the data through this method:
-            TableData &table_data() const;
-
 
         public:
 
@@ -162,6 +124,9 @@ namespace GUtil
 
             DataTable(DataSet *ds);
 
+            // Friend classes can access our data through this method:
+            SharedTableData &table_data() const;
+
             virtual DataTable &CloneTo(DataTable &) const;
 
             virtual void commit_reject_changes(bool commit);
@@ -171,35 +136,7 @@ namespace GUtil
 
             void _init(DataSet *, const QString &, int);
 
-            Custom::GSharedDataPointer<TableData> _table_data;
-
-        };
-
-
-        class DataTableCollection : public Collection<DataTable>,
-                                    public Core::Interfaces::IClonable<DataTableCollection>
-        {
-            friend class DataSet;
-            friend class TableData;
-
-        protected:
-
-            DataTableCollection(DataSet *);
-
-            // Protect our clonable interface
-            DataTableCollection(const DataTableCollection &);
-            virtual DataTableCollection &CloneTo(DataTableCollection &) const;
-
-            virtual void on_add(DataTable &) const;
-            virtual DataTable create_blank_item() const;
-
-            virtual void validate_new_item(const DataTable &) const
-                    throw(Core::ValidationException);
-
-
-        private:
-
-            DataSet *_dataset;
+            Custom::GSharedDataPointer<SharedTableData> _table_data;
 
         };
     }

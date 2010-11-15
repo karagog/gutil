@@ -24,14 +24,14 @@ using namespace GUtil;
 
 DataObjects::DataTable::DataTable(int num_cols)
     :QAbstractTableModel(qApp),
-    _table_data(new TableData(this))
+    _table_data(new SharedTableData(this))
 {
     _init(0, QString::null, num_cols);
 }
 
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
     :QAbstractTableModel(qApp),
-    _table_data(new TableData(this))
+    _table_data(new SharedTableData(this))
 {
     _init(0, nm, num_cols);
 }
@@ -44,7 +44,7 @@ DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
 
 DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent)
     :QAbstractTableModel(ds_parent),
-    _table_data(new TableData(this))
+    _table_data(new SharedTableData(this))
 {
     _init(ds_parent, QString::null, 0);
 }
@@ -62,7 +62,7 @@ void DataObjects::DataTable::_init(DataSet *ds, const QString &name, int num_col
     SetColumnHeaders(sl);
 }
 
-DataObjects::DataTable::TableData &DataObjects::DataTable::table_data() const
+DataObjects::SharedTableData &DataObjects::DataTable::table_data() const
 {
     return *_table_data;
 }
@@ -423,92 +423,4 @@ void DataObjects::DataTable::commit_reject_changes(bool commit)
     {
 
     }
-}
-
-
-
-
-
-
-
-DataObjects::DataTable::TableData::TableData(DataObjects::DataTable *t)
-    :QSharedData(), rows(t)
-{}
-
-DataObjects::DataTable::TableData::TableData(
-        const DataObjects::DataTable::TableData &d)
-            :QSharedData(d),
-            rows(d.rows),
-            keys(d.keys),
-            labels(d.labels),
-            name(d.name)
-{
-    dataset = d.dataset;
-}
-
-
-
-
-DataObjects::DataTableCollection::DataTableCollection(DataObjects::DataSet *d)
-{
-    _dataset = d;
-}
-
-DataObjects::DataTableCollection::DataTableCollection(const DataTableCollection &o)
-{
-    o.CloneTo(*this);
-}
-
-DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
-        DataTableCollection &o) const
-{
-    o.Resize(Size());
-
-    for(int i = 0; i < Size(); i++)
-        Value(i).CloneTo(o[i]);
-
-    return o;
-}
-
-void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
-{
-    t._table_data->dataset = _dataset;
-}
-
-DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() const
-{
-    return DataTable(_dataset);
-}
-
-void DataObjects::DataTableCollection::validate_new_item(const DataTable &t) const
-        throw(Core::ValidationException)
-{
-    if(Contains(t))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                  "Table already exists in data set");
-}
-
-
-
-
-
-QString DataObjects::ColumnCollection::Key(int ind) const
-{
-    return Value(ind).first;
-}
-
-QString DataObjects::ColumnCollection::Label(int ind) const
-{
-    return Value(ind).second;
-}
-
-QPair<QString, QString> DataObjects::ColumnCollection::create_blank_item() const
-{
-    return QPair<QString, QString>();
-}
-
-void DataObjects::ColumnCollection::validate_new_item(const QPair<QString, QString> &) const
-        throw(Core::ValidationException)
-{
-
 }

@@ -41,21 +41,8 @@ namespace GUtil
 
             friend class DataTable;
 
-        protected:
-
-            class SetData : public QSharedData
-            {
-            public:
-                SetData(DataSet *);
-                SetData(const SetData &);
-
-                DataTableCollection tables;
-            };
-
-            SetData &set_data() const;
-
-
         public:
+
             DataSet(QObject *parent = 0);
             DataSet(const DataSet &);
             virtual ~DataSet();
@@ -103,6 +90,8 @@ namespace GUtil
 
         protected:
 
+            SharedSetData &set_data() const;
+
             // IUpdatable interface:
             virtual void commit_reject_changes(bool commit);
 
@@ -112,7 +101,7 @@ namespace GUtil
 
         private:
 
-            Custom::GSharedDataPointer<SetData> _set_data;
+            Custom::GSharedDataPointer<SharedSetData> _set_data;
 
         };
     }
