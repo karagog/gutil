@@ -42,6 +42,10 @@ namespace GUtil
                     return Compare(o) == 0;
                 }
 
+                virtual bool operator !=(const T &o) const{
+                    return Compare != 0;
+                }
+
                 virtual ~IComparable(){}
             };
         }
