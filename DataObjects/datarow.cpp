@@ -14,20 +14,25 @@ limitations under the License.*/
 
 #include "datarow.h"
 #include "datatable.h"
-#include "Custom/gsemaphore.h"
+#include "datarowcollection.h"
+#include "qvariantcollection.h"
 #include "qvarianthelpers.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-DataObjects::DataRow::DataRow(DataObjects::DataTable *dt, const QVariantList &vals)
-    :_row_data(new RowData(dt, vals))
+DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt, const QVariantList &vals)
+    :_row_data(new SharedRowData(&dt.table_data(), vals))
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
 {
     *this = o;
 }
+
+DataObjects::DataRow::DataRow(SharedRowData *rd)
+    :_row_data(rd)
+{}
 
 DataObjects::DataRow::~DataRow(){}
 
@@ -62,12 +67,12 @@ DataObjects::DataRow DataObjects::DataRow::Clone() const
 
 QVariant &DataObjects::DataRow::operator [](int index)
 {
-    if(index < 0 || index >= _row_data->tuple.Count())
+    if(index < 0 || index >= row_data().Tuple().Count())
         THROW_NEW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException,
                 QString("Tried index %1 of %2")
-                .arg(index).arg(_row_data->tuple.Count()).toStdString() );
+                .arg(index).arg(row_data().Tuple().Count()).toStdString() );
 
-    return _row_data->tuple[index];
+    return row_data().Tuple()[index];
 }
 
 QVariant &DataObjects::DataRow::operator [](const QString &column_header)
@@ -79,37 +84,34 @@ QVariant &DataObjects::DataRow::operator [](const QString &column_header)
     return (*this)[index];
 }
 
-DataObjects::DataTable DataObjects::DataRow::Table()
+DataObjects::DataTable DataObjects::DataRow::Table() const
 {
-    return DataTable(_row_data->tableData);
+    return DataTable(row_data().TableData());
 }
 
 int DataObjects::DataRow::Index() const
 {
-    if(_row_data->Table() == 0)
-        return -1;
-
-    return _row_data->Table()->Rows().IndexOf(*this);
+    return Table().Rows().IndexOf(*this);
 }
 
 int DataObjects::DataRow::ColumnCount() const
 {
-    return _row_data->Table()->ColumnCount();
+    return Table().ColumnCount();
 }
 
-DataObjects::DataRow::RowData &DataObjects::DataRow::row_data() const
+DataObjects::SharedRowData &DataObjects::DataRow::row_data() const
 {
     return *_row_data;
 }
 
 void DataObjects::DataRow::set_number_of_columns(int cols)
 {
-    _row_data->tuple.Resize(cols);
+    row_data().Tuple().Resize(cols);
 }
 
 QVariant DataObjects::DataRow::At(int index) const
 {
-    return _row_data->tuple.Value(index);
+    return row_data().Tuple().Value(index);
 }
 
 bool DataObjects::DataRow::Equals(const DataObjects::DataRow &rhs) const
@@ -139,7 +141,7 @@ void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(ColumnCount()));
 
     for(int i = 0; i < ColumnCount(); i++)
-        DataObjects::QVariantHelpers::WriteXml(_row_data->tuple.Value(i), sw);
+        DataObjects::QVariantHelpers::WriteXml(row_data().Tuple().Value(i), sw);
 
     sw.writeEndElement();
 }
@@ -155,10 +157,10 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
 
         int cnt = sr.attributes().at(0).value().toString().toInt();
 
-        _row_data->tuple.Clear();
+        row_data().Tuple().Clear();
 
         for(int i = 0; i < cnt; i++)
-            _row_data->tuple.Add(DataObjects::QVariantHelpers::ReadXml(sr));
+            row_data().Tuple().Add(DataObjects::QVariantHelpers::ReadXml(sr));
 
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != ROW_XML_ID);

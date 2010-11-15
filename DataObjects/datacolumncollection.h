@@ -32,6 +32,12 @@ namespace GUtil
             QString Key(int) const;
             QString Label(int) const;
 
+            QStringList Keys() const;
+            QStringList Labels() const;
+
+            void SetKey(int, const QString &);
+            void SetLabel(int, const QString &);
+
             bool ContainsKey(const QString &) const;
 
 
@@ -42,7 +48,7 @@ namespace GUtil
             virtual void validate_new_item(const DataColumn &) const
                     throw(Core::ValidationException);
 
-            virtual void compare_equality(const DataColumn &lhs,
+            virtual bool compare_equality(const DataColumn &lhs,
                                           const DataColumn &rhs) const;
 
         };

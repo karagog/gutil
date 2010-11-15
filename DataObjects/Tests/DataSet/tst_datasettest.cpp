@@ -184,7 +184,7 @@ void DataSetTest::test_dataTable()
 
 
         // Resize the columns and check the rows
-        dt.SetColumnKeys(QStringList("OneColumn"));
+        dt.SetColumnHeaders(QStringList("OneColumn"));
         QVERIFY(dt.ColumnCount() == 1);
         QVERIFY(dr.ColumnCount() == 1);
 

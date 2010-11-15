@@ -12,21 +12,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 #include "dataset.h"
+#include "datatablecollection.h"
 #include <QCoreApplication>
 #include <QVariantList>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-DataObjects::DataSet::DataSet(QObject *parent)
-    :QAbstractItemModel(parent == 0 ? qApp : parent),
-    _set_data(new SharedSetData(this))
+DataObjects::DataSet::DataSet()
+    :QAbstractItemModel(qApp),
+    _set_data(new SharedSetData)
 {}
 
 DataObjects::DataSet::DataSet(const DataObjects::DataSet &o)
+    :QAbstractItemModel(qApp)
 {
     *this = o;
 }
+
+DataObjects::DataSet::DataSet(SharedSetData *sd)
+    :QAbstractItemModel(qApp),
+    _set_data(sd)
+{}
 
 DataObjects::DataSet::~DataSet(){}
 
@@ -35,14 +42,14 @@ DataObjects::DataSet &DataObjects::DataSet::operator =(const DataObjects::DataSe
     _set_data = o._set_data;
 }
 
-DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
+DataObjects::DataTableCollection &DataObjects::DataSet::Tables() const
 {
-    return _set_data->tables;
+    return set_data().Tables();
 }
 
 int DataObjects::DataSet::TableCount() const
 {
-    return _set_data->tables.Count();
+    return Tables().Count();
 }
 
 DataObjects::DataTable &DataObjects::DataSet::AddTable(const DataTable &t)
@@ -57,7 +64,7 @@ void DataObjects::DataSet::Clear()
 
 DataObjects::DataTable &DataObjects::DataSet::operator [](int i)
 {
-    return _set_data->tables[i];
+    return set_data().Tables()[i];
 }
 
 DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &name)
@@ -91,7 +98,7 @@ bool DataObjects::DataSet::Equals(const DataObjects::DataSet &d) const
         for(int i = 0; i < TableCount(); i++)
         {
             if(!(ret =
-                 _set_data->tables.Value(i).Equals(d._set_data->tables.Value(i))))
+                 set_data().Tables().Value(i).Equals(d.set_data().Tables().Value(i))))
                 break;
         }
     }
@@ -103,7 +110,7 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
     int ret = -1;
     for(int i = 0; i < TableCount(); i++)
     {
-        if(_set_data->tables.Value(i).Name() == table_name)
+        if(set_data().Tables().Value(i).Name() == table_name)
         {
             ret = i;
             break;
@@ -112,7 +119,7 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
     return ret;
 }
 
-DataObjects::DataSet::SetData &DataObjects::DataSet::set_data() const
+DataObjects::SharedSetData &DataObjects::DataSet::set_data() const
 {
     return *_set_data;
 }
@@ -154,7 +161,7 @@ void DataObjects::DataSet::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(TableCount()));
 
     for(int i = 0; i < TableCount(); i++)
-        _set_data->tables.Value(i).WriteXml(sw);
+        set_data().Tables().Value(i).WriteXml(sw);
 
     sw.writeEndElement();
 }
@@ -174,7 +181,7 @@ void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
         int len = sr.attributes().at(0).value().toString().toInt();
         for(int i = 0; i < len; i++)
         {
-            DataTable t(this);
+            DataTable t(*this);
             t.ReadXml(sr);
             Tables().Add(t);
         }

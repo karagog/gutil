@@ -37,7 +37,7 @@ namespace GUtil
         {
         public:
 
-            SharedSetData(DataSet *);
+            SharedSetData();
             SharedSetData(const SharedSetData &);
             ~SharedSetData();
 
@@ -56,7 +56,7 @@ namespace GUtil
         {
         public:
 
-            SharedTableData(SharedSetData *parent_data);
+            SharedTableData(SharedSetData *sd = 0);
             SharedTableData(const SharedTableData &);
             ~SharedTableData();
 
@@ -82,8 +82,9 @@ namespace GUtil
         {
         public:
 
-            SharedRowData(DataTable *t, const QVariantList &vals);
+            SharedRowData(SharedTableData *, const QVariantList &vals);
             SharedRowData(const SharedRowData &);
+            ~SharedRowData();
 
             SharedTableData *TableData() const;
             void SetTableData(SharedTableData *);

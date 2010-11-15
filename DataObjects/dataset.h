@@ -15,13 +15,8 @@ limitations under the License.*/
 #ifndef ABSTRACTDATATUPLE_H
 #define ABSTRACTDATATUPLE_H
 
-#include "datatable.h"
-#include "collection.h"
+#include "datatablecollection.h"
 #include "qvarianthelpers.h"
-#include "Custom/gshareddatapointer.h"
-#include "Interfaces/iqxmlserializable.h"
-#include "Core/Interfaces/iupdatable.h"
-#include "Core/Interfaces/ireadonlyobject.h"
 #include <QAbstractItemModel>
 #include <QVariantList>
 #include <QStringList>
@@ -40,14 +35,16 @@ namespace GUtil
             Q_OBJECT
 
             friend class DataTable;
+            friend class DataTableCollection;
+            friend class SharedTableData;
 
         public:
 
-            DataSet(QObject *parent = 0);
+            DataSet();
             DataSet(const DataSet &);
             virtual ~DataSet();
 
-            DataTableCollection &Tables();
+            DataTableCollection &Tables() const;
             int TableCount() const;
             DataTable &AddTable(const DataTable &);
             void Clear();
@@ -89,6 +86,8 @@ namespace GUtil
 
 
         protected:
+
+            DataSet(SharedSetData *);
 
             SharedSetData &set_data() const;
 

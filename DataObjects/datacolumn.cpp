@@ -13,18 +13,25 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacolumn.h"
+#include "collection.h"
 using namespace GUtil;
 
-DataObjects::DataColumn::DataColumn(const QString &key)
+DataObjects::DataColumn::DataColumn(const DataObjects::DataColumnCollection * const c, const QString &key)
+    :_collection(c)
 {
     _data.first = key;
 }
 
-DataObjects::DataColumn::DataColumn(const QPair<QString, QString> &o)
-    :QPair<QString, QString>(o){}
+DataObjects::DataColumn::DataColumn(const DataObjects::DataColumnCollection * const c,
+                                    const QString &key, const QString &label)
+    :_data(key, label),
+    _collection(c)
+{}
 
 DataObjects::DataColumn::DataColumn(const DataObjects::DataColumn &o)
-    :QPair<QString, QString>(o._data){}
+    :_data(o._data),
+    _collection(o._collection)
+{}
 
 QString DataObjects::DataColumn::Key() const
 {
@@ -39,9 +46,25 @@ QString DataObjects::DataColumn::Label() const
 DataObjects::DataColumn &DataObjects::DataColumn::operator =(const DataObjects::DataColumn &o)
 {
     _data = o._data;
+    return *this;
 }
 
 bool DataObjects::DataColumn::Equals(const DataObjects::DataColumn &o) const
 {
     return _data.first == o._data.first;
+}
+
+void DataObjects::DataColumn::set_key(const QString &k)
+{
+    _data.first = k;
+}
+
+void DataObjects::DataColumn::set_label(const QString &l)
+{
+    _data.second = l;
+}
+
+int DataObjects::DataColumn::Index() const
+{
+    return ((Collection<DataColumn> *)_collection)->IndexOf(*this);
 }

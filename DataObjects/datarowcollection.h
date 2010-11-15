@@ -17,21 +17,23 @@ limitations under the License.*/
 
 #include "datarow.h"
 #include "collection.h"
-#include "Core/Interfaces/iclonable.h"
 
 namespace GUtil
 {
     namespace DataObjects
     {
+        class SharedTableData;
+
         class DataRowCollection :   public Collection<DataRow>,
-        public Core::Interfaces::IClonable<DataRowCollection>
+                                    public Core::Interfaces::IClonable<DataRowCollection>
         {
             friend class DataTable;
             friend class RowData;
+            friend class SharedTableData;
 
         protected:
 
-            DataRowCollection(DataTable *t = 0);
+            DataRowCollection(SharedTableData *);
 
             // Protect our clonable interface
             DataRowCollection(const DataRowCollection &);
@@ -44,7 +46,7 @@ namespace GUtil
 
         private:
 
-            DataTable *_table;
+            SharedTableData *_table_data;
 
         };
     }

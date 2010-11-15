@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
+#include "Core/exception.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
@@ -36,14 +37,19 @@ namespace GUtil
             virtual ~Collection();
 
             T &Add(const T &value);
-            T &Insert(int index, const T &value);
+            T &Insert(int index, const T &value)
+                    throw(Core::IndexOutOfRangeException);
 
-            T &SetValue(int index, const T &);
-            T Value(int index) const;
+            T &SetValue(int index, const T &)
+                    throw(Core::IndexOutOfRangeException);
+            T Value(int index) const
+                    throw(Core::IndexOutOfRangeException);
 
-            T &operator [](int index);
+            T &operator [](int index)
+                    throw(Core::IndexOutOfRangeException);
 
-            void Remove(int index);
+            void Remove(int index)
+                    throw(Core::IndexOutOfRangeException);
             void RemoveOne(const T &);
             void RemoveAll(const T &);
             void Clear();
@@ -54,9 +60,6 @@ namespace GUtil
 
             bool Contains(const T &) const;
             int IndexOf(const T &) const;
-
-            bool operator ==(const Collection<T> &) const;
-            bool operator !=(const Collection<T> &) const;
 
             // The IEquatable interface:
             virtual bool Equals(const Collection<T> &) const;

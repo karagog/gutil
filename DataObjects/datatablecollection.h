@@ -21,15 +21,18 @@ namespace GUtil
 {
     namespace DataObjects
     {
+        class SharedSetData;
+
         class DataTableCollection : public Collection<DataTable>,
                                     public Core::Interfaces::IClonable<DataTableCollection>
         {
             friend class DataSet;
             friend class TableData;
+            friend class SharedSetData;
 
         protected:
 
-            DataTableCollection(DataSet *);
+            DataTableCollection(SharedSetData *);
 
             // Protect our clonable interface
             DataTableCollection(const DataTableCollection &);
@@ -44,7 +47,7 @@ namespace GUtil
 
         private:
 
-            DataSet *_dataset;
+            SharedSetData *_set_data;
 
         };
     }

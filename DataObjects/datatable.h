@@ -15,12 +15,7 @@ limitations under the License.*/
 #ifndef DATATABLE_H
 #define DATATABLE_H
 
-#include "datarow.h"
-#include "collection.h"
-#include "Custom/gshareddatapointer.h"
-#include "Interfaces/iqxmlserializable.h"
-#include "Core/Interfaces/iupdatable.h"
-#include "Core/Interfaces/ireadonlyobject.h"
+#include "datarowcollection.h"
 #include <QVariantList>
 #include <QStringList>
 #include <QAbstractTableModel>
@@ -44,6 +39,9 @@ namespace GUtil
 
             friend class DataSet;
             friend class DataTableCollection;
+            friend class DataRow;
+            friend class DataRowCollection;
+            friend class SharedRowData;
 
         public:
 
@@ -70,9 +68,7 @@ namespace GUtil
             void AddColumn(const QString &key, const QString &label = QString::null);
             void SetColumnHeaders(const QStringList &keys, const QStringList &labels = QStringList());
             void SetColumnLabel(int col_index, const QString &);
-            void SetColumnLabels(const QStringList &);
             void SetColumnKey(int col_index, const QString &);
-            void SetColumnKeys(const QStringList &);
             void ClearColumns();
 
             int RowCount() const;
@@ -85,7 +81,7 @@ namespace GUtil
             bool operator ==(const DataTable &) const;
             bool operator !=(const DataTable &) const;
 
-            DataSet *DataSetParent() const;
+            DataSet Set() const;
             DataRowCollection &Rows();
             QStringList ColumnKeys() const;
             QStringList ColumnLabels() const;
@@ -122,7 +118,8 @@ namespace GUtil
 
         protected:
 
-            DataTable(DataSet *ds);
+            DataTable(const DataSet &);
+            DataTable(SharedTableData *);
 
             // Friend classes can access our data through this method:
             SharedTableData &table_data() const;
@@ -134,7 +131,7 @@ namespace GUtil
 
         private:
 
-            void _init(DataSet *, const QString &, int);
+            void _init(const QString &name, int num_cols);
 
             Custom::GSharedDataPointer<SharedTableData> _table_data;
 

@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "Custom/gshareddatapointer.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
+#include "Core/Interfaces/iupdatable.h"
 #include <QVariant>
 
 namespace GUtil
@@ -30,7 +31,8 @@ namespace GUtil
 
         class DataRow : public Interfaces::IQXmlSerializable,
                         public Core::Interfaces::IEquatable<DataRow>,
-                        public Core::Interfaces::IClonable<DataRow>
+                        public Core::Interfaces::IClonable<DataRow>,
+                        public Core::Interfaces::IUpdatable
         {
             friend class DataTable;
             friend class DataRowCollection;
@@ -48,7 +50,7 @@ namespace GUtil
 
             QVariant At(int index) const;
 
-            DataTable Table();
+            DataTable Table() const;
 
             int Index() const;
             int ColumnCount() const;
@@ -67,7 +69,8 @@ namespace GUtil
 
         protected:
 
-            DataRow(DataTable *dt, const QVariantList &values = QVariantList());
+            DataRow(const DataTable &dt, const QVariantList &values = QVariantList());
+            DataRow(SharedRowData *);
 
             // Friend classes can access our data via this method
             SharedRowData &row_data() const;

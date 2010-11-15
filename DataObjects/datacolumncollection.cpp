@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "datacolumncollection.h"
 #include <QUuid>
+#include <QStringList>
 using namespace GUtil;
 
 DataObjects::DataColumnCollection::DataColumnCollection(int size)
@@ -31,7 +32,7 @@ QString DataObjects::DataColumnCollection::Key(int ind) const
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
 {
-    return Contains(DataColumn(k));
+    return Contains(DataColumn(this, k));
 }
 
 QString DataObjects::DataColumnCollection::Label(int ind) const
@@ -39,9 +40,46 @@ QString DataObjects::DataColumnCollection::Label(int ind) const
     return Value(ind).Label();
 }
 
-DataColumn DataObjects::DataColumnCollection::create_blank_item() const
+QStringList DataObjects::DataColumnCollection::Keys() const
 {
-    return DataColumn(QUuid::createUuid().toString());
+    QStringList ret;
+
+    for(int i = 0; i < Count(); i++)
+        ret.append(Key(i));
+
+    return ret;
+}
+
+QStringList DataObjects::DataColumnCollection::Labels() const
+{
+    QStringList ret;
+
+    for(int i = 0; i < Count(); i++)
+        ret.append(Label(i));
+
+    return ret;
+}
+
+void DataObjects::DataColumnCollection::SetKey(int ind, const QString &s)
+{
+    if(Key(ind) == s)
+        return;
+    else if(Contains(DataColumn(this, s)))
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  QString("Key already exists in column collection: '%1'")
+                                  .arg(s).toStdString());
+
+    (*this)[ind].set_key(s);
+}
+
+void DataObjects::DataColumnCollection::SetLabel(int ind, const QString &s)
+{
+    (*this)[ind].set_label(s);
+}
+
+DataObjects::DataColumn DataObjects::DataColumnCollection::create_blank_item() const
+{
+    return DataColumn(this, QUuid::createUuid().toString());
 }
 
 void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::DataColumn &c) const
@@ -50,10 +88,10 @@ void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::Dat
     if(Contains(c))
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   QString("Column collection already contains key '%1'")
-                                  .arg(c.first).toStdString());
+                                  .arg(c.Key()).toStdString());
 }
 
-void DataObjects::DataColumnCollection::compare_equality(
+bool DataObjects::DataColumnCollection::compare_equality(
         const DataObjects::DataColumn &lhs,
         const DataObjects::DataColumn &rhs) const
 {

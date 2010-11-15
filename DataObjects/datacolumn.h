@@ -22,14 +22,23 @@ namespace GUtil
 {
     namespace DataObjects
     {
+        class DataColumnCollection;
+
         class DataColumn : public Core::Interfaces::IEquatable<DataColumn>
         {
+            friend class DataTable;
+            friend class DataColumnCollection;
+
         public:
+
+            DataColumn(const DataColumn &);
 
             QString Key() const;
             QString Label() const;
 
             DataColumn &operator =(const DataColumn &);
+
+            int Index() const;
 
             // IEquatable:
             virtual bool Equals(const DataColumn &) const;
@@ -37,14 +46,18 @@ namespace GUtil
 
         protected:
 
-            DataColumn(const QString &key);
-            DataColumn(const QPair<QString, QString> &);
-            DataColumn(const DataColumn &);
+            DataColumn(const DataColumnCollection * const, const QString &key);
+            DataColumn(const DataColumnCollection * const, const QString &key, const QString &label);
+
+            void set_key(const QString &);
+            void set_label(const QString &);
 
 
         private:
 
             QPair<QString, QString> _data;
+
+            const DataColumnCollection *const _collection;
 
         };
     }

@@ -12,12 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "datatable.h"
 #include "datarowcollection.h"
 using namespace GUtil;
 
-DataObjects::DataRowCollection::DataRowCollection(DataTable *dt)
+DataObjects::DataRowCollection::DataRowCollection(SharedTableData *td)
 {
-    _table = dt;
+    _table_data = td;
 }
 
 DataObjects::DataRowCollection::DataRowCollection(const DataObjects::DataRowCollection &o)
@@ -28,7 +29,7 @@ DataObjects::DataRowCollection::DataRowCollection(const DataObjects::DataRowColl
 DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
         DataObjects::DataRowCollection &o) const
 {
-    o._table = _table;
+    o._table_data = _table_data;
     o.Resize(Size());
 
     // Clone each row explicitly; each row must detach itself from the shared pointer
@@ -40,13 +41,13 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
 
 DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item() const
 {
-    return DataRow(_table);
+    return DataRow(DataTable(_table_data));
 }
 
 void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow &r) const
         throw(Core::ValidationException)
 {
-    if(r.row_data().Table() != _table)
+    if(r.Table() != r.Table())
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   "The row does not belong to this table.  "
                                   "If you still want to add it, then call 'ImportRow' "

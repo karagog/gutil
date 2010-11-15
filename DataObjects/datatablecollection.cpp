@@ -12,12 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "dataset.h"
 #include "datatablecollection.h"
 using namespace GUtil;
 
-DataObjects::DataTableCollection::DataTableCollection(DataObjects::DataSet *d)
+DataObjects::DataTableCollection::DataTableCollection(DataObjects::SharedSetData *d)
 {
-    _dataset = d;
+    _set_data = d;
 }
 
 DataObjects::DataTableCollection::DataTableCollection(const DataTableCollection &o)
@@ -38,12 +39,12 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
 
 void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
 {
-    t._table_data->_set_data = _dataset;
+    t.table_data().SetSetData(_set_data);
 }
 
 DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() const
 {
-    return DataTable(_dataset);
+    return DataTable(DataSet(_set_data));
 }
 
 void DataObjects::DataTableCollection::validate_new_item(const DataTable &t) const

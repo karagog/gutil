@@ -15,17 +15,18 @@ limitations under the License.*/
 #include "shareddataobjects.h"
 #include "datatablecollection.h"
 #include "datarowcollection.h"
+#include "datacolumncollection.h"
 #include "qvariantcollection.h"
 using namespace GUtil;
 
-DataObjects::SharedSetData::SharedSetData(DataSet *ds)
+DataObjects::SharedSetData::SharedSetData()
 {
-    _tables = new DataObjects::DataTableCollection(ds);
+    _tables = new DataObjects::DataTableCollection(this);
 }
 
 DataObjects::SharedSetData::SharedSetData(const DataObjects::SharedSetData &o)
 {
-    _tables = new DataObjects::DataTableCollection(o._tables);
+    _tables = new DataObjects::DataTableCollection(o.Tables());
 }
 
 DataObjects::SharedSetData::~SharedSetData()
@@ -42,8 +43,7 @@ DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() const
 
 
 
-DataObjects::SharedTableData::SharedTableData(DataObjects::SharedSetData *sd)
-    :QSharedData()
+DataObjects::SharedTableData::SharedTableData(SharedSetData *sd)
 {
     _rows = new DataObjects::DataRowCollection(this);
     _columns = new DataObjects::DataColumnCollection;
@@ -94,11 +94,11 @@ DataObjects::DataColumnCollection &DataObjects::SharedTableData::Columns() const
 
 
 
-DataObjects::SharedRowData::SharedRowData(DataObjects::DataTable *t,
+DataObjects::SharedRowData::SharedRowData(DataObjects::SharedTableData *td,
                                        const QVariantList &vals)
 {
     _tuple = new DataObjects::QVariantCollection(vals);
-    SetTableData(t);
+    SetTableData(td);
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
@@ -106,24 +106,26 @@ DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
     _tuple(o._tuple)
 {
     _tuple = new DataObjects::QVariantCollection(o.Tuple());
-    SetTableData(o._table);
+    SetTableData(o._table_data);
 }
 
-DataObjects::DataTable *DataObjects::SharedRowData::TableData() const
+DataObjects::SharedRowData::~SharedRowData()
+{
+    delete _tuple;
+}
+
+DataObjects::SharedTableData *DataObjects::SharedRowData::TableData() const
 {
     return _table_data;
-    delete _tuple;
 }
 
 void DataObjects::SharedRowData::SetTableData(SharedTableData *dt)
 {
-    if((_table_data = dt))
-    {
-        _tuple.Resize(dt->ColumnCount());
-    }
+    _table_data = dt;
+    _tuple->Resize(dt->Columns().Count());
 }
 
-QVariantCollection &DataObjects::SharedRowData::Tuple() const
+DataObjects::QVariantCollection &DataObjects::SharedRowData::Tuple() const
 {
     return *_tuple;
 }
