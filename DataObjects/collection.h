@@ -71,6 +71,11 @@ namespace GUtil
             virtual void on_add(T *) const{}
             virtual void on_remove(T *) const{}
 
+            // You can define a different equality specification by overriding
+            virtual bool compare_equality(const T &lhs, const T &rhs) const{
+                return lhs == rhs;
+            }
+
             // Derived classes use this method to instantiate blank items for the resize method
             virtual T create_blank_item() const{
                 THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException,

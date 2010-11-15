@@ -48,7 +48,7 @@ namespace GUtil
 
             QVariant At(int index) const;
 
-            DataTable &Table();
+            DataTable Table();
 
             int Index() const;
             int ColumnCount() const;

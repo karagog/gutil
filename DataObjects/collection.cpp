@@ -114,7 +114,18 @@ template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) cons
 
 template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
 {
-    return _collection.indexOf(o);
+    int ret = -1;
+
+    for(int i = 0; i < Size(); i++)
+    {
+        if(compare_equality(Value(i), o))
+        {
+            ret = i;
+            break;
+        }
+    }
+
+    return ret;
 }
 
 template <typename T> T &DataObjects::Collection<T>::operator [](int index)
@@ -144,7 +155,7 @@ template <typename T> bool DataObjects::Collection<T>::Equals(
 
 template <typename T> int DataObjects::Collection<T>::Count() const
 {
-    return Size();
+    return _collection.length();
 }
 
 template <typename T> int DataObjects::Collection<T>::Size() const

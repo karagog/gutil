@@ -79,12 +79,9 @@ QVariant &DataObjects::DataRow::operator [](const QString &column_header)
     return (*this)[index];
 }
 
-DataObjects::DataTable &DataObjects::DataRow::Table()
+DataObjects::DataTable DataObjects::DataRow::Table()
 {
-    if(_row_data->Table() == 0)
-        THROW_NEW_GUTIL_EXCEPTION( Core::NullReferenceException, "Table not set" );
-
-    return *_row_data->Table();
+    return DataTable(_row_data->tableData);
 }
 
 int DataObjects::DataRow::Index() const

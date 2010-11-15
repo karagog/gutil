@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef SHAREDDATAOBJECTS_H
 #define SHAREDDATAOBJECTS_H
 
-#include "qvariantcollection.h"
-#include <QStringList>
 #include <QSharedData>
+#include <QString>
+#include <QVariantList>
 
 namespace GUtil
 {
@@ -26,17 +26,28 @@ namespace GUtil
         class DataSet;
         class DataTable;
         class DataTableCollection;
+        class DataColumnCollection;
         class DataRow;
         class DataRowCollection;
+
+        class QVariantCollection;
+
 
         class SharedSetData : public QSharedData
         {
         public:
+
             SharedSetData(DataSet *);
             SharedSetData(const SharedSetData &);
             ~SharedSetData();
 
-            DataTableCollection *tables;
+            DataTableCollection &Tables() const;
+
+
+        private:
+
+            DataTableCollection *_tables;
+
         };
 
 
@@ -44,15 +55,25 @@ namespace GUtil
         class SharedTableData : public QSharedData
         {
         public:
-            SharedTableData(DataTable *parent_table);
+
+            SharedTableData(SharedSetData *parent_data);
             SharedTableData(const SharedTableData &);
             ~SharedTableData();
 
-            DataSet *dataset;
-            DataRowCollection *rows;
-            QStringList keys;
-            QStringList labels;
+            SharedSetData *SetData() const;
+            void SetSetData(SharedSetData *);
+
+            DataRowCollection &Rows() const;
+            DataColumnCollection &Columns() const;
             QString name;
+
+
+        private:
+
+            SharedSetData *_set_data;
+            DataRowCollection *_rows;
+            DataColumnCollection *_columns;
+
         };
 
 
@@ -60,16 +81,21 @@ namespace GUtil
         class SharedRowData : public QSharedData
         {
         public:
+
             SharedRowData(DataTable *t, const QVariantList &vals);
             SharedRowData(const SharedRowData &);
 
-            DataTable *Table() const;
-            void SetTable(DataTable *);
+            SharedTableData *TableData() const;
+            void SetTableData(SharedTableData *);
 
-            QVariantCollection tuple;
+            QVariantCollection &Tuple() const;
+
 
         private:
-            DataTable *_table;
+
+            SharedTableData *_table_data;
+            QVariantCollection *_tuple;
+
         };
     }
 }

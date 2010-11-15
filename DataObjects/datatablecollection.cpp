@@ -38,7 +38,7 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
 
 void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
 {
-    t._table_data->dataset = _dataset;
+    t._table_data->_set_data = _dataset;
 }
 
 DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() const

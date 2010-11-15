@@ -15,27 +15,35 @@ limitations under the License.*/
 #ifndef COLUMNCOLLECTION_H
 #define COLUMNCOLLECTION_H
 
+#include "datacolumn.h"
 #include "collection.h"
-#include <QPair>
 
 namespace GUtil
 {
     namespace DataObjects
     {
-        class ColumnCollection : public Collection< QPair<QString, QString> >
+        class DataColumnCollection : public Collection<DataColumn>
         {
         public:
+
+            DataColumnCollection(int size = 0);
+            DataColumnCollection(const DataColumnCollection &);
 
             QString Key(int) const;
             QString Label(int) const;
 
+            bool ContainsKey(const QString &) const;
+
 
         protected:
 
-            virtual QPair<QString, QString> create_blank_item() const;
+            virtual DataColumn create_blank_item() const;
 
-            virtual void validate_new_item(const QPair<QString, QString> &) const
+            virtual void validate_new_item(const DataColumn &) const
                     throw(Core::ValidationException);
+
+            virtual void compare_equality(const DataColumn &lhs,
+                                          const DataColumn &rhs) const;
 
         };
     }

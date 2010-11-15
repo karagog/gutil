@@ -14,7 +14,8 @@ limitations under the License.*/
 
 #include "datatable.h"
 #include "dataset.h"
-#include "datarow.h"
+#include "datarowcollection.h"
+#include "shareddataobjects.h"
 #include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
@@ -24,14 +25,14 @@ using namespace GUtil;
 
 DataObjects::DataTable::DataTable(int num_cols)
     :QAbstractTableModel(qApp),
-    _table_data(new SharedTableData(this))
+    _table_data(new SharedTableData(0))
 {
     _init(0, QString::null, num_cols);
 }
 
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
     :QAbstractTableModel(qApp),
-    _table_data(new SharedTableData(this))
+    _table_data(new SharedTableData(0))
 {
     _init(0, nm, num_cols);
 }
@@ -44,22 +45,23 @@ DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
 
 DataObjects::DataTable::DataTable(DataObjects::DataSet *ds_parent)
     :QAbstractTableModel(ds_parent),
-    _table_data(new SharedTableData(this))
+    _table_data(new SharedTableData(&ds_parent->set_data()))
 {
     _init(ds_parent, QString::null, 0);
 }
 
 DataObjects::DataTable::~DataTable(){}
 
-void DataObjects::DataTable::_init(DataSet *ds, const QString &name, int num_cols)
+void DataObjects::DataTable::_init(DataObjects::DataSet *ds, const QString &name, int num_cols)
 {
-    _table_data->dataset = ds;
     _table_data->name = name;
 
     QStringList sl;
     for(int i = 0; i < num_cols; i++)
         sl.append(QString("%1").arg(i));
     SetColumnHeaders(sl);
+
+    _table_data->SetSetData(&ds->set_data());
 }
 
 DataObjects::SharedTableData &DataObjects::DataTable::table_data() const
@@ -125,7 +127,7 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
 
 DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
 {
-    return _table_data->rows;
+    return _table_data->Rows();
 }
 
 DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
