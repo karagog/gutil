@@ -18,7 +18,6 @@ limitations under the License.*/
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
-#include "Core/Interfaces/iequalitycomparer.h"
 #include <QList>
 
 namespace GUtil
@@ -31,14 +30,9 @@ namespace GUtil
         {
         public:
 
-            Collection(int size = 0, Core::Interfaces::IEqualityComparer<T> *ec =
-                       new Core::Interfaces::DefaultEqualityComparer<T>);
-
-            Collection(const Collection<T> &, Core::Interfaces::IEqualityComparer<T> *ec =
-                       new Core::Interfaces::DefaultEqualityComparer<T>);
-
-            Collection(const QList<T> &, Core::Interfaces::IEqualityComparer<T> *ec =
-                       new Core::Interfaces::DefaultEqualityComparer<T>);
+            Collection(int size = 0);
+            Collection(const Collection<T> &);
+            Collection(const QList<T> &);
             virtual ~Collection();
 
             T &Add(const T &value);
@@ -87,8 +81,6 @@ namespace GUtil
         private:
 
             QList<T> _collection;
-
-            Core::Interfaces::IEqualityComparer<T> *_comparer;
 
         };
     }

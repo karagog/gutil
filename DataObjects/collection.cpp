@@ -14,35 +14,24 @@ limitations under the License.*/
 
 using namespace GUtil;
 
-template <typename T> DataObjects::Collection<T>::Collection(
-        int size,
-        Core::Interfaces::IEqualityComparer<T> *ec)
+template <typename T> DataObjects::Collection<T>::Collection(int size)
 {
-    _comparer = ec;
     Resize(size);
 }
 
 template <typename T> DataObjects::Collection<T>::Collection(
-        const DataObjects::Collection<T> &o,
-        Core::Interfaces::IEqualityComparer<T> *ec)
+        const DataObjects::Collection<T> &o)
 {
-    _comparer = ec;
     o.CloneTo(*this);
 }
 
 
-template <typename T> DataObjects::Collection<T>::Collection(
-        const QList<T> &o,
-        Core::Interfaces::IEqualityComparer<T> *ec)
+template <typename T> DataObjects::Collection<T>::Collection(const QList<T> &o)
 {
-    _comparer = ec;
     _collection = o;
 }
 
-template <typename T> DataObjects::Collection<T>::~Collection()
-{
-    delete _comparer;
-}
+template <typename T> DataObjects::Collection<T>::~Collection(){}
 
 template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
 {
@@ -116,24 +105,12 @@ template <typename T> void DataObjects::Collection<T>::Clear()
 
 template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) const
 {
-    return _collection.contains(o);
+    return IndexOf(o) != -1;
 }
 
 template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
 {
-    int ret = -1;
-    int cnt;
-
-    for(cnt = 0; cnt < Size(); cnt++)
-    {
-        if(_comparer->Equal(_collection.at(cnt), o))
-        {
-            ret = cnt;
-            break;
-        }
-    }
-
-    return ret;
+    return _collection.indexOf(o);
 }
 
 template <typename T> T &DataObjects::Collection<T>::operator [](int index)
