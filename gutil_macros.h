@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_MACROS_H
 #define GUTIL_MACROS_H
 
+#include <ctype.h>
+
 // Here are some useful macros for you to use:
 
 
@@ -23,17 +25,27 @@ limitations under the License.*/
 //   and also a unique private variable to hold the value
 #define GUTIL_PROPERTY( type, name ) \
 private: \
-    type _private_variable##__LINE__; \
+    type _p_##name; \
 public: \
-    type Get##name() const{ return _private_variable##__LINE__; } \
-    void Set##name(const type &value){ _private_variable##__LINE__ = value; }
+    type Get##name() const{ return _p_##name; } \
+    void Set##name(const type &value){ _p_##name = value; } \
+    enum{}
+
+
+#define GUTIL_READONLY_PROPERTY( type, name ) \
+private: \
+    type _p_##name; \
+public: \
+    type Get##name() const{ return _p_##name; } \
+    enum{}
 
 
 // This version only declares the accessors, so you have to provide your own
 //   implementation
 #define GUTIL_PROPERTY_ACCESSORS( type, name )   \
         type Get##name() const; \
-        void Set##name(const type &value);
+        void Set##name(const type &value); \
+        enum{}
 
 
 
@@ -41,13 +53,14 @@ public: \
 // Macros to begin and end namespaces
         // IMPORTANT!  QMake does not evaluate preprocessor definitions
         //  when creating meta-object files, so you cannot use these
-        //  to put any QObject in a namespace
+        //  to put any object derived from QObject in a namespace
 
+// Also note that you must terminate these with a semi-colon
 #define GUTIL_BEGIN_NAMESPACE( n ) \
         namespace GUtil \
         { \
           namespace n \
-          {
+          { enum{}
 
 #define GUTIL_BEGIN_CORE_NAMESPACE( n ) \
         namespace GUtil \
@@ -55,10 +68,10 @@ public: \
           namespace Core \
           { \
             namespace n \
-            {
+            { enum{}
 
-#define GUTIL_END_NAMESPACE }}
+#define GUTIL_END_NAMESPACE() }} enum{}
 
-#define GUTIL_END_CORE_NAMESPACE }}}
+#define GUTIL_END_CORE_NAMESPACE() }}} enum{}
 
 #endif // GUTIL_MACROS_H
