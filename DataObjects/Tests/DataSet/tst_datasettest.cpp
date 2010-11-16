@@ -195,6 +195,7 @@ void DataSetTest::test_dataTable()
         dt.SetColumnHeaders(QStringList("OneColumn"));
         QVERIFY(dt.ColumnCount() == 1);
         QVERIFY(dr.ColumnCount() == 1);
+        QVERIFY(dt.ColumnKeys()[0] == "OneColumn");
 
         // The column resize shouldn't affect the data in the first column
         QVERIFY(dr[0] == "HI");
@@ -222,7 +223,7 @@ void DataSetTest::test_dataTable()
 
         // Test the xml import/export
         QString xml = dt.ToXmlQString(true);
-        qDebug(xml.toStdString().c_str());
+        //qDebug(xml.toStdString().c_str());
 
         DataTable dt2;
         dt2.FromXmlQString(xml);
@@ -233,7 +234,7 @@ void DataSetTest::test_dataTable()
         QVERIFY2(dt2.ColumnKeys()[0] == "OneColumn", dt2.ColumnKeys()[0].toStdString().c_str());
         QVERIFY(dt2.ColumnKeys()[1] == "second");
         QVERIFY(dt2.ColumnLabels()[0] == "");
-        QVERIFY(dt2.ColumnLabels()[1] == "two");
+        QVERIFY2(dt2.ColumnLabels()[1] == "two", dt2.ColumnLabels()[1].toStdString().c_str());
 
         QVERIFY(dt2[0][0] == "HI");
         QVERIFY(dt2[0]["second"] == "v");
@@ -304,7 +305,7 @@ void DataSetTest::test_dataSet()
         QVERIFY(!ds2.Equals(ds));
 
         ds2.FromXmlQString(ds_xml);
-        qDebug(ds2.ToXmlQString(true).toStdString().c_str());
+        //qDebug(ds2.ToXmlQString(true).toStdString().c_str());
         QVERIFY(ds2.TableCount() == 2);
         QVERIFY(ds2 != ds);
         QVERIFY(ds2.Equals(ds));

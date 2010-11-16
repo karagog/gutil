@@ -196,7 +196,7 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
         AddColumn(k);
 
     for(int i = 0; i < labels.length(); i++)
-        table_data().Columns().Label(i) = labels.at(i);
+        table_data().Columns().SetLabel(i, labels.at(i));
 }
 
 void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
@@ -357,8 +357,11 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
         _table_data->name = Utils::QStringHelpers::fromBase64(
                 sr.attributes().at(1).value().toString());
 
-        SetColumnHeaders(DataObjects::QVariantHelpers::ReadXml(sr).toStringList(),
-                         DataObjects::QVariantHelpers::ReadXml(sr).toStringList());
+        {
+            QStringList new_keys = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+            QStringList new_labels = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+            SetColumnHeaders(new_keys, new_labels);
+        }
 
         for(int i = 0; i < sz; i++)
         {
