@@ -46,8 +46,8 @@ namespace GUtil
 
         protected:
 
-            DataColumn(const DataColumnCollection * const, const QString &key);
-            DataColumn(const DataColumnCollection * const, const QString &key, const QString &label);
+            DataColumn(const QString &key, DataColumnCollection *c = 0);
+            DataColumn(const QString &key, const QString &label, DataColumnCollection *c = 0);
 
             void set_key(const QString &);
             void set_label(const QString &);
@@ -57,7 +57,7 @@ namespace GUtil
 
             QPair<QString, QString> _data;
 
-            const DataColumnCollection *const _collection;
+            DataColumnCollection * _collection;
 
         };
     }

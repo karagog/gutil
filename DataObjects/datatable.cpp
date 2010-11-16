@@ -159,6 +159,7 @@ DataObjects::DataRow DataObjects::DataTable::ImportRow(const DataObjects::DataRo
 {
     DataRow tmpr(r);
     r.CloneTo(tmpr);
+    tmpr.row_data().SetTableData(_table_data.data());
     return AddRow(tmpr);
 }
 
@@ -181,7 +182,7 @@ void DataObjects::DataTable::Clear()
 
 void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
 {
-    table_data().Columns().Add( DataColumn(&table_data().Columns(), key, label) );
+    table_data().Columns().Add( DataColumn(key, label) );
 
     for(int i = 0; i < RowCount(); i++)
         Rows()[i].set_number_of_columns(ColumnCount());

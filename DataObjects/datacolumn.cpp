@@ -16,22 +16,24 @@ limitations under the License.*/
 #include "collection.h"
 using namespace GUtil;
 
-DataObjects::DataColumn::DataColumn(const DataObjects::DataColumnCollection * const c, const QString &key)
-    :_collection(c)
+DataObjects::DataColumn::DataColumn(const QString &key, DataObjects::DataColumnCollection *c)
 {
     _data.first = key;
+    _collection = c;
 }
 
-DataObjects::DataColumn::DataColumn(const DataObjects::DataColumnCollection * const c,
-                                    const QString &key, const QString &label)
-    :_data(key, label),
-    _collection(c)
-{}
+DataObjects::DataColumn::DataColumn(const QString &key, const QString &label,
+                                    DataObjects::DataColumnCollection *c)
+    :_data(key, label)
+{
+    _collection = c;
+}
 
 DataObjects::DataColumn::DataColumn(const DataObjects::DataColumn &o)
-    :_data(o._data),
-    _collection(o._collection)
-{}
+    :_data(o._data)
+{
+    _collection = o._collection;
+}
 
 QString DataObjects::DataColumn::Key() const
 {
@@ -46,6 +48,7 @@ QString DataObjects::DataColumn::Label() const
 DataObjects::DataColumn &DataObjects::DataColumn::operator =(const DataObjects::DataColumn &o)
 {
     _data = o._data;
+    _collection = o._collection;
     return *this;
 }
 

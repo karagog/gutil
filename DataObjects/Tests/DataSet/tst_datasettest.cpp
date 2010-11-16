@@ -87,62 +87,70 @@ void DataSetTest::test_dataRows()
 
 void DataSetTest::test_row_errors()
 {
-    DataTable t;
-
-    QVERIFY(t.ColumnCount() == 0);
-
-    // If you initialize a row with more data than it has columns, then the extra
-    //  data gets thrown out
-
-    DataRow r = t.CreateRow(QVariantList() << "oops!");
-    QVERIFY(r.ColumnCount() == 0);
-
-    // But you should be able to initialize it with less data than it has columns
-    t.AddColumn("one");
-    t.AddColumn("two");
-
-    QVERIFY(t.ColumnCount() == 2);
-    r = t.AddNewRow(QVariantList() << "Yay!");
-
-    QVERIFY(r.ColumnCount() == 2);
-    QVERIFY(t[0]["one"] == "Yay!");
-    QVERIFY(t[0]["two"] == QVariant());
-    QVERIFY(r[0] == "Yay!");
-    QVERIFY(r[1] == QVariant());
-
-
-    // Now test what happens when moving rows between data tables
-    DataTable t2(2);
-    bool exception_hit = false;
     try
     {
-        // We shouldn't be able to add a foreign row to the table
-        t2.AddRow(r);
+        DataTable t;
+
+        QVERIFY(t.ColumnCount() == 0);
+
+        // If you initialize a row with more data than it has columns, then the extra
+        //  data gets thrown out
+
+        DataRow r = t.CreateRow(QVariantList() << "oops!");
+        QVERIFY(r.ColumnCount() == 0);
+
+        // But you should be able to initialize it with less data than it has columns
+        t.AddColumn("one");
+        t.AddColumn("two");
+
+        QVERIFY(t.ColumnCount() == 2);
+        r = t.AddNewRow(QVariantList() << "Yay!");
+
+        QVERIFY(r.ColumnCount() == 2);
+        QVERIFY(t[0]["one"] == "Yay!");
+        QVERIFY(t[0]["two"] == QVariant());
+        QVERIFY(r[0] == "Yay!");
+        QVERIFY(r[1] == QVariant());
+
+
+        // Now test what happens when moving rows between data tables
+        DataTable t2(2);
+        bool exception_hit = false;
+        try
+        {
+            // We shouldn't be able to add a foreign row to the table
+            t2.AddRow(r);
+        }
+        catch(Core::ValidationException &ex)
+        {
+            exception_hit = true;
+        }
+
+        QVERIFY(exception_hit);
+
+        // But we can 'import' it as a clone
+        DataRow r2 = t2.ImportRow(r);
+        QVERIFY(r2 != r);
+        QVERIFY(r2.Equals(r));
+
+
+        // We shouldn't be able to add the row twice:
+        exception_hit = false;
+        try
+        {
+            t.Rows().Add(r);
+        }
+        catch(Core::ValidationException &)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
     }
-    catch(Core::ValidationException &)
+    catch(Core::Exception &ex)
     {
-        exception_hit = true;
+        dLogException(ex);
+        QVERIFY(false);
     }
-
-    QVERIFY(exception_hit);
-
-    // But we can 'import' it as a clone
-    DataRow r2 = t2.ImportRow(r);
-    QVERIFY(r2 != r);
-    QVERIFY(r2.Equals(r));
-
-
-    // We shouldn't be able to add the row twice:
-    exception_hit = false;
-    try
-    {
-        t.Rows().Add(r);
-    }
-    catch(Core::ValidationException &)
-    {
-        exception_hit = true;
-    }
-    QVERIFY(exception_hit);
 }
 
 void DataSetTest::test_dataTable()
@@ -214,7 +222,7 @@ void DataSetTest::test_dataTable()
 
         // Test the xml import/export
         QString xml = dt.ToXmlQString(true);
-        //qDebug(xml.toStdString().c_str());
+        qDebug(xml.toStdString().c_str());
 
         DataTable dt2;
         dt2.FromXmlQString(xml);
@@ -222,7 +230,7 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt2.Rows().Count() == 2);
         QVERIFY(dt2.ColumnCount() == 2);
 
-        QVERIFY(dt2.ColumnKeys()[0] == "OneColumn");
+        QVERIFY2(dt2.ColumnKeys()[0] == "OneColumn", dt2.ColumnKeys()[0].toStdString().c_str());
         QVERIFY(dt2.ColumnKeys()[1] == "second");
         QVERIFY(dt2.ColumnLabels()[0] == "");
         QVERIFY(dt2.ColumnLabels()[1] == "two");
@@ -253,51 +261,59 @@ void DataSetTest::test_dataTable()
 
 void DataSetTest::test_dataSet()
 {
-    DataSet ds;
-    DataTable dt1(1);
-    DataTable dt2(2);
-
-    ds.Tables().Add(dt1);
-    ds.Tables().Add(dt2);
-
-    QVERIFY(ds.TableCount() == 2);
-
-    bool exception_hit = false;
     try
     {
-        // Shouldn't be able to add the same table twice
+        DataSet ds;
+        DataTable dt1(1);
+        DataTable dt2(2);
+
         ds.Tables().Add(dt1);
+        ds.Tables().Add(dt2);
+
+        QVERIFY(ds.TableCount() == 2);
+
+        bool exception_hit = false;
+        try
+        {
+            // Shouldn't be able to add the same table twice
+            ds.Tables().Add(dt1);
+        }
+        catch(Core::ValidationException &)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        // Add a row and access it through the dataset object
+        dt1.AddNewRow(QVariantList() << "one");
+        QVERIFY(ds[0][0][0] == "one");
+
+        dt2.AddNewRow(QVariantList() << "1" << "2");
+        dt2.AddNewRow(QVariantList() << "3" << "4");
+        QVERIFY(ds[1][0][0] == "1");
+        QVERIFY(ds[1][0][1] == "2");
+        QVERIFY(ds[1][1][0] == "3");
+        QVERIFY(ds[1][1][1] == "4");
+
+
+        // Export it to Xml and import it again
+        QString ds_xml = ds.ToXmlQString(true);
+        DataSet ds2;
+        //qDebug(ds_xml.toStdString().c_str());
+        QVERIFY(!ds2.Equals(ds));
+
+        ds2.FromXmlQString(ds_xml);
+        qDebug(ds2.ToXmlQString(true).toStdString().c_str());
+        QVERIFY(ds2.TableCount() == 2);
+        QVERIFY(ds2 != ds);
+        QVERIFY(ds2.Equals(ds));
     }
-    catch(Core::ValidationException &)
+    catch(Core::Exception &ex)
     {
-        exception_hit = true;
+        dLogException(ex);
+        QVERIFY(false);
     }
-    QVERIFY(exception_hit);
-
-
-    // Add a row and access it through the dataset object
-    dt1.AddNewRow(QVariantList() << "one");
-    QVERIFY(ds[0][0][0] == "one");
-
-    dt2.AddNewRow(QVariantList() << "1" << "2");
-    dt2.AddNewRow(QVariantList() << "3" << "4");
-    QVERIFY(ds[1][0][0] == "1");
-    QVERIFY(ds[1][0][1] == "2");
-    QVERIFY(ds[1][1][0] == "3");
-    QVERIFY(ds[1][1][1] == "4");
-
-
-    // Export it to Xml and import it again
-    QString ds_xml = ds.ToXmlQString(true);
-    DataSet ds2;
-    qDebug(ds_xml.toStdString().c_str());
-    QVERIFY(!ds2.Equals(ds));
-
-    ds2.FromXmlQString(ds_xml);
-    qDebug(ds2.ToXmlQString(true).toStdString().c_str());
-    QVERIFY(ds2.TableCount() == 2);
-    QVERIFY(ds2 != ds);
-    QVERIFY(ds2.Equals(ds));
 }
 
 

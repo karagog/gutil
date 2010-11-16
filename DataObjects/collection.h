@@ -80,7 +80,7 @@ namespace GUtil
             }
 
             // Derived classes use this method to instantiate blank items for the resize method
-            virtual T create_blank_item() const{
+            virtual T create_blank_item(){
                 THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException,
                                           "Derived class must override this method!");
             }

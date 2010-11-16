@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATAROWCOLLECTION_H
 #define DATAROWCOLLECTION_H
 
-#include "datarow.h"
+#include "datatable.h"
 #include "collection.h"
 
 namespace GUtil
@@ -31,6 +31,11 @@ namespace GUtil
             friend class RowData;
             friend class SharedTableData;
 
+        public:
+
+            DataTable Table() const;
+
+
         protected:
 
             DataRowCollection(SharedTableData *);
@@ -39,7 +44,7 @@ namespace GUtil
             DataRowCollection(const DataRowCollection &);
             virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
-            virtual DataRow create_blank_item() const;
+            virtual DataRow create_blank_item();
 
             virtual void validate_new_item(const DataRow &) const
                     throw(Core::ValidationException);

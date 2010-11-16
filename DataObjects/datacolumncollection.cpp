@@ -32,7 +32,7 @@ QString DataObjects::DataColumnCollection::Key(int ind) const
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
 {
-    return Contains(DataColumn(this, k));
+    return Contains(DataColumn(k));
 }
 
 QString DataObjects::DataColumnCollection::Label(int ind) const
@@ -64,7 +64,7 @@ void DataObjects::DataColumnCollection::SetKey(int ind, const QString &s)
 {
     if(Key(ind) == s)
         return;
-    else if(Contains(DataColumn(this, s)))
+    else if(Contains(DataColumn(s)))
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   QString("Key already exists in column collection: '%1'")
                                   .arg(s).toStdString());
@@ -77,9 +77,9 @@ void DataObjects::DataColumnCollection::SetLabel(int ind, const QString &s)
     (*this)[ind].set_label(s);
 }
 
-DataObjects::DataColumn DataObjects::DataColumnCollection::create_blank_item() const
+DataObjects::DataColumn DataObjects::DataColumnCollection::create_blank_item()
 {
-    return DataColumn(this, QUuid::createUuid().toString());
+    return DataColumn(QUuid::createUuid().toString(), this);
 }
 
 void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::DataColumn &c) const

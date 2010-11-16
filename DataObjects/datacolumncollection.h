@@ -43,7 +43,7 @@ namespace GUtil
 
         protected:
 
-            virtual DataColumn create_blank_item() const;
+            virtual DataColumn create_blank_item();
 
             virtual void validate_new_item(const DataColumn &) const
                     throw(Core::ValidationException);

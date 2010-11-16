@@ -27,6 +27,7 @@ namespace GUtil
         class QVariantCollection : public Collection<QVariant>
         {
         public:
+
             inline QVariantCollection(int size = 0)
                 : Collection<QVariant>(size){}
 
@@ -36,10 +37,13 @@ namespace GUtil
             inline QVariantCollection(const QVariantCollection &v)
                 : Collection<QVariant>(v){}
 
+
         protected:
-            virtual inline QVariant create_blank_item() const{
+
+            virtual inline QVariant create_blank_item(){
                 return QVariant();
             }
+
         };
     }
 }

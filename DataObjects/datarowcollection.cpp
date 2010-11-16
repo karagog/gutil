@@ -39,15 +39,15 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
     return o;
 }
 
-DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item() const
+DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item()
 {
-    return DataRow(DataTable(_table_data));
+    return DataRow( DataTable(_table_data) );
 }
 
 void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow &r) const
         throw(Core::ValidationException)
 {
-    if(r.Table() != r.Table())
+    if(Table() != r.Table())
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   "The row does not belong to this table.  "
                                   "If you still want to add it, then call 'ImportRow' "
@@ -55,4 +55,9 @@ void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRo
     else if(Contains(r))
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   "Row already exists in the table");
+}
+
+DataObjects::DataTable DataObjects::DataRowCollection::Table() const
+{
+    return DataTable(_table_data);
 }

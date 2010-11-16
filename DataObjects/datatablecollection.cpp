@@ -42,9 +42,9 @@ void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
     t.table_data().SetSetData(_set_data);
 }
 
-DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item() const
+DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item()
 {
-    return DataTable(DataSet(_set_data));
+    return DataTable( DataSet(_set_data) );
 }
 
 void DataObjects::DataTableCollection::validate_new_item(const DataTable &t) const

@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef DATATABLE_H
 #define DATATABLE_H
 
+#include "datarow.h"
 #include "datarowcollection.h"
 #include <QVariantList>
 #include <QStringList>

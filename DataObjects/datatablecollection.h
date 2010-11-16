@@ -39,7 +39,7 @@ namespace GUtil
             virtual DataTableCollection &CloneTo(DataTableCollection &) const;
 
             virtual void on_add(DataTable &) const;
-            virtual DataTable create_blank_item() const;
+            virtual DataTable create_blank_item();
 
             virtual void validate_new_item(const DataTable &) const
                     throw(Core::ValidationException);
