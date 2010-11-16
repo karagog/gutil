@@ -18,11 +18,16 @@ limitations under the License.*/
 
 
 // Convenient namespace declaration
+<<<<<<< HEAD
 GUTIL_BEGIN_NAMESPACE( DummyTest )
+=======
+GUTIL_BEGIN_NAMESPACE(DummyTest);
+>>>>>>> Added test project for my macros header, and tweaked some macros so they require
 
 class TestClass
 {
 public:
+<<<<<<< HEAD
 
     // You can adjust the private variables themselves by using the _p_ prefix
     TestClass() : _p_MyReadOnlyInt(10) {}
@@ -56,6 +61,20 @@ bool TestClass::GetSexy() const
 }
 
 GUTIL_END_NAMESPACE
+=======
+    TestClass(){
+        _p_MyReadOnlyInt = 10;
+    }
+
+    // Convenient property declarations
+    GUTIL_PROPERTY(int, MyInt);
+    GUTIL_PROPERTY(QString, MyString);
+
+    GUTIL_READONLY_PROPERTY(int, MyReadOnlyInt);
+};
+
+GUTIL_END_NAMESPACE();
+>>>>>>> Added test project for my macros header, and tweaked some macros so they require
 
 
 
@@ -93,6 +112,7 @@ void GUtil_MacrosTest::test_macros()
 
     // Readonly Property
     QVERIFY(tc.GetMyReadOnlyInt() == 10);
+<<<<<<< HEAD
 
     // Custom getters and setters:
     QVERIFY(tc.GetIsMeInsane());
@@ -104,6 +124,8 @@ void GUtil_MacrosTest::test_macros()
 
     // A custom readonly property
     QVERIFY(tc.GetSexy());
+=======
+>>>>>>> Added test project for my macros header, and tweaked some macros so they require
 }
 
 QTEST_APPLESS_MAIN(GUtil_MacrosTest);
