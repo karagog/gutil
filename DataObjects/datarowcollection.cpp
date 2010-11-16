@@ -39,12 +39,12 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
     return o;
 }
 
-DataObjects::DataRow DataObjects::DataRowCollection::create_blank_item()
+DataObjects::DataRow *DataObjects::DataRowCollection::create_blank_item()
 {
-    return DataRow( DataTable(_table_data) );
+    return new DataRow( DataTable(_table_data) );
 }
 
-void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow &r) const
+void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow *const r) const
         throw(Core::ValidationException)
 {
     if(Table() != r.Table())
@@ -61,3 +61,11 @@ DataObjects::DataTable DataObjects::DataRowCollection::Table() const
 {
     return DataTable(_table_data);
 }
+
+DataRow &DataObjects::DataRowCollection::At(int) const
+{
+
+}
+
+DataObjects::DataRow *DataObjects::DataRowCollection::Value(int index) const
+

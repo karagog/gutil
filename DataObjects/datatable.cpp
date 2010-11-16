@@ -75,7 +75,7 @@ DataObjects::SharedTableData &DataObjects::DataTable::table_data() const
 
 DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
 {
-    return Rows()[ind];
+    return *Rows()[ind];
 }
 
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
@@ -114,7 +114,7 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
                 {
                     for(int i = 0; ret && i < RowCount(); i++)
                     {
-                        ret = _table_data->Rows().Value(i).Equals(
+                        ret = _table_data->Rows().At(i).Equals(
                                 t._table_data->Rows().Value(i));
                     }
                 }

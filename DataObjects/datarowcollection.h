@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "datatable.h"
 #include "collection.h"
+#include "Custom/gshareddatapointer.h"
 
 namespace GUtil
 {
@@ -24,8 +25,9 @@ namespace GUtil
     {
         class SharedTableData;
 
-        class DataRowCollection :   public Collection<DataRow>,
-                                    public Core::Interfaces::IClonable<DataRowCollection>
+        class DataRowCollection :
+                public Collection<DataRow *>,
+                public Core::Interfaces::IClonable<DataRowCollection>
         {
             friend class DataTable;
             friend class RowData;
@@ -35,6 +37,7 @@ namespace GUtil
 
             DataTable Table() const;
 
+            DataRow &At(int) const;
 
         protected:
 
@@ -44,12 +47,19 @@ namespace GUtil
             DataRowCollection(const DataRowCollection &);
             virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
-            virtual DataRow create_blank_item();
+            virtual DataRow *create_blank_item();
 
-            virtual void validate_new_item(const DataRow &) const
+            virtual void validate_new_item(const DataRow * const) const
                     throw(Core::ValidationException);
 
+
         private:
+
+            // Hide this function
+            virtual inline DataRow *Value(int index) const
+                    throw(Core::IndexOutOfRangeException){
+                return Collection<DataRow *>::Value(index);
+            }
 
             SharedTableData *_table_data;
 
