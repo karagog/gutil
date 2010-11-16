@@ -16,51 +16,51 @@ limitations under the License.*/
 #define DATACOLUMN_H
 
 #include "Core/Interfaces/iequatable.h"
+#include "gutil_macros.h"
 #include <QPair>
 
-namespace GUtil
+GUTIL_BEGIN_NAMESPACE(DataObjects);
+
+class DataColumnCollection;
+
+class DataColumn :
+        public Core::Interfaces::IEquatable<DataColumn>
 {
-    namespace DataObjects
-    {
-        class DataColumnCollection;
+    friend class DataTable;
+    friend class DataColumnCollection;
 
-        class DataColumn : public Core::Interfaces::IEquatable<DataColumn>
-        {
-            friend class DataTable;
-            friend class DataColumnCollection;
+public:
 
-        public:
+    DataColumn(const DataColumn &);
 
-            DataColumn(const DataColumn &);
+    QString Key() const;
+    QString Label() const;
 
-            QString Key() const;
-            QString Label() const;
+    DataColumn &operator =(const DataColumn &);
 
-            DataColumn &operator =(const DataColumn &);
+    int Index() const;
 
-            int Index() const;
-
-            // IEquatable:
-            virtual bool Equals(const DataColumn &) const;
+    // IEquatable:
+    virtual bool Equals(const DataColumn &) const;
 
 
-        protected:
+protected:
 
-            DataColumn(const QString &key, DataColumnCollection *c = 0);
-            DataColumn(const QString &key, const QString &label, DataColumnCollection *c = 0);
+    DataColumn(const QString &key, DataColumnCollection *c = 0);
+    DataColumn(const QString &key, const QString &label, DataColumnCollection *c = 0);
 
-            void set_key(const QString &);
-            void set_label(const QString &);
+    void set_key(const QString &);
+    void set_label(const QString &);
 
 
-        private:
+private:
 
-            QPair<QString, QString> _data;
+    QPair<QString, QString> _data;
 
-            DataColumnCollection * _collection;
+    DataColumnCollection * _collection;
 
-        };
-    }
-}
+};
+
+GUTIL_END_NAMESPACE
 
 #endif // DATACOLUMN_H

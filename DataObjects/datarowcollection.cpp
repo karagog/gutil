@@ -26,6 +26,8 @@ DataObjects::DataRowCollection::DataRowCollection(const DataObjects::DataRowColl
     o.CloneTo(*this);
 }
 
+DataObjects::DataRowCollection::~DataRowCollection(){}
+
 DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
         DataObjects::DataRowCollection &o) const
 {
@@ -44,7 +46,7 @@ DataObjects::DataRow *DataObjects::DataRowCollection::create_blank_item()
     return new DataRow( DataTable(_table_data) );
 }
 
-void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow *const r) const
+void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow * & r) const
         throw(Core::ValidationException)
 {
     if(Table() != r->Table())

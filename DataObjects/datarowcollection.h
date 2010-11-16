@@ -19,70 +19,73 @@ limitations under the License.*/
 #include "collection.h"
 #include "Custom/gshareddatapointer.h"
 
-namespace GUtil
+
+GUTIL_BEGIN_NAMESPACE(DataObjects);
+
+
+class SharedTableData;
+
+class DataRowCollection :
+        public CollectionBase<DataRow *>,
+        public Core::Interfaces::IClonable<DataRowCollection>
 {
-    namespace DataObjects
-    {
-        class SharedTableData;
+    friend class DataTable;
+    friend class RowData;
+    friend class SharedTableData;
 
-        class DataRowCollection :
-                public CollectionBase<DataRow *>,
-                public Core::Interfaces::IClonable<DataRowCollection>
-        {
-            friend class DataTable;
-            friend class RowData;
-            friend class SharedTableData;
+public:
 
-        public:
+    DataTable Table() const;
 
-            DataTable Table() const;
+    DataRow &At(int) const;
 
-            DataRow &At(int) const;
+    DataRow &Add(const DataRow &);
+    DataRow &Insert(const DataRow &, int index);
 
-            DataRow &Add(const DataRow &);
-            DataRow &Insert(const DataRow &, int index);
+    int Count() const;
+    int Size() const;
 
-            int Count() const;
-            int Size() const;
+    bool Contains(const DataRow &) const;
+    int IndexOf(const DataRow &) const;
 
-            bool Contains(const DataRow &) const;
-            int IndexOf(const DataRow &) const;
+    void Remove(int);
+    void RemoveOne(const DataRow &);
+    void RemoveAll(const DataRow &);
 
-            void Remove(int);
-            void RemoveOne(const DataRow &);
-            void RemoveAll(const DataRow &);
+    void Clear();
+    void Resize(int);
 
-            void Clear();
-            void Resize(int);
-
-            DataRow &operator [](int);
-            const DataRow &operator [](int) const;
+    DataRow &operator [](int);
+    const DataRow &operator [](int) const;
 
         protected:
 
-            DataRowCollection(SharedTableData *);
+    DataRowCollection(SharedTableData *);
+    virtual ~DataRowCollection();
 
-            // Protect our clonable interface
-            DataRowCollection(const DataRowCollection &);
-            virtual DataRowCollection &CloneTo(DataRowCollection &) const;
+    // Protect our clonable interface
+    DataRowCollection(const DataRowCollection &);
+    virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
-            virtual DataRow *create_blank_item();
+    virtual DataRow *create_blank_item();
 
-            virtual void validate_new_item(const DataRow * const) const
-                    throw(Core::ValidationException);
+    virtual void validate_new_item(const DataRow * &) const
+            throw(Core::ValidationException);
 
-            virtual void on_remove(DataRow **) const;
+    virtual void on_remove(DataRow **) const;
 
-            virtual bool compare_equality(const DataRow *const,
-                                          const DataRow *const) const;
+    virtual bool compare_equality(const DataRow *const,
+                                  const DataRow *const) const;
 
 
         private:
 
-            SharedTableData *_table_data;
+    SharedTableData *_table_data;
 
-        };
-    }
-}
+};
+
+
+GUTIL_END_NAMESPACE
+
 
 #endif // DATAROWCOLLECTION_H

@@ -25,12 +25,13 @@ namespace GUtil
 {
     namespace DataObjects
     {
-        class DataSet : public QAbstractItemModel,
-                        public Interfaces::IQXmlSerializable,
-                        public Core::Interfaces::IReadOnlyObject,
-                        public Core::Interfaces::IUpdatable,
-                        public Core::Interfaces::IEquatable<DataSet>,
-                        public Core::Interfaces::IClonable<DataSet>
+        class DataSet :
+                public QAbstractItemModel,
+                public Interfaces::IQXmlSerializable,
+                public Core::Interfaces::IReadOnlyObject,
+                public Core::Interfaces::IUpdatable,
+                public Core::Interfaces::IEquatable<DataSet>,
+                public Core::Interfaces::IClonable<DataSet>
         {
             Q_OBJECT
 

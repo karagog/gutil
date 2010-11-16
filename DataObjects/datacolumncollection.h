@@ -18,41 +18,44 @@ limitations under the License.*/
 #include "datacolumn.h"
 #include "collection.h"
 
-namespace GUtil
+
+GUTIL_BEGIN_NAMESPACE(DataObjects);
+
+
+class DataColumnCollection :
+        public Collection<DataColumn>
 {
-    namespace DataObjects
-    {
-        class DataColumnCollection : public Collection<DataColumn>
-        {
-        public:
+public:
 
-            DataColumnCollection(int size = 0);
-            DataColumnCollection(const DataColumnCollection &);
+    DataColumnCollection(int size = 0);
+    DataColumnCollection(const DataColumnCollection &);
 
-            QString Key(int) const;
-            QString Label(int) const;
+    QString Key(int) const;
+    QString Label(int) const;
 
-            QStringList Keys() const;
-            QStringList Labels() const;
+    QStringList Keys() const;
+    QStringList Labels() const;
 
-            void SetKey(int, const QString &);
-            void SetLabel(int, const QString &);
+    void SetKey(int, const QString &);
+    void SetLabel(int, const QString &);
 
-            bool ContainsKey(const QString &) const;
+    bool ContainsKey(const QString &) const;
 
 
-        protected:
+protected:
 
-            virtual DataColumn create_blank_item();
+    virtual DataColumn create_blank_item();
 
-            virtual void validate_new_item(const DataColumn &) const
-                    throw(Core::ValidationException);
+    virtual void validate_new_item(const DataColumn &) const
+            throw(Core::ValidationException);
 
-            virtual bool compare_equality(const DataColumn &lhs,
-                                          const DataColumn &rhs) const;
+    virtual bool compare_equality(const DataColumn &lhs,
+                                  const DataColumn &rhs) const;
 
-        };
-    }
-}
+};
+
+
+GUTIL_END_NAMESPACE
+
 
 #endif // COLUMNCOLLECTION_H

@@ -21,6 +21,7 @@ limitations under the License.*/
 // Use this to succinctly declare property accessors
 //   It declares a Get and Set method for the provided variable type and name,
 //   and also a unique private variable to hold the value
+<<<<<<< HEAD
 #define PROPERTY( name, type ) \
 private: \
     type _p_##name; \
@@ -37,25 +38,45 @@ private: \
 public: \
     type Get##name() const{ return _p_##name; } \
     enum{}
+=======
+#define GUTIL_PROPERTY( type, name ) \
+private: \
+    type _private_variable##__LINE__; \
+public: \
+    type Get##name() const{ return _private_variable##__LINE__; } \
+    void Set##name(const type &value){ _private_variable##__LINE__ = value; }
+>>>>>>> Added a new macros header and started applying the macros to my project
 
 
 // This version only declares the accessors, so you have to provide your own
 //   implementation
+<<<<<<< HEAD
 #define PROPERTY_ACCESSORS( name, type )   \
         type Get##name() const; \
         void Set##name(const type &value)
 
 #define READONLY_PROPERTY_ACCESSORS( name, type )   \
         type Get##name() const
+=======
+#define GUTIL_PROPERTY_ACCESSORS( type, name )   \
+        type Get##name() const; \
+        void Set##name(const type &value);
+
+>>>>>>> Added a new macros header and started applying the macros to my project
 
 
 
 // Macros to begin and end namespaces
         // IMPORTANT!  QMake does not evaluate preprocessor definitions
         //  when creating meta-object files, so you cannot use these
+<<<<<<< HEAD
         //  to put any object derived from QObject in a namespace
 
 // Also note that you must terminate these with a semi-colon
+=======
+        //  to put any QObject in a namespace
+
+>>>>>>> Added a new macros header and started applying the macros to my project
 #define GUTIL_BEGIN_NAMESPACE( n ) \
         namespace GUtil \
         { \

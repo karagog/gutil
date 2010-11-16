@@ -121,7 +121,7 @@ void DataSetTest::test_row_errors()
             // We shouldn't be able to add a foreign row to the table
             t2.AddRow(r);
         }
-        catch(Core::ValidationException &ex)
+        catch(Core::ValidationException &)
         {
             exception_hit = true;
         }

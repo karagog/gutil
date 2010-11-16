@@ -1,11 +1,4 @@
 /*Copyright 2010 George Karagoulis
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +14,13 @@ limitations under the License.*/
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/iupdatable.h"
+#include "gutil_macros.h"
 #include <QVariant>
+
+// Derived classes can use this macro for convenience when declaring
+//  property accessors
+#define ROW_ACCESSORS( v ) GUTIL_PROPERTY_ACCESSORS( QVariant, v )
+
 
 namespace GUtil
 {
@@ -29,10 +28,11 @@ namespace GUtil
     {
         // Defines a row in a data table
 
-        class DataRow : public Interfaces::IQXmlSerializable,
-                        public Core::Interfaces::IEquatable<DataRow>,
-                        public Core::Interfaces::IClonable<DataRow>,
-                        public Core::Interfaces::IUpdatable
+        class DataRow :
+                public Interfaces::IQXmlSerializable,
+                public Core::Interfaces::IEquatable<DataRow>,
+                public Core::Interfaces::IClonable<DataRow>,
+                public Core::Interfaces::IUpdatable
         {
             friend class DataTable;
             friend class DataRowCollection;
