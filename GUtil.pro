@@ -4,3 +4,4 @@ SUBDIRS += ThirdParty Core Interfaces Utils Custom DataObjects DataAccess Loggin
 
 CONFIG += ordered
 
+HEADERS += gutil_macros.h
