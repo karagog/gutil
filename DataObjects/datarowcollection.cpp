@@ -34,7 +34,7 @@ DataObjects::DataRowCollection &DataObjects::DataRowCollection::CloneTo(
 
     // Clone each row explicitly; each row must detach itself from the shared pointer
     for(int i = 0; i < Count(); i++)
-        Value(i).CloneTo(o[i]);
+        At(i).CloneTo(o[i]);
 
     return o;
 }
@@ -47,12 +47,12 @@ DataObjects::DataRow *DataObjects::DataRowCollection::create_blank_item()
 void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow *const r) const
         throw(Core::ValidationException)
 {
-    if(Table() != r.Table())
+    if(Table() != r->Table())
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   "The row does not belong to this table.  "
                                   "If you still want to add it, then call 'ImportRow' "
                                   "on the parent table.");
-    else if(Contains(r))
+    else if(Contains(*r))
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   "Row already exists in the table");
 }
@@ -62,10 +62,87 @@ DataObjects::DataTable DataObjects::DataRowCollection::Table() const
     return DataTable(_table_data);
 }
 
-DataRow &DataObjects::DataRowCollection::At(int) const
+DataObjects::DataRow &DataObjects::DataRowCollection::At(int index) const
 {
-
+    return *(this->value_protected(index));
 }
 
-DataObjects::DataRow *DataObjects::DataRowCollection::Value(int index) const
+DataObjects::DataRow &DataObjects::DataRowCollection::Add(const DataObjects::DataRow &r)
+{
+    return *add_protected(new DataRow(r));
+}
 
+DataObjects::DataRow &DataObjects::DataRowCollection::Insert(const DataObjects::DataRow &r, int index)
+{
+    return *insert_protected(new DataRow(r), index);
+}
+
+int DataObjects::DataRowCollection::Count() const
+{
+    return count_protected();
+}
+
+int DataObjects::DataRowCollection::Size() const
+{
+    return size_protected();
+}
+
+int DataObjects::DataRowCollection::IndexOf(const DataRow &r) const
+{
+    DataRow r2(r);
+    return indexOf_protected(&r2);
+}
+
+bool DataObjects::DataRowCollection::Contains(const DataRow &r) const
+{
+    DataRow r2(r);
+    return contains_protected(&r2);
+}
+
+void DataObjects::DataRowCollection::Remove(int ind)
+{
+    remove_protected(ind);
+}
+
+void DataObjects::DataRowCollection::RemoveOne(const DataRow &r)
+{
+    DataRow r2(r);
+    removeOne_protected(&r2);
+}
+
+void DataObjects::DataRowCollection::RemoveAll(const DataRow &r)
+{
+    DataRow r2(r);
+    removeAll_protected(&r2);
+}
+
+void DataObjects::DataRowCollection::Clear()
+{
+    clear_protected();
+}
+
+void DataObjects::DataRowCollection::Resize(int sz)
+{
+    resize_protected(sz);
+}
+
+DataObjects::DataRow &DataObjects::DataRowCollection::operator [](int index)
+{
+    return *value_protected(index);
+}
+
+const DataObjects::DataRow &DataObjects::DataRowCollection::operator [](int index) const
+{
+    return *value_protected(index);
+}
+
+void DataObjects::DataRowCollection::on_remove(DataObjects::DataRow **r) const
+{
+    delete *r;
+}
+
+bool DataObjects::DataRowCollection::compare_equality(const DataRow *const lhs,
+                                                      const DataRow *const rhs) const
+{
+    return *lhs == *rhs;
+}

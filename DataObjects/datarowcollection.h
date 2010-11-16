@@ -26,7 +26,7 @@ namespace GUtil
         class SharedTableData;
 
         class DataRowCollection :
-                public Collection<DataRow *>,
+                public CollectionBase<DataRow *>,
                 public Core::Interfaces::IClonable<DataRowCollection>
         {
             friend class DataTable;
@@ -38,6 +38,25 @@ namespace GUtil
             DataTable Table() const;
 
             DataRow &At(int) const;
+
+            DataRow &Add(const DataRow &);
+            DataRow &Insert(const DataRow &, int index);
+
+            int Count() const;
+            int Size() const;
+
+            bool Contains(const DataRow &) const;
+            int IndexOf(const DataRow &) const;
+
+            void Remove(int);
+            void RemoveOne(const DataRow &);
+            void RemoveAll(const DataRow &);
+
+            void Clear();
+            void Resize(int);
+
+            DataRow &operator [](int);
+            const DataRow &operator [](int) const;
 
         protected:
 
@@ -52,14 +71,13 @@ namespace GUtil
             virtual void validate_new_item(const DataRow * const) const
                     throw(Core::ValidationException);
 
+            virtual void on_remove(DataRow **) const;
+
+            virtual bool compare_equality(const DataRow *const,
+                                          const DataRow *const) const;
+
 
         private:
-
-            // Hide this function
-            virtual inline DataRow *Value(int index) const
-                    throw(Core::IndexOutOfRangeException){
-                return Collection<DataRow *>::Value(index);
-            }
 
             SharedTableData *_table_data;
 

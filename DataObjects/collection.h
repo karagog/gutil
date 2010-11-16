@@ -35,6 +35,9 @@ namespace GUtil
             T &operator [](int index)
                     throw(Core::IndexOutOfRangeException);
 
+            const T &operator [](int index) const
+                    throw(Core::IndexOutOfRangeException);
+
 
         protected:
 
@@ -64,7 +67,7 @@ namespace GUtil
             virtual ~CollectionBase();
 
             T &add_protected(const T &value);
-            T &insert_protected(int index, const T &value)
+            T &insert_protected(const T &value, int index)
                 throw(Core::IndexOutOfRangeException);
 
             T &setValue_protected(int index, const T &)
@@ -83,7 +86,7 @@ namespace GUtil
             void resize_protected(int);
 
             bool contains_protected(const T &) const;
-            int indexOf_protected(const T &) const;
+            int indexOf_protected(const T &, int from = 0) const;
 
 
             // The IEquatable interface:
@@ -96,6 +99,8 @@ namespace GUtil
         private:
 
             QList<T> _collection;
+
+            void _validate_index(int) const;
 
         };
 
@@ -112,7 +117,7 @@ namespace GUtil
 
 
             T &Add(const T &value);
-            T &Insert(int index, const T &value)
+            T &Insert(const T &value, int index)
                 throw(Core::IndexOutOfRangeException);
 
             T &SetValue(int index, const T &)
@@ -131,7 +136,7 @@ namespace GUtil
             void Resize(int);
 
             bool Contains(const T &) const;
-            int IndexOf(const T &) const;
+            int IndexOf(const T &, int from = 0) const;
 
 
             // The IEquatable interface:

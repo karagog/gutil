@@ -75,7 +75,7 @@ DataObjects::SharedTableData &DataObjects::DataTable::table_data() const
 
 DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
 {
-    return *Rows()[ind];
+    return Rows()[ind];
 }
 
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
@@ -115,7 +115,7 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
                     for(int i = 0; ret && i < RowCount(); i++)
                     {
                         ret = _table_data->Rows().At(i).Equals(
-                                t._table_data->Rows().Value(i));
+                                t._table_data->Rows()[i]);
                     }
                 }
                 else
@@ -333,7 +333,7 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
     DataObjects::QVariantHelpers::WriteXml(ColumnLabels(), sw);
 
     for(int i = 0; i < RowCount(); i++)
-        table_data().Rows().Value(i).WriteXml(sw);
+        table_data().Rows()[i].WriteXml(sw);
 
     sw.writeEndElement();
 }

@@ -32,10 +32,10 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
     return CollectionBase<T>::add_protected(value);
 }
 
-template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &value)
+template <typename T> T &DataObjects::Collection<T>::Insert(const T &value, int index)
         throw(Core::IndexOutOfRangeException)
 {
-    return CollectionBase<T>::insert_protected(index, value);
+    return CollectionBase<T>::insert_protected(value, index);
 }
 
 template <typename T> T DataObjects::Collection<T>::Value(int index) const
@@ -76,9 +76,9 @@ template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) cons
     return CollectionBase<T>::contains_protected(o);
 }
 
-template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
+template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o, int from) const
 {
-    return CollectionBase<T>::indexOf_protected(o);
+    return CollectionBase<T>::indexOf_protected(o, from);
 }
 
 template <typename T> bool DataObjects::Collection<T>::Equals(
@@ -151,16 +151,11 @@ template <typename T> T &DataObjects::CollectionBase<T>::add_protected(const T &
     return _collection[index];
 }
 
-template <typename T> T &DataObjects::CollectionBase<T>::insert_protected(int index, const T &value)
+template <typename T> T &DataObjects::CollectionBase<T>::insert_protected(const T &value, int index)
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
-
-    if(index < 0 || index >= count_protected())
-        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
-                                  QString("Collection only has %1 items in it, and you tried to "
-                                          "index the item at %2")
-                                  .arg(count_protected()).arg(index).toStdString());
+    _validate_index(index);
 
     validate_new_item(value);
 
@@ -174,11 +169,7 @@ template <typename T> T &DataObjects::CollectionBase<T>::insert_protected(int in
 template <typename T> T DataObjects::CollectionBase<T>::value_protected(int index) const
         throw(Core::IndexOutOfRangeException)
 {
-    if(index < 0 || index >= count_protected())
-        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
-                                  QString("Collection only has %1 items in it, and you tried to "
-                                          "index the item at %2")
-                                  .arg(count_protected()).arg(index).toStdString());
+    _validate_index(index);
 
     return _collection.at(index);
 }
@@ -187,12 +178,7 @@ template <typename T> T &DataObjects::CollectionBase<T>::setValue_protected(int 
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
-
-    if(index < 0 || index >= count_protected())
-        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
-                                  QString("Collection only has %1 items in it, and you tried to "
-                                          "index the item at %2")
-                                  .arg(count_protected()).arg(index).toStdString());
+    _validate_index(index);
 
     _collection[index] = value;
 
@@ -238,11 +224,11 @@ template <typename T> bool DataObjects::CollectionBase<T>::contains_protected(co
     return indexOf_protected(o) != -1;
 }
 
-template <typename T> int DataObjects::CollectionBase<T>::indexOf_protected(const T &o) const
+template <typename T> int DataObjects::CollectionBase<T>::indexOf_protected(const T &o, int from) const
 {
     int ret = -1;
 
-    for(int i = 0; i < size_protected(); i++)
+    for(int i = from; i < size_protected(); i++)
     {
         if(compare_equality(value_protected(i), o))
         {
@@ -258,14 +244,27 @@ template <typename T> T &DataObjects::CollectionBase<T>::operator [](int index)
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
+    _validate_index(index);
 
+    return _collection[index];
+}
+
+template <typename T> const T &DataObjects::CollectionBase<T>::operator [](int index) const
+        throw(Core::IndexOutOfRangeException)
+{
+    FailIfReadOnly();
+    _validate_index(index);
+
+    return _collection[index];
+}
+
+template<typename T> void DataObjects::CollectionBase<T>::_validate_index(int index) const
+{
     if(index < 0 || index >= count_protected())
         THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
                                   QString("Collection only has %1 items in it, and you tried to "
                                           "index the item at %2")
                                   .arg(count_protected()).arg(index).toStdString());
-
-    return _collection[index];
 }
 
 template <typename T> bool DataObjects::CollectionBase<T>::Equals(
