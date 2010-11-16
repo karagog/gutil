@@ -25,47 +25,15 @@ namespace GUtil
 {
     namespace DataObjects
     {
-        template <typename T> class Collection :    public Core::Interfaces::IReadOnlyObject,
-                                                    public Core::Interfaces::IEquatable< Collection<T> >,
-                                                    public Core::Interfaces::IClonable< Collection<T> >
+        template <typename T> class CollectionBase :
+                public Core::Interfaces::IReadOnlyObject,
+                protected Core::Interfaces::IEquatable< CollectionBase<T> >,
+                protected Core::Interfaces::IClonable< CollectionBase<T> >
         {
         public:
 
-            Collection(int size = 0);
-            Collection(const Collection<T> &);
-            Collection(const QList<T> &);
-            virtual ~Collection();
-
-            T &Add(const T &value);
-            T &Insert(int index, const T &value)
-                    throw(Core::IndexOutOfRangeException);
-
-            T &SetValue(int index, const T &)
-                    throw(Core::IndexOutOfRangeException);
-            T Value(int index) const
-                    throw(Core::IndexOutOfRangeException);
-
             T &operator [](int index)
                     throw(Core::IndexOutOfRangeException);
-
-            void Remove(int index)
-                    throw(Core::IndexOutOfRangeException);
-            void RemoveOne(const T &);
-            void RemoveAll(const T &);
-            void Clear();
-
-            int Count() const;
-            int Size() const;
-            void Resize(int);
-
-            bool Contains(const T &) const;
-            int IndexOf(const T &) const;
-
-            // The IEquatable interface:
-            virtual bool Equals(const Collection<T> &) const;
-
-            // The IClonable interface
-            virtual Collection<T> &CloneTo(Collection<T> &) const;
 
 
         protected:
@@ -90,9 +58,87 @@ namespace GUtil
                     throw(Core::ValidationException){}
 
 
+            CollectionBase(int size = 0);
+            CollectionBase(const CollectionBase<T> &);
+            CollectionBase(const QList<T> &);
+            virtual ~CollectionBase();
+
+            T &add_protected(const T &value);
+            T &insert_protected(int index, const T &value)
+                throw(Core::IndexOutOfRangeException);
+
+            T &setValue_protected(int index, const T &)
+                throw(Core::IndexOutOfRangeException);
+            T value_protected(int index) const
+                    throw(Core::IndexOutOfRangeException);
+
+            void remove_protected(int index)
+                    throw(Core::IndexOutOfRangeException);
+            void removeOne_protected(const T &);
+            void removeAll_protected(const T &);
+            void clear_protected();
+
+            int count_protected() const;
+            int size_protected() const;
+            void resize_protected(int);
+
+            bool contains_protected(const T &) const;
+            int indexOf_protected(const T &) const;
+
+
+            // The IEquatable interface:
+            virtual bool Equals(const CollectionBase<T> &) const;
+
+            // The IClonable interface
+            virtual CollectionBase<T> &CloneTo(CollectionBase<T> &) const;
+
+
         private:
 
             QList<T> _collection;
+
+        };
+
+
+
+        template <typename T> class Collection : public CollectionBase<T>
+        {
+        public:
+
+            Collection(int size = 0);
+            Collection(const Collection<T> &);
+            Collection(const QList<T> &);
+            virtual ~Collection();
+
+
+            T &Add(const T &value);
+            T &Insert(int index, const T &value)
+                throw(Core::IndexOutOfRangeException);
+
+            T &SetValue(int index, const T &)
+                throw(Core::IndexOutOfRangeException);
+            T Value(int index) const
+                    throw(Core::IndexOutOfRangeException);
+
+            void Remove(int index)
+                    throw(Core::IndexOutOfRangeException);
+            void RemoveOne(const T &);
+            void RemoveAll(const T &);
+            void Clear();
+
+            int Count() const;
+            int Size() const;
+            void Resize(int);
+
+            bool Contains(const T &) const;
+            int IndexOf(const T &) const;
+
+
+            // The IEquatable interface:
+            virtual bool Equals(const Collection<T> &) const;
+
+            // The IClonable interface
+            virtual Collection<T> &CloneTo(Collection<T> &) const;
 
         };
     }

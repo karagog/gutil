@@ -16,25 +16,128 @@ limitations under the License.*/
 using namespace GUtil;
 
 template <typename T> DataObjects::Collection<T>::Collection(int size)
-{
-    Resize(size);
-}
+    :CollectionBase<T>(size){}
 
 template <typename T> DataObjects::Collection<T>::Collection(
         const DataObjects::Collection<T> &o)
+            :CollectionBase<T>(o){}
+
+template <typename T> DataObjects::Collection<T>::Collection(const QList<T> &o)
+    :CollectionBase<T>(o){}
+
+template <typename T> DataObjects::Collection<T>::~Collection(){}
+
+template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
+{
+    return CollectionBase<T>::add_protected(value);
+}
+
+template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &value)
+        throw(Core::IndexOutOfRangeException)
+{
+    return CollectionBase<T>::insert_protected(index, value);
+}
+
+template <typename T> T DataObjects::Collection<T>::Value(int index) const
+        throw(Core::IndexOutOfRangeException)
+{
+    return CollectionBase<T>::value_protected(index);
+}
+
+template <typename T> T &DataObjects::Collection<T>::SetValue(int index, const T &value)
+        throw(Core::IndexOutOfRangeException)
+{
+    return CollectionBase<T>::setValue_protected(index, value);
+}
+
+template <typename T> void DataObjects::Collection<T>::Remove(int index)
+        throw(Core::IndexOutOfRangeException)
+{
+    CollectionBase<T>::remove_protected(index);
+}
+
+template <typename T> void DataObjects::Collection<T>::RemoveOne(const T &i)
+{
+    CollectionBase<T>::removeOne_protected(i);
+}
+
+template <typename T> void DataObjects::Collection<T>::RemoveAll(const T &i)
+{
+    CollectionBase<T>::removeAll_protected(i);
+}
+
+template <typename T> void DataObjects::Collection<T>::Clear()
+{
+    CollectionBase<T>::clear_protected();
+}
+
+template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) const
+{
+    return CollectionBase<T>::contains_protected(o);
+}
+
+template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
+{
+    return CollectionBase<T>::indexOf_protected(o);
+}
+
+template <typename T> bool DataObjects::Collection<T>::Equals(
+        const DataObjects::Collection<T> &rhs) const
+{
+    return CollectionBase<T>::Equals(rhs);
+}
+
+template <typename T> int DataObjects::Collection<T>::Count() const
+{
+    return CollectionBase<T>::count_protected();
+}
+
+template <typename T> int DataObjects::Collection<T>::Size() const
+{
+   return CollectionBase<T>::size_protected();
+}
+
+template <typename T> void DataObjects::Collection<T>::Resize(int len)
+{
+    CollectionBase<T>::resize_protected(len);
+}
+
+template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::CloneTo(
+        DataObjects::Collection<T> &o) const
+{
+    return (DataObjects::Collection<T> &)CollectionBase<T>::CloneTo(o);
+}
+
+
+
+
+
+
+
+
+
+
+
+template <typename T> DataObjects::CollectionBase<T>::CollectionBase(int size)
+{
+    resize_protected(size);
+}
+
+template <typename T> DataObjects::CollectionBase<T>::CollectionBase(
+        const DataObjects::CollectionBase<T> &o)
 {
     o.CloneTo(*this);
 }
 
 
-template <typename T> DataObjects::Collection<T>::Collection(const QList<T> &o)
+template <typename T> DataObjects::CollectionBase<T>::CollectionBase(const QList<T> &o)
 {
     _collection = o;
 }
 
-template <typename T> DataObjects::Collection<T>::~Collection(){}
+template <typename T> DataObjects::CollectionBase<T>::~CollectionBase(){}
 
-template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
+template <typename T> T &DataObjects::CollectionBase<T>::add_protected(const T &value)
 {
     FailIfReadOnly();
 
@@ -48,16 +151,16 @@ template <typename T> T &DataObjects::Collection<T>::Add(const T &value)
     return _collection[index];
 }
 
-template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &value)
+template <typename T> T &DataObjects::CollectionBase<T>::insert_protected(int index, const T &value)
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
 
-    if(index < 0 || index >= Count())
+    if(index < 0 || index >= count_protected())
         THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
                                   QString("Collection only has %1 items in it, and you tried to "
                                           "index the item at %2")
-                                  .arg(Count()).arg(index).toStdString());
+                                  .arg(count_protected()).arg(index).toStdString());
 
     validate_new_item(value);
 
@@ -68,35 +171,35 @@ template <typename T> T &DataObjects::Collection<T>::Insert(int index, const T &
     return _collection[index];
 }
 
-template <typename T> T DataObjects::Collection<T>::Value(int index) const
+template <typename T> T DataObjects::CollectionBase<T>::value_protected(int index) const
         throw(Core::IndexOutOfRangeException)
 {
-    if(index < 0 || index >= Count())
+    if(index < 0 || index >= count_protected())
         THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
                                   QString("Collection only has %1 items in it, and you tried to "
                                           "index the item at %2")
-                                  .arg(Count()).arg(index).toStdString());
+                                  .arg(count_protected()).arg(index).toStdString());
 
     return _collection.at(index);
 }
 
-template <typename T> T &DataObjects::Collection<T>::SetValue(int index, const T &value)
+template <typename T> T &DataObjects::CollectionBase<T>::setValue_protected(int index, const T &value)
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
 
-    if(index < 0 || index >= Count())
+    if(index < 0 || index >= count_protected())
         THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
                                   QString("Collection only has %1 items in it, and you tried to "
                                           "index the item at %2")
-                                  .arg(Count()).arg(index).toStdString());
+                                  .arg(count_protected()).arg(index).toStdString());
 
     _collection[index] = value;
 
     return _collection[index];
 }
 
-template <typename T> void DataObjects::Collection<T>::Remove(int index)
+template <typename T> void DataObjects::CollectionBase<T>::remove_protected(int index)
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
@@ -106,42 +209,42 @@ template <typename T> void DataObjects::Collection<T>::Remove(int index)
     _collection.removeAt(index);
 }
 
-template <typename T> void DataObjects::Collection<T>::RemoveOne(const T &i)
+template <typename T> void DataObjects::CollectionBase<T>::removeOne_protected(const T &i)
 {
     FailIfReadOnly();
 
-    int ind = IndexOf(i);
+    int ind = indexOf_protected(i);
     if(ind >= 0)
-        Remove(ind);
+        remove_protected(ind);
 }
 
-template <typename T> void DataObjects::Collection<T>::RemoveAll(const T &i)
+template <typename T> void DataObjects::CollectionBase<T>::removeAll_protected(const T &i)
 {
     FailIfReadOnly();
 
     int ind = 0;
-    while((ind = IndexOf(i, ind)) >= 0)
-        Remove(ind);
+    while((ind = indexOf_protected(i, ind)) >= 0)
+        remove_protected(ind);
 }
 
-template <typename T> void DataObjects::Collection<T>::Clear()
+template <typename T> void DataObjects::CollectionBase<T>::clear_protected()
 {
-    while(Count() > 0)
-        Remove(0);
+    while(count_protected() > 0)
+        remove_protected(0);
 }
 
-template <typename T> bool DataObjects::Collection<T>::Contains(const T &o) const
+template <typename T> bool DataObjects::CollectionBase<T>::contains_protected(const T &o) const
 {
-    return IndexOf(o) != -1;
+    return indexOf_protected(o) != -1;
 }
 
-template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
+template <typename T> int DataObjects::CollectionBase<T>::indexOf_protected(const T &o) const
 {
     int ret = -1;
 
-    for(int i = 0; i < Size(); i++)
+    for(int i = 0; i < size_protected(); i++)
     {
-        if(compare_equality(Value(i), o))
+        if(compare_equality(value_protected(i), o))
         {
             ret = i;
             break;
@@ -151,54 +254,54 @@ template <typename T> int DataObjects::Collection<T>::IndexOf(const T &o) const
     return ret;
 }
 
-template <typename T> T &DataObjects::Collection<T>::operator [](int index)
+template <typename T> T &DataObjects::CollectionBase<T>::operator [](int index)
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
 
-    if(index < 0 || index >= Count())
+    if(index < 0 || index >= count_protected())
         THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
                                   QString("Collection only has %1 items in it, and you tried to "
                                           "index the item at %2")
-                                  .arg(Count()).arg(index).toStdString());
+                                  .arg(count_protected()).arg(index).toStdString());
 
     return _collection[index];
 }
 
-template <typename T> bool DataObjects::Collection<T>::Equals(
-        const DataObjects::Collection<T> &rhs) const
+template <typename T> bool DataObjects::CollectionBase<T>::Equals(
+        const DataObjects::CollectionBase<T> &rhs) const
 {
     return _collection == rhs._collection;
 }
 
-template <typename T> int DataObjects::Collection<T>::Count() const
+template <typename T> int DataObjects::CollectionBase<T>::count_protected() const
 {
     return _collection.length();
 }
 
-template <typename T> int DataObjects::Collection<T>::Size() const
+template <typename T> int DataObjects::CollectionBase<T>::size_protected() const
 {
    return _collection.length();
 }
 
-template <typename T> void DataObjects::Collection<T>::Resize(int len)
+template <typename T> void DataObjects::CollectionBase<T>::resize_protected(int len)
 {
     FailIfReadOnly();
 
     if(len > _collection.count())
     {
         while(_collection.count() < len)
-            Add(create_blank_item());
+            add_protected(create_blank_item());
     }
     else if(len < _collection.count())
     {
         while(_collection.count() > len)
-            Remove(_collection.count() - 1);
+            remove_protected(_collection.count() - 1);
     }
 }
 
-template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::CloneTo(
-        DataObjects::Collection<T> &o) const
+template <typename T> DataObjects::CollectionBase<T> &DataObjects::CollectionBase<T>::CloneTo(
+        DataObjects::CollectionBase<T> &o) const
 {
     o.FailIfReadOnly();
 
