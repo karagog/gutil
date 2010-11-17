@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef ICONVERTABLE_H
 #define ICONVERTABLE_H
 
-<<<<<<< HEAD
 #include "gutil_macros.h"
 
 GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
@@ -36,28 +35,5 @@ public:
 
 
 GUTIL_END_CORE_NAMESPACE
-=======
-namespace GUtil
-{
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            // A class to define conversions between types
-
-            template <class T> class IConvertable
-            {
-            public:
-
-                virtual T &ConvertTo(T &) = 0;
-                virtual T &ConvertFrom(T &) = 0;
-
-                virtual ~IConvertable(){}
-
-            };
-        }
-    }
-}
->>>>>>> Tweaked clonable interface, added convertable interface.  Made necessary
 
 #endif // ICONVERTABLE_H
