@@ -43,8 +43,6 @@ public:
     // IEquatable:
     virtual bool Equals(const DataColumn &) const;
 
-    PROPERTY(int, MyInt);
-
 
 protected:
 
