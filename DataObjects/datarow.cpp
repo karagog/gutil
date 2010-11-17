@@ -111,7 +111,7 @@ void DataObjects::DataRow::set_number_of_columns(int cols)
 
 QVariant DataObjects::DataRow::At(int index) const
 {
-    return row_data().Tuple().Value(index);
+    return row_data().Tuple().At(index);
 }
 
 bool DataObjects::DataRow::Equals(const DataObjects::DataRow &rhs) const
@@ -141,7 +141,7 @@ void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(ColumnCount()));
 
     for(int i = 0; i < ColumnCount(); i++)
-        DataObjects::QVariantHelpers::WriteXml(row_data().Tuple().Value(i), sw);
+        DataObjects::QVariantHelpers::WriteXml(row_data().Tuple().At(i), sw);
 
     sw.writeEndElement();
 }

@@ -98,7 +98,7 @@ bool DataObjects::DataSet::Equals(const DataObjects::DataSet &d) const
         for(int i = 0; i < TableCount(); i++)
         {
             if(!(ret =
-                 set_data().Tables().Value(i).Equals(d.set_data().Tables().Value(i))))
+                 set_data().Tables().At(i).Equals(d.set_data().Tables().At(i))))
                 break;
         }
     }
@@ -110,7 +110,7 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
     int ret = -1;
     for(int i = 0; i < TableCount(); i++)
     {
-        if(set_data().Tables().Value(i).Name() == table_name)
+        if(set_data().Tables().At(i).Name() == table_name)
         {
             ret = i;
             break;
@@ -161,7 +161,7 @@ void DataObjects::DataSet::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(TableCount()));
 
     for(int i = 0; i < TableCount(); i++)
-        set_data().Tables().Value(i).WriteXml(sw);
+        set_data().Tables().At(i).WriteXml(sw);
 
     sw.writeEndElement();
 }

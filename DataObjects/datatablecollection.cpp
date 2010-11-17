@@ -32,7 +32,7 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
     o.Resize(Size());
 
     for(int i = 0; i < Size(); i++)
-        Value(i).CloneTo(o[i]);
+        At(i).CloneTo(o[i]);
 
     return o;
 }

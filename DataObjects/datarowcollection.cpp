@@ -64,9 +64,14 @@ DataObjects::DataTable DataObjects::DataRowCollection::Table() const
     return DataTable(_table_data);
 }
 
-DataObjects::DataRow &DataObjects::DataRowCollection::At(int index) const
+const DataObjects::DataRow &DataObjects::DataRowCollection::At(int index) const
 {
-    return *(this->value_protected(index));
+    return *(at_protected(index));
+}
+
+DataObjects::DataRow &DataObjects::DataRowCollection::At(int index)
+{
+    return *(at_protected(index));
 }
 
 DataObjects::DataRow &DataObjects::DataRowCollection::Add(const DataObjects::DataRow &r)
@@ -106,16 +111,10 @@ void DataObjects::DataRowCollection::Remove(int ind)
     remove_protected(ind);
 }
 
-void DataObjects::DataRowCollection::RemoveOne(const DataRow &r)
+void DataObjects::DataRowCollection::Remove(const DataRow &r)
 {
     DataRow r2(r);
     removeOne_protected(&r2);
-}
-
-void DataObjects::DataRowCollection::RemoveAll(const DataRow &r)
-{
-    DataRow r2(r);
-    removeAll_protected(&r2);
 }
 
 void DataObjects::DataRowCollection::Clear()
@@ -130,12 +129,12 @@ void DataObjects::DataRowCollection::Resize(int sz)
 
 DataObjects::DataRow &DataObjects::DataRowCollection::operator [](int index)
 {
-    return *value_protected(index);
+    return *at_protected(index);
 }
 
 const DataObjects::DataRow &DataObjects::DataRowCollection::operator [](int index) const
 {
-    return *value_protected(index);
+    return *at_protected(index);
 }
 
 void DataObjects::DataRowCollection::on_remove(DataObjects::DataRow **r) const

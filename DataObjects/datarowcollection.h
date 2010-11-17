@@ -37,8 +37,6 @@ public:
 
     DataTable Table() const;
 
-    DataRow &At(int) const;
-
     DataRow &Add(const DataRow &);
     DataRow &Insert(const DataRow &, int index);
 
@@ -49,14 +47,16 @@ public:
     int IndexOf(const DataRow &) const;
 
     void Remove(int);
-    void RemoveOne(const DataRow &);
-    void RemoveAll(const DataRow &);
+    void Remove(const DataRow &);
 
     void Clear();
     void Resize(int);
 
     DataRow &operator [](int);
     const DataRow &operator [](int) const;
+
+    const DataRow &At(int) const;
+    DataRow &At(int);
 
 
 protected:

@@ -78,6 +78,11 @@ DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
     return Rows()[ind];
 }
 
+const DataObjects::DataRow &DataObjects::DataTable::operator [](int ind) const
+{
+    return Rows()[ind];
+}
+
 DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
 {
     _table_data = o._table_data;
@@ -134,6 +139,11 @@ DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
     return _table_data->Rows();
 }
 
+const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
+{
+    return _table_data->Rows();
+}
+
 DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
 {
     return Rows().Add(r);
@@ -170,7 +180,7 @@ void DataObjects::DataTable::RemoveRow(int row_index)
 
 void DataObjects::DataTable::RemoveRow(const DataRow &r)
 {
-    Rows().RemoveOne(r);
+    Rows().Remove(r);
 }
 
 void DataObjects::DataTable::Clear()

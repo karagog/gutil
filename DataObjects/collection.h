@@ -39,7 +39,7 @@ public:
             throw(Core::IndexOutOfRangeException);
 
 
-        protected:
+protected:
 
     // Derived classes can do things to the added/removed object by overriding
     virtual void on_add(T *) const{}
@@ -70,9 +70,9 @@ public:
     T &insert_protected(const T &value, int index)
             throw(Core::IndexOutOfRangeException);
 
-    T &setValue_protected(int index, const T &)
+    const T &at_protected(int index) const
             throw(Core::IndexOutOfRangeException);
-    T value_protected(int index) const
+    T &at_protected(int index)
             throw(Core::IndexOutOfRangeException);
 
     void remove_protected(int index)
@@ -96,7 +96,7 @@ public:
     virtual CollectionBase<T> &CloneTo(CollectionBase<T> &) const;
 
 
-        private:
+private:
 
     QList<T> _collection;
 
@@ -120,9 +120,9 @@ public:
     T &Insert(const T &value, int index)
             throw(Core::IndexOutOfRangeException);
 
-    T &SetValue(int index, const T &)
+    const T &At(int index) const
             throw(Core::IndexOutOfRangeException);
-    T Value(int index) const
+    T &At(int index)
             throw(Core::IndexOutOfRangeException);
 
     void Remove(int index)

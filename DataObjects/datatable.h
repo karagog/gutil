@@ -78,12 +78,14 @@ namespace GUtil
             int GetColumnIndex(const QString &key) const;
 
             DataRow &operator [](int);
+            const DataRow &operator [](int) const;
             DataTable &operator =(const DataTable &);
             bool operator ==(const DataTable &) const;
             bool operator !=(const DataTable &) const;
 
             DataSet Set() const;
             DataRowCollection &Rows();
+            const DataRowCollection &Rows() const;
             QStringList ColumnKeys() const;
             QStringList ColumnLabels() const;
             QString Name() const;

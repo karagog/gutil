@@ -27,7 +27,7 @@ DataObjects::DataColumnCollection::DataColumnCollection(const DataColumnCollecti
 
 QString DataObjects::DataColumnCollection::Key(int ind) const
 {
-    return Value(ind).Key();
+    return At(ind).Key();
 }
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
@@ -37,7 +37,7 @@ bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
 
 QString DataObjects::DataColumnCollection::Label(int ind) const
 {
-    return Value(ind).Label();
+    return At(ind).Label();
 }
 
 QStringList DataObjects::DataColumnCollection::Keys() const

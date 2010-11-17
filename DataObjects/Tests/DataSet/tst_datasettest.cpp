@@ -77,6 +77,22 @@ void DataSetTest::test_dataRows()
 
         // Make sure the equal operator works the other way around too
         QVERIFY(!r3.Equals(r2));
+
+
+        // Test removing rows:
+        t.AddRow(r2);
+        t.AddRow(r3);
+        QVERIFY(t.RowCount() == 2);
+
+        // Test that removing a row actually deletes the pointer held in the table:
+
+        // You can set a break point in the row collection 'on_remove' method; it should
+        //   get hit here:
+        t.RemoveRow(1);
+        QVERIFY(t.RowCount() == 1);
+
+        t.RemoveRow(r2);
+        QVERIFY(t.RowCount() == 0);
     }
     catch(Core::Exception &ex)
     {

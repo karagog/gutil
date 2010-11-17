@@ -38,17 +38,18 @@ template <typename T> T &DataObjects::Collection<T>::Insert(const T &value, int 
     return CollectionBase<T>::insert_protected(value, index);
 }
 
-template <typename T> T DataObjects::Collection<T>::Value(int index) const
+template <typename T> const T &DataObjects::Collection<T>::At(int index) const
         throw(Core::IndexOutOfRangeException)
 {
-    return CollectionBase<T>::value_protected(index);
+    return CollectionBase<T>::at_protected(index);
 }
 
-template <typename T> T &DataObjects::Collection<T>::SetValue(int index, const T &value)
+template <typename T> T &DataObjects::Collection<T>::At(int index)
         throw(Core::IndexOutOfRangeException)
 {
-    return CollectionBase<T>::setValue_protected(index, value);
+    return CollectionBase<T>::at_protected(index);
 }
+
 
 template <typename T> void DataObjects::Collection<T>::Remove(int index)
         throw(Core::IndexOutOfRangeException)
@@ -166,21 +167,18 @@ template <typename T> T &DataObjects::CollectionBase<T>::insert_protected(const 
     return _collection[index];
 }
 
-template <typename T> T DataObjects::CollectionBase<T>::value_protected(int index) const
+template <typename T> const T &DataObjects::CollectionBase<T>::at_protected(int index) const
         throw(Core::IndexOutOfRangeException)
 {
     _validate_index(index);
 
-    return _collection.at(index);
+    return _collection[index];
 }
 
-template <typename T> T &DataObjects::CollectionBase<T>::setValue_protected(int index, const T &value)
+template <typename T> T &DataObjects::CollectionBase<T>::at_protected(int index)
         throw(Core::IndexOutOfRangeException)
 {
-    FailIfReadOnly();
     _validate_index(index);
-
-    _collection[index] = value;
 
     return _collection[index];
 }
@@ -230,7 +228,7 @@ template <typename T> int DataObjects::CollectionBase<T>::indexOf_protected(cons
 
     for(int i = from; i < size_protected(); i++)
     {
-        if(compare_equality(value_protected(i), o))
+        if(compare_equality(at_protected(i), o))
         {
             ret = i;
             break;
