@@ -18,23 +18,44 @@ limitations under the License.*/
 
 
 // Convenient namespace declaration
-GUTIL_BEGIN_NAMESPACE(DummyTest);
+GUTIL_BEGIN_NAMESPACE( DummyTest )
 
 class TestClass
 {
 public:
-    TestClass(){
-        _p_MyReadOnlyInt = 10;
-    }
+
+    // You can adjust the private variables themselves by using the _p_ prefix
+    TestClass() : _p_MyReadOnlyInt(10) {}
 
     // Convenient property declarations
-    GUTIL_PROPERTY(int, MyInt);
-    GUTIL_PROPERTY(QString, MyString);
+    PROPERTY( MyInt, int );
+    PROPERTY( MyString, QString );
 
-    GUTIL_READONLY_PROPERTY(int, MyReadOnlyInt);
+    READONLY_PROPERTY( MyReadOnlyInt, int );
+
+
+    // Or you can declare the accessors, and define the function bodies like below:
+    PROPERTY_ACCESSORS( IsMeInsane, bool );
+
+    READONLY_PROPERTY_ACCESSORS( Sexy, bool );
 };
 
-GUTIL_END_NAMESPACE();
+bool TestClass::GetIsMeInsane() const
+{
+    return true;
+}
+
+void TestClass::SetIsMeInsane(const bool &value)
+{
+    // You can't change this
+}
+
+bool TestClass::GetSexy() const
+{
+    return true;
+}
+
+GUTIL_END_NAMESPACE
 
 
 
@@ -72,6 +93,17 @@ void GUtil_MacrosTest::test_macros()
 
     // Readonly Property
     QVERIFY(tc.GetMyReadOnlyInt() == 10);
+
+    // Custom getters and setters:
+    QVERIFY(tc.GetIsMeInsane());
+
+    // Our setter does nothing
+    tc.SetIsMeInsane(false);
+    QVERIFY(tc.GetIsMeInsane());
+
+
+    // A custom readonly property
+    QVERIFY(tc.GetSexy());
 }
 
 QTEST_APPLESS_MAIN(GUtil_MacrosTest);
