@@ -21,7 +21,7 @@ limitations under the License.*/
 // Use this to succinctly declare property accessors
 //   It declares a Get and Set method for the provided variable type and name,
 //   and also a unique private variable to hold the value
-#define GUTIL_PROPERTY( type, name ) \
+#define PROPERTY( name, type ) \
 private: \
     type _p_##name; \
 public: \
@@ -30,7 +30,8 @@ public: \
     enum{}
 
 
-#define GUTIL_READONLY_PROPERTY( type, name ) \
+// Only declares a Getter for the hidden property
+#define READONLY_PROPERTY( name, type ) \
 private: \
     type _p_##name; \
 public: \
@@ -40,11 +41,12 @@ public: \
 
 // This version only declares the accessors, so you have to provide your own
 //   implementation
-#define GUTIL_PROPERTY_ACCESSORS( type, name )   \
+#define PROPERTY_ACCESSORS( name, type )   \
         type Get##name() const; \
-        void Set##name(const type &value); \
-        enum{}
+        void Set##name(const type &value)
 
+#define READONLY_PROPERTY_ACCESSORS( name, type )   \
+        type Get##name() const
 
 
 
@@ -58,7 +60,7 @@ public: \
         namespace GUtil \
         { \
           namespace n \
-          { enum{}
+          {
 
 #define GUTIL_BEGIN_CORE_NAMESPACE( n ) \
         namespace GUtil \
@@ -66,10 +68,10 @@ public: \
           namespace Core \
           { \
             namespace n \
-            { enum{}
+            {
 
-#define GUTIL_END_NAMESPACE() }} enum{}
+#define GUTIL_END_NAMESPACE }}
 
-#define GUTIL_END_CORE_NAMESPACE() }}} enum{}
+#define GUTIL_END_CORE_NAMESPACE }}}
 
 #endif // GUTIL_MACROS_H

@@ -19,7 +19,7 @@ limitations under the License.*/
 
 // Derived classes can use this macro for convenience when declaring
 //  property accessors
-#define ROW_ACCESSORS( v ) GUTIL_PROPERTY_ACCESSORS( QVariant, v )
+#define ROW_ACCESSORS( v ) PROPERTY_ACCESSORS( QVariant, v )
 
 
 namespace GUtil

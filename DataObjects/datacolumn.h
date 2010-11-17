@@ -43,7 +43,7 @@ public:
     // IEquatable:
     virtual bool Equals(const DataColumn &) const;
 
-    GUTIL_PROPERTY(int, MyInt);
+    PROPERTY(int, MyInt);
 
 
 protected:
