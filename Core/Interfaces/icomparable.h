@@ -15,41 +15,40 @@ limitations under the License.*/
 #ifndef ICOMPARABLE_H
 #define ICOMPARABLE_H
 
-namespace GUtil
+#include "gutil_macros.h"
+
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+
+
+template <class T> class IComparable
 {
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            template <class T> class IComparable
-            {
-            public:
+public:
 
-                // Return negative if this is less than the other, 0 if equal
-                virtual int Compare(const T &) const = 0;
+    // Return negative if this is less than the other, 0 if equal
+    virtual int Compare(const T &) const = 0;
 
 
-                // These functions are designed for convenience
-                virtual bool operator <(const T &o) const{
-                    return Compare(o) < 0;
-                }
-
-                virtual bool operator >(const T &o) const{
-                    return Compare(o) > 0;
-                }
-
-                virtual bool operator ==(const T &o) const{
-                    return Compare(o) == 0;
-                }
-
-                virtual bool operator !=(const T &o) const{
-                    return Compare != 0;
-                }
-
-                virtual ~IComparable(){}
-            };
-        }
+    // These functions are designed for convenience
+    virtual bool operator <(const T &o) const{
+        return Compare(o) < 0;
     }
-}
+
+    virtual bool operator >(const T &o) const{
+        return Compare(o) > 0;
+    }
+
+    virtual bool operator ==(const T &o) const{
+        return Compare(o) == 0;
+    }
+
+    virtual bool operator !=(const T &o) const{
+        return Compare != 0;
+    }
+
+    virtual ~IComparable(){}
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // ICOMPARABLE_H

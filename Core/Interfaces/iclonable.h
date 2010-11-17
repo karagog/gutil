@@ -15,24 +15,29 @@ limitations under the License.*/
 #ifndef ICLONABLE_H
 #define ICLONABLE_H
 
-namespace GUtil
+#include "gutil_macros.h"
+
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+
+
+// A class to define a clonable object interface.
+
+// The template type must be the type of the derived class, otherwise the default
+//  'CloneFrom' implementation won't work.  You can override it if you wish to fix
+//  this behavior.
+
+template <class T> class IClonable
 {
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            // A class to define a clonable object interface
+public:
 
-            template <class T> class IClonable
-            {
-            public:
-                IClonable(){}
-                virtual ~IClonable(){}
+    // Clones this object to the provided object reference
+    virtual T& CloneTo(T &) const = 0;
 
-                virtual T Clone() const = 0;
-            };
-        }
-    }
-}
+    virtual ~IClonable(){}
+
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // ICLONABLE_H

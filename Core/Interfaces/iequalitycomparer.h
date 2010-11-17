@@ -15,50 +15,49 @@ limitations under the License.*/
 #ifndef IEQUALITYCOMPARER_H
 #define IEQUALITYCOMPARER_H
 
-namespace GUtil
+#include "gutil_macros.h"
+
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+
+
+// A class to compare two objects of different types
+template <class T, class U> class IEqualityComparerDifferent
 {
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            // A class to compare two objects of different types
-            template <class T, class U> class IEqualityComparerDifferent
-            {
-            public:
+public:
 
-                virtual bool Equal(const T &lhs, const U &rhs) const = 0;
+    virtual bool Equal(const T &lhs, const U &rhs) const = 0;
 
-                virtual ~IEqualityComparerDifferent(){}
-            };
+    virtual ~IEqualityComparerDifferent(){}
+};
 
 
 
-            // A class to compare two objects of like types
-            template <class T> class IEqualityComparer
-                : public IEqualityComparerDifferent<T, T>
-            {
-            public:
+// A class to compare two objects of like types
+template <class T> class IEqualityComparer
+    : public IEqualityComparerDifferent<T, T>
+{
+public:
 
-                virtual ~IEqualityComparer(){}
-            };
+    virtual ~IEqualityComparer(){}
+};
 
 
 
 
-            // Default requires a '==' operator
-            template <class T> class DefaultEqualityComparer
-                : public IEqualityComparer<T>
-            {
-            public:
+// Default requires a '==' operator
+template <class T> class DefaultEqualityComparer
+    : public IEqualityComparer<T>
+{
+public:
 
-                virtual bool Equal(const T &lhs, const T &rhs) const{
-                    return lhs == rhs;
-                }
-
-                virtual ~DefaultEqualityComparer(){}
-            };
-        }
+    virtual inline bool Equal(const T &lhs, const T &rhs) const{
+        return lhs == rhs;
     }
-}
+
+    virtual ~DefaultEqualityComparer(){}
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // IEQUALITYCOMPARER_H

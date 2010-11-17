@@ -15,47 +15,45 @@ limitations under the License.*/
 #ifndef ACTIONLOGBOOK_H
 #define ACTIONLOGBOOK_H
 
+#include "gutil_macros.h"
 #include <stack>
 
-namespace GUtil
+GUTIL_BEGIN_CORE_NAMESPACE( BusinessObjects );
+
+
+// Derive from this class to make action objects that undo what you want
+class action_t
 {
-    namespace Core
-    {
-        namespace BusinessObjects
-        {
-            // Derive from this class to make action objects that undo what you want
-            class action_t
-            {
-                friend class ActionStack;
-            protected:
-                // This function is used to carry out an action, or undo an action, depending
-                //  on the boolean you pass to it
-                virtual bool carry_out(bool) = 0;
-            };
+    friend class ActionStack;
+protected:
+    // This function is used to carry out an action, or undo an action, depending
+    //  on the boolean you pass to it
+    virtual bool carry_out(bool) = 0;
+};
 
 
-            // Use this class to manipulate a stack of actions
-            class ActionStack
-            {
-            public:
-                ActionStack();
+// Use this class to manipulate a stack of actions
+class ActionStack
+{
+public:
+    ActionStack();
 
-                void pushAction(action_t *);
-                action_t *popAction();
+    void pushAction(action_t *);
+    action_t *popAction();
 
-                bool undoLastAction();
-                bool redoLastUndo();
+    bool undoLastAction();
+    bool redoLastUndo();
 
-                static bool carryOutAction(action_t *, bool undo = false);
+    static bool carryOutAction(action_t *, bool undo = false);
 
-            private:
-                std::stack<action_t *> action_stack;
-                std::stack<action_t *> redo_stack;
+private:
+    std::stack<action_t *> action_stack;
+    std::stack<action_t *> redo_stack;
 
-                static void clean_stack(std::stack<action_t *> &);
-            };
-        }
-    }
-}
+    static void clean_stack(std::stack<action_t *> &);
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // ACTIONLOGBOOK_H

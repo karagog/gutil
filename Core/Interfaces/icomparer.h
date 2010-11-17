@@ -15,62 +15,61 @@ limitations under the License.*/
 #ifndef ICOMPARER_H
 #define ICOMPARER_H
 
-namespace GUtil
+#include "gutil_macros.h"
+
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+
+
+// A class to compare two objects of different types
+template <class T, class U> class IComparerDifferent
 {
-    namespace Core
+public:
+
+    // Return negative if LHS is less than RHS, 0 if equal
+    virtual int Compare(const T &lhs, const U &rhs) const = 0;
+
+    // A convenient pointer compare
+    virtual inline int Compare(const T* const lhs, const T* const rhs) const
     {
-        namespace Interfaces
-        {
-            // A class to compare two objects of different types
-            template <class T, class U> class IComparerDifferent
-            {
-            public:
-
-                // Return negative if LHS is less than RHS, 0 if equal
-                virtual int Compare(const T &lhs, const U &rhs) const = 0;
-
-                // A convenient pointer compare
-                virtual inline int Compare(const T* const lhs, const T* const rhs) const
-                {
-                    return Compare(*lhs, *rhs);
-                }
-
-                virtual ~IComparerDifferent(){}
-            };
-
-
-
-            // A class to compare two objects of like types
-            template <class T> class IComparer : public IComparerDifferent<T, T>
-            {
-            public:
-
-                virtual ~IComparer(){}
-            };
-
-
-
-            // The default comparer only requires a less-than operator
-            template <class T> class DefaultComparer : public IComparer<T>
-            {
-            public:
-
-                virtual int Compare(const T&lhs, const T& rhs) const
-                {
-                    int ret = 0;
-
-                    if(lhs < rhs)
-                        ret = -1;
-                    else if(rhs < lhs)
-                        ret = 1;
-
-                    return ret;
-                }
-
-                virtual ~DefaultComparer(){}
-            };
-        }
+        return Compare(*lhs, *rhs);
     }
-}
+
+    virtual ~IComparerDifferent(){}
+};
+
+
+
+// A class to compare two objects of like types
+template <class T> class IComparer : public IComparerDifferent<T, T>
+{
+public:
+
+    virtual ~IComparer(){}
+};
+
+
+
+// The default comparer only requires a less-than operator
+template <class T> class DefaultComparer : public IComparer<T>
+{
+public:
+
+    virtual int Compare(const T&lhs, const T& rhs) const
+    {
+        int ret = 0;
+
+        if(lhs < rhs)
+            ret = -1;
+        else if(rhs < lhs)
+            ret = 1;
+
+        return ret;
+    }
+
+    virtual ~DefaultComparer(){}
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // ICOMPARER_H

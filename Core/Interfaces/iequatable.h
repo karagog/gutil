@@ -15,30 +15,29 @@ limitations under the License.*/
 #ifndef IEQUATABLE_H
 #define IEQUATABLE_H
 
-namespace GUtil
+#include "gutil_macros.h"
+
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+
+
+template <class T> class IEquatable
 {
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            template <class T> class IEquatable
-            {
-            public:
+public:
 
-                virtual bool Equals(const T &) const = 0;
+    virtual bool Equals(const T &) const = 0;
 
-                virtual inline bool operator ==(const T &o) const{
-                    return Equals(o);
-                }
-
-                virtual inline bool operator !=(const T &o) const{
-                    return !Equals(o);
-                }
-
-                virtual ~IEquatable(){}
-            };
-        }
+    virtual inline bool operator ==(const T &o) const{
+        return Equals(o);
     }
-}
+
+    virtual inline bool operator !=(const T &o) const{
+        return !Equals(o);
+    }
+
+    virtual ~IEquatable(){}
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // IEQUATABLE_H

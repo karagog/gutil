@@ -15,26 +15,24 @@ limitations under the License.*/
 #ifndef CORE_IXMLSERIALIZABLE_H
 #define CORE_IXMLSERIALIZABLE_H
 
-#include <Core/exception.h>
+#include "gutil_macros.h"
+#include "Core/exception.h"
 #include <string>
 
-namespace GUtil
-{
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            class IXmlSerializable
-            {
-            public:
-                virtual std::string ToXmlString(bool human_readable) const = 0;
-                virtual void FromXmlString(const std::string &)
-                        throw(GUtil::Core::XmlException) = 0;
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
 
-                virtual ~IXmlSerializable(){}
-            };
-        }
-    }
-}
+
+class IXmlSerializable
+{
+public:
+    virtual std::string ToXmlString(bool human_readable) const = 0;
+    virtual void FromXmlString(const std::string &)
+            throw(GUtil::Core::XmlException) = 0;
+
+    virtual ~IXmlSerializable(){}
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // CORE_IXMLSERIALIZABLE_H

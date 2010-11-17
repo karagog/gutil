@@ -15,47 +15,44 @@ limitations under the License.*/
 #ifndef STRINGHELPERS_H
 #define STRINGHELPERS_H
 
+#include "gutil_macros.h"
 #include <string>
-using namespace std;
 
-namespace GUtil
+GUTIL_BEGIN_CORE_NAMESPACE( Utils );
+
+
+class StringHelpers
 {
-    namespace Core
-    {
-        namespace Utils
-        {
-            class StringHelpers
-            {
-            public:
+public:
 
-                // Some functions for string manipulation
-                static bool toInt(const string &, int &);
-                static string toLower(const string &);
-                static string toUpper(const string &);
+    // Some functions for string manipulation
+    static bool toInt(const std::string &, int &);
+    static std::string toLower(const std::string &);
+    static std::string toUpper(const std::string &);
 
-                // Returns the name of the last element at the end of a file path
-                //   Note: File slash directions are not guaranteed to be preserved!!
-                static string baseName(const string &);
+    // Returns the name of the last element at the end of a file path
+    //   Note: File slash directions are not guaranteed to be preserved!!
+    static std::string baseName(const std::string &);
 
-                // Returns the path of an absolute filename (always returns a trailing slash)
-                static string pathName(const string &);
+    // Returns the path of an absolute filename (always returns a trailing slash)
+    static std::string pathName(const std::string &);
 
-                // Base-64 conversions
-                static string toBase64(const string &);
-                static string fromBase64(const string &);
+    // Base-64 conversions
+    static std::string toBase64(const std::string &);
+    static std::string fromBase64(const std::string &);
 
-                // Hex conversions
-                static string toBase16(const string &);
-                static string fromBase16(const string &);
+    // Hex conversions
+    static std::string toBase16(const std::string &);
+    static std::string fromBase16(const std::string &);
 
-                // Manipulating hex strings
-                static char charToHex(char);
-                static char hexToChar(char);  // Always returns upper-case
+    // Manipulating hex strings
+    static char charToHex(char);
+    static char hexToChar(char);  // Always returns upper-case
 
-                static void showBits(char c, ostream &);
-            };
-        }
-    }
-}
+    static void showBits(char c, std::ostream &);
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // STRINGHELPERS_H

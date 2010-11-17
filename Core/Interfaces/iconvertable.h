@@ -12,24 +12,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ISTRINGABLE_H
-#define ISTRINGABLE_H
+#ifndef ICONVERTABLE_H
+#define ICONVERTABLE_H
 
 #include "gutil_macros.h"
-#include <string>
 
 GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
 
 
-class IStringable
+// A class to define conversions between types
+
+template <class T> class IConvertable
 {
 public:
-    virtual std::string ToString() const = 0;
 
-    virtual ~IStringable(){}
+    virtual T &ConvertTo(T &) = 0;
+    virtual T &ConvertFrom(T &) = 0;
+
+    virtual ~IConvertable(){}
+
 };
 
 
 GUTIL_END_CORE_NAMESPACE
 
-#endif // ISTRINGABLE_H
+#endif // ICONVERTABLE_H

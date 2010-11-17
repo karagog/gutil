@@ -15,50 +15,48 @@ limitations under the License.*/
 #ifndef IREADONLYOBJECT_H
 #define IREADONLYOBJECT_H
 
+#include "gutil_macros.h"
 #include "Core/exception.h"
 #include <string>
 
-namespace GUtil
+GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+
+
+class IReadOnlyObject
 {
-    namespace Core
-    {
-        namespace Interfaces
-        {
-            class IReadOnlyObject
-            {
-            public:
+public:
 
-                // Use this function to track a global readonly bool variable
-                virtual void SetReadonlyBooleanReference(bool &readonlybool);
-                void ClearReadonlyBooleanReference();
+    // Use this function to track a global readonly bool variable
+    virtual void SetReadonlyBooleanReference(bool &readonlybool);
+    void ClearReadonlyBooleanReference();
 
-                // Will set this object's boolean to shadow the other's
-                void TrackReadonlyObject(const IReadOnlyObject &);
+    // Will set this object's boolean to shadow the other's
+    void TrackReadonlyObject(const IReadOnlyObject &);
 
-                bool IsReadOnly() const;
-                virtual void SetReadOnly(bool readonly = true);
+    bool IsReadOnly() const;
+    virtual void SetReadOnly(bool readonly = true);
 
-                void FailIfReadOnly() const
-                        throw(GUtil::Core::ReadOnlyException);
+    void FailIfReadOnly() const
+            throw(GUtil::Core::ReadOnlyException);
 
-                virtual ~IReadOnlyObject();
+    virtual ~IReadOnlyObject();
 
-            protected:
-                IReadOnlyObject(bool readonly = false);
-                IReadOnlyObject(const IReadOnlyObject &other);
+protected:
+    IReadOnlyObject(bool readonly = false);
+    IReadOnlyObject(const IReadOnlyObject &other);
 
-                // Derived classes return a useful string to identify the object
-                //  which threw a ReadOnlyException
-                virtual std::string ReadonlyMessageIdentifier() const;
+    // Derived classes return a useful string to identify the object
+    //  which threw a ReadOnlyException
+    virtual std::string ReadonlyMessageIdentifier() const;
 
-            private:
-                void _init(bool readonly);
+private:
+    void _init_readonly_interface(bool readonly);
 
-                bool *_readonly_bool_reference;
-                bool _my_readonly_bool;
-            };
-        }
-    }
-}
+    bool *_readonly_bool_reference;
+    bool _my_readonly_bool;
+};
+
+
+GUTIL_END_CORE_NAMESPACE
 
 #endif // IREADONLYOBJECT_H

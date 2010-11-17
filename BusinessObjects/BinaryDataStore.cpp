@@ -31,6 +31,7 @@ limitations under the License.*/
 #include <QMessageBox>
 #include <QByteArray>
 using namespace GUtil;
+using namespace std;
 
 // A class to keep track of our mutexes
 class mutex_record_t
