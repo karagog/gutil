@@ -46,7 +46,7 @@ DataObjects::DataRow *DataObjects::DataRowCollection::create_blank_item()
     return new DataRow( DataTable(_table_data) );
 }
 
-void DataObjects::DataRowCollection::validate_new_item(const DataObjects::DataRow * & r) const
+void DataObjects::DataRowCollection::validate_new_item(DataObjects::DataRow * const & r) const
         throw(Core::ValidationException)
 {
     if(Table() != r->Table())
@@ -143,8 +143,8 @@ void DataObjects::DataRowCollection::on_remove(DataObjects::DataRow **r) const
     delete *r;
 }
 
-bool DataObjects::DataRowCollection::compare_equality(const DataRow *const lhs,
-                                                      const DataRow *const rhs) const
+bool DataObjects::DataRowCollection::compare_equality(DataRow * const &lhs,
+                                                      DataRow * const &rhs) const
 {
     return *lhs == *rhs;
 }

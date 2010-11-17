@@ -58,7 +58,8 @@ public:
     DataRow &operator [](int);
     const DataRow &operator [](int) const;
 
-        protected:
+
+protected:
 
     DataRowCollection(SharedTableData *);
     virtual ~DataRowCollection();
@@ -69,16 +70,16 @@ public:
 
     virtual DataRow *create_blank_item();
 
-    virtual void validate_new_item(const DataRow * &) const
+    virtual void validate_new_item(DataRow * const &) const
             throw(Core::ValidationException);
 
     virtual void on_remove(DataRow **) const;
 
-    virtual bool compare_equality(const DataRow *const,
-                                  const DataRow *const) const;
+    virtual bool compare_equality(DataRow * const &,
+                                  DataRow * const &) const;
 
 
-        private:
+private:
 
     SharedTableData *_table_data;
 
