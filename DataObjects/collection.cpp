@@ -136,7 +136,10 @@ template <typename T> DataObjects::CollectionBase<T>::CollectionBase(const QList
     _collection = o;
 }
 
-template <typename T> DataObjects::CollectionBase<T>::~CollectionBase(){}
+template <typename T> DataObjects::CollectionBase<T>::~CollectionBase()
+{
+    clear_protected();
+}
 
 template <typename T> T &DataObjects::CollectionBase<T>::add_protected(const T &value)
 {
