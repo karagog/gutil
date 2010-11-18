@@ -21,22 +21,22 @@ using namespace GUtil;
 
 DataObjects::SharedSetData::SharedSetData()
 {
-    _tables = new DataObjects::DataTableCollection(this);
+    tables = new DataObjects::DataTableCollection(this);
 }
 
 DataObjects::SharedSetData::SharedSetData(const DataObjects::SharedSetData &o)
 {
-    _tables = new DataObjects::DataTableCollection(o.Tables());
+    tables = new DataObjects::DataTableCollection(o.Tables());
 }
 
 DataObjects::SharedSetData::~SharedSetData()
 {
-    delete _tables;
+    delete tables;
 }
 
 DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() const
 {
-    return *_tables;
+    return *tables;
 }
 
 
@@ -45,8 +45,8 @@ DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() const
 
 DataObjects::SharedTableData::SharedTableData(SharedSetData *sd)
 {
-    _rows = new DataObjects::DataRowCollection(this);
-    _columns = new DataObjects::DataColumnCollection;
+    rows = new DataObjects::DataRowCollection(this);
+    columns = new DataObjects::DataColumnCollection;
 
     SetSetData(sd);
 }
@@ -56,36 +56,36 @@ DataObjects::SharedTableData::SharedTableData(
             :QSharedData(d),
             name(d.name)
 {
-    _rows = new DataObjects::DataRowCollection(d.Rows());
-    _columns = new DataObjects::DataColumnCollection(d.Columns());
+    rows = new DataObjects::DataRowCollection(d.Rows());
+    columns = new DataObjects::DataColumnCollection(d.Columns());
 
-    SetSetData(d._set_data);
+    SetSetData(d.set_data);
 }
 
 DataObjects::SharedTableData::~SharedTableData()
 {
-    delete _rows;
-    delete _columns;
+    delete rows;
+    delete columns;
 }
 
 DataObjects::SharedSetData *DataObjects::SharedTableData::SetData() const
 {
-    return _set_data;
+    return set_data;
 }
 
 void DataObjects::SharedTableData::SetSetData(SharedSetData *sd)
 {
-    _set_data = sd;
+    set_data = sd;
 }
 
 DataObjects::DataRowCollection &DataObjects::SharedTableData::Rows() const
 {
-    return *_rows;
+    return *rows;
 }
 
 DataObjects::DataColumnCollection &DataObjects::SharedTableData::Columns() const
 {
-    return *_columns;
+    return *columns;
 }
 
 
@@ -97,35 +97,35 @@ DataObjects::DataColumnCollection &DataObjects::SharedTableData::Columns() const
 DataObjects::SharedRowData::SharedRowData(DataObjects::SharedTableData *td,
                                        const QVariantList &vals)
 {
-    _tuple = new DataObjects::QVariantCollection(vals);
+    tuple = new DataObjects::QVariantCollection(vals);
     SetTableData(td);
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
     :QSharedData(o),
-    _tuple(o._tuple)
+    tuple(o.tuple)
 {
-    _tuple = new DataObjects::QVariantCollection(o.Tuple());
-    SetTableData(o._table_data);
+    tuple = new DataObjects::QVariantCollection(o.Tuple());
+    SetTableData(o.table_data);
 }
 
 DataObjects::SharedRowData::~SharedRowData()
 {
-    delete _tuple;
+    delete tuple;
 }
 
 DataObjects::SharedTableData *DataObjects::SharedRowData::TableData() const
 {
-    return _table_data;
+    return table_data;
 }
 
 void DataObjects::SharedRowData::SetTableData(SharedTableData *dt)
 {
-    _table_data = dt;
-    _tuple->Resize(dt->Columns().Count());
+    table_data = dt;
+    tuple->Resize(dt->Columns().Count());
 }
 
 DataObjects::QVariantCollection &DataObjects::SharedRowData::Tuple() const
 {
-    return *_tuple;
+    return *tuple;
 }

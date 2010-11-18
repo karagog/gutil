@@ -39,14 +39,14 @@ namespace GUtil
 
             SharedSetData();
             SharedSetData(const SharedSetData &);
-            ~SharedSetData();
+            virtual ~SharedSetData();
 
             DataTableCollection &Tables() const;
 
 
-        private:
+        protected:
 
-            DataTableCollection *_tables;
+            DataTableCollection *tables;
 
         };
 
@@ -58,7 +58,7 @@ namespace GUtil
 
             SharedTableData(SharedSetData *sd = 0);
             SharedTableData(const SharedTableData &);
-            ~SharedTableData();
+            virtual ~SharedTableData();
 
             SharedSetData *SetData() const;
             void SetSetData(SharedSetData *);
@@ -68,11 +68,11 @@ namespace GUtil
             QString name;
 
 
-        private:
+        protected:
 
-            SharedSetData *_set_data;
-            DataRowCollection *_rows;
-            DataColumnCollection *_columns;
+            SharedSetData *set_data;
+            DataRowCollection *rows;
+            DataColumnCollection *columns;
 
         };
 
@@ -84,7 +84,7 @@ namespace GUtil
 
             SharedRowData(SharedTableData *, const QVariantList &vals);
             SharedRowData(const SharedRowData &);
-            ~SharedRowData();
+            virtual ~SharedRowData();
 
             SharedTableData *TableData() const;
             void SetTableData(SharedTableData *);
@@ -92,10 +92,10 @@ namespace GUtil
             QVariantCollection &Tuple() const;
 
 
-        private:
+        protected:
 
-            SharedTableData *_table_data;
-            QVariantCollection *_tuple;
+            SharedTableData *table_data;
+            QVariantCollection *tuple;
 
         };
     }
