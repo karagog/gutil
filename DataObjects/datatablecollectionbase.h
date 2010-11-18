@@ -58,13 +58,16 @@ protected:
 
     virtual void on_add(DataTable *t) const
     {
-        // Remove ourselves from our parent set
+        // Remove ourselves from our parent set (if it's different from the one we're now setting)
         SharedSetData *sd;
-        if((sd = t->table_data().SetData()))
+        if((sd = t->table_data().SetData()) &&
+           _set_data != sd)
+        {
             ((DataTableCollectionBase<DataTable> &)sd->Tables()).RemoveOne(*t);
 
-        // Set our new set data to this one
-        t->table_data().SetSetData(_set_data);
+            // Set our new set data to this one
+            t->table_data().SetSetData(_set_data);
+        }
     }
 
     virtual void validate_new_item(const DataTable &t) const
