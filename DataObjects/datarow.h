@@ -21,7 +21,12 @@ limitations under the License.*/
 
 // Derived classes can use this macro for convenience when declaring
 //  property accessors
-#define ROW_ACCESSORS( v ) PROPERTY_ACCESSORS( QVariant, v )
+#define ROW_PROPERTY( name, type, index ) \
+    type Get##name() const{ return (*this)[index]; } \
+    void Set##name(const type &value){ (*this)[index] = value; }
+
+#define READONLY_ROW_PROPERTY( name, type, index ) \
+    type Get##name() const{ return (*this)[index]; }
 
 
 namespace GUtil

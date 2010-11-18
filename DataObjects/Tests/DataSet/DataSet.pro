@@ -15,10 +15,19 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += tst_datasettest.cpp
+SOURCES += tst_datasettest.cpp \
+    persondatarow.cpp \
+    dogrow.cpp \
+    dogstable.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
 LIBS += -L../../../lib -lGUtil
 
 DEFINES += DEBUG_LOGGING
+
+HEADERS += \
+    persondatarow.h \
+    peopletable.h \
+    dogrow.h \
+    dogstable.h
