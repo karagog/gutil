@@ -143,6 +143,9 @@ void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
     for(int i = 0; i < ColumnCount(); i++)
         DataObjects::QVariantHelpers::WriteXml(row_data().Tuple().At(i), sw);
 
+    // Derived classes serialize their data here
+    write_xml_protected(sw);
+
     sw.writeEndElement();
 }
 
@@ -161,6 +164,9 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
 
         for(int i = 0; i < cnt; i++)
             row_data().Tuple().Add(DataObjects::QVariantHelpers::ReadXml(sr));
+
+        // Derived classes initialize their data here
+        read_xml_protected(sr);
 
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != ROW_XML_ID);

@@ -122,6 +122,9 @@ namespace GUtil
         protected:
 
             DataTable(const DataSet &);
+
+            // Derived classes can call this constructor with their own derived
+            //  version of the shared data object
             DataTable(SharedTableData *);
 
             // Friend classes can access our data through this method:
@@ -129,6 +132,12 @@ namespace GUtil
 
             virtual DataTable &CloneTo(DataTable &) const;
 
+            // Derived classes will have to implement some extension of the
+            //  read/write xml functions
+            virtual void write_xml_protected(QXmlStreamWriter &) const{}
+            virtual void read_xml_protected(QXmlStreamReader &){}
+
+            // IUpdatable interface:
             virtual void commit_reject_changes(bool commit);
 
 

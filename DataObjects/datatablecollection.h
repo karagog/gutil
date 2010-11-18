@@ -23,12 +23,17 @@ namespace GUtil
     {
         class SharedSetData;
 
-        class DataTableCollection : public Collection<DataTable>,
+        class DataTableCollection : public PointerCollection<DataTable>,
                                     public Core::Interfaces::IClonable<DataTableCollection>
         {
             friend class DataSet;
             friend class TableData;
             friend class SharedSetData;
+
+        public:
+
+            DataSet Set() const;
+
 
         protected:
 
@@ -38,12 +43,10 @@ namespace GUtil
             DataTableCollection(const DataTableCollection &);
             virtual DataTableCollection &CloneTo(DataTableCollection &) const;
 
-            virtual void on_add(DataTable &) const;
-            virtual DataTable create_blank_item();
+            virtual void on_add_dereferenced(DataTable &) const;
 
-            virtual void validate_new_item(const DataTable &) const
+            virtual void validate_new_item_dereferenced(const DataTable &) const
                     throw(Core::ValidationException);
-
 
         private:
 

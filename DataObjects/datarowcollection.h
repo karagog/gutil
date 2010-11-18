@@ -26,7 +26,7 @@ GUTIL_BEGIN_NAMESPACE(DataObjects);
 class SharedTableData;
 
 class DataRowCollection :
-        public CollectionBase<DataRow *>,
+        public PointerCollection<DataRow>,
         public Core::Interfaces::IClonable<DataRowCollection>
 {
     friend class DataTable;
@@ -36,27 +36,6 @@ class DataRowCollection :
 public:
 
     DataTable Table() const;
-
-    DataRow &Add(const DataRow &);
-    DataRow &Insert(const DataRow &, int index);
-
-    int Count() const;
-    int Size() const;
-
-    bool Contains(const DataRow &) const;
-    int IndexOf(const DataRow &) const;
-
-    void Remove(int);
-    void Remove(const DataRow &);
-
-    void Clear();
-    void Resize(int);
-
-    DataRow &operator [](int);
-    const DataRow &operator [](int) const;
-
-    const DataRow &At(int) const;
-    DataRow &At(int);
 
 
 protected:
@@ -68,15 +47,8 @@ protected:
     DataRowCollection(const DataRowCollection &);
     virtual DataRowCollection &CloneTo(DataRowCollection &) const;
 
-    virtual DataRow *create_blank_item();
-
-    virtual void validate_new_item(DataRow * const &) const
+    virtual void validate_new_item_dereferenced(const DataRow &) const
             throw(Core::ValidationException);
-
-    virtual void on_remove(DataRow **) const;
-
-    virtual bool compare_equality(DataRow * const &,
-                                  DataRow * const &) const;
 
 
 private:

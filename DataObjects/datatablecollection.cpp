@@ -37,17 +37,18 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
     return o;
 }
 
-void DataObjects::DataTableCollection::on_add(DataObjects::DataTable &t) const
+void DataObjects::DataTableCollection::on_add_dereferenced(DataObjects::DataTable &t) const
 {
+    // Remove ourselves from our parent set
+    SharedSetData *sd;
+    if((sd = t.table_data().SetData()))
+        sd->Tables().RemoveOne(t);
+
+    // Set our new set data to this one
     t.table_data().SetSetData(_set_data);
 }
 
-DataObjects::DataTable DataObjects::DataTableCollection::create_blank_item()
-{
-    return DataTable( DataSet(_set_data) );
-}
-
-void DataObjects::DataTableCollection::validate_new_item(const DataTable &t) const
+void DataObjects::DataTableCollection::validate_new_item_dereferenced(const DataTable &t) const
         throw(Core::ValidationException)
 {
     if(Contains(t))

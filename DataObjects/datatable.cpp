@@ -180,7 +180,7 @@ void DataObjects::DataTable::RemoveRow(int row_index)
 
 void DataObjects::DataTable::RemoveRow(const DataRow &r)
 {
-    Rows().Remove(r);
+    Rows().RemoveOne(r);
 }
 
 void DataObjects::DataTable::Clear()
@@ -345,6 +345,8 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
     for(int i = 0; i < RowCount(); i++)
         table_data().Rows()[i].WriteXml(sw);
 
+    write_xml_protected(sw);
+
     sw.writeEndElement();
 }
 
@@ -378,6 +380,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
             DataObjects::DataRow dr = AddNewRow();
             dr.ReadXml(sr);
         }
+
+        read_xml_protected(sr);
 
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != DATATABLE_XML_ID);
