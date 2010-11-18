@@ -74,4 +74,8 @@ public: \
 
 #define GUTIL_END_CORE_NAMESPACE }}}
 
+
+#define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
+#define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
+
 #endif // GUTIL_MACROS_H
