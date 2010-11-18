@@ -29,7 +29,7 @@ using namespace GUtil;
 
 #define QVARIANT_XML_ID "QV"
 
-QString DataObjects::QVariantHelpers::ConvertToXmlQString(const QVariant &v, bool h)
+QString Utils::QVariantHelpers::ConvertToXmlQString(const QVariant &v, bool h)
 {
     QString ret;
     QXmlStreamWriter sw(&ret);
@@ -40,7 +40,7 @@ QString DataObjects::QVariantHelpers::ConvertToXmlQString(const QVariant &v, boo
     return ret;
 }
 
-QVariant DataObjects::QVariantHelpers::ConvertFromXmlQString(const QString &xml)
+QVariant Utils::QVariantHelpers::ConvertFromXmlQString(const QString &xml)
 {
     QXmlStreamReader sr(xml);
     return ReadXml(sr);
@@ -50,7 +50,7 @@ QVariant DataObjects::QVariantHelpers::ConvertFromXmlQString(const QString &xml)
 
 
 
-void DataObjects::QVariantHelpers::WriteXml(const QVariant &v, QXmlStreamWriter &sw)
+void Utils::QVariantHelpers::WriteXml(const QVariant &v, QXmlStreamWriter &sw)
 {
     sw.writeStartElement(QVARIANT_XML_ID);
     sw.writeAttribute("t", QVariant((int)v.type()).toString());
@@ -164,8 +164,8 @@ void DataObjects::QVariantHelpers::WriteXml(const QVariant &v, QXmlStreamWriter 
     sw.writeEndElement();
 }
 
-QVariant DataObjects::QVariantHelpers::ReadXml(QXmlStreamReader &sr)
-        throw(GUtil::Core::XmlException)
+QVariant Utils::QVariantHelpers::ReadXml(QXmlStreamReader &sr)
+        throw(Core::XmlException)
 {
     QVariant ret;
 

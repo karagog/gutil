@@ -20,9 +20,9 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-DataObjects::DataSet::DataSet()
+DataObjects::DataSet::DataSet(int num_tables)
     :QAbstractItemModel(qApp),
-    _set_data(new SharedSetData)
+    _set_data(new SharedSetData(num_tables))
 {}
 
 DataObjects::DataSet::DataSet(const DataObjects::DataSet &o)
@@ -68,15 +68,19 @@ DataObjects::DataTable &DataObjects::DataSet::operator [](int i)
     return set_data().Tables()[i];
 }
 
+const DataObjects::DataTable &DataObjects::DataSet::operator [](int i) const
+{
+    return set_data().Tables()[i];
+}
+
 DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &name)
 {
-    int ind = GetTableIndex(name);
-    if(ind == -1)
-        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
-                                  QString("Table '%1' does not exist in dataset")
-                                  .arg(name).toStdString());
+    return Tables()[GetTableIndex(name)];
+}
 
-    return Tables()[ind];
+const DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &name) const
+{
+    return Tables()[GetTableIndex(name)];
 }
 
 bool DataObjects::DataSet::operator ==(const DataObjects::DataSet &d) const
@@ -104,6 +108,11 @@ bool DataObjects::DataSet::Equals(const DataObjects::DataSet &d) const
         }
     }
     return ret;
+}
+
+bool DataObjects::DataSet::Contains(const DataTable &t) const
+{
+    return Tables().Contains(t);
 }
 
 int DataObjects::DataSet::GetTableIndex(const QString &table_name) const

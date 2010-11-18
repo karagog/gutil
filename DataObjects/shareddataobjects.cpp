@@ -21,9 +21,12 @@ limitations under the License.*/
 #include "qvariantcollection.h"
 using namespace GUtil;
 
-DataObjects::SharedSetData::SharedSetData()
+DataObjects::SharedSetData::SharedSetData(int num_tables)
 {
     tables = new DataObjects::DataTableCollection(this);
+
+    if(num_tables > 0)
+        tables->Resize(num_tables);
 }
 
 DataObjects::SharedSetData::SharedSetData(const DataObjects::SharedSetData &o)

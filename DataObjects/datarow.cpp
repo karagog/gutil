@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "datarowcollection.h"
 #include "qvariantcollection.h"
-#include "qvarianthelpers.h"
+#include "Utils/qvarianthelpers.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;
@@ -148,7 +148,7 @@ void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(ColumnCount()));
 
     for(int i = 0; i < ColumnCount(); i++)
-        DataObjects::QVariantHelpers::WriteXml(row_data().Tuple().At(i), sw);
+        Utils::QVariantHelpers::WriteXml(row_data().Tuple().At(i), sw);
 
     // Derived classes serialize their data here
     write_xml_protected(sw);
@@ -170,7 +170,7 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
         row_data().Tuple().Clear();
 
         for(int i = 0; i < cnt; i++)
-            row_data().Tuple().Add(DataObjects::QVariantHelpers::ReadXml(sr));
+            row_data().Tuple().Add(Utils::QVariantHelpers::ReadXml(sr));
 
         // Derived classes initialize their data here
         read_xml_protected(sr);

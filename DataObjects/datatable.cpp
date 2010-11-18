@@ -341,8 +341,8 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
             ));
 
     // Write our column data
-    DataObjects::QVariantHelpers::WriteXml(ColumnKeys(), sw);
-    DataObjects::QVariantHelpers::WriteXml(ColumnLabels(), sw);
+    Utils::QVariantHelpers::WriteXml(ColumnKeys(), sw);
+    Utils::QVariantHelpers::WriteXml(ColumnLabels(), sw);
 
     for(int i = 0; i < RowCount(); i++)
         table_data().Rows()[i].WriteXml(sw);
@@ -372,8 +372,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
                 sr.attributes().at(1).value().toString());
 
         {
-            QStringList new_keys = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
-            QStringList new_labels = DataObjects::QVariantHelpers::ReadXml(sr).toStringList();
+            QStringList new_keys = Utils::QVariantHelpers::ReadXml(sr).toStringList();
+            QStringList new_labels = Utils::QVariantHelpers::ReadXml(sr).toStringList();
             SetColumnHeaders(new_keys, new_labels);
         }
 

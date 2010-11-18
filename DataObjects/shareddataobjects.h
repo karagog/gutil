@@ -35,7 +35,7 @@ namespace GUtil
         {
         public:
 
-            SharedSetData();
+            SharedSetData(int num_tables = 0);
             SharedSetData(const SharedSetData &);
             virtual ~SharedSetData();
 

@@ -22,7 +22,7 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 template <class DataTable> class DataTableCollectionBase :
-        public Collection<DataTable>,
+        public ResizableCollection<DataTable>,
         public Core::Interfaces::IClonable< DataTableCollectionBase<DataTable> >
 {
     friend class DataSet;
@@ -35,6 +35,9 @@ public:
 
 
 protected:
+
+    DataTableCollectionBase(int size = 0)
+        :ResizableCollection<DataTable>(size){}
 
     DataTableCollectionBase(SharedSetData *d){
         _set_data = d;
@@ -58,12 +61,12 @@ protected:
 
     virtual void on_add(DataTable *t) const
     {
-        // Remove ourselves from our parent set (if it's different from the one we're now setting)
-        SharedSetData *sd;
-        if((sd = t->table_data().SetData()) &&
-           _set_data != sd)
+        SharedSetData *sd = t->table_data().SetData();
+        if(_set_data != sd)
         {
-            ((DataTableCollectionBase<DataTable> &)sd->Tables()).RemoveOne(*t);
+            // Remove ourselves from our parent set
+            if(sd != 0)
+                ((DataTableCollectionBase<DataTable> &)sd->Tables()).RemoveOne(*t);
 
             // Set our new set data to this one
             t->table_data().SetSetData(_set_data);

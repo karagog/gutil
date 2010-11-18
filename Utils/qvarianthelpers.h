@@ -21,22 +21,22 @@ limitations under the License.*/
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
-namespace GUtil
+GUTIL_BEGIN_NAMESPACE( Utils );
+
+
+class QVariantHelpers
 {
-    namespace DataObjects
-    {
-        class QVariantHelpers
-        {
-        public:
+public:
 
-            static QString ConvertToXmlQString(const QVariant &, bool human_readable = false);
-            static QVariant ConvertFromXmlQString(const QString &);
+    static QString ConvertToXmlQString(const QVariant &, bool human_readable = false);
+    static QVariant ConvertFromXmlQString(const QString &);
 
-            static void WriteXml(const QVariant &, QXmlStreamWriter &);
-            static QVariant ReadXml(QXmlStreamReader &)
-                    throw(Core::XmlException);
-        };
-    }
-}
+    static void WriteXml(const QVariant &, QXmlStreamWriter &);
+    static QVariant ReadXml(QXmlStreamReader &)
+            throw(Core::XmlException);
+};
+
+
+GUTIL_END_NAMESPACE
 
 #endif // GVARIANT_H

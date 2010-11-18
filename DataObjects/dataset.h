@@ -37,7 +37,7 @@ namespace GUtil
 
         public:
 
-            DataSet();
+            DataSet(int num_tables = 0);
             DataSet(const DataSet &);
             virtual ~DataSet();
 
@@ -48,10 +48,14 @@ namespace GUtil
 
             DataSet &operator =(const DataSet &);
             DataTable &operator [](int);
+            const DataTable &operator [](int) const;
             DataTable &operator [](const QString &table_name);
+            const DataTable &operator [](const QString &table_name) const;
+
             bool operator ==(const DataSet &) const;
             bool operator !=(const DataSet &) const;
 
+            bool Contains(const DataTable &) const;
             int GetTableIndex(const QString &table_name) const;
 
             DataSet Clone() const;
