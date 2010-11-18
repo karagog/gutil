@@ -14,26 +14,20 @@ limitations under the License.*/
 
 #include "datacolumn.h"
 #include "collection.h"
+#include <QUuid>
 using namespace GUtil;
-
-DataObjects::DataColumn::DataColumn(const QString &key, DataObjects::DataColumnCollection *c)
-{
-    _data.first = key;
-    _collection = c;
-}
 
 DataObjects::DataColumn::DataColumn(const QString &key, const QString &label,
                                     DataObjects::DataColumnCollection *c)
-    :_data(key, label)
-{
-    _collection = c;
-}
+    :_data(key == QString::null ? QUuid::createUuid().toString() : key,
+           label),
+    _collection(c)
+{}
 
 DataObjects::DataColumn::DataColumn(const DataObjects::DataColumn &o)
-    :_data(o._data)
-{
-    _collection = o._collection;
-}
+    :_data(o._data),
+    _collection(o._collection)
+{}
 
 QString DataObjects::DataColumn::Key() const
 {

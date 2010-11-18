@@ -9,11 +9,13 @@ limitations under the License.*/
 #define DATAROW_H
 
 #include "shareddataobjects.h"
+#include "datarowcollection.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/gshareddatapointer.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/iupdatable.h"
+#include "Core/Interfaces/ireadonlyobject.h"
 #include "gutil_macros.h"
 #include <QVariant>
 
@@ -32,10 +34,11 @@ namespace GUtil
                 public Interfaces::IQXmlSerializable,
                 public Core::Interfaces::IEquatable<DataRow>,
                 public Core::Interfaces::IClonable<DataRow>,
-                public Core::Interfaces::IUpdatable
+                public Core::Interfaces::IUpdatable,
+                public Core::Interfaces::IReadOnlyObject
         {
             friend class DataTable;
-            friend class DataRowCollection;
+            template <class T> friend class DataRowCollectionBase;
 
         public:
 
@@ -45,10 +48,14 @@ namespace GUtil
             virtual DataRow &operator =(const DataRow &);
             bool operator ==(const DataRow &) const;
             bool operator !=(const DataRow &) const;
-            QVariant &operator [](int index);
-            QVariant &operator [](const QString &column_header);
 
-            QVariant At(int index) const;
+            QVariant &operator [](int index);
+            const QVariant &operator [](int index) const;
+            QVariant &operator [](const QString &column_header);
+            const QVariant &operator [](const QString &column_header) const;
+
+            QVariant &At(int index);
+            const QVariant &At(int index) const;
 
             DataTable Table() const;
 

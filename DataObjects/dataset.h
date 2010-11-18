@@ -15,7 +15,8 @@ limitations under the License.*/
 #ifndef ABSTRACTDATATUPLE_H
 #define ABSTRACTDATATUPLE_H
 
-#include "datatablecollection.h"
+#include "datatable.h"
+#include "datacollections.h"
 #include "qvarianthelpers.h"
 #include <QAbstractItemModel>
 #include <QVariantList>
@@ -36,7 +37,7 @@ namespace GUtil
             Q_OBJECT
 
             friend class DataTable;
-            friend class DataTableCollection;
+            friend class DataTableCollectionBase<DataTable>;
             friend class SharedTableData;
 
         public:

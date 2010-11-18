@@ -18,12 +18,11 @@ limitations under the License.*/
 #include "datacolumn.h"
 #include "collection.h"
 
-
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 
 
 class DataColumnCollection :
-        public Collection<DataColumn>
+        public ResizableCollection<DataColumn>
 {
 public:
 
@@ -44,13 +43,8 @@ public:
 
 protected:
 
-    virtual DataColumn create_blank_item();
-
     virtual void validate_new_item(const DataColumn &) const
             throw(Core::ValidationException);
-
-    virtual bool compare_equality(const DataColumn &lhs,
-                                  const DataColumn &rhs) const;
 
 };
 

@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "datatable.h"
 #include "dataset.h"
 #include "datarowcollection.h"
+#include "datarowcollectionbase.h"
 #include "datacolumncollection.h"
 #include "shareddataobjects.h"
 #include "Utils/qstringhelpers.h"

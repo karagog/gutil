@@ -12,21 +12,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef QVARIANTCOLLECTION_H
-#define QVARIANTCOLLECTION_H
-
-#include "gutil_macros.h"
-#include <QVariant>
-
-GUTIL_BEGIN_NAMESPACE( DataObjects );
+#ifndef DATACOLLECTIONS_H
+#define DATACOLLECTIONS_H
 
 
-template <class T> class ResizableCollection;
+// Use this file to include these as a convenience
+#include "datarowcollectionbase.h"
+#include "datarowcollection.h"
+#include "datatablecollectionbase.h"
+#include "datatablecollection.h"
+#include "datacolumncollection.h"
 
-// A collection of QVariants, built on top of our Collection class
-typedef ResizableCollection<QVariant> QVariantCollection;
 
-
-GUTIL_END_NAMESPACE
-
-#endif // QVARIANTCOLLECTION_H
+#endif // DATACOLLECTIONS_H

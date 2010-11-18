@@ -13,7 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "shareddataobjects.h"
+#include "datatablecollectionbase.h"
 #include "datatablecollection.h"
+#include "datarowcollectionbase.h"
 #include "datarowcollection.h"
 #include "datacolumncollection.h"
 #include "qvariantcollection.h"

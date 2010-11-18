@@ -136,6 +136,43 @@ public:
 };
 
 
+// This version of the collection class requires you to implement a default constructor
+template <class T> class ResizableCollection :
+        public Collection<T>
+{
+public:
+
+    inline ResizableCollection(int size = 0){
+        Resize(size);
+    }
+
+    inline ResizableCollection(const QList<T> &v)
+        : Collection<T>(v){}
+
+    inline ResizableCollection(const ResizableCollection<T> &v)
+        : Collection<T>(v){}
+
+
+    void Resize(int size)
+    {
+        if(size < 0)
+            return;
+
+        if(size < Collection<T>::Count())
+        {
+            while(Collection<T>::Count() > size)
+                Collection<T>::Remove(Collection<T>::Count() - 1);
+        }
+        else
+        {
+            while(Collection<T>::Count() < size)
+                Collection<T>::Add( T() );
+        }
+    }
+
+};
+
+
 GUTIL_END_NAMESPACE
 
 

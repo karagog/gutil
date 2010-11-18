@@ -39,9 +39,9 @@ namespace GUtil
             Q_OBJECT
 
             friend class DataSet;
-            friend class DataTableCollection;
+            friend class DataTableCollectionBase<DataTable>;
             friend class DataRow;
-            friend class DataRowCollection;
+            friend class DataRowCollectionBase<DataRow>;
             friend class SharedRowData;
 
         public:

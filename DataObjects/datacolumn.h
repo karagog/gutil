@@ -28,6 +28,7 @@ class DataColumn :
 {
     friend class DataTable;
     friend class DataColumnCollection;
+    template <class T> friend class ResizableCollection;
 
 public:
 
@@ -46,8 +47,9 @@ public:
 
 protected:
 
-    DataColumn(const QString &key, DataColumnCollection *c = 0);
-    DataColumn(const QString &key, const QString &label, DataColumnCollection *c = 0);
+    DataColumn(const QString &key = QString::null,
+               const QString &label = QString::null,
+               DataColumnCollection *c = 0);
 
     void set_key(const QString &);
     void set_label(const QString &);

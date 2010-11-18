@@ -14,14 +14,16 @@ HEADERS += \
     datarowcollection.h \
     datatablecollection.h \
     datacolumncollection.h \
-    datacolumn.h
+    datacolumn.h \
+    datatablecollectionbase.h \
+    datarowcollectionbase.h \
+    datacollections.h
 
 SOURCES += \
     datatable.cpp \
     dataset.cpp \
     qvarianthelpers.cpp \
     datarow.cpp \
-    datatablecollection.cpp \
     shareddataobjects.cpp \
     datacolumncollection.cpp \
     datacolumn.cpp

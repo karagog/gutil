@@ -18,11 +18,11 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataObjects::DataColumnCollection::DataColumnCollection(int size)
-    :Collection<DataColumn>(size)
+    :ResizableCollection<DataColumn>(size)
 {}
 
 DataObjects::DataColumnCollection::DataColumnCollection(const DataColumnCollection &o)
-    :Collection<DataColumn>(o)
+    :ResizableCollection<DataColumn>(o)
 {}
 
 QString DataObjects::DataColumnCollection::Key(int ind) const
@@ -32,7 +32,7 @@ QString DataObjects::DataColumnCollection::Key(int ind) const
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
 {
-    return Contains(DataColumn(k));
+    return Contains( DataColumn(k) );
 }
 
 QString DataObjects::DataColumnCollection::Label(int ind) const
@@ -64,22 +64,17 @@ void DataObjects::DataColumnCollection::SetKey(int ind, const QString &s)
 {
     if(Key(ind) == s)
         return;
-    else if(Contains(DataColumn(s)))
+    else if(Contains( DataColumn(s) ))
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   QString("Key already exists in column collection: '%1'")
                                   .arg(s).toStdString());
 
-    (*this)[ind].set_key(s);
+    At(ind).set_key(s);
 }
 
 void DataObjects::DataColumnCollection::SetLabel(int ind, const QString &s)
 {
-    (*this)[ind].set_label(s);
-}
-
-DataObjects::DataColumn DataObjects::DataColumnCollection::create_blank_item()
-{
-    return DataColumn(QUuid::createUuid().toString(), this);
+    At(ind).set_label(s);
 }
 
 void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::DataColumn &c) const
@@ -89,11 +84,4 @@ void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::Dat
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   QString("Column collection already contains key '%1'")
                                   .arg(c.Key()).toStdString());
-}
-
-bool DataObjects::DataColumnCollection::compare_equality(
-        const DataObjects::DataColumn &lhs,
-        const DataObjects::DataColumn &rhs) const
-{
-    return lhs.Equals(rhs);
 }

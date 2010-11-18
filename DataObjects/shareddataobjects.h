@@ -15,6 +15,9 @@ limitations under the License.*/
 #ifndef SHAREDDATAOBJECTS_H
 #define SHAREDDATAOBJECTS_H
 
+#include "datarowcollection.h"
+#include "datatablecollection.h"
+#include "qvariantcollection.h"
 #include <QSharedData>
 #include <QString>
 #include <QVariantList>
@@ -25,13 +28,8 @@ namespace GUtil
     {
         class DataSet;
         class DataTable;
-        class DataTableCollection;
         class DataColumnCollection;
         class DataRow;
-        class DataRowCollection;
-
-        class QVariantCollection;
-
 
         class SharedSetData : public QSharedData
         {

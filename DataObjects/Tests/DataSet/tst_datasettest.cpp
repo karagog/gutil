@@ -16,7 +16,9 @@ limitations under the License.*/
 #include "Logging/debuglogger.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-using namespace GUtil::DataObjects;
+
+GUTIL_USING_NAMESPACE( DataObjects );
+GUTIL_USING_NAMESPACE( Core );
 
 class DataSetTest : public QObject
 {
@@ -94,7 +96,7 @@ void DataSetTest::test_dataRows()
         t.RemoveRow(r2);
         QVERIFY(t.RowCount() == 0);
     }
-    catch(Core::Exception &ex)
+    catch(Exception &ex)
     {
         dLogException(ex);
         QVERIFY(false);
@@ -137,7 +139,7 @@ void DataSetTest::test_row_errors()
             // We shouldn't be able to add a foreign row to the table
             t2.AddRow(r);
         }
-        catch(Core::ValidationException &)
+        catch(ValidationException &)
         {
             exception_hit = true;
         }
@@ -156,13 +158,13 @@ void DataSetTest::test_row_errors()
         {
             t.Rows().Add(r);
         }
-        catch(Core::ValidationException &)
+        catch(ValidationException &)
         {
             exception_hit = true;
         }
         QVERIFY(exception_hit);
     }
-    catch(Core::Exception &ex)
+    catch(Exception &ex)
     {
         dLogException(ex);
         QVERIFY(false);
@@ -268,7 +270,7 @@ void DataSetTest::test_dataTable()
         dt3[0][0] = "new value";
         QVERIFY(!dt3.Equals(dt2));
     }
-    catch(Core::Exception &ex)
+    catch(Exception &ex)
     {
         dLogException(ex);
         QVERIFY(false);
@@ -295,7 +297,7 @@ void DataSetTest::test_dataSet()
             // Shouldn't be able to add the same table twice
             ds.Tables().Add(dt1);
         }
-        catch(Core::ValidationException &)
+        catch(ValidationException &)
         {
             exception_hit = true;
         }
@@ -326,7 +328,7 @@ void DataSetTest::test_dataSet()
         QVERIFY(ds2 != ds);
         QVERIFY(ds2.Equals(ds));
     }
-    catch(Core::Exception &ex)
+    catch(Exception &ex)
     {
         dLogException(ex);
         QVERIFY(false);

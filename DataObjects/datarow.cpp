@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "datarow.h"
 #include "datatable.h"
+#include "datarowcollectionbase.h"
 #include "datarowcollection.h"
 #include "qvariantcollection.h"
 #include "qvarianthelpers.h"
@@ -67,21 +68,22 @@ DataObjects::DataRow DataObjects::DataRow::Clone() const
 
 QVariant &DataObjects::DataRow::operator [](int index)
 {
-    if(index < 0 || index >= row_data().Tuple().Count())
-        THROW_NEW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException,
-                QString("Tried index %1 of %2")
-                .arg(index).arg(row_data().Tuple().Count()).toStdString() );
+    return row_data().Tuple()[index];
+}
 
+const QVariant &DataObjects::DataRow::operator [](int index) const
+{
     return row_data().Tuple()[index];
 }
 
 QVariant &DataObjects::DataRow::operator [](const QString &column_header)
 {
-    int index = Table().GetColumnIndex(column_header);
-    if(index == -1)
-        THROW_NEW_GUTIL_EXCEPTION( Core::IndexOutOfRangeException,
-                QString("Column not found: '%1'").arg(column_header).toStdString() );
-    return (*this)[index];
+    return At(Table().GetColumnIndex(column_header));
+}
+
+const QVariant &DataObjects::DataRow::operator [](const QString &column_header) const
+{
+    return At(Table().GetColumnIndex(column_header));
 }
 
 DataObjects::DataTable DataObjects::DataRow::Table() const
@@ -109,7 +111,12 @@ void DataObjects::DataRow::set_number_of_columns(int cols)
     row_data().Tuple().Resize(cols);
 }
 
-QVariant DataObjects::DataRow::At(int index) const
+QVariant &DataObjects::DataRow::At(int index)
+{
+    return row_data().Tuple().At(index);
+}
+
+const QVariant &DataObjects::DataRow::At(int index) const
 {
     return row_data().Tuple().At(index);
 }

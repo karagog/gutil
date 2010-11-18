@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 #include "dataset.h"
 #include "datatablecollection.h"
+#include "datatablecollectionbase.h"
 #include <QCoreApplication>
 #include <QVariantList>
 #include <QXmlStreamWriter>
@@ -59,7 +60,7 @@ DataObjects::DataTable &DataObjects::DataSet::AddTable(const DataTable &t)
 
 void DataObjects::DataSet::Clear()
 {
-    Tables().Resize(0);
+    set_data().Tables().Clear();
 }
 
 DataObjects::DataTable &DataObjects::DataSet::operator [](int i)
