@@ -6,7 +6,6 @@ CONFIG += staticlib
 HEADERS += \
     datatable.h \
     dataset.h \
-    qvarianthelpers.h \
     datarow.h \
     collection.h \
     qvariantcollection.h \
@@ -22,7 +21,6 @@ HEADERS += \
 SOURCES += \
     datatable.cpp \
     dataset.cpp \
-    qvarianthelpers.cpp \
     datarow.cpp \
     shareddataobjects.cpp \
     datacolumncollection.cpp \

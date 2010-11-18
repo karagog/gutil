@@ -164,6 +164,8 @@ void DataObjects::DataSet::WriteXml(QXmlStreamWriter &sw) const
     for(int i = 0; i < TableCount(); i++)
         set_data().Tables().At(i).WriteXml(sw);
 
+    write_xml_protected(sw);
+
     sw.writeEndElement();
 }
 
@@ -186,6 +188,8 @@ void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
             t.ReadXml(sr);
             Tables().Add(t);
         }
+
+        read_xml_protected(sr);
 
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != DATASET_XML_ID);

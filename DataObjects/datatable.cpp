@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "datacolumncollection.h"
 #include "shareddataobjects.h"
+#include "Utils/qvarianthelpers.h"
 #include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>

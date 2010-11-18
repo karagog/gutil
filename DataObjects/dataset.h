@@ -15,12 +15,7 @@ limitations under the License.*/
 #ifndef ABSTRACTDATATUPLE_H
 #define ABSTRACTDATATUPLE_H
 
-#include "datatable.h"
 #include "datacollections.h"
-#include "qvarianthelpers.h"
-#include <QAbstractItemModel>
-#include <QVariantList>
-#include <QStringList>
 
 namespace GUtil
 {
@@ -98,6 +93,10 @@ namespace GUtil
 
             // IClonable interface:
             virtual DataSet &CloneTo(DataSet &) const;
+
+            // Derived classes take advantage of these
+            virtual void write_xml_protected(QXmlStreamWriter &) const{}
+            virtual void read_xml_protected(QXmlStreamReader &){}
 
 
         private:

@@ -8,12 +8,14 @@ SOURCES += \
     pubsubsystem.cpp \
     usermachinelocks.cpp \
     widgethelpers.cpp \
-    qstringhelpers.cpp
+    qstringhelpers.cpp \
+    qvarianthelpers.cpp
 
 HEADERS += \
     pubsubsystem.h \
     usermachinelocks.h \
     widgethelpers.h \
-    qstringhelpers.h
+    qstringhelpers.h \
+    qvarianthelpers.h
 
 INCLUDEPATH += ..
