@@ -21,7 +21,6 @@ SOURCES += \
     dataset.cpp \
     qvarianthelpers.cpp \
     datarow.cpp \
-    datarowcollection.cpp \
     datatablecollection.cpp \
     shareddataobjects.cpp \
     datacolumncollection.cpp \

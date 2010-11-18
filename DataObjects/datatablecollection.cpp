@@ -16,18 +16,18 @@ limitations under the License.*/
 #include "datatablecollection.h"
 using namespace GUtil;
 
-DataObjects::DataTableCollection::DataTableCollection(DataObjects::SharedSetData *d)
+DataObjects::DataTableCollectionBase::DataTableCollectionBase(DataObjects::SharedSetData *d)
 {
     _set_data = d;
 }
 
-DataObjects::DataTableCollection::DataTableCollection(const DataTableCollection &o)
+DataObjects::DataTableCollectionBase::DataTableCollectionBase(const DataTableCollectionBase &o)
 {
     o.CloneTo(*this);
 }
 
-DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
-        DataTableCollection &o) const
+DataObjects::DataTableCollectionBase &DataObjects::DataTableCollectionBase::CloneTo(
+        DataTableCollectionBase &o) const
 {
     o.Resize(Size());
 
@@ -37,7 +37,7 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
     return o;
 }
 
-void DataObjects::DataTableCollection::on_add_dereferenced(DataObjects::DataTable &t) const
+void DataObjects::DataTableCollectionBase::on_add_dereferenced(DataObjects::DataTable &t) const
 {
     // Remove ourselves from our parent set
     SharedSetData *sd;
@@ -48,7 +48,7 @@ void DataObjects::DataTableCollection::on_add_dereferenced(DataObjects::DataTabl
     t.table_data().SetSetData(_set_data);
 }
 
-void DataObjects::DataTableCollection::validate_new_item_dereferenced(const DataTable &t) const
+void DataObjects::DataTableCollectionBase::validate_new_item_dereferenced(const DataTable &t) const
         throw(Core::ValidationException)
 {
     if(Contains(t))

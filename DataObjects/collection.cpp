@@ -15,8 +15,8 @@ limitations under the License.*/
 #include <QString>
 using namespace GUtil;
 
-template <typename T> DataObjects::Collection<T>::Collection(int size)
-    :CollectionBase<T>(size){}
+template <typename T> DataObjects::Collection<T>::Collection()
+    :CollectionBase<T>(){}
 
 template <typename T> DataObjects::Collection<T>::Collection(
         const DataObjects::Collection<T> &o)
@@ -110,11 +110,6 @@ template <typename T> int DataObjects::Collection<T>::Size() const
    return CollectionBase<T>::size_protected();
 }
 
-template <typename T> void DataObjects::Collection<T>::Resize(int len)
-{
-    CollectionBase<T>::resize_protected(len);
-}
-
 template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::CloneTo(
         DataObjects::Collection<T> &o) const
 {
@@ -131,11 +126,6 @@ template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::Cl
 
 
 
-template <typename T> DataObjects::CollectionBase<T>::CollectionBase(int size)
-{
-    resize_protected(size);
-}
-
 template <typename T> DataObjects::CollectionBase<T>::CollectionBase(
         const DataObjects::CollectionBase<T> &o)
 {
@@ -146,11 +136,6 @@ template <typename T> DataObjects::CollectionBase<T>::CollectionBase(
 template <typename T> DataObjects::CollectionBase<T>::CollectionBase(const QList<T> &o)
 {
     _collection = o;
-}
-
-template <typename T> DataObjects::CollectionBase<T>::~CollectionBase()
-{
-    clear_protected();
 }
 
 template <typename T> T &DataObjects::CollectionBase<T>::add_protected(const T &value)
@@ -203,8 +188,6 @@ template <typename T> void DataObjects::CollectionBase<T>::remove_protected(int 
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
-
-    on_remove(&_collection[index]);
 
     _collection.removeAt(index);
 }
@@ -281,22 +264,6 @@ template <typename T> int DataObjects::CollectionBase<T>::size_protected() const
    return _collection.length();
 }
 
-template <typename T> void DataObjects::CollectionBase<T>::resize_protected(int len)
-{
-    FailIfReadOnly();
-
-    if(len > _collection.count())
-    {
-        while(_collection.count() < len)
-            add_protected(create_blank_item());
-    }
-    else if(len < _collection.count())
-    {
-        while(_collection.count() > len)
-            remove_protected(_collection.count() - 1);
-    }
-}
-
 template <typename T> DataObjects::CollectionBase<T> &DataObjects::CollectionBase<T>::CloneTo(
         DataObjects::CollectionBase<T> &o) const
 {
@@ -305,137 +272,3 @@ template <typename T> DataObjects::CollectionBase<T> &DataObjects::CollectionBas
     o._collection = _collection;
     return o;
 }
-
-
-
-
-
-
-
-
-
-
-
-template <typename T> DataObjects::PointerCollection<T>::PointerCollection(int size)
-    :CollectionBase<T *>(size)
-{}
-
-template <typename T> DataObjects::PointerCollection<T>::PointerCollection(
-        const DataObjects::CollectionBase<T *> &o)
-            :CollectionBase<T *>(o)
-{}
-
-template <typename T> const T &DataObjects::PointerCollection<T>::At(int index) const
-        throw(Core::IndexOutOfRangeException)
-{
-    return *_check_pointer( CollectionBase<T *>::at_protected(index) );
-}
-
-template <typename T> T &DataObjects::PointerCollection<T>::At(int index)
-        throw(Core::IndexOutOfRangeException)
-{
-    return *_check_pointer( CollectionBase<T *>::at_protected(index) );
-}
-
-template <typename T> T &DataObjects::PointerCollection<T>::Add(const T &r)
-{
-    return *add_protected(new T(r));
-}
-
-template <typename T> T &DataObjects::PointerCollection<T>::Insert(const T &r, int index)
-        throw(Core::IndexOutOfRangeException)
-{
-    return *insert_protected(new T(r), index);
-}
-
-template <typename T> int DataObjects::PointerCollection<T>::Count() const
-{
-    return CollectionBase<T *>::count_protected();
-}
-
-template <typename T> int DataObjects::PointerCollection<T>::Size() const
-{
-    return CollectionBase<T *>::size_protected();
-}
-
-template <typename T> int DataObjects::PointerCollection<T>::IndexOf(const T &v, int from) const
-{
-    T t(v);
-    return CollectionBase<T *>::indexOf_protected(&t, from);
-}
-
-template <typename T> bool DataObjects::PointerCollection<T>::Contains(const T &v) const
-{
-    T t(v);
-    return CollectionBase<T *>::contains_protected(&t);
-}
-
-template <typename T> void DataObjects::PointerCollection<T>::Remove(int ind)
-        throw(Core::IndexOutOfRangeException)
-{
-    CollectionBase<T *>::remove_protected(ind);
-}
-
-template <typename T> void DataObjects::PointerCollection<T>::RemoveOne(const T &v)
-{
-    T t(v);
-    CollectionBase<T *>::removeOne_protected(&t);
-}
-
-template <typename T> void DataObjects::PointerCollection<T>::RemoveAll(const T &v)
-{
-    T t(v);
-    CollectionBase<T *>::removeAll_protected(&t);
-}
-
-template <typename T> void DataObjects::PointerCollection<T>::Clear()
-{
-    CollectionBase<T *>::clear_protected();
-}
-
-template <typename T> void DataObjects::PointerCollection<T>::Resize(int sz)
-{
-    CollectionBase<T *>::resize_protected(sz);
-}
-
-template <typename T> T &DataObjects::PointerCollection<T>::operator [](int index)
-        throw(Core::IndexOutOfRangeException)
-{
-    return *_check_pointer( CollectionBase<T *>::at_protected(index) );
-}
-
-template <typename T> const T &DataObjects::PointerCollection<T>::operator [](int index) const
-        throw(Core::IndexOutOfRangeException)
-{
-
-    return *_check_pointer( CollectionBase<T *>::at_protected(index) );
-}
-
-template <typename T> bool DataObjects::PointerCollection<T>::compare_equality(
-        T * const &lhs, T * const &rhs) const
-{
-    if(lhs && rhs)
-        return compare_equality_dereferenced(*lhs, *rhs);
-    return false;
-}
-
-template <typename T> DataObjects::PointerCollection<T> &
-        DataObjects::PointerCollection<T>::CloneTo(
-                DataObjects::PointerCollection<T> &o) const
-{
-    o.Clear();
-
-    for(int i = 0; i < Count(); i++)
-        o.add_protected(clone_item(CollectionBase<T*>::at_protected(i)));
-
-    return o;
-}
-
-template <typename T> T *DataObjects::PointerCollection<T>::_check_pointer(T * const &t) const
-{
-    if(!t)
-        THROW_NEW_GUTIL_EXCEPTION( Core::NullReferenceException,
-                                   "The item has not been initialized" );
-    return t;
-}
-
