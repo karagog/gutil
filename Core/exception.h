@@ -76,116 +76,33 @@ public:
 
 
 
-// If a method is not yet implemented
-class NotImplementedException : public Exception
-{
-public:
-    NotImplementedException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
+// Use this to declare any new exceptions
+#define EXCEPTION_DECLARE( ex_name ) \
+class ex_name##Exception : public GUtil::Core::Exception \
+{ \
+public: \
+    ex_name##Exception(const std::string &message = "") \
+        :Exception(message){} \
+        \
+protected: \
+    virtual std::string ToString_protected() const{ \
+        return #ex_name; \
+    } \
 };
 
 
-
-// If you try to write to a readonly object it might throw this
-class ReadOnlyException : public Exception
-{
-public:
-    ReadOnlyException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-// When there is an error with arguments/parameters
-class ArgumentException : public Exception
-{
-public:
-    ArgumentException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class DataTransportException : public Exception
-{
-public:
-    DataTransportException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class XmlException : public Exception
-{
-public:
-    XmlException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class EndOfFileException : public Exception
-{
-public:
-    EndOfFileException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class LockException : public Exception
-{
-public:
-    LockException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class NullReferenceException : public Exception
-{
-public:
-    NullReferenceException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class IndexOutOfRangeException : public Exception
-{
-public:
-    IndexOutOfRangeException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
-
-
-
-class ValidationException : public Exception
-{
-public:
-    ValidationException(const std::string &message = "");
-
-protected:
-    virtual std::string ToString_protected() const;
-};
+// Here are the other types of exceptions (all derived from Exception)
+EXCEPTION_DECLARE( NotImplemented )
+EXCEPTION_DECLARE( ReadOnly )
+EXCEPTION_DECLARE( Argument )
+EXCEPTION_DECLARE( DataTransport )
+EXCEPTION_DECLARE( Xml )
+EXCEPTION_DECLARE( EndOfFile )
+EXCEPTION_DECLARE( Lock )
+EXCEPTION_DECLARE( NullReference )
+EXCEPTION_DECLARE( IndexOutOfRange )
+EXCEPTION_DECLARE( Validation )
+EXCEPTION_DECLARE( InvalidCast )
 
 
 GUTIL_END_NAMESPACE
