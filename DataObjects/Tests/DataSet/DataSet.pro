@@ -16,7 +16,6 @@ TEMPLATE = app
 
 
 SOURCES += tst_datasettest.cpp \
-    persondatarow.cpp \
     dogrow.cpp \
     dogstable.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"

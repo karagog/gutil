@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "persondatarow.h"
 #include "DataObjects/dataset.h"
 #include "Logging/debuglogger.h"
 #include <QtCore/QString>
@@ -19,6 +20,7 @@ limitations under the License.*/
 
 GUTIL_USING_NAMESPACE( DataObjects );
 GUTIL_USING_NAMESPACE( Core );
+GUTIL_USING_NAMESPACE( Custom );
 
 class DataSetTest : public QObject
 {
@@ -42,6 +44,8 @@ private Q_SLOTS:
 
     void test_dataSet();
 
+    void test_derived_classes();
+
 };
 
 DataSetTest::DataSetTest()
@@ -53,7 +57,7 @@ void DataSetTest::test_dataRows()
     try
     {
         DataTable t(1);
-        DataRow r1 = t.CreateRow();
+        DataRow r1 = t.AddNewRow();
         DataRow r2(r1);
 
         QVERIFY(r1 == r2);
@@ -84,7 +88,6 @@ void DataSetTest::test_dataRows()
 
 
         // Test removing rows:
-        t.AddRow(r2);
         t.AddRow(r3);
         QVERIFY(t.RowCount() == 2);
 
@@ -116,7 +119,7 @@ void DataSetTest::test_row_errors()
         // If you initialize a row with more data than it has columns, then the extra
         //  data gets thrown out
 
-        DataRow r = t.CreateRow(QVariantList() << "oops!");
+        DataRow r = t.AddNewRow( GVariantList() << "oops!");
         QVERIFY(r.ColumnCount() == 0);
 
         // But you should be able to initialize it with less data than it has columns
@@ -124,11 +127,11 @@ void DataSetTest::test_row_errors()
         t.AddColumn("two");
 
         QVERIFY(t.ColumnCount() == 2);
-        r = t.AddNewRow(QVariantList() << "Yay!");
+        r = t.AddNewRow( GVariantList() << "Yay!");
 
         QVERIFY(r.ColumnCount() == 2);
-        QVERIFY(t[0]["one"] == "Yay!");
-        QVERIFY(t[0]["two"] == QVariant());
+        QVERIFY(t[1]["one"] == "Yay!");
+        QVERIFY(t[1]["two"] == QVariant());
         QVERIFY(r[0] == "Yay!");
         QVERIFY(r[1] == QVariant());
 
@@ -178,21 +181,15 @@ void DataSetTest::test_dataTable()
     try
     {
         DataTable dt("test_table", 3);
-        DataRow dr = dt.CreateRow();
+        DataRow dr = dt.AddNewRow();
 
-        // The row doesn't have an index yet
-        QVERIFY(dr.Index() == -1);
+        QVERIFY(dr.Index() == 0);
 
-        // Make sure we have the right number of columns
+        // Make sure we have the right number of columns and rows
         QVERIFY(dt.ColumnCount() == 3);
         QVERIFY(dr.ColumnCount() == 3);
-
-
-        // The table doesn't actually have this row in it yet, until you call 'add'
-        QVERIFY(dt.Rows().Count() == 0);
-        dt.AddRow(dr);
         QVERIFY(dt.Rows().Count() == 1);
-        QVERIFY(dr.ColumnCount() == 3);
+
         QVERIFY2(dr.Index() == 0, QString("%1").arg(dr.Index()).toStdString().c_str());
 
         // A cloned row has no index, even though the original did
@@ -342,11 +339,11 @@ void DataSetTest::test_dataSet()
 
 
         // Add a row and access it through the dataset object
-        dt1.AddNewRow(QVariantList() << "one");
+        dt1.AddNewRow( GVariantList() << "one");
         QVERIFY(ds[0][0][0] == "one");
 
-        dt2.AddNewRow(QVariantList() << "1" << "2");
-        dt2.AddNewRow(QVariantList() << "3" << "4");
+        dt2.AddNewRow( GVariantList() << "1" << "2");
+        dt2.AddNewRow( GVariantList() << "3" << "4");
         QVERIFY(ds[1][0][0] == "1");
         QVERIFY(ds[1][0][1] == "2");
         QVERIFY(ds[1][1][0] == "3");
@@ -370,6 +367,11 @@ void DataSetTest::test_dataSet()
         dLogException(ex);
         QVERIFY(false);
     }
+}
+
+void DataSetTest::test_derived_classes()
+{
+
 }
 
 

@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "datarowcollection.h"
 #include "datatablecollection.h"
-#include "qvariantcollection.h"
+#include "gvariantcollection.h"
 #include <QSharedData>
 #include <QString>
 #include <QVariantList>
@@ -80,20 +80,20 @@ namespace GUtil
         {
         public:
 
-            SharedRowData(SharedTableData *, const QVariantList &vals);
+            SharedRowData(const DataTable &, const Custom::GVariantList &vals);
             SharedRowData(const SharedRowData &);
             virtual ~SharedRowData();
 
             SharedTableData *TableData() const;
             void SetTableData(SharedTableData *);
 
-            QVariantCollection &Tuple() const;
+            GVariantCollection &Tuple() const;
 
 
         protected:
 
             SharedTableData *table_data;
-            QVariantCollection *tuple;
+            GVariantCollection *tuple;
 
         };
     }

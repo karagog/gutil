@@ -16,13 +16,15 @@ limitations under the License.*/
 #include "datatable.h"
 #include "datarowcollectionbase.h"
 #include "datarowcollection.h"
-#include "qvariantcollection.h"
-#include "Utils/qvarianthelpers.h"
+#include "Gvariantcollection.h"
+#include "Custom/gvariant.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;
+using namespace Custom;
 
-DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt, const QVariantList &vals)
+DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
+                              const GVariantList &vals)
     :_row_data(new SharedRowData(&dt.table_data(), vals))
 {}
 
@@ -66,22 +68,22 @@ DataObjects::DataRow DataObjects::DataRow::Clone() const
     return CloneTo(dr);
 }
 
-QVariant &DataObjects::DataRow::operator [](int index)
+Custom::GVariant &DataObjects::DataRow::operator [](int index)
 {
     return row_data().Tuple()[index];
 }
 
-const QVariant &DataObjects::DataRow::operator [](int index) const
+const Custom::GVariant &DataObjects::DataRow::operator [](int index) const
 {
     return row_data().Tuple()[index];
 }
 
-QVariant &DataObjects::DataRow::operator [](const QString &column_header)
+Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_header)
 {
     return At(Table().GetColumnIndex(column_header));
 }
 
-const QVariant &DataObjects::DataRow::operator [](const QString &column_header) const
+const Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_header) const
 {
     return At(Table().GetColumnIndex(column_header));
 }
@@ -111,12 +113,12 @@ void DataObjects::DataRow::set_number_of_columns(int cols)
     row_data().Tuple().Resize(cols);
 }
 
-QVariant &DataObjects::DataRow::At(int index)
+Custom::GVariant &DataObjects::DataRow::At(int index)
 {
     return row_data().Tuple().At(index);
 }
 
-const QVariant &DataObjects::DataRow::At(int index) const
+const Custom::GVariant &DataObjects::DataRow::At(int index) const
 {
     return row_data().Tuple().At(index);
 }
@@ -148,7 +150,7 @@ void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(ColumnCount()));
 
     for(int i = 0; i < ColumnCount(); i++)
-        Utils::QVariantHelpers::WriteXml(row_data().Tuple().At(i), sw);
+        GVariant::ToXml(row_data().Tuple().At(i), sw);
 
     // Derived classes serialize their data here
     write_xml_protected(sw);
@@ -170,7 +172,7 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
         row_data().Tuple().Clear();
 
         for(int i = 0; i < cnt; i++)
-            row_data().Tuple().Add(Utils::QVariantHelpers::ReadXml(sr));
+            row_data().Tuple().Add( GVariant::FromXml(sr) );
 
         // Derived classes initialize their data here
         read_xml_protected(sr);

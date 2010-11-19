@@ -11,6 +11,7 @@ limitations under the License.*/
 #include "shareddataobjects.h"
 #include "datarowcollection.h"
 #include "Interfaces/iqxmlserializable.h"
+#include "Custom/gvariant.h"
 #include "Custom/gshareddatapointer.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
@@ -20,13 +21,16 @@ limitations under the License.*/
 #include <QVariant>
 
 // Derived classes can use this macro for convenience when declaring
-//  property accessors
+//  property accessors.  The type must have a cast operator defined in GVariant,
+//  or you can define your own constructor from a GVariant if you have a custom type
 #define ROW_PROPERTY( name, type, index ) \
     type Get##name() const{ return (*this)[index]; } \
-    void Set##name(const type &value){ (*this)[index] = value; }
+    void Set##name(const type &value){ (*this)[index] = value; } \
+    enum{}
 
 #define READONLY_ROW_PROPERTY( name, type, index ) \
-    type Get##name() const{ return (*this)[index]; }
+    type Get##name() const{ return (*this)[index]; } \
+            enum{}
 
 
 namespace GUtil
@@ -54,13 +58,13 @@ namespace GUtil
             bool operator ==(const DataRow &) const;
             bool operator !=(const DataRow &) const;
 
-            QVariant &operator [](int index);
-            const QVariant &operator [](int index) const;
-            QVariant &operator [](const QString &column_header);
-            const QVariant &operator [](const QString &column_header) const;
+            Custom::GVariant &operator [](int index);
+            const Custom::GVariant &operator [](int index) const;
+            Custom::GVariant &operator [](const QString &column_header);
+            const Custom::GVariant &operator [](const QString &column_header) const;
 
-            QVariant &At(int index);
-            const QVariant &At(int index) const;
+            Custom::GVariant &At(int index);
+            const Custom::GVariant &At(int index) const;
 
             DataTable Table() const;
 
@@ -81,7 +85,8 @@ namespace GUtil
 
         protected:
 
-            DataRow(const DataTable &dt, const QVariantList &values = QVariantList());
+            DataRow(const DataTable &dt,
+                    const Custom::GVariantList &values = Custom::GVariantList());
 
             // Derived classes can call this constructor with their own derived
             //  version of the shared data object

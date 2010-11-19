@@ -29,12 +29,13 @@ namespace GUtil
 
         // A class used to hold data and serialize
         //   the values to xml or access them conveniently with string keys
-        class DataTable :   public QAbstractTableModel,
-                            public Interfaces::IQXmlSerializable,
-                            public Core::Interfaces::IReadOnlyObject,
-                            public Core::Interfaces::IUpdatable,
-                            public Core::Interfaces::IClonable<DataTable>,
-                            public Core::Interfaces::IEquatable<DataTable>
+        class DataTable :
+                public QAbstractTableModel,
+                public Interfaces::IQXmlSerializable,
+                public Core::Interfaces::IReadOnlyObject,
+                public Core::Interfaces::IUpdatable,
+                public Core::Interfaces::IClonable<DataTable>,
+                public Core::Interfaces::IEquatable<DataTable>
         {
             Q_OBJECT
 
@@ -51,14 +52,11 @@ namespace GUtil
             DataTable(const DataTable &);
             virtual ~DataTable();
 
-            // The row must have been created by this table, otherwise call ImportRow
-            DataRow AddRow(const DataRow &);
-
-            DataRow AddNewRow(const QVariantList &values = QVariantList());
-            DataRow CreateRow(const QVariantList &values = QVariantList());
+            DataRow &AddRow(const DataRow &);
+            DataRow &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList());
 
             // Clones the row and adds the clone to this table
-            DataRow ImportRow(const DataRow &);
+            DataRow &ImportRow(const DataRow &);
 
             void RemoveRow(int row_index);
             void RemoveRow(const DataRow &);

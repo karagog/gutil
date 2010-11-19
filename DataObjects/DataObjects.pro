@@ -8,7 +8,7 @@ HEADERS += \
     dataset.h \
     datarow.h \
     collection.h \
-    qvariantcollection.h \
+    gvariantcollection.h \
     shareddataobjects.h \
     datarowcollection.h \
     datatablecollection.h \

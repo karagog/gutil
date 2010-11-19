@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "datarowcollection.h"
 #include "datacolumncollection.h"
-#include "qvariantcollection.h"
+#include "gvariantcollection.h"
 using namespace GUtil;
 
 DataObjects::SharedSetData::SharedSetData(int num_tables)
@@ -99,18 +99,18 @@ DataObjects::DataColumnCollection &DataObjects::SharedTableData::Columns() const
 
 
 
-DataObjects::SharedRowData::SharedRowData(DataObjects::SharedTableData *td,
-                                       const QVariantList &vals)
+DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
+                                          const Custom::GVariantList &vals)
 {
-    tuple = new DataObjects::QVariantCollection(vals);
-    SetTableData(td);
+    tuple = new DataObjects::GVariantCollection(vals);
+    SetTableData(&t.table_data());
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
     :QSharedData(o),
     tuple(o.tuple)
 {
-    tuple = new DataObjects::QVariantCollection(o.Tuple());
+    tuple = new DataObjects::GVariantCollection(o.Tuple());
     SetTableData(o.table_data);
 }
 
@@ -130,7 +130,7 @@ void DataObjects::SharedRowData::SetTableData(SharedTableData *dt)
     tuple->Resize(dt->Columns().Count());
 }
 
-DataObjects::QVariantCollection &DataObjects::SharedRowData::Tuple() const
+DataObjects::GVariantCollection &DataObjects::SharedRowData::Tuple() const
 {
     return *tuple;
 }

@@ -12,11 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef QVARIANTCOLLECTION_H
-#define QVARIANTCOLLECTION_H
+#ifndef GVARIANTCOLLECTION_H
+#define GVARIANTCOLLECTION_H
 
 #include "gutil_macros.h"
-#include <QVariant>
+#include "Custom/gvariant.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
@@ -24,9 +24,8 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 template <class T> class ResizableCollection;
 
 // A collection of QVariants, built on top of our Collection class
-typedef ResizableCollection<QVariant> QVariantCollection;
-
+typedef ResizableCollection<Custom::GVariant> GVariantCollection;
 
 GUTIL_END_NAMESPACE
 
-#endif // QVARIANTCOLLECTION_H
+#endif // GVARIANTCOLLECTION_H

@@ -18,13 +18,14 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "datacolumncollection.h"
 #include "shareddataobjects.h"
-#include "Utils/qvarianthelpers.h"
+#include "Custom/gvariant.h"
 #include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QCoreApplication>
 using namespace GUtil;
+using namespace Custom;
 
 DataObjects::DataTable::DataTable(int num_cols)
     :QAbstractTableModel(qApp),
@@ -146,28 +147,22 @@ const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
     return _table_data->Rows();
 }
 
-DataObjects::DataRow DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
+DataObjects::DataRow &DataObjects::DataTable::AddNewRow(const Custom::GVariantList &values)
+{
+    DataRow dr(*this);
+
+    for(int i = 0; i < values.length() && i < ColumnCount(); i++)
+        dr[i] = values.at(i);
+
+    return AddRow(dr);
+}
+
+DataObjects::DataRow &DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
 {
     return Rows().Add(r);
 }
 
-DataObjects::DataRow DataObjects::DataTable::AddNewRow(const QVariantList &values)
-{
-    DataRow dr(CreateRow(values));
-    AddRow(dr);
-    return dr;
-}
-
-DataObjects::DataRow DataObjects::DataTable::CreateRow(const QVariantList &values)
-{
-    DataRow dr(*this);
-    for(int i = 0; i < values.length() && i < ColumnCount(); i++)
-        dr[i] = values.at(i);
-
-    return dr;
-}
-
-DataObjects::DataRow DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
+DataObjects::DataRow &DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
 {
     DataRow tmpr(r);
     r.CloneTo(tmpr);
@@ -341,8 +336,8 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
             ));
 
     // Write our column data
-    Utils::QVariantHelpers::WriteXml(ColumnKeys(), sw);
-    Utils::QVariantHelpers::WriteXml(ColumnLabels(), sw);
+    Custom::GVariant(ColumnKeys()).WriteXml(sw);
+    Custom::GVariant(ColumnLabels()).WriteXml(sw);
 
     for(int i = 0; i < RowCount(); i++)
         table_data().Rows()[i].WriteXml(sw);
@@ -372,8 +367,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
                 sr.attributes().at(1).value().toString());
 
         {
-            QStringList new_keys = Utils::QVariantHelpers::ReadXml(sr).toStringList();
-            QStringList new_labels = Utils::QVariantHelpers::ReadXml(sr).toStringList();
+            QStringList new_keys = GVariant::FromXml(sr).toStringList();
+            QStringList new_labels = GVariant::FromXml(sr).toStringList();
             SetColumnHeaders(new_keys, new_labels);
         }
 

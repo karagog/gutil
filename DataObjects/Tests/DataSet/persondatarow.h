@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef PERSONDATAROW_H
 #define PERSONDATAROW_H
 
-#include "DataObjects/datarow.h"
+#include "DataObjects/datatable.h"
 #include <QUuid>
 
 
@@ -39,8 +39,9 @@ public:
         identifier(o.identifier)
     {}
 
-    SharedPersonData(SharedTableData *td, const QVariantList &vals)
-        :SharedRowData(td, vals),
+    SharedPersonData(const GUtil::DataObjects::DataTable &t,
+                     const GUtil::Custom::GVariantList &vals)
+        :SharedRowData(t, vals),
         identifier(QUuid::createUuid())
     {}
 
@@ -63,18 +64,19 @@ public:
         :DataRow(o)
     {}
 
-    PersonDataRow(const DataTable &tbl, const QVariantList &vals = QVariantList())
+    PersonDataRow(const GUtil::DataObjects::DataTable &tbl,
+                  const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
 
             // We pass in our own derivation of the shared data class
-        :DataRow(new SharedPersonData(&tbl.table_data(), vals))
+        :DataRow(new SharedPersonData(tbl, vals))
     {}
 
 
-    // We can create our own custom accessors to the data
-    PROPERTY_ACCESSORS( Name, QString );
-    PROPERTY_ACCESSORS( LastName, QString );
+    ROW_PROPERTY(Name, QString, 0);
+    ROW_PROPERTY(LastName, QString, 0);
 
-    READONLY_PROPERTY_ACCESSORS( Id, QUuid );
+    // We can create our own custom accessors to the data
+    READONLY_PROPERTY_ACCESSORS( Id, QString );
 
 
 protected:
@@ -85,5 +87,10 @@ protected:
     }
 
 };
+
+
+QString PersonDataRow::GetId() const{
+    return row_data().identifier.toString();
+}
 
 #endif // PERSONDATAROW_H
