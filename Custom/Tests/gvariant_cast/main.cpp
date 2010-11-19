@@ -13,27 +13,62 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QtCore/QCoreApplication>
-#include <QDateTime>
 #include "Custom/gvariant.h"
 using namespace GUtil::Custom;
 
 int main(int argc, char *argv[])
 {
     GVariant v = 5;
-    int test = (int)v;
+    int test = v;
+
+    v = "Hello World!";
+    const char *c = v;
 
     v = 2.55623;
-    double t = (double)v;
+    double t = v;
 
     v = true;
-    bool b = (bool)v;
+    bool b = v;
 
     v = "Hello World";
-    QString probe = (QString)v;
+    QString probe = v;
 
     v = QDateTime();
-    QDateTime dt = (QDateTime)v;
+    QDateTime dt = v;
 
     v = QTime(1,2,3,4);
-    QTime tm = (QTime)v;
+    QTime tm = v;
+
+    v = QStringList("Hi");
+    QStringList sl = v;
+
+    v = QVariantList() << "hi";
+    QVariantList vl = v;
+
+    v = QRegExp("HI");
+    QRegExp re = v;
+
+    v = QBitArray(5);
+    QBitArray ba = v;
+
+    v = QByteArray("HI");
+    QByteArray bya = v;
+
+    v = QRect(1, 2, 3, 4);
+    QRect r = v;
+
+    v = QSize(1, 2);
+    QSize sz = v;
+
+    v = QVariantMap();
+    QVariantMap vm = v;
+
+    v = QUrl("http://google.com");
+    QUrl u = v;
+
+    v = std::string("hi");
+    std::string std_s = v;
+
+    v = QChar('h');
+    QChar ch = v;
 }

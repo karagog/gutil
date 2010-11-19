@@ -16,13 +16,24 @@ limitations under the License.*/
 #define GVARIANT_H
 
 #include "Interfaces/iqxmlserializable.h"
+#include "Core/Interfaces/iequatable.h"
 #include <QVariant>
+#include <QBitArray>
+#include <QRegExp>
+#include <QStringList>
+#include <QUrl>
+#include <QSize>
+#include <QRect>
+#include <QVariantMap>
+#include <QDateTime>
 
 GUTIL_BEGIN_NAMESPACE( Custom );
 
 
-class GVariant :    public QVariant,
-public GUtil::Interfaces::IQXmlSerializable
+class GVariant :
+        public QVariant,
+        public Interfaces::IQXmlSerializable,
+        public Core::Interfaces::IEquatable<GVariant>
 {
 public:
     GVariant();
@@ -55,11 +66,24 @@ public:
 
     // Primitive types throw an InvalidCast exception if cast fails
     operator int () const;
+    operator const char *() const;
     operator bool () const;
     operator double () const;
+    operator std::string() const;
     operator QString() const;
+    operator QByteArray() const;
+    operator QChar() const;
     operator QTime() const;
     operator QDateTime() const;
+    operator QBitArray() const;
+    operator QRegExp() const;
+    operator QUrl() const;
+    operator QRect() const;
+    operator QSize() const;
+    operator QStringList() const;
+    operator QVariantList() const;
+    operator QVariantMap() const;
+
 
     void WriteXml(QXmlStreamWriter &) const;
     void ReadXml(QXmlStreamReader &)
@@ -70,6 +94,9 @@ public:
 
     static QString ConvertToXmlQString(const GVariant &, bool human_readable = false);
     static GVariant ConvertFromXmlQString(const QString &);
+
+
+    virtual bool Equals(const GVariant &) const;
 
 };
 

@@ -16,14 +16,6 @@ limitations under the License.*/
 #include "Utils/qstringhelpers.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-#include <QDate>
-#include <QBitArray>
-#include <QRegExp>
-#include <QStringList>
-#include <QUrl>
-#include <QSize>
-#include <QRect>
-#include <QVariantMap>
 #include <limits.h>
 using namespace GUtil;
 
@@ -111,6 +103,11 @@ Custom::GVariant::operator int () const
     return ret;
 }
 
+Custom::GVariant::operator const char *() const
+{
+    return toString().toStdString().c_str();
+}
+
 Custom::GVariant::operator bool () const
 {
     return toBool();
@@ -126,9 +123,29 @@ Custom::GVariant::operator double () const
     return ret;
 }
 
+Custom::GVariant::operator std::string() const
+{
+    return toString().toStdString();
+}
+
 Custom::GVariant::operator QString() const
 {
     return toString();
+}
+
+Custom::GVariant::operator QChar() const
+{
+    return toChar();
+}
+
+Custom::GVariant::operator QStringList() const
+{
+    return toStringList();
+}
+
+Custom::GVariant::operator QVariantList() const
+{
+    return toList();
 }
 
 Custom::GVariant::operator QTime() const
@@ -139,6 +156,41 @@ Custom::GVariant::operator QTime() const
 Custom::GVariant::operator QDateTime() const
 {
     return toDateTime();
+}
+
+Custom::GVariant::operator QRegExp() const
+{
+    return toRegExp();
+}
+
+Custom::GVariant::operator QBitArray() const
+{
+    return toBitArray();
+}
+
+Custom::GVariant::operator QByteArray() const
+{
+    return toByteArray();
+}
+
+Custom::GVariant::operator QUrl() const
+{
+    return toUrl();
+}
+
+Custom::GVariant::operator QRect() const
+{
+    return toRect();
+}
+
+Custom::GVariant::operator QSize() const
+{
+    return toSize();
+}
+
+Custom::GVariant::operator QVariantMap() const
+{
+    return toMap();
 }
 
 QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
@@ -429,4 +481,9 @@ Custom::GVariant Custom::GVariant::FromXml(QXmlStreamReader &sr)
     Custom::GVariant ret;
     ret.ReadXml(sr);
     return ret;
+}
+
+bool Custom::GVariant::Equals(const GVariant &o) const
+{
+    return ((QVariant)*this) == o;
 }
