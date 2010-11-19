@@ -66,10 +66,10 @@ void DataSetTest::test_dataRows()
 
         // Both data rows should be looking at the same data source
         r1[0] = "Value";
-        QVERIFY(r1[0] == r2[0]);
-        QVERIFY(r1[0] == "Value");
-        QVERIFY(r2[0] == "Value");
-        QVERIFY(r1["0"] == "Value");
+        QVERIFY(r1[0].Equals(r2[0]));
+        QVERIFY(r1[0].Equals("Value"));
+        QVERIFY(r2[0].Equals("Value"));
+        QVERIFY(r1["0"].Equals("Value"));
 
         DataRow r3(r2);
         r2.CloneTo(r3);
@@ -82,9 +82,9 @@ void DataSetTest::test_dataRows()
 
         // A change to either of the first two doesn't affect the cloned row
         r2[0] = "1";
-        QVERIFY(r2[0] == "1");
-        QVERIFY(r1[0] == "1");
-        QVERIFY(r3[0] != "1");
+        QVERIFY(r2[0].Equals("1"));
+        QVERIFY(r1[0].Equals("1"));
+        QVERIFY(!r3[0].Equals("1"));
 
         // Make sure the equal operator works the other way around too
         QVERIFY(!r3.Equals(r2));
@@ -135,10 +135,10 @@ void DataSetTest::test_row_errors()
         r = t[1];
 
         QVERIFY(r.ColumnCount() == 2);
-        QVERIFY(t[1]["one"] == "Yay!");
-        QVERIFY(t[1]["two"] == QVariant());
-        QVERIFY(r[0] == "Yay!");
-        QVERIFY(r[1] == QVariant());
+        QVERIFY(t[1]["one"].Equals("Yay!"));
+        QVERIFY(t[1]["two"].Equals(QVariant()));
+        QVERIFY(r[0].Equals("Yay!"));
+        QVERIFY(r[1].Equals(QVariant()));
 
 
         // Now test what happens when moving rows between data tables
@@ -223,29 +223,29 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt.ColumnKeys()[0] == "OneColumn");
 
         // The column resize shouldn't affect the data in the first column
-        QVERIFY(dr[0] == "HI");
+        QVERIFY(dr[0].Equals("HI"));
 
         dt.AddColumn("second", "two");
         QVERIFY(dt.ColumnCount() == 2);
         QVERIFY(dr.ColumnCount() == 2);
 
         // Make sure the new column is null at first
-        QVERIFY(dr["second"] == QVariant());
+        QVERIFY(dr["second"].Equals(QVariant()));
 
         dr["second"] = "v";
-        QVERIFY(dr["second"] == "v");
-        QVERIFY(dr[1] == "v");
-        QVERIFY(dt.Rows()[0]["second"] == "v");
+        QVERIFY(dr["second"].Equals("v"));
+        QVERIFY(dr[1].Equals("v"));
+        QVERIFY(dt.Rows()[0]["second"].Equals("v"));
 
         dt.AddNewRow();
         DataRow dr2 = dt[dt.RowCount() - 1];
         QVERIFY(dr2.ColumnCount() == 2);
         QVERIFY(dt.Rows().Count() == 2);
-        QVERIFY(dr2[0] == QVariant());
-        QVERIFY(dr2[1] == QVariant());
+        QVERIFY(dr2[0].Equals(QVariant()));
+        QVERIFY(dr2[1].Equals(QVariant()));
 
         dr2[0] = "Hello World!";
-        QVERIFY(dr2[0] == "Hello World!");
+        QVERIFY(dr2[0].Equals("Hello World!"));
 
         // Test the xml import/export
         QString xml = dt.ToXmlQString(true);
@@ -262,10 +262,10 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt2.ColumnLabels()[0] == "");
         QVERIFY2(dt2.ColumnLabels()[1] == "two", dt2.ColumnLabels()[1].toStdString().c_str());
 
-        QVERIFY(dt2[0][0] == "HI");
-        QVERIFY(dt2[0]["second"] == "v");
-        QVERIFY(dt2[1][0] == "Hello World!");
-        QVERIFY(dt2[1]["second"] == QVariant());
+        QVERIFY(dt2[0][0].Equals("HI"));
+        QVERIFY(dt2[0]["second"].Equals("v"));
+        QVERIFY(dt2[1][0].Equals("Hello World!"));
+        QVERIFY(dt2[1]["second"].Equals(QVariant()));
 
 
 
@@ -349,14 +349,14 @@ void DataSetTest::test_dataSet()
 
         // Add a row and access it through the dataset object
         dt1.AddNewRow( GVariantList() << "one");
-        QVERIFY(ds[0][0][0] == "one");
+        QVERIFY(ds[0][0][0].Equals("one"));
 
         dt2.AddNewRow( GVariantList() << "1" << "2");
         dt2.AddNewRow( GVariantList() << "3" << "4");
-        QVERIFY(ds[1][0][0] == "1");
-        QVERIFY(ds[1][0][1] == "2");
-        QVERIFY(ds[1][1][0] == "3");
-        QVERIFY(ds[1][1][1] == "4");
+        QVERIFY(ds[1][0][0].Equals("1"));
+        QVERIFY(ds[1][0][1].Equals("2"));
+        QVERIFY(ds[1][1][0].Equals("3"));
+        QVERIFY(ds[1][1][1].Equals("4"));
 
 
         // Export it to Xml and import it again
@@ -389,10 +389,7 @@ void DataSetTest::test_derived_classes()
 
     pt[0].SetName("Julian");
     QVERIFY(pdr.GetName() == "Julian");
-    QVERIFY(pdr[0] == "Julian");
-
-    pdr.SetLastName("Toker");
-    QVERIFY(pt[0].GetLastName() == "Toker");
+    QVERIFY(pdr[0].Equals("Julian"));
 
     QUuid id(pdr.GetId());
     pt[0].CloneTo(pdr);
@@ -407,8 +404,8 @@ void DataSetTest::test_derived_classes()
     pdr.CloneTo(dr);
     QVERIFY(dr == pdr);
     QVERIFY(dr == pt[0]);
-    QVERIFY(dr[0] == "Julian");
-    QVERIFY(dr[1] == "Toker");
+    QVERIFY(dr[0].Equals("Julian"));
+    QVERIFY(dr[1].Equals("Toker"));
 
     // You can't get to the id though, unless you cast the data row as a persondatarow
     QVERIFY(((PersonDataRow &)dr).GetId() == id.toString());
