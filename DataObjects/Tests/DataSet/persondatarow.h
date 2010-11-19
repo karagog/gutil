@@ -46,7 +46,6 @@ public:
     {}
 
 
-
     // Some extra data you want to store
     QUuid identifier;
 };

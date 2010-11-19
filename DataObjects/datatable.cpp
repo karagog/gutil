@@ -147,27 +147,27 @@ const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
     return _table_data->Rows();
 }
 
-DataObjects::DataRow &DataObjects::DataTable::AddNewRow(const Custom::GVariantList &values)
+void DataObjects::DataTable::AddNewRow(const Custom::GVariantList &values)
 {
     DataRow dr(*this);
 
     for(int i = 0; i < values.length() && i < ColumnCount(); i++)
         dr[i] = values.at(i);
 
-    return AddRow(dr);
+    AddRow(dr);
 }
 
-DataObjects::DataRow &DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
+void DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
 {
-    return Rows().Add(r);
+    Rows().Add(r);
 }
 
-DataObjects::DataRow &DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
+void DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
 {
     DataRow tmpr(r);
     r.CloneTo(tmpr);
     tmpr.row_data().SetTableData(_table_data.data());
-    return AddRow(tmpr);
+    AddRow(tmpr);
 }
 
 void DataObjects::DataTable::RemoveRow(int row_index)
@@ -374,8 +374,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
 
         for(int i = 0; i < sz; i++)
         {
-            DataObjects::DataRow dr = AddNewRow();
-            dr.ReadXml(sr);
+            AddNewRow();
+            (*this)[RowCount() - 1].ReadXml(sr);
         }
 
         read_xml_protected(sr);

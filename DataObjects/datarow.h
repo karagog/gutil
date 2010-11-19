@@ -74,6 +74,8 @@ namespace GUtil
             // IEquatable interface:
             virtual bool Equals(const DataRow &) const;
 
+            // IClonable interface:
+            virtual DataRow &CloneTo(DataRow &) const;
 
             // IQXmlSerializable interface:
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -97,9 +99,6 @@ namespace GUtil
             //  read/write xml functions
             virtual void write_xml_protected(QXmlStreamWriter &) const{}
             virtual void read_xml_protected(QXmlStreamReader &){}
-
-            // IClonable interface:
-            virtual DataRow &CloneTo(DataRow &) const;
 
             void set_number_of_columns(int);
 

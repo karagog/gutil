@@ -58,7 +58,8 @@ void DataSetTest::test_dataRows()
     try
     {
         DataTable t(1);
-        DataRow r1 = t.AddNewRow();
+        t.AddNewRow();
+        DataRow r1 = t[0];
         DataRow r2(r1);
 
         QVERIFY(r1 == r2);
@@ -70,7 +71,8 @@ void DataSetTest::test_dataRows()
         QVERIFY(r2[0] == "Value");
         QVERIFY(r1["0"] == "Value");
 
-        DataRow r3 = r2.Clone();
+        DataRow r3(r2);
+        r2.CloneTo(r3);
 
         // They're not equal, because after cloning the row identifier is unique
         QVERIFY(r3 != r2);
@@ -120,7 +122,8 @@ void DataSetTest::test_row_errors()
         // If you initialize a row with more data than it has columns, then the extra
         //  data gets thrown out
 
-        DataRow r = t.AddNewRow( GVariantList() << "oops!");
+        t.AddNewRow( GVariantList() << "oops!");
+        DataRow r = t[0];
         QVERIFY(r.ColumnCount() == 0);
 
         // But you should be able to initialize it with less data than it has columns
@@ -128,7 +131,8 @@ void DataSetTest::test_row_errors()
         t.AddColumn("two");
 
         QVERIFY(t.ColumnCount() == 2);
-        r = t.AddNewRow( GVariantList() << "Yay!");
+        t.AddNewRow( GVariantList() << "Yay!");
+        r = t[1];
 
         QVERIFY(r.ColumnCount() == 2);
         QVERIFY(t[1]["one"] == "Yay!");
@@ -153,7 +157,8 @@ void DataSetTest::test_row_errors()
         QVERIFY(exception_hit);
 
         // But we can 'import' it as a clone
-        DataRow r2 = t2.ImportRow(r);
+        t2.ImportRow(r);
+        DataRow r2 = t2[t2.RowCount() - 1];
         QVERIFY(r2 != r);
         QVERIFY(r2.Equals(r));
 
@@ -182,7 +187,8 @@ void DataSetTest::test_dataTable()
     try
     {
         DataTable dt("test_table", 3);
-        DataRow dr = dt.AddNewRow();
+        dt.AddNewRow();
+        DataRow dr = dt[0];
 
         QVERIFY(dr.Index() == 0);
 
@@ -194,7 +200,8 @@ void DataSetTest::test_dataTable()
         QVERIFY2(dr.Index() == 0, QString("%1").arg(dr.Index()).toStdString().c_str());
 
         // A cloned row has no index, even though the original did
-        DataRow new_dr = dr.Clone();
+        DataRow new_dr(dr);
+        dr.CloneTo(new_dr);
         QVERIFY(new_dr.Index() == -1);
         QVERIFY(dr.Index() == 0);
 
@@ -230,7 +237,8 @@ void DataSetTest::test_dataTable()
         QVERIFY(dr[1] == "v");
         QVERIFY(dt.Rows()[0]["second"] == "v");
 
-        DataRow dr2 = dt.AddNewRow();
+        dt.AddNewRow();
+        DataRow dr2 = dt[dt.RowCount() - 1];
         QVERIFY(dr2.ColumnCount() == 2);
         QVERIFY(dt.Rows().Count() == 2);
         QVERIFY(dr2[0] == QVariant());
@@ -395,7 +403,8 @@ void DataSetTest::test_derived_classes()
 
 
     // You can even use a normal data row to reference the person data row:
-    DataRow dr = pdr.Clone();
+    DataRow dr(pdr);
+    pdr.CloneTo(dr);
     QVERIFY(dr == pdr);
     QVERIFY(dr == pt[0]);
     QVERIFY(dr[0] == "Julian");

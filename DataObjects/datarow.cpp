@@ -25,7 +25,7 @@ using namespace Custom;
 
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
-    :_row_data(new SharedRowData(&dt.table_data(), vals))
+    :_row_data(new SharedRowData(dt, vals))
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o)

@@ -15,10 +15,9 @@ limitations under the License.*/
 #ifndef PEOPLETABLE_H
 #define PEOPLETABLE_H
 
+#include "persondatarow.h"
 #include "DataObjects/datatable.h"
 #include "DataObjects/dataset.h"
-
-class PersonDataRow;
 
 class PeopleTable :
         public GUtil::DataObjects::DataTable
@@ -32,13 +31,25 @@ public:
         :DataTable(pt){}
 
 
+    // These functions are overridden to provide strong typing to our data table
+    PersonDataRowCollection &Rows(){
+        return (PersonDataRowCollection &)DataTable::Rows();
+    }
+
+    const PersonDataRowCollection &Rows() const{
+        return (const PersonDataRowCollection &)DataTable::Rows();
+    }
+
+
+    // Index operators
     PersonDataRow &operator [](int i){
-        return (PersonDataRow &)(DataTable(*this))[i];
+        return Rows()[i];
     }
 
     const PersonDataRow &operator [](int i) const{
-        return (PersonDataRow &)(DataTable(*this))[i];
+        return Rows()[i];
     }
+
 };
 
 #endif // PEOPLETABLE_H

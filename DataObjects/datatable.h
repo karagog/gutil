@@ -52,11 +52,11 @@ namespace GUtil
             DataTable(const DataTable &);
             virtual ~DataTable();
 
-            DataRow &AddRow(const DataRow &);
-            DataRow &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList());
+            void AddRow(const DataRow &);
+            void AddNewRow(const Custom::GVariantList &values = Custom::GVariantList());
 
             // Clones the row and adds the clone to this table
-            DataRow &ImportRow(const DataRow &);
+            void ImportRow(const DataRow &);
 
             void RemoveRow(int row_index);
             void RemoveRow(const DataRow &);
@@ -75,16 +75,21 @@ namespace GUtil
 
             int GetColumnIndex(const QString &key) const;
 
+
+            // These functions can be overridden to return a derived version of datarow/collection
             DataRow &operator [](int);
             const DataRow &operator [](int) const;
+
+            DataRowCollection &Rows();
+            const DataRowCollection &Rows() const;
+
 
             DataTable &operator =(const DataTable &);
             bool operator ==(const DataTable &) const;
             bool operator !=(const DataTable &) const;
 
             DataSet Set() const;
-            DataRowCollection &Rows();
-            const DataRowCollection &Rows() const;
+
             QStringList ColumnKeys() const;
             QStringList ColumnLabels() const;
             QString Name() const;
