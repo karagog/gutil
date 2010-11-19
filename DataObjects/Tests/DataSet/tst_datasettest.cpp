@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "persondatarow.h"
+#include "peopletable.h"
 #include "DataObjects/dataset.h"
 #include "Logging/debuglogger.h"
 #include <QtCore/QString>
@@ -371,7 +372,37 @@ void DataSetTest::test_dataSet()
 
 void DataSetTest::test_derived_classes()
 {
+    PeopleTable pt;
+    pt.AddNewRow();
 
+    PersonDataRow pdr = pt[0];
+    QVERIFY(pt.RowCount() == 1);
+    QVERIFY(pt.Rows().Contains(pdr));
+
+    pt[0].SetName("Julian");
+    QVERIFY(pdr.GetName() == "Julian");
+    QVERIFY(pdr[0] == "Julian");
+
+    pdr.SetLastName("Toker");
+    QVERIFY(pt[0].GetLastName() == "Toker");
+
+    QUuid id(pdr.GetId());
+    pt[0].CloneTo(pdr);
+    pt.AddRow(pdr);
+
+    QVERIFY(pt[0].GetId() == pt[1].GetId());
+    QVERIFY(pt[0].GetId() == id.toString());
+
+
+    // You can even use a normal data row to reference the person data row:
+    DataRow dr = pdr.Clone();
+    QVERIFY(dr == pdr);
+    QVERIFY(dr == pt[0]);
+    QVERIFY(dr[0] == "Julian");
+    QVERIFY(dr[1] == "Toker");
+
+    // You can't get to the id though, unless you cast the data row as a persondatarow
+    QVERIFY(((PersonDataRow &)dr).GetId() == id.toString());
 }
 
 

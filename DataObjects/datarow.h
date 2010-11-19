@@ -71,8 +71,6 @@ namespace GUtil
             int Index() const;
             int ColumnCount() const;
 
-            DataRow Clone() const;
-
             // IEquatable interface:
             virtual bool Equals(const DataRow &) const;
 

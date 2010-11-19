@@ -62,12 +62,6 @@ DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) con
     return o;
 }
 
-DataObjects::DataRow DataObjects::DataRow::Clone() const
-{
-    DataRow dr(*this);
-    return CloneTo(dr);
-}
-
 Custom::GVariant &DataObjects::DataRow::operator [](int index)
 {
     return row_data().Tuple()[index];

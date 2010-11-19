@@ -60,7 +60,11 @@ protected:
 
         // Clone each row explicitly; each row must detach itself from the shared pointer
         for(int i = 0; i < Collection<DataRow>::Count(); i++)
-            o.Add(Collection<DataRow>::At(i).Clone());
+        {
+            DataRow dr( DataTable(_table_data) );
+            Collection<DataRow>::At(i).CloneTo(dr);
+            o.Add(dr);
+        }
 
         return o;
     }

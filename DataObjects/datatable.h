@@ -77,6 +77,7 @@ namespace GUtil
 
             DataRow &operator [](int);
             const DataRow &operator [](int) const;
+
             DataTable &operator =(const DataTable &);
             bool operator ==(const DataTable &) const;
             bool operator !=(const DataTable &) const;

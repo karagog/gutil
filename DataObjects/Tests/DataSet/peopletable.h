@@ -15,10 +15,30 @@ limitations under the License.*/
 #ifndef PEOPLETABLE_H
 #define PEOPLETABLE_H
 
-class PeopleTable
+#include "DataObjects/datatable.h"
+#include "DataObjects/dataset.h"
+
+class PersonDataRow;
+
+class PeopleTable :
+        public GUtil::DataObjects::DataTable
 {
 public:
-    PeopleTable();
+
+    PeopleTable()
+        :DataTable("People", 2){}
+
+    PeopleTable(const PeopleTable &pt)
+        :DataTable(pt){}
+
+
+    PersonDataRow &operator [](int i){
+        return (PersonDataRow &)(DataTable(*this))[i];
+    }
+
+    const PersonDataRow &operator [](int i) const{
+        return (PersonDataRow &)(DataTable(*this))[i];
+    }
 };
 
 #endif // PEOPLETABLE_H

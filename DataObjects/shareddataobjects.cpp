@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "shareddataobjects.h"
+#include "dataset.h"
 #include "datatablecollectionbase.h"
 #include "datatablecollection.h"
 #include "datarowcollectionbase.h"
@@ -48,12 +49,20 @@ DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() const
 
 
 
-DataObjects::SharedTableData::SharedTableData(SharedSetData *sd)
+DataObjects::SharedTableData::SharedTableData()
 {
     rows = new DataObjects::DataRowCollection(this);
     columns = new DataObjects::DataColumnCollection;
 
-    SetSetData(sd);
+    SetSetData(0);
+}
+
+DataObjects::SharedTableData::SharedTableData(const DataObjects::DataSet &ds)
+{
+    rows = new DataObjects::DataRowCollection(this);
+    columns = new DataObjects::DataColumnCollection;
+
+    SetSetData(&ds.set_data());
 }
 
 DataObjects::SharedTableData::SharedTableData(

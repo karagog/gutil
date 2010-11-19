@@ -54,7 +54,8 @@ namespace GUtil
         {
         public:
 
-            SharedTableData(SharedSetData *sd = 0);
+            SharedTableData();
+            SharedTableData(const DataSet &);
             SharedTableData(const SharedTableData &);
             virtual ~SharedTableData();
 
