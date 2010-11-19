@@ -18,59 +18,66 @@ limitations under the License.*/
 #include "Interfaces/iqxmlserializable.h"
 #include <QVariant>
 
-namespace GUtil
+GUTIL_BEGIN_NAMESPACE( Custom );
+
+
+class GVariant :    public QVariant,
+public GUtil::Interfaces::IQXmlSerializable
 {
-    namespace Custom
-    {
-        class GVariant :    public QVariant,
-                            public GUtil::Interfaces::IQXmlSerializable
-        {
-        public:
-            GVariant();
-            GVariant(const QVariant &);
-            GVariant(Type);
-            GVariant(const std::string &);
-            GVariant(const QString &);
-            GVariant(const QByteArray &);
-            GVariant(const QChar &);
-            GVariant(int);
-            GVariant(uint);
-            GVariant(char *);
-            GVariant(bool);
-            GVariant(double);
-            GVariant(float);
-            GVariant(const QDate &);
-            GVariant(const QTime &);
-            GVariant(const QDateTime &);
-            GVariant(const QBitArray &);
-            GVariant(const QRegExp &);
-            GVariant(const QUrl &);
-            GVariant(const QRect &);
-            GVariant(const QSize &);
-            GVariant(const QStringList &);
-            GVariant(const QVariantList &);
-            GVariant(const QVariantMap &);
+public:
+    GVariant();
+    GVariant(const QVariant &);
+    GVariant(Type);
+    GVariant(const std::string &);
+    GVariant(const QString &);
+    GVariant(const QByteArray &);
+    GVariant(const QChar &);
+    GVariant(int);
+    GVariant(uint);
+    GVariant(char *);
+    GVariant(bool);
+    GVariant(double);
+    GVariant(float);
+    GVariant(const QDate &);
+    GVariant(const QTime &);
+    GVariant(const QDateTime &);
+    GVariant(const QBitArray &);
+    GVariant(const QRegExp &);
+    GVariant(const QUrl &);
+    GVariant(const QRect &);
+    GVariant(const QSize &);
+    GVariant(const QStringList &);
+    GVariant(const QVariantList &);
+    GVariant(const QVariantMap &);
 
 
-            // Here are various cast operators, for convenience:
+    // Here are various cast operators, for convenience:
 
-            // Primitive types throw an InvalidCast exception if cast fails
-            operator int () const;
-            operator bool () const;
-            operator double () const;
-            operator QString() const;
-            operator QTime() const;
-            operator QDateTime() const;
+    // Primitive types throw an InvalidCast exception if cast fails
+    operator int () const;
+    operator bool () const;
+    operator double () const;
+    operator QString() const;
+    operator QTime() const;
+    operator QDateTime() const;
 
-            void WriteXml(QXmlStreamWriter &) const;
-            void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
+    void WriteXml(QXmlStreamWriter &) const;
+    void ReadXml(QXmlStreamReader &)
+            throw(GUtil::Core::XmlException);
 
-            static QString ConvertToXmlQString(const QVariant &, bool human_readable = false);
-            static GVariant ConvertFromXmlQString(const QString &);
+    static void ToXml(const GVariant &, QXmlStreamWriter &);
+    static GVariant FromXml(QXmlStreamReader &);
 
-        };
-    }
-}
+    static QString ConvertToXmlQString(const GVariant &, bool human_readable = false);
+    static GVariant ConvertFromXmlQString(const QString &);
+
+};
+
+
+// A convenient typedef
+typedef QList< GVariant > GVariantList;
+
+
+GUTIL_END_NAMESPACE
 
 #endif // GVARIANT_H

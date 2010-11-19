@@ -27,7 +27,7 @@ limitations under the License.*/
 #include <limits.h>
 using namespace GUtil;
 
-#define XMLID "V"
+#define GVARIANT_XML_ID "GV"
 
 Custom::GVariant::GVariant()
     :QVariant(){}
@@ -141,7 +141,7 @@ Custom::GVariant::operator QDateTime() const
     return toDateTime();
 }
 
-QString Custom::GVariant::ConvertToXmlQString(const QVariant &v, bool h)
+QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
     return GVariant(v).ToXmlQString(h);
 }
@@ -159,7 +159,7 @@ Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
 
 void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 {
-    sw.writeStartElement(XMLID);
+    sw.writeStartElement(GVARIANT_XML_ID);
     sw.writeAttribute("t", QVariant((int)type()).toString());
 
     QString tmps;
@@ -276,7 +276,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
 {
     if(sr.readNextStartElement())
     {
-        if(sr.name() != XMLID)
+        if(sr.name() != GVARIANT_XML_ID)
             throw Core::XmlException();
 
         Type type = (Type)sr.attributes().at(0).value().toString().toInt();
@@ -417,4 +417,16 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
 
         while(sr.readNext() != QXmlStreamReader::EndElement);
     }
+}
+
+void Custom::GVariant::ToXml(const Custom::GVariant &g, QXmlStreamWriter &sw)
+{
+    g.WriteXml(sw);
+}
+
+Custom::GVariant Custom::GVariant::FromXml(QXmlStreamReader &sr)
+{
+    Custom::GVariant ret;
+    ret.ReadXml(sr);
+    return ret;
 }
