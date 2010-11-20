@@ -487,3 +487,8 @@ bool Custom::GVariant::Equals(const GVariant &o) const
 {
     return ((QVariant)*this) == o;
 }
+
+bool Custom::GVariant::operator == (const QVariant &v) const
+{
+    return Equals(v);
+}

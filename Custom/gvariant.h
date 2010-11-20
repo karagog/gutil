@@ -98,6 +98,10 @@ public:
 
     virtual bool Equals(const GVariant &) const;
 
+    // A special (redundant) operator to prevent ambiguity when comparing with
+    //  other GVariants
+    bool operator == (const QVariant &) const;
+
 };
 
 
