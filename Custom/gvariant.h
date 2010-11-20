@@ -30,6 +30,12 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( Custom );
 
 
+class GVariant;
+
+// A convenient typedef
+typedef QList< GVariant > GVariantList;
+
+
 class GVariant :
         public QVariant,
         public Interfaces::IQXmlSerializable,
@@ -60,6 +66,8 @@ public:
     GVariant(const QStringList &);
     GVariant(const QVariantList &);
     GVariant(const QVariantMap &);
+    GVariant(const GVariant &);
+    GVariant(const GVariantList &);
 
 
     // Here are various cast operators, for convenience:
@@ -68,6 +76,7 @@ public:
     operator int () const;
     operator const char *() const;
     operator bool () const;
+    operator float () const;
     operator double () const;
     operator std::string() const;
     operator QString() const;
@@ -105,10 +114,11 @@ public:
 };
 
 
-// A convenient typedef
-typedef QList< GVariant > GVariantList;
+GUTIL_END_NAMESPACE;
 
 
-GUTIL_END_NAMESPACE
+// Register these types with the Qt meta-type system
+Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
+Q_DECLARE_METATYPE(GUtil::Custom::GVariantList);
 
 #endif // GVARIANT_H

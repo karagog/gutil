@@ -27,6 +27,9 @@ int main(int argc, char *argv[])
     v = 2.55623;
     double t = v;
 
+    v = (float)2.55623;
+    float flt = v;
+
     v = true;
     bool b = v;
 

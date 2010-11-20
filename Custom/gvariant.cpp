@@ -58,7 +58,7 @@ Custom::GVariant::GVariant(double d)
     :QVariant(d){}
 
 Custom::GVariant::GVariant(float f)
-    :QVariant((double)f){}
+    :QVariant(QVariant::fromValue(f)){}
 
 Custom::GVariant::GVariant(const QDate &d)
     :QVariant(d){}
@@ -93,6 +93,12 @@ Custom::GVariant::GVariant(const QRect &r)
 Custom::GVariant::GVariant(const QSize &s)
     :QVariant(s){}
 
+Custom::GVariant::GVariant(const GVariant &v)
+    :QVariant(v){}
+
+Custom::GVariant::GVariant(const GVariantList &vl)
+    :QVariant(QVariant::fromValue(vl)){}
+
 Custom::GVariant::operator int () const
 {
     bool res;
@@ -111,6 +117,16 @@ Custom::GVariant::operator const char *() const
 Custom::GVariant::operator bool () const
 {
     return toBool();
+}
+
+Custom::GVariant::operator float () const
+{
+    bool res;
+    float ret;
+    ret = toFloat(&res);
+    if(!res)
+        THROW_NEW_GUTIL_EXCEPTION( Core::InvalidCastException, "" );
+    return ret;
 }
 
 Custom::GVariant::operator double () const
