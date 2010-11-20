@@ -15,41 +15,11 @@ limitations under the License.*/
 #ifndef PEOPLETABLE_H
 #define PEOPLETABLE_H
 
-#include "persondatarow.h"
 #include "DataObjects/datatable.h"
 #include "DataObjects/dataset.h"
 
-class PeopleTable :
-        public GUtil::DataObjects::DataTable
-{
-public:
+class PersonDataRow;
 
-    PeopleTable()
-        :DataTable("People", 2){}
-
-    PeopleTable(const PeopleTable &pt)
-        :DataTable(pt){}
-
-
-    // These functions are overridden to provide strong typing to our data table
-    PeopleCollection &Rows(){
-        return (PeopleCollection &)DataTable::Rows();
-    }
-
-    const PeopleCollection &Rows() const{
-        return (const PeopleCollection &)DataTable::Rows();
-    }
-
-
-    // Index operators
-    PersonDataRow &operator [](int i){
-        return Rows()[i];
-    }
-
-    const PersonDataRow &operator [](int i) const{
-        return Rows()[i];
-    }
-
-};
+typedef GUtil::DataObjects::DataTableBase<PersonDataRow> PeopleTable;
 
 #endif // PEOPLETABLE_H

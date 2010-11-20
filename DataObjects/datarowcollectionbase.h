@@ -81,7 +81,7 @@ protected:
     virtual void validate_new_item(const RowType &i) const
             throw(Core::ValidationException)
     {
-        if(Table() != i.Table())
+        if(Table() != i.row_data().Table())
             THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                       "The row does not belong to this table.  "
                                       "If you still want to add it, then call 'ImportRow' "

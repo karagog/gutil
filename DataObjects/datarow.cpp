@@ -33,7 +33,7 @@ DataObjects::DataRow::DataRow(const DataRow &o)
     *this = o;
 }
 
-DataObjects::DataRow::DataRow(SharedRowData<DataRow> *rd)
+DataObjects::DataRow::DataRow(QSharedData *rd)
     :_row_data(rd)
 {}
 
@@ -74,32 +74,42 @@ const Custom::GVariant &DataObjects::DataRow::operator [](int index) const
 
 Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_header)
 {
-    return At(Table().GetColumnIndex(column_header));
+    return At(row_data().Table().GetColumnIndex(column_header));
 }
 
 const Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_header) const
 {
-    return At(Table().GetColumnIndex(column_header));
+    return At(row_data().Table().GetColumnIndex(column_header));
 }
 
-DataObjects::DataTable DataObjects::DataRow::Table() const
-{
-    return DataTable(row_data().TableData());
-}
+//DataObjects::DataTable &DataObjects::DataRow::Table()
+//{
+//    return row_data().Table();
+//}
+
+//const DataObjects::DataTable &DataObjects::DataRow::Table() const
+//{
+//    return row_data().Table();
+//}
 
 int DataObjects::DataRow::Index() const
 {
-    return Table().Rows().IndexOf(*this);
+    return row_data().Table().Rows().IndexOf(*this);
 }
 
 int DataObjects::DataRow::ColumnCount() const
 {
-    return Table().ColumnCount();
+    return row_data().Table().ColumnCount();
 }
 
-DataObjects::SharedRowData<DataRow> &DataObjects::DataRow::row_data() const
+DataObjects::SharedRowData<DataRow> &DataObjects::DataRow::row_data()
 {
-    return *_row_data;
+    return (SharedRowData<DataRow> &)*_row_data;
+}
+
+const DataObjects::SharedRowData<DataRow> &DataObjects::DataRow::row_data() const
+{
+    return (const SharedRowData<DataRow> &)*_row_data;
 }
 
 void DataObjects::DataRow::set_number_of_columns(int cols)

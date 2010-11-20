@@ -15,38 +15,38 @@ limitations under the License.*/
 #ifndef PERSONDATAROW_H
 #define PERSONDATAROW_H
 
-#include "DataObjects/datatable.h"
-#include "DataObjects/datarowcollectionbase.h"
+//#include "DataObjects/datatable.h"
+#include "DataObjects/datarow.h"
+#include "peopletable.h"
+#include "Custom/gvariant.h"
 #include <QUuid>
 
-
-class PeopleTable;
 class PersonDataRow;
 
 // We can define a custom data row collection that will specifically hold
 //  our derived data row.  You don't have to make one, but it will
 //  guarantee that nobody puts a regular DAtaRow into the collection
-typedef GUtil::DataObjects::DataRowCollectionBase<PeopleTable, PersonDataRow>
-        PeopleCollection;
-
-
+typedef GUtil::DataObjects::DataRowCollectionBase<PersonDataRow>
+        PeopleRowCollection;
 
 
 
 class PersonDataRow :
         public GUtil::DataObjects::DataRow
 {
+    template<class T> friend class GUtil::DataObjects::DataRowCollectionBase;
+
 public:
 
     PersonDataRow(const PersonDataRow &o)
         :DataRow(o)
     {}
 
-    PersonDataRow(const GUtil::DataObjects::DataTable &tbl,
+    PersonDataRow(const PeopleTable &tbl,
                   const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
 
             // We pass in our own derivation of the shared data class
-        :DataRow(tbl, vals)
+        :DataRow(new SharedRowData<PersonDataRow>(tbl, vals))
     {
         // Initialize our Id column, 'cause it's readonly
         At(1) = QUuid::createUuid().toString();
@@ -56,6 +56,19 @@ public:
     // With these convenient macros we declare strongly-typed data accessors
     ROW_PROPERTY(Name, QString, 0);
     READONLY_ROW_PROPERTY(Id, QString, 1);
+
+
+protected:
+
+    // We override these methods which properly cast our row_data as the right
+    //  shared data structure
+    SharedRowData<PersonDataRow> &row_data(){
+        return (SharedRowData<PersonDataRow> &)DataRow::row_data();
+    }
+
+    const SharedRowData<PersonDataRow> &row_data() const{
+        return (const SharedRowData<PersonDataRow> &)DataRow::row_data();
+    }
 
 };
 

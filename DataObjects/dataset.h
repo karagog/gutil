@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ABSTRACTDATATUPLE_H
-#define ABSTRACTDATATUPLE_H
+#ifndef DATASET_H
+#define DATASET_H
 
 #include "sharedsetdata.h"
 #include "datatablecollection.h"
@@ -119,4 +119,9 @@ namespace GUtil
     }
 }
 
-#endif // ABSTRACTDATATUPLE_H
+
+// Here we add headers which we don't depend on, but will make our lives easier
+//  while using this class so we don't have to remember to include these
+#include "datatablecollectionbase.h"
+
+#endif // DATASET_H

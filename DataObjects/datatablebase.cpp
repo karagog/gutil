@@ -165,7 +165,6 @@ template <class RowType> RowType &DataObjects::DataTableBase<RowType>::ImportRow
 {
     RowType tmpr(r);
     r.CloneTo(tmpr);
-    tmpr.row_data().SetTableData(_table_data.data());
     return AddRow(tmpr);
 }
 

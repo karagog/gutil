@@ -66,8 +66,6 @@ namespace GUtil
             Custom::GVariant &At(int index);
             const Custom::GVariant &At(int index) const;
 
-            DataTable Table() const;
-
             int Index() const;
             int ColumnCount() const;
 
@@ -90,12 +88,15 @@ namespace GUtil
 
             // Derived classes can call this constructor with their own derived
             //  version of the shared data object
-            DataRow(SharedRowData<DataRow> *);
+            DataRow(QSharedData *shared_row_data);
 
-            // Friend classes can access our data via this method
-            SharedRowData<DataRow> &row_data() const;
+            // Friend classes can access our data via these methods
+            //   Note that derived classes should override these methods to provide
+            //   access to their own version of the sharedRowData
+            SharedRowData<DataRow> &row_data();
+            const SharedRowData<DataRow> &row_data() const;
 
-            // Derived classes will have to implement some extension of the
+            // Derived classes may have to implement some extension of the
             //  read/write xml functions
             virtual void write_xml_protected(QXmlStreamWriter &) const{}
             virtual void read_xml_protected(QXmlStreamReader &){}
@@ -105,7 +106,7 @@ namespace GUtil
 
         private:
 
-            Custom::GSharedDataPointer< SharedRowData<DataRow> > _row_data;
+            Custom::GSharedDataPointer< QSharedData > _row_data;
 
         };
     }

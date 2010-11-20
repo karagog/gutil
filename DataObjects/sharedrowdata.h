@@ -21,33 +21,30 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-template <class T> class SharedTableData;
-
-template <class T> class SharedRowData :
+template <class RowType> class SharedRowData :
         public QSharedData
 {
 public:
 
-    SharedRowData(const DataTable &t, const Custom::GVariantList &vals)
-        :tuple(vals){
-        SetTableData(&t.table_data());
-    }
+    SharedRowData(const DataTableBase<RowType> &t,
+                  const Custom::GVariantList &vals)
+        :_table(t),
+        tuple(vals){}
 
-    SharedRowData(const SharedRowData &o)
+    SharedRowData(const SharedRowData<RowType> &o)
         :QSharedData(o),
-        tuple(o.tuple){
-        SetTableData(o.table_data);
-    }
+        _table(o._table),
+        tuple(o.tuple){}
 
     virtual ~SharedRowData(){}
 
 
-    SharedTableData<T> *TableData() const{
-        return table_data;
+    DataTableBase<RowType> &Table(){
+        return _table;
     }
 
-    void SetTableData(SharedTableData<T> *t){
-        table_data = t;
+    const DataTableBase<RowType> &Table() const{
+        return _table;
     }
 
     GVariantCollection &Tuple(){
@@ -59,9 +56,9 @@ public:
     }
 
 
-protected:
+private:
 
-    SharedTableData<T> *table_data;
+    DataTableBase<RowType> _table;
     GVariantCollection tuple;
 
 };

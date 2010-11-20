@@ -31,7 +31,9 @@ template <class DataTable> class DataTableCollectionBase :
 
 public:
 
-    DataSet Set() const;
+    DataSet Set() const{
+        return DataSet(_set_data);
+    }
 
 
 protected:
