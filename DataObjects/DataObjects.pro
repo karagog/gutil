@@ -4,25 +4,27 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    datatable.h \
+    datatablebase.h \
     dataset.h \
     datarow.h \
     collection.h \
     gvariantcollection.h \
-    shareddataobjects.h \
-    datarowcollection.h \
-    datatablecollection.h \
+    sharedsetdata.h \
     datacolumncollection.h \
     datacolumn.h \
     datatablecollectionbase.h \
     datarowcollectionbase.h \
-    datacollections.h
+    datacollections.h \
+    datarowcollection.h \
+    datatablecollection.h \
+    datatable.h \
+    sharedtabledata.h \
+    sharedrowdata.h
 
 SOURCES += \
-    datatable.cpp \
     dataset.cpp \
     datarow.cpp \
-    shareddataobjects.cpp \
+    sharedsetdata.cpp \
     datacolumncollection.cpp \
     datacolumn.cpp
 

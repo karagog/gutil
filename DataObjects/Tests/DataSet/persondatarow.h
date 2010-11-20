@@ -16,16 +16,18 @@ limitations under the License.*/
 #define PERSONDATAROW_H
 
 #include "DataObjects/datatable.h"
+#include "DataObjects/datarowcollectionbase.h"
 #include <QUuid>
 
 
+class PeopleTable;
 class PersonDataRow;
 
 // We can define a custom data row collection that will specifically hold
 //  our derived data row.  You don't have to make one, but it will
 //  guarantee that nobody puts a regular DAtaRow into the collection
-typedef GUtil::DataObjects::DataRowCollectionBase<PersonDataRow>
-        PersonDataRowCollection;
+typedef GUtil::DataObjects::DataRowCollectionBase<PeopleTable, PersonDataRow>
+        PeopleCollection;
 
 
 

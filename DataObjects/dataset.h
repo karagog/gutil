@@ -15,7 +15,15 @@ limitations under the License.*/
 #ifndef ABSTRACTDATATUPLE_H
 #define ABSTRACTDATATUPLE_H
 
-#include "datacollections.h"
+#include "sharedsetdata.h"
+#include "datatablecollection.h"
+#include "Custom/gshareddatapointer.h"
+#include "Interfaces/iqxmlserializable.h"
+#include "Core/Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/iupdatable.h"
+#include "Core/Interfaces/iequatable.h"
+#include "Core/Interfaces/iclonable.h"
+#include <QAbstractItemModel>
 
 namespace GUtil
 {
@@ -31,9 +39,9 @@ namespace GUtil
         {
             Q_OBJECT
 
-            friend class DataTable;
-            friend class DataTableCollectionBase<DataTable>;
-            friend class SharedTableData;
+            template<class T> friend class DataTableBase;
+            template<class T> friend class DataTableCollectionBase;
+            template<class T> friend class SharedTableData;
 
         public:
 

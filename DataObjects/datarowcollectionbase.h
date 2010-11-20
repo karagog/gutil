@@ -15,62 +15,70 @@ limitations under the License.*/
 #ifndef DATAROWCOLLECTIONBASE_H
 #define DATAROWCOLLECTIONBASE_H
 
-#include "datatable.h"
 #include "collection.h"
+#include "datarowcollectionbase.h"
 
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-class SharedTableData;
+template<class T> class SharedTableData;
 
-template <class DataRow> class DataRowCollectionBase :
-        public Collection<DataRow>,
-        public Core::Interfaces::IClonable< DataRowCollectionBase<DataRow> >
+template <class RowType>
+
+        class DataRowCollectionBase
+            :
+            public Collection<RowType>,
+            public Core::Interfaces::IClonable< DataRowCollectionBase<RowType> >
 {
-    friend class DataTable;
+    template<class T> friend class DataTableBase;
     friend class RowData;
-    friend class SharedTableData;
+    template<class T> friend class SharedTableData;
+
+    typedef DataTableBase<RowType> TableType;
 
 public:
 
-    DataTable Table() const{
-        return DataTable(_table_data);
+    TableType &Table(){
+        return _table;
+    }
+
+    const TableType &Table() const{
+        return _table;
     }
 
 
 protected:
 
-    DataRowCollectionBase(SharedTableData *td){
-        _table_data = td;
-    }
+    DataRowCollectionBase(const TableType &t)
+        :_table(t){}
 
     virtual ~DataRowCollectionBase(){}
 
-    DataRowCollectionBase(const DataRowCollectionBase<DataRow> &o){
+    DataRowCollectionBase(const DataRowCollectionBase<RowType> &o){
         o.CloneTo(*this);
     }
 
 
     // Protect our clonable interface
-    virtual DataRowCollectionBase &CloneTo(DataRowCollectionBase<DataRow> &o) const{
-        o._table_data = _table_data;
+    virtual DataRowCollectionBase &CloneTo(DataRowCollectionBase<RowType> &o) const{
+        o._table = _table;
 
         o.Clear();
 
         // Clone each row explicitly; each row must detach itself from the shared pointer
-        for(int i = 0; i < Collection<DataRow>::Count(); i++)
+        for(int i = 0; i < Collection<RowType>::Count(); i++)
         {
-            DataTable dt(_table_data);
-            DataRow dr(dt);
-            Collection<DataRow>::At(i).CloneTo(dr);
+            TableType dt(_table);
+            RowType dr(dt);
+            Collection<RowType>::At(i).CloneTo(dr);
             o.Add(dr);
         }
 
         return o;
     }
 
-    virtual void validate_new_item(const DataRow &i) const
+    virtual void validate_new_item(const RowType &i) const
             throw(Core::ValidationException)
     {
         if(Table() != i.Table())
@@ -78,7 +86,7 @@ protected:
                                       "The row does not belong to this table.  "
                                       "If you still want to add it, then call 'ImportRow' "
                                       "on the parent table.");
-        else if(Collection<DataRow>::Contains(i))
+        else if(Collection<RowType>::Contains(i))
             THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                       "Row already exists in the table");
     }
@@ -86,7 +94,7 @@ protected:
 
 private:
 
-    SharedTableData *_table_data;
+    TableType _table;
 
 };
 

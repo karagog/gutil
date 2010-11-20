@@ -12,12 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "datatable.h"
 #include "dataset.h"
-#include "datarowcollection.h"
+#include "datarow.h"
 #include "datarowcollectionbase.h"
 #include "datacolumncollection.h"
-#include "shareddataobjects.h"
 #include "Custom/gvariant.h"
 #include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
@@ -26,42 +24,40 @@ limitations under the License.*/
 #include <QCoreApplication>
 using namespace GUtil;
 using namespace Custom;
+using namespace DataObjects;
 
-DataObjects::DataTable::DataTable(int num_cols)
-    :QAbstractTableModel(qApp),
-    _table_data(new SharedTableData)
+template <class RowType> DataObjects::DataTableBase<RowType>::DataTableBase(int num_cols)
+    :_table_data(new SharedTableData<RowType>)
 {
     _init(QString::null, num_cols);
 }
 
-DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
-    :QAbstractTableModel(qApp),
-    _table_data(new SharedTableData)
+template <class RowType> DataObjects::DataTableBase<RowType>::
+        DataTableBase(const QString &nm, int num_cols)
+    :_table_data(new SharedTableData<RowType>)
 {
     _init(nm, num_cols);
 }
 
-DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
-    :QAbstractTableModel(qApp)
+template <class RowType> DataObjects::DataTableBase<RowType>::
+        DataTableBase(const DataObjects::DataTableBase<RowType> &o)
 {
     *this = o;
 }
 
-DataObjects::DataTable::DataTable(const DataObjects::DataSet &ds_parent)
-    :QAbstractTableModel(qApp),
-    _table_data(new SharedTableData(&ds_parent.set_data()))
+template <class RowType> DataObjects::DataTableBase<RowType>::
+        DataTableBase(const DataObjects::DataSet &ds_parent)
+    :_table_data(new SharedTableData<RowType>(&ds_parent.set_data()))
 {
     _init(QString::null, 0);
 }
 
-DataObjects::DataTable::DataTable(DataObjects::SharedTableData *td)
-    :QAbstractTableModel(qApp),
-    _table_data(td)
+template <class RowType> DataObjects::DataTableBase<RowType>::
+        DataTableBase(DataObjects::SharedTableData<RowType> *td)
+    :_table_data(td)
 {}
 
-DataObjects::DataTable::~DataTable(){}
-
-void DataObjects::DataTable::_init(const QString &name, int num_cols)
+template <class RowType> void DataObjects::DataTableBase<RowType>::_init(const QString &name, int num_cols)
 {
     _table_data->name = name;
 
@@ -71,38 +67,39 @@ void DataObjects::DataTable::_init(const QString &name, int num_cols)
     SetColumnHeaders(sl);
 }
 
-DataObjects::SharedTableData &DataObjects::DataTable::table_data() const
+template <class RowType> DataObjects::SharedTableData<RowType> &
+        DataObjects::DataTableBase<RowType>::table_data() const
 {
     return *_table_data;
 }
 
-DataObjects::DataRow &DataObjects::DataTable::operator [](int ind)
+template <class RowType> RowType &DataObjects::DataTableBase<RowType>::operator [](int ind)
 {
     return Rows()[ind];
 }
 
-const DataObjects::DataRow &DataObjects::DataTable::operator [](int ind) const
+template <class RowType> const RowType &DataObjects::DataTableBase<RowType>::operator [](int ind) const
 {
     return Rows()[ind];
 }
 
-DataObjects::DataTable &DataObjects::DataTable::operator =(const DataObjects::DataTable &o)
+template <class RowType> DataObjects::DataTableBase<RowType> &DataObjects::DataTableBase<RowType>::operator =(const DataObjects::DataTableBase<RowType> &o)
 {
     _table_data = o._table_data;
     return *this;
 }
 
-bool DataObjects::DataTable::operator ==(const DataObjects::DataTable &o) const
+template <class RowType> bool DataObjects::DataTableBase<RowType>::operator ==(const DataObjects::DataTableBase<RowType> &o) const
 {
     return _table_data == o._table_data;
 }
 
-bool DataObjects::DataTable::operator !=(const DataObjects::DataTable &o) const
+template <class RowType> bool DataObjects::DataTableBase<RowType>::operator !=(const DataObjects::DataTableBase<RowType> &o) const
 {
     return !(*this == o);
 }
 
-bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
+template <class RowType> bool DataObjects::DataTableBase<RowType>::Equals(const DataObjects::DataTableBase<RowType> &t) const
 {
     bool ret = true;
 
@@ -137,57 +134,59 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
     return ret;
 }
 
-DataObjects::DataRowCollection &DataObjects::DataTable::Rows()
+template <class RowType> DataObjects::DataRowCollectionBase<RowType> &
+        DataObjects::DataTableBase<RowType>::Rows()
 {
     return _table_data->Rows();
 }
 
-const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
+template <class RowType> const DataObjects::DataRowCollectionBase<RowType> &
+        DataObjects::DataTableBase<RowType>::Rows() const
 {
     return _table_data->Rows();
 }
 
-void DataObjects::DataTable::AddNewRow(const Custom::GVariantList &values)
+template <class RowType> RowType &DataObjects::DataTableBase<RowType>::AddNewRow(const Custom::GVariantList &values)
 {
-    DataRow dr(*this);
+    RowType dr(*this);
 
     for(int i = 0; i < values.length() && i < ColumnCount(); i++)
         dr[i] = values.at(i);
 
-    AddRow(dr);
+    return AddRow(dr);
 }
 
-void DataObjects::DataTable::AddRow(const DataObjects::DataRow &r)
+template <class RowType> RowType &DataObjects::DataTableBase<RowType>::AddRow(const RowType &r)
 {
-    Rows().Add(r);
+    return Rows().Add(r);
 }
 
-void DataObjects::DataTable::ImportRow(const DataObjects::DataRow &r)
+template <class RowType> RowType &DataObjects::DataTableBase<RowType>::ImportRow(const RowType &r)
 {
-    DataRow tmpr(r);
+    RowType tmpr(r);
     r.CloneTo(tmpr);
     tmpr.row_data().SetTableData(_table_data.data());
-    AddRow(tmpr);
+    return AddRow(tmpr);
 }
 
-void DataObjects::DataTable::RemoveRow(int row_index)
+template <class RowType> void DataObjects::DataTableBase<RowType>::RemoveRow(int row_index)
 {
     Rows().Remove(row_index);
 }
 
-void DataObjects::DataTable::RemoveRow(const DataRow &r)
+template <class RowType> void DataObjects::DataTableBase<RowType>::RemoveRow(const RowType &r)
 {
     Rows().RemoveOne(r);
 }
 
-void DataObjects::DataTable::Clear()
+template <class RowType> void DataObjects::DataTableBase<RowType>::Clear()
 {
     Rows().Clear();
 
     ClearColumns();
 }
 
-void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
+template <class RowType> void DataObjects::DataTableBase<RowType>::AddColumn(const QString &key, const QString &label)
 {
     table_data().Columns().Add( DataColumn(key, label) );
 
@@ -195,7 +194,7 @@ void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
         Rows()[i].set_number_of_columns(ColumnCount());
 }
 
-void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QStringList &labels)
+template <class RowType> void DataObjects::DataTableBase<RowType>::SetColumnHeaders(const QStringList &keys, const QStringList &labels)
 {
     ClearColumns();
 
@@ -206,32 +205,32 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
         table_data().Columns().SetLabel(i, labels.at(i));
 }
 
-void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
+template <class RowType> void DataObjects::DataTableBase<RowType>::SetColumnLabel(int col_index, const QString &l)
 {
     table_data().Columns().Label(col_index) = l;
 }
 
-void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
+template <class RowType> void DataObjects::DataTableBase<RowType>::SetColumnKey(int col_index, const QString &k)
 {
     table_data().Columns().SetKey(col_index, k);
 }
 
-void DataObjects::DataTable::ClearColumns()
+template <class RowType> void DataObjects::DataTableBase<RowType>::ClearColumns()
 {
     table_data().Columns().Clear();
 }
 
-int DataObjects::DataTable::RowCount() const
+template <class RowType> int DataObjects::DataTableBase<RowType>::RowCount() const
 {
     return table_data().Rows().Count();
 }
 
-int DataObjects::DataTable::ColumnCount() const
+template <class RowType> int DataObjects::DataTableBase<RowType>::ColumnCount() const
 {
     return table_data().Columns().Count();
 }
 
-int DataObjects::DataTable::GetColumnIndex(const QString &key) const
+template <class RowType> int DataObjects::DataTableBase<RowType>::GetColumnIndex(const QString &key) const
 {
     int ret = -1;
     for(int i = 0; i < ColumnCount(); i++)
@@ -244,27 +243,27 @@ int DataObjects::DataTable::GetColumnIndex(const QString &key) const
     return ret;
 }
 
-DataObjects::DataSet DataObjects::DataTable::Set() const
+template <class RowType> DataObjects::DataSet DataObjects::DataTableBase<RowType>::Set() const
 {
     return DataSet(table_data().SetData());
 }
 
-QStringList DataObjects::DataTable::ColumnKeys() const
+template <class RowType> QStringList DataObjects::DataTableBase<RowType>::ColumnKeys() const
 {
     return table_data().Columns().Keys();
 }
 
-QStringList DataObjects::DataTable::ColumnLabels() const
+template <class RowType> QStringList DataObjects::DataTableBase<RowType>::ColumnLabels() const
 {
     return table_data().Columns().Labels();
 }
 
-QString DataObjects::DataTable::Name() const
+template <class RowType> QString DataObjects::DataTableBase<RowType>::Name() const
 {
     return _table_data->name;
 }
 
-void DataObjects::DataTable::SetTableName(const QString &n) const
+template <class RowType> void DataObjects::DataTableBase<RowType>::SetTableName(const QString &n) const
 {
     _table_data->name = n;
 }
@@ -274,60 +273,9 @@ void DataObjects::DataTable::SetTableName(const QString &n) const
 
 
 
-
-int DataObjects::DataTable::rowCount(const QModelIndex &) const
-{
-    return RowCount();
-}
-
-int DataObjects::DataTable::columnCount(const QModelIndex &) const
-{
-    return ColumnCount();
-}
-
-QVariant DataObjects::DataTable::data(const QModelIndex &index, int role) const
-{
-    QVariant ret;
-
-
-    return ret;
-}
-
-bool DataObjects::DataTable::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if(IsReadOnly())
-        return false;
-}
-
-bool DataObjects::DataTable::insertRows(int row, int count, const QModelIndex &parent)
-{
-
-}
-
-bool DataObjects::DataTable::removeRows(int row, int count, const QModelIndex &parent)
-{
-
-}
-
-QVariant DataObjects::DataTable::headerData(
-        int section,
-        Qt::Orientation orientation,
-        int role) const
-{
-
-}
-
-Qt::ItemFlags DataObjects::DataTable::flags(const QModelIndex &index) const
-{
-
-}
-
-
-
-
 #define DATATABLE_XML_ID  "DataTable"
 
-void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
+template <class RowType> void DataObjects::DataTableBase<RowType>::WriteXml(QXmlStreamWriter &sw) const
 {
     sw.writeStartElement(DATATABLE_XML_ID);
     sw.writeAttribute("s", QString("%1").arg(RowCount()));
@@ -349,7 +297,7 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
 
 #define READ_ERR_STRING "XML not in correct format"
 
-void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
+template <class RowType> void DataObjects::DataTableBase<RowType>::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
     FailIfReadOnly();
@@ -385,28 +333,20 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
     }
 }
 
-
-void DataObjects::DataTable::SetReadOnly(bool readonly)
-{
-    Core::Interfaces::IReadOnlyObject::SetReadOnly(readonly);
-
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-}
-
-DataObjects::DataTable &DataObjects::DataTable::CloneTo(DataObjects::DataTable &t) const
+template <class RowType> DataObjects::DataTableBase<RowType> &DataObjects::DataTableBase<RowType>::CloneTo(DataObjects::DataTableBase<RowType> &t) const
 {
     t = *this;
     t._table_data.detach();
     return t;
 }
 
-DataObjects::DataTable DataObjects::DataTable::Clone() const
+template <class RowType> DataObjects::DataTableBase<RowType> DataObjects::DataTableBase<RowType>::Clone() const
 {
-    DataTable t(*this);
+    DataTableBase<RowType> t(*this);
     return CloneTo(t);
 }
 
-void DataObjects::DataTable::commit_reject_changes(bool commit)
+template <class RowType> void DataObjects::DataTableBase<RowType>::commit_reject_changes(bool commit)
 {
     if(commit)
     {

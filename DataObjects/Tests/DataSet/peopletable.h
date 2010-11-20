@@ -32,12 +32,12 @@ public:
 
 
     // These functions are overridden to provide strong typing to our data table
-    PersonDataRowCollection &Rows(){
-        return (PersonDataRowCollection &)DataTable::Rows();
+    PeopleCollection &Rows(){
+        return (PeopleCollection &)DataTable::Rows();
     }
 
-    const PersonDataRowCollection &Rows() const{
-        return (const PersonDataRowCollection &)DataTable::Rows();
+    const PeopleCollection &Rows() const{
+        return (const PeopleCollection &)DataTable::Rows();
     }
 
 

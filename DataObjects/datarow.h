@@ -8,8 +8,8 @@ limitations under the License.*/
 #ifndef DATAROW_H
 #define DATAROW_H
 
-#include "shareddataobjects.h"
-#include "datarowcollection.h"
+#include "sharedrowdata.h"
+#include "datarowcollectionbase.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/gvariant.h"
 #include "Custom/gshareddatapointer.h"
@@ -46,8 +46,8 @@ namespace GUtil
                 public Core::Interfaces::IUpdatable,
                 public Core::Interfaces::IReadOnlyObject
         {
-            friend class DataTable;
-            template <class T> friend class DataRowCollectionBase;
+            template<class T> friend class DataTableBase;
+            template<class T> friend class DataRowCollectionBase;
 
         public:
 
@@ -90,10 +90,10 @@ namespace GUtil
 
             // Derived classes can call this constructor with their own derived
             //  version of the shared data object
-            DataRow(SharedRowData *);
+            DataRow(SharedRowData<DataRow> *);
 
             // Friend classes can access our data via this method
-            SharedRowData &row_data() const;
+            SharedRowData<DataRow> &row_data() const;
 
             // Derived classes will have to implement some extension of the
             //  read/write xml functions
@@ -105,7 +105,7 @@ namespace GUtil
 
         private:
 
-            Custom::GSharedDataPointer<SharedRowData> _row_data;
+            Custom::GSharedDataPointer< SharedRowData<DataRow> > _row_data;
 
         };
     }

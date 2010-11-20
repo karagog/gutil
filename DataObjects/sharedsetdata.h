@@ -12,20 +12,44 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DATATABLE_H
-#define DATATABLE_H
+#ifndef SHAREDSETDATA_H
+#define SHAREDSETDATA_H
 
-#include "gutil_macros.h"
+#include "gvariantcollection.h"
+#include "datatablecollection.h"
+#include "datarowcollection.h"
+#include "datatable.h"
+#include "datacolumncollection.h"
+#include <QSharedData>
+#include <QString>
+#include <QVariantList>
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
+class DataSet;
+class DataColumnCollection;
 class DataRow;
-template<class T> class DataTableBase;
 
-typedef DataTableBase<DataRow> DataTable;
+class SharedSetData :
+        public QSharedData
+{
+public:
+
+    SharedSetData(int num_tables = 0);
+    SharedSetData(const SharedSetData &);
+    virtual ~SharedSetData();
+
+    DataTableCollection &Tables() const;
+
+
+protected:
+
+    DataTableCollection *tables;
+
+};
 
 
 GUTIL_END_NAMESPACE
 
-#endif // DATATABLE_H
+#endif // SHAREDSETDATA_H

@@ -16,13 +16,13 @@ limitations under the License.*/
 #define DATAROWCOLLECTION_H
 
 #include "gutil_macros.h"
+#include "datatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 // Make your own derived version of the DataRowCollection class by following this example:
-class DataRow;
-template <class T> class DataRowCollectionBase;
+template <class U> class DataRowCollectionBase;
 
 typedef DataRowCollectionBase<DataRow> DataRowCollection;
 

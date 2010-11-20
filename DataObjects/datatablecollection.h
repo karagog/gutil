@@ -9,6 +9,7 @@ limitations under the License.*/
 #define DATATABLECOLLECTION_H
 
 #include "gutil_macros.h"
+#include "datatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
@@ -17,7 +18,6 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 // These classes are defined elsewhere, but we don't want to force a reference to those headers,
 //   so we declare these to represent the real classes
-class DataTable;
 template <class T> class DataTableCollectionBase;
 
 // This defines an alias, so if you make some derived version of DataTable, you can declare it

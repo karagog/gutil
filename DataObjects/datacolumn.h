@@ -26,7 +26,7 @@ class DataColumnCollection;
 class DataColumn :
         public Core::Interfaces::IEquatable<DataColumn>
 {
-    friend class DataTable;
+    template<class T> friend class DataTableBase;
     friend class DataColumnCollection;
     template <class T> friend class ResizableCollection;
 

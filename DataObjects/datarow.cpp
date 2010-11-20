@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datarow.h"
-#include "datatable.h"
+#include "datatablebase.h"
 #include "datarowcollectionbase.h"
 #include "datarowcollection.h"
 #include "Gvariantcollection.h"
@@ -25,7 +25,7 @@ using namespace Custom;
 
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
-    :_row_data(new SharedRowData(dt, vals))
+    :_row_data(new SharedRowData<DataRow>(dt, vals))
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
@@ -33,7 +33,7 @@ DataObjects::DataRow::DataRow(const DataRow &o)
     *this = o;
 }
 
-DataObjects::DataRow::DataRow(SharedRowData *rd)
+DataObjects::DataRow::DataRow(SharedRowData<DataRow> *rd)
     :_row_data(rd)
 {}
 
@@ -97,7 +97,7 @@ int DataObjects::DataRow::ColumnCount() const
     return Table().ColumnCount();
 }
 
-DataObjects::SharedRowData &DataObjects::DataRow::row_data() const
+DataObjects::SharedRowData<DataRow> &DataObjects::DataRow::row_data() const
 {
     return *_row_data;
 }
@@ -124,7 +124,7 @@ bool DataObjects::DataRow::Equals(const DataObjects::DataRow &rhs) const
     {
         int i;
         for(i = 0; i < ColumnCount(); i++)
-            if(At(i) != rhs.At(i))
+            if(At(i).NotEquals(rhs.At(i)))
                 break;
 
         if(i == ColumnCount())
