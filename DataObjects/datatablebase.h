@@ -49,7 +49,7 @@ template <class RowType>
     template <class T> friend class DataTableCollectionBase;
     friend class DataRow;
     template <class T> friend class DataRowCollectionBase;
-    template <class T> friend class SharedRowData;
+    template <class T> friend class SharedRowDataBase;
     template <class T> friend class SharedTableData;
 
 public:

@@ -25,7 +25,7 @@ using namespace Custom;
 
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
-    :_row_data(new SharedRowData<DataRow>(dt, vals))
+    :_row_data(new SharedRowData(dt, vals))
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
@@ -65,7 +65,7 @@ DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) con
 void DataObjects::DataRow::copy_shared_data(
         Custom::GSharedDataPointer< Custom::GSharedData > &dest) const
 {
-    dest = new SharedRowData<DataRow>(row_data());
+    dest = new SharedRowData(row_data());
 }
 
 Custom::GVariant &DataObjects::DataRow::operator [](int index)
@@ -108,14 +108,14 @@ int DataObjects::DataRow::ColumnCount() const
     return row_data().Table().ColumnCount();
 }
 
-DataObjects::SharedRowData<DataRow> &DataObjects::DataRow::row_data()
+DataObjects::SharedRowData &DataObjects::DataRow::row_data()
 {
-    return (SharedRowData<DataRow> &)*_row_data;
+    return (SharedRowData &)*_row_data;
 }
 
-const DataObjects::SharedRowData<DataRow> &DataObjects::DataRow::row_data() const
+const DataObjects::SharedRowData &DataObjects::DataRow::row_data() const
 {
-    return (const SharedRowData<DataRow> &)*_row_data;
+    return (const SharedRowData &)*_row_data;
 }
 
 void DataObjects::DataRow::set_number_of_columns(int cols)

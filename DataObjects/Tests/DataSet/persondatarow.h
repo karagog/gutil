@@ -30,6 +30,10 @@ typedef GUtil::DataObjects::DataRowCollectionBase<PersonDataRow>
         PeopleRowCollection;
 
 
+typedef GUtil::DataObjects::SharedRowDataBase<PersonDataRow>
+        SharedPersonData;
+
+
 
 class PersonDataRow :
         public GUtil::DataObjects::DataRow
@@ -46,7 +50,7 @@ public:
                   const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
 
             // We pass in our own derivation of the shared data class
-        :DataRow(new SharedRowData<PersonDataRow>(tbl, vals))
+        :DataRow(new SharedPersonData(tbl, vals))
     {
         // Initialize our Id column, 'cause it's readonly
         At(1) = QUuid::createUuid();
@@ -65,12 +69,12 @@ protected:
 
     // We override these methods which properly cast our row_data as the right
     //  shared data structure
-    SharedRowData<PersonDataRow> &row_data(){
-        return (SharedRowData<PersonDataRow> &)DataRow::row_data();
+    SharedPersonData &row_data(){
+        return (SharedPersonData &)DataRow::row_data();
     }
 
-    const SharedRowData<PersonDataRow> &row_data() const{
-        return (const SharedRowData<PersonDataRow> &)DataRow::row_data();
+    const SharedPersonData &row_data() const{
+        return (const SharedPersonData &)DataRow::row_data();
     }
 
     // We don't have to implement this method, because our shared row data differs

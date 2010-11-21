@@ -108,8 +108,8 @@ namespace GUtil
             // Friend classes can access our data via these methods
             //   Note that derived classes should override these methods to provide
             //   access to their own version of the sharedRowData
-            SharedRowData<DataRow> &row_data();
-            const SharedRowData<DataRow> &row_data() const;
+            SharedRowData &row_data();
+            const SharedRowData &row_data() const;
 
 
             // Derived classes may have to implement some extension of the
