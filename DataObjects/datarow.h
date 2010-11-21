@@ -127,4 +127,8 @@ namespace GUtil
     }
 }
 
+
+#include "datatablebase.h"
+
+
 #endif // DATAROW_H

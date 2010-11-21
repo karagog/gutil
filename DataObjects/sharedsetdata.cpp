@@ -24,26 +24,26 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataObjects::SharedSetData::SharedSetData(int num_tables)
+    :_tables(new DataTableCollection(this))
 {
-    tables = new DataObjects::DataTableCollection(this);
-
     if(num_tables > 0)
-        tables->Resize(num_tables);
+        _tables->Resize(num_tables);
 }
 
 DataObjects::SharedSetData::SharedSetData(const DataObjects::SharedSetData &o)
+    :_tables(new DataTableCollection(o.Tables()))
+{}
+
+DataObjects::SharedSetData::~SharedSetData(){}
+
+DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables()
 {
-    tables = new DataObjects::DataTableCollection(o.Tables());
+    return *_tables;
 }
 
-DataObjects::SharedSetData::~SharedSetData()
+const DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() const
 {
-    delete tables;
-}
-
-DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() const
-{
-    return *tables;
+    return *_tables;
 }
 
 

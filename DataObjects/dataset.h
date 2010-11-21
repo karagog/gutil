@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef DATASET_H
 #define DATASET_H
 
-#include "sharedsetdata.h"
 #include "datatablecollection.h"
 #include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
@@ -29,6 +28,8 @@ namespace GUtil
 {
     namespace DataObjects
     {
+        class SharedSetData;
+
         class DataSet :
                 public QAbstractItemModel,
                 public Interfaces::IQXmlSerializable,
@@ -51,7 +52,9 @@ namespace GUtil
 
             DataTableCollection &Tables() const;
             int TableCount() const;
+
             DataTable &AddTable(const DataTable &);
+
             void Clear();
 
             DataSet &operator =(const DataSet &);
@@ -123,5 +126,6 @@ namespace GUtil
 // Here we add headers which we don't depend on, but will make our lives easier
 //  while using this class so we don't have to remember to include these
 #include "datatablecollectionbase.h"
+#include "datacolumncollection.h"
 
 #endif // DATASET_H

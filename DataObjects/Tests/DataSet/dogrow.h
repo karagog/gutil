@@ -15,10 +15,52 @@ limitations under the License.*/
 #ifndef DOGROW_H
 #define DOGROW_H
 
-class DogRow
+#include "DataObjects/datarow.h"
+
+class DogRow;
+
+typedef DataRowCollectionBase<DogRow> DogRowCollection;
+typedef SharedRowDataBase<DogRow> SharedDogData;
+
+
+// This is the simple version of a derived data row; one in which the row data
+//  has nothing special to it, just property accessors for the columns
+class DogRow :
+        public GUtil::DataObjects::DataRow
 {
+    template<class T> friend class GUtil::DataObjects::DataRowCollectionBase;
+    template<class T> friend class GUtil::DataObjects::DataTableBase;
+
 public:
-    DogRow();
+
+    DogRow(const DogRow &o)
+        :DataRow(o)
+    {}
+
+    DogRow(const DataTableBase<DogRow> &tbl,
+                  const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
+
+            // We pass in our own derivation of the shared data class
+        :DataRow(new SharedDogData(tbl, vals))
+    {}
+
+
+    // These properties access the typed data
+    ROW_PROPERTY(Name, QString, "name");
+    ROW_PROPERTY(NickName, QString, "nickname");
+    ROW_PROPERTY(Breed, QString, "breed");
+
+
+protected:
+
+    SharedDogData &row_data(){
+        return (SharedDogData &)DataRow::row_data();
+    }
+
+    const SharedDogData &row_data() const{
+        return (const SharedDogData &)DataRow::row_data();
+    }
+
 };
 
 #endif // DOGROW_H

@@ -15,9 +15,7 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += tst_datasettest.cpp \
-    dogrow.cpp \
-    dogstable.cpp
+SOURCES += tst_datasettest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
@@ -29,4 +27,4 @@ HEADERS += \
     persondatarow.h \
     peopletable.h \
     dogrow.h \
-    dogstable.h
+    dogtable.h

@@ -24,14 +24,39 @@ limitations under the License.*/
 class PersonDataRow;
 
 // We can define a custom data row collection that will specifically hold
-//  our derived data row.  You don't have to make one, but it will
-//  guarantee that nobody puts a regular DAtaRow into the collection
+//  our derived data row.
 typedef GUtil::DataObjects::DataRowCollectionBase<PersonDataRow>
         PeopleRowCollection;
 
 
-typedef GUtil::DataObjects::SharedRowDataBase<PersonDataRow>
-        SharedPersonData;
+// We derive our own SharedRowData object, because we want to include extra data
+//   in addition to the data that's stored in the tuple.  Otherwise we could declare
+//   this as a typedef of SharedRowDataBase<PersonDataRow>
+class SharedPersonData :
+        public GUtil::DataObjects::SharedRowDataBase<PersonDataRow>
+{
+public:
+
+    SharedPersonData(const DataTableBase<PersonDataRow> &t,
+                     const Custom::GVariantList &vals)
+                         :SharedRowDataBase<PersonDataRow>(t, vals),
+                         identifier(QUuid::createUuid()) {}
+
+    SharedPersonData(const SharedPersonData &o)
+        :SharedRowDataBase<PersonDataRow>(o),
+        identifier(o.identifier) {}
+
+    QUuid Id() const{
+        return identifier;
+    }
+
+
+private:
+
+    // Can contain any new custom data; in this case a unique identifier
+    QUuid identifier;
+
+};
 
 
 
@@ -39,6 +64,7 @@ class PersonDataRow :
         public GUtil::DataObjects::DataRow
 {
     template<class T> friend class GUtil::DataObjects::DataRowCollectionBase;
+    template<class T> friend class GUtil::DataObjects::DataTableBase;
 
 public:
 
@@ -51,10 +77,7 @@ public:
 
             // We pass in our own derivation of the shared data class
         :DataRow(new SharedPersonData(tbl, vals))
-    {
-        // Initialize our Id column, 'cause it's readonly
-        At(1) = QUuid::createUuid();
-    }
+    {}
 
 
     // With these convenient macros we declare strongly-typed data accessors
@@ -62,7 +85,11 @@ public:
     //   The performance would be slightly better, but with a string you don't have
     //   to worry about the order of the columns.
     ROW_PROPERTY(Name, QString, "name");
-    READONLY_ROW_PROPERTY(Id, QUuid, "id");
+    ROW_PROPERTY(LastName, QString, "lastname");
+
+    QUuid GetId() const{
+        return row_data().Id();
+    }
 
 
 protected:
@@ -77,12 +104,11 @@ protected:
         return (const SharedPersonData &)DataRow::row_data();
     }
 
-    // We don't have to implement this method, because our shared row data differs
-    //  only in the type of row.  If there was some custom data in the shared struct
+    // If there was some custom data in the shared struct
     //  then we'd have to manually copy it here, exactly as shown in the comments
-//    virtual void copy_shared_data(Custom::GSharedDataPointer<QSharedData> &dest) const{
-//        dest = new SharedRowData<PersonDataRow>(row_data());
-//    }
+    virtual void copy_shared_data(Custom::GSharedDataPointer<Custom::GSharedData> &dest) const{
+        dest = new SharedPersonData(row_data());
+    }
 
 };
 

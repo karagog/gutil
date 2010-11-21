@@ -16,7 +16,9 @@ limitations under the License.*/
 #define DATATABLECOLLECTIONBASE_H
 
 #include "datatable.h"
+#include "dataset.h"
 #include "collection.h"
+#include "sharedsetdata.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 

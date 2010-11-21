@@ -247,7 +247,6 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         int type = sr.attributes().at(0).value().toString().toInt();
 
         clear();
-        convert((Type)type);
 
         QString d;
         if(sr.attributes().count() > 1)

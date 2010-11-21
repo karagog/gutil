@@ -12,32 +12,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef PEOPLETABLE_H
-#define PEOPLETABLE_H
+#ifndef DOGSTABLE_H
+#define DOGSTABLE_H
 
 #include "DataObjects/datatablebase.h"
 
-class PersonDataRow;
+class DogRow;
 
-class PeopleTable :
-        public GUtil::DataObjects::DataTableBase<PersonDataRow>
+class DogTable :
+        public GUtil::DataObjects::DataTableBase<DogRow>
 {
 public:
 
     // We customize the way we init, so that by default our people have a name and
     //  identity
-    PeopleTable()
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", 2)
+    DogTable()
+        :GUtil::DataObjects::DataTableBase<DogRow>("Dogs", 2)
     {
         // Initialize your custom column keys and labels
-        SetColumnHeaders(QStringList("name") << "lastname",
-                         QStringList("Name") << "Last Name");
+        SetColumnHeaders(QStringList("name") << "nickname" << "breed",
+                         QStringList("Name") << "NickName" << "Breed");
     }
 
     // We don't do anything special on copy, but we have to declare it anyways
-    PeopleTable(const PeopleTable &o)
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>(o)
+    DogTable(const DogTable &o)
+        :GUtil::DataObjects::DataTableBase<DogRow>(o)
     {}
 };
 
-#endif // PEOPLETABLE_H
+#endif // DOGSTABLE_H

@@ -39,17 +39,6 @@ public: \
     enum{}
 
 
-// This version only declares the accessors, so you have to provide your own
-//   implementation
-#define PROPERTY_ACCESSORS( name, type )   \
-        type Get##name() const; \
-        void Set##name(const type &value)
-
-#define READONLY_PROPERTY_ACCESSORS( name, type )   \
-        type Get##name() const
-
-
-
 // Macros to begin and end namespaces
         // IMPORTANT!  QMake does not evaluate preprocessor definitions
         //  when creating meta-object files, so you cannot use these

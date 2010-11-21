@@ -16,10 +16,10 @@ limitations under the License.*/
 #define SHAREDSETDATA_H
 
 #include "gvariantcollection.h"
-#include "datatablecollection.h"
+#include "datatablecollectionbase.h"
 #include "datarowcollection.h"
 #include "datatable.h"
-#include "datacolumncollection.h"
+#include "datatablecollection.h"
 #include <QSharedData>
 #include <QString>
 #include <QVariantList>
@@ -40,12 +40,13 @@ public:
     SharedSetData(const SharedSetData &);
     virtual ~SharedSetData();
 
-    DataTableCollection &Tables() const;
+    DataTableCollection &Tables();
+    const DataTableCollection &Tables() const;
 
 
-protected:
+private:
 
-    DataTableCollection *tables;
+    DataTableCollection *_tables;
 
 };
 

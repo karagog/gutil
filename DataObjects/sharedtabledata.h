@@ -16,6 +16,7 @@ limitations under the License.*/
 #define SHAREDTABLEDATA_H
 
 #include "dataset.h"
+#include "datarowcollectionbase.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
