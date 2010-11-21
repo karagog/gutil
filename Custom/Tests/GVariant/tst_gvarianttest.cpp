@@ -37,7 +37,7 @@ void GVariantTest::test_basic_types()
 
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv1 == 5);
+    QVERIFY(gv1.Equals(5));
 
     // Unsigned integers
     gv1 = (uint)5;
@@ -57,26 +57,26 @@ void GVariantTest::test_basic_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == QChar(0x0));
+    QVERIFY(gv2.Equals(QChar(0x0)));
 
     // Bool
     gv1 = true;
     gv2.FromXmlQString(gv1.ToXmlQString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == true);
+    QVERIFY(gv2.Equals(true));
 
     qDebug(gv1.ToXmlString().c_str());
 
     gv1 = false;
     gv2.FromXmlQString(gv1.ToXmlQString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == false);
+    QVERIFY(gv2.Equals(false));
 
     // Double
     gv1 = (double)5.68921;
     gv2.FromXmlQString(gv1.ToXmlQString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == 5.68921);
+    QVERIFY(gv2.Equals(5.68921));
 
     qDebug(gv1.ToXmlString().c_str());
 
@@ -84,8 +84,8 @@ void GVariantTest::test_basic_types()
     gv1 = (float)5.68921;
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
-    QVERIFY(gv2 == (float)5.68921);
-    QVERIFY(gv1 == (float)5.68921);
+    QVERIFY(gv2.Equals((float)5.68921));
+    QVERIFY(gv1.Equals((float)5.68921));
 
     qDebug(gv1.ToXmlString().c_str());
 }
@@ -98,7 +98,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == "Hello!");
+    QVERIFY(gv2.Equals("Hello!"));
 
     QString tmps;
     tmps.append((char)0x00);
@@ -108,7 +108,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == tmps);
+    QVERIFY(gv2.Equals(tmps));
 
     // Byte Arrays
     QByteArray ba;
@@ -119,7 +119,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == ba);
+    QVERIFY(gv2.Equals(ba));
 
     // QDates
     QDate dt(2005, 4, 20);
@@ -127,7 +127,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == dt);
+    QVERIFY(gv2.Equals(dt));
 
     // QTimes
     QTime tm(1, 2, 3, 4);
@@ -135,14 +135,14 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == tm);
+    QVERIFY(gv2.Equals(tm));
 
     tm = QTime(1, 2);
     gv1 = tm;
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == tm);
+    QVERIFY(gv2.Equals(tm));
 
     // QDateTimes
     QDateTime dtt(dt, tm);
@@ -150,7 +150,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == dtt);
+    QVERIFY(gv2.Equals(dtt));
 
     // Bit arrays
     QBitArray b(4);
@@ -162,7 +162,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == b);
+    QVERIFY(gv2.Equals(b));
 
     // QRegExp
     QRegExp exp("&pattern/>", Qt::CaseInsensitive, QRegExp::Wildcard);
@@ -171,8 +171,8 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == exp);
-    QVERIFY(gv1 != wrong);
+    QVERIFY(gv2.Equals(exp));
+    QVERIFY(gv1.NotEquals(wrong));
 
     // QUrl
     QUrl u("http://tempzone.com");
@@ -180,7 +180,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == u);
+    QVERIFY(gv2.Equals(u));
 
     // QRect
     QRect rect(1,2,3,4);
@@ -188,7 +188,7 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == rect);
+    QVERIFY(gv2.Equals(rect));
 
     // QSize
     QSize sz(1, 2);
@@ -196,7 +196,33 @@ void GVariantTest::test_simple_qt_types()
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == sz);
+    QVERIFY(gv2.Equals(sz));
+
+    // QUuid
+    QUuid id(QUuid::createUuid());
+    gv1 = id;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1.Equals(gv2));
+    QVERIFY(gv2.Equals(id));
+
+    // GVariant
+    GVariant gv_test(id);
+    gv1 = gv_test;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2.Equals(gv_test));
+
+    // GVariantList
+    GVariantList gvl;
+    gvl << "Hi" << "One more";
+    gv1 = gvl;
+    gv2.FromXmlQString(gv1.ToXmlQString());
+    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv2.ToXmlString().c_str());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2.Equals(gvl));
 }
 
 void GVariantTest::test_collections()
@@ -209,10 +235,10 @@ void GVariantTest::test_collections()
     sl<<"two"<<"three"<<"four";
     gv1 = sl;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString(true).c_str());
+    //qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == sl);
-    QVERIFY(gv2 != slbad);
+    QVERIFY(gv2.Equals(sl));
+    QVERIFY(gv2.NotEquals(slbad));
 
     // QVariantMap
     QVariantMap vm;
@@ -220,9 +246,9 @@ void GVariantTest::test_collections()
     vm.insert("two", sl);
     gv1 = vm;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString(true).c_str());
+    //qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == vm);
+    QVERIFY(gv2.Equals(vm));
 
     // VariantList
     QVariantList vl1, vl2;
@@ -233,9 +259,9 @@ void GVariantTest::test_collections()
     vl2.append("Hello!");
     gv1 = vl2;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString(true).c_str());
+    //qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2 == vl2);
+    QVERIFY(gv2.Equals(vl2));
 }
 
 QTEST_APPLESS_MAIN(GVariantTest);

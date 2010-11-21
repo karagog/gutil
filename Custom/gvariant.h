@@ -26,6 +26,7 @@ limitations under the License.*/
 #include <QRect>
 #include <QVariantMap>
 #include <QDateTime>
+#include <QUuid>
 
 GUTIL_BEGIN_NAMESPACE( Custom );
 
@@ -66,7 +67,7 @@ public:
     GVariant(const QStringList &);
     GVariant(const QVariantList &);
     GVariant(const QVariantMap &);
-    GVariant(const GVariant &);
+    GVariant(const QUuid &);
     GVariant(const GVariantList &);
 
 
@@ -92,6 +93,7 @@ public:
     operator QStringList() const;
     operator QVariantList() const;
     operator QVariantMap() const;
+    operator QUuid() const;
 
 
     void WriteXml(QXmlStreamWriter &) const;
@@ -110,6 +112,12 @@ public:
     // A special (redundant) operator to prevent ambiguity when comparing with
     //  other GVariants
     bool operator == (const QVariant &) const;
+    bool operator != (const QVariant &) const;
+
+
+    static int GVariantListType;
+    static int QUuidType;
+    static int FloatType;
 
 };
 
@@ -120,5 +128,6 @@ GUTIL_END_NAMESPACE;
 // Register these types with the Qt meta-type system
 Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
 Q_DECLARE_METATYPE(GUtil::Custom::GVariantList);
+Q_DECLARE_METATYPE(QUuid);
 
 #endif // GVARIANT_H

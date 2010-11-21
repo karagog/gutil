@@ -24,12 +24,12 @@ limitations under the License.*/
 //  property accessors.  The type must have a cast operator defined in GVariant,
 //  or you can define your own constructor from a GVariant if you have a custom type
 #define ROW_PROPERTY( name, type, index ) \
-    type Get##name() const{ return (*this)[index]; } \
-    void Set##name(const type &value){ (*this)[index] = value; } \
+    type Get##name() const{ return (*this)[index].value<type>(); } \
+    void Set##name(const type &value){ (*this)[index].setValue(value); } \
     enum{}
 
 #define READONLY_ROW_PROPERTY( name, type, index ) \
-    type Get##name() const{ return (*this)[index]; } \
+    type Get##name() const{ return (*this)[index].value<type>(); } \
             enum{}
 
 

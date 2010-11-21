@@ -93,11 +93,11 @@ Custom::GVariant::GVariant(const QRect &r)
 Custom::GVariant::GVariant(const QSize &s)
     :QVariant(s){}
 
-Custom::GVariant::GVariant(const GVariant &v)
-    :QVariant(v){}
+Custom::GVariant::GVariant(const QUuid &i)
+    :QVariant(QUuidType, new QUuid(i)){}
 
 Custom::GVariant::GVariant(const GVariantList &vl)
-    :QVariant(QVariant::fromValue(vl)){}
+    :QVariant(GVariantListType, new GVariantList(vl)){}
 
 Custom::GVariant::operator int () const
 {
@@ -209,6 +209,11 @@ Custom::GVariant::operator QVariantMap() const
     return toMap();
 }
 
+Custom::GVariant::operator QUuid() const
+{
+    return value<QUuid>();
+}
+
 QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
     return GVariant(v).ToXmlQString(h);
@@ -223,15 +228,19 @@ Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
 
 
 
-
+int Custom::GVariant::GVariantListType = qMetaTypeId<Custom::GVariantList>();
+int Custom::GVariant::QUuidType = qMetaTypeId<QUuid>();
+int Custom::GVariant::FloatType = qMetaTypeId<float>();
 
 void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 {
+    int type = userType();
+
     sw.writeStartElement(GVARIANT_XML_ID);
-    sw.writeAttribute("t", QVariant((int)type()).toString());
+    sw.writeAttribute("t", QString("%1").arg(type));
 
     QString tmps;
-    switch(type())
+    switch(type)
     {
     case String:
         sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toString()));
@@ -333,6 +342,20 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
                           .arg(toRect().height()));
         break;
     default:
+
+        // These are our custom types, that have to be handled separately
+        if(type == GVariantListType)
+        {
+            QVariantList qvl;
+            foreach(GVariant gv, value<GVariantList>())
+                qvl.append(gv);
+            Custom::GVariant::ToXml(qvl, sw);
+        }
+        else if(type == QUuidType)
+            sw.writeAttribute("d", value<QUuid>().toString());
+        else if(type == FloatType)
+            sw.writeAttribute("d", QString("%1").arg(value<float>()));
+
         break;
     }
 
@@ -347,10 +370,10 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         if(sr.name() != GVARIANT_XML_ID)
             throw Core::XmlException();
 
-        Type type = (Type)sr.attributes().at(0).value().toString().toInt();
+        int type = sr.attributes().at(0).value().toString().toInt();
 
         clear();
-        convert(type);
+        convert((Type)type);
 
         QString d;
         if(sr.attributes().count() > 1)
@@ -480,6 +503,15 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                            sltemp1.at(3).toInt()));
             break;
         default:
+
+            // These are our custom types, that have to be handled separately
+            if(type == GVariantListType)
+                setValue(Custom::GVariant::FromXml(sr));
+            else if(type == QUuidType)
+                setValue(QUuid(d));
+            else if(type == FloatType)
+                setValue(d.toFloat());
+
             break;
         }
 
@@ -499,12 +531,37 @@ Custom::GVariant Custom::GVariant::FromXml(QXmlStreamReader &sr)
     return ret;
 }
 
-bool Custom::GVariant::Equals(const GVariant &o) const
+bool Custom::GVariant::Equals(const Custom::GVariant &o) const
 {
-    return ((QVariant)*this) == o;
+    int type;
+    if((type = userType()) != o.userType())
+        return false;
+
+    bool ret;
+
+    if(type < (int)UserType)
+        ret = ((QVariant &)*this) == o;
+    else
+    {
+        if(type == GVariantListType)
+            ret = value<GVariantList>() == o.value<GVariantList>();
+        else if(type == QUuidType)
+            ret = value<QUuid>() == o.value<QUuid>();
+        else if(type == FloatType)
+            ret = value<float>() == o.value<float>();
+        else
+            ret = false;
+    }
+
+    return ret;
 }
 
 bool Custom::GVariant::operator == (const QVariant &v) const
 {
     return Equals(v);
+}
+
+bool Custom::GVariant::operator != (const QVariant &v) const
+{
+    return NotEquals(v);
 }
