@@ -54,8 +54,8 @@ public:
 
 
     // With these convenient macros we declare strongly-typed data accessors
-    ROW_PROPERTY(Name, QString, 0);
-    READONLY_ROW_PROPERTY(Id, QString, 1);
+    ROW_PROPERTY(Name, QString, "name");
+    READONLY_ROW_PROPERTY(Id, QString, "id");
 
 
 protected:

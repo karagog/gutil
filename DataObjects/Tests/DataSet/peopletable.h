@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef PEOPLETABLE_H
 #define PEOPLETABLE_H
 
-#include "DataObjects/datatable.h"
+#include "DataObjects/datatablebase.h"
 #include "DataObjects/dataset.h"
 
 class PersonDataRow;
@@ -25,7 +25,21 @@ class PersonDataRow;
 class PeopleTable :
         public GUtil::DataObjects::DataTableBase<PersonDataRow>
 {
+public:
 
+    // We customize the way we init, so that by default our people have a name and
+    //  identity
+    PeopleTable()
+        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", 2)
+    {
+        SetColumnHeaders(QStringList("name") << "id",
+                         QStringList("Name") << "Identity");
+    }
+
+    // We don't do anything special on copy, but we have to declare it anyways
+    PeopleTable(const PeopleTable &o)
+        :GUtil::DataObjects::DataTableBase<PersonDataRow>(o)
+    {}
 };
 
 #endif // PEOPLETABLE_H
