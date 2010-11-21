@@ -402,11 +402,12 @@ void DataSetTest::test_derived_classes()
     // You can even use a normal data row to reference the person data row:
     DataRow dr(pdr);
     QVERIFY(dr == pdr);
-    QVERIFY(dr == pt[0]);
+    QVERIFY(dr != pt[0]);
+    QVERIFY(dr.Equals(pt[0]));
 
     pdr.CloneTo(dr);
     QVERIFY(dr[0].Equals("Julian"));
-    QVERIFY(dr[1].Equals(id.toString()));
+    QVERIFY(dr[1].Equals(id));
 
     // You can't get to the id though, unless you cast the data row as a persondatarow
     QVERIFY(((PersonDataRow &)dr).GetId() == id.toString());

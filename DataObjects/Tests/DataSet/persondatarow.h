@@ -49,13 +49,16 @@ public:
         :DataRow(new SharedRowData<PersonDataRow>(tbl, vals))
     {
         // Initialize our Id column, 'cause it's readonly
-        At(1) = QUuid::createUuid().toString();
+        At(1) = QUuid::createUuid();
     }
 
 
     // With these convenient macros we declare strongly-typed data accessors
+    //  Note: You can also use an integer to index the column instead of a string.
+    //   The performance would be slightly better, but with a string you don't have
+    //   to worry about the order of the columns.
     ROW_PROPERTY(Name, QString, "name");
-    READONLY_ROW_PROPERTY(Id, QString, "id");
+    READONLY_ROW_PROPERTY(Id, QUuid, "id");
 
 
 protected:
