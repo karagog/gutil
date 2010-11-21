@@ -33,7 +33,7 @@ DataObjects::DataRow::DataRow(const DataRow &o)
     *this = o;
 }
 
-DataObjects::DataRow::DataRow(QSharedData *rd)
+DataObjects::DataRow::DataRow(Custom::GSharedData *rd)
     :_row_data(rd)
 {}
 
@@ -63,7 +63,7 @@ DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) con
 }
 
 void DataObjects::DataRow::copy_shared_data(
-        Custom::GSharedDataPointer< QSharedData > dest) const
+        Custom::GSharedDataPointer< Custom::GSharedData > &dest) const
 {
     dest = new SharedRowData<DataRow>(row_data());
 }

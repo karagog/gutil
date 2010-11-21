@@ -96,14 +96,14 @@ namespace GUtil
             // Derived classes can call this constructor with their own derived
             //  version of the shared data object (you don't necessarily have to
             //  derive your own version...)
-            DataRow(QSharedData *shared_row_data);
+            DataRow(Custom::GSharedData *shared_row_data);
 
 
 
             // Derived classes must implement a deep copy for the shared data objects,
             //  if it's a derived class
             virtual void copy_shared_data(
-                    Custom::GSharedDataPointer< QSharedData > dest) const;
+                    Custom::GSharedDataPointer< Custom::GSharedData > &dest) const;
 
             // Friend classes can access our data via these methods
             //   Note that derived classes should override these methods to provide
@@ -121,7 +121,7 @@ namespace GUtil
 
         private:
 
-            Custom::GSharedDataPointer< QSharedData > _row_data;
+            Custom::GSharedDataPointer< Custom::GSharedData > _row_data;
 
         };
     }

@@ -17,12 +17,13 @@ limitations under the License.*/
 
 #include "datatablebase.h"
 #include "gvariantcollection.h"
+#include "Custom/gshareddata.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 template <class RowType> class SharedRowData :
-        public QSharedData
+        public Custom::GSharedData
 {
 public:
 
@@ -35,7 +36,7 @@ public:
     }
 
     SharedRowData(const SharedRowData<RowType> &o)
-        :QSharedData(o),
+        :Custom::GSharedData(o),
         _table(o._table),
         tuple(o.tuple){}
 

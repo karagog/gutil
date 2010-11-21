@@ -16,61 +16,68 @@ limitations under the License.*/
 #define GSHAREDDATAPOINTER_H
 
 #include "gsharedlock.h"
+#include "gutil_macros.h"
 #include <QExplicitlySharedDataPointer>
 #include <QReadWriteLock>
 
-namespace GUtil
+GUTIL_BEGIN_NAMESPACE( Custom );
+
+
+class GSharedData;
+
+// Like a normal shared data pointer, but with a read-write lock attached
+
+template <typename T> class GSharedDataPointer :
+        public QExplicitlySharedDataPointer<T>
 {
-    namespace Custom
-    {
-        // Like a normal shared data pointer, but with a read-write lock attached
+public:
 
-        template <typename T> class GSharedDataPointer :
-                public QExplicitlySharedDataPointer<T>
-        {
-        public:
-            GSharedDataPointer() :
-                    QExplicitlySharedDataPointer<T>(){}
+    GSharedDataPointer() :
+            QExplicitlySharedDataPointer<T>(){}
 
-            inline GSharedDataPointer(T *sharedData) :
-                    QExplicitlySharedDataPointer<T>(sharedData){}
+    inline GSharedDataPointer(T *sharedData) :
+            QExplicitlySharedDataPointer<T>(sharedData){}
 
-            inline GSharedDataPointer(const GSharedDataPointer<T> &o) :
-                    QExplicitlySharedDataPointer<T>(o){
-                *this = o;
-            }
-
-            template <typename X> inline GSharedDataPointer(const GSharedDataPointer<X> &o) :
-                    QExplicitlySharedDataPointer<T>(o){
-                *this = o;
-            }
-
-            GSharedDataPointer &operator =(const GSharedDataPointer &o){
-                ((QExplicitlySharedDataPointer<T> &)(*this)) = o;
-                _lock = o._lock;
-                return *this;
-            }
-
-            // Use this lock to lock the shared data.  You must be careful
-            //   to use locks carefully; the class provides a convenient lock that
-            //   any objects sharing the data can use, but you have to verify your
-            //   own locking mechanism.
-            GSharedLock &SharedLock(){ return _lock; }
-
-            void detach(){
-                QExplicitlySharedDataPointer<T>::detach();
-                _lock.Detach();
-            }
-
-            void reset(){
-                QExplicitlySharedDataPointer<T>::reset();
-                _lock.Detach();
-            }
-
-        private:
-            GSharedLock _lock;
-        };
+    inline GSharedDataPointer(const GSharedDataPointer<T> &o) :
+            QExplicitlySharedDataPointer<T>(o){
+        *this = o;
     }
-}
+
+    template <typename X> inline GSharedDataPointer(const GSharedDataPointer<X> &o) :
+            QExplicitlySharedDataPointer<T>(o){
+        *this = o;
+    }
+
+    GSharedDataPointer &operator =(const GSharedDataPointer &o){
+        ((QExplicitlySharedDataPointer<T> &)(*this)) = o;
+        _lock = o._lock;
+        return *this;
+    }
+
+    // Use this lock to lock the shared data.  You must be careful
+    //   to use locks carefully; the class provides a convenient lock that
+    //   any objects sharing the data can use, but you have to verify your
+    //   own locking mechanism.
+    GSharedLock &SharedLock(){ return _lock; }
+
+    void detach(){
+        QExplicitlySharedDataPointer<T>::detach();
+        _lock.Detach();
+    }
+
+    void reset(){
+        QExplicitlySharedDataPointer<T>::reset();
+        _lock.Detach();
+    }
+
+
+private:
+
+    GSharedLock _lock;
+
+};
+
+
+GUTIL_END_NAMESPACE
 
 #endif // GSHAREDDATAPOINTER_H

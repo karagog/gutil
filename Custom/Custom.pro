@@ -9,7 +9,8 @@ HEADERS += \
     gsemaphore.h \
     gshareddatapointer.h \
     gsharedlock.h \
-    gvariant.h
+    gvariant.h \
+    gshareddata.h
 
 SOURCES += \
     myflattreemodel.cpp \

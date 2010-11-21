@@ -42,7 +42,7 @@ public:
         :DataRow(o)
     {}
 
-    PersonDataRow(const PeopleTable &tbl,
+    PersonDataRow(const DataTableBase<PersonDataRow> &tbl,
                   const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
 
             // We pass in our own derivation of the shared data class
@@ -70,9 +70,12 @@ protected:
         return (const SharedRowData<PersonDataRow> &)DataRow::row_data();
     }
 
-    virtual void copy_shared_data(Custom::GSharedDataPointer<QSharedData> dest) const{
-        dest = new SharedRowData<PersonDataRow>(row_data());
-    }
+    // We don't have to implement this method, because our shared row data differs
+    //  only in the type of row.  If there was some custom data in the shared struct
+    //  then we'd have to manually copy it here, exactly as shown in the comments
+//    virtual void copy_shared_data(Custom::GSharedDataPointer<QSharedData> &dest) const{
+//        dest = new SharedRowData<PersonDataRow>(row_data());
+//    }
 
 };
 

@@ -20,6 +20,12 @@ limitations under the License.*/
 
 class PersonDataRow;
 
-typedef GUtil::DataObjects::DataTableBase<PersonDataRow> PeopleTable;
+//typedef GUtil::DataObjects::DataTableBase<PersonDataRow> PeopleTable;
+
+class PeopleTable :
+        public GUtil::DataObjects::DataTableBase<PersonDataRow>
+{
+
+};
 
 #endif // PEOPLETABLE_H
