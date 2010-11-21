@@ -96,124 +96,6 @@ Custom::GVariant::GVariant(const QSize &s)
 Custom::GVariant::GVariant(const QUuid &i)
     :QVariant(QUuidType, new QUuid(i)){}
 
-Custom::GVariant::GVariant(const GVariantList &vl)
-    :QVariant(GVariantListType, new GVariantList(vl)){}
-
-Custom::GVariant::operator int () const
-{
-    bool res;
-    int ret;
-    ret = toInt(&res);
-    if(!res)
-        THROW_NEW_GUTIL_EXCEPTION( Core::InvalidCastException, "" );
-    return ret;
-}
-
-Custom::GVariant::operator const char *() const
-{
-    return toString().toStdString().c_str();
-}
-
-Custom::GVariant::operator bool () const
-{
-    return toBool();
-}
-
-Custom::GVariant::operator float () const
-{
-    bool res;
-    float ret;
-    ret = toFloat(&res);
-    if(!res)
-        THROW_NEW_GUTIL_EXCEPTION( Core::InvalidCastException, "" );
-    return ret;
-}
-
-Custom::GVariant::operator double () const
-{
-    bool res;
-    double ret;
-    ret = toDouble(&res);
-    if(!res)
-        THROW_NEW_GUTIL_EXCEPTION( Core::InvalidCastException, "" );
-    return ret;
-}
-
-Custom::GVariant::operator std::string() const
-{
-    return toString().toStdString();
-}
-
-Custom::GVariant::operator QString() const
-{
-    return toString();
-}
-
-Custom::GVariant::operator QChar() const
-{
-    return toChar();
-}
-
-Custom::GVariant::operator QStringList() const
-{
-    return toStringList();
-}
-
-Custom::GVariant::operator QVariantList() const
-{
-    return toList();
-}
-
-Custom::GVariant::operator QTime() const
-{
-    return toTime();
-}
-
-Custom::GVariant::operator QDateTime() const
-{
-    return toDateTime();
-}
-
-Custom::GVariant::operator QRegExp() const
-{
-    return toRegExp();
-}
-
-Custom::GVariant::operator QBitArray() const
-{
-    return toBitArray();
-}
-
-Custom::GVariant::operator QByteArray() const
-{
-    return toByteArray();
-}
-
-Custom::GVariant::operator QUrl() const
-{
-    return toUrl();
-}
-
-Custom::GVariant::operator QRect() const
-{
-    return toRect();
-}
-
-Custom::GVariant::operator QSize() const
-{
-    return toSize();
-}
-
-Custom::GVariant::operator QVariantMap() const
-{
-    return toMap();
-}
-
-Custom::GVariant::operator QUuid() const
-{
-    return value<QUuid>();
-}
-
 QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
     return GVariant(v).ToXmlQString(h);
@@ -228,7 +110,6 @@ Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
 
 
 
-int Custom::GVariant::GVariantListType = qMetaTypeId<Custom::GVariantList>();
 int Custom::GVariant::QUuidType = qMetaTypeId<QUuid>();
 int Custom::GVariant::FloatType = qMetaTypeId<float>();
 
@@ -344,14 +225,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     default:
 
         // These are our custom types, that have to be handled separately
-        if(type == GVariantListType)
-        {
-            QVariantList qvl;
-            foreach(GVariant gv, value<GVariantList>())
-                qvl.append(gv);
-            Custom::GVariant::ToXml(qvl, sw);
-        }
-        else if(type == QUuidType)
+        if(type == QUuidType)
             sw.writeAttribute("d", value<QUuid>().toString());
         else if(type == FloatType)
             sw.writeAttribute("d", QString("%1").arg(value<float>()));
@@ -505,9 +379,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         default:
 
             // These are our custom types, that have to be handled separately
-            if(type == GVariantListType)
-                setValue(Custom::GVariant::FromXml(sr));
-            else if(type == QUuidType)
+            if(type == QUuidType)
                 setValue(QUuid(d));
             else if(type == FloatType)
                 setValue(d.toFloat());
@@ -543,9 +415,9 @@ bool Custom::GVariant::Equals(const Custom::GVariant &o) const
         ret = ((QVariant &)*this) == o;
     else
     {
-        if(type == GVariantListType)
-            ret = value<GVariantList>() == o.value<GVariantList>();
-        else if(type == QUuidType)
+        // QVariant doesn't compare custom types for us, it only compares pointers,
+        //  so we implement our own compare for the custom types
+        if(type == QUuidType)
             ret = value<QUuid>() == o.value<QUuid>();
         else if(type == FloatType)
             ret = value<float>() == o.value<float>();

@@ -205,24 +205,6 @@ void GVariantTest::test_simple_qt_types()
     qDebug(gv1.ToXmlString().c_str());
     QVERIFY(gv1.Equals(gv2));
     QVERIFY(gv2.Equals(id));
-
-    // GVariant
-    GVariant gv_test(id);
-    gv1 = gv_test;
-    gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
-    QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(gv_test));
-
-    // GVariantList
-    GVariantList gvl;
-    gvl << "Hi" << "One more";
-    gv1 = gvl;
-    gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
-    qDebug(gv2.ToXmlString().c_str());
-    QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(gvl));
 }
 
 void GVariantTest::test_collections()

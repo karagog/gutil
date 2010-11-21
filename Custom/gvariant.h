@@ -68,32 +68,6 @@ public:
     GVariant(const QVariantList &);
     GVariant(const QVariantMap &);
     GVariant(const QUuid &);
-    GVariant(const GVariantList &);
-
-
-    // Here are various cast operators, for convenience:
-
-    // Primitive types throw an InvalidCast exception if cast fails
-    operator int () const;
-    operator const char *() const;
-    operator bool () const;
-    operator float () const;
-    operator double () const;
-    operator std::string() const;
-    operator QString() const;
-    operator QByteArray() const;
-    operator QChar() const;
-    operator QTime() const;
-    operator QDateTime() const;
-    operator QBitArray() const;
-    operator QRegExp() const;
-    operator QUrl() const;
-    operator QRect() const;
-    operator QSize() const;
-    operator QStringList() const;
-    operator QVariantList() const;
-    operator QVariantMap() const;
-    operator QUuid() const;
 
 
     void WriteXml(QXmlStreamWriter &) const;
@@ -115,7 +89,7 @@ public:
     bool operator != (const QVariant &) const;
 
 
-    static int GVariantListType;
+    // These are types that I define, because for some reason Qt doesn't already
     static int QUuidType;
     static int FloatType;
 
@@ -127,7 +101,6 @@ GUTIL_END_NAMESPACE;
 
 // Register these types with the Qt meta-type system
 Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
-Q_DECLARE_METATYPE(GUtil::Custom::GVariantList);
 Q_DECLARE_METATYPE(QUuid);
 
 #endif // GVARIANT_H
