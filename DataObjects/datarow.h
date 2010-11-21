@@ -86,9 +86,24 @@ namespace GUtil
             DataRow(const DataTable &dt,
                     const Custom::GVariantList &values = Custom::GVariantList());
 
+            void set_number_of_columns(int);
+
+
+
+            // If you are subclassing DataRow, then you will have to make use of
+            //   the following methods
+
             // Derived classes can call this constructor with their own derived
-            //  version of the shared data object
+            //  version of the shared data object (you don't necessarily have to
+            //  derive your own version...)
             DataRow(QSharedData *shared_row_data);
+
+
+
+            // Derived classes must implement a deep copy for the shared data objects,
+            //  if it's a derived class
+            virtual void copy_shared_data(
+                    Custom::GSharedDataPointer< QSharedData > dest) const;
 
             // Friend classes can access our data via these methods
             //   Note that derived classes should override these methods to provide
@@ -96,12 +111,12 @@ namespace GUtil
             SharedRowData<DataRow> &row_data();
             const SharedRowData<DataRow> &row_data() const;
 
+
             // Derived classes may have to implement some extension of the
-            //  read/write xml functions
+            //  read/write xml functions (only have to serialize the data that's
+            //  not already serialized by the base DataRow class)
             virtual void write_xml_protected(QXmlStreamWriter &) const{}
             virtual void read_xml_protected(QXmlStreamReader &){}
-
-            void set_number_of_columns(int);
 
 
         private:

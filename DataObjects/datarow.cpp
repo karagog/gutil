@@ -57,9 +57,15 @@ bool DataObjects::DataRow::operator !=(const DataRow &o) const
 
 DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) const
 {
-    o = *this;
-    o._row_data.detach();
+    copy_shared_data(o._row_data);
+
     return o;
+}
+
+void DataObjects::DataRow::copy_shared_data(
+        Custom::GSharedDataPointer< QSharedData > dest) const
+{
+    dest = new SharedRowData<DataRow>(row_data());
 }
 
 Custom::GVariant &DataObjects::DataRow::operator [](int index)

@@ -70,6 +70,10 @@ protected:
         return (const SharedRowData<PersonDataRow> &)DataRow::row_data();
     }
 
+    virtual void copy_shared_data(Custom::GSharedDataPointer<QSharedData> dest) const{
+        dest = new SharedRowData<PersonDataRow>(row_data());
+    }
+
 };
 
 #endif // PERSONDATAROW_H
