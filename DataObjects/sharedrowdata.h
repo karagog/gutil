@@ -29,7 +29,10 @@ public:
     SharedRowData(const DataTableBase<RowType> &t,
                   const Custom::GVariantList &vals)
         :_table(t),
-        tuple(vals){}
+        tuple(vals)
+    {
+        tuple.Resize(_table.ColumnCount());
+    }
 
     SharedRowData(const SharedRowData<RowType> &o)
         :QSharedData(o),
