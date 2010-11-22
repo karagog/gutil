@@ -96,6 +96,11 @@ public:
     bool operator ==(const DataTableBase<RowType> &) const;
     bool operator !=(const DataTableBase<RowType> &) const;
 
+    // Use to cast any type of table to this kind of datatable base
+    template <class O> operator DataTableBase<O>() const{
+        return *((const DataTableBase<O> *)this);
+    }
+
     DataSet Set() const;
 
     QStringList ColumnKeys() const;

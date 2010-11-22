@@ -438,8 +438,8 @@ void DataSetTest::test_derived_classes()
 
     // Now we'll create a data set to house both tables
     DataSet ds;
-    ds.AddTable((DataTable &)pt);
-    ds.AddTable((DataTable &)dog_table);
+    ds.AddTable(pt);
+    ds.AddTable(dog_table);
 
     QVERIFY(ds.TableCount() == 2);
 
