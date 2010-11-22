@@ -40,11 +40,6 @@ public:
         :DataRow(o)
     {}
 
-    PersonDataRow(const DataTableBase<PersonDataRow> &tbl,
-                  const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
-        :DataRow(tbl, vals)
-    {}
-
 
     // With these convenient macros we declare strongly-typed data accessors
     //  Note: You can also use an integer to index the column instead of a string.
@@ -53,6 +48,14 @@ public:
     ROW_PROPERTY(Name, QString, "name");
     ROW_PROPERTY(LastName, QString, "lastname");
     READONLY_ROW_PROPERTY(Id, QUuid, "id");
+
+
+protected:
+
+    PersonDataRow(const DataTableBase<PersonDataRow> &tbl,
+                  const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
+        :DataRow(tbl, vals)
+    {}
 
 };
 

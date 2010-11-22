@@ -36,19 +36,21 @@ public:
         :DataRow(o)
     {}
 
+    // These properties access the typed data
+    ROW_PROPERTY(Name, QString, "name");
+    ROW_PROPERTY(NickName, QString, "nickname");
+    ROW_PROPERTY(Breed, QString, "breed");
+    ROW_PROPERTY(OwnerId, QUuid, "owner_id");
+
+
+protected:
+
     DogRow(const DataTableBase<DogRow> &tbl,
            const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
 
             // We pass in our own derivation of the shared data class
         :DataRow(tbl, vals)
     {}
-
-
-    // These properties access the typed data
-    ROW_PROPERTY(Name, QString, "name");
-    ROW_PROPERTY(NickName, QString, "nickname");
-    ROW_PROPERTY(Breed, QString, "breed");
-    ROW_PROPERTY(OwnerId, QUuid, "owner_id");
 
 };
 
