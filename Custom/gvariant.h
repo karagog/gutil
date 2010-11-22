@@ -53,6 +53,7 @@ public:
     GVariant(int);
     GVariant(uint);
     GVariant(char *);
+    GVariant(const char *);
     GVariant(bool);
     GVariant(double);
     GVariant(float);

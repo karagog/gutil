@@ -51,6 +51,9 @@ Custom::GVariant::GVariant(uint i)
 Custom::GVariant::GVariant(char *c)
     :QVariant(c){}
 
+Custom::GVariant::GVariant(const char *c)
+    :QVariant(c){}
+
 Custom::GVariant::GVariant(bool b)
     :QVariant(b){}
 
