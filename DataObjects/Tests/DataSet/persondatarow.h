@@ -36,7 +36,7 @@ class PersonDataRow :
 
 public:
 
-    PersonDataRow(const PersonDataRow &o)
+    PersonDataRow(const DataRow &o)
         :DataRow(o)
     {}
 

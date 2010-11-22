@@ -32,7 +32,7 @@ class DogRow :
 
 public:
 
-    DogRow(const DogRow &o)
+    DogRow(const DataRow &o)
         :DataRow(o)
     {}
 
