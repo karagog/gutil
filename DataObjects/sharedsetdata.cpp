@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "sharedsetdata.h"
 #include "sharedtabledata.h"
 #include "dataset.h"
 #include "datatablebase.h"
-#include "datatablecollectionbase.h"
 #include "datatablecollection.h"
 #include "datarowcollectionbase.h"
 #include "datarowcollection.h"

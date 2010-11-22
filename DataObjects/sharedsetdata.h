@@ -16,7 +16,6 @@ limitations under the License.*/
 #define SHAREDSETDATA_H
 
 #include "gvariantcollection.h"
-#include "datatablecollectionbase.h"
 #include "datarowcollection.h"
 #include "datatable.h"
 #include "datatablecollection.h"
@@ -30,6 +29,7 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 class DataSet;
 class DataColumnCollection;
 class DataRow;
+class DataTableCollection;
 
 class SharedSetData :
         public QSharedData

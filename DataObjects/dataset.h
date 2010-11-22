@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATASET_H
 #define DATASET_H
 
-#include "datatablecollection.h"
+#include "datatable.h"
 #include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -29,6 +29,7 @@ namespace GUtil
     namespace DataObjects
     {
         class SharedSetData;
+        class DataTableCollection;
 
         class DataSet :
                 public QAbstractItemModel,
@@ -41,8 +42,8 @@ namespace GUtil
             Q_OBJECT
 
             template<class T> friend class DataTableBase;
-            template<class T> friend class DataTableCollectionBase;
             template<class T> friend class SharedTableData;
+            friend class DataTableCollection;
 
         public:
 
@@ -125,7 +126,7 @@ namespace GUtil
 
 // Here we add headers which we don't depend on, but will make our lives easier
 //  while using this class so we don't have to remember to include these
-#include "datatablecollectionbase.h"
+#include "datatablecollection.h"
 #include "datacolumncollection.h"
 
 #endif // DATASET_H

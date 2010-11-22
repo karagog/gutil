@@ -443,7 +443,8 @@ void DataSetTest::test_derived_classes()
 
     QVERIFY(ds.TableCount() == 2);
 
-    // Test that the dog data is in order
+    // Test that the dog data is in order (note that you can safely cast the normal
+    //   table into the strongly-typed DogTable set
     QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
 
     // Test that the people data is in order

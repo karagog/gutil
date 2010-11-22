@@ -16,13 +16,15 @@ limitations under the License.*/
 #define SHAREDTABLEDATA_H
 
 #include "dataset.h"
+#include "datacolumncollection.h"
 #include "datarowcollectionbase.h"
+#include "Custom/gshareddata.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 template <class RowType> class SharedTableData :
-        public QSharedData
+        public Custom::GSharedData
 {
     template <class T> friend class DataTableBase;
 

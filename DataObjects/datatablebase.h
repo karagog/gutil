@@ -47,7 +47,7 @@ template <class RowType>
             public Core::Interfaces::IEquatable< DataTableBase<RowType> >
 {
     friend class DataSet;
-    template <class T> friend class DataTableCollectionBase;
+    friend class DataTableCollection;
     friend class DataRow;
     template <class T> friend class DataRowCollectionBase;
     template <class T> friend class SharedRowDataBase;

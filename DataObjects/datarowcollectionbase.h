@@ -48,6 +48,12 @@ public:
     }
 
 
+    // Allows us to convert to any other kind of datarowcollectionbase
+    template <class O> operator DataRowCollectionBase<O>() const{
+        return *((DataRowCollectionBase<O> *)this);
+    }
+
+
 protected:
 
     DataRowCollectionBase(const TableType &t)

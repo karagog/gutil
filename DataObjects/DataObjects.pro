@@ -12,11 +12,10 @@ HEADERS += \
     sharedsetdata.h \
     datacolumncollection.h \
     datacolumn.h \
-    datatablecollectionbase.h \
+    datatablecollection.h \
     datarowcollectionbase.h \
     datacollections.h \
     datarowcollection.h \
-    datatablecollection.h \
     datatable.h \
     sharedtabledata.h \
     sharedrowdata.h
@@ -26,6 +25,7 @@ SOURCES += \
     datarow.cpp \
     sharedsetdata.cpp \
     datacolumncollection.cpp \
-    datacolumn.cpp
+    datacolumn.cpp \
+    datatablecollection.cpp
 
 INCLUDEPATH += ..

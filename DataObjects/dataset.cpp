@@ -14,7 +14,8 @@ limitations under the License.*/
 #include "dataset.h"
 #include "datarow.h"
 #include "datatablebase.h"
-#include "datatablecollectionbase.h"
+#include "sharedsetdata.h"
+#include "datatablecollection.h"
 #include <QCoreApplication>
 #include <QVariantList>
 #include <QXmlStreamWriter>
