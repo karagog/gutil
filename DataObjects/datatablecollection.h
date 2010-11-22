@@ -59,7 +59,7 @@ protected:
 
 private:
 
-    DataSet *_data_set;
+    DataSet *_dataset;
 
 };
 

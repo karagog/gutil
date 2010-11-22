@@ -31,37 +31,34 @@ template <class RowType> class SharedTableData :
 public:
 
     SharedTableData()
-        :_rows(new DataRowCollectionBase<RowType>(this))
-    {
-        SetSetData(0);
-    }
+        :_rows(new DataRowCollectionBase<RowType>(this)){}
 
     SharedTableData(const DataSet &ds)
-        :_rows(new DataRowCollectionBase<RowType>(this))
-    {
-        SetSetData(&ds.set_data());
-    }
+        :_dataset(ds),
+        _rows(new DataRowCollectionBase<RowType>(this)){}
 
     SharedTableData(const SharedTableData &d)
-        :_rows(new DataRowCollectionBase<RowType>(d.Rows())),
-        _columns(d.Columns())
-    {
-        SetSetData(d._set_data);
-    }
+        :_dataset(d._dataset),
+        _rows(new DataRowCollectionBase<RowType>(d.Rows())),
+        _columns(d.Columns()){}
 
     virtual ~SharedTableData(){
         delete _rows;
     }
 
-    SharedSetData *SetData() const{
-        return _set_data;
+    DataSet GetDataSet() const{
+        return DataSet(_dataset);
     }
 
-    void SetSetData(SharedSetData *d){
-        _set_data = d;
+    void SetDataSet(const DataSet &ds){
+        _dataset = DataSet(ds);
     }
 
-    DataRowCollectionBase<RowType> &Rows() const{
+    const DataRowCollectionBase<RowType> &Rows() const{
+        return *_rows;
+    }
+
+    DataRowCollectionBase<RowType> &Rows(){
         return *_rows;
     }
 
@@ -74,12 +71,21 @@ public:
     }
 
 
-protected:
+    QString GetName() const{
+        return _name;
+    }
 
-    SharedSetData *_set_data;
+    void SetName(const QString &v){
+        _name = v;
+    }
+
+
+private:
+
+    DataSet _dataset;
     DataRowCollectionBase<RowType> *_rows;
     DataColumnCollection _columns;
-    QString name;
+    QString _name;
 
 };
 

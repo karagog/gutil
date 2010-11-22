@@ -22,106 +22,94 @@ limitations under the License.*/
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
-#include <QAbstractItemModel>
 
-namespace GUtil
+#define TABLE_ACCESSOR( name, type, index ) \
+            const type &Get##name##Table() const{ return (const type &)Tables()[index]; } \
+            type &Get##name##Table(){ return (type &)Tables()[index]; } \
+            enum{}
+
+GUTIL_BEGIN_NAMESPACE( DataObjects );
+
+
+class SharedSetData;
+class DataTableCollection;
+
+class DataSet :
+        public Interfaces::IQXmlSerializable,
+        public Core::Interfaces::IReadOnlyObject,
+        public Core::Interfaces::IUpdatable,
+        public Core::Interfaces::IEquatable<DataSet>,
+        public Core::Interfaces::IClonable<DataSet>
 {
-    namespace DataObjects
-    {
-        class SharedSetData;
-        class DataTableCollection;
+    template<class T> friend class DataTableBase;
+    template<class T> friend class SharedTableData;
+    friend class DataTableCollection;
 
-        class DataSet :
-                public QAbstractItemModel,
-                public Interfaces::IQXmlSerializable,
-                public Core::Interfaces::IReadOnlyObject,
-                public Core::Interfaces::IUpdatable,
-                public Core::Interfaces::IEquatable<DataSet>,
-                public Core::Interfaces::IClonable<DataSet>
-        {
-            Q_OBJECT
+public:
 
-            template<class T> friend class DataTableBase;
-            template<class T> friend class SharedTableData;
-            friend class DataTableCollection;
+    DataSet(int num_tables = 0);
+    DataSet(const DataSet &);
+    virtual ~DataSet();
 
-        public:
+    const DataTableCollection &Tables() const;
+    DataTableCollection &Tables();
+    int TableCount() const;
 
-            DataSet(int num_tables = 0);
-            DataSet(const DataSet &);
-            virtual ~DataSet();
+    DataTable &AddTable(const DataTable &);
 
-            DataTableCollection &Tables() const;
-            int TableCount() const;
+    bool IsNull() const{ return TableCount() == 0; }
+    void Clear();
 
-            DataTable &AddTable(const DataTable &);
+    DataSet &operator =(const DataSet &);
+    DataTable &operator [](int);
+    const DataTable &operator [](int) const;
+    DataTable &operator [](const QString &table_name);
+    const DataTable &operator [](const QString &table_name) const;
 
-            void Clear();
+    bool operator ==(const DataSet &) const;
+    bool operator !=(const DataSet &) const;
 
-            DataSet &operator =(const DataSet &);
-            DataTable &operator [](int);
-            const DataTable &operator [](int) const;
-            DataTable &operator [](const QString &table_name);
-            const DataTable &operator [](const QString &table_name) const;
+    bool Contains(const DataTable &) const;
+    int GetTableIndex(const QString &table_name) const;
 
-            bool operator ==(const DataSet &) const;
-            bool operator !=(const DataSet &) const;
-
-            bool Contains(const DataTable &) const;
-            int GetTableIndex(const QString &table_name) const;
-
-            DataSet Clone() const;
+    DataSet Clone() const;
 
 
-            // IEquatable interface:
-            virtual bool Equals(const DataSet &) const;
+    // IEquatable interface:
+    virtual bool Equals(const DataSet &) const;
 
-            // IQXmlSerializable
-            void WriteXml(QXmlStreamWriter &) const;
-            void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
-
-            // QAbstractItemModel:
-            virtual QModelIndex index(int, int, const QModelIndex &) const;
-            virtual QModelIndex parent(const QModelIndex &child) const;
-
-            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-            virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-            virtual QVariant data(const QModelIndex &index, int role) const;
-            virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
-
-            virtual bool insertRows(int row, int count, const QModelIndex &parent);
-            virtual bool removeRows(int row, int count, const QModelIndex &parent);
-
-            virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-            virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    // IQXmlSerializable
+    void WriteXml(QXmlStreamWriter &) const;
+    void ReadXml(QXmlStreamReader &)
+            throw(GUtil::Core::XmlException);
 
 
-        protected:
+protected:
 
-            DataSet(SharedSetData *);
+    DataSet(SharedSetData *);
 
-            SharedSetData &set_data() const;
+    const SharedSetData &set_data() const;
+    SharedSetData &set_data();
 
-            // IUpdatable interface:
-            virtual void commit_reject_changes(bool commit);
+    // IUpdatable interface:
+    virtual void commit_reject_changes(bool commit);
 
-            // IClonable interface:
-            virtual DataSet &CloneTo(DataSet &) const;
+    // IClonable interface:
+    virtual DataSet &CloneTo(DataSet &) const;
 
-            // Derived classes take advantage of these
-            virtual void write_xml_protected(QXmlStreamWriter &) const{}
-            virtual void read_xml_protected(QXmlStreamReader &){}
+    // Derived classes take advantage of these
+    virtual void write_xml_protected(QXmlStreamWriter &) const{}
+    virtual void read_xml_protected(QXmlStreamReader &){}
 
 
-        private:
+private:
 
-            Custom::GSharedDataPointer<SharedSetData> _set_data;
+    Custom::GSharedDataPointer<SharedSetData> _set_data;
 
-        };
-    }
-}
+};
+
+
+GUTIL_END_NAMESPACE
 
 
 // Here we add headers which we don't depend on, but will make our lives easier

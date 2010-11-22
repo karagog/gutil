@@ -178,7 +178,6 @@ template <typename T> const T &DataObjects::CollectionBase<T>::at_protected(int 
 template <typename T> T &DataObjects::CollectionBase<T>::at_protected(int index)
         throw(Core::IndexOutOfRangeException)
 {
-    FailIfReadOnly();
     _validate_index(index);
 
     return _collection[index];

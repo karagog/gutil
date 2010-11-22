@@ -16,26 +16,22 @@ limitations under the License.*/
 #include "datatablebase.h"
 #include "sharedsetdata.h"
 #include "datatablecollection.h"
-#include <QCoreApplication>
 #include <QVariantList>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;
 
 DataObjects::DataSet::DataSet(int num_tables)
-    :QAbstractItemModel(qApp),
-    _set_data(new SharedSetData(num_tables))
+    :_set_data(new SharedSetData(num_tables))
 {}
 
 DataObjects::DataSet::DataSet(const DataObjects::DataSet &o)
-    :QAbstractItemModel(qApp)
 {
     *this = o;
 }
 
 DataObjects::DataSet::DataSet(SharedSetData *sd)
-    :QAbstractItemModel(qApp),
-    _set_data(sd)
+    :_set_data(sd)
 {}
 
 DataObjects::DataSet::~DataSet(){}
@@ -43,9 +39,15 @@ DataObjects::DataSet::~DataSet(){}
 DataObjects::DataSet &DataObjects::DataSet::operator =(const DataObjects::DataSet &o)
 {
     _set_data = o._set_data;
+    return *this;
 }
 
-DataObjects::DataTableCollection &DataObjects::DataSet::Tables() const
+const DataObjects::DataTableCollection &DataObjects::DataSet::Tables() const
+{
+    return set_data().Tables();
+}
+
+DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
 {
     return set_data().Tables();
 }
@@ -131,7 +133,12 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
     return ret;
 }
 
-DataObjects::SharedSetData &DataObjects::DataSet::set_data() const
+const DataObjects::SharedSetData &DataObjects::DataSet::set_data() const
+{
+    return *_set_data;
+}
+
+DataObjects::SharedSetData &DataObjects::DataSet::set_data()
 {
     return *_set_data;
 }
@@ -206,66 +213,3 @@ void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
               sr.name() != DATASET_XML_ID);
     }
 }
-
-
-
-QModelIndex DataObjects::DataSet::index(int, int, const QModelIndex &) const
-{
-
-}
-
-QModelIndex DataObjects::DataSet::parent(const QModelIndex &child) const
-{
-
-}
-
-int DataObjects::DataSet::rowCount(const QModelIndex &) const
-{
-
-}
-
-int DataObjects::DataSet::columnCount(const QModelIndex &) const
-{
-
-}
-
-QVariant DataObjects::DataSet::data(const QModelIndex &index, int role) const
-{
-    QVariant ret;
-
-
-    return ret;
-}
-
-bool DataObjects::DataSet::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if(IsReadOnly())
-        return false;
-}
-
-bool DataObjects::DataSet::insertRows(int row, int count, const QModelIndex &parent)
-{
-
-}
-
-bool DataObjects::DataSet::removeRows(int row, int count, const QModelIndex &parent)
-{
-
-}
-
-QVariant DataObjects::DataSet::headerData(
-        int section,
-        Qt::Orientation orientation,
-        int role) const
-{
-
-}
-
-Qt::ItemFlags DataObjects::DataSet::flags(const QModelIndex &index) const
-{
-
-}
-
-
-
-

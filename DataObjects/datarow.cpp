@@ -88,16 +88,6 @@ const Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_
     return At(row_data().Table().GetColumnIndex(column_header));
 }
 
-//DataObjects::DataTable &DataObjects::DataRow::Table()
-//{
-//    return row_data().Table();
-//}
-
-//const DataObjects::DataTable &DataObjects::DataRow::Table() const
-//{
-//    return row_data().Table();
-//}
-
 int DataObjects::DataRow::Index() const
 {
     return row_data().Table().Rows().IndexOf(*this);

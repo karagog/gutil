@@ -17,27 +17,48 @@ limitations under the License.*/
 
 #include "DataObjects/datatablebase.h"
 
+#define NUM_PEOPLE_COLS 3
+
 class PersonDataRow;
 
 class PeopleTable :
         public GUtil::DataObjects::DataTableBase<PersonDataRow>
 {
+    friend class DogOwnerDataSet;
+
 public:
 
     // We customize the way we init, so that by default our people have a name and
     //  identity
     PeopleTable()
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", 3)
+        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", NUM_PEOPLE_COLS)
     {
-        // Initialize your custom column keys and labels
-        SetColumnHeaders(QStringList("name") << "lastname" << "id",
-                         QStringList("Name") << "Last Name" << "Identifier");
+        _init();
     }
 
     // We don't do anything special on copy, but we have to declare it anyways
     PeopleTable(const PeopleTable &o)
         :GUtil::DataObjects::DataTableBase<PersonDataRow>(o)
     {}
+
+
+protected:
+
+    PeopleTable(const DataSet &s)
+        :GUtil::DataObjects::DataTableBase<PersonDataRow>(s, "People", NUM_PEOPLE_COLS)
+    {
+        _init();
+    }
+
+
+private:
+
+    void _init(){
+        // Initialize your custom column keys and labels
+        SetColumnHeaders(QStringList("name") << "lastname" << "id",
+                         QStringList("Name") << "Last Name" << "Identifier");
+    }
+
 };
 
 #endif // PEOPLETABLE_H

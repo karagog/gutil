@@ -46,10 +46,12 @@ template <class RowType> DataObjects::DataTableBase<RowType>::
 }
 
 template <class RowType> DataObjects::DataTableBase<RowType>::
-        DataTableBase(const DataObjects::DataSet &ds_parent)
-    :_table_data(new SharedTableData<RowType>(&ds_parent.set_data()))
+        DataTableBase(const DataObjects::DataSet &ds_parent,
+                      const QString &name,
+                      int num_cols)
+    :_table_data(new SharedTableData<RowType>(ds_parent))
 {
-    _init(QString::null, 0);
+    _init(name, num_cols);
 }
 
 template <class RowType> DataObjects::DataTableBase<RowType>::
@@ -59,7 +61,7 @@ template <class RowType> DataObjects::DataTableBase<RowType>::
 
 template <class RowType> void DataObjects::DataTableBase<RowType>::_init(const QString &name, int num_cols)
 {
-    _table_data->name = name;
+    _table_data->_name = name;
 
     QStringList sl;
     for(int i = 0; i < num_cols; i++)
@@ -240,12 +242,17 @@ template <class RowType> int DataObjects::DataTableBase<RowType>::GetColumnIndex
             break;
         }
 
+    if(ret == -1)
+        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
+                                  QString("The column key '%1' does not exist in the %2 table")
+                                  .arg(key).arg(table_data().GetName()).toStdString());
+
     return ret;
 }
 
 template <class RowType> DataObjects::DataSet DataObjects::DataTableBase<RowType>::Set() const
 {
-    return DataSet(table_data().SetData());
+    return DataSet(table_data().GetDataSet());
 }
 
 template <class RowType> QStringList DataObjects::DataTableBase<RowType>::ColumnKeys() const
@@ -260,12 +267,12 @@ template <class RowType> QStringList DataObjects::DataTableBase<RowType>::Column
 
 template <class RowType> QString DataObjects::DataTableBase<RowType>::Name() const
 {
-    return _table_data->name;
+    return _table_data->_name;
 }
 
 template <class RowType> void DataObjects::DataTableBase<RowType>::SetTableName(const QString &n) const
 {
-    _table_data->name = n;
+    _table_data->_name = n;
 }
 
 
@@ -311,7 +318,7 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::ReadXml(QXmlS
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 
-        _table_data->name = Utils::QStringHelpers::fromBase64(
+        _table_data->_name = Utils::QStringHelpers::fromBase64(
                 sr.attributes().at(1).value().toString());
 
         {

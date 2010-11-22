@@ -19,32 +19,32 @@ using namespace GUtil;
 
 DataObjects::DataTableCollection::DataTableCollection(DataObjects::SharedSetData *d, int size)
     :ResizableCollection<DataTable>(size),
-    _data_set(new DataSet(d)){}
+    _dataset(new DataSet(d)){}
 
 DataObjects::DataTableCollection::~DataTableCollection(){
-    delete _data_set;
+    delete _dataset;
 }
 
 const DataObjects::DataSet &DataObjects::DataTableCollection::Set() const{
-    return *_data_set;
+    return *_dataset;
 }
 
 DataObjects::DataSet &DataObjects::DataTableCollection::Set(){
-    return *_data_set;
+    return *_dataset;
 }
 
 
 void DataObjects::DataTableCollection::on_add(DataObjects::DataTable *t) const
 {
-    SharedSetData *sd = t->table_data().SetData();
-    if(Set() != DataSet(sd))
+    DataSet ds = t->table_data().GetDataSet();
+    if(Set() != ds)
     {
-        // Remove ourselves from our parent set
-        if(sd != 0)
-            sd->Tables().RemoveOne(*t);
+        // Remove the table from its parent set
+        if(!ds.IsNull())
+            ds.Tables().RemoveOne(*t);
 
         // Set our new set data to this one
-        t->table_data().SetSetData(&_data_set->set_data());
+        t->table_data().SetDataSet(*_dataset);
     }
 }
 

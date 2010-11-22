@@ -48,6 +48,7 @@ public:
     ROW_PROPERTY(Name, QString, "name");
     ROW_PROPERTY(NickName, QString, "nickname");
     ROW_PROPERTY(Breed, QString, "breed");
+    ROW_PROPERTY(OwnerId, QUuid, "owner_id");
 
 };
 

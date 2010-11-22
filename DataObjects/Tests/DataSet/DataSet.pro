@@ -27,4 +27,5 @@ HEADERS += \
     persondatarow.h \
     peopletable.h \
     dogrow.h \
-    dogtable.h
+    dogtable.h \
+    dogownerdataset.h

@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "dogtable.h"
 #include "persondatarow.h"
 #include "peopletable.h"
+#include "dogownerdataset.h"
 #include "DataObjects/dataset.h"
 #include "Logging/debuglogger.h"
 #include <QtCore/QString>
@@ -385,82 +386,121 @@ void DataSetTest::test_dataSet()
 
 void DataSetTest::test_derived_classes()
 {
-    PeopleTable pt;
-    PersonDataRow pdr = pt.AddNewRow();
+    try
+    {
+        PeopleTable pt;
+        PersonDataRow pdr = pt.AddNewRow();
 
-    QVERIFY(pt.RowCount() == 1);
-    QVERIFY(pt.Rows().Contains(pdr));
+        QVERIFY(pt.RowCount() == 1);
+        QVERIFY(pt.Rows().Contains(pdr));
 
-    pt[0].SetName("Julian");
-    QVERIFY(pdr.GetName() == "Julian");
-    QVERIFY(pdr[0] == "Julian");
+        pt[0].SetName("Julian");
+        QVERIFY(pdr.GetName() == "Julian");
+        QVERIFY(pdr[0] == "Julian");
 
-    pt[0].SetLastName("Toker");
-    QVERIFY(pdr.GetLastName() == "Toker");
-    QVERIFY(pdr[1].Equals("Toker"));
+        pt[0].SetLastName("Toker");
+        QVERIFY(pdr.GetLastName() == "Toker");
+        QVERIFY(pdr[1].Equals("Toker"));
 
-    QUuid id(pdr.GetId());
+        QUuid id(pdr.GetId());
 
-    // This clones the row and adds a copy
-    pt.ImportRow(pdr);
+        // This clones the row and adds a copy
+        pt.ImportRow(pdr);
 
-    QVERIFY(pt[0].GetId() == pt[1].GetId());
-    QVERIFY(pt[0].GetId() == id);
-    QVERIFY(pt[0] != pt[1]);
-    QVERIFY(pdr != pt[1]);
-
-
-    // You can even use a normal data row to reference the person data row:
-    DataRow dr(pdr);
-    QVERIFY(dr == pdr);
-    QVERIFY(dr != pt[1]);
-    QVERIFY(dr.Equals(pt[0]));
-    QVERIFY(((DataRowCollectionBase<DataRow> &)pt.Rows()).Contains(dr));
-
-    pdr.CloneTo(dr);
-    QVERIFY(dr[0] == "Julian");
-    QVERIFY(dr[1] == "Toker");
-
-    // You can't get to the id though, unless you cast the data row as a persondatarow
-    QVERIFY(((PersonDataRow &)dr).GetId() == id.toString());
+        QVERIFY(pt[0].GetId() == pt[1].GetId());
+        QVERIFY(pt[0].GetId() == id);
+        QVERIFY(pt[0] != pt[1]);
+        QVERIFY(pdr != pt[1]);
 
 
+        // You can even use a normal data row to reference the person data row:
+        DataRow dr(pdr);
+        QVERIFY(dr == pdr);
+        QVERIFY(dr != pt[1]);
+        QVERIFY(dr.Equals(pt[0]));
+        QVERIFY(((DataRowCollectionBase<DataRow> &)pt.Rows()).Contains(dr));
 
-    // Now we'll create a Dog table:
-    DogTable dog_table;
-    dog_table.AddNewRow(GVariantList() << "Robert" << "Bob" << "Dachshund");
-    dog_table.AddNewRow(GVariantList() << "Debi" << "Pebbles" << "Dachshund");
-    dog_table.AddNewRow(GVariantList() << "Lily" << "Lilz" << "Shitsu");
+        pdr.CloneTo(dr);
+        QVERIFY(dr[0] == "Julian");
+        QVERIFY(dr[1] == "Toker");
 
-    QVERIFY(_verify_dog_data(dog_table));
+        // You can't get to the id though, unless you cast the data row as a persondatarow
+        QVERIFY(((PersonDataRow &)dr).GetId() == id.toString());
 
 
 
-    // Now we'll create a data set to house both tables
-    DataSet ds;
-    ds.AddTable(pt);
-    ds.AddTable(dog_table);
+        // Now we'll create a Dog table:
+        DogTable dog_table;
+        dog_table.AddNewRow(GVariantList() << "Robert" << "Bob" << "Dachshund");
+        dog_table.AddNewRow(GVariantList() << "Debi" << "Pebbles" << "Dachshund");
+        dog_table.AddNewRow(GVariantList() << "Lily" << "Lilz" << "Shitsu");
 
-    QVERIFY(ds.TableCount() == 2);
+        QVERIFY(_verify_dog_data(dog_table));
 
-    // Test that the dog data is in order (note that you can safely cast the normal
-    //   table into the strongly-typed DogTable set
-    QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
 
-    // Test that the people data is in order
-    QVERIFY(ds[0][0][0] == "Julian");
-    QVERIFY(ds[0][0][1] == "Toker");
 
-    // Test that we can reconstruct from xml
-    DataSet ds2;
-    ds2.FromXmlQString(ds.ToXmlQString());
+        // Now we'll create a data set to house both tables
+        DataSet ds;
+        ds.AddTable(pt);
+        ds.AddTable(dog_table);
 
-    //qDebug(ds2.ToXmlString(true).c_str());
+        QVERIFY(ds.TableCount() == 2);
 
-    QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
-    QVERIFY(ds2[0][0][0] == "Julian");
-    QVERIFY(ds2[0][0][1] == "Toker");
-    QVERIFY(((PersonDataRow &)ds2[0][0]).GetId() == id);
+        // Test that the dog data is in order (note that you can safely cast the normal
+        //   table into the strongly-typed DogTable set
+        QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
+
+        // Test that the people data is in order
+        QVERIFY(ds[0][0][0] == "Julian");
+        QVERIFY(ds[0][0][1] == "Toker");
+
+        // Test that we can reconstruct from xml
+        DataSet ds2;
+        ds2.FromXmlQString(ds.ToXmlQString());
+
+        //qDebug(ds2.ToXmlString(true).c_str());
+
+        QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
+        QVERIFY(ds2[0][0][0] == "Julian");
+        QVERIFY(ds2[0][0][1] == "Toker");
+        QVERIFY(((PersonDataRow &)ds2[0][0]).GetId() == id);
+
+
+        // Here is our strongly typed dataset in action:
+        DogOwnerDataSet dods;
+        QVERIFY(dods.TableCount() == 2);
+
+        QVERIFY(dods.GetTableIndex("People") == 0);
+        QVERIFY(dods.GetTableIndex("Dogs") == 1);
+
+        QVERIFY(dods.GetDogTable().ColumnCount() == 4);
+        QVERIFY(dods.GetPeopleTable().ColumnCount() == 3);
+        QVERIFY(dods.GetDogTable().RowCount() == 0);
+        QVERIFY(dods.GetPeopleTable().RowCount() == 0);
+
+        PersonDataRow p1 = dods.GetPeopleTable().AddNewRow();
+        p1.SetName("Frisco");
+        p1.SetLastName("Kid");
+        QUuid p1_id = p1.GetId();
+
+        QVERIFY(dods.GetPeopleTable()[0].GetName() == "Frisco");
+        QVERIFY(dods.GetPeopleTable()[0].GetLastName() == "Kid");
+        QVERIFY(dods.GetPeopleTable()[0].GetId() == p1_id);
+
+        DogRow d1 = dods.GetDogTable().AddNewRow(GVariantList() << "Muffy" << "" << "Terrier" << p1_id);
+        QVERIFY(dods.GetDogTable().RowCount() == 1);
+        QVERIFY(d1 == dods.GetDogTable()[0]);
+
+        QVERIFY(d1.GetName() == "Muffy");
+        QVERIFY(d1.GetNickName() == "");
+        QVERIFY(d1.GetBreed() == "Terrier");
+        QVERIFY(d1.GetOwnerId() == p1_id);
+    }
+    catch(Exception &ex)
+    {
+        dLogException(ex);
+        QVERIFY(false);
+    }
 }
 
 
