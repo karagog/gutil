@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef DATATABLEBASE_H
 #define DATATABLEBASE_H
 
+#include "datarow.h"
 #include "datatable.h"
 #include "sharedtabledata.h"
 #include "Custom/gshareddatapointer.h"
@@ -133,15 +134,31 @@ protected:
     //  version of the shared data object
     DataTableBase(SharedTableData<RowType> *);
 
+    // Derived tables can implement their own row initializations
+    virtual void init_new_row(DataRow &){}
+    virtual void validate_new_row_derived(const DataRow &) const
+            throw(Core::ValidationException){}
+
+    void validate_new_row(const DataRow &r) const
+            throw(Core::ValidationException)
+    {
+        if(*this != r.row_data().Table())
+            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                      "The row does not belong to this table.  "
+                                      "If you still want to add it, then call 'ImportRow' "
+                                      "on the parent table.");
+        else if(Rows().Contains(r))
+            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                      "Row already exists in the table");
+
+        // Derived tables can provide extra validation
+        validate_new_row_derived(r);
+    }
+
     // Friend classes can access our data through this method:
     SharedTableData<RowType> &table_data() const;
 
     virtual DataTableBase<RowType> &CloneTo(DataTableBase<RowType> &) const;
-
-    // Derived classes will have to implement some extension of the
-    //  read/write xml functions
-    virtual void write_xml_protected(QXmlStreamWriter &) const{}
-    virtual void read_xml_protected(QXmlStreamReader &){}
 
     // IUpdatable interface:
     virtual void commit_reject_changes(bool commit);

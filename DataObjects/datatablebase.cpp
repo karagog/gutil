@@ -155,6 +155,8 @@ template <class RowType> RowType &DataObjects::DataTableBase<RowType>::AddNewRow
     for(int i = 0; i < values.length() && i < ColumnCount(); i++)
         dr[i] = values.at(i);
 
+    init_new_row(dr);
+
     return AddRow(dr);
 }
 
@@ -168,6 +170,9 @@ template <class RowType> RowType &DataObjects::DataTableBase<RowType>::ImportRow
     RowType tmpr(r);
     r.CloneTo(tmpr);
     tmpr.row_data().Table() = *this;
+
+    init_new_row(tmpr);
+
     return AddRow(tmpr);
 }
 
@@ -297,8 +302,6 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::WriteXml(QXml
     for(int i = 0; i < RowCount(); i++)
         table_data().Rows()[i].WriteXml(sw);
 
-    write_xml_protected(sw);
-
     sw.writeEndElement();
 }
 
@@ -332,8 +335,6 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::ReadXml(QXmlS
             AddNewRow();
             (*this)[RowCount() - 1].ReadXml(sr);
         }
-
-        read_xml_protected(sr);
 
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != DATATABLE_XML_ID);

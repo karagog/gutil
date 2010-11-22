@@ -17,8 +17,6 @@ limitations under the License.*/
 
 #include "DataObjects/datatablebase.h"
 
-#define NUM_PEOPLE_COLS 3
-
 class PersonDataRow;
 
 class PeopleTable :
@@ -31,7 +29,6 @@ public:
     // We customize the way we init, so that by default our people have a name and
     //  identity
     PeopleTable()
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", NUM_PEOPLE_COLS)
     {
         _init();
     }
@@ -45,15 +42,21 @@ public:
 protected:
 
     PeopleTable(const DataSet &s)
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>(s, "People", NUM_PEOPLE_COLS)
+        :GUtil::DataObjects::DataTableBase<PersonDataRow>(s)
     {
         _init();
+    }
+
+    virtual void init_new_row(DataRow &r){
+        r.At(2) = QUuid::createUuid();
     }
 
 
 private:
 
     void _init(){
+        SetTableName("People");
+
         // Initialize your custom column keys and labels
         SetColumnHeaders(QStringList("name") << "lastname" << "id",
                          QStringList("Name") << "Last Name" << "Identifier");

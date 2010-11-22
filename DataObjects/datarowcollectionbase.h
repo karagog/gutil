@@ -59,10 +59,16 @@ protected:
     DataRowCollectionBase(const TableType &t)
         :_table(t){}
 
-    virtual ~DataRowCollectionBase(){}
-
     DataRowCollectionBase(const DataRowCollectionBase<RowType> &o){
         o.CloneTo(*this);
+    }
+
+    virtual ~DataRowCollectionBase(){}
+
+    void validate_new_item(const RowType &i) const
+            throw(Core::ValidationException)
+    {
+        Table().validate_new_row(i);
     }
 
 
@@ -82,19 +88,6 @@ protected:
         }
 
         return o;
-    }
-
-    virtual void validate_new_item(const RowType &i) const
-            throw(Core::ValidationException)
-    {
-        if(Table() != i.row_data().Table())
-            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                      "The row does not belong to this table.  "
-                                      "If you still want to add it, then call 'ImportRow' "
-                                      "on the parent table.");
-        else if(Collection<RowType>::Contains(i))
-            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                      "Row already exists in the table");
     }
 
 

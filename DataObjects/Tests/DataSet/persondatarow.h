@@ -43,9 +43,7 @@ public:
     PersonDataRow(const DataTableBase<PersonDataRow> &tbl,
                   const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
         :DataRow(tbl, vals)
-    {
-        At(2) = QUuid::createUuid();
-    }
+    {}
 
 
     // With these convenient macros we declare strongly-typed data accessors

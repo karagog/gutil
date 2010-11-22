@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef SHAREDROWDATA_H
 #define SHAREDROWDATA_H
 
-#include "datatablebase.h"
+#include "datatable.h"
 #include "gvariantcollection.h"
 #include "Custom/gshareddata.h"
 
@@ -28,42 +28,23 @@ class SharedRowData :
 public:
 
     SharedRowData(const DataTable &t,
-                  const Custom::GVariantList &vals)
-        :_table(t),
-        tuple(vals)
-    {
-        tuple.Resize(_table.ColumnCount());
-    }
+                  const Custom::GVariantList &vals);
 
-    SharedRowData(const SharedRowData &o)
-        :Custom::GSharedData(o),
-        _table(o._table),
-        tuple(o.tuple){}
+    SharedRowData(const SharedRowData &o);
 
-    virtual ~SharedRowData(){}
+    virtual ~SharedRowData();
 
 
-    DataTable &Table(){
-        return _table;
-    }
+    DataTable &Table();
+    const DataTable &Table() const;
 
-    const DataTable &Table() const{
-        return _table;
-    }
-
-    GVariantCollection &Tuple(){
-        return tuple;
-    }
-
-    const GVariantCollection &Tuple() const{
-        return tuple;
-    }
-
+    GVariantCollection &Tuple();
+    const GVariantCollection &Tuple() const;
 
 private:
 
-    DataTable _table;
-    GVariantCollection tuple;
+    DataTable *_table;
+    GVariantCollection *_tuple;
 
 };
 

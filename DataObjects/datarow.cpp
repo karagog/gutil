@@ -175,4 +175,3 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
               sr.name() != ROW_XML_ID);
     }
 }
-

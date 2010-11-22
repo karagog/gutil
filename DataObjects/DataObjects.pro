@@ -26,6 +26,7 @@ SOURCES += \
     sharedsetdata.cpp \
     datacolumncollection.cpp \
     datacolumn.cpp \
-    datatablecollection.cpp
+    datatablecollection.cpp \
+    sharedrowdata.cpp
 
 INCLUDEPATH += ..
