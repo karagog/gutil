@@ -16,8 +16,8 @@ limitations under the License.*/
 #define PEOPLETABLE_H
 
 #include "DataObjects/datatablebase.h"
-
-class PersonDataRow;
+#include "persondatarow.h"
+#include "gutil_macros.h"
 
 class PeopleTable :
         public GUtil::DataObjects::DataTableBase<PersonDataRow>
@@ -51,10 +51,35 @@ protected:
         r.At(2) = QUuid::createUuid();
     }
 
+    static void validate_new_row_people_table(const DataTable &dt, const DataRow &r)
+            throw(Core::ValidationException)
+    {
+        bool contains_unique_id = false;
+
+        const PeopleTable &pt = (const PeopleTable &)dt;
+        const PersonDataRow &item = r;
+
+        GUTIL_FOREACH(PersonDataRow, pdr, pt.Rows())
+                if(pdr.GetId() == item.GetId()){
+                    contains_unique_id = true;
+                    break;
+                }
+            }
+
+        if(contains_unique_id)
+            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                      QString("People table already has id %1")
+                                      .arg(item.GetId()).toStdString());
+    }
+
 
 private:
 
     void _init(){
+
+        // Set our validation function
+        table_data().validate_new_row_custom = &validate_new_row_people_table;
+
         SetTableName("People");
 
         // Initialize your custom column keys and labels

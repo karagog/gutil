@@ -16,7 +16,6 @@ limitations under the License.*/
 #define PERSONDATAROW_H
 
 #include "DataObjects/datarow.h"
-#include "peopletable.h"
 #include "Custom/gvariant.h"
 #include <QUuid>
 

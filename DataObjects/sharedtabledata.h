@@ -31,16 +31,25 @@ template <class RowType> class SharedTableData :
 public:
 
     SharedTableData()
-        :_rows(new DataRowCollectionBase<RowType>(this)){}
+        :_rows(new DataRowCollectionBase<RowType>(this))
+    {
+        validate_new_row_custom = 0;
+    }
 
     SharedTableData(const DataSet &ds)
         :_dataset(ds),
-        _rows(new DataRowCollectionBase<RowType>(this)){}
+        _rows(new DataRowCollectionBase<RowType>(this))
+    {
+        validate_new_row_custom = 0;
+    }
 
     SharedTableData(const SharedTableData &d)
         :_dataset(d._dataset),
         _rows(new DataRowCollectionBase<RowType>(d.Rows())),
-        _columns(d.Columns()){}
+        _columns(d.Columns())
+    {
+        validate_new_row_custom = d.validate_new_row_custom;
+    }
 
     virtual ~SharedTableData(){
         delete _rows;
@@ -78,6 +87,11 @@ public:
     void SetName(const QString &v){
         _name = v;
     }
+
+
+    // Derived tables can set their own row validation function:
+    void (*validate_new_row_custom)(const DataTable &, const DataRow &)
+            throw(Core::ValidationException);
 
 
 private:

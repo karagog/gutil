@@ -136,9 +136,11 @@ protected:
 
     // Derived tables can implement their own row initializations
     virtual void init_new_row(DataRow &){}
-    virtual void validate_new_row_derived(const DataRow &) const
-            throw(Core::ValidationException){}
 
+    // Friend classes can access our data through this method:
+    SharedTableData<RowType> &table_data() const;
+
+    // This is called any time you add a new row to the table
     void validate_new_row(const DataRow &r) const
             throw(Core::ValidationException)
     {
@@ -152,12 +154,11 @@ protected:
                                       "Row already exists in the table");
 
         // Derived tables can provide extra validation
-        validate_new_row_derived(r);
+        if(table_data().validate_new_row_custom != 0)
+            table_data().validate_new_row_custom(*this, r);
     }
 
-    // Friend classes can access our data through this method:
-    SharedTableData<RowType> &table_data() const;
-
+    // IClonable Interface:
     virtual DataTableBase<RowType> &CloneTo(DataTableBase<RowType> &) const;
 
     // IUpdatable interface:
