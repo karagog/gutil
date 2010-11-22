@@ -67,4 +67,12 @@ public: \
 #define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
 #define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
 
+
+
+// A convenient FOREACH implementation, which works with GUtil collections
+                    // (not as efficient as with iterators)
+#define GUTIL_FOREACH( type, name, sourcecollection ) \
+    for( int i = 0; i < sourcecollection.Count(); i++ ){ \
+        const type &name = sourcecollection[i];
+
 #endif // GUTIL_MACROS_H
