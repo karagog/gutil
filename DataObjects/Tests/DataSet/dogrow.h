@@ -20,7 +20,6 @@ limitations under the License.*/
 class DogRow;
 
 typedef DataRowCollectionBase<DogRow> DogRowCollection;
-typedef SharedRowDataBase<DogRow> SharedDogData;
 
 
 // This is the simple version of a derived data row; one in which the row data
@@ -38,10 +37,10 @@ public:
     {}
 
     DogRow(const DataTableBase<DogRow> &tbl,
-                  const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
+           const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
 
             // We pass in our own derivation of the shared data class
-        :DataRow(new SharedDogData(tbl, vals))
+        :DataRow(tbl, vals)
     {}
 
 
@@ -49,17 +48,6 @@ public:
     ROW_PROPERTY(Name, QString, "name");
     ROW_PROPERTY(NickName, QString, "nickname");
     ROW_PROPERTY(Breed, QString, "breed");
-
-
-protected:
-
-    SharedDogData &row_data(){
-        return (SharedDogData &)DataRow::row_data();
-    }
-
-    const SharedDogData &row_data() const{
-        return (const SharedDogData &)DataRow::row_data();
-    }
 
 };
 

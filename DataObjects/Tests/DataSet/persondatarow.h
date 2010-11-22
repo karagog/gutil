@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef PERSONDATAROW_H
 #define PERSONDATAROW_H
 
-//#include "DataObjects/datatable.h"
 #include "DataObjects/datarow.h"
 #include "peopletable.h"
 #include "Custom/gvariant.h"
@@ -27,37 +26,6 @@ class PersonDataRow;
 //  our derived data row.
 typedef GUtil::DataObjects::DataRowCollectionBase<PersonDataRow>
         PeopleRowCollection;
-
-
-// We derive our own SharedRowData object, because we want to include extra data
-//   in addition to the data that's stored in the tuple.  Otherwise we could declare
-//   this as a typedef of SharedRowDataBase<PersonDataRow>
-class SharedPersonData :
-        public GUtil::DataObjects::SharedRowDataBase<PersonDataRow>
-{
-public:
-
-    SharedPersonData(const DataTableBase<PersonDataRow> &t,
-                     const Custom::GVariantList &vals)
-                         :SharedRowDataBase<PersonDataRow>(t, vals),
-                         identifier(QUuid::createUuid()) {}
-
-    SharedPersonData(const SharedPersonData &o)
-        :SharedRowDataBase<PersonDataRow>(o),
-        identifier(o.identifier) {}
-
-    QUuid Id() const{
-        return identifier;
-    }
-
-
-private:
-
-    // Can contain any new custom data; in this case a unique identifier
-    QUuid identifier;
-
-};
-
 
 
 class PersonDataRow :
@@ -74,10 +42,10 @@ public:
 
     PersonDataRow(const DataTableBase<PersonDataRow> &tbl,
                   const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
-
-            // We pass in our own derivation of the shared data class
-        :DataRow(new SharedPersonData(tbl, vals))
-    {}
+        :DataRow(tbl, vals)
+    {
+        At(2) = QUuid::createUuid();
+    }
 
 
     // With these convenient macros we declare strongly-typed data accessors
@@ -86,29 +54,7 @@ public:
     //   to worry about the order of the columns.
     ROW_PROPERTY(Name, QString, "name");
     ROW_PROPERTY(LastName, QString, "lastname");
-
-    QUuid GetId() const{
-        return row_data().Id();
-    }
-
-
-protected:
-
-    // We override these methods which properly cast our row_data as the right
-    //  shared data structure
-    SharedPersonData &row_data(){
-        return (SharedPersonData &)DataRow::row_data();
-    }
-
-    const SharedPersonData &row_data() const{
-        return (const SharedPersonData &)DataRow::row_data();
-    }
-
-    // If there was some custom data in the shared struct
-    //  then we'd have to manually copy it here, exactly as shown in the comments
-    virtual void copy_shared_data(Custom::GSharedDataPointer<Custom::GSharedData> &dest) const{
-        dest = new SharedPersonData(row_data());
-    }
+    READONLY_ROW_PROPERTY(Id, QUuid, "id");
 
 };
 

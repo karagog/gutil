@@ -22,12 +22,12 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-template <class RowType> class SharedRowDataBase :
+class SharedRowData :
         public Custom::GSharedData
 {
 public:
 
-    SharedRowDataBase(const DataTableBase<RowType> &t,
+    SharedRowData(const DataTable &t,
                   const Custom::GVariantList &vals)
         :_table(t),
         tuple(vals)
@@ -35,19 +35,19 @@ public:
         tuple.Resize(_table.ColumnCount());
     }
 
-    SharedRowDataBase(const SharedRowDataBase<RowType> &o)
+    SharedRowData(const SharedRowData &o)
         :Custom::GSharedData(o),
         _table(o._table),
         tuple(o.tuple){}
 
-    virtual ~SharedRowDataBase(){}
+    virtual ~SharedRowData(){}
 
 
-    DataTableBase<RowType> &Table(){
+    DataTable &Table(){
         return _table;
     }
 
-    const DataTableBase<RowType> &Table() const{
+    const DataTable &Table() const{
         return _table;
     }
 
@@ -62,16 +62,10 @@ public:
 
 private:
 
-    DataTableBase<RowType> _table;
+    DataTable _table;
     GVariantCollection tuple;
 
 };
-
-
-
-// Follow this example as one way to declare your own shared row data.
-//  You can also derive a new class from it and put your own custom data in it
-typedef SharedRowDataBase<DataRow> SharedRowData;
 
 
 GUTIL_END_NAMESPACE

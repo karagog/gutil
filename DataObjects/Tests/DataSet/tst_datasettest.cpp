@@ -450,6 +450,17 @@ void DataSetTest::test_derived_classes()
     // Test that the people data is in order
     QVERIFY(ds[0][0][0] == "Julian");
     QVERIFY(ds[0][0][1] == "Toker");
+
+    // Test that we can reconstruct from xml
+    DataSet ds2;
+    ds2.FromXmlQString(ds.ToXmlQString());
+
+    //qDebug(ds2.ToXmlString(true).c_str());
+
+    QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
+    QVERIFY(ds2[0][0][0] == "Julian");
+    QVERIFY(ds2[0][0][1] == "Toker");
+    QVERIFY(((PersonDataRow &)ds2[0][0]).GetId() == id);
 }
 
 

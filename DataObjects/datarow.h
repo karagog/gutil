@@ -112,13 +112,6 @@ namespace GUtil
             const SharedRowData &row_data() const;
 
 
-            // Derived classes may have to implement some extension of the
-            //  read/write xml functions (only have to serialize the data that's
-            //  not already serialized by the base DataRow class)
-            virtual void write_xml_protected(QXmlStreamWriter &) const{}
-            virtual void read_xml_protected(QXmlStreamReader &){}
-
-
         private:
 
             Custom::GSharedDataPointer< Custom::GSharedData > _row_data;

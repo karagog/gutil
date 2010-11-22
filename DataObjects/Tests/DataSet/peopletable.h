@@ -27,11 +27,11 @@ public:
     // We customize the way we init, so that by default our people have a name and
     //  identity
     PeopleTable()
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", 2)
+        :GUtil::DataObjects::DataTableBase<PersonDataRow>("People", 3)
     {
         // Initialize your custom column keys and labels
-        SetColumnHeaders(QStringList("name") << "lastname",
-                         QStringList("Name") << "Last Name");
+        SetColumnHeaders(QStringList("name") << "lastname" << "id",
+                         QStringList("Name") << "Last Name" << "Identifier");
     }
 
     // We don't do anything special on copy, but we have to declare it anyways
