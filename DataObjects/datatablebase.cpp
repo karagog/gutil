@@ -59,6 +59,13 @@ template <class RowType> DataObjects::DataTableBase<RowType>::
     :_table_data(td)
 {}
 
+template <class RowType> DataObjects::DataTableBase<RowType>::~DataTableBase()
+{
+    // It doesn't matter where we put this template guard, because it will fail
+    //  at compile time.  We wrap it in an 'if' to suppress the compile error.
+    if(RowType::DerivedFromDataRow);
+}
+
 template <class RowType> void DataObjects::DataTableBase<RowType>::_init(const QString &name, int num_cols)
 {
     _table_data->_name = name;

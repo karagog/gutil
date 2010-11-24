@@ -63,7 +63,11 @@ protected:
         o.CloneTo(*this);
     }
 
-    virtual ~DataRowCollectionBase(){}
+    virtual ~DataRowCollectionBase(){
+        // It doesn't matter where we put this template guard, because it will fail
+        //  at compile time.  We wrap it in an 'if' to suppress the compile error.
+        if(RowType::DerivedFromDataRow);
+    }
 
     virtual void validate_new_item(const RowType &i) const
             throw(Core::ValidationException)

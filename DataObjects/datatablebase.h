@@ -59,7 +59,7 @@ public:
     DataTableBase(int num_cols = 0);
     DataTableBase(const QString &table_name, int num_cols = 0);
     DataTableBase(const DataTableBase<RowType> &);
-    virtual ~DataTableBase(){}
+    virtual ~DataTableBase();
 
     RowType &AddRow(const RowType &);
     RowType &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList());
@@ -112,7 +112,7 @@ public:
     QString Name() const;
     void SetTableName(const QString &) const;
 
-    DataTableBase Clone() const;
+    DataTableBase<RowType> Clone() const;
 
 
     // Interface for IEquatable:

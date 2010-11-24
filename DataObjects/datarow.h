@@ -69,6 +69,10 @@ namespace GUtil
             int Index() const;
             int ColumnCount() const;
 
+            // This is used only as a guard in our template classes, to guarantee
+            //  that the template class is derived from DataRow.
+            enum IsDerivedFromDataRow{ DerivedFromDataRow };
+
             // IEquatable interface:
             virtual bool Equals(const DataRow &) const;
 

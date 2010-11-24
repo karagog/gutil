@@ -53,6 +53,10 @@ public:
 
     virtual ~SharedTableData(){
         delete _rows;
+
+        // It doesn't matter where we put this template guard, because it will fail
+        //  at compile time.  We wrap it in an 'if' to suppress the compile error.
+        if(RowType::DerivedFromDataRow);
     }
 
     DataSet GetDataSet() const{
