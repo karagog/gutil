@@ -35,19 +35,26 @@ namespace GUtil
         // These functions simplify data transportation to send/receive commands.  The derived transport class
         //   will be responsible for the actual transport mechanism, including protocols and the data exchange.
 
-        class GIODevice : public QThread, public Core::Interfaces::IReadOnlyObject
+        class GIODevice :
+                public QThread,
+                public Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
 
         public slots:
+
             void SendData(const QByteArray &);
             void Write(const QByteArray &);
 
+
         signals:
+
             // This signal happens when there's new data available
             void ReadyRead();
 
+
         public:
+
             virtual ~GIODevice();
 
             // Note: You can rely on the signal 'ReadyRead' to get the new data, but you can also call this manually
@@ -63,7 +70,9 @@ namespace GUtil
             void operator >> (QString &);
             void operator >> (std::string &);
 
+
         protected:
+
             explicit GIODevice(QObject *parent = 0);
 
             // Because we're a QThread, we can implement this function to run when 'start()' is called
@@ -83,13 +92,18 @@ namespace GUtil
             //   new data is available
             QWaitCondition condition_new_data_available;
 
+
         protected slots:
+
             // This emits the readyRead signal
             void raiseReadyRead();
 
+
         private:
+
             // Protects us so we can be thread-safe
             QMutex this_giodevice_lock;
+
 
         };
     }

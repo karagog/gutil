@@ -12,6 +12,7 @@ namespace GUtil
         {
             Q_OBJECT
         public:
+
             explicit LocalSocketTransport(QLocalSocket *sock = 0, QObject *parent = 0);
 
             void ConnectToServer(const QString &)
@@ -20,7 +21,9 @@ namespace GUtil
 
             QString ServerName() const;
 
+
         protected:
+
             QLocalSocket &Socket() const;
 
         };

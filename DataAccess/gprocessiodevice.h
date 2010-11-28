@@ -11,10 +11,12 @@ namespace GUtil
     namespace DataAccess
     {
         // Conducts data transport between a processes via stdin/stdout
-        class GProcessIODevice : public GQIODevice
+        class GProcessIODevice :
+                public GQIODevice
         {
             Q_OBJECT
         public:
+
             explicit GProcessIODevice(QObject *parent = 0);
             explicit GProcessIODevice(QProcess *p, QObject *parent = 0);
             explicit GProcessIODevice(const QString &exe_name,
@@ -22,6 +24,7 @@ namespace GUtil
                                       QObject *parent = 0);
 
             QProcess &Process() const;
+
 
         private:
             void _init();

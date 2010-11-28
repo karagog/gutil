@@ -24,15 +24,19 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class GQIODevice : public GIODevice
+        class GQIODevice :
+                public GIODevice
         {
             Q_OBJECT
         public:
+
             explicit GQIODevice(QIODevice *, QObject *parent = 0);
 
             virtual bool HasDataAvailable();
 
+
         protected:
+
             QIODevice &IODevice() const;
 
             virtual void send_data(const QByteArray &)
@@ -40,7 +44,9 @@ namespace GUtil
             virtual QByteArray receive_data()
                     throw(GUtil::Core::DataTransportException);
 
+
         private:
+
             void _fail_if_not_open();
 
             QIODevice *_io_device;
