@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "datarowcollection.h"
 #include "datatable.h"
 #include "datatablecollection.h"
+#include "Custom/gshareddata.h"
 #include <QSharedData>
 #include <QString>
 #include <QVariantList>
@@ -32,7 +33,7 @@ class DataRow;
 class DataTableCollection;
 
 class SharedSetData :
-        public QSharedData
+        public Custom::GSharedData
 {
 public:
 

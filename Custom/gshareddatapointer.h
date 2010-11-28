@@ -48,6 +48,11 @@ public:
         *this = o;
     }
 
+    inline ~GSharedDataPointer(){
+        // Make sure T is derived from GSharedData
+        if(T::IsDerivedFromGSharedData);
+    }
+
     GSharedDataPointer &operator =(const GSharedDataPointer &o){
         ((QExplicitlySharedDataPointer<T> &)(*this)) = o;
         _lock = o._lock;

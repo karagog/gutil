@@ -37,7 +37,10 @@ protected:
     ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
         :_explicitly_shared_data(o._explicitly_shared_data){}
 
-    virtual ~ExplicitlySharedObject(){}
+    virtual ~ExplicitlySharedObject(){
+        // This is a template constraint; T must be a type derived from GSharedData
+        if(T::IsDerivedFromGSharedData);
+    }
 
     T *GetExplicitlySharedData() const{
         return _explicitly_shared_data.data();

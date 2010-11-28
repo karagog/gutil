@@ -35,6 +35,9 @@ public:
 
     // Allow derived classes to be deleted by this reference
     virtual ~GSharedData(){}
+
+    enum DerivedFromGSharedData{ IsDerivedFromGSharedData };
+
 };
 
 

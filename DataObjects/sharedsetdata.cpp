@@ -31,7 +31,8 @@ DataObjects::SharedSetData::SharedSetData(int num_tables)
 }
 
 DataObjects::SharedSetData::SharedSetData(const DataObjects::SharedSetData &o)
-    :_tables(new DataTableCollection(o.Tables()))
+    :GSharedData(o),
+    _tables(new DataTableCollection(o.Tables()))
 {}
 
 DataObjects::SharedSetData::~SharedSetData(){}
