@@ -23,26 +23,40 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
+template <class T>
 class ExplicitlySharedObject
 {
 protected:
 
     // Derived classes initialize this base with their own custom shared data object.
     //  This class will delete it on destruction
-    ExplicitlySharedObject(Custom::GSharedData *);
+    ExplicitlySharedObject(T *d)
+        :_explicitly_shared_data(d){}
 
     // You must call this copy constructor in your derived class'
-    ExplicitlySharedObject(const ExplicitlySharedObject &);
+    ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
+        :_explicitly_shared_data(o._explicitly_shared_data){}
 
-    virtual ~ExplicitlySharedObject();
+    virtual ~ExplicitlySharedObject(){}
 
-    Custom::GSharedData *GetExplicitlySharedData() const;
-    void SetExplicitlySharedData(Custom::GSharedData *);
+    T *GetExplicitlySharedData() const{
+        return _explicitly_shared_data.data();
+    }
+
+    void SetExplicitlySharedData(T *d){
+        _explicitly_shared_data = d;
+    }
+
+    // This function detaches the explicitly shared data and calls the copy constructor
+    //  of the shared data object
+    void Detach(){
+        SetExplicitlySharedData(new T(*GetExplicitlySharedData()));
+    }
 
 
 private:
 
-    Custom::GSharedDataPointer<Custom::GSharedData> _explicitly_shared_data;
+    Custom::GSharedDataPointer<T> _explicitly_shared_data;
 
 };
 

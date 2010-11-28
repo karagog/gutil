@@ -25,17 +25,17 @@ using namespace Custom;
 
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
-    :ExplicitlySharedObject(new SharedRowData(dt, vals))
+    :ExplicitlySharedObject<SharedRowData>(new SharedRowData(dt, vals))
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
-    :ExplicitlySharedObject(o)
+    :ExplicitlySharedObject<SharedRowData>(o)
 {
     *this = o;
 }
 
-DataObjects::DataRow::DataRow(Custom::GSharedData *rd)
-    :ExplicitlySharedObject(rd)
+DataObjects::DataRow::DataRow(SharedRowData *rd)
+    :ExplicitlySharedObject<SharedRowData>(rd)
 {}
 
 DataObjects::DataRow::~DataRow(){}
@@ -58,14 +58,10 @@ bool DataObjects::DataRow::operator !=(const DataRow &o) const
 
 DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) const
 {
-    copy_shared_data(o);
+    o = *this;
+    o.Detach();
 
     return o;
-}
-
-void DataObjects::DataRow::copy_shared_data(DataObjects::DataRow &o) const
-{
-    o.SetExplicitlySharedData(new SharedRowData(row_data()));
 }
 
 Custom::GVariant &DataObjects::DataRow::operator [](int index)

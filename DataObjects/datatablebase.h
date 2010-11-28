@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "datarow.h"
 #include "datatable.h"
 #include "sharedtabledata.h"
-#include "Custom/gshareddatapointer.h"
+#include "explicitlysharedobject.h"
 #include "Custom/gvariant.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -41,6 +41,7 @@ template <class RowType>
 
         class DataTableBase
             :
+            public ExplicitlySharedObject< SharedTableData<RowType> >,
             public Interfaces::IQXmlSerializable,
             public Core::Interfaces::IReadOnlyObject,
             public Core::Interfaces::IUpdatable,
@@ -110,7 +111,7 @@ public:
     QStringList ColumnKeys() const;
     QStringList ColumnLabels() const;
     QString Name() const;
-    void SetTableName(const QString &) const;
+    void SetTableName(const QString &);
 
     DataTableBase<RowType> Clone() const;
 
@@ -138,7 +139,8 @@ protected:
     virtual void init_new_row(DataRow &){}
 
     // Friend classes can access our data through this method:
-    SharedTableData<RowType> &table_data() const;
+    SharedTableData<RowType> &table_data();
+    const SharedTableData<RowType> &table_data() const;
 
     // This is called any time you add a new row to the table
     void validate_new_row(const DataRow &r) const
@@ -168,8 +170,6 @@ protected:
 private:
 
     void _init(const QString &name, int num_cols);
-
-    Custom::GSharedDataPointer< SharedTableData<RowType> > _table_data;
 
 };
 

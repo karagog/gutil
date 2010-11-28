@@ -43,6 +43,7 @@ public:
 
 
     bool operator == (const SharedRowData &) const;
+    bool operator != (const SharedRowData &) const;
 
 
 private:

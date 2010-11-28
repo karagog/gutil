@@ -27,36 +27,34 @@ using namespace Custom;
 using namespace DataObjects;
 
 template <class RowType> DataObjects::DataTableBase<RowType>::DataTableBase(int num_cols)
-    :_table_data(new SharedTableData<RowType>)
+    :ExplicitlySharedObject< SharedTableData<RowType> >(new SharedTableData<RowType>)
 {
     _init(QString::null, num_cols);
 }
 
 template <class RowType> DataObjects::DataTableBase<RowType>::
         DataTableBase(const QString &nm, int num_cols)
-    :_table_data(new SharedTableData<RowType>)
+    :ExplicitlySharedObject< SharedTableData<RowType> >(new SharedTableData<RowType>)
 {
     _init(nm, num_cols);
 }
 
 template <class RowType> DataObjects::DataTableBase<RowType>::
         DataTableBase(const DataObjects::DataTableBase<RowType> &o)
-{
-    *this = o;
-}
+            :ExplicitlySharedObject< SharedTableData<RowType> >(o){}
 
 template <class RowType> DataObjects::DataTableBase<RowType>::
         DataTableBase(const DataObjects::DataSet &ds_parent,
                       const QString &name,
                       int num_cols)
-    :_table_data(new SharedTableData<RowType>(ds_parent))
+    :ExplicitlySharedObject< SharedTableData<RowType> >(new SharedTableData<RowType>(ds_parent))
 {
     _init(name, num_cols);
 }
 
 template <class RowType> DataObjects::DataTableBase<RowType>::
         DataTableBase(DataObjects::SharedTableData<RowType> *td)
-    :_table_data(td)
+    :ExplicitlySharedObject< SharedTableData<RowType> >(td)
 {}
 
 template <class RowType> DataObjects::DataTableBase<RowType>::~DataTableBase()
@@ -68,7 +66,7 @@ template <class RowType> DataObjects::DataTableBase<RowType>::~DataTableBase()
 
 template <class RowType> void DataObjects::DataTableBase<RowType>::_init(const QString &name, int num_cols)
 {
-    _table_data->_name = name;
+    table_data().SetName(name);
 
     QStringList sl;
     for(int i = 0; i < num_cols; i++)
@@ -77,9 +75,15 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::_init(const Q
 }
 
 template <class RowType> DataObjects::SharedTableData<RowType> &
+        DataObjects::DataTableBase<RowType>::table_data()
+{
+    return *ExplicitlySharedObject< SharedTableData<RowType> >::GetExplicitlySharedData();
+}
+
+template <class RowType> const SharedTableData<RowType> &
         DataObjects::DataTableBase<RowType>::table_data() const
 {
-    return *_table_data;
+    return *ExplicitlySharedObject< SharedTableData<RowType> >::GetExplicitlySharedData();
 }
 
 template <class RowType> RowType &DataObjects::DataTableBase<RowType>::operator [](int ind)
@@ -92,15 +96,16 @@ template <class RowType> const RowType &DataObjects::DataTableBase<RowType>::ope
     return Rows()[ind];
 }
 
-template <class RowType> DataObjects::DataTableBase<RowType> &DataObjects::DataTableBase<RowType>::operator =(const DataObjects::DataTableBase<RowType> &o)
+template <class RowType> DataObjects::DataTableBase<RowType> &
+        DataObjects::DataTableBase<RowType>::operator =(const DataObjects::DataTableBase<RowType> &o)
 {
-    _table_data = o._table_data;
+    SetExplicitlySharedData(o.GetExplicitlySharedData());
     return *this;
 }
 
 template <class RowType> bool DataObjects::DataTableBase<RowType>::operator ==(const DataObjects::DataTableBase<RowType> &o) const
 {
-    return _table_data == o._table_data;
+    return table_data() == o.table_data();
 }
 
 template <class RowType> bool DataObjects::DataTableBase<RowType>::operator !=(const DataObjects::DataTableBase<RowType> &o) const
@@ -112,14 +117,14 @@ template <class RowType> bool DataObjects::DataTableBase<RowType>::Equals(const 
 {
     bool ret = true;
 
-    if(_table_data != t._table_data)
+    if(table_data() != t.table_data())
     {
         if(ColumnCount() == t.ColumnCount())
         {
             for(int i = 0; ret && i < ColumnCount(); i++)
             {
-                ret = (_table_data->Columns().Key(i) == t._table_data->Columns().Key(i)) &&
-                      (_table_data->Columns().Label(i) == t._table_data->Columns().Label(i));
+                ret = (table_data().Columns().Key(i) == t.table_data().Columns().Key(i)) &&
+                      (table_data().Columns().Label(i) == t.table_data().Columns().Label(i));
             }
 
             if(ret)
@@ -128,8 +133,8 @@ template <class RowType> bool DataObjects::DataTableBase<RowType>::Equals(const 
                 {
                     for(int i = 0; ret && i < RowCount(); i++)
                     {
-                        ret = _table_data->Rows().At(i).Equals(
-                                t._table_data->Rows()[i]);
+                        ret = table_data().Rows().At(i).Equals(
+                                t.table_data().Rows()[i]);
                     }
                 }
                 else
@@ -146,13 +151,13 @@ template <class RowType> bool DataObjects::DataTableBase<RowType>::Equals(const 
 template <class RowType> DataObjects::DataRowCollectionBase<RowType> &
         DataObjects::DataTableBase<RowType>::Rows()
 {
-    return _table_data->Rows();
+    return table_data().Rows();
 }
 
 template <class RowType> const DataObjects::DataRowCollectionBase<RowType> &
         DataObjects::DataTableBase<RowType>::Rows() const
 {
-    return _table_data->Rows();
+    return table_data().Rows();
 }
 
 template <class RowType> RowType &DataObjects::DataTableBase<RowType>::AddNewRow(const Custom::GVariantList &values)
@@ -276,12 +281,12 @@ template <class RowType> QStringList DataObjects::DataTableBase<RowType>::Column
 
 template <class RowType> QString DataObjects::DataTableBase<RowType>::Name() const
 {
-    return _table_data->_name;
+    return table_data().GetName();
 }
 
-template <class RowType> void DataObjects::DataTableBase<RowType>::SetTableName(const QString &n) const
+template <class RowType> void DataObjects::DataTableBase<RowType>::SetTableName(const QString &n)
 {
-    _table_data->_name = n;
+    table_data().SetName(n);
 }
 
 
@@ -325,8 +330,8 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::ReadXml(QXmlS
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 
-        _table_data->_name = Utils::QStringHelpers::fromBase64(
-                sr.attributes().at(1).value().toString());
+        table_data().SetName(Utils::QStringHelpers::fromBase64(
+                sr.attributes().at(1).value().toString()));
 
         {
             QStringList new_keys = GVariant::FromXml(sr).toStringList();
@@ -348,7 +353,7 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::ReadXml(QXmlS
 template <class RowType> DataObjects::DataTableBase<RowType> &DataObjects::DataTableBase<RowType>::CloneTo(DataObjects::DataTableBase<RowType> &t) const
 {
     t = *this;
-    t._table_data.detach();
+    t.Detach();
     return t;
 }
 

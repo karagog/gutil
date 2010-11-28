@@ -56,3 +56,8 @@ bool DataObjects::SharedRowData::operator ==(const SharedRowData &o) const
 {
     return this == &o;
 }
+
+bool DataObjects::SharedRowData::operator !=(const SharedRowData &o) const
+{
+    return !(*this == o);
+}

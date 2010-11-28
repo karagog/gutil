@@ -93,6 +93,15 @@ public:
     }
 
 
+    bool operator ==(const SharedTableData<RowType> &o) const{
+        return this == &o;
+    }
+
+    bool operator !=(const SharedTableData<RowType> &o) const{
+        return !(*this == o);
+    }
+
+
     // Derived tables can set their own row validation function:
     void (*validate_new_row_custom)(const DataTable &, const DataRow &)
             throw(Core::ValidationException);

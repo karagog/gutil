@@ -40,7 +40,7 @@ namespace GUtil
         // Defines a row in a data table
 
         class DataRow :
-                public ExplicitlySharedObject,
+                public ExplicitlySharedObject<SharedRowData>,
                 public Interfaces::IQXmlSerializable,
                 public Core::Interfaces::IEquatable<DataRow>,
                 public Core::Interfaces::IClonable<DataRow>,
@@ -101,13 +101,7 @@ namespace GUtil
             // Derived classes can call this constructor with their own derived
             //  version of the shared data object (you don't necessarily have to
             //  derive your own version...)
-            DataRow(Custom::GSharedData *shared_row_data);
-
-
-
-            // Derived classes must implement a deep copy for the shared data objects,
-            //  if it's a derived class
-            virtual void copy_shared_data(DataRow &) const;
+            DataRow(SharedRowData *shared_row_data);
 
             // Friend classes can access our data via these methods
             //   Note that derived classes should override these methods to provide
