@@ -41,6 +41,10 @@ public:
     GVariantCollection &Tuple();
     const GVariantCollection &Tuple() const;
 
+
+    bool operator == (const SharedRowData &) const;
+
+
 private:
 
     DataTable *_table;

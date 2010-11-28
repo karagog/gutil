@@ -10,9 +10,9 @@ limitations under the License.*/
 
 #include "sharedrowdata.h"
 #include "datarowcollectionbase.h"
+#include "explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/gvariant.h"
-#include "Custom/gshareddatapointer.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/iupdatable.h"
@@ -40,6 +40,7 @@ namespace GUtil
         // Defines a row in a data table
 
         class DataRow :
+                public ExplicitlySharedObject,
                 public Interfaces::IQXmlSerializable,
                 public Core::Interfaces::IEquatable<DataRow>,
                 public Core::Interfaces::IClonable<DataRow>,
@@ -106,19 +107,13 @@ namespace GUtil
 
             // Derived classes must implement a deep copy for the shared data objects,
             //  if it's a derived class
-            virtual void copy_shared_data(
-                    Custom::GSharedDataPointer< Custom::GSharedData > &dest) const;
+            virtual void copy_shared_data(DataRow &) const;
 
             // Friend classes can access our data via these methods
             //   Note that derived classes should override these methods to provide
             //   access to their own version of the sharedRowData
             SharedRowData &row_data();
             const SharedRowData &row_data() const;
-
-
-        private:
-
-            Custom::GSharedDataPointer< Custom::GSharedData > _row_data;
 
         };
     }

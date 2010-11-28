@@ -25,29 +25,30 @@ using namespace Custom;
 
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
-    :_row_data(new SharedRowData(dt, vals))
+    :ExplicitlySharedObject(new SharedRowData(dt, vals))
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
+    :ExplicitlySharedObject(o)
 {
     *this = o;
 }
 
 DataObjects::DataRow::DataRow(Custom::GSharedData *rd)
-    :_row_data(rd)
+    :ExplicitlySharedObject(rd)
 {}
 
 DataObjects::DataRow::~DataRow(){}
 
 DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRow &o)
 {
-    _row_data = o._row_data;
+    SetExplicitlySharedData(o.GetExplicitlySharedData());
     return *this;
 }
 
 bool DataObjects::DataRow::operator ==(const DataObjects::DataRow &o) const
 {
-    return _row_data == o._row_data;
+    return row_data() == o.row_data();
 }
 
 bool DataObjects::DataRow::operator !=(const DataRow &o) const
@@ -57,15 +58,14 @@ bool DataObjects::DataRow::operator !=(const DataRow &o) const
 
 DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) const
 {
-    copy_shared_data(o._row_data);
+    copy_shared_data(o);
 
     return o;
 }
 
-void DataObjects::DataRow::copy_shared_data(
-        Custom::GSharedDataPointer< Custom::GSharedData > &dest) const
+void DataObjects::DataRow::copy_shared_data(DataObjects::DataRow &o) const
 {
-    dest = new SharedRowData(row_data());
+    o.SetExplicitlySharedData(new SharedRowData(row_data()));
 }
 
 Custom::GVariant &DataObjects::DataRow::operator [](int index)
@@ -100,12 +100,12 @@ int DataObjects::DataRow::ColumnCount() const
 
 DataObjects::SharedRowData &DataObjects::DataRow::row_data()
 {
-    return (SharedRowData &)*_row_data;
+    return *((SharedRowData *)GetExplicitlySharedData());
 }
 
 const DataObjects::SharedRowData &DataObjects::DataRow::row_data() const
 {
-    return (const SharedRowData &)*_row_data;
+    return *((SharedRowData *)GetExplicitlySharedData());
 }
 
 void DataObjects::DataRow::set_number_of_columns(int cols)
