@@ -18,7 +18,8 @@ HEADERS += \
     datarowcollection.h \
     datatable.h \
     sharedtabledata.h \
-    sharedrowdata.h
+    sharedrowdata.h \
+    explicitlysharedobject.h
 
 SOURCES += \
     dataset.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
     datacolumncollection.cpp \
     datacolumn.cpp \
     datatablecollection.cpp \
-    sharedrowdata.cpp
+    sharedrowdata.cpp \
+    explicitlysharedobject.cpp
 
 INCLUDEPATH += ..
