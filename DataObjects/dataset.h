@@ -36,7 +36,7 @@ class SharedSetData;
 class DataTableCollection;
 
 class DataSet :
-        public ExplicitlySharedObject<SharedSetData>,
+        protected ExplicitlySharedObject<SharedSetData>,
         public Interfaces::IQXmlSerializable,
         public Core::Interfaces::IReadOnlyObject,
         public Core::Interfaces::IUpdatable,

@@ -41,7 +41,7 @@ template <class RowType>
 
         class DataTableBase
             :
-            public ExplicitlySharedObject< SharedTableData<RowType> >,
+            protected ExplicitlySharedObject< SharedTableData<RowType> >,
             public Interfaces::IQXmlSerializable,
             public Core::Interfaces::IReadOnlyObject,
             public Core::Interfaces::IUpdatable,

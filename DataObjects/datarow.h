@@ -40,7 +40,7 @@ namespace GUtil
         // Defines a row in a data table
 
         class DataRow :
-                public ExplicitlySharedObject<SharedRowData>,
+                protected ExplicitlySharedObject<SharedRowData>,
                 public Interfaces::IQXmlSerializable,
                 public Core::Interfaces::IEquatable<DataRow>,
                 public Core::Interfaces::IClonable<DataRow>,
