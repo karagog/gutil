@@ -22,23 +22,21 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataObjects::DataSet::DataSet(int num_tables)
-    :_set_data(new SharedSetData(num_tables))
+    :ExplicitlySharedObject<SharedSetData>(new SharedSetData(num_tables))
 {}
 
 DataObjects::DataSet::DataSet(const DataObjects::DataSet &o)
-{
-    *this = o;
-}
+    :ExplicitlySharedObject<SharedSetData>(o){}
 
 DataObjects::DataSet::DataSet(SharedSetData *sd)
-    :_set_data(sd)
+    :ExplicitlySharedObject<SharedSetData>(sd)
 {}
 
 DataObjects::DataSet::~DataSet(){}
 
 DataObjects::DataSet &DataObjects::DataSet::operator =(const DataObjects::DataSet &o)
 {
-    _set_data = o._set_data;
+    SetExplicitlySharedData(o.GetExplicitlySharedData());
     return *this;
 }
 
@@ -89,7 +87,7 @@ const DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &n
 
 bool DataObjects::DataSet::operator ==(const DataObjects::DataSet &d) const
 {
-    return _set_data == d._set_data;
+    return set_data() == d.set_data();
 }
 
 bool DataObjects::DataSet::operator !=(const DataObjects::DataSet &d) const
@@ -100,7 +98,7 @@ bool DataObjects::DataSet::operator !=(const DataObjects::DataSet &d) const
 bool DataObjects::DataSet::Equals(const DataObjects::DataSet &d) const
 {
     bool ret = false;
-    if(_set_data == d._set_data)
+    if(*this == d)
         ret = true;
     else
     {
@@ -135,12 +133,12 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
 
 const DataObjects::SharedSetData &DataObjects::DataSet::set_data() const
 {
-    return *_set_data;
+    return *ExplicitlySharedObject<SharedSetData>::GetExplicitlySharedData();
 }
 
 DataObjects::SharedSetData &DataObjects::DataSet::set_data()
 {
-    return *_set_data;
+    return *ExplicitlySharedObject<SharedSetData>::GetExplicitlySharedData();
 }
 
 
@@ -166,7 +164,7 @@ DataObjects::DataSet DataObjects::DataSet::Clone() const
 DataObjects::DataSet &DataObjects::DataSet::CloneTo(DataObjects::DataSet &o) const
 {
     o = *this;
-    o._set_data.detach();
+    o.Detach();
     return o;
 }
 

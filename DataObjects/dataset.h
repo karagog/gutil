@@ -16,6 +16,7 @@ limitations under the License.*/
 #define DATASET_H
 
 #include "datatable.h"
+#include "explicitlysharedobject.h"
 #include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -35,6 +36,7 @@ class SharedSetData;
 class DataTableCollection;
 
 class DataSet :
+        public ExplicitlySharedObject<SharedSetData>,
         public Interfaces::IQXmlSerializable,
         public Core::Interfaces::IReadOnlyObject,
         public Core::Interfaces::IUpdatable,
@@ -100,11 +102,6 @@ protected:
     // Derived classes take advantage of these
     virtual void write_xml_protected(QXmlStreamWriter &) const{}
     virtual void read_xml_protected(QXmlStreamReader &){}
-
-
-private:
-
-    Custom::GSharedDataPointer<SharedSetData> _set_data;
 
 };
 
