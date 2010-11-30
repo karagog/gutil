@@ -22,82 +22,82 @@ using namespace GUtil;
 #define GVARIANT_XML_ID "GV"
 
 Custom::GVariant::GVariant()
-    :QVariant(){_init();}
+    :QVariant(){}
 
 Custom::GVariant::GVariant(const QVariant &o)
-    :QVariant(o){_init();}
+    :QVariant(o){}
 
 Custom::GVariant::GVariant(Type t)
-    :QVariant(t){_init();}
+    :QVariant(t){}
 
 Custom::GVariant::GVariant(const std::string &s)
-    :QVariant( QString::fromStdString(s) ){_init();}
+    :QVariant( QString::fromStdString(s) ){}
 
 Custom::GVariant::GVariant(const QString &s)
-    :QVariant(s){_init();}
+    :QVariant(s){}
 
 Custom::GVariant::GVariant(const QByteArray &b)
-    :QVariant(b){_init();}
+    :QVariant(b){}
 
 Custom::GVariant::GVariant(const QChar &c)
-    :QVariant(c){_init();}
+    :QVariant(c){}
 
 Custom::GVariant::GVariant(int i)
-    :QVariant(i){_init();}
+    :QVariant(i){}
 
 Custom::GVariant::GVariant(uint i)
-    :QVariant(i){_init();}
+    :QVariant(i){}
 
 Custom::GVariant::GVariant(char *c)
-    :QVariant(c){_init();}
+    :QVariant(c){}
 
 Custom::GVariant::GVariant(const char *c)
-    :QVariant(c){_init();}
+    :QVariant(c){}
 
 Custom::GVariant::GVariant(bool b)
-    :QVariant(b){_init();}
+    :QVariant(b){}
 
 Custom::GVariant::GVariant(double d)
-    :QVariant(d){_init();}
+    :QVariant(d){}
 
 Custom::GVariant::GVariant(float f)
-    :QVariant(QVariant::fromValue(f)){_init();}
+    :QVariant(QVariant::fromValue(f)){}
 
 Custom::GVariant::GVariant(const QDate &d)
-    :QVariant(d){_init();}
+    :QVariant(d){}
 
 Custom::GVariant::GVariant(const QTime &t)
-    :QVariant(t){_init();}
+    :QVariant(t){}
 
 Custom::GVariant::GVariant(const QDateTime &d)
-    :QVariant(d){_init();}
+    :QVariant(d){}
 
 Custom::GVariant::GVariant(const QBitArray &b)
-    :QVariant(b){_init();}
+    :QVariant(b){}
 
 Custom::GVariant::GVariant(const QStringList &s)
-    :QVariant(s){_init();}
+    :QVariant(s){}
 
 Custom::GVariant::GVariant(const QRegExp &r)
-    :QVariant(r){_init();}
+    :QVariant(r){}
 
 Custom::GVariant::GVariant(const QUrl &u)
-    :QVariant(u){_init();}
+    :QVariant(u){}
 
 Custom::GVariant::GVariant(const QList<QVariant> &l)
-    :QVariant(l){_init();}
+    :QVariant(l){}
 
 Custom::GVariant::GVariant(const QVariantMap &v)
-    :QVariant(v){_init();}
+    :QVariant(v){}
 
 Custom::GVariant::GVariant(const QRect &r)
-    :QVariant(r){_init();}
+    :QVariant(r){}
 
 Custom::GVariant::GVariant(const QSize &s)
-    :QVariant(s){_init();}
+    :QVariant(s){}
 
 Custom::GVariant::GVariant(const QUuid &i)
-    :QVariant(QUuidType, new QUuid(i)){_init();}
+    :QVariant(QUuidType, new QUuid(i)){}
 
 QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
@@ -438,59 +438,4 @@ bool Custom::GVariant::operator == (const QVariant &v) const
 bool Custom::GVariant::operator != (const QVariant &v) const
 {
     return NotEquals(v);
-}
-
-Custom::GVariant &Custom::GVariant::operator = (const GVariant &o)
-                     {
-    GVariant tmp(*this);
-
-    value_about_to_change(tmp, o);
-    ((QVariant &)*this) = o;
-    value_changed(tmp, o);
-    return *this;
-}
-
-void Custom::GVariant::clear()
-{
-    GVariant tmp(*this);
-    GVariant c;
-
-    value_about_to_change(tmp, c);
-    QVariant::clear();
-    value_changed(tmp, c);
-}
-
-void Custom::GVariant::convert(Type t)
-{
-    GVariant tmp1(*this);
-    QVariant tmp2(tmp1);
-    tmp2.convert(t);
-
-    value_about_to_change(tmp1, tmp2);
-    QVariant::convert(t);
-    value_changed(tmp1, tmp2);
-}
-
-void Custom::GVariant::value_about_to_change(const GVariant &o, const GVariant &t)
-{
-    if(_value_about_to_change_callback)
-        _value_about_to_change_callback(o, t);
-}
-
-void Custom::GVariant::value_changed(const GVariant &o, const GVariant &t)
-{
-    if(_value_changed_callback)
-        _value_changed_callback(o, t);
-}
-
-void Custom::GVariant::SetValueAboutToChangeFunction(
-        void (*func)(const GVariant &current, const GVariant &future))
-{
-    _value_about_to_change_callback = func;
-}
-
-void Custom::GVariant::SetValueChangedFunction(
-        void (*func)(const GVariant &oldval, const GVariant &newval))
-{
-    _value_changed_callback = func;
 }

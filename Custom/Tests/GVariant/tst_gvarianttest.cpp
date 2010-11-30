@@ -24,6 +24,11 @@ private Q_SLOTS:
     void test_simple_qt_types();
     void test_collections();
     void test_callbacks();
+
+private:
+
+    void dont_accept_fives(const GVariant &old, const GVariant &newval);
+
 };
 
 GVariantTest::GVariantTest()
@@ -250,7 +255,7 @@ void GVariantTest::test_collections()
 }
 
 
-void dont_accept_fives(const GVariant &old, const GVariant &newval)
+void GVariantTest::dont_accept_fives(const GVariant &old, const GVariant &newval)
 {
     if(newval == 5)
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
@@ -259,8 +264,8 @@ void dont_accept_fives(const GVariant &old, const GVariant &newval)
 
 void GVariantTest::test_callbacks()
 {
-    GVariant v;
-    v.SetValueAboutToChangeFunction(&dont_accept_fives);
+    ObservableGVariant<GVariantTest> v;
+    v.SetValueAboutToChangeFunction(this, &GVariantTest::dont_accept_fives);
 
     bool exception_hit = false;
     try
