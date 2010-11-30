@@ -38,6 +38,8 @@ public:
     QString Label() const;
 
     DataColumn &operator =(const DataColumn &);
+    bool operator == (const DataColumn &) const;
+    bool operator != (const DataColumn &) const;
 
     int Index() const;
 

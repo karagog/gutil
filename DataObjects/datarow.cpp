@@ -46,16 +46,6 @@ DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRo
     return *this;
 }
 
-bool DataObjects::DataRow::operator ==(const DataObjects::DataRow &o) const
-{
-    return row_data() == o.row_data();
-}
-
-bool DataObjects::DataRow::operator !=(const DataRow &o) const
-{
-    return !(*this == o);
-}
-
 DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) const
 {
     o = *this;

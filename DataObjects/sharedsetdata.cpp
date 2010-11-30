@@ -46,13 +46,3 @@ const DataObjects::DataTableCollection &DataObjects::SharedSetData::Tables() con
 {
     return *_tables;
 }
-
-bool DataObjects::SharedSetData::operator == (const DataObjects::SharedSetData &o) const
-{
-    return this == &o;
-}
-
-bool DataObjects::SharedSetData::operator != (const DataObjects::SharedSetData &o) const
-{
-    return !(*this == o);
-}

@@ -85,16 +85,6 @@ const DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &n
     return Tables()[GetTableIndex(name)];
 }
 
-bool DataObjects::DataSet::operator ==(const DataObjects::DataSet &d) const
-{
-    return set_data() == d.set_data();
-}
-
-bool DataObjects::DataSet::operator !=(const DataObjects::DataSet &d) const
-{
-    return !(*this == d);
-}
-
 bool DataObjects::DataSet::Equals(const DataObjects::DataSet &d) const
 {
     bool ret = false;

@@ -51,13 +51,3 @@ DataObjects::GVariantCollection &DataObjects::SharedRowData::Tuple(){
 const DataObjects::GVariantCollection &DataObjects::SharedRowData::Tuple() const{
     return *_tuple;
 }
-
-bool DataObjects::SharedRowData::operator ==(const SharedRowData &o) const
-{
-    return this == &o;
-}
-
-bool DataObjects::SharedRowData::operator !=(const SharedRowData &o) const
-{
-    return !(*this == o);
-}

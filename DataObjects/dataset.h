@@ -36,7 +36,7 @@ class SharedSetData;
 class DataTableCollection;
 
 class DataSet :
-        protected ExplicitlySharedObject<SharedSetData>,
+        public ExplicitlySharedObject<SharedSetData>,
         public Interfaces::IQXmlSerializable,
         public Core::Interfaces::IReadOnlyObject,
         public Core::Interfaces::IUpdatable,
@@ -67,9 +67,6 @@ public:
     const DataTable &operator [](int) const;
     DataTable &operator [](const QString &table_name);
     const DataTable &operator [](const QString &table_name) const;
-
-    bool operator ==(const DataSet &) const;
-    bool operator !=(const DataSet &) const;
 
     bool Contains(const DataTable &) const;
     int GetTableIndex(const QString &table_name) const;

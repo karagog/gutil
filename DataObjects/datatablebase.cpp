@@ -103,21 +103,12 @@ template <class RowType> DataObjects::DataTableBase<RowType> &
     return *this;
 }
 
-template <class RowType> bool DataObjects::DataTableBase<RowType>::operator ==(const DataObjects::DataTableBase<RowType> &o) const
-{
-    return table_data() == o.table_data();
-}
-
-template <class RowType> bool DataObjects::DataTableBase<RowType>::operator !=(const DataObjects::DataTableBase<RowType> &o) const
-{
-    return !(*this == o);
-}
-
 template <class RowType> bool DataObjects::DataTableBase<RowType>::Equals(const DataObjects::DataTableBase<RowType> &t) const
 {
     bool ret = true;
 
-    if(table_data() != t.table_data())
+    // This operator compares their pointers (defined in ExplicitlySharedObject)
+    if(*this != t)
     {
         if(ColumnCount() == t.ColumnCount())
         {

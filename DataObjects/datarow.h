@@ -40,7 +40,7 @@ namespace GUtil
         // Defines a row in a data table
 
         class DataRow :
-                protected ExplicitlySharedObject<SharedRowData>,
+                public ExplicitlySharedObject<SharedRowData>,
                 public Interfaces::IQXmlSerializable,
                 public Core::Interfaces::IEquatable<DataRow>,
                 public Core::Interfaces::IClonable<DataRow>,
@@ -56,8 +56,6 @@ namespace GUtil
             virtual ~DataRow();
 
             virtual DataRow &operator =(const DataRow &);
-            bool operator ==(const DataRow &) const;
-            bool operator !=(const DataRow &) const;
 
             Custom::GVariant &operator [](int index);
             const Custom::GVariant &operator [](int index) const;

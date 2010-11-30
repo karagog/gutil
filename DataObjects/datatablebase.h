@@ -41,7 +41,7 @@ template <class RowType>
 
         class DataTableBase
             :
-            protected ExplicitlySharedObject< SharedTableData<RowType> >,
+            public ExplicitlySharedObject< SharedTableData<RowType> >,
             public Interfaces::IQXmlSerializable,
             public Core::Interfaces::IReadOnlyObject,
             public Core::Interfaces::IUpdatable,
@@ -95,8 +95,6 @@ public:
 
 
     DataTableBase &operator =(const DataTableBase<RowType> &);
-    bool operator ==(const DataTableBase<RowType> &) const;
-    bool operator !=(const DataTableBase<RowType> &) const;
 
     // Use to cast any type of table to this kind of datatable base
     template <class O> operator const DataTableBase<O> &() const{

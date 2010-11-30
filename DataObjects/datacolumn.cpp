@@ -65,3 +65,12 @@ int DataObjects::DataColumn::Index() const
 {
     return ((Collection<DataColumn> *)_collection)->IndexOf(*this);
 }
+
+bool DataObjects::DataColumn::operator == (const DataObjects::DataColumn &o) const
+{
+    return Key() == o.Key();
+}
+bool DataObjects::DataColumn::operator != (const DataObjects::DataColumn &o) const
+{
+    return Key() != o.Key();
+}

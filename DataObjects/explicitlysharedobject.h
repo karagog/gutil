@@ -26,15 +26,36 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 template <class T>
 class ExplicitlySharedObject
 {
+    template <class U> friend class ExplicitlySharedObject;
+
+public:
+
+    inline bool operator == (const ExplicitlySharedObject<T> &o) const{
+        return _explicitly_shared_data == o._explicitly_shared_data;
+    }
+
+    inline bool operator != (const ExplicitlySharedObject<T> &o) const{
+        return _explicitly_shared_data != o._explicitly_shared_data;
+    }
+
+    template <class U> inline bool operator == (const ExplicitlySharedObject<U> &o) const{
+        return GetExplicitlySharedData() == (T *)o.GetExplicitlySharedData();
+    }
+
+    template <class U> inline bool operator != (const ExplicitlySharedObject<U> &o) const{
+        return GetExplicitlySharedData() != (T *)o.GetExplicitlySharedData();
+    }
+
+
 protected:
 
     // Derived classes initialize this base with their own custom shared data object.
     //  This class will delete it on destruction
-    ExplicitlySharedObject(T *d)
+    inline ExplicitlySharedObject(T *d)
         :_explicitly_shared_data(d){}
 
     // You must call this copy constructor in your derived class'
-    ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
+    inline ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
         :_explicitly_shared_data(o._explicitly_shared_data){}
 
     virtual ~ExplicitlySharedObject(){
@@ -42,18 +63,18 @@ protected:
         if(T::IsDerivedFromGSharedData);
     }
 
-    T *GetExplicitlySharedData() const{
+    inline T *GetExplicitlySharedData() const{
         return _explicitly_shared_data.data();
     }
 
-    void SetExplicitlySharedData(T *d){
+    inline void SetExplicitlySharedData(T *d){
         _explicitly_shared_data = d;
     }
 
     // This function detaches the explicitly shared data and calls the copy constructor
     //  of the shared data object
-    void Detach(){
-        SetExplicitlySharedData(new T(*GetExplicitlySharedData()));
+    inline void Detach(){
+        _explicitly_shared_data.detach();
     }
 
 

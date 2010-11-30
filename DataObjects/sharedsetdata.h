@@ -44,9 +44,6 @@ public:
     DataTableCollection &Tables();
     const DataTableCollection &Tables() const;
 
-    bool operator == (const SharedSetData &) const;
-    bool operator != (const SharedSetData &) const;
-
 
 private:
 

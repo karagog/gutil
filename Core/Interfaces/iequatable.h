@@ -30,14 +30,6 @@ public:
         return !Equals(o);
     }
 
-    virtual inline bool operator ==(const T &o) const{
-        return Equals(o);
-    }
-
-    virtual inline bool operator !=(const T &o) const{
-        return !Equals(o);
-    }
-
     virtual ~IEquatable(){}
 };
 
