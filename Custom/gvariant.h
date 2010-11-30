@@ -89,10 +89,43 @@ public:
     bool operator == (const QVariant &) const;
     bool operator != (const QVariant &) const;
 
+    // We override these functions from QVariant, so we can call our callback functions
+    GVariant &operator = (const GVariant &);
+    void clear();
+    void convert(Type t);
+    template <class T> void setValue(const T &value){
+        GVariant tmp(*this);
+        GVariant tmp2(value);
+
+        value_about_to_change(tmp, tmp2);
+        QVariant::setValue(value);
+        value_changed(tmp, tmp2);
+    }
+
+    void SetValueAboutToChangeFunction(
+            void (*func)(const GVariant &current, const GVariant &future));
+
+    void SetValueChangedFunction(
+            void (*func)(const GVariant &oldval, const GVariant &newval));
+
 
     // These are types that I define, because for some reason Qt doesn't already
     static int QUuidType;
     static int FloatType;
+
+
+private:
+
+    void value_about_to_change(const GVariant &, const GVariant &);
+    void value_changed(const GVariant &, const GVariant &);
+
+    void (*_value_about_to_change_callback)(const GVariant &current, const GVariant &future);
+    void (*_value_changed_callback)(const GVariant &oldvalue, const GVariant &newvalue);
+
+    void _init(){
+        _value_about_to_change_callback = 0;
+        _value_changed_callback = 0;
+    }
 
 };
 

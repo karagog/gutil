@@ -7,8 +7,10 @@
 #include <QVariantMap>
 #include "Custom/gvariant.h"
 #include "Logging/debuglogger.h"
-using namespace GUtil::Custom;
-using namespace GUtil::Logging;
+using namespace GUtil;
+using namespace Custom;
+using namespace Logging;
+
 
 class GVariantTest : public QObject
 {
@@ -21,6 +23,7 @@ private Q_SLOTS:
     void test_basic_types();
     void test_simple_qt_types();
     void test_collections();
+    void test_callbacks();
 };
 
 GVariantTest::GVariantTest()
@@ -244,6 +247,61 @@ void GVariantTest::test_collections()
     //qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
     QVERIFY(gv2.Equals(vl2));
+}
+
+
+void dont_accept_fives(const GVariant &old, const GVariant &newval)
+{
+    if(newval == 5)
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "No fives!");
+}
+
+void GVariantTest::test_callbacks()
+{
+    GVariant v;
+    v.SetValueAboutToChangeFunction(&dont_accept_fives);
+
+    bool exception_hit = false;
+    try
+    {
+        v.setValue(5);
+    }
+    catch(Core::ValidationException &)
+    {
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
+
+
+    exception_hit = false;
+    try
+    {
+        v = 5;
+    }
+    catch(Core::ValidationException &)
+    {
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
+
+
+    // Conversion from "6" is fine
+    v = "6";
+    v.convert(GVariant::Int);
+
+    // But if it's a 5 it fails
+    v = "5";
+    exception_hit = false;
+    try
+    {
+        v.convert(GVariant::Int);
+    }
+    catch(Core::ValidationException &)
+    {
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
 }
 
 QTEST_APPLESS_MAIN(GVariantTest);
