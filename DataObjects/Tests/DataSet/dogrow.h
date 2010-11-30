@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "DataObjects/datarow.h"
 
 class DogRow;
+class DogTable;
 
 typedef DataRowCollectionBase<DogRow> DogRowCollection;
 
@@ -35,6 +36,8 @@ public:
     DogRow(const DataRow &o)
         :DataRow(o)
     {}
+
+    DEFINE_PARENT_TABLE_TYPE( DogTable );
 
     // These properties access the typed data
     ROW_PROPERTY(Name, QString, "name");

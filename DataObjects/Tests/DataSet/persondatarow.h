@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QUuid>
 
 class PersonDataRow;
+class PeopleTable;
 
 // We can define a custom data row collection that will specifically hold
 //  our derived data row.
@@ -38,6 +39,10 @@ public:
     PersonDataRow(const DataRow &o)
         :DataRow(o)
     {}
+
+
+    // So we return the correct type of table
+    DEFINE_PARENT_TABLE_TYPE( PeopleTable );
 
 
     // With these convenient macros we declare strongly-typed data accessors

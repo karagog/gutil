@@ -78,9 +78,6 @@ private:
 
     void _init(){
 
-        // Set our validation function
-        table_data().SetNewRowValidationFunction(&validate_new_row_people_table);
-
         SetTableName("People");
 
         // Initialize your custom column keys and labels
