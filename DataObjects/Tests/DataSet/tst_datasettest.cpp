@@ -404,13 +404,19 @@ void DataSetTest::test_derived_classes()
 
         QUuid id(pdr.GetId());
 
-        // This clones the row and adds a copy
-        pt.ImportRow(pdr);
-
-        QVERIFY(pt[0].GetId() == pt[1].GetId());
-        QVERIFY(pt[0].GetId() == id);
-        QVERIFY(pt[0] != pt[1]);
-        QVERIFY(pdr != pt[1]);
+        bool exception_hit = false;
+        try
+        {
+            // This clones the row and adds a copy (should fail; duplicate id)
+            pt.ImportRow(pdr);
+        }
+        catch(Core::ValidationException &)
+        {
+            // We should hit the exception, because our people table forbids us
+            //  from adding two rows with the same id
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
 
 
         // You can even use a normal data row to reference the person data row:

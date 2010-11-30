@@ -90,6 +90,8 @@ protected:
     const SharedSetData &set_data() const;
     SharedSetData &set_data();
 
+    void validate_new_table(const DataTable &);
+
     // IUpdatable interface:
     virtual void commit_reject_changes(bool commit);
 

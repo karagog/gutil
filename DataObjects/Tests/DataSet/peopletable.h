@@ -59,12 +59,13 @@ protected:
         const PeopleTable &pt = (const PeopleTable &)dt;
         const PersonDataRow &item = r;
 
-        GUTIL_FOREACH(PersonDataRow, pdr, pt.Rows())
-                if(pdr.GetId() == item.GetId()){
-                    contains_unique_id = true;
-                    break;
-                }
+        for(int i = 0; i < pt.RowCount(); i++)
+        {
+            if(pt.Rows()[i].GetId() == item.GetId()){
+                contains_unique_id = true;
+                break;
             }
+        }
 
         if(contains_unique_id)
             THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,

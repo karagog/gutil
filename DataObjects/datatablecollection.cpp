@@ -48,12 +48,10 @@ void DataObjects::DataTableCollection::on_add(DataObjects::DataTable *t) const
     }
 }
 
-void DataObjects::DataTableCollection::validate_new_item(const DataObjects::DataTable &t) const
+void DataObjects::DataTableCollection::validate_new_item(const DataObjects::DataTable &t)
         throw(Core::ValidationException)
 {
-    if(Contains(t))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                  "Table already exists in data set");
+    Set().validate_new_table(t);
 }
 
 DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(

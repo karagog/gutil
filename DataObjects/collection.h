@@ -41,7 +41,7 @@ protected:
     }
 
     // Derived classes use this to reject new items for any reason
-    virtual void validate_new_item(const T &) const
+    virtual void validate_new_item(const T &)
             throw(Core::ValidationException){}
 
 

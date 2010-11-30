@@ -54,7 +54,7 @@ protected:
 
     virtual void on_add(DataTable *t) const;
 
-    virtual void validate_new_item(const DataTable &t) const
+    virtual void validate_new_item(const DataTable &t)
             throw(Core::ValidationException);
 
 private:

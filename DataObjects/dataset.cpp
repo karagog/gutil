@@ -131,6 +131,13 @@ DataObjects::SharedSetData &DataObjects::DataSet::set_data()
     return *ExplicitlySharedObject<SharedSetData>::GetExplicitlySharedData();
 }
 
+void DataObjects::DataSet::validate_new_table(const DataTable &dt)
+{
+    if(Tables().Contains(dt))
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "Table already exists in data set");
+}
+
 
 
 void DataObjects::DataSet::commit_reject_changes(bool commit)
