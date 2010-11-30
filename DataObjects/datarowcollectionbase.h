@@ -69,7 +69,7 @@ protected:
         if(RowType::DerivedFromDataRow);
     }
 
-    virtual void validate_new_item(const RowType &i) const
+    virtual void validate_new_item(const RowType &i)
             throw(Core::ValidationException)
     {
         Table().validate_new_row(i);

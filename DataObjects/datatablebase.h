@@ -141,7 +141,7 @@ protected:
     const SharedTableData<RowType> &table_data() const;
 
     // This is called any time you add a new row to the table
-    void validate_new_row(const DataRow &r) const
+    void validate_new_row(const DataRow &r)
             throw(Core::ValidationException)
     {
         if(*this != r.row_data().Table())
@@ -154,8 +154,7 @@ protected:
                                       "Row already exists in the table");
 
         // Derived tables can provide extra validation
-        if(table_data().validate_new_row_custom != 0)
-            table_data().validate_new_row_custom(*this, r);
+        table_data().ValidateNewRow(*this, r);
     }
 
     // IClonable Interface:

@@ -78,7 +78,7 @@ private:
     void _init(){
 
         // Set our validation function
-        table_data().validate_new_row_custom = &validate_new_row_people_table;
+        table_data().SetNewRowValidationFunction(&validate_new_row_people_table);
 
         SetTableName("People");
 
