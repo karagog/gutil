@@ -31,25 +31,16 @@ template <class RowType> class SharedTableData :
 public:
 
     SharedTableData()
-        :_rows(new DataRowCollectionBase<RowType>(this))
-    {
-        _validate_new_row = 0;
-    }
+        :_rows(new DataRowCollectionBase<RowType>(this)){}
 
     SharedTableData(const DataSet &ds)
         :_dataset(ds),
-        _rows(new DataRowCollectionBase<RowType>(this))
-    {
-        _validate_new_row = 0;
-    }
+        _rows(new DataRowCollectionBase<RowType>(this)){}
 
     SharedTableData(const SharedTableData &d)
         :_dataset(d._dataset),
         _rows(new DataRowCollectionBase<RowType>(d.Rows())),
-        _columns(d.Columns())
-    {
-        _validate_new_row = d._validate_new_row;
-    }
+        _columns(d.Columns()){}
 
     virtual ~SharedTableData(){
         delete _rows;
@@ -93,27 +84,12 @@ public:
     }
 
 
-    void ValidateNewRow(const DataTable &dt, const DataRow &dr){
-        if(_validate_new_row)
-            _validate_new_row(dt, dr);
-    }
-
-    void SetNewRowValidationFunction(
-            void (*new_row_validation_function)(const DataTable &, const DataRow &)){
-        _validate_new_row = new_row_validation_function;
-    }
-
-
 private:
 
     DataSet _dataset;
     DataRowCollectionBase<RowType> *_rows;
     DataColumnCollection _columns;
     QString _name;
-
-    // Derived tables can set their own row validation function through the constructor
-    void (*_validate_new_row)(const DataTable &, const DataRow &)
-            throw(Core::ValidationException);
 
 };
 

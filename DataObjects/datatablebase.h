@@ -152,9 +152,6 @@ protected:
         else if(Rows().Contains(r))
             THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                       "Row already exists in the table");
-
-        // Derived tables can provide extra validation
-        table_data().ValidateNewRow(*this, r);
     }
 
     // IClonable Interface:
