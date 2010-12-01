@@ -38,14 +38,14 @@ public:
     DataTable &Table();
     const DataTable &Table() const;
 
-    GVariantCollection &Tuple();
-    const GVariantCollection &Tuple() const;
+    ObservableGVariantCollection<DataRow> &Tuple();
+    const ObservableGVariantCollection<DataRow> &Tuple() const;
 
 
 private:
 
     DataTable *_table;
-    GVariantCollection *_tuple;
+    ObservableGVariantCollection<DataRow> *_tuple;
 
 };
 

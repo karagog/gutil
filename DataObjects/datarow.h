@@ -12,7 +12,7 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
-#include "Custom/gvariant.h"
+#include "Custom/observablegvariant.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/iupdatable.h"
@@ -21,11 +21,10 @@ limitations under the License.*/
 #include <QVariant>
 
 // Derived classes can use this macro for convenience when declaring
-//  property accessors.  The type must have a cast operator defined in GVariant,
-//  or you can define your own constructor from a GVariant if you have a custom type
+//  typed property accessors.
 #define ROW_PROPERTY( name, type, index ) \
     type Get##name() const{ return (*this)[index].value<type>(); } \
-    void Set##name(const type &value){ (*this)[index].setValue(value); } \
+    void Set##name(const type &value){ (*this)[index] = value; } \
     enum{}
 
 #define READONLY_ROW_PROPERTY( name, type, index ) \
@@ -34,7 +33,7 @@ limitations under the License.*/
 
 // Derived classes override the table accessors to refer to their
 //   type of table to which they belong
-#define DEFINE_PARENT_TABLE_TYPE( table_type ) \
+#define DECLARE_PARENT_TABLE_TYPE( table_type ) \
     inline table_type &Table(){ return (table_type &)row_data().Table(); } \
     inline const table_type &Table() const{ return (const table_type &)row_data().Table(); } \
     enum{}
@@ -76,7 +75,7 @@ public:
 
     // Derived classes can follow this example when specifying
     //  their parent table type
-    DEFINE_PARENT_TABLE_TYPE( DataTable );
+    DECLARE_PARENT_TABLE_TYPE( DataTable );
 
     // This is used only as a guard in our template classes, to guarantee
     //  that the template class is derived from DataRow.
@@ -94,7 +93,7 @@ public:
             throw(Core::XmlException);
 
 
-        protected:
+protected:
 
     DataRow(const DataTable &dt,
             const Custom::GVariantList &values = Custom::GVariantList());

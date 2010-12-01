@@ -37,7 +37,7 @@ public:
         :DataRow(o)
     {}
 
-    DEFINE_PARENT_TABLE_TYPE( DogTable );
+    DECLARE_PARENT_TABLE_TYPE( DogTable );
 
     // These properties access the typed data
     ROW_PROPERTY(Name, QString, "name");

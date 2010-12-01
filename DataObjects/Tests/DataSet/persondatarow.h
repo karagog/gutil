@@ -42,7 +42,7 @@ public:
 
 
     // So we return the correct type of table
-    DEFINE_PARENT_TABLE_TYPE( PeopleTable );
+    DECLARE_PARENT_TABLE_TYPE( PeopleTable );
 
 
     // With these convenient macros we declare strongly-typed data accessors

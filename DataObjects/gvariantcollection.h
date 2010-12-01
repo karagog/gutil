@@ -17,14 +17,28 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 #include "Custom/gvariant.h"
+#include "Custom/observablegvariant.h"
+#include "DataObjects/collection.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-template <class T> class ResizableCollection;
-
 // A collection of QVariants, built on top of our Collection class
 typedef ResizableCollection<Custom::GVariant> GVariantCollection;
+
+
+template <class ObservingClass> class ObservableGVariantCollection :
+        public ResizableCollection< Custom::ObservableGVariant<ObservingClass> >
+{
+public:
+    inline ObservableGVariantCollection(int size = 0)
+        :ResizableCollection< Custom::ObservableGVariant<ObservingClass> >(size)
+        {}
+
+    inline ObservableGVariantCollection(
+            const ResizableCollection< Custom::ObservableGVariant<ObservingClass> > &v)
+        : ResizableCollection< Custom::ObservableGVariant<ObservingClass> >(v){}
+};
 
 GUTIL_END_NAMESPACE
 
