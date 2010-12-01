@@ -105,7 +105,7 @@ public:
 private:
 
     // We hide this function, because templates can't be virtual
-    template <class T> void setValue(const T &value){}
+    template <class T> inline void setValue(const T &value){QVariant::setValue(value);}
 
 };
 

@@ -316,8 +316,11 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::ReadXml(QXmlS
 
     if(sr.readNextStartElement())
     {
-        if(sr.name() != DATATABLE_XML_ID)
-            THROW_NEW_GUTIL_EXCEPTION( Core::XmlException, "Unrecognized XML Node" );
+        if(sr.name() != DATATABLE_XML_ID){
+            Core::XmlException ex("Unrecognized XML Node");
+            ex.SetData("elt_name", sr.name().toString().toStdString());
+            THROW_GUTIL_EXCEPTION(ex);
+        }
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 

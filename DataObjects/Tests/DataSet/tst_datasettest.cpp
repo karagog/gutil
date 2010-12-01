@@ -261,7 +261,7 @@ void DataSetTest::test_dataTable()
         dt2.FromXmlQString(xml);
         QVERIFY(dt2.Name() == "test_table");
         QVERIFY(dt2.Rows().Count() == 2);
-        QVERIFY(dt2.ColumnCount() == 2);
+        QVERIFY2(dt2.ColumnCount() == 2, QString("%1").arg(dt2.ColumnCount()).toStdString().c_str());
 
         QVERIFY2(dt2.ColumnKeys()[0] == "OneColumn", dt2.ColumnKeys()[0].toStdString().c_str());
         QVERIFY(dt2.ColumnKeys()[1] == "second");
