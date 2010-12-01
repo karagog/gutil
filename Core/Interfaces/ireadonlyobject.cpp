@@ -17,17 +17,17 @@ using namespace GUtil::Core;
 
 Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
 {
-    _init(readonly);
+    _init_readonly_interface(readonly);
 }
 
 Interfaces::IReadOnlyObject::~IReadOnlyObject(){}
 
 Interfaces::IReadOnlyObject::IReadOnlyObject(const Interfaces::IReadOnlyObject &other)
 {
-    _init(other._my_readonly_bool);
+    _init_readonly_interface(other._my_readonly_bool);
 }
 
-void Interfaces::IReadOnlyObject::_init(bool readonly)
+void Interfaces::IReadOnlyObject::_init_readonly_interface(bool readonly)
 {
     _my_readonly_bool = readonly;
     SetReadonlyBooleanReference(_my_readonly_bool);
