@@ -23,26 +23,42 @@ class IUpdatable
 {
 public:
 
-    IUpdatable(bool dirty = false);
-    IUpdatable(const IUpdatable &);
-    virtual ~IUpdatable();
+    inline IUpdatable(bool dirty = false)
+        :_iupdatable_is_dirty(dirty){}
+    inline IUpdatable(const IUpdatable &o)
+        :_iupdatable_is_dirty(o._iupdatable_is_dirty){}
+    virtual ~IUpdatable(){}
 
-    bool IsDirty() const;
-    void SetDirty(bool);
+    inline bool IsDirty() const{
+        return _iupdatable_is_dirty;
+    }
+
+    inline void SetDirty(bool d){
+        onSetDirty(_iupdatable_is_dirty = d);
+    }
 
     // Derived classes should call this base version to reset dirty bit
-    void CommitChanges();
-    void RejectChanges();
+    virtual void CommitChanges(){
+        SetDirty(false);
+    }
 
-    IUpdatable &operator =(const IUpdatable &);
+    virtual void RejectChanges(){
+        SetDirty(false);
+    }
+
+    IUpdatable &operator =(const IUpdatable &o){
+        _iupdatable_is_dirty = o._iupdatable_is_dirty;
+        return *this;
+    }
 
 
 protected:
 
-    virtual void on_set_dirty(bool);
+    // Derived classes can act on these 'events'
+    virtual void on_set_dirty(bool){}
 
     // True if committing, otherwise rejecting
-    virtual void commit_reject_changes(bool commit);
+    virtual void commit_reject_changes(bool commit){}
 
 
 private:

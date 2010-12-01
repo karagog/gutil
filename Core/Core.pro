@@ -13,8 +13,7 @@ SOURCES += \
     BusinessObjects/actionstack.cpp \
     Utils/cl_menu.cc \
     DataAccess/da_serialport.cc \
-    Interfaces/ireadonlyobject.cpp \
-    Interfaces/iupdatable.cpp
+    Interfaces/ireadonlyobject.cpp
 
 INCLUDEPATH += .. ../ThirdParty/CryptoPP
 
