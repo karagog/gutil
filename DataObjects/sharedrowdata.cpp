@@ -58,8 +58,11 @@ const DataObjects::ObservableGVariantCollection<SharedRowData> &DataObjects::Sha
 void DataObjects::SharedRowData::
         _value_changed(const Custom::GVariant &orig, const Custom::GVariant &newval)
 {
-    if(!IsDirty())
-        SetDirty(true);
+    if(orig != newval)
+    {
+        if(!IsDirty())
+            SetDirty(true);
+    }
 }
 
 void DataObjects::SharedRowData::on_set_dirty(bool d)
