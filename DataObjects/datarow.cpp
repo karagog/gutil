@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "datarowcollection.h"
 #include "Gvariantcollection.h"
 #include "Custom/gvariant.h"
+#include "updatablegvariantcollection.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 using namespace GUtil;

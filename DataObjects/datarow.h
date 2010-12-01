@@ -12,7 +12,6 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
-#include "Custom/observablegvariant.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/ireadonlyobject.h"

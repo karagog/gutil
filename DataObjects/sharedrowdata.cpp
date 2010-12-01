@@ -14,23 +14,22 @@ limitations under the License.*/
 
 #include "sharedrowdata.h"
 #include "datatablebase.h"
+#include "updatablegvariantcollection.h"
 using namespace GUtil;
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
             :_table(new DataObjects::DataTable(t)),
-            _tuple(new DataObjects::ObservableGVariantCollection<SharedRowData>(t.ColumnCount()))
+            _tuple(new DataObjects::UpdatableGVariantCollection(t.ColumnCount()))
 {
     for(int i = 0; i < vals.count() && i < Table().ColumnCount(); i++)
         _tuple->At(i) = vals[i];
-
-    _tuple->SetValueChangedFunction(this, &SharedRowData::_value_changed);
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
         :Custom::GSharedData(o),
         _table(new DataObjects::DataTable(o.Table())),
-        _tuple(new DataObjects::ObservableGVariantCollection<SharedRowData>(o.Tuple()))
+        _tuple(new DataObjects::UpdatableGVariantCollection(o.Tuple()))
 {}
 
 DataObjects::SharedRowData::~SharedRowData(){
@@ -47,25 +46,33 @@ const DataObjects::DataTable &DataObjects::SharedRowData::Table() const{
     return *_table;
 }
 
-DataObjects::ObservableGVariantCollection<SharedRowData> &DataObjects::SharedRowData::Tuple(){
+DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple(){
     return *_tuple;
 }
 
-const DataObjects::ObservableGVariantCollection<SharedRowData> &DataObjects::SharedRowData::Tuple() const{
+const DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple() const{
     return *_tuple;
-}
-
-void DataObjects::SharedRowData::
-        _value_changed(const Custom::GVariant &orig, const Custom::GVariant &newval)
-{
-    if(orig != newval)
-    {
-        if(!IsDirty())
-            SetDirty(true);
-    }
 }
 
 void DataObjects::SharedRowData::on_set_dirty(bool d)
 {
     Table().table_data().SetDirty(d);
+}
+
+bool DataObjects::SharedRowData::IsDirty() const
+{
+    return _tuple->IsDirty();
+}
+
+void DataObjects::SharedRowData::SetDirty(bool d)
+{
+    return _tuple->SetDirty(d);
+}
+
+void DataObjects::SharedRowData::commit_reject_changes(bool commit)
+{
+    if(commit)
+        _tuple->CommitChanges();
+    else
+        _tuple->RejectChanges();
 }

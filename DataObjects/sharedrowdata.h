@@ -23,6 +23,8 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
+class UpdatableGVariantCollection;
+
 class SharedRowData :
         public Custom::GSharedData,
         public Core::Interfaces::IUpdatable
@@ -40,21 +42,26 @@ public:
     DataTable &Table();
     const DataTable &Table() const;
 
-    ObservableGVariantCollection<SharedRowData> &Tuple();
-    const ObservableGVariantCollection<SharedRowData> &Tuple() const;
+    UpdatableGVariantCollection &Tuple();
+    const UpdatableGVariantCollection &Tuple() const;
+
+    virtual bool IsDirty() const;
 
 
 protected:
 
     void on_set_dirty(bool);
 
+    void commit_reject_changes(bool commit);
+
 
 private:
 
     DataTable *_table;
-    ObservableGVariantCollection<SharedRowData> *_tuple;
+    UpdatableGVariantCollection *_tuple;
 
-    void _value_changed(const Custom::GVariant &, const Custom::GVariant &);
+    // Nobody should call this
+    void SetDirty(bool d);
 
 };
 

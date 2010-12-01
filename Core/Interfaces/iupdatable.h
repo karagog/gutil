@@ -34,7 +34,7 @@ public:
     }
 
     virtual void SetDirty(bool d){
-        onSetDirty(_iupdatable_is_dirty = d);
+        on_set_dirty(_iupdatable_is_dirty = d);
     }
 
     // Derived classes should call this base version to reset dirty bit
