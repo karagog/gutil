@@ -111,7 +111,7 @@ void DataSetTest::test_dataRows()
         QVERIFY(t.RowCount() == 0);
 
 
-        // Test the 'dirty-ness' of a row
+        // Test the 'dirty-ness' of a row/table
         DataRow tmpr = t.AddNewRow();
         QVERIFY(!tmpr.IsDirty());
 
@@ -119,6 +119,31 @@ void DataSetTest::test_dataRows()
         QVERIFY(!t.IsDirty());
 
         tmpr[0] = "5";
+        QVERIFY(tmpr.IsDirty());
+        QVERIFY(t.IsDirty());
+
+        t.CommitChanges();
+        QVERIFY(!tmpr.IsDirty());
+        QVERIFY(!t.IsDirty());
+
+        // Setting an item to an equivalent value doesn't get flagged as dirty
+        tmpr[0] = "5";
+        QVERIFY(!tmpr.IsDirty());
+        QVERIFY(!t.IsDirty());
+
+        // Converting an item makes it dirty
+        tmpr[0].convert(GVariant::Int);
+        QVERIFY(tmpr.IsDirty());
+        QVERIFY(t.IsDirty());
+        QVERIFY(tmpr[0] != "5");
+        QVERIFY(tmpr[0] == 5);
+
+        t.CommitChanges();
+        QVERIFY(!tmpr.IsDirty());
+        QVERIFY(!t.IsDirty());
+
+        // Clearing a value makes it dirty
+        tmpr[0].clear();
         QVERIFY(tmpr.IsDirty());
         QVERIFY(t.IsDirty());
     }

@@ -15,7 +15,6 @@ limitations under the License.*/
 #include "Custom/observablegvariant.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
-#include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "gutil_macros.h"
 #include <QVariant>
@@ -49,7 +48,6 @@ class DataRow :
         public Interfaces::IQXmlSerializable,
         public Core::Interfaces::IEquatable<DataRow>,
         public Core::Interfaces::IClonable<DataRow>,
-        public Core::Interfaces::IUpdatable,
         public Core::Interfaces::IReadOnlyObject
 {
     template<class T> friend class DataTableBase;
@@ -73,6 +71,11 @@ public:
     int Index() const;
     int ColumnCount() const;
 
+    // Our row data is an IUpdatable
+    inline bool IsDirty() const{
+        return row_data().IsDirty();
+    }
+
     // Derived classes can follow this example when specifying
     //  their parent table type
     DECLARE_PARENT_TABLE_TYPE( DataTable );
@@ -86,11 +89,6 @@ public:
 
     // IClonable interface:
     virtual DataRow &CloneTo(DataRow &) const;
-
-    // Overriding the IUpdatable interface
-    inline bool IsDirty() const{
-        return row_data().IsDirty();
-    }
 
     // IQXmlSerializable interface:
     virtual void WriteXml(QXmlStreamWriter &) const;
@@ -120,14 +118,6 @@ protected:
     //   access to their own version of the sharedRowData
     SharedRowData &row_data();
     const SharedRowData &row_data() const;
-
-
-private:
-
-    // Hiding this function, because nobody should manually set it dirty
-    inline void SetDirty(bool d){
-        row_data().SetDirty(d);
-    }
 
 };
 
