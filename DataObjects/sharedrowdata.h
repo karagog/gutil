@@ -44,6 +44,11 @@ public:
     const ObservableGVariantCollection<SharedRowData> &Tuple() const;
 
 
+protected:
+
+    void on_set_dirty(bool);
+
+
 private:
 
     DataTable *_table;

@@ -27,8 +27,8 @@ public:
     IUpdatable(const IUpdatable &);
     virtual ~IUpdatable();
 
-    bool IsDirty() const;
-    void SetDirty(bool);
+    virtual bool IsDirty() const;
+    virtual void SetDirty(bool);
 
     // Derived classes should call this base version to reset dirty bit
     void CommitChanges();

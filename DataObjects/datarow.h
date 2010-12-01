@@ -88,7 +88,7 @@ public:
     virtual DataRow &CloneTo(DataRow &) const;
 
     // Overriding the IUpdatable interface
-    inline bool IsDirty(){
+    inline bool IsDirty() const{
         return row_data().IsDirty();
     }
 

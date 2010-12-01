@@ -24,7 +24,8 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 template <class RowType> class SharedTableData :
-        public Custom::GSharedData
+        public Custom::GSharedData,
+        public Core::Interfaces::IUpdatable
 {
     template <class T> friend class DataTableBase;
 

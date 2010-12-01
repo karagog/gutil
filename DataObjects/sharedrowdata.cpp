@@ -65,3 +65,8 @@ void DataObjects::SharedRowData::
     if(!IsDirty())
         SetDirty(true);
 }
+
+void DataObjects::SharedRowData::on_set_dirty(bool d)
+{
+    Table().table_data().SetDirty(d);
+}

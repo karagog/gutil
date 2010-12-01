@@ -114,8 +114,13 @@ void DataSetTest::test_dataRows()
         // Test the 'dirty-ness' of a row
         DataRow tmpr = t.AddNewRow();
         QVERIFY(!tmpr.IsDirty());
+
+        t.CommitChanges();
+        QVERIFY(!t.IsDirty());
+
         tmpr[0] = "5";
         QVERIFY(tmpr.IsDirty());
+        QVERIFY(t.IsDirty());
     }
     catch(Exception &ex)
     {

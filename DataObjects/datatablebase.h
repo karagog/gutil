@@ -51,8 +51,8 @@ template <class RowType>
     friend class DataSet;
     friend class DataTableCollection;
     friend class DataRow;
+    friend class SharedRowData;
     template <class T> friend class DataRowCollectionBase;
-    template <class T> friend class SharedRowDataBase;
     template <class T> friend class SharedTableData;
 
 public:
@@ -114,6 +114,10 @@ public:
     DataTableBase<RowType> Clone() const;
 
 
+    inline bool IsDirty() const{
+        return table_data().IsDirty();
+    }
+
     // Interface for IEquatable:
     virtual bool Equals(const DataTableBase &) const;
 
@@ -164,6 +168,10 @@ protected:
 private:
 
     void _init(const QString &name, int num_cols);
+
+    inline void SetDirty(bool d){
+        table_data().SetDirty(d);
+    }
 
 };
 
