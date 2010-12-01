@@ -109,6 +109,13 @@ void DataSetTest::test_dataRows()
 
         t.RemoveRow(r2);
         QVERIFY(t.RowCount() == 0);
+
+
+        // Test the 'dirty-ness' of a row
+        DataRow tmpr = t.AddNewRow();
+        QVERIFY(!tmpr.IsDirty());
+        tmpr[0] = "5";
+        QVERIFY(tmpr.IsDirty());
     }
     catch(Exception &ex)
     {

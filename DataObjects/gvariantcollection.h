@@ -32,12 +32,53 @@ template <class ObservingClass> class ObservableGVariantCollection :
 {
 public:
     inline ObservableGVariantCollection(int size = 0)
-        :ResizableCollection< Custom::ObservableGVariant<ObservingClass> >(size)
-        {}
+        :ResizableCollection< Custom::ObservableGVariant<ObservingClass> >(size),
+        _reference(0)
+    {
+        _value_about_to_change_func = 0;
+        _value_changed_func = 0;
+    }
 
     inline ObservableGVariantCollection(
             const ResizableCollection< Custom::ObservableGVariant<ObservingClass> > &v)
-        : ResizableCollection< Custom::ObservableGVariant<ObservingClass> >(v){}
+        : ResizableCollection< Custom::ObservableGVariant<ObservingClass> >(v),
+        _reference(0)
+    {
+        _value_about_to_change_func = 0;
+        _value_changed_func = 0;
+    }
+
+
+    inline void SetValueAboutToChangeFunction(ObservingClass *instance,
+                                              void (ObservingClass::*func)(const Custom::GVariant &current, const Custom::GVariant &future)){
+        _reference = instance;
+        _value_about_to_change_func = func;
+    }
+
+    inline void SetValueChangedFunction(ObservingClass *instance,
+            void (ObservingClass::*func)(const Custom::GVariant &oldval, const Custom::GVariant &newval)){
+        _reference = instance;
+        _value_changed_func = func;
+    }
+
+
+protected:
+
+    void on_add(Custom::ObservableGVariant<ObservingClass> *ogv){
+        if(_reference)
+        {
+            ogv->SetValueAboutToChangeFunction(_reference, _value_about_to_change_func);
+            ogv->SetValueChangedFunction(_reference, _value_changed_func);
+        }
+    }
+
+
+private:
+
+    ObservingClass *_reference;
+    void (ObservingClass::*_value_about_to_change_func)(const Custom::GVariant &, const Custom::GVariant &);
+    void (ObservingClass::*_value_changed_func)(const Custom::GVariant &, const Custom::GVariant &);
+
 };
 
 GUTIL_END_NAMESPACE

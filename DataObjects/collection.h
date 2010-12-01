@@ -33,7 +33,7 @@ template <typename T> class CollectionBase :
 protected:
 
     // Derived classes can do things to the added/removed object by overriding
-    virtual void on_add(T *) const{}
+    virtual void on_add(T *){}
 
     // You can define a different equality specification by overriding
     virtual bool compare_equality(const T &lhs, const T &rhs) const{

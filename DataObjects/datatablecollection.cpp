@@ -34,7 +34,7 @@ DataObjects::DataSet &DataObjects::DataTableCollection::Set(){
 }
 
 
-void DataObjects::DataTableCollection::on_add(DataObjects::DataTable *t) const
+void DataObjects::DataTableCollection::on_add(DataObjects::DataTable *t)
 {
     DataSet ds = t->table_data().GetDataSet();
     if(Set() != ds)

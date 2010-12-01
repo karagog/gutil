@@ -19,16 +19,22 @@ using namespace GUtil;
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
             :_table(new DataObjects::DataTable(t)),
-            _tuple(new DataObjects::ObservableGVariantCollection<DataRow>(_table->ColumnCount()))
+            _tuple(new DataObjects::ObservableGVariantCollection<SharedRowData>())
 {
-    for(int i = 0; i < vals.count(); i++)
+    // First set the value changed function, then
+    _tuple->SetValueChangedFunction(this, &SharedRowData::_value_changed);
+    _tuple->Resize(t.ColumnCount());
+
+    for(int i = 0; i < vals.count() && i < Table().ColumnCount(); i++)
         _tuple->At(i) = vals[i];
+
+    SetDirty(false);
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
         :Custom::GSharedData(o),
         _table(new DataObjects::DataTable(o.Table())),
-        _tuple(new DataObjects::ObservableGVariantCollection<DataRow>(o.Tuple()))
+        _tuple(new DataObjects::ObservableGVariantCollection<SharedRowData>(o.Tuple()))
 {}
 
 DataObjects::SharedRowData::~SharedRowData(){
@@ -45,10 +51,17 @@ const DataObjects::DataTable &DataObjects::SharedRowData::Table() const{
     return *_table;
 }
 
-DataObjects::ObservableGVariantCollection<DataRow> &DataObjects::SharedRowData::Tuple(){
+DataObjects::ObservableGVariantCollection<SharedRowData> &DataObjects::SharedRowData::Tuple(){
     return *_tuple;
 }
 
-const DataObjects::ObservableGVariantCollection<DataRow> &DataObjects::SharedRowData::Tuple() const{
+const DataObjects::ObservableGVariantCollection<SharedRowData> &DataObjects::SharedRowData::Tuple() const{
     return *_tuple;
+}
+
+void DataObjects::SharedRowData::
+        _value_changed(const Custom::GVariant &orig, const Custom::GVariant &newval)
+{
+    if(!IsDirty())
+        SetDirty(true);
 }

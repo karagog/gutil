@@ -87,6 +87,11 @@ public:
     // IClonable interface:
     virtual DataRow &CloneTo(DataRow &) const;
 
+    // Overriding the IUpdatable interface
+    inline bool IsDirty(){
+        return row_data().IsDirty();
+    }
+
     // IQXmlSerializable interface:
     virtual void WriteXml(QXmlStreamWriter &) const;
     virtual void ReadXml(QXmlStreamReader &)
@@ -115,6 +120,14 @@ protected:
     //   access to their own version of the sharedRowData
     SharedRowData &row_data();
     const SharedRowData &row_data() const;
+
+
+private:
+
+    // Hiding this function, because nobody should manually set it dirty
+    inline void SetDirty(bool d){
+        row_data().SetDirty(d);
+    }
 
 };
 

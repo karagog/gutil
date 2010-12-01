@@ -52,7 +52,7 @@ protected:
     // Protect our clonable interface
     virtual DataTableCollection &CloneTo(DataTableCollection &o) const;
 
-    virtual void on_add(DataTable *t) const;
+    virtual void on_add(DataTable *t);
 
     virtual void validate_new_item(const DataTable &t)
             throw(Core::ValidationException);
