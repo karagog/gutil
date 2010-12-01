@@ -64,8 +64,9 @@ void Interfaces::IReadOnlyObject::SetReadOnly(bool readonly)
     *_readonly_bool_reference = readonly;
 }
 
-void Interfaces::IReadOnlyObject::FailIfReadOnly() const throw(ReadOnlyException)
+void Interfaces::IReadOnlyObject::FailIfReadOnly() const
+        throw(ReadOnlyException)
 {
     if(IsReadOnly())
-        throw ReadOnlyException(ReadonlyMessageIdentifier());
+        THROW_NEW_GUTIL_EXCEPTION( ReadOnlyException, ReadonlyMessageIdentifier() );
 }

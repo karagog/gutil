@@ -42,15 +42,15 @@ namespace GUtil
             void LockForRead();
             void LockForWrite();
 
-            inline bool TryLock(int timeout = -1);
+            bool TryLock(int timeout = -1);
             bool TryLockForRead(int timeout = -1);
             bool TryLockForWrite(int timeout = -1);
 
             void Unlock();
 
-            inline bool IsLocked() const;
-            inline bool IsLockedForRead() const;
-            inline bool IsLockedForWrite() const;
+            bool IsLocked() const;
+            bool IsLockedForRead() const;
+            bool IsLockedForWrite() const;
 
         private:
 

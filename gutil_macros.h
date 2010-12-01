@@ -39,17 +39,6 @@ public: \
     enum{}
 
 
-// This version only declares the accessors, so you have to provide your own
-//   implementation
-#define PROPERTY_ACCESSORS( name, type )   \
-        type Get##name() const; \
-        void Set##name(const type &value)
-
-#define READONLY_PROPERTY_ACCESSORS( name, type )   \
-        type Get##name() const
-
-
-
 // Macros to begin and end namespaces
         // IMPORTANT!  QMake does not evaluate preprocessor definitions
         //  when creating meta-object files, so you cannot use these
@@ -73,5 +62,9 @@ public: \
 #define GUTIL_END_NAMESPACE }}
 
 #define GUTIL_END_CORE_NAMESPACE }}}
+
+
+#define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
+#define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
 
 #endif // GUTIL_MACROS_H

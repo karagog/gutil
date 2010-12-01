@@ -15,6 +15,8 @@ limitations under the License.*/
 #include "stringhelpers.h"
 #include "Private/strings_p.h"
 #include "Core/exception.h"
+#include <climits>
+#include <cstdlib>
 #include <cassert>
 #include <map>
 #include <cctype>
@@ -28,7 +30,11 @@ static const char base64_padding = '=';
 
 bool Utils::StringHelpers::toInt(const string &s, int &res)
 {
-    throw NotImplementedException();
+    if((res = atoi(s.c_str())) == 0 ||
+       res == INT_MAX ||
+       res == INT_MIN)
+        return false;
+
     return true;
 }
 
@@ -103,7 +109,7 @@ string Utils::StringHelpers::toBase16(const string &s)
 string Utils::StringHelpers::fromBase16(const string &s)
 {
     if(s.size() % 2 != 0)
-        throw Exception("Input string was not in the correct format");
+        THROW_NEW_GUTIL_EXCEPTION( Exception, "Input string was not in the correct format" );
 
     string res;
     for(int i = 0; i < (int)s.size(); i += 2)
@@ -182,7 +188,7 @@ string Utils::StringHelpers::fromBase64(const string &instr)
     string outstr = "";
 
     if(instr.length() % 4)
-        throw Exception("Input string is not the right length");
+        THROW_NEW_GUTIL_EXCEPTION( Exception, "Input string is not the right length" );
 
     // Construct a map of the possible characters, which adds a bit of overhead to this function,
     //  but saves us a linear search of the characters for every base64 digit we find
@@ -203,11 +209,11 @@ string Utils::StringHelpers::fromBase64(const string &instr)
         // Check the characters for validation; don't accept any foreign characters
         map<char, int>::iterator it = charmap.find(tmp1);
         if(it == charmap.end())
-            throw Exception("Unrecognized base-64 character");
+            THROW_NEW_GUTIL_EXCEPTION( Exception, "Unrecognized base-64 character" );
 
         it = charmap.find(tmp2);
         if(it == charmap.end())
-            throw Exception("Unrecognized base-64 character");
+            THROW_NEW_GUTIL_EXCEPTION( Exception, "Unrecognized base-64 character" );
 
         unsigned char a = charmap[tmp1];
         unsigned char b = charmap[tmp2];
@@ -221,7 +227,7 @@ string Utils::StringHelpers::fromBase64(const string &instr)
         {
             it = charmap.find(tmp3);
             if(it == charmap.end())
-                throw Exception("Unrecognized base-64 character");
+                THROW_NEW_GUTIL_EXCEPTION( Exception, "Unrecognized base-64 character" );
 
             val[0] = (b << 4) | (c >> 2);
             outstr.append(val, 1);
@@ -230,16 +236,16 @@ string Utils::StringHelpers::fromBase64(const string &instr)
             {
                 it = charmap.find(tmp4);
                 if(it == charmap.end())
-                    throw Exception("Unrecognized base-64 character");
+                    THROW_NEW_GUTIL_EXCEPTION( Exception, "Unrecognized base-64 character" );
 
                 val[0] = (c << 6) | d;
                 outstr.append(val, 1);
             }
             else if(i < (len - 4))
-                throw Exception("String is in unrecognized format");
+                THROW_NEW_GUTIL_EXCEPTION( Exception, "String is in unrecognized format" );
         }
         else if(tmp4 != base64_padding)
-            throw Exception("String is in unrecognized format");
+            THROW_NEW_GUTIL_EXCEPTION( Exception, "String is in unrecognized format" );
     }
 
     return outstr;
@@ -266,7 +272,7 @@ char Utils::StringHelpers::charToHex(char c)
         ret = 0x09 + rnib;
     }
     else
-        throw Exception("Unrecognized hex character");
+        THROW_NEW_GUTIL_EXCEPTION( Exception, "Unrecognized hex character" );
 
     return ret;
 }
@@ -277,7 +283,7 @@ char Utils::StringHelpers::hexToChar(char c)
 
     // Make sure it's a valid hex digit
     if(0 != (c & 0xf0))
-        throw Exception("Unrecognized hex digit");
+        THROW_NEW_GUTIL_EXCEPTION( Exception, "Unrecognized hex digit" );
 
     // If it's less than 10, display a number
     else if(c < 0x0A)

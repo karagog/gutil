@@ -7,14 +7,17 @@ HEADERS += \
     myflattreemodel.h \
     gthread.h \
     gsemaphore.h \
+    gshareddatapointer.h \
+    gsharedlock.h \
     gvariant.h \
-    gsharedlock.h
+    gshareddata.h \
+    observablegvariant.h
 
 SOURCES += \
     myflattreemodel.cpp \
     gthread.cpp \
     gsemaphore.cpp \
-    gvariant.cpp \
-    gsharedlock.cpp
+    gsharedlock.cpp \
+    gvariant.cpp
 
 INCLUDEPATH += ..

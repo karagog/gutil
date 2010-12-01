@@ -16,17 +16,10 @@ limitations under the License.*/
 #include "Utils/qstringhelpers.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-#include <QDate>
-#include <QBitArray>
-#include <QRegExp>
-#include <QStringList>
-#include <QUrl>
-#include <QSize>
-#include <QRect>
-#include <QVariantMap>
+#include <limits.h>
 using namespace GUtil;
 
-#define XMLID "V"
+#define GVARIANT_XML_ID "GV"
 
 Custom::GVariant::GVariant()
     :QVariant(){}
@@ -36,6 +29,9 @@ Custom::GVariant::GVariant(const QVariant &o)
 
 Custom::GVariant::GVariant(Type t)
     :QVariant(t){}
+
+Custom::GVariant::GVariant(const std::string &s)
+    :QVariant( QString::fromStdString(s) ){}
 
 Custom::GVariant::GVariant(const QString &s)
     :QVariant(s){}
@@ -55,6 +51,9 @@ Custom::GVariant::GVariant(uint i)
 Custom::GVariant::GVariant(char *c)
     :QVariant(c){}
 
+Custom::GVariant::GVariant(const char *c)
+    :QVariant(c){}
+
 Custom::GVariant::GVariant(bool b)
     :QVariant(b){}
 
@@ -62,7 +61,7 @@ Custom::GVariant::GVariant(double d)
     :QVariant(d){}
 
 Custom::GVariant::GVariant(float f)
-    :QVariant((double)f){}
+    :QVariant(QVariant::fromValue(f)){}
 
 Custom::GVariant::GVariant(const QDate &d)
     :QVariant(d){}
@@ -97,7 +96,10 @@ Custom::GVariant::GVariant(const QRect &r)
 Custom::GVariant::GVariant(const QSize &s)
     :QVariant(s){}
 
-QString Custom::GVariant::ConvertToXmlQString(const QVariant &v, bool h)
+Custom::GVariant::GVariant(const QUuid &i)
+    :QVariant(QUuidType, new QUuid(i)){}
+
+QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
     return GVariant(v).ToXmlQString(h);
 }
@@ -111,15 +113,18 @@ Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
 
 
 
-
+int Custom::GVariant::QUuidType = qMetaTypeId<QUuid>();
+int Custom::GVariant::FloatType = qMetaTypeId<float>();
 
 void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 {
-    sw.writeStartElement(XMLID);
-    sw.writeAttribute("t", QVariant((int)type()).toString());
+    int type = userType();
+
+    sw.writeStartElement(GVARIANT_XML_ID);
+    sw.writeAttribute("t", QString("%1").arg(type));
 
     QString tmps;
-    switch(type())
+    switch(type)
     {
     case String:
         sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toString()));
@@ -221,6 +226,13 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
                           .arg(toRect().height()));
         break;
     default:
+
+        // These are our custom types, that have to be handled separately
+        if(type == QUuidType)
+            sw.writeAttribute("d", value<QUuid>().toString());
+        else if(type == FloatType)
+            sw.writeAttribute("d", QString("%1").arg(value<float>()));
+
         break;
     }
 
@@ -232,13 +244,12 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
 {
     if(sr.readNextStartElement())
     {
-        if(sr.name() != XMLID)
+        if(sr.name() != GVARIANT_XML_ID)
             throw Core::XmlException();
 
-        Type type = (Type)sr.attributes().at(0).value().toString().toInt();
+        int type = sr.attributes().at(0).value().toString().toInt();
 
         clear();
-        convert(type);
 
         QString d;
         if(sr.attributes().count() > 1)
@@ -368,9 +379,63 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                            sltemp1.at(3).toInt()));
             break;
         default:
+
+            // These are our custom types, that have to be handled separately
+            if(type == QUuidType)
+                setValue(QUuid(d));
+            else if(type == FloatType)
+                setValue(d.toFloat());
+
             break;
         }
 
         while(sr.readNext() != QXmlStreamReader::EndElement);
     }
+}
+
+void Custom::GVariant::ToXml(const Custom::GVariant &g, QXmlStreamWriter &sw)
+{
+    g.WriteXml(sw);
+}
+
+Custom::GVariant Custom::GVariant::FromXml(QXmlStreamReader &sr)
+{
+    Custom::GVariant ret;
+    ret.ReadXml(sr);
+    return ret;
+}
+
+bool Custom::GVariant::Equals(const Custom::GVariant &o) const
+{
+    int type;
+    if((type = userType()) != o.userType())
+        return false;
+
+    bool ret;
+
+    if(type < (int)UserType)
+        ret = ((QVariant &)*this) == o;
+    else
+    {
+        // QVariant doesn't compare custom types for us, it only compares pointers,
+        //  so we implement our own compare for the custom types
+        if(type == QUuidType)
+            ret = value<QUuid>() == o.value<QUuid>();
+        else if(type == FloatType)
+            ret = value<float>() == o.value<float>();
+        else
+            ret = false;
+    }
+
+    return ret;
+}
+
+bool Custom::GVariant::operator == (const QVariant &v) const
+{
+    return Equals(v);
+}
+
+bool Custom::GVariant::operator != (const QVariant &v) const
+{
+    return NotEquals(v);
 }

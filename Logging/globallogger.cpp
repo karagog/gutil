@@ -91,7 +91,7 @@ void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
     else if(id == NewId)
     {
         if(!allow_new_id)
-            throw Core::ArgumentException("Can't create new ID here");
+            THROW_NEW_GUTIL_EXCEPTION( Core::ArgumentException, "Can't create new ID here" );
 
         // Auto-assign a logger id
         id = 1;
@@ -102,7 +102,7 @@ void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
     {
         Core::ArgumentException ex("Logger ID not recognized");
         ex.SetData("id", QVariant(id).toString().toStdString());
-        throw ex;
+        THROW_GUTIL_EXCEPTION( ex );
     }
 }
 

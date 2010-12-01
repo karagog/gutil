@@ -12,68 +12,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef VARIABLECONTAINER_H
-#define VARIABLECONTAINER_H
+#ifndef DATATABLE_H
+#define DATATABLE_H
 
-#include "Interfaces/iqxmlserializable.h"
-#include "Core/Interfaces/ireadonlyobject.h"
-#include <QList>
-#include <QPair>
-#include <QString>
-#include <QByteArray>
-#include <QAbstractTableModel>
+#include "gutil_macros.h"
 
-namespace GUtil
-{
-    namespace DataObjects
-    {
-        // A class used to hold data and serialize
-        //   the values to xml or access them conveniently with string keys
-        class DataTable :   public QAbstractTableModel,
-                            public Interfaces::IQXmlSerializable,
-                            public Core::Interfaces::IReadOnlyObject
-        {
-            Q_OBJECT
-        public:
-            DataTable(QObject *parent = 0);
-
-            QList<QByteArray> Values(const QString &key);
-            QPair<QString, QByteArray> Value(int) const;
-
-            virtual void SetValue(int, const QString &key, const QByteArray &value);
-
-            void InsertValue(int, const QString &key, const QByteArray &value);
-            QPair<QString, QByteArray> RemoveValue(int);
-            virtual void SwapIndexes(int one, int two);
-
-            int Size() const;
+GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-            // Interface for IQXmlSerializable
-            virtual void WriteXml(QXmlStreamWriter &);
-            virtual void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
+class DataRow;
+template<class T> class DataTableBase;
+
+typedef DataTableBase<DataRow> DataTable;
 
 
-            // Interface for QAbstractListModel
-            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-            virtual int columnCount(const QModelIndex &parent) const;
+GUTIL_END_NAMESPACE
 
-            virtual QVariant data(const QModelIndex &index, int role) const;
-            virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
-
-            virtual bool insertRows(int row, int count, const QModelIndex &parent);
-            virtual bool removeRows(int row, int count, const QModelIndex &parent);
-
-            virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-            virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-
-
-        private:
-            QList< QPair<QString, QByteArray> > _data;
-
-        };
-    }
-}
-
-#endif // VARIABLECONTAINER_H
+#endif // DATATABLE_H

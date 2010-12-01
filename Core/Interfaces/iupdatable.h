@@ -29,20 +29,22 @@ public:
         :_iupdatable_is_dirty(o._iupdatable_is_dirty){}
     virtual ~IUpdatable(){}
 
-    inline bool IsDirty() const{
+    virtual bool IsDirty() const{
         return _iupdatable_is_dirty;
     }
 
-    inline void SetDirty(bool d){
+    virtual void SetDirty(bool d){
         onSetDirty(_iupdatable_is_dirty = d);
     }
 
     // Derived classes should call this base version to reset dirty bit
-    virtual void CommitChanges(){
+    inline void CommitChanges(){
+        commit_reject_changes(true);
         SetDirty(false);
     }
 
-    virtual void RejectChanges(){
+    inline void RejectChanges(){
+        commit_reject_changes(false);
         SetDirty(false);
     }
 

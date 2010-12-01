@@ -73,8 +73,8 @@ private Q_SLOTS:
 
 
 
-
-using namespace GUtil::DummyTest;
+GUTIL_USING_NAMESPACE( DummyTest );
+//using namespace GUtil::DummyTest;
 
 GUtil_MacrosTest::GUtil_MacrosTest()
 {
