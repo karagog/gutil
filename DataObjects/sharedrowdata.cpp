@@ -19,16 +19,12 @@ using namespace GUtil;
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
             :_table(new DataObjects::DataTable(t)),
-            _tuple(new DataObjects::ObservableGVariantCollection<SharedRowData>())
+            _tuple(new DataObjects::ObservableGVariantCollection<SharedRowData>(t.ColumnCount()))
 {
-    // First set the value changed function, then
-    _tuple->SetValueChangedFunction(this, &SharedRowData::_value_changed);
-    _tuple->Resize(t.ColumnCount());
-
     for(int i = 0; i < vals.count() && i < Table().ColumnCount(); i++)
         _tuple->At(i) = vals[i];
 
-    SetDirty(false);
+    _tuple->SetValueChangedFunction(this, &SharedRowData::_value_changed);
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)

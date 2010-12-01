@@ -49,16 +49,33 @@ public:
     }
 
 
-    inline void SetValueAboutToChangeFunction(ObservingClass *instance,
-                                              void (ObservingClass::*func)(const Custom::GVariant &current, const Custom::GVariant &future)){
+    inline void SetValueAboutToChangeFunction(
+            ObservingClass *instance,
+            void (ObservingClass::*func)(const Custom::GVariant &current, const Custom::GVariant &future)){
         _reference = instance;
         _value_about_to_change_func = func;
+
+        for(int i = 0;
+            i < ResizableCollection< Custom::ObservableGVariant<ObservingClass> >::Count();
+            i++)
+        {
+            ResizableCollection< Custom::ObservableGVariant<ObservingClass> >::
+                    At(i).SetValueAboutToChangeFunction(_reference, _value_changed_func);
+        }
     }
 
     inline void SetValueChangedFunction(ObservingClass *instance,
             void (ObservingClass::*func)(const Custom::GVariant &oldval, const Custom::GVariant &newval)){
         _reference = instance;
         _value_changed_func = func;
+
+        for(int i = 0;
+            i < ResizableCollection< Custom::ObservableGVariant<ObservingClass> >::Count();
+            i++)
+        {
+            ResizableCollection< Custom::ObservableGVariant<ObservingClass> >::
+                    At(i).SetValueChangedFunction(_reference, _value_changed_func);
+        }
     }
 
 
