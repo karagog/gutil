@@ -114,8 +114,19 @@ public:
     DataTableBase<RowType> Clone() const;
 
 
-    inline bool IsDirty() const{
-        return table_data().IsDirty();
+    virtual bool IsDirty() const{
+        bool ret = table_data().IsDirty();
+
+        // If the table itself was not marked dirty, it could still be dirty
+        //  if any of the rows are dirty
+        for(int i = 0; !ret && i < RowCount(); i++)
+            ret = Rows()[i].IsDirty();
+
+        return ret;
+    }
+
+    inline void SetDirty(bool d){
+        table_data().SetDirty(d);
     }
 
     // Interface for IEquatable:
@@ -137,7 +148,8 @@ protected:
     //  version of the shared data object
     DataTableBase(SharedTableData<RowType> *);
 
-    // Derived tables can implement their own row initializations
+    // Derived tables can implement their own row initializations, like incrementing
+    //  an id or initializing a GUID
     virtual void init_new_row(DataRow &){}
 
     // Friend classes can access our data through this method:
@@ -168,10 +180,6 @@ protected:
 private:
 
     void _init(const QString &name, int num_cols);
-
-    inline void SetDirty(bool d){
-        table_data().SetDirty(d);
-    }
 
 };
 

@@ -50,8 +50,6 @@ public:
 
 protected:
 
-    void on_set_dirty(bool);
-
     void commit_reject_changes(bool commit);
 
 

@@ -361,14 +361,16 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::commit_reject
 {
     if(commit)
     {
+        table_data().CommitChanges();
 
+        for(int i = 0; i < RowCount(); i++)
+            Rows()[i].row_data().CommitChanges();
     }
     else
     {
+        table_data().RejectChanges();
 
+        for(int i = 0; i < RowCount(); i++)
+            Rows()[i].row_data().RejectChanges();
     }
-
-    // None of our rows should be dirty
-    for(int i = 0; i < RowCount(); i++)
-        Rows()[i].row_data().CommitChanges();
 }

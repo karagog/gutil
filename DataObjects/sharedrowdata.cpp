@@ -54,11 +54,6 @@ const DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tupl
     return *_tuple;
 }
 
-void DataObjects::SharedRowData::on_set_dirty(bool d)
-{
-    Table().table_data().SetDirty(d);
-}
-
 bool DataObjects::SharedRowData::IsDirty() const
 {
     return _tuple->IsDirty();
