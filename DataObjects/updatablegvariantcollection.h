@@ -32,21 +32,9 @@ public:
     UpdatableGVariantCollection(
             const ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> > &);
 
-    virtual void Resize(int size);
-
 protected:
 
-    virtual void value_about_to_change_func(const Custom::GVariant &, const Custom::GVariant &);
-    virtual void value_changed_func(const Custom::GVariant &, const Custom::GVariant &);
-
-
-    virtual void on_add(Custom::ObservableGVariant<UpdatableGVariantCollection> *);
     virtual void commit_reject_changes(bool commit);
-
-
-private:
-
-    GVariantCollection *_backup_collection;
 
 };
 

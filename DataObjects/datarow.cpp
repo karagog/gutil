@@ -55,22 +55,22 @@ DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) con
     return o;
 }
 
-Custom::GVariant &DataObjects::DataRow::operator [](int index)
+Custom::UpdatableGVariant &DataObjects::DataRow::operator [](int index)
 {
     return row_data().Tuple()[index];
 }
 
-const Custom::GVariant &DataObjects::DataRow::operator [](int index) const
+const Custom::UpdatableGVariant &DataObjects::DataRow::operator [](int index) const
 {
     return row_data().Tuple()[index];
 }
 
-Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_header)
+Custom::UpdatableGVariant &DataObjects::DataRow::operator [](const QString &column_header)
 {
     return At(row_data().Table().GetColumnIndex(column_header));
 }
 
-const Custom::GVariant &DataObjects::DataRow::operator [](const QString &column_header) const
+const Custom::UpdatableGVariant &DataObjects::DataRow::operator [](const QString &column_header) const
 {
     return At(row_data().Table().GetColumnIndex(column_header));
 }
@@ -100,12 +100,12 @@ void DataObjects::DataRow::set_number_of_columns(int cols)
     row_data().Tuple().Resize(cols);
 }
 
-Custom::GVariant &DataObjects::DataRow::At(int index)
+Custom::UpdatableGVariant &DataObjects::DataRow::At(int index)
 {
     return row_data().Tuple().At(index);
 }
 
-const Custom::GVariant &DataObjects::DataRow::At(int index) const
+const Custom::UpdatableGVariant &DataObjects::DataRow::At(int index) const
 {
     return row_data().Tuple().At(index);
 }

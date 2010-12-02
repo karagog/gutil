@@ -19,44 +19,20 @@ GUTIL_USING_NAMESPACE( DataObjects );
 
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(int size)
-    :ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >(size),
-    _backup_collection(new GVariantCollection(size))
-{
-    // on_add is a virtual function, so it doesn't get called in ResizableCollection's constructor
-    for(int i = 0; i < Count(); i++)
-        on_add(&At(i));
-}
+    :ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >(size)
+{}
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(const ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> > &v)
-    : ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >(v){}
-
-void UpdatableGVariantCollection::Resize(int size)
-{
-    ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >::Resize(size);
-
-    _backup_collection->Resize(size);
-}
-
-void UpdatableGVariantCollection::value_about_to_change_func(const Custom::GVariant &, const Custom::GVariant &){}
-
-void UpdatableGVariantCollection::value_changed_func(const Custom::GVariant &o, const Custom::GVariant &t)
-{
-    if(o != t)
-        SetDirty(true);
-}
-
-void UpdatableGVariantCollection::on_add(Custom::ObservableGVariant<UpdatableGVariantCollection> *ogv)
-{
-    ogv->SetValueAboutToChangeFunction(this, &UpdatableGVariantCollection::value_about_to_change_func);
-    ogv->SetValueChangedFunction(this, &UpdatableGVariantCollection::value_changed_func);
-}
+    : ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >(v)
+{}
 
 void UpdatableGVariantCollection::commit_reject_changes(bool commit)
 {
-    if(commit)
-        for(int i = 0; i < Count(); i++)
-            _backup_collection->At(i) = At(i);
-    else
-        for(int i = 0; i < Count(); i++)
-            At(i) = _backup_collection->At(i);
+    for(int i = 0; i < Count(); i++)
+    {
+        if(commit)
+            At(i).CommitChanges();
+        else
+            At(i).RejectChanges();
+    }
 }

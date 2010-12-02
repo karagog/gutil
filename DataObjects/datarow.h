@@ -12,6 +12,7 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
+#include "Custom/updatablegvariant.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -59,20 +60,25 @@ public:
 
     virtual DataRow &operator =(const DataRow &);
 
-    Custom::GVariant &operator [](int index);
-    const Custom::GVariant &operator [](int index) const;
-    Custom::GVariant &operator [](const QString &column_header);
-    const Custom::GVariant &operator [](const QString &column_header) const;
+    Custom::UpdatableGVariant &operator [](int index);
+    const Custom::UpdatableGVariant &operator [](int index) const;
+    Custom::UpdatableGVariant &operator [](const QString &column_header);
+    const Custom::UpdatableGVariant &operator [](const QString &column_header) const;
 
-    Custom::GVariant &At(int index);
-    const Custom::GVariant &At(int index) const;
+    Custom::UpdatableGVariant &At(int index);
+    const Custom::UpdatableGVariant &At(int index) const;
 
     int Index() const;
     int ColumnCount() const;
 
     // Our row data is an IUpdatable
     inline bool IsDirty() const{
-        return row_data().IsDirty();
+        bool ret = false;
+
+        for(int i = 0; !ret && i < ColumnCount(); i++)
+            ret = At(i).IsDirty();
+
+        return ret;
     }
 
     // Derived classes can follow this example when specifying

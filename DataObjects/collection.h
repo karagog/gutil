@@ -153,7 +153,7 @@ public:
         : Collection<T>(v){}
 
 
-    virtual void Resize(int size)
+    void Resize(int size)
     {
         if(size < 0)
             return;
