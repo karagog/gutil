@@ -43,12 +43,14 @@ public:
 
 protected:
 
+    virtual void value_changed(const GVariant &, const GVariant &);
+    virtual void value_about_to_change(const GVariant &, const GVariant &);
+
+    // IUpdatable interface
     virtual void commit_reject_changes(bool commit);
 
 
 private:
-
-    void value_changed(const GVariant &, const GVariant &);
 
     GVariant _backup;
 };

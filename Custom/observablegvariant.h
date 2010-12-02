@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef OBSERVABLEGVARIANT_H
 #define OBSERVABLEGVARIANT_H
 
-#include "gvariant.h"
+#include "updatablegvariant.h"
 
 GUTIL_BEGIN_NAMESPACE( Custom );
 
@@ -26,15 +26,15 @@ GUTIL_BEGIN_NAMESPACE( Custom );
 // To stop a value from being changed in the 'AboutToChange' method, throw an exception
 
 template <class ObservingClass> class ObservableGVariant :
-        public GVariant
+        public UpdatableGVariant
 {
 public:
 
     inline ObservableGVariant(const GVariant &gv = GVariant())
-        :GVariant(gv){ _init(); }
+        :UpdatableGVariant(gv){ _init(); }
 
     ObservableGVariant(const ObservableGVariant &ogv)
-        :GVariant(ogv)
+        :UpdatableGVariant(ogv)
     {
         _instance = ogv._instance;
         _value_about_to_change_callback = ogv._value_about_to_change_callback;
@@ -54,53 +54,19 @@ public:
     }
 
 
-    // We override these functions from QVariant, so we can call our callback functions
-    ObservableGVariant &operator = (const GVariant &o){
-        GVariant tmp(*this);
-
-        value_about_to_change(tmp, o);
-        ((QVariant &)*this) = o;
-        value_changed(tmp, o);
-        return *this;
-    }
-
-    void clear(){
-        GVariant tmp(*this);
-        GVariant c;
-
-        value_about_to_change(tmp, c);
-        QVariant::clear();
-        value_changed(tmp, c);
-    }
-
-    void convert(Type t){
-        GVariant tmp1(*this);
-        QVariant tmp2(tmp1);
-        tmp2.convert(t);
-
-        value_about_to_change(tmp1, tmp2);
-        QVariant::convert(t);
-        value_changed(tmp1, tmp2);
-    }
-
-    template <class U> void setValue(const U &value){
-        GVariant tmp(*this);
-        GVariant tmp2(value);
-
-        value_about_to_change(tmp, tmp2);
-        QVariant::setValue(value);
-        value_changed(tmp, tmp2);
-    }
-
-
 private:
 
+    // These are virtual overrides to the UpdataGVariant versions
     void value_about_to_change(const GVariant &o, const GVariant &t){
+        UpdatableGVariant::value_about_to_change(o, t);
+
         if(_value_about_to_change_callback)
             (_instance->*_value_about_to_change_callback)(o, t);
     }
 
     void value_changed(const GVariant &o, const GVariant &t){
+        UpdatableGVariant::value_changed(o, t);
+
         if(_value_changed_callback)
             (_instance->*_value_changed_callback)(o, t);
     }
