@@ -11,7 +11,8 @@ HEADERS += \
     gsharedlock.h \
     gvariant.h \
     gshareddata.h \
-    observablegvariant.h
+    observablegvariant.h \
+    updatablegvariant.h
 
 SOURCES += \
     myflattreemodel.cpp \
