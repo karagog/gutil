@@ -19,22 +19,21 @@ using namespace GUtil;
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
-            :_table(new DataObjects::DataTable(t)),
-            _tuple(new DataObjects::UpdatableGVariantCollection(t.ColumnCount()))
+            :UpdatableGVariantCollection(t.ColumnCount()),
+            _table(new DataObjects::DataTable(t))
 {
     for(int i = 0; i < vals.count() && i < Table().ColumnCount(); i++)
-        _tuple->At(i) = vals[i];
+        At(i) = vals[i];
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
         :Custom::GSharedData(o),
-        _table(new DataObjects::DataTable(o.Table())),
-        _tuple(new DataObjects::UpdatableGVariantCollection(o.Tuple()))
+        UpdatableGVariantCollection(o),
+        _table(new DataObjects::DataTable(o.Table()))
 {}
 
 DataObjects::SharedRowData::~SharedRowData(){
     delete _table;
-    delete _tuple;
 }
 
 
@@ -47,27 +46,24 @@ const DataObjects::DataTable &DataObjects::SharedRowData::Table() const{
 }
 
 DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple(){
-    return *_tuple;
+    return *this;
 }
 
 const DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple() const{
-    return *_tuple;
-}
-
-bool DataObjects::SharedRowData::IsDirty() const
-{
-    return _tuple->IsDirty();
+    return *this;
 }
 
 void DataObjects::SharedRowData::SetDirty(bool d)
 {
-    return _tuple->SetDirty(d);
+    UpdatableGVariantCollection::SetDirty(d);
 }
 
-void DataObjects::SharedRowData::commit_reject_changes(bool commit)
+void DataObjects::SharedRowData::value_about_to_change(int index, const Custom::GVariant &o, const Custom::GVariant &t)
 {
-    if(commit)
-        _tuple->CommitChanges();
-    else
-        _tuple->RejectChanges();
+
+}
+
+void DataObjects::SharedRowData::value_changed(int index, const Custom::GVariant &o, const Custom::GVariant &t)
+{
+
 }

@@ -24,17 +24,31 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 class UpdatableGVariantCollection :
-        public ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >,
+        public ResizableCollection< Custom::ObservableGVariant >,
+        public Custom::GVariantObserver,
         public Core::Interfaces::IUpdatable
 {
 public:
     UpdatableGVariantCollection(int size = 0);
-    UpdatableGVariantCollection(
-            const ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> > &);
+    UpdatableGVariantCollection(const ResizableCollection<Custom::ObservableGVariant> &);
 
 protected:
 
+    // Classes may derive from this one to implement their own functions
+    virtual void value_about_to_change(int index, const Custom::GVariant &, const Custom::GVariant &);
+    virtual void value_changed(int index, const Custom::GVariant &, const Custom::GVariant &);
+
+    // IUpdatable interface:
     virtual void commit_reject_changes(bool commit);
+
+
+private:
+
+    // GVariantObserver interface:
+    virtual void gvariant_value_about_to_change(const Custom::GVariant &, const Custom::GVariant &);
+    virtual void gvariant_value_changed(const Custom::GVariant &, const Custom::GVariant &);
+
+    int _index_mem;
 
 };
 

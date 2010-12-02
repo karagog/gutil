@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "datatable.h"
 #include "gvariantcollection.h"
+#include "updatablegvariantcollection.h"
 #include "Custom/gshareddata.h"
 #include "Core/Interfaces/iupdatable.h"
 
@@ -27,7 +28,10 @@ class UpdatableGVariantCollection;
 
 class SharedRowData :
         public Custom::GSharedData,
-        public Core::Interfaces::IUpdatable
+
+        // This updatable gvariant collecition is part of our data, but we are a subclass of it
+        //  because we need to implement the 'value_about_to_change' function
+        public UpdatableGVariantCollection
 {
 public:
 
@@ -45,18 +49,17 @@ public:
     UpdatableGVariantCollection &Tuple();
     const UpdatableGVariantCollection &Tuple() const;
 
-    virtual bool IsDirty() const;
-
 
 protected:
 
-    void commit_reject_changes(bool commit);
+    // Intercept the event whenever a value is about to change and when it actually did change
+    virtual void value_about_to_change(int index, const Custom::GVariant &, const Custom::GVariant &);
+    virtual void value_changed(int index, const Custom::GVariant &, const Custom::GVariant &);
 
 
 private:
 
     DataTable *_table;
-    UpdatableGVariantCollection *_tuple;
 
     // Nobody should call this
     void SetDirty(bool d);

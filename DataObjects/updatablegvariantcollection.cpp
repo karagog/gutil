@@ -16,14 +16,18 @@ limitations under the License.*/
 #include "gvariantcollection.h"
 #include "Custom/observablegvariant.h"
 GUTIL_USING_NAMESPACE( DataObjects );
+GUTIL_USING_NAMESPACE( Custom );
 
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(int size)
-    :ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >(size)
-{}
+    :ResizableCollection<Custom::ObservableGVariant>(size)
+{
+    for(int i = 0; i < Count(); i++)
+        At(i).SetObserver(this);
+}
 
-UpdatableGVariantCollection::UpdatableGVariantCollection(const ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> > &v)
-    : ResizableCollection< Custom::ObservableGVariant<UpdatableGVariantCollection> >(v)
+UpdatableGVariantCollection::UpdatableGVariantCollection(const ResizableCollection<Custom::ObservableGVariant> &v)
+    : ResizableCollection<Custom::ObservableGVariant>(v)
 {}
 
 void UpdatableGVariantCollection::commit_reject_changes(bool commit)
@@ -36,3 +40,25 @@ void UpdatableGVariantCollection::commit_reject_changes(bool commit)
             At(i).RejectChanges();
     }
 }
+
+void UpdatableGVariantCollection::gvariant_value_about_to_change(const GVariant &o, const GVariant &t)
+{
+    // Find the index of the value which is about to change
+    _index_mem = -1;
+    for(int i = 0; _index_mem == -1 && i < Count(); i++)
+        if(&At(i) == &o)
+            _index_mem = i;
+
+    Q_ASSERT(_index_mem != -1);
+
+    value_about_to_change(_index_mem, o, t);
+}
+
+void UpdatableGVariantCollection::gvariant_value_changed(const GVariant &o, const GVariant &t)
+{
+    // We reuse _index_mem so we don't have to find the same index twice
+    value_changed(_index_mem, o, t);
+}
+
+void UpdatableGVariantCollection::value_about_to_change(int, const GVariant &, const GVariant &){}
+void UpdatableGVariantCollection::value_changed(int, const GVariant &, const GVariant &){}

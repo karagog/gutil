@@ -29,19 +29,18 @@ UpdatableGVariant::UpdatableGVariant(const UpdatableGVariant &ogv)
 UpdatableGVariant &UpdatableGVariant::operator = (const GVariant &o){
     GVariant tmp(*this);
 
-    value_about_to_change(tmp, o);
+    value_about_to_change(*this, o);
     ((QVariant &)*this) = o;
-    value_changed(tmp, o);
+    value_changed(tmp, *this);
     return *this;
 }
 
 void UpdatableGVariant::clear(){
     GVariant tmp(*this);
-    GVariant c;
 
-    value_about_to_change(tmp, c);
+    value_about_to_change(*this, GVariant());
     QVariant::clear();
-    value_changed(tmp, c);
+    value_changed(tmp, *this);
 }
 
 void UpdatableGVariant::convert(Type t){
@@ -49,18 +48,18 @@ void UpdatableGVariant::convert(Type t){
     QVariant tmp2(tmp1);
     tmp2.convert(t);
 
-    value_about_to_change(tmp1, tmp2);
+    value_about_to_change(*this, tmp2);
     QVariant::convert(t);
-    value_changed(tmp1, tmp2);
+    value_changed(tmp1, *this);
 }
 
 template <class U> void UpdatableGVariant::setValue(const U &value){
     GVariant tmp(*this);
     GVariant tmp2(value);
 
-    value_about_to_change(tmp, tmp2);
+    value_about_to_change(*this, tmp2);
     QVariant::setValue(value);
-    value_changed(tmp, tmp2);
+    value_changed(tmp, *this);
 }
 
 void UpdatableGVariant::commit_reject_changes(bool commit)

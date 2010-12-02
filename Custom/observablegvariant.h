@@ -20,67 +20,48 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( Custom );
 
 
+// A base class that is required to observe an ObservableGVariant
+class GVariantObserver;
+
+
 // Just like a GVariant, but you can also register your own callback functions
 //  that get called before and after the value changes.
 
 // To stop a value from being changed in the 'AboutToChange' method, throw an exception
 
-template <class ObservingClass> class ObservableGVariant :
+class ObservableGVariant :
         public UpdatableGVariant
 {
 public:
 
-    inline ObservableGVariant(const GVariant &gv = GVariant())
-        :UpdatableGVariant(gv){ _init(); }
+    ObservableGVariant(const GVariant &gv = GVariant());
+    ObservableGVariant(const ObservableGVariant &);
 
-    ObservableGVariant(const ObservableGVariant &ogv)
-        :UpdatableGVariant(ogv)
-    {
-        _instance = ogv._instance;
-        _value_about_to_change_callback = ogv._value_about_to_change_callback;
-        _value_changed_callback = ogv._value_changed_callback;
-    }
-
-    inline void SetValueAboutToChangeFunction(ObservingClass *instance,
-            void (ObservingClass::*func)(const GVariant &current, const GVariant &future)){
-        _instance = instance;
-        _value_about_to_change_callback = func;
-    }
-
-    inline void SetValueChangedFunction(ObservingClass *instance,
-            void (ObservingClass::*func)(const GVariant &oldval, const GVariant &newval)){
-        _instance = instance;
-        _value_changed_callback = func;
-    }
+    void SetObserver(GVariantObserver *o);
 
 
 private:
 
     // These are virtual overrides to the UpdataGVariant versions
-    void value_about_to_change(const GVariant &o, const GVariant &t){
-        UpdatableGVariant::value_about_to_change(o, t);
-
-        if(_value_about_to_change_callback)
-            (_instance->*_value_about_to_change_callback)(o, t);
-    }
-
-    void value_changed(const GVariant &o, const GVariant &t){
-        UpdatableGVariant::value_changed(o, t);
-
-        if(_value_changed_callback)
-            (_instance->*_value_changed_callback)(o, t);
-    }
+    void value_about_to_change(const GVariant &o, const GVariant &t);
+    void value_changed(const GVariant &o, const GVariant &t);
 
     // A pointer to an instance to call the callbacks on
-    ObservingClass *_instance;
-    void (ObservingClass::*_value_about_to_change_callback)(const GVariant &current, const GVariant &future);
-    void (ObservingClass::*_value_changed_callback)(const GVariant &oldvalue, const GVariant &newvalue);
+    GVariantObserver *_observer;
 
-    void _init(){
-        _instance = 0;
-        _value_about_to_change_callback = 0;
-        _value_changed_callback = 0;
-    }
+};
+
+
+
+// Any class that wants to observe a GVariant must implement this base class
+class GVariantObserver
+{
+    friend class ObservableGVariant;
+
+protected:
+
+    virtual void gvariant_value_about_to_change(const GVariant &, const GVariant &){}
+    virtual void gvariant_value_changed(const GVariant &, const GVariant &){}
 
 };
 
