@@ -16,7 +16,7 @@ limitations under the License.*/
 #define UPDATABLEGVARIANTCOLLECTION_H
 
 #include "collection.h"
-#include "Custom/gvariant.h"
+#include "Custom/observablegvariant.h"
 #include "gvariantcollection.h"
 #include "Core/Interfaces/iupdatable.h"
 

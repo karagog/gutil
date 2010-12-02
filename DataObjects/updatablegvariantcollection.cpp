@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "updatablegvariantcollection.h"
 #include "gvariantcollection.h"
+#include "Custom/observablegvariant.h"
 GUTIL_USING_NAMESPACE( DataObjects );
 
 
