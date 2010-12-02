@@ -20,7 +20,8 @@ HEADERS += \
     sharedtabledata.h \
     sharedrowdata.h \
     explicitlysharedobject.h \
-    updatablegvariantcollection.h
+    updatablegvariantcollection.h \
+    updatablegvariant.h
 
 SOURCES += \
     dataset.cpp \

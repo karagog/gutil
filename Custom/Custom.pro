@@ -18,6 +18,7 @@ SOURCES += \
     gthread.cpp \
     gsemaphore.cpp \
     gsharedlock.cpp \
-    gvariant.cpp
+    gvariant.cpp \
+    updatablegvariant.cpp
 
 INCLUDEPATH += ..
