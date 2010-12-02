@@ -95,17 +95,15 @@ public:
     virtual void clear(){QVariant::clear();}
     virtual void convert(Type t){QVariant::convert(t);}
 
+    // In this function we go through our equals operator, because template functions can't
+    //  be virtual
+    template <class T> inline void setValue(const T &value){ *this = value; }
+
 
 
     // These are types that I define, because for some reason Qt doesn't already
     static int QUuidType;
     static int FloatType;
-
-
-private:
-
-    // We hide this function, because templates can't be virtual
-    template <class T> inline void setValue(const T &value){QVariant::setValue(value);}
 
 };
 
