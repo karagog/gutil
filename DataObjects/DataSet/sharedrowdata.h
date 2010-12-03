@@ -43,11 +43,6 @@ public:
     RowValueCollection &Tuple();
     const RowValueCollection &Tuple() const;
 
-    // Passes a reference to the data row instance, the index being changed, and the next/previous
-    //  value, accordingly
-    void SetValueAboutToChangeFunction(void (*func)(const DataRow &, int, const Custom::GVariant &));
-    void SetValueChangedFunction(void (*func)(const DataRow &, int, const Custom::GVariant &));
-
     // IUpdatable interface
     bool IsDirty() const;
     void SetDirty(bool);

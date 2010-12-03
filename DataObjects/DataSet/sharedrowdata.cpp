@@ -63,18 +63,6 @@ void DataObjects::SharedRowData::SetDirty(bool d)
     _tuple.SetDirty(d);
 }
 
-void DataObjects::SharedRowData::SetValueAboutToChangeFunction(
-        void (*func)(const DataRow &, int, const Custom::GVariant &))
-{
-    _tuple.SetValueAboutToChangeFunction(func);
-}
-
-void DataObjects::SharedRowData::SetValueChangedFunction(
-        void (*func)(const DataRow &, int, const Custom::GVariant &))
-{
-    _tuple.SetValueChangedFunction(func);
-}
-
 void DataObjects::SharedRowData::commit_reject_changes(bool commit)
 {
     if(commit)

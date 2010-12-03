@@ -16,17 +16,14 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE( Custom );
 
 ObservableGVariant::ObservableGVariant(const GVariant &gv)
-    :UpdatableGVariant(gv)
-{
-    _observer = 0;
-}
+    :UpdatableGVariant(gv),
+    _observer(0)
+{}
 
 ObservableGVariant::ObservableGVariant(const ObservableGVariant &ogv)
-    :UpdatableGVariant(ogv)
-{
-    _observer = 0;
-    //_observer = ogv._observer;
-}
+    :UpdatableGVariant(ogv),
+    _observer(ogv._observer)
+{}
 
 void ObservableGVariant::SetObserver(GVariantObserver *o)
 {

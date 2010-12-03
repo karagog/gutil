@@ -374,3 +374,18 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::commit_reject
             Rows()[i].row_data().RejectChanges();
     }
 }
+
+template <class RowType> QSet<int> DataObjects::DataTableBase<RowType>::KeyColumns() const
+{
+    return table_data().KeyColumns();
+}
+
+template <class RowType> void DataObjects::DataTableBase<RowType>::AddKeyColumn(int k)
+{
+    table_data().KeyColumns().insert(k);
+}
+
+template <class RowType> void DataObjects::DataTableBase<RowType>::RemoveKeyColumn(int k)
+{
+    table_data().KeyColumns().remove(k);
+}

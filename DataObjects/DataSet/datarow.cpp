@@ -27,13 +27,13 @@ using namespace Custom;
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
     :ExplicitlySharedObject<SharedRowData>(new SharedRowData(dt, vals))
-{}
+{
+    row_data().Tuple().SetValueAboutToChangeFunction(&_row_value_about_to_change);
+}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
     :ExplicitlySharedObject<SharedRowData>(o)
-{
-    *this = o;
-}
+{}
 
 DataObjects::DataRow::DataRow(SharedRowData *rd)
     :ExplicitlySharedObject<SharedRowData>(rd)
@@ -161,4 +161,41 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != ROW_XML_ID);
     }
+}
+
+void DataObjects::DataRow::_row_value_about_to_change(
+        const DataRow &r, int index, const Custom::GVariant &v)
+{
+    if(r.Table().KeyColumns().count() == 0 ||
+       !r.Table().KeyColumns().contains(index))
+        return;
+
+    bool key_violation = false;
+    for(int i = 0; !key_violation && i < r.Table().RowCount(); i++)
+    {
+        const DataRow &cur_row = r.Table().Rows()[i];
+
+        if(cur_row == r)
+            continue;
+
+        key_violation = true;
+        foreach(int k, r.Table().KeyColumns())
+        {
+            if(k == index)
+                key_violation = key_violation && (v == cur_row[k]);
+            else
+                key_violation = key_violation && (r[k] == cur_row[k]);
+
+            if(!key_violation)
+                break;
+        }
+    }
+
+    if(key_violation)
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  QString("Primary key violation trying to set index %1 "
+                                          "to the value \"%2\"")
+                                  .arg(index)
+                                  .arg(v.toString())
+                                  .toStdString());
 }

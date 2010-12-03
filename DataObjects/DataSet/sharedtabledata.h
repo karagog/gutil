@@ -41,7 +41,8 @@ public:
     SharedTableData(const SharedTableData &d)
         :_dataset(d._dataset),
         _rows(new DataRowCollectionBase<RowType>(d.Rows())),
-        _columns(d.Columns()){}
+        _columns(d.Columns()),
+        _key_columns(d._key_columns){}
 
     virtual ~SharedTableData(){
         delete _rows;
@@ -84,6 +85,14 @@ public:
         _name = v;
     }
 
+    QSet<int> &KeyColumns(){
+        return _key_columns;
+    }
+
+    const QSet<int> &KeyColumns() const{
+        return _key_columns;
+    }
+
 
 private:
 
@@ -91,6 +100,7 @@ private:
     DataRowCollectionBase<RowType> *_rows;
     DataColumnCollection _columns;
     QString _name;
+    QSet<int> _key_columns;
 
 };
 

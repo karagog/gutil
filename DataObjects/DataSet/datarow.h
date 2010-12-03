@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "gutil_macros.h"
-#include <QVariant>
+#include <QSet>
 
 // Derived classes can use this macro for convenience when declaring
 //  typed property accessors.
@@ -124,6 +124,11 @@ protected:
     //   access to their own version of the sharedRowData
     SharedRowData &row_data();
     const SharedRowData &row_data() const;
+
+
+private:
+
+    static void _row_value_about_to_change(const DataRow &, int, const Custom::GVariant &);
 
 };
 

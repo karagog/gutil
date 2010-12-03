@@ -80,6 +80,10 @@ public:
     void SetColumnKey(int col_index, const QString &);
     void ClearColumns();
 
+    QSet<int> KeyColumns() const;
+    void AddKeyColumn(int);
+    void RemoveKeyColumn(int);
+
     int RowCount() const;
     int ColumnCount() const;
 

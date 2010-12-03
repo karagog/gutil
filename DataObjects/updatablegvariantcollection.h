@@ -48,8 +48,8 @@ protected:
 private:
 
     // GVariantObserver interface:
-    void _gvariant_value_about_to_change(const Custom::GVariant &, const Custom::GVariant &);
-    void _gvariant_value_changed(const Custom::GVariant &, const Custom::GVariant &);
+    void gvariant_value_about_to_change(const Custom::GVariant &, const Custom::GVariant &);
+    void gvariant_value_changed(const Custom::GVariant &, const Custom::GVariant &);
 
     int _index_mem;
 
