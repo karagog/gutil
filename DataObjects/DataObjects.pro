@@ -28,7 +28,6 @@ SOURCES += \
     DataSet/sharedrowdata.cpp \
     DataSet/rowvaluecollection.cpp \
     DataSet/datatablecollection.cpp \
-    DataSet/datatablebase.cpp \
     DataSet/dataset.cpp \
     DataSet/datarow.cpp \
     DataSet/datacolumncollection.cpp \

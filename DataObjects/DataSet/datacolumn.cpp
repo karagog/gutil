@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacolumn.h"
-#include "collection.h"
+#include "DataObjects/collection.h"
 #include <QUuid>
 using namespace GUtil;
 
