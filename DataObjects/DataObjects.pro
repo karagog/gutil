@@ -21,7 +21,8 @@ HEADERS += \
     sharedrowdata.h \
     explicitlysharedobject.h \
     updatablegvariantcollection.h \
-    updatablegvariant.h
+    updatablegvariant.h \
+    rowvaluecollection.h
 
 SOURCES += \
     dataset.cpp \
@@ -31,6 +32,7 @@ SOURCES += \
     datacolumn.cpp \
     datatablecollection.cpp \
     sharedrowdata.cpp \
-    updatablegvariantcollection.cpp
+    updatablegvariantcollection.cpp \
+    rowvaluecollection.cpp
 
 INCLUDEPATH += ..

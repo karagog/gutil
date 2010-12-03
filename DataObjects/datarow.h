@@ -52,6 +52,7 @@ class DataRow :
 {
     template<class T> friend class DataTableBase;
     template<class T> friend class DataRowCollectionBase;
+    friend class RowValueCollection;
 
 public:
 
