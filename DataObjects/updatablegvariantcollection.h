@@ -16,16 +16,17 @@ limitations under the License.*/
 #define UPDATABLEGVARIANTCOLLECTION_H
 
 #include "collection.h"
-#include "Custom/observablegvariant.h"
 #include "gvariantcollection.h"
+#include "Custom/updatablegvariant.h"
 #include "Core/Interfaces/iupdatable.h"
+#include "Core/Interfaces/ivalueobserver.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 class UpdatableGVariantCollection :
-        public ResizableCollection< Custom::ObservableGVariant >,
-        public Custom::GVariantObserver,
+        public ResizableCollection< Custom::UpdatableGVariant >,
+        public Core::Interfaces::IValueObserver<Custom::GVariant>,
         public Core::Interfaces::IUpdatable
 {
 public:
@@ -39,7 +40,7 @@ protected:
     virtual void value_changed(int index, const Custom::GVariant &previousvalue);
 
     // Every new observable gvariant we add must be initialized
-    virtual void on_add(Custom::ObservableGVariant *);
+    virtual void on_add(Custom::UpdatableGVariant *);
 
     // IUpdatable interface:
     virtual void commit_reject_changes(bool commit);

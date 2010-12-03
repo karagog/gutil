@@ -29,18 +29,18 @@ UpdatableGVariant::UpdatableGVariant(const UpdatableGVariant &ogv)
 UpdatableGVariant &UpdatableGVariant::operator = (const GVariant &o){
     GVariant tmp(*this);
 
-    value_about_to_change(*this, o);
+    notify_value_about_to_change(*this, o);
     ((QVariant &)*this) = o;
-    value_changed(tmp, *this);
+    notify_value_changed(tmp, *this);
     return *this;
 }
 
 void UpdatableGVariant::clear(){
     GVariant tmp(*this);
 
-    value_about_to_change(*this, GVariant());
+    notify_value_about_to_change(*this, GVariant());
     QVariant::clear();
-    value_changed(tmp, *this);
+    notify_value_changed(tmp, *this);
 }
 
 void UpdatableGVariant::convert(Type t){
@@ -48,18 +48,18 @@ void UpdatableGVariant::convert(Type t){
     QVariant tmp2(tmp1);
     tmp2.convert(t);
 
-    value_about_to_change(*this, tmp2);
+    notify_value_about_to_change(*this, tmp2);
     QVariant::convert(t);
-    value_changed(tmp1, *this);
+    notify_value_changed(tmp1, *this);
 }
 
 template <class U> void UpdatableGVariant::setValue(const U &value){
     GVariant tmp(*this);
     GVariant tmp2(value);
 
-    value_about_to_change(*this, tmp2);
+    notify_value_about_to_change(*this, tmp2);
     QVariant::setValue(value);
-    value_changed(tmp, *this);
+    notify_value_changed(tmp, *this);
 }
 
 void UpdatableGVariant::commit_reject_changes(bool commit)
@@ -70,10 +70,10 @@ void UpdatableGVariant::commit_reject_changes(bool commit)
         *this = _backup;
 }
 
-void UpdatableGVariant::value_changed(const GVariant &o, const GVariant &t)
+void UpdatableGVariant::notify_value_changed(const GVariant &o, const GVariant &t)
 {
     if(o != t)
         SetDirty(true);
-}
 
-void UpdatableGVariant::value_about_to_change(const GVariant &, const GVariant &){}
+    Core::Interfaces::IObservableValue<GVariant>::notify_value_changed(o, t);
+}

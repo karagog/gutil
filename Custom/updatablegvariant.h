@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gvariant.h"
 #include "Core/Interfaces/iupdatable.h"
+#include "Core/Interfaces/iobservablevalue.h"
 
 GUTIL_BEGIN_NAMESPACE( Custom );
 
@@ -26,7 +27,8 @@ GUTIL_BEGIN_NAMESPACE( Custom );
 
 class UpdatableGVariant :
         public GVariant,
-        public Core::Interfaces::IUpdatable
+        public Core::Interfaces::IUpdatable,
+        public Core::Interfaces::IObservableValue<GVariant>
 {
 public:
 
@@ -43,8 +45,8 @@ public:
 
 protected:
 
-    virtual void value_changed(const GVariant &, const GVariant &);
-    virtual void value_about_to_change(const GVariant &, const GVariant &);
+    // Override this to know if our value has changed
+    virtual void notify_value_changed(const GVariant &, const GVariant &);
 
     // IUpdatable interface
     virtual void commit_reject_changes(bool commit);

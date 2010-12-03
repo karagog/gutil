@@ -14,19 +14,18 @@ limitations under the License.*/
 
 #include "updatablegvariantcollection.h"
 #include "gvariantcollection.h"
-#include "Custom/observablegvariant.h"
 GUTIL_USING_NAMESPACE( DataObjects );
 GUTIL_USING_NAMESPACE( Custom );
 
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(int size)
-    :ResizableCollection<Custom::ObservableGVariant>(size)
+    :ResizableCollection<Custom::UpdatableGVariant>(size)
 {
     _init();
 }
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(const UpdatableGVariantCollection &v)
-    : ResizableCollection<Custom::ObservableGVariant>(v)
+    : ResizableCollection<Custom::UpdatableGVariant>(v)
 {
     _init();
 }
@@ -34,12 +33,12 @@ UpdatableGVariantCollection::UpdatableGVariantCollection(const UpdatableGVariant
 void UpdatableGVariantCollection::_init()
 {
     for(int i = 0; i < Count(); i++)
-        At(i).SetObserver(this);
+        At(i).SetValueObserver(this);
 }
 
-void UpdatableGVariantCollection::on_add(Custom::ObservableGVariant *ogv)
+void UpdatableGVariantCollection::on_add(Custom::UpdatableGVariant *ogv)
 {
-    ogv->SetObserver(this);
+    ogv->SetValueObserver(this);
 }
 
 void UpdatableGVariantCollection::commit_reject_changes(bool commit)

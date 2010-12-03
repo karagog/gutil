@@ -37,12 +37,12 @@ protected:
 
     // Derived classes call these functions to notify their observer (if any) that
     //  they've changed
-    void notify_value_about_to_change(const T &before, const T &after){
+    virtual void notify_value_about_to_change(const T &before, const T &after){
         if(_value_observer)
             _value_observer->value_about_to_change(before, after);
     }
 
-    void notify_value_changed(const T &before, const T &after){
+    virtual void notify_value_changed(const T &before, const T &after){
         if(_value_observer)
             _value_observer->value_changed(before, after);
     }

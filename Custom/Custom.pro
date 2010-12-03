@@ -11,7 +11,6 @@ HEADERS += \
     gsharedlock.h \
     gvariant.h \
     gshareddata.h \
-    observablegvariant.h \
     updatablegvariant.h
 
 SOURCES += \
@@ -20,7 +19,6 @@ SOURCES += \
     gsemaphore.cpp \
     gsharedlock.cpp \
     gvariant.cpp \
-    updatablegvariant.cpp \
-    observablegvariant.cpp
+    updatablegvariant.cpp
 
 INCLUDEPATH += ..

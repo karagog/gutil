@@ -22,7 +22,7 @@ GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
 
 template <class T> class IValueObserver
 {
-    friend class IObservableValue;
+    template <class U> friend class IObservableValue;
 
 protected:
 
