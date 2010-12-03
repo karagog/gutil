@@ -35,8 +35,11 @@ public:
 protected:
 
     // Classes may derive from this one to implement their own functions
-    virtual void value_about_to_change(int index, const Custom::GVariant &, const Custom::GVariant &);
-    virtual void value_changed(int index, const Custom::GVariant &, const Custom::GVariant &);
+    virtual void value_about_to_change(int index, const Custom::GVariant &newvalue);
+    virtual void value_changed(int index, const Custom::GVariant &previousvalue);
+
+    // Every new observable gvariant we add must be initialized
+    virtual void on_add(Custom::ObservableGVariant *);
 
     // IUpdatable interface:
     virtual void commit_reject_changes(bool commit);
@@ -45,8 +48,8 @@ protected:
 private:
 
     // GVariantObserver interface:
-    virtual void gvariant_value_about_to_change(const Custom::GVariant &, const Custom::GVariant &);
-    virtual void gvariant_value_changed(const Custom::GVariant &, const Custom::GVariant &);
+    void _gvariant_value_about_to_change(const Custom::GVariant &, const Custom::GVariant &);
+    void _gvariant_value_changed(const Custom::GVariant &, const Custom::GVariant &);
 
     int _index_mem;
 

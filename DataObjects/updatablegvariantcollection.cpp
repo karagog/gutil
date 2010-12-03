@@ -30,6 +30,11 @@ UpdatableGVariantCollection::UpdatableGVariantCollection(const ResizableCollecti
     : ResizableCollection<Custom::ObservableGVariant>(v)
 {}
 
+void UpdatableGVariantCollection::on_add(Custom::ObservableGVariant *ogv)
+{
+    ogv->SetObserver(this);
+}
+
 void UpdatableGVariantCollection::commit_reject_changes(bool commit)
 {
     for(int i = 0; i < Count(); i++)
@@ -41,24 +46,26 @@ void UpdatableGVariantCollection::commit_reject_changes(bool commit)
     }
 }
 
-void UpdatableGVariantCollection::gvariant_value_about_to_change(const GVariant &o, const GVariant &t)
+void UpdatableGVariantCollection::_gvariant_value_about_to_change(
+        const GVariant &orig, const GVariant &newval)
 {
     // Find the index of the value which is about to change
     _index_mem = -1;
     for(int i = 0; _index_mem == -1 && i < Count(); i++)
-        if(&At(i) == &o)
+        if(&At(i) == &orig)
             _index_mem = i;
 
     Q_ASSERT(_index_mem != -1);
 
-    value_about_to_change(_index_mem, o, t);
+    value_about_to_change(_index_mem, newval);
 }
 
-void UpdatableGVariantCollection::gvariant_value_changed(const GVariant &o, const GVariant &t)
+void UpdatableGVariantCollection::_gvariant_value_changed(
+        const GVariant &oldval, const GVariant &newval)
 {
     // We reuse _index_mem so we don't have to find the same index twice
-    value_changed(_index_mem, o, t);
+    value_changed(_index_mem, oldval);
 }
 
-void UpdatableGVariantCollection::value_about_to_change(int, const GVariant &, const GVariant &){}
-void UpdatableGVariantCollection::value_changed(int, const GVariant &, const GVariant &){}
+void UpdatableGVariantCollection::value_about_to_change(int, const GVariant &){}
+void UpdatableGVariantCollection::value_changed(int, const GVariant &){}
