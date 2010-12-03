@@ -53,6 +53,8 @@ private:
 
     int _index_mem;
 
+    void _init();
+
 };
 
 

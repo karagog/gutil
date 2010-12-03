@@ -42,6 +42,7 @@ public:
         :_dataset(d._dataset),
         _rows(new DataRowCollectionBase<RowType>(d.Rows())),
         _columns(d.Columns()),
+        _name(d._name),
         _key_columns(d._key_columns){}
 
     virtual ~SharedTableData(){

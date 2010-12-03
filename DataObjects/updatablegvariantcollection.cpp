@@ -22,13 +22,20 @@ GUTIL_USING_NAMESPACE( Custom );
 UpdatableGVariantCollection::UpdatableGVariantCollection(int size)
     :ResizableCollection<Custom::ObservableGVariant>(size)
 {
-    for(int i = 0; i < Count(); i++)
-        At(i).SetObserver(this);
+    _init();
 }
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(const ResizableCollection<Custom::ObservableGVariant> &v)
     : ResizableCollection<Custom::ObservableGVariant>(v)
-{}
+{
+    _init();
+}
+
+void UpdatableGVariantCollection::_init()
+{
+    for(int i = 0; i < Count(); i++)
+        At(i).SetObserver(this);
+}
 
 void UpdatableGVariantCollection::on_add(Custom::ObservableGVariant *ogv)
 {

@@ -22,7 +22,7 @@ ObservableGVariant::ObservableGVariant(const GVariant &gv)
 
 ObservableGVariant::ObservableGVariant(const ObservableGVariant &ogv)
     :UpdatableGVariant(ogv),
-    _observer(ogv._observer)
+    _observer(0)
 {}
 
 void ObservableGVariant::SetObserver(GVariantObserver *o)
