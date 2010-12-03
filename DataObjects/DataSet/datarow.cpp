@@ -49,8 +49,7 @@ DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRo
 
 DataObjects::DataRow &DataObjects::DataRow::CloneTo(DataObjects::DataRow &o) const
 {
-    o = *this;
-    o.Detach();
+    (o = *this).Detach();
 
     return o;
 }

@@ -30,7 +30,7 @@ class UpdatableGVariantCollection :
 {
 public:
     UpdatableGVariantCollection(int size = 0);
-    UpdatableGVariantCollection(const ResizableCollection<Custom::ObservableGVariant> &);
+    UpdatableGVariantCollection(const UpdatableGVariantCollection &);
 
 protected:
 

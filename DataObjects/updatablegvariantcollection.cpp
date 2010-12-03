@@ -25,7 +25,7 @@ UpdatableGVariantCollection::UpdatableGVariantCollection(int size)
     _init();
 }
 
-UpdatableGVariantCollection::UpdatableGVariantCollection(const ResizableCollection<Custom::ObservableGVariant> &v)
+UpdatableGVariantCollection::UpdatableGVariantCollection(const UpdatableGVariantCollection &v)
     : ResizableCollection<Custom::ObservableGVariant>(v)
 {
     _init();
