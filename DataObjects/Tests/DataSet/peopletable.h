@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef PEOPLETABLE_H
 #define PEOPLETABLE_H
 
-#include "DataObjects/datatablebase.h"
+#include "DataObjects/DataSet/datatablebase.h"
 #include "persondatarow.h"
 #include "gutil_macros.h"
 

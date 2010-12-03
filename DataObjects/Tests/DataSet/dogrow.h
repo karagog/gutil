@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DOGROW_H
 #define DOGROW_H
 
-#include "DataObjects/datarow.h"
+#include "DataObjects/DataSet/datarow.h"
 
 class DogRow;
 class DogTable;

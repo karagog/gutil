@@ -8,9 +8,9 @@ limitations under the License.*/
 #ifndef DATAROW_H
 #define DATAROW_H
 
-#include "sharedrowdata.h"
-#include "datarowcollectionbase.h"
-#include "explicitlysharedobject.h"
+#include "DataObjects/DataSet/sharedrowdata.h"
+#include "DataObjects/DataSet/datarowcollectionbase.h"
+#include "DataObjects/explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/updatablegvariant.h"
 #include "Core/Interfaces/iequatable.h"

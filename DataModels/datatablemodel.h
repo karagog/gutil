@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATATABLEMODEL_H
 #define DATATABLEMODEL_H
 
-#include "DataObjects/datatablebase.h"
+#include "DataSet/datatablebase.h"
 #include <QAbstractTableModel>
 
 class DataTableModel :

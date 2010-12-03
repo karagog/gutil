@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef SHAREDSETDATA_H
 #define SHAREDSETDATA_H
 
-#include "gvariantcollection.h"
-#include "datarowcollection.h"
-#include "datatable.h"
-#include "datatablecollection.h"
+#include "DataObjects/gvariantcollection.h"
+#include "DataObjects/DataSet/datarowcollection.h"
+#include "DataObjects/DataSet/datatable.h"
+#include "DataObjects/DataSet/datatablecollection.h"
 #include "Custom/gshareddata.h"
 #include <QSharedData>
 #include <QString>

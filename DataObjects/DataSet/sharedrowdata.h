@@ -12,49 +12,60 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ROWVALUECOLLECTION_H
-#define ROWVALUECOLLECTION_H
+#ifndef SHAREDROWDATA_H
+#define SHAREDROWDATA_H
 
-#include "updatablegvariantcollection.h"
+#include "DataObjects/DataSet/datatable.h"
+#include "DataObjects/DataSet/rowvaluecollection.h"
+#include "Custom/gshareddata.h"
+#include "Core/Interfaces/iupdatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-class SharedRowData;
-class DataRow;
-
-class RowValueCollection :
-        public UpdatableGVariantCollection
+class SharedRowData :
+        public Custom::GSharedData,
+        public Core::Interfaces::IUpdatable
 {
 public:
 
-    RowValueCollection(SharedRowData *rd, int size = 0);
-    RowValueCollection(const RowValueCollection &o);
+    SharedRowData(const DataTable &t,
+                  const Custom::GVariantList &vals);
+
+    SharedRowData(const SharedRowData &o);
+
+    virtual ~SharedRowData();
+
+
+    DataTable &Table();
+    const DataTable &Table() const;
+
+    RowValueCollection &Tuple();
+    const RowValueCollection &Tuple() const;
 
     // Passes a reference to the data row instance, the index being changed, and the next/previous
     //  value, accordingly
     void SetValueAboutToChangeFunction(void (*func)(const DataRow &, int, const Custom::GVariant &));
     void SetValueChangedFunction(void (*func)(const DataRow &, int, const Custom::GVariant &));
 
+    // IUpdatable interface
+    bool IsDirty() const;
+    void SetDirty(bool);
+
 
 protected:
 
-    virtual void value_about_to_change(int index, const Custom::GVariant &newval);
-    virtual void value_changed(int index, const Custom::GVariant &prevval);
-
+    // IUpdatable interface
+    void commit_reject_changes(bool commit);
 
 private:
 
-    void (*_value_about_to_change)(const DataRow &,
-                                   int index, const Custom::GVariant &newvalue);
-    void (*_value_changed)(const DataRow &,
-                           int index, const Custom::GVariant &oldval);
-
-    SharedRowData *_row_data;
+    DataTable *_table;
+    RowValueCollection _tuple;
 
 };
 
 
-GUTIL_END_NAMESPACE;
+GUTIL_END_NAMESPACE
 
-#endif // ROWVALUECOLLECTION_H
+#endif // SHAREDROWDATA_H

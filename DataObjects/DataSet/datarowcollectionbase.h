@@ -15,9 +15,7 @@ limitations under the License.*/
 #ifndef DATAROWCOLLECTIONBASE_H
 #define DATAROWCOLLECTIONBASE_H
 
-#include "collection.h"
-#include "datarowcollectionbase.h"
-
+#include "DataObjects/collection.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 

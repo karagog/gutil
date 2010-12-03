@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DOGSTABLE_H
 #define DOGSTABLE_H
 
-#include "DataObjects/datatablebase.h"
+#include "DataObjects/DataSet/datatablebase.h"
 
 #define NUM_DOG_COLUMNS 4
 

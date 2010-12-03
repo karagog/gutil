@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "sharedrowdata.h"
 #include "datatablebase.h"
-#include "updatablegvariantcollection.h"
+#include "DataObjects/updatablegvariantcollection.h"
 using namespace GUtil;
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,

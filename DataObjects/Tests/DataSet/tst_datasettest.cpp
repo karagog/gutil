@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "persondatarow.h"
 #include "peopletable.h"
 #include "dogownerdataset.h"
-#include "DataObjects/dataset.h"
+#include "DataObjects/DataSet/dataset.h"
 #include "Logging/debuglogger.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>

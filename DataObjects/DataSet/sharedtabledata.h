@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef SHAREDTABLEDATA_H
 #define SHAREDTABLEDATA_H
 
-#include "dataset.h"
-#include "datacolumncollection.h"
-#include "datarowcollectionbase.h"
+#include "DataObjects/DataSet/dataset.h"
+#include "DataObjects/DataSet/datacolumncollection.h"
+#include "DataObjects/DataSet/datarowcollectionbase.h"
 #include "Custom/gshareddata.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );

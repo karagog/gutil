@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef DATATABLEBASE_H
 #define DATATABLEBASE_H
 
-#include "datarow.h"
-#include "datatable.h"
-#include "sharedtabledata.h"
-#include "explicitlysharedobject.h"
+#include "DataObjects/DataSet/datarow.h"
+#include "DataObjects/DataSet/datatable.h"
+#include "DataObjects/DataSet/sharedtabledata.h"
+#include "DataObjects/explicitlysharedobject.h"
 #include "Custom/gvariant.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -188,6 +188,6 @@ GUTIL_END_NAMESPACE
 
 
 // Keep the implementation in a separate file
-#include "datatablebase.cpp"
+#include "DataObjects/DataSet/datatablebase.cpp"
 
 #endif // DATATABLEBASE_H

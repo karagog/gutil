@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "datarowcollectionbase.h"
 #include "datarowcollection.h"
 #include "datacolumncollection.h"
-#include "gvariantcollection.h"
+#include "DataObjects/gvariantcollection.h"
 using namespace GUtil;
 
 DataObjects::SharedSetData::SharedSetData(int num_tables)

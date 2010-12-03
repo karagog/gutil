@@ -4,35 +4,34 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    datatablebase.h \
-    dataset.h \
-    datarow.h \
     collection.h \
     gvariantcollection.h \
-    sharedsetdata.h \
-    datacolumncollection.h \
-    datacolumn.h \
-    datatablecollection.h \
-    datarowcollectionbase.h \
-    datacollections.h \
-    datarowcollection.h \
-    datatable.h \
-    sharedtabledata.h \
-    sharedrowdata.h \
     explicitlysharedobject.h \
     updatablegvariantcollection.h \
-    updatablegvariant.h \
-    rowvaluecollection.h
+    DataSet/sharedtabledata.h \
+    DataSet/sharedsetdata.h \
+    DataSet/sharedrowdata.h \
+    DataSet/rowvaluecollection.h \
+    DataSet/datatablecollection.h \
+    DataSet/datatablebase.h \
+    DataSet/datatable.h \
+    DataSet/dataset.h \
+    DataSet/datarowcollectionbase.h \
+    DataSet/datarowcollection.h \
+    DataSet/datarow.h \
+    DataSet/datacolumncollection.h \
+    DataSet/datacolumn.h
 
 SOURCES += \
-    dataset.cpp \
-    datarow.cpp \
-    sharedsetdata.cpp \
-    datacolumncollection.cpp \
-    datacolumn.cpp \
-    datatablecollection.cpp \
-    sharedrowdata.cpp \
     updatablegvariantcollection.cpp \
-    rowvaluecollection.cpp
+    DataSet/sharedsetdata.cpp \
+    DataSet/sharedrowdata.cpp \
+    DataSet/rowvaluecollection.cpp \
+    DataSet/datatablecollection.cpp \
+    DataSet/datatablebase.cpp \
+    DataSet/dataset.cpp \
+    DataSet/datarow.cpp \
+    DataSet/datacolumncollection.cpp \
+    DataSet/datacolumn.cpp
 
-INCLUDEPATH += ..
+INCLUDEPATH += .. ../..

@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef DATASET_H
 #define DATASET_H
 
-#include "datatable.h"
-#include "explicitlysharedobject.h"
+#include "DataObjects/DataSet/datatable.h"
+#include "DataObjects/explicitlysharedobject.h"
 #include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -110,7 +110,7 @@ GUTIL_END_NAMESPACE
 
 // Here we add headers which we don't depend on, but will make our lives easier
 //  while using this class so we don't have to remember to include these
-#include "datatablecollection.h"
-#include "datacolumncollection.h"
+#include "DataObjects/DataSet/datatablecollection.h"
+#include "DataObjects/DataSet/datacolumncollection.h"
 
 #endif // DATASET_H

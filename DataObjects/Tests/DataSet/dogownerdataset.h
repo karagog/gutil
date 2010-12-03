@@ -17,8 +17,8 @@ limitations under the License.*/
 
 #include "dogtable.h"
 #include "peopletable.h"
-#include "DataObjects/dataset.h"
-#include "DataObjects/sharedsetdata.h"
+#include "DataObjects/DataSet/dataset.h"
+#include "DataObjects/DataSet/sharedsetdata.h"
 
 class DogOwnerDataSet :
         public GUtil::DataObjects::DataSet

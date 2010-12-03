@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef COLUMNCOLLECTION_H
 #define COLUMNCOLLECTION_H
 
-#include "datacolumn.h"
-#include "collection.h"
+#include "DataObjects/DataSet/datacolumn.h"
+#include "DataObjects/collection.h"
 
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 

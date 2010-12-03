@@ -16,7 +16,7 @@ limitations under the License.*/
 #define DATAROWCOLLECTION_H
 
 #include "gutil_macros.h"
-#include "datatable.h"
+#include "DataObjects/DataSet/datatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
