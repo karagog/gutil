@@ -341,20 +341,7 @@ DataObjects::DataTable DataObjects::DataTable::Clone() const
 
 void DataObjects::DataTable::commit_reject_changes(bool commit)
 {
-    if(commit)
-    {
-        table_data().CommitChanges();
-
-        for(int i = 0; i < RowCount(); i++)
-            Rows()[i].CommitChanges();
-    }
-    else
-    {
-        table_data().RejectChanges();
-
-        for(int i = 0; i < RowCount(); i++)
-            Rows()[i].RejectChanges();
-    }
+    table_data().CommitChanges(commit);
 }
 
 QSet<int> DataObjects::DataTable::KeyColumns() const
@@ -408,7 +395,7 @@ bool DataObjects::DataTable::IsDirty() const{
     return ret;
 }
 
-void DataObjects::DataTable::SetDirty(bool d)
+void DataObjects::DataTable::on_make_dirty()
 {
-    table_data().SetDirty(d);
+    table_data().MakeDirty();
 }

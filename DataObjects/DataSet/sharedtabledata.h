@@ -82,6 +82,11 @@ public:
     }
 
 
+protected:
+
+    void commit_reject_changes(bool commit);
+
+
 private:
 
     DataSet *_dataset;

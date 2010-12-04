@@ -52,6 +52,7 @@ class DataRow :
         protected Core::Interfaces::IUpdatable
 {
     friend class DataTable;
+    friend class SharedTableData;
     friend class DataRowCollection;
     friend class SharedRowData;
 

@@ -38,3 +38,9 @@ void SharedTableData::SetDataSet(const DataSet &ds)
         delete _dataset;
     _dataset = new DataSet(ds);
 }
+
+void SharedTableData::commit_reject_changes(bool commit)
+{
+    for(int i = 0; i < Rows().Count(); i++)
+        Rows()[i].CommitChanges(commit);
+}

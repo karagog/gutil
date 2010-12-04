@@ -25,31 +25,38 @@ public:
 
     inline IUpdatable(bool dirty = false)
         :_iupdatable_is_dirty(dirty),
-        _update_counter(0){}
+        _update_counter(0),
+        _backup_update_counter(0){}
     inline IUpdatable(const IUpdatable &o)
         :_iupdatable_is_dirty(o._iupdatable_is_dirty),
-        _update_counter(0){}
+        _update_counter(0),
+        _backup_update_counter(0){}
     virtual ~IUpdatable(){}
 
     virtual bool IsDirty() const{
         return _iupdatable_is_dirty;
     }
 
-    virtual void SetDirty(bool d){
-        if((_iupdatable_is_dirty = d))
-            _update_counter++;
-        on_set_dirty(d);
+    void MakeDirty(){
+        if(!_iupdatable_is_dirty)
+            _iupdatable_is_dirty = true;
+        _update_counter++;
+        on_make_dirty();
     }
 
     // Derived classes should call this base version to reset dirty bit
-    inline void CommitChanges(){
-        commit_reject_changes(true);
-        SetDirty(false);
+    inline void CommitChanges(bool commit = true){
+        commit_reject_changes(commit);
+        _iupdatable_is_dirty = false;
+
+        if(commit)
+            _backup_update_counter = _update_counter;
+        else
+            _update_counter = _backup_update_counter;
     }
 
     inline void RejectChanges(){
-        commit_reject_changes(false);
-        SetDirty(false);
+        CommitChanges(false);
     }
 
     IUpdatable &operator =(const IUpdatable &o){
@@ -65,7 +72,7 @@ public:
 protected:
 
     // Derived classes can act on these 'events'
-    virtual void on_set_dirty(bool){}
+    virtual void on_make_dirty(){}
 
     // True if committing, otherwise rejecting
     virtual void commit_reject_changes(bool commit){}
@@ -76,6 +83,7 @@ private:
     bool _iupdatable_is_dirty;
 
     long _update_counter;
+    long _backup_update_counter;
 
 };
 

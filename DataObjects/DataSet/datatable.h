@@ -118,7 +118,6 @@ public:
 
 
     bool IsDirty() const;
-    void SetDirty(bool d);
 
     // Interface for IEquatable:
     virtual bool Equals(const DataTable &) const;
@@ -159,6 +158,7 @@ protected:
     virtual DataTable &CloneTo(DataTable &) const;
 
     // IUpdatable interface:
+    virtual void on_make_dirty();
     virtual void commit_reject_changes(bool commit);
 
 

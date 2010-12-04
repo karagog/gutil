@@ -73,7 +73,7 @@ void UpdatableGVariant::commit_reject_changes(bool commit)
 void UpdatableGVariant::notify_value_changed(const GVariant &o, const GVariant &t)
 {
     if(o != t)
-        SetDirty(true);
+        MakeDirty();
 
     Core::Interfaces::IObservableValue<GVariant>::notify_value_changed(o, t);
 }
