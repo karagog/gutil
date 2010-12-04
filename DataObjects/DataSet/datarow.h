@@ -58,7 +58,7 @@ class DataRow :
 
 public:
 
-    DataRow(const DataRow &);
+    DataRow(const DataRow &, bool clone = false);
     virtual ~DataRow();
 
     virtual DataRow &operator =(const DataRow &);

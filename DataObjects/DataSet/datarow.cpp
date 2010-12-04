@@ -29,9 +29,12 @@ DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
     :ExplicitlySharedObject<SharedRowData>(new SharedRowData(dt, vals))
 {}
 
-DataObjects::DataRow::DataRow(const DataRow &o)
+DataObjects::DataRow::DataRow(const DataRow &o, bool clone)
     :ExplicitlySharedObject<SharedRowData>(o)
-{}
+{
+    if(clone)
+        o.CloneTo(*this);
+}
 
 DataObjects::DataRow::DataRow(SharedRowData *rd)
     :ExplicitlySharedObject<SharedRowData>(rd)

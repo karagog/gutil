@@ -577,12 +577,22 @@ void DataSetTest::test_derived_classes()
         }
         QVERIFY(exception_hit);
 
+        // Clone the row
+        PersonDataRow pdr2(pdr, true);
+        QVERIFY(pdr != pdr2);
+        QVERIFY(pdr.Equals(pdr2));
+
+        pdr2["id"] = QUuid::createUuid();
+        QVERIFY(!pdr.Equals(pdr2));
+
+        pt.AddRow(pdr2);
+
 
         // You can even use a normal data row to reference the person data row:
         DataRow dr(pdr);
         QVERIFY(dr == pdr);
-        QVERIFY(dr != pt[1]);
-        QVERIFY(dr.Equals(pt[0]));
+        QVERIFY(dr.Equals(pdr));
+        QVERIFY(dr != pdr2);
         QVERIFY(pt.Rows().Contains(dr));
 
         pdr.CloneTo(dr);

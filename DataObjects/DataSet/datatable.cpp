@@ -147,7 +147,17 @@ DataRow &DataObjects::DataTable::add_new_row(const Custom::GVariantList &values)
 
 DataRow &DataTable::add_row(const DataRow &r)
 {
-    return Rows().Add(r);
+    DataRow &ret = Rows().Add(r);
+
+    if(_key_violations())
+    {
+        Rows().Remove(Rows().Count() - 1);
+
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "The primary key would be violated");
+    }
+
+    return ret;
 }
 
 DataObjects::DataRow &DataObjects::DataTable::import_row(const DataObjects::DataRow &r)
