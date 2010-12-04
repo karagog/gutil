@@ -31,6 +31,8 @@ limitations under the License.*/
 #define DECLARE_DATATABLE_ROW_TYPE( RowType ) \
     inline RowType &operator [](int index){ return (RowType &)Rows()[index]; } \
     inline const RowType &operator [](int index) const{ return (const RowType &)Rows()[index]; } \
+    inline RowType &At(int index){ return (RowType &)Rows()[index]; } \
+    inline const RowType &At(int index) const{ return (const RowType &)Rows()[index]; } \
     \
     RowType &AddRow(const RowType &r){ return (RowType &)add_row(r); } \
     RowType &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList()) \
