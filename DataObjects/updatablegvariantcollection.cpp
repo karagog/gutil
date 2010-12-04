@@ -52,7 +52,7 @@ void UpdatableGVariantCollection::commit_reject_changes(bool commit)
     }
 }
 
-void UpdatableGVariantCollection::gvariant_value_about_to_change(
+void UpdatableGVariantCollection::value_about_to_change(
         const GVariant &orig, const GVariant &newval)
 {
     // Find the index of the value which is about to change
@@ -63,15 +63,15 @@ void UpdatableGVariantCollection::gvariant_value_about_to_change(
 
     Q_ASSERT(_index_mem != -1);
 
-    value_about_to_change(_index_mem, newval);
+    on_value_about_to_change(_index_mem, newval);
 }
 
-void UpdatableGVariantCollection::gvariant_value_changed(
+void UpdatableGVariantCollection::value_changed(
         const GVariant &oldval, const GVariant &newval)
 {
     // We reuse _index_mem so we don't have to find the same index twice
-    value_changed(_index_mem, oldval);
+    on_value_changed(_index_mem, oldval);
 }
 
-void UpdatableGVariantCollection::value_about_to_change(int, const GVariant &){}
-void UpdatableGVariantCollection::value_changed(int, const GVariant &){}
+void UpdatableGVariantCollection::on_value_about_to_change(int, const GVariant &){}
+void UpdatableGVariantCollection::on_value_changed(int, const GVariant &){}

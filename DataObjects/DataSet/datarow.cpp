@@ -27,9 +27,7 @@ using namespace Custom;
 DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
                               const GVariantList &vals)
     :ExplicitlySharedObject<SharedRowData>(new SharedRowData(dt, vals))
-{
-    row_data().Tuple().SetValueAboutToChangeFunction(&_row_value_about_to_change);
-}
+{}
 
 DataObjects::DataRow::DataRow(const DataRow &o)
     :ExplicitlySharedObject<SharedRowData>(o)
@@ -162,28 +160,27 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
     }
 }
 
-void DataObjects::DataRow::_row_value_about_to_change(
-        const DataRow &r, int index, const Custom::GVariant &v)
+void DataObjects::DataRow::row_value_about_to_change(int index, const Custom::GVariant &v)
 {
-    if(r.Table().KeyColumns().count() == 0 ||
-       !r.Table().KeyColumns().contains(index))
+    if(Table().KeyColumns().count() == 0 ||
+       !Table().KeyColumns().contains(index))
         return;
 
     bool key_violation = false;
-    for(int i = 0; !key_violation && i < r.Table().RowCount(); i++)
+    for(int i = 0; !key_violation && i < this->Table().RowCount(); i++)
     {
-        const DataRow &cur_row = r.Table().Rows()[i];
+        const DataRow &cur_row = this->Table().Rows()[i];
 
-        if(cur_row == r)
+        if(cur_row == *this)
             continue;
 
         key_violation = true;
-        foreach(int k, r.Table().KeyColumns())
+        foreach(int k, this->Table().KeyColumns())
         {
             if(k == index)
                 key_violation = key_violation && (v == cur_row[k]);
             else
-                key_violation = key_violation && (r[k] == cur_row[k]);
+                key_violation = key_violation && (At(k) == cur_row[k]);
 
             if(!key_violation)
                 break;
@@ -197,4 +194,12 @@ void DataObjects::DataRow::_row_value_about_to_change(
                                   .arg(index)
                                   .arg(v.toString())
                                   .toStdString());
+}
+
+void DataObjects::DataRow::commit_reject_changes(bool commit)
+{
+    if(commit)
+        row_data().Tuple().CommitChanges();
+    else
+        row_data().Tuple().RejectChanges();
 }

@@ -364,14 +364,14 @@ template <class RowType> void DataObjects::DataTableBase<RowType>::commit_reject
         table_data().CommitChanges();
 
         for(int i = 0; i < RowCount(); i++)
-            Rows()[i].row_data().CommitChanges();
+            Rows()[i].CommitChanges();
     }
     else
     {
         table_data().RejectChanges();
 
         for(int i = 0; i < RowCount(); i++)
-            Rows()[i].row_data().RejectChanges();
+            Rows()[i].RejectChanges();
     }
 }
 

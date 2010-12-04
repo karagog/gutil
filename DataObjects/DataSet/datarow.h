@@ -48,11 +48,13 @@ class DataRow :
         public Interfaces::IQXmlSerializable,
         public Core::Interfaces::IEquatable<DataRow>,
         public Core::Interfaces::IClonable<DataRow>,
-        public Core::Interfaces::IReadOnlyObject
+        public Core::Interfaces::IReadOnlyObject,
+        protected Core::Interfaces::IUpdatable
 {
     template<class T> friend class DataTableBase;
     template<class T> friend class DataRowCollectionBase;
     friend class RowValueCollection;
+    friend class SharedRowData;
 
 public:
 
@@ -125,10 +127,10 @@ protected:
     SharedRowData &row_data();
     const SharedRowData &row_data() const;
 
+    // This is where we check for primary key violations
+    void row_value_about_to_change(int, const Custom::GVariant &);
 
-private:
-
-    static void _row_value_about_to_change(const DataRow &, int, const Custom::GVariant &);
+    virtual void commit_reject_changes(bool commit);
 
 };
 

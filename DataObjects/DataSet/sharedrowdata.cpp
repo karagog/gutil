@@ -19,17 +19,17 @@ using namespace GUtil;
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
-            :_table(new DataObjects::DataTable(t)),
-            _tuple(this, t.ColumnCount())
+            :UpdatableGVariantCollection(t.ColumnCount()),
+            _table(new DataObjects::DataTable(t))
 {
     for(int i = 0; i < vals.count() && i < Table().ColumnCount(); i++)
-        _tuple.At(i) = vals[i];
+        At(i) = vals[i];
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
         :Custom::GSharedData(o),
-        _table(new DataObjects::DataTable(o.Table())),
-        _tuple(o._tuple)
+        UpdatableGVariantCollection(o),
+        _table(new DataObjects::DataTable(o.Table()))
 {}
 
 DataObjects::SharedRowData::~SharedRowData(){
@@ -45,28 +45,15 @@ const DataObjects::DataTable &DataObjects::SharedRowData::Table() const{
     return *_table;
 }
 
-DataObjects::RowValueCollection &DataObjects::SharedRowData::Tuple(){
-    return _tuple;
+DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple(){
+    return *this;
 }
 
-const DataObjects::RowValueCollection &DataObjects::SharedRowData::Tuple() const{
-    return _tuple;
+const DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple() const{
+    return *this;
 }
 
-bool DataObjects::SharedRowData::IsDirty() const
+void DataObjects::SharedRowData::on_value_about_to_change(int index, const Custom::GVariant &newvalue)
 {
-    return _tuple.IsDirty();
-}
-
-void DataObjects::SharedRowData::SetDirty(bool d)
-{
-    _tuple.SetDirty(d);
-}
-
-void DataObjects::SharedRowData::commit_reject_changes(bool commit)
-{
-    if(commit)
-        _tuple.CommitChanges();
-    else
-        _tuple.RejectChanges();
+    DataRow(this).row_value_about_to_change(index, newvalue);
 }

@@ -16,7 +16,7 @@ limitations under the License.*/
 #define SHAREDROWDATA_H
 
 #include "DataObjects/DataSet/datatable.h"
-#include "DataObjects/DataSet/rowvaluecollection.h"
+#include "DataObjects/updatablegvariantcollection.h"
 #include "Custom/gshareddata.h"
 #include "Core/Interfaces/iupdatable.h"
 
@@ -25,7 +25,7 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 class SharedRowData :
         public Custom::GSharedData,
-        public Core::Interfaces::IUpdatable
+        protected UpdatableGVariantCollection
 {
 public:
 
@@ -40,23 +40,18 @@ public:
     DataTable &Table();
     const DataTable &Table() const;
 
-    RowValueCollection &Tuple();
-    const RowValueCollection &Tuple() const;
-
-    // IUpdatable interface
-    bool IsDirty() const;
-    void SetDirty(bool);
+    UpdatableGVariantCollection &Tuple();
+    const UpdatableGVariantCollection &Tuple() const;
 
 
 protected:
 
-    // IUpdatable interface
-    void commit_reject_changes(bool commit);
+    virtual void on_value_about_to_change(int index, const Custom::GVariant &newvalue);
+
 
 private:
 
     DataTable *_table;
-    RowValueCollection _tuple;
 
 };
 

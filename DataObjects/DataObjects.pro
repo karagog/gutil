@@ -11,7 +11,6 @@ HEADERS += \
     DataSet/sharedtabledata.h \
     DataSet/sharedsetdata.h \
     DataSet/sharedrowdata.h \
-    DataSet/rowvaluecollection.h \
     DataSet/datatablecollection.h \
     DataSet/datatablebase.h \
     DataSet/datatable.h \
@@ -26,7 +25,6 @@ SOURCES += \
     updatablegvariantcollection.cpp \
     DataSet/sharedsetdata.cpp \
     DataSet/sharedrowdata.cpp \
-    DataSet/rowvaluecollection.cpp \
     DataSet/datatablecollection.cpp \
     DataSet/dataset.cpp \
     DataSet/datarow.cpp \
