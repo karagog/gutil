@@ -15,90 +15,83 @@ limitations under the License.*/
 #ifndef SHAREDTABLEDATA_H
 #define SHAREDTABLEDATA_H
 
-#include "DataObjects/DataSet/dataset.h"
 #include "DataObjects/DataSet/datacolumncollection.h"
-#include "DataObjects/DataSet/datarowcollectionbase.h"
+#include "DataObjects/DataSet/datarowcollection.h"
 #include "Custom/gshareddata.h"
+#include "Core/Interfaces/iupdatable.h"
+#include <QSet>
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-template <class RowType> class SharedTableData :
+class DataSet;
+
+class SharedTableData :
         public Custom::GSharedData,
         public Core::Interfaces::IUpdatable
 {
-    template <class T> friend class DataTableBase;
+    friend class DataTable;
 
 public:
 
-    SharedTableData()
-        :_rows(new DataRowCollectionBase<RowType>(this)){}
+    SharedTableData();
+    SharedTableData(const DataSet &ds);
+    SharedTableData(const SharedTableData &d);
 
-    SharedTableData(const DataSet &ds)
-        :_dataset(ds),
-        _rows(new DataRowCollectionBase<RowType>(this)){}
-
-    SharedTableData(const SharedTableData &d)
-        :_dataset(d._dataset),
-        _rows(new DataRowCollectionBase<RowType>(d.Rows())),
-        _columns(d.Columns()),
-        _name(d._name),
-        _key_columns(d._key_columns){}
-
-    virtual ~SharedTableData(){
-        delete _rows;
-
-        // It doesn't matter where we put this template guard, because it will fail
-        //  at compile time.  We wrap it in an 'if' to suppress the compile error.
-        if(RowType::DerivedFromDataRow);
+    inline DataSet &GetDataSet(){
+        if(!_dataset)
+            THROW_NEW_GUTIL_EXCEPTION(Core::NullReferenceException,
+                                      "Table '%1' has no parent data set");
+        return *_dataset;
     }
 
-    DataSet GetDataSet() const{
-        return DataSet(_dataset);
+    inline const DataSet &GetDataSet() const{
+        if(!_dataset)
+            THROW_NEW_GUTIL_EXCEPTION(Core::NullReferenceException,
+                                      "Table '%1' has no parent data set");
+        return *_dataset;
     }
 
-    void SetDataSet(const DataSet &ds){
-        _dataset = DataSet(ds);
+    void SetDataSet(const DataSet &ds);
+
+    inline const DataRowCollection &Rows() const{
+        return _rows;
     }
 
-    const DataRowCollectionBase<RowType> &Rows() const{
-        return *_rows;
+    inline DataRowCollection &Rows(){
+        return _rows;
     }
 
-    DataRowCollectionBase<RowType> &Rows(){
-        return *_rows;
-    }
-
-    DataColumnCollection &Columns(){
+    inline DataColumnCollection &Columns(){
         return _columns;
     }
 
-    const DataColumnCollection &Columns() const{
+    inline const DataColumnCollection &Columns() const{
         return _columns;
     }
 
 
-    QString GetName() const{
+    inline QString GetName() const{
         return _name;
     }
 
-    void SetName(const QString &v){
+    inline void SetName(const QString &v){
         _name = v;
     }
 
-    QSet<int> &KeyColumns(){
+    inline QSet<int> &KeyColumns(){
         return _key_columns;
     }
 
-    const QSet<int> &KeyColumns() const{
+    inline const QSet<int> &KeyColumns() const{
         return _key_columns;
     }
 
 
 private:
 
-    DataSet _dataset;
-    DataRowCollectionBase<RowType> *_rows;
+    DataSet *_dataset;
+    DataRowCollection _rows;
     DataColumnCollection _columns;
     QString _name;
     QSet<int> _key_columns;

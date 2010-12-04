@@ -12,24 +12,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DATATABLEMODEL_H
-#define DATATABLEMODEL_H
 
-#include "DataObjects/DataSet/datatable.h"
-#include <QAbstractTableModel>
-
-class DataTableModel :
-        public QAbstractTableModel,
-        public GUtil::DataObjects::DataTable
-{
-    Q_OBJECT
-public:
-    explicit DataTableModel(QObject *parent = 0);
-
-signals:
-
-public slots:
-
-};
-
-#endif // DATATABLEMODEL_H

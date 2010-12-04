@@ -9,7 +9,7 @@ limitations under the License.*/
 #define DATAROW_H
 
 #include "DataObjects/DataSet/sharedrowdata.h"
-#include "DataObjects/DataSet/datarowcollectionbase.h"
+#include "DataObjects/DataSet/datarowcollection.h"
 #include "DataObjects/explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/updatablegvariant.h"
@@ -51,9 +51,8 @@ class DataRow :
         public Core::Interfaces::IReadOnlyObject,
         protected Core::Interfaces::IUpdatable
 {
-    template<class T> friend class DataTableBase;
-    template<class T> friend class DataRowCollectionBase;
-    friend class RowValueCollection;
+    friend class DataTable;
+    friend class DataRowCollection;
     friend class SharedRowData;
 
 public:
@@ -87,10 +86,6 @@ public:
     // Derived classes can follow this example when specifying
     //  their parent table type
     DECLARE_PARENT_TABLE_TYPE( DataTable );
-
-    // This is used only as a guard in our template classes, to guarantee
-    //  that the template class is derived from DataRow.
-    enum IsDerivedFromDataRow{ DerivedFromDataRow };
 
     // IEquatable interface:
     virtual bool Equals(const DataRow &) const;
@@ -138,7 +133,7 @@ protected:
 GUTIL_END_NAMESPACE
 
 
-#include "datatablebase.h"
+#include "datatable.h"
 
 
 #endif // DATAROW_H

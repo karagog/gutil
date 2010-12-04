@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "sharedrowdata.h"
-#include "datatablebase.h"
+#include "datatable.h"
 #include "DataObjects/updatablegvariantcollection.h"
 using namespace GUtil;
 

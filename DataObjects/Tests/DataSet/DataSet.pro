@@ -15,7 +15,9 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += tst_datasettest.cpp
+SOURCES += tst_datasettest.cpp \
+    dogtable.cpp \
+    peopletable.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..

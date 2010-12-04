@@ -15,63 +15,30 @@ limitations under the License.*/
 #ifndef PEOPLETABLE_H
 #define PEOPLETABLE_H
 
-#include "DataObjects/DataSet/datatablebase.h"
+#include "DataObjects/DataSet/datatable.h"
 #include "persondatarow.h"
 #include "gutil_macros.h"
 
 class PeopleTable :
-        public GUtil::DataObjects::DataTableBase<PersonDataRow>
+        public GUtil::DataObjects::DataTable
 {
     friend class DogOwnerDataSet;
 
 public:
 
+    DECLARE_DATATABLE_ROW_TYPE( PersonDataRow );
+
     // We customize the way we init, so that by default our people have a name and
     //  identity
-    PeopleTable()
-    {
-        _init();
-    }
-
-    // We don't do anything special on copy, but we have to declare it anyways
-    PeopleTable(const PeopleTable &o)
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>(o)
-    {}
+    PeopleTable();
+    PeopleTable(const PeopleTable &o);
 
 
 protected:
 
-    PeopleTable(const DataSet &s)
-        :GUtil::DataObjects::DataTableBase<PersonDataRow>(s)
-    {
-        _init();
-    }
+    PeopleTable(const GUtil::DataObjects::DataSet &s);
 
-    virtual void init_new_row(DataRow &r){
-        r.At(2) = QUuid::createUuid();
-    }
-
-    static void validate_new_row_people_table(const DataTable &dt, const DataRow &r)
-            throw(Core::ValidationException)
-    {
-        bool contains_unique_id = false;
-
-        const PeopleTable &pt = (const PeopleTable &)dt;
-        const PersonDataRow &item = r;
-
-        for(int i = 0; i < pt.RowCount(); i++)
-        {
-            if(pt.Rows()[i].GetId() == item.GetId()){
-                contains_unique_id = true;
-                break;
-            }
-        }
-
-        if(contains_unique_id)
-            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                      QString("People table already has id %1")
-                                      .arg(item.GetId()).toStdString());
-    }
+    virtual void init_new_row(GUtil::DataObjects::DataRow &r);
 
 
 private:
@@ -83,6 +50,9 @@ private:
         // Initialize your custom column keys and labels
         SetColumnHeaders(QStringList("name") << "lastname" << "id",
                          QStringList("Name") << "Last Name" << "Identifier");
+
+        // We set the id column as the primary key for the table
+        AddKeyColumn(2);
     }
 
 };

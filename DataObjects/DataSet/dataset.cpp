@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 #include "dataset.h"
 #include "datarow.h"
-#include "datatablebase.h"
+#include "datatable.h"
 #include "sharedsetdata.h"
 #include "datatablecollection.h"
 #include <QVariantList>

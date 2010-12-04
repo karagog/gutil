@@ -15,13 +15,14 @@ limitations under the License.*/
 #ifndef SHAREDROWDATA_H
 #define SHAREDROWDATA_H
 
-#include "DataObjects/DataSet/datatable.h"
 #include "DataObjects/updatablegvariantcollection.h"
 #include "Custom/gshareddata.h"
 #include "Core/Interfaces/iupdatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
+
+class DataTable;
 
 class SharedRowData :
         public Custom::GSharedData,

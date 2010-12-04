@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 #include "datatablecollection.h"
 #include "dataset.h"
-#include "datatablebase.h"
+#include "sharedtabledata.h"
 #include "sharedsetdata.h"
 using namespace GUtil;
 
@@ -36,7 +36,7 @@ DataObjects::DataSet &DataObjects::DataTableCollection::Set(){
 
 void DataObjects::DataTableCollection::on_add(DataObjects::DataTable *t)
 {
-    DataSet ds = t->table_data().GetDataSet();
+    DataSet &ds = t->table_data().GetDataSet();
     if(Set() != ds)
     {
         // Remove the table from its parent set

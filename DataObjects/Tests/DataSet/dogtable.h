@@ -15,48 +15,31 @@ limitations under the License.*/
 #ifndef DOGSTABLE_H
 #define DOGSTABLE_H
 
-#include "DataObjects/DataSet/datatablebase.h"
-
-#define NUM_DOG_COLUMNS 4
-
-class DogRow;
+#include "dogrow.h"
+#include "DataObjects/DataSet/datatable.h"
 
 class DogTable :
-        public GUtil::DataObjects::DataTableBase<DogRow>
+        public GUtil::DataObjects::DataTable
 {
     friend class DogOwnerDataSet;
 
 public:
 
-    // We customize the way we init, so that by default our people have a name and
-    //  identity
-    DogTable()
-        :GUtil::DataObjects::DataTableBase<DogRow>("Dogs", NUM_DOG_COLUMNS)
-    {
-        _init();
-    }
+    DECLARE_DATATABLE_ROW_TYPE( DogRow );
 
-    // We don't do anything special on copy, but we have to declare it anyways
-    DogTable(const DogTable &o)
-        :GUtil::DataObjects::DataTableBase<DogRow>(o)
-    {}
+    DogTable();
+    DogTable(const DogTable &o);
 
 
 protected:
 
-    DogTable(const DataSet &o)
-        :GUtil::DataObjects::DataTableBase<DogRow>(o, "Dogs", NUM_DOG_COLUMNS)
-    {
-        _init();
-    }
+    DogTable(const GUtil::DataObjects::DataSet &o);
 
 
 private:
-    void _init(){
-        // Initialize your custom column keys and labels
-        SetColumnHeaders(QStringList("name") << "nickname" << "breed" << "owner_id",
-                         QStringList("Name") << "NickName" << "Breed" << "Owner Id");
-    }
+
+    void _init_dog_table();
+
 };
 
 #endif // DOGSTABLE_H

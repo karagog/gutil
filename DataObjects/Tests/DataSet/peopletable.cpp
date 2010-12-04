@@ -12,24 +12,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DATATABLEMODEL_H
-#define DATATABLEMODEL_H
+#include "peopletable.h"
+#include "DataObjects/DataSet/dataset.h"
+GUTIL_USING_NAMESPACE(DataObjects);
 
-#include "DataObjects/DataSet/datatable.h"
-#include <QAbstractTableModel>
-
-class DataTableModel :
-        public QAbstractTableModel,
-        public GUtil::DataObjects::DataTable
+PeopleTable::PeopleTable()
 {
-    Q_OBJECT
-public:
-    explicit DataTableModel(QObject *parent = 0);
+    _init();
+}
 
-signals:
+PeopleTable::PeopleTable(const PeopleTable &o)
+    :GUtil::DataObjects::DataTable(o)
+{}
 
-public slots:
+PeopleTable::PeopleTable(const DataSet &s)
+    :GUtil::DataObjects::DataTable(s)
+{
+    _init();
+}
 
-};
-
-#endif // DATATABLEMODEL_H
+void PeopleTable::init_new_row(GUtil::DataObjects::DataRow &r)
+{
+    r.At(2) = QUuid::createUuid();
+}

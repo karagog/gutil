@@ -43,8 +43,8 @@ class DataSet :
         public Core::Interfaces::IEquatable<DataSet>,
         public Core::Interfaces::IClonable<DataSet>
 {
-    template<class T> friend class DataTableBase;
-    template<class T> friend class SharedTableData;
+    friend class DataTable;
+    friend class SharedTableData;
     friend class DataTableCollection;
 
 public:

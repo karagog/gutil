@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datarow.h"
-#include "datatablebase.h"
-#include "datarowcollectionbase.h"
+#include "datatable.h"
+#include "datarowcollection.h"
 #include "datarowcollection.h"
 #include "DataObjects/gvariantcollection.h"
 #include "Custom/gvariant.h"

@@ -19,24 +19,17 @@ limitations under the License.*/
 #include "Custom/gvariant.h"
 #include <QUuid>
 
-class PersonDataRow;
 class PeopleTable;
-
-// We can define a custom data row collection that will specifically hold
-//  our derived data row.
-typedef GUtil::DataObjects::DataRowCollectionBase<PersonDataRow>
-        PeopleRowCollection;
-
 
 class PersonDataRow :
         public GUtil::DataObjects::DataRow
 {
-    template<class T> friend class GUtil::DataObjects::DataRowCollectionBase;
-    template<class T> friend class GUtil::DataObjects::DataTableBase;
+    //template<class T> friend class GUtil::DataObjects::DataRowCollection;
+    //template<class T> friend class GUtil::DataObjects::DataTableBase;
 
 public:
 
-    PersonDataRow(const DataRow &o)
+    PersonDataRow(const PersonDataRow &o)
         :DataRow(o)
     {}
 
@@ -52,14 +45,6 @@ public:
     ROW_PROPERTY(Name, QString, "name");
     ROW_PROPERTY(LastName, QString, "lastname");
     READONLY_ROW_PROPERTY(Id, QUuid, "id");
-
-
-protected:
-
-    PersonDataRow(const DataTableBase<PersonDataRow> &tbl,
-                  const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
-        :DataRow(tbl, vals)
-    {}
 
 };
 

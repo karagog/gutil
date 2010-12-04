@@ -12,10 +12,8 @@ HEADERS += \
     DataSet/sharedsetdata.h \
     DataSet/sharedrowdata.h \
     DataSet/datatablecollection.h \
-    DataSet/datatablebase.h \
     DataSet/datatable.h \
     DataSet/dataset.h \
-    DataSet/datarowcollectionbase.h \
     DataSet/datarowcollection.h \
     DataSet/datarow.h \
     DataSet/datacolumncollection.h \
@@ -29,6 +27,9 @@ SOURCES += \
     DataSet/dataset.cpp \
     DataSet/datarow.cpp \
     DataSet/datacolumncollection.cpp \
-    DataSet/datacolumn.cpp
+    DataSet/datacolumn.cpp \
+    DataSet/datatable.cpp \
+    DataSet/datarowcollection.cpp \
+    DataSet/sharedtabledata.cpp
 
 INCLUDEPATH += .. ../..

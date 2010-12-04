@@ -15,16 +15,57 @@ limitations under the License.*/
 #ifndef DATAROWCOLLECTION_H
 #define DATAROWCOLLECTION_H
 
-#include "gutil_macros.h"
-#include "DataObjects/DataSet/datatable.h"
+#include "DataObjects/collection.h"
+#include "Core/Interfaces/iclonable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
+class DataRow;
+class DataTable;
+class SharedTableData;
 
-// Make your own derived version of the DataRowCollection class by following this example:
-template <class U> class DataRowCollectionBase;
+class DataRowCollection
+            :
+            public Collection<DataRow>,
+            public Core::Interfaces::IClonable< DataRowCollection >
+{
+    friend class DataTable;
+    friend class SharedTableData;
 
-typedef DataRowCollectionBase<DataRow> DataRowCollection;
+public:
+
+    inline DataTable &Table(){
+        return *_table;
+    }
+    inline const DataTable &Table() const{
+        return *_table;
+    }
+
+
+protected:
+
+    DataRowCollection(const DataTable &);
+
+    DataRowCollection(const DataRowCollection &o)
+        :_table(0){
+        o.CloneTo(*this);
+    }
+
+    ~DataRowCollection();
+
+    virtual void validate_new_item(const DataRow &i)
+            throw(Core::ValidationException);
+
+
+    // Protect our clonable interface
+    virtual DataRowCollection &CloneTo(DataRowCollection &o) const;
+
+
+private:
+
+    DataTable *_table;
+
+};
 
 
 GUTIL_END_NAMESPACE

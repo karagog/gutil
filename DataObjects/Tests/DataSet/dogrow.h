@@ -20,20 +20,18 @@ limitations under the License.*/
 class DogRow;
 class DogTable;
 
-typedef DataRowCollectionBase<DogRow> DogRowCollection;
-
 
 // This is the simple version of a derived data row; one in which the row data
 //  has nothing special to it, just property accessors for the columns
 class DogRow :
         public GUtil::DataObjects::DataRow
 {
-    template<class T> friend class GUtil::DataObjects::DataRowCollectionBase;
-    template<class T> friend class GUtil::DataObjects::DataTableBase;
+    //friend class GUtil::DataObjects::DataRowCollection;
+    //friend class GUtil::DataObjects::DataTable;
 
 public:
 
-    DogRow(const DataRow &o)
+    DogRow(const DogRow &o)
         :DataRow(o)
     {}
 
@@ -44,16 +42,6 @@ public:
     ROW_PROPERTY(NickName, QString, "nickname");
     ROW_PROPERTY(Breed, QString, "breed");
     ROW_PROPERTY(OwnerId, QUuid, "owner_id");
-
-
-protected:
-
-    DogRow(const DataTableBase<DogRow> &tbl,
-           const GUtil::Custom::GVariantList &vals = GUtil::Custom::GVariantList())
-
-            // We pass in our own derivation of the shared data class
-        :DataRow(tbl, vals)
-    {}
 
 };
 

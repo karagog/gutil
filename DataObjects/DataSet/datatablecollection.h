@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef DATATABLECOLLECTIONBASE_H
 #define DATATABLECOLLECTIONBASE_H
 
-#include "DataObjects/DataSet/datatablebase.h"
 #include "DataObjects/collection.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
+class DataTable;
 class DataSet;
 class SharedSetData;
 

@@ -15,15 +15,156 @@ limitations under the License.*/
 #ifndef DATATABLE_H
 #define DATATABLE_H
 
-#include "gutil_macros.h"
+#include "DataObjects/DataSet/datarow.h"
+#include "DataObjects/explicitlysharedobject.h"
+#include "Custom/gvariant.h"
+#include "Interfaces/iqxmlserializable.h"
+#include "Core/Interfaces/ireadonlyobject.h"
+#include "Core/Interfaces/iupdatable.h"
+#include "Core/Interfaces/iclonable.h"
+#include "Core/Interfaces/iequatable.h"
+#include <QVariantList>
+#include <QStringList>
+
+
+
+#define DECLARE_DATATABLE_ROW_TYPE( RowType ) \
+    inline RowType &operator [](int index){ return (RowType &)Rows()[index]; } \
+    inline const RowType &operator [](int index) const{ return (const RowType &)Rows()[index]; } \
+    \
+    RowType &AddRow(const RowType &r){ return (RowType &)add_row(r); } \
+    RowType &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList()) \
+        { return (RowType &)add_new_row(values); } \
+    RowType &ImportRow(const RowType &r){ return (RowType &)import_row(r); } \
+    enum{}
+
+
+
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-class DataRow;
-template<class T> class DataTableBase;
+class DataSet;
+class SharedTableData;
 
-typedef DataTableBase<DataRow> DataTable;
+// A Data Table class used to hold data and serialize
+//   the values to xml or access them conveniently with string keys
+
+class DataTable
+            :
+            public ExplicitlySharedObject< SharedTableData >,
+            public Interfaces::IQXmlSerializable,
+            public Core::Interfaces::IReadOnlyObject,
+            public Core::Interfaces::IUpdatable,
+            public Core::Interfaces::IClonable< DataTable >,
+            public Core::Interfaces::IEquatable< DataTable >
+{
+    friend class DataSet;
+    friend class DataTableCollection;
+    friend class DataRow;
+    friend class SharedRowData;
+    friend class DataRowCollection;
+    friend class SharedTableData;
+
+public:
+
+    // This declares all the accessors for the data row type
+    DECLARE_DATATABLE_ROW_TYPE( DataRow );
+
+    DataTable(int num_cols = 0);
+    DataTable(const QString &table_name, int num_cols = 0);
+    DataTable(const DataTable &);
+    virtual ~DataTable();
+
+    void RemoveRow(int row_index);
+    void RemoveRow(const DataRow &);
+
+    // Clears all data and columns
+    void Clear();
+
+    void AddColumn(const QString &key, const QString &label = QString::null);
+    void SetColumnHeaders(const QStringList &keys, const QStringList &labels = QStringList());
+    void SetColumnLabel(int col_index, const QString &);
+    void SetColumnKey(int col_index, const QString &);
+    void ClearColumns();
+
+    QSet<int> KeyColumns() const;
+    void AddKeyColumn(int);
+    void AddKeyColumn(const QString &);
+    void RemoveKeyColumn(int);
+    void RemoveKeyColumn(const QString &);
+
+    int RowCount() const;
+    int ColumnCount() const;
+
+    int GetColumnIndex(const QString &key) const;
+
+
+    DataRowCollection &Rows();
+    const DataRowCollection &Rows() const;
+
+
+    DataTable &operator =(const DataTable &);
+    DataSet Set() const;
+
+    QStringList ColumnKeys() const;
+    QStringList ColumnLabels() const;
+    QString Name() const;
+    void SetTableName(const QString &);
+
+    DataTable Clone() const;
+
+
+    bool IsDirty() const;
+    void SetDirty(bool d);
+
+    // Interface for IEquatable:
+    virtual bool Equals(const DataTable &) const;
+
+    // Interface for IQXmlSerializable
+    virtual void WriteXml(QXmlStreamWriter &) const;
+    virtual void ReadXml(QXmlStreamReader &)
+            throw(GUtil::Core::XmlException);
+
+
+protected:
+
+    DataTable(const DataSet &,
+                  const QString &name = QString::null,
+                  int num_cols = 0);
+
+    // Derived classes can call this constructor with their own derived
+    //  version of the shared data object
+    DataTable(SharedTableData *);
+
+    // Derived tables can implement their own row initializations, like incrementing
+    //  an id or initializing a GUID
+    virtual void init_new_row(DataRow &){}
+
+    // Friend classes can access our data through this method:
+    SharedTableData &table_data();
+    const SharedTableData &table_data() const;
+
+    DataRow &add_new_row(const Custom::GVariantList &);
+    DataRow &add_row(const DataRow &);
+    DataRow &import_row(const DataRow &);
+
+    // This is called any time you add a new row to the table
+    void validate_new_row(const DataRow &r)
+            throw(Core::ValidationException);
+
+    // IClonable Interface:
+    virtual DataTable &CloneTo(DataTable &) const;
+
+    // IUpdatable interface:
+    virtual void commit_reject_changes(bool commit);
+
+
+private:
+
+    void _init(const QString &name, int num_cols);
+
+};
 
 
 GUTIL_END_NAMESPACE

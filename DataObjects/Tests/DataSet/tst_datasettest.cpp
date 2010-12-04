@@ -461,7 +461,7 @@ void DataSetTest::test_derived_classes()
         QVERIFY(dr == pdr);
         QVERIFY(dr != pt[1]);
         QVERIFY(dr.Equals(pt[0]));
-        QVERIFY(((DataRowCollectionBase<DataRow> &)pt.Rows()).Contains(dr));
+        QVERIFY(pt.Rows().Contains(dr));
 
         pdr.CloneTo(dr);
         QVERIFY(dr[0] == "Julian");
