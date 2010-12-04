@@ -330,38 +330,46 @@ void DataSetTest::test_dataTable()
 
 void DataSetTest::test_table_errors()
 {
-    DataSet ds(5);
-    QVERIFY(ds.TableCount() == 5);
-    QVERIFY(ds.Tables().Count() == 5);
-    QVERIFY(ds.Tables()[0].ColumnCount() == 0);
-
-    ds.Tables().Insert(DataTable(4), 0);
-    QVERIFY(ds.TableCount() == 6);
-    QVERIFY(ds.Tables().Count() == 6);
-    QVERIFY(ds.Tables()[0].ColumnCount() == 4);
-
-    bool exception_hit = false;
     try
     {
-        // Can't add the same table twice
-        ds.AddTable(ds.Tables()[0]);
+        DataSet ds(5);
+        QVERIFY(ds.TableCount() == 5);
+        QVERIFY(ds.Tables().Count() == 5);
+        QVERIFY(ds.Tables()[0].ColumnCount() == 0);
+
+        ds.Tables().Insert(DataTable(4), 0);
+        QVERIFY(ds.TableCount() == 6);
+        QVERIFY(ds.Tables().Count() == 6);
+        QVERIFY(ds.Tables()[0].ColumnCount() == 4);
+
+        bool exception_hit = false;
+        try
+        {
+            // Can't add the same table twice
+            ds.AddTable(ds.Tables()[0]);
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        DataTable tmp = ds[0];
+        DataSet ds2;
+        QVERIFY(!ds2.Contains(tmp));
+        QVERIFY(ds.Contains(tmp));
+
+        // Switch the table from ds to ds2
+        ds2.AddTable(tmp);
+        QVERIFY(ds2.Contains(tmp));
+        QVERIFY(!ds.Contains(tmp));
     }
-    catch(ValidationException)
+    catch(Core::Exception &ex)
     {
-        exception_hit = true;
+        dLogException(ex);
+        QFAIL("Exception Caught");
     }
-    QVERIFY(exception_hit);
-
-
-    DataTable tmp = ds[0];
-    DataSet ds2;
-    QVERIFY(!ds2.Contains(tmp));
-    QVERIFY(ds.Contains(tmp));
-
-    // Switch the table from ds to ds2
-    ds2.AddTable(tmp);
-    QVERIFY(ds2.Contains(tmp));
-    QVERIFY(!ds.Contains(tmp));
 }
 
 void DataSetTest::test_dataSet()

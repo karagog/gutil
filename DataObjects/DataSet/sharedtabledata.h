@@ -39,16 +39,10 @@ public:
     SharedTableData(const SharedTableData &d);
 
     inline DataSet &GetDataSet(){
-        if(!_dataset)
-            THROW_NEW_GUTIL_EXCEPTION(Core::NullReferenceException,
-                                      "Table '%1' has no parent data set");
         return *_dataset;
     }
 
     inline const DataSet &GetDataSet() const{
-        if(!_dataset)
-            THROW_NEW_GUTIL_EXCEPTION(Core::NullReferenceException,
-                                      "Table '%1' has no parent data set");
         return *_dataset;
     }
 
