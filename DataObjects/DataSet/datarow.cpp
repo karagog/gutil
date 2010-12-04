@@ -167,15 +167,15 @@ void DataObjects::DataRow::row_value_about_to_change(int index, const Custom::GV
         return;
 
     bool key_violation = false;
-    for(int i = 0; !key_violation && i < this->Table().RowCount(); i++)
+    for(int i = 0; !key_violation && i < Table().RowCount(); i++)
     {
-        const DataRow &cur_row = this->Table().Rows()[i];
+        const DataRow &cur_row = Table().Rows()[i];
 
         if(cur_row == *this)
             continue;
 
         key_violation = true;
-        foreach(int k, this->Table().KeyColumns())
+        foreach(int k, Table().KeyColumns())
         {
             if(k == index)
                 key_violation = key_violation && (v == cur_row[k]);

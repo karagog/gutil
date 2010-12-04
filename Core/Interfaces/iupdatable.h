@@ -24,9 +24,11 @@ class IUpdatable
 public:
 
     inline IUpdatable(bool dirty = false)
-        :_iupdatable_is_dirty(dirty){}
+        :_iupdatable_is_dirty(dirty),
+        _update_counter(0){}
     inline IUpdatable(const IUpdatable &o)
-        :_iupdatable_is_dirty(o._iupdatable_is_dirty){}
+        :_iupdatable_is_dirty(o._iupdatable_is_dirty),
+        _update_counter(0){}
     virtual ~IUpdatable(){}
 
     virtual bool IsDirty() const{
@@ -34,7 +36,9 @@ public:
     }
 
     virtual void SetDirty(bool d){
-        on_set_dirty(_iupdatable_is_dirty = d);
+        if((_iupdatable_is_dirty = d))
+            _update_counter++;
+        on_set_dirty(d);
     }
 
     // Derived classes should call this base version to reset dirty bit
@@ -53,6 +57,10 @@ public:
         return *this;
     }
 
+    inline long GetUpdateCounter() const{
+        return _update_counter;
+    }
+
 
 protected:
 
@@ -66,6 +74,8 @@ protected:
 private:
 
     bool _iupdatable_is_dirty;
+
+    long _update_counter;
 
 };
 
