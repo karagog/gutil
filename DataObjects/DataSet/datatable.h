@@ -166,6 +166,8 @@ private:
 
     void _init(const QString &name, int num_cols);
 
+    bool _key_violations() const;
+
 };
 
 

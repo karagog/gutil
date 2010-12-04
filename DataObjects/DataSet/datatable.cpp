@@ -352,7 +352,17 @@ QSet<int> DataObjects::DataTable::KeyColumns() const
 void DataObjects::DataTable::AddKeyColumn(int k)
 {
     if(0 <= k && k < ColumnCount())
+    {
         table_data().KeyColumns().insert(k);
+
+        if(_key_violations())
+        {
+            table_data().KeyColumns().remove(k);
+
+            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                      "The table's primary key would be violated");
+        }
+    }
 }
 
 void DataObjects::DataTable::AddKeyColumn(const QString &k)
@@ -363,7 +373,17 @@ void DataObjects::DataTable::AddKeyColumn(const QString &k)
 void DataObjects::DataTable::RemoveKeyColumn(int k)
 {
     if(0 <= k && k < ColumnCount())
+    {
         table_data().KeyColumns().remove(k);
+
+        if(_key_violations())
+        {
+            table_data().KeyColumns().insert(k);
+
+            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                      "The table's primary key would be violated");
+        }
+    }
 }
 
 void DataObjects::DataTable::RemoveKeyColumn(const QString &k)
@@ -398,4 +418,33 @@ bool DataObjects::DataTable::IsDirty() const{
 void DataObjects::DataTable::on_make_dirty()
 {
     table_data().MakeDirty();
+}
+
+bool DataObjects::DataTable::_key_violations() const
+{
+    if(KeyColumns().count() == 0)
+        return false;
+
+    bool key_violation = false;
+    for(int i = 0; !key_violation && i < RowCount(); i++)
+    {
+        const DataRow &cur_row = Rows()[i];
+
+        for(int j = i + 1; !key_violation && j < RowCount(); j++)
+        {
+            const DataRow &cmp_row = Rows()[j];
+
+            key_violation = true;
+            foreach(int k, KeyColumns())
+            {
+                key_violation = key_violation &&
+                                (cmp_row[k] == cur_row[k]);
+
+                if(!key_violation)
+                    break;
+            }
+        }
+    }
+
+    return key_violation;
 }

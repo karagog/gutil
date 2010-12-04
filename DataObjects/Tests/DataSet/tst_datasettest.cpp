@@ -47,6 +47,8 @@ private Q_SLOTS:
     // test the data table
     void test_dataTable();
 
+    void test_dataTable_keycolumns();
+
     void test_table_errors();
 
     void test_dataSet();
@@ -324,7 +326,119 @@ void DataSetTest::test_dataTable()
     catch(Exception &ex)
     {
         dLogException(ex);
-        QVERIFY(false);
+        QFAIL("Caught exception");
+    }
+}
+
+void DataSetTest::test_dataTable_keycolumns()
+{
+    try
+    {
+        DataTable dt(2);
+        dt.AddKeyColumn(0);
+
+        dt.AddNewRow(GVariantList() << 0);
+        dt.AddNewRow(GVariantList() << 1);
+
+        bool exception_hit = false;
+        try
+        {
+            // This should cause a duplicate key exception
+            dt.AddNewRow(GVariantList() << 0);
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        exception_hit = false;
+        try
+        {
+            // Shouldn't be able to manually set a value to violate a primary key
+            dt[1][0] = 0;
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        // This assignment is fine, because the second column is not a primary key
+        dt[0][1] = 0;
+        dt[1][1] = 0;
+
+        // Remove the first column from the primary key so we can make both rows equal each other
+        dt.RemoveKeyColumn(0);
+        dt[1][0] = 0;
+
+        exception_hit = false;
+        try
+        {
+            // When we set the column as a primary key again we should get an exception
+            //  because the key is violated
+            dt.AddKeyColumn(0);
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        dt[1][0] = 1;
+
+        // Now add both columns as primary keys, and verify it still works
+        dt.AddKeyColumn(0);
+        dt.AddKeyColumn(1);
+
+
+        exception_hit = false;
+        try
+        {
+            // This would violate the primary key, because the rows' second columns are equal
+            dt.RemoveKeyColumn(0);
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        exception_hit = false;
+        try
+        {
+            dt[1][0] = 0;
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        // This is ok, because it's a string, not a number
+        dt[1][0] = "0";
+
+        exception_hit = false;
+        try
+        {
+            // But if you try to convert it to an integer you'll get the PK violation
+            dt[1][0].convert(GVariant::Int);
+        }
+        catch(ValidationException)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+    }
+    catch(Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Caught exception");
     }
 }
 
