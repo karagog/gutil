@@ -133,13 +133,6 @@ void DataSetTest::test_dataRows()
         QVERIFY(!tmpr.IsDirty());
         QVERIFY(!t.IsDirty());
 
-        // Converting an item makes it dirty
-        tmpr[0].convert(GVariant::Int);
-        QVERIFY(tmpr.IsDirty());
-        QVERIFY(t.IsDirty());
-        QVERIFY(tmpr[0] != "5");
-        QVERIFY(tmpr[0] == 5);
-
         t.CommitChanges();
         QVERIFY(!tmpr.IsDirty());
         QVERIFY(!t.IsDirty());
@@ -412,22 +405,6 @@ void DataSetTest::test_dataTable_keycolumns()
         try
         {
             dt[1][0] = 0;
-        }
-        catch(ValidationException)
-        {
-            exception_hit = true;
-        }
-        QVERIFY(exception_hit);
-
-
-        // This is ok, because it's a string, not a number
-        dt[1][0] = "0";
-
-        exception_hit = false;
-        try
-        {
-            // But if you try to convert it to an integer you'll get the PK violation
-            dt[1][0].convert(GVariant::Int);
         }
         catch(ValidationException)
         {
