@@ -47,24 +47,27 @@ namespace GUtil
     namespace BusinessObjects
     {
         // Serves as a generic class to hold values and send/receive them with
-        //   the provided transport mechanism
+        //   the provided transport mechanism.
+
+        // Do NOT use from more than 1 thread
+
         class AbstractValueBuffer : public QObject,
                                     public GUtil::Interfaces::IQXmlSerializable,
                                     public GUtil::Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
         public:
-            bool SetValue(const QString &key, const QByteArray& value);
-            virtual bool SetValues(const QMap<QString, QByteArray> &);
+            bool SetValue(const QString &key, const Custom::GVariant& value);
+            virtual bool SetValues(const QMap<QString, Custom::GVariant> &);
 
-            Custom::GVariant Value(const QString &key);
-            QMap<QString, Custom::GVariant> Values(const QStringList &);
+            Custom::GVariant Value(const QString &key) const;
+            QMap<QString, Custom::GVariant> Values(const QStringList &) const;
 
             // Remove a specific key (or keys)
             bool RemoveValue(const QString &);
             bool RemoveValue(const QStringList &);
 
-            bool Contains(const QString &key);
+            bool Contains(const QString &key) const;
 
             // Flushes the data queue and clears the current data container
             void Clear();
@@ -86,7 +89,7 @@ namespace GUtil
             virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
 
             // If you need to do some special data processing, reimplement these
-            virtual QByteArray get_current_data();
+            virtual QByteArray get_current_data(bool human_readable_xml = false) const;
             virtual QString import_current_data();
 
             // Forcefully remove all data from the queue
@@ -114,7 +117,7 @@ namespace GUtil
             //    current data container
             virtual void process_input_data(const QByteArray &);
 
-            virtual void WriteXml(QXmlStreamWriter &);
+            virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
 
@@ -122,6 +125,7 @@ namespace GUtil
 
 
         protected slots:
+
             // This is called automatically when the transport layer says there's new data
             void importData();
 

@@ -32,10 +32,9 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
             QString("%1.%2")
             .arg(get_file_location(identifier))
             .arg(modifier)),
-                                     parent)
+                                     parent),
+    _config_is_human_readable(true)
 {
-    SetHumanReadable(true);
-
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
 
@@ -80,18 +79,33 @@ void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception
     enQueueCurrentData(false);
 }
 
-QByteArray BusinessObjects::ConfigFile::get_current_data()
-{
-    QByteArray ba = AbstractValueBuffer::get_current_data();
 
+
+#ifdef CRYPTOPP_COMPRESSION
+#   define CRYPTOPP_DECOMPRESS( data ) \
+        Core::Utils::CryptoHelpers::decompress( \
+                    std::string(data.toStdString().c_str(), data.length()))
+
+#   define CRYPTOPP_COMPRESS( data ) \
+        Core::Utils::CryptoHelpers::compress( \
+                    std::string(data.toStdString().c_str(), data.length()))
+#else
+#   define CRYPTOPP_DECOMPRESS(data) std::string(data.toStdString().c_str(), data.length())
+#   define CRYPTOPP_COMPRESS(data) std::string(data.toStdString().c_str(), data.length())
+#endif
+
+QByteArray BusinessObjects::ConfigFile::get_current_data() const
+{
+    QByteArray ba = AbstractValueBuffer::get_current_data(IsHumanReadable());
+
+    #ifdef CRYPTOPP_COMPRESSION
     if(!IsHumanReadable())
     {
         // Compress the configuration data
-        std::string tmpres =
-                Core::Utils::CryptoHelpers::compress(
-                        std::string(ba.constData(), ba.length()));
+        std::string tmpres = CRYPTOPP_COMPRESS(ba);
         ba = QByteArray(tmpres.c_str(), tmpres.length());
     }
+    #endif
 
     return ba;
 }
@@ -100,16 +114,17 @@ QString BusinessObjects::ConfigFile::import_current_data()
 {
     QString data = AbstractValueBuffer::import_current_data();
 
+    #ifdef CRYPTOPP_COMPRESSION
     // try to decompress it,
     try
     {
-        std::string tmpres = Core::Utils::CryptoHelpers::decompress(
-                std::string(data.toStdString().c_str(), data.length()));
+        std::string tmpres = CRYPTOPP_DECOMPRESS(data);
 
         data = QString(tmpres.c_str());
     }
     catch(Core::Exception)
     {}
+    #endif
 
     return data;
 }
@@ -156,4 +171,14 @@ QString BusinessObjects::ConfigFile::get_file_location(QString id)
 std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
 {
     return "DataAccess::ConfigFile";
+}
+
+bool BusinessObjects::ConfigFile::IsHumanReadable() const
+{
+    return _config_is_human_readable;
+}
+
+void BusinessObjects::ConfigFile::SetHumanReadable(bool r)
+{
+    _config_is_human_readable = r;
 }

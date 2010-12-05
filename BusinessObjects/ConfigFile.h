@@ -53,13 +53,16 @@ namespace GUtil
 
             void GetIdentity(QString &identifier, QString &modifier);
 
-            virtual QByteArray get_current_data();
+            virtual QByteArray get_current_data() const;
             virtual QString import_current_data();
 
             // If the configuration is supposed to be interfaced with humans,
-            //  then set this to true
+            //  then set this to true.  It not, then the configuration will be
+            //  in a compressed file that only the application can read.
+            // Note: You must define "CRYPTOPP_COMPRESSION" in the preprocessor
+            //  and link with libcryptopp.a to benefit from compression.
             void SetHumanReadable(bool);
-            bool IsHumanReadable();
+            bool IsHumanReadable() const;
 
         signals:
             void NotifyConfigurationUpdate();
@@ -78,6 +81,8 @@ namespace GUtil
 
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
+
+            bool _config_is_human_readable;
         };
     }
 }

@@ -14,12 +14,13 @@ limitations under the License.*/
 
 #include "Core/Utils/stringhelpers.h"
 #include "BusinessObjects/ConfigFile.h"
-#include "Logging/globallogger.h"
+#include "Logging/debuglogger.h"
 #include "Core/exception.h"
 #include <string>
 #include <QFile>
 #include <QTest>
 using namespace GUtil;
+using namespace Custom;
 
 class settingsTest : public QObject
 {
@@ -60,9 +61,6 @@ private:
 settingsTest::settingsTest(QObject *parent) :
     QObject(parent)
 {
-    Logging::GlobalLogger::SetupFileLogger("SettingsTest.log");
-    Logging::GlobalLogger::ClearLog();
-
     settings = new BusinessObjects::ConfigFile("GTestLib", "", this);
     settings->Clear();
 }
@@ -107,7 +105,7 @@ void settingsTest::reading_same_value()
 
     BusinessObjects::ConfigFile newsettings(*settings);
 
-    QString probe = QString::fromAscii(newsettings.Value("testkey"));
+    QString probe = newsettings.Value("testkey").toString();
     QVERIFY(probe == "testval");
 }
 
@@ -122,21 +120,21 @@ void settingsTest::null_dat()
 
     BusinessObjects::ConfigFile newsettings(*settings);
 
-    QString probe = QString::fromAscii(newsettings.Value("nulldata"));
+    QString probe = newsettings.Value("nulldata").toString();
     QVERIFY(probe == "");
 }
 
 void settingsTest::multiple_values()
 {
-    QByteArray one("multitest1");
-    QByteArray two("multitest2");
-    QMap<QString, QByteArray> vals;
+    QString one("multitest1");
+    QString two("multitest2");
+    QMap<QString, GVariant> vals;
 
     QList<QString> keys;
 
-    vals[one] = QByteArray("fart");
+    vals[one] = "fart";
     keys.append(one);
-    vals[two] = QByteArray("poop");
+    vals[two] = "poop";
     keys.append(two);
 
     try
@@ -148,7 +146,7 @@ void settingsTest::multiple_values()
         QVERIFY(false);
     }
 
-    QMap<QString, QByteArray> output = settings->Values(keys);
+    QMap<QString, Custom::GVariant> output = settings->Values(keys);
 
     QVERIFY(output[one] == settings->Value(one));
     QVERIFY(output[two] == settings->Value(two));
@@ -228,8 +226,8 @@ void settingsTest::test_erase_value()
 
     BusinessObjects::ConfigFile newsettings(*settings);
 
-    QString probe = newsettings.Value(tmpkey);
-    probe = settings->Value(tmpkey);
+    QString probe = newsettings.Value(tmpkey).toString();
+    probe = settings->Value(tmpkey).toString();
     QVERIFY(newsettings.Value(tmpkey) == "nothing");
     QVERIFY(newsettings.Value(permkey) == "value");
 
