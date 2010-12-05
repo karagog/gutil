@@ -1,169 +1,169 @@
-///*Copyright 2010 George Karagoulis
+/*Copyright 2010 George Karagoulis
 
-//Licensed under the Apache License, Version 2.0 (the "License");
-//you may not use this file except in compliance with the License.
-//You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-//    http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-//Unless required by applicable law or agreed to in writing, software
-//distributed under the License is distributed on an "AS IS" BASIS,
-//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//See the License for the specific language governing permissions and
-//limitations under the License.*/
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
 
-//#include "ConfigFile.h"
-//#include "DataAccess/gfileiodevice.h"
-//#include "Core/exception.h"
-//#include "Core/Utils/stringhelpers.h"
-//#include "Core/Utils/encryption.h"
-//#include <QXmlStreamReader>
-//#include <QXmlStreamWriter>
-//#include <QFileSystemWatcher>
-//#include <QDesktopServices>
-//#include <QDir>
-//#include <QTimer>
-//using namespace GUtil;
+#include "ConfigFile.h"
+#include "DataAccess/gfileiodevice.h"
+#include "Core/exception.h"
+#include "Core/Utils/stringhelpers.h"
+#include "Core/Utils/encryption.h"
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QFileSystemWatcher>
+#include <QDesktopServices>
+#include <QDir>
+#include <QTimer>
+using namespace GUtil;
 
-//BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
-//                                   const QString &modifier,
-//                                   QObject *parent)
-//    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(
-//            QString("%1.%2")
-//            .arg(get_file_location(identifier))
-//            .arg(modifier)),
-//                                     parent)
-//{
-//    SetHumanReadable(true);
+BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
+                                   const QString &modifier,
+                                   QObject *parent)
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(
+            QString("%1.%2")
+            .arg(get_file_location(identifier))
+            .arg(modifier)),
+                                     parent)
+{
+    SetHumanReadable(true);
 
-//    // Set the file transport to overwrite the config file rather than append
-//    FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
+    // Set the file transport to overwrite the config file rather than append
+    FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
 
-//    _init(identifier, modifier);
-//}
+    _init(identifier, modifier);
+}
 
-//BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
-//    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent)
-//{
-//    _init(other._identity, other._modifier);
-//}
+BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent)
+{
+    _init(other._identity, other._modifier);
+}
 
-//void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &modifier)
-//{
-//    SetHumanReadable(false);
+void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &modifier)
+{
+    SetHumanReadable(false);
 
-//    _identity = identity;
-//    _modifier = modifier;
+    _identity = identity;
+    _modifier = modifier;
 
-//    importData();
-//}
+    importData();
+}
 
-//void BusinessObjects::ConfigFile::Reload()
-//{
-//    importData();
-//}
+void BusinessObjects::ConfigFile::Reload()
+{
+    importData();
+}
 
-//QString BusinessObjects::ConfigFile::FileName() const
-//{
-//    return FileTransport().FileName();
-//}
+QString BusinessObjects::ConfigFile::FileName() const
+{
+    return FileTransport().FileName();
+}
 
-//void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modifier)
-//{
-//    identifier = _identity;
-//    modifier = _modifier;
-//}
+void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modifier)
+{
+    identifier = _identity;
+    modifier = _modifier;
+}
 
-//void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception)
-//{
-//    // Export the changed data to the config file
-//    enQueueCurrentData(false);
-//}
+void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception)
+{
+    // Export the changed data to the config file
+    enQueueCurrentData(false);
+}
 
-//QByteArray BusinessObjects::ConfigFile::get_current_data()
-//{
-//    QByteArray ba = AbstractValueBuffer::get_current_data();
+QByteArray BusinessObjects::ConfigFile::get_current_data()
+{
+    QByteArray ba = AbstractValueBuffer::get_current_data();
 
-//    if(!IsHumanReadable())
-//    {
-//        // Compress the configuration data
-//        std::string tmpres =
-//                Core::Utils::CryptoHelpers::compress(
-//                        std::string(ba.constData(), ba.length()));
-//        ba = QByteArray(tmpres.c_str(), tmpres.length());
-//    }
+    if(!IsHumanReadable())
+    {
+        // Compress the configuration data
+        std::string tmpres =
+                Core::Utils::CryptoHelpers::compress(
+                        std::string(ba.constData(), ba.length()));
+        ba = QByteArray(tmpres.c_str(), tmpres.length());
+    }
 
-//    return ba;
-//}
+    return ba;
+}
 
-//QString BusinessObjects::ConfigFile::import_current_data()
-//{
-//    QString data = AbstractValueBuffer::import_current_data();
+QString BusinessObjects::ConfigFile::import_current_data()
+{
+    QString data = AbstractValueBuffer::import_current_data();
 
-//    // try to decompress it,
-//    try
-//    {
-//        std::string tmpres = Core::Utils::CryptoHelpers::decompress(
-//                std::string(data.toStdString().c_str(), data.length()));
+    // try to decompress it,
+    try
+    {
+        std::string tmpres = Core::Utils::CryptoHelpers::decompress(
+                std::string(data.toStdString().c_str(), data.length()));
 
-//        data = QString(tmpres.c_str());
-//    }
-//    catch(Core::Exception)
-//    {}
+        data = QString(tmpres.c_str());
+    }
+    catch(Core::Exception)
+    {}
 
-//    return data;
-//}
+    return data;
+}
 
-//DataAccess::GFileIODevice &BusinessObjects::ConfigFile::FileTransport() const
-//{
-//    return (DataAccess::GFileIODevice &)Transport();
-//}
+DataAccess::GFileIODevice &BusinessObjects::ConfigFile::FileTransport() const
+{
+    return (DataAccess::GFileIODevice &)Transport();
+}
 
-//QString BusinessObjects::ConfigFile::get_file_location(QString id)
-//{
-//    QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-//    QString fl = id.toLower() + ".config.xml";
+QString BusinessObjects::ConfigFile::get_file_location(QString id)
+{
+    QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    QString fl = id.toLower() + ".config.xml";
 
-//    QDir tmpdir(data_path);
-//    Q_ASSERT(tmpdir.exists());
+    QDir tmpdir(data_path);
+    Q_ASSERT(tmpdir.exists());
 
-//    if(!tmpdir.exists(id))
-//    {
-//        if(!tmpdir.mkpath(id))
-//            return QString::null;
-//    }
+    if(!tmpdir.exists(id))
+    {
+        if(!tmpdir.mkpath(id))
+            return QString::null;
+    }
 
-//    tmpdir.cd(id);
+    tmpdir.cd(id);
 
-//    QString _config_filename = QString("%1/%2").arg(tmpdir.absolutePath()).arg(fl);
+    QString _config_filename = QString("%1/%2").arg(tmpdir.absolutePath()).arg(fl);
 
-//    if(!tmpdir.exists(fl))
-//    {
-//        QFile f(_config_filename);
+    if(!tmpdir.exists(fl))
+    {
+        QFile f(_config_filename);
 
-//        if(!f.open(QFile::WriteOnly))
-//            return QString::null;
+        if(!f.open(QFile::WriteOnly))
+            return QString::null;
 
-//        // An initially parseable xml tree
-//        f.write("<config></config>");
+        // An initially parseable xml tree
+        f.write("<config></config>");
 
-//        f.close();
-//    }
+        f.close();
+    }
 
-//    return _config_filename;
-//}
+    return _config_filename;
+}
 
-//std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
-//{
-//    return "DataAccess::ConfigFile";
-//}
+std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
+{
+    return "DataAccess::ConfigFile";
+}
 
-//void BusinessObjects::ConfigFile::SetHumanReadable(bool hr)
-//{
-//    SetXmlHumanReadableFormat(hr);
-//}
+void BusinessObjects::ConfigFile::SetHumanReadable(bool hr)
+{
+    SetXmlHumanReadableFormat(hr);
+}
 
-//bool BusinessObjects::ConfigFile::IsHumanReadable()
-//{
-//    return IsXmlHumanReadableFormat();
-//}
+bool BusinessObjects::ConfigFile::IsHumanReadable()
+{
+    return IsXmlHumanReadableFormat();
+}
