@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GSHAREDDATA_H
 
 #include "gutil_macros.h"
-#include "Custom/gsharedlock.h"
+#include <QReadWriteLock>
 #include <QSharedData>
 
 GUTIL_BEGIN_NAMESPACE( Custom );
@@ -41,15 +41,15 @@ public:
     //   to use locks carefully; the class provides a convenient lock that
     //   any objects sharing the data can use, but you have to verify your
     //   own locking mechanism.
-    inline GSharedLock &SharedLock(){ return _shared_lock; }
-    inline const GSharedLock &SharedLock() const{ return _shared_lock; }
+    inline QReadWriteLock &SharedLock(){ return _shared_lock; }
+    inline const QReadWriteLock &SharedLock() const{ return _shared_lock; }
 
     enum DerivedFromGSharedData{ IsDerivedFromGSharedData };
 
 
 private:
 
-    GSharedLock _shared_lock;
+    QReadWriteLock _shared_lock;
 
 };
 

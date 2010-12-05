@@ -26,7 +26,8 @@ SharedTableData::SharedTableData(const DataSet &ds)
     _rows(this){}
 
 SharedTableData::SharedTableData(const SharedTableData &d)
-    :_dataset(d._dataset),
+    :GSharedData(d),
+    _dataset(d._dataset),
     _rows(d.Rows()),
     _columns(d.Columns()),
     _name(d._name),

@@ -461,27 +461,27 @@ bool DataObjects::DataTable::_key_violations() const
 
 void DataObjects::DataTable::LockForRead()
 {
-    table_data().SharedLock().LockForRead();
+    table_data().SharedLock().lockForRead();
 }
 
 void DataObjects::DataTable::LockForWrite()
 {
-    table_data().SharedLock().LockForWrite();
+    table_data().SharedLock().lockForWrite();
 }
 
 bool DataObjects::DataTable::TryLockForRead()
 {
-    return table_data().SharedLock().TryLockForRead();
+    return table_data().SharedLock().tryLockForRead();
 }
 
 bool DataObjects::DataTable::TryLockForWrite()
 {
-    return table_data().SharedLock().TryLockForWrite();
+    return table_data().SharedLock().tryLockForWrite();
 }
 
 void DataObjects::DataTable::Unlock()
 {
-    table_data().SharedLock().Unlock();
+    table_data().SharedLock().unlock();
 }
 
 DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_value_mapping)
