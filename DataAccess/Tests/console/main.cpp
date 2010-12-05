@@ -13,11 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QtCore/QCoreApplication>
-#include "DataAccess/consoletransport.h"
+#include "DataAccess/gconsoleiodevice.h"
 #include "receiver_T.h"
 using namespace GUtil::DataAccess;
 
-ConsoleTransport *ct;
+GConsoleIODevice *ct;
 
 receiver_t receiver;
 
@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    ct = new ConsoleTransport(&a);
+    ct = new GConsoleIODevice(&a);
 
-    a.connect(ct, SIGNAL(notifyNewData(QByteArray)),
-              &receiver, SLOT(user_entered_data(QByteArray)));
+    a.connect(ct, SIGNAL(ReadyRead()),
+              &receiver, SLOT(user_entered_data()));
 
     return a.exec();
 }

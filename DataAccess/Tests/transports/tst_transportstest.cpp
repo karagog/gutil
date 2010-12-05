@@ -40,7 +40,7 @@ private Q_SLOTS:
 
 TransportsTest::TransportsTest()
 {
-    GlobalLogger::SetupFileLogger("transports.log");
+    GlobalLogger::SetupDefaultLogger(new FileLogger("transports.log"));
 }
 
 void TransportsTest::initTestCase()

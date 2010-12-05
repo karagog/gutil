@@ -16,9 +16,9 @@ limitations under the License.*/
 #define RECEIVER_T_H
 
 #include <QObject>
-#include "DataAccess/consoletransport.h"
+#include "DataAccess/gconsoleiodevice.h"
 
-extern GUtil::DataAccess::ConsoleTransport *ct;
+extern GUtil::DataAccess::GConsoleIODevice *ct;
 
 class receiver_t : public QObject
 {
@@ -28,9 +28,10 @@ public:
     virtual ~receiver_t(){}
 
 public slots:
-    void user_entered_data(const QByteArray &data)
+    void user_entered_data()
     {
-        ct->Write(QString("You just entered \"%1\"\n").arg(data.constData()).toAscii());
+        QString line = ct->ReadLine();
+        ct->WriteLine(QString("You just entered \"%1\"\n").arg(line));
     }
 };
 
