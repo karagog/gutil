@@ -28,10 +28,10 @@ using namespace GUtil;
 using namespace Custom;
 using namespace DataObjects;
 
-DataObjects::DataTable::DataTable()
+DataObjects::DataTable::DataTable(int num_cols)
     :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
 {
-    _init(QString::null, 0);
+    _init(QString::null, num_cols);
 }
 
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
@@ -135,10 +135,7 @@ const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
 
 DataRow &DataObjects::DataTable::add_new_row(const Custom::GVariantList &values)
 {
-    DataRow dr(*this);
-
-    for(int i = 0; i < values.length() && i < ColumnCount(); i++)
-        dr[i] = values.at(i);
+    DataRow dr(*this, values);
 
     init_new_row(dr);
 

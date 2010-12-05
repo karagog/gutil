@@ -73,7 +73,7 @@ public:
     // This declares all the accessors for the data row type
     DECLARE_DATATABLE_ROW_TYPE( DataRow );
 
-    DataTable();
+    DataTable(int num_cols = 0);
     DataTable(const QString &table_name, int num_cols = 0);
     DataTable(const DataTable &);
     virtual ~DataTable();

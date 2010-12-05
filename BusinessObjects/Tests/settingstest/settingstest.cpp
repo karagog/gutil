@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <string>
 #include <QFile>
 #include <QTest>
+#include <QMap>
 using namespace GUtil;
 using namespace Custom;
 
@@ -80,6 +81,7 @@ void settingsTest::initTestCase()
 
     qDebug((QString("Settings initialized with file: %1").arg(settings->FileName()))
            .toStdString().c_str());
+    qDebug(QString("%1 items to begin with").arg(settings->Values().count()).toStdString().c_str());
 }
 
 void settingsTest::saving_value()

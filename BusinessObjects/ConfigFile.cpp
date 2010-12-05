@@ -53,7 +53,7 @@ void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &
     _modifier = modifier;
 
     // Two columns to the table
-    table().SetColumnHeaders(QStringList("0") << "1");
+    table().SetColumnHeaders(QStringList("key") << "value");
 
     importData();
 }
@@ -144,6 +144,7 @@ void BusinessObjects::ConfigFile::SetValues(const QMap<QString, Custom::GVariant
 
     foreach(QString s, values.keys())
     {
+        bool ex_hit = false;
         try
         {
             DataObjects::DataRow &r = table().FindRow(0, s);
@@ -151,8 +152,11 @@ void BusinessObjects::ConfigFile::SetValues(const QMap<QString, Custom::GVariant
         }
         catch(Core::NotFoundException &)
         {
-            table().AddNewRow(Custom::GVariantList() << s << values[s]);
+            ex_hit = true;
         }
+
+        if(ex_hit)
+            table().AddNewRow(Custom::GVariantList() << s << values[s]);
     }
 
     _value_changed();
@@ -166,7 +170,15 @@ Custom::GVariant BusinessObjects::ConfigFile::Value(const QString &key) const
 QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(const QStringList &keys) const
 {
     QMap<QString, Custom::GVariant> ret;
-    foreach(QString s, keys)
+    QStringList keys_copy(keys);
+
+    if(keys.isEmpty())
+    {
+        for(int i = 0; i < table().RowCount(); i++)
+            keys_copy.append(table()[i]["key"].toString());
+    }
+
+    foreach(QString s, keys_copy)
     {
         // Prepare the "search map"
         QMap<int, Custom::GVariant> m;

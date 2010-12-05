@@ -128,15 +128,15 @@ template <typename T> DataObjects::Collection<T> &DataObjects::Collection<T>::Cl
 
 template <typename T> DataObjects::CollectionBase<T>::CollectionBase(
         const DataObjects::CollectionBase<T> &o)
+            :IReadOnlyObject(o)
 {
     o.CloneTo(*this);
 }
 
 
 template <typename T> DataObjects::CollectionBase<T>::CollectionBase(const QList<T> &o)
-{
-    _collection = o;
-}
+    :_collection(o)
+{}
 
 template <typename T> T &DataObjects::CollectionBase<T>::add_protected(const T &value)
 {
