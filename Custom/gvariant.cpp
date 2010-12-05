@@ -407,11 +407,8 @@ Custom::GVariant Custom::GVariant::FromXml(QXmlStreamReader &sr)
 
 bool Custom::GVariant::Equals(const Custom::GVariant &o) const
 {
-    int type;
-    if((type = userType()) != o.userType())
-        return false;
-
     bool ret;
+    int type = userType();
 
     if(type < (int)UserType)
         ret = ((QVariant &)*this) == o;
