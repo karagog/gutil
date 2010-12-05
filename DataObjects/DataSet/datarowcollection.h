@@ -44,12 +44,9 @@ public:
 
 protected:
 
-    DataRowCollection(const DataTable &);
+    DataRowCollection(SharedTableData *);
 
-    DataRowCollection(const DataRowCollection &o)
-        :_table(0){
-        o.CloneTo(*this);
-    }
+    DataRowCollection(const DataRowCollection &o);
 
     ~DataRowCollection();
 

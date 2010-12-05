@@ -88,74 +88,106 @@ void settingsTest::saving_value()
     try
     {
         settings->SetValue("testkey", QString("testval").toAscii());
+
+        QVERIFY(settings->Value("testkey") == "testval");
     }
     catch(Core::Exception &ex)
     {
-        qDebug(ex.Message().c_str());
-        QVERIFY(false);
+        dLogException(ex);
+        QFAIL("Unhandled exception");
     }
-
-    QVERIFY(settings->Value("testkey") == "testval");
 }
 
 void settingsTest::reading_same_value()
 {
-    //create a new settings object and see if it has that key from test case 1
-    //qDebug("Reading the value back in...");
+    try
+    {
+        //create a new settings object and see if it has that key from test case 1
+        //qDebug("Reading the value back in...");
 
-    BusinessObjects::ConfigFile newsettings(*settings);
+        BusinessObjects::ConfigFile newsettings(*settings);
 
-    QString probe = newsettings.Value("testkey").toString();
-    QVERIFY(probe == "testval");
+        QString probe = newsettings.Value("testkey").toString();
+        QVERIFY(probe == "testval");
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::test_no_value()
 {
-    QVERIFY(settings->Value("novalue.doesn'texist") == "");
+    try
+    {
+        QVERIFY(settings->Value("novalue.doesn'texist") == "");
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::null_dat()
 {
-    settings->SetValue("nulldata", QByteArray());
+    try
+    {
+        settings->SetValue("nulldata", QByteArray());
 
-    BusinessObjects::ConfigFile newsettings(*settings);
+        BusinessObjects::ConfigFile newsettings(*settings);
 
-    QString probe = newsettings.Value("nulldata").toString();
-    QVERIFY(probe == "");
+        QString probe = newsettings.Value("nulldata").toString();
+        QVERIFY(probe == "");
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::multiple_values()
 {
-    QString one("multitest1");
-    QString two("multitest2");
-    QMap<QString, GVariant> vals;
-
-    QList<QString> keys;
-
-    vals[one] = "fart";
-    keys.append(one);
-    vals[two] = "poop";
-    keys.append(two);
-
     try
     {
-        settings->SetValues(vals);
+        QString one("multitest1");
+        QString two("multitest2");
+        QMap<QString, GVariant> vals;
+
+        QList<QString> keys;
+
+        vals[one] = "fart";
+        keys.append(one);
+        vals[two] = "poop";
+        keys.append(two);
+
+        try
+        {
+            settings->SetValues(vals);
+        }
+        catch(Core::Exception &)
+        {
+            QVERIFY(false);
+        }
+
+        QMap<QString, Custom::GVariant> output = settings->Values(keys);
+
+        QVERIFY(output[one] == settings->Value(one));
+        QVERIFY(output[two] == settings->Value(two));
+
+        // Test that a new settings object will have the same values
+        BusinessObjects::ConfigFile newsettings(*settings);
+
+        QVERIFY(settings->Value(one) == newsettings.Value(one));
+        QVERIFY(settings->Value(two) == newsettings.Value(two));
     }
-    catch(Core::Exception &)
+    catch(Core::Exception &ex)
     {
-        QVERIFY(false);
+        dLogException(ex);
+        QFAIL("Unhandled exception");
     }
-
-    QMap<QString, Custom::GVariant> output = settings->Values(keys);
-
-    QVERIFY(output[one] == settings->Value(one));
-    QVERIFY(output[two] == settings->Value(two));
-
-    // Test that a new settings object will have the same values
-    BusinessObjects::ConfigFile newsettings(*settings);
-
-    QVERIFY(settings->Value(one) == newsettings.Value(one));
-    QVERIFY(settings->Value(two) == newsettings.Value(two));
 }
 
 void settingsTest::test_save_signal()
@@ -190,87 +222,119 @@ void settingsTest::catch_save_signal_not_test()
 
 void settingsTest::test_reload()
 {
-    QString one = "reloadtest1";
+    try
+    {
+        QString one = "reloadtest1";
 
-    BusinessObjects::ConfigFile newsettings(*settings);
+        BusinessObjects::ConfigFile newsettings(*settings);
 
-    settings->SetValue(one, QByteArray("fart"));
+        settings->SetValue(one, QByteArray("fart"));
 
-    QVERIFY(newsettings.Value(one) == "");
+        QVERIFY(newsettings.Value(one) == "");
 
-    newsettings.Reload();
-    QVERIFY(newsettings.Value(one) == "fart");
+        newsettings.Reload();
+        QVERIFY(newsettings.Value(one) == "fart");
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::test_bin_dat()
 {
-    char arr[] = {0x00, 0x01, 0x02};
-    std::string std(arr, 3);
-    QByteArray str = QByteArray(std.c_str(), std.length());
+    try
+    {
+        char arr[] = {0x00, 0x01, 0x02};
+        std::string std(arr, 3);
+        QByteArray str = QByteArray(std.c_str(), std.length());
 
-    settings->SetValue("binary", str);
+        settings->SetValue("binary", str);
 
-    BusinessObjects::ConfigFile newsettings(*settings);
+        BusinessObjects::ConfigFile newsettings(*settings);
 
-    QVERIFY(newsettings.Value("binary") == settings->Value("binary"));
-    QVERIFY(newsettings.Value("binary") == str);
+        QVERIFY(newsettings.Value("binary") == settings->Value("binary"));
+        QVERIFY(newsettings.Value("binary") == str);
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::test_erase_value()
 {
-    QString tmpkey = "thisisnew";
-    QString permkey = "thisstays";
-
-    settings->SetValue(tmpkey, QByteArray("nothing"));
-    settings->SetValue(permkey, QByteArray("value"));
-
-    BusinessObjects::ConfigFile newsettings(*settings);
-
-    QString probe = newsettings.Value(tmpkey).toString();
-    probe = settings->Value(tmpkey).toString();
-    QVERIFY(newsettings.Value(tmpkey) == "nothing");
-    QVERIFY(newsettings.Value(permkey) == "value");
-
-    // Now erase the value and test if it's still in there
     try
     {
-        settings->RemoveValue(tmpkey);
-    }
-    catch(Core::Exception &)
-    {
-        QVERIFY(false);
-    }
+        QString tmpkey = "thisisnew";
+        QString permkey = "thisstays";
 
-    newsettings.Reload();
-    QVERIFY(newsettings.Value(tmpkey) == "");
-    QVERIFY(newsettings.Value(permkey) == "value");
+        settings->SetValue(tmpkey, QByteArray("nothing"));
+        settings->SetValue(permkey, QByteArray("value"));
+
+        BusinessObjects::ConfigFile newsettings(*settings);
+
+        QString probe = newsettings.Value(tmpkey).toString();
+        probe = settings->Value(tmpkey).toString();
+        QVERIFY(newsettings.Value(tmpkey) == "nothing");
+        QVERIFY(newsettings.Value(permkey) == "value");
+
+        // Now erase the value and test if it's still in there
+        try
+        {
+            settings->RemoveValue(tmpkey);
+        }
+        catch(Core::Exception &)
+        {
+            QVERIFY(false);
+        }
+
+        newsettings.Reload();
+        QVERIFY(newsettings.Value(tmpkey) == "");
+        QVERIFY(newsettings.Value(permkey) == "value");
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::test_clear_all_values()
 {
-    QString tmpkey = "thisisnew";
-    QString permkey = "thisstays";
-
-    settings->SetValue(tmpkey, "nothing");
-    settings->SetValue(permkey, "value");
-
-    BusinessObjects::ConfigFile newsettings(*settings);
-
-    QVERIFY(newsettings.Value(tmpkey) == "nothing");
-    QVERIFY(newsettings.Value(permkey) == "value");
-
     try
     {
-        settings->Clear();
-    }
-    catch(Core::Exception &)
-    {
-        QVERIFY(false);
-    }
+        QString tmpkey = "thisisnew";
+        QString permkey = "thisstays";
 
-    newsettings.Reload();
-    QVERIFY(newsettings.Value(tmpkey) == "");
-    QVERIFY(newsettings.Value(permkey) == "");
+        settings->SetValue(tmpkey, "nothing");
+        settings->SetValue(permkey, "value");
+
+        BusinessObjects::ConfigFile newsettings(*settings);
+
+        QVERIFY(newsettings.Value(tmpkey) == "nothing");
+        QVERIFY(newsettings.Value(permkey) == "value");
+
+        try
+        {
+            settings->Clear();
+        }
+        catch(Core::Exception &)
+        {
+            QVERIFY(false);
+        }
+
+        newsettings.Reload();
+        QVERIFY(newsettings.Value(tmpkey) == "");
+        QVERIFY(newsettings.Value(permkey) == "");
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Unhandled exception");
+    }
 }
 
 void settingsTest::cleanupTestCase()

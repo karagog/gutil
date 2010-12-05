@@ -16,8 +16,14 @@ limitations under the License.*/
 #include "datatable.h"
 GUTIL_USING_NAMESPACE( DataObjects );
 
-DataRowCollection::DataRowCollection(const DataTable &t)
-    :_table(new DataTable(t)){}
+DataRowCollection::DataRowCollection(SharedTableData *td)
+    :_table(new DataTable(td)){}
+
+DataRowCollection::DataRowCollection(const DataRowCollection &o)
+    :_table(0)
+{
+    o.CloneTo(*this);
+}
 
 DataRowCollection::~DataRowCollection(){
     delete _table;

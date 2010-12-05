@@ -47,6 +47,20 @@ namespace GUtil
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
 
+
+            Custom::GVariant Value(const QString &key) const;
+            QMap<QString, Custom::GVariant> Values(const QStringList &) const;
+
+            void SetValue(const QString &key, const Custom::GVariant& value);
+            void SetValues(const QMap<QString, Custom::GVariant> &);
+
+            // Remove a specific key (or keys)
+            void RemoveValue(const QString &);
+            void RemoveValues(const QStringList &);
+
+            bool Contains(const QString &key) const;
+
+
             void Reload();
 
             QString FileName() const;
@@ -68,7 +82,8 @@ namespace GUtil
             void NotifyConfigurationUpdate();
 
         protected:
-            virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
+
+            virtual void process_input_data(const QByteArray &);
 
             DataAccess::GFileIODevice &FileTransport() const;
 
@@ -81,6 +96,8 @@ namespace GUtil
 
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
+
+            void _value_changed();
 
             bool _config_is_human_readable;
         };

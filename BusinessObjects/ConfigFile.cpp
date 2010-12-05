@@ -49,10 +49,11 @@ BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other
 
 void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &modifier)
 {
-    SetHumanReadable(false);
-
     _identity = identity;
     _modifier = modifier;
+
+    // Two columns to the table
+    table().SetColumnHeaders(QStringList("0") << "1");
 
     importData();
 }
@@ -73,7 +74,7 @@ void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modi
     modifier = _modifier;
 }
 
-void BusinessObjects::ConfigFile::ValueChanged_protected() throw(Core::Exception)
+void BusinessObjects::ConfigFile::_value_changed()
 {
     // Export the changed data to the config file
     enQueueCurrentData(false);
@@ -122,16 +123,112 @@ QString BusinessObjects::ConfigFile::import_current_data()
 
         data = QString(tmpres.c_str());
     }
-    catch(Core::Exception)
+    catch(Core::Exception &)
     {}
     #endif
 
     return data;
 }
 
+void BusinessObjects::ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
+{
+    QMap<QString, Custom::GVariant> m;
+    m.insert(key, value);
+    return SetValues(m);
+}
+
+void BusinessObjects::ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
+{
+    if(values.keys().count() == 0)
+        return;
+
+    foreach(QString s, values.keys())
+    {
+        try
+        {
+            DataObjects::DataRow &r = table().FindRow(0, s);
+            r[1] = values[s];
+        }
+        catch(Core::NotFoundException &)
+        {
+            table().AddNewRow(Custom::GVariantList() << s << values[s]);
+        }
+    }
+
+    _value_changed();
+}
+
+Custom::GVariant BusinessObjects::ConfigFile::Value(const QString &key) const
+{
+    return Values(QStringList(key)).value(key);
+}
+
+QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(const QStringList &keys) const
+{
+    QMap<QString, Custom::GVariant> ret;
+    foreach(QString s, keys)
+    {
+        // Prepare the "search map"
+        QMap<int, Custom::GVariant> m;
+        m.insert(0, s);
+
+        try
+        {
+            const DataObjects::DataRow *const r = &table().FindRow(m);
+            ret.insert(r->At(0).toString(), r->At(1));
+        }
+        catch(Core::NotFoundException &){}    // if key not found, ignore
+    }
+
+    return ret;
+}
+
+bool BusinessObjects::ConfigFile::Contains(const QString &key) const
+{
+    bool ret = true;
+    try
+    {
+        QMap<int, Custom::GVariant> m;
+        m.insert(0, key);
+        table().FindRow(m);
+    }
+    catch(Core::NotFoundException &)
+    {
+        ret = false;
+    }
+
+    return ret;
+}
+
+void BusinessObjects::ConfigFile::RemoveValue(const QString &key)
+{
+    QStringList sl;
+    sl.append(key);
+    RemoveValues(sl);
+}
+
+void BusinessObjects::ConfigFile::RemoveValues(const QStringList &keys)
+{
+    if(keys.count() == 0)
+        return;
+
+    foreach(QString s, keys)
+    {
+        try
+        {
+            table().RemoveRow(
+                    table().FindRow(0, s)
+                    );
+        }
+        catch(Core::NotFoundException &){}
+    }
+
+    _value_changed();
+}
+
 DataAccess::GFileIODevice &BusinessObjects::ConfigFile::FileTransport() const
 {
-    return (DataAccess::GFileIODevice &)Transport();
+    return (DataAccess::GFileIODevice &)transport();
 }
 
 QString BusinessObjects::ConfigFile::get_file_location(QString id)
@@ -181,4 +278,12 @@ bool BusinessObjects::ConfigFile::IsHumanReadable() const
 void BusinessObjects::ConfigFile::SetHumanReadable(bool r)
 {
     _config_is_human_readable = r;
+}
+
+void BusinessObjects::ConfigFile::process_input_data(const QByteArray &ba)
+{
+    AbstractValueBuffer::process_input_data(ba);
+
+    // copy the input data to the current data table
+    table() = table_incoming().Clone();
 }

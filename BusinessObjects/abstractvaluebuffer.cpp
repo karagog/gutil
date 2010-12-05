@@ -25,7 +25,6 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
         QObject *parent)
             :QObject(parent),
-            cur_outgoing_data(2),
             _transport(transport)
 {
     connect(transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
@@ -34,48 +33,6 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
 BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
 {
     delete _transport;
-}
-
-DataAccess::GIODevice &BusinessObjects::AbstractValueBuffer::Transport() const
-{
-    return *_transport;
-}
-
-void BusinessObjects::AbstractValueBuffer::ValueChanged_protected() throw(Core::Exception)
-{
-    // Do nothing by default
-}
-
-bool BusinessObjects::AbstractValueBuffer::SetValue(const QString &key, const Custom::GVariant& value)
-{
-    QMap<QString, Custom::GVariant> m;
-    m.insert(key, value);
-    return SetValues(m);
-}
-
-bool BusinessObjects::AbstractValueBuffer::SetValues(const QMap<QString, Custom::GVariant> &values)
-{
-    FailIfReadOnly();
-
-    foreach(QString s, values.keys())
-        cur_outgoing_data.AddNewRow(Custom::GVariantList() << s << values[s]);
-
-    return ValueChanged();
-}
-
-bool BusinessObjects::AbstractValueBuffer::ValueChanged()
-{
-    try
-    {
-        ValueChanged_protected();
-    }
-    catch(Core::Exception &ex)
-    {
-        Logging::GlobalLogger::LogException(ex);
-        return false;
-    }
-
-    return true;
 }
 
 void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
@@ -98,56 +55,10 @@ void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt
     }
 }
 
-Custom::GVariant BusinessObjects::AbstractValueBuffer::Value(const QString &key) const
-{
-    return Values(QStringList(key)).value(key);
-}
-
-QMap<QString, Custom::GVariant> BusinessObjects::AbstractValueBuffer::Values(const QStringList &keys) const
-{
-    QMap<QString, Custom::GVariant> ret;
-    foreach(QString s, keys)
-    {
-        // Prepare the "search map"
-        QMap<int, Custom::GVariant> m;
-        m.insert(0, s);
-
-        try
-        {
-            const DataRow *const r = &cur_outgoing_data.FindRow(m);
-            ret.insert(r->At(0).toString(), r->At(1));
-        }
-        catch(Core::NotFoundException){}    // if key not found, ignore
-    }
-
-    return ret;
-}
-
-bool BusinessObjects::AbstractValueBuffer::Contains(const QString &key) const
-{
-    bool ret = true;
-    try
-    {
-        QMap<int, Custom::GVariant> m;
-        m.insert(0, key);
-        cur_outgoing_data.FindRow(m);
-    }
-    catch(Core::NotFoundException)
-    {
-        ret = false;
-    }
-
-    return ret;
-}
-
 void BusinessObjects::AbstractValueBuffer::Clear()
 {
-    FailIfReadOnly();
-
     cur_outgoing_data.Clear();
     cur_outgoing_data.SetColumnHeaders(QStringList("0") << "1");
-
-    ValueChanged();
 }
 
 void BusinessObjects::AbstractValueBuffer::clearQueues()
@@ -161,30 +72,6 @@ void BusinessObjects::AbstractValueBuffer::_clear_queue(QMutex &lock, QQueue< QB
     lock.lock();
     queue.clear();
     lock.unlock();
-}
-
-bool BusinessObjects::AbstractValueBuffer::RemoveValue(const QString &key)
-{
-    QStringList sl;
-    sl.append(key);
-    return RemoveValue(sl);
-}
-
-bool BusinessObjects::AbstractValueBuffer::RemoveValue(const QStringList &keys)
-{
-    FailIfReadOnly();
-
-    foreach(QString s, keys)
-    {
-        try
-        {
-            cur_outgoing_data.RemoveRow(
-                    cur_outgoing_data.FindRow(0, s));
-        }
-        catch(Core::NotFoundException){}
-    }
-
-    return ValueChanged();
 }
 
 void BusinessObjects::AbstractValueBuffer::importData()
@@ -237,7 +124,7 @@ QByteArray BusinessObjects::AbstractValueBuffer::get_current_data(bool hr) const
 
 QString BusinessObjects::AbstractValueBuffer::import_current_data()
 {
-    return QString(Transport().ReceiveData(false));
+    return QString(transport().ReceiveData(false));
 }
 
 void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &data)
@@ -334,7 +221,7 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                Transport().SendData(ba);
+                transport().SendData(ba);
         }
     }
 }

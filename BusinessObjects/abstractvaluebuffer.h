@@ -18,7 +18,6 @@ limitations under the License.*/
 #include "DataObjects/DataSet/datatable.h"
 #include "Custom/gvariant.h"
 #include "Logging/globallogger.h"
-#include "Core/Interfaces/ireadonlyobject.h"
 #include "Interfaces/iqxmlserializable.h"
 #include <QMap>
 #include <QString>
@@ -52,22 +51,10 @@ namespace GUtil
         // Do NOT use from more than 1 thread
 
         class AbstractValueBuffer : public QObject,
-                                    public GUtil::Interfaces::IQXmlSerializable,
-                                    public GUtil::Core::Interfaces::IReadOnlyObject
+                                    public GUtil::Interfaces::IQXmlSerializable
         {
             Q_OBJECT
         public:
-            bool SetValue(const QString &key, const Custom::GVariant& value);
-            virtual bool SetValues(const QMap<QString, Custom::GVariant> &);
-
-            Custom::GVariant Value(const QString &key) const;
-            QMap<QString, Custom::GVariant> Values(const QStringList &) const;
-
-            // Remove a specific key (or keys)
-            bool RemoveValue(const QString &);
-            bool RemoveValue(const QStringList &);
-
-            bool Contains(const QString &key) const;
 
             // Flushes the data queue and clears the current data container
             void Clear();
@@ -81,12 +68,15 @@ namespace GUtil
             virtual ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
-            DataAccess::GIODevice &Transport() const;
+            inline DataAccess::GIODevice &transport(){ return *_transport; }
+            inline const DataAccess::GIODevice &transport() const{ return *_transport; }
 
-            // This function is called whenever a value changes; derived classes
-            //   can take advantage of this to export data or do whatever with the changed data
-            // Throw exceptions when errors happen and they will be logged
-            virtual void ValueChanged_protected() throw(GUtil::Core::Exception);
+            // Access the table of data
+            inline DataObjects::DataTable &table(){ return cur_outgoing_data; }
+            inline const DataObjects::DataTable &table() const{ return cur_outgoing_data; }
+
+            inline DataObjects::DataTable &table_incoming(){ return cur_incoming_data; }
+            inline const DataObjects::DataTable &table_incoming() const{ return cur_incoming_data; }
 
             // If you need to do some special data processing, reimplement these
             virtual QByteArray get_current_data(bool human_readable_xml = false) const;
@@ -114,7 +104,7 @@ namespace GUtil
             // Subclasses implement this to process a new byte array after it
             //   gets dequeued off the in_queue.
             // The default implementation automatically loads the xml into the
-            //    current data container
+            //    "incoming" data table
             virtual void process_input_data(const QByteArray &);
 
             virtual void WriteXml(QXmlStreamWriter &) const;
@@ -133,8 +123,6 @@ namespace GUtil
         private:
 
             QByteArray en_deQueueMessage(QueueTypeEnum, const QByteArray &msg, bool enqueue);
-
-            bool ValueChanged();
 
             void _get_queue_and_mutex(QueueTypeEnum, QQueue<QByteArray> **, QMutex **)
                     throw(GUtil::Core::Exception);

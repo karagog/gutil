@@ -15,7 +15,9 @@ TEMPLATE = app
 
 SOURCES += \
     settingstest.cpp
-DEFINES += SRCDIR=\\\"$$PWD/\\\"
+DEFINES += \
+  SRCDIR=\\\"$$PWD/\\\" \
+  DEBUG_LOGGING
 
 HEADERS +=
 

@@ -28,10 +28,10 @@ using namespace GUtil;
 using namespace Custom;
 using namespace DataObjects;
 
-DataObjects::DataTable::DataTable(int num_cols)
+DataObjects::DataTable::DataTable()
     :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
 {
-    _init(QString::null, num_cols);
+    _init(QString::null, 0);
 }
 
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
@@ -404,7 +404,7 @@ void DataObjects::DataTable::RemoveKeyColumn(const QString &k)
 void DataObjects::DataTable::validate_new_row(const DataRow &r)
         throw(Core::ValidationException)
 {
-    if(*this != r.row_data().Table())
+    if(*this != r.Table())
         THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
                                   "The row does not belong to this table.  "
                                   "If you still want to add it, then call 'ImportRow' "
