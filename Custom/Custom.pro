@@ -7,7 +7,6 @@ HEADERS += \
     myflattreemodel.h \
     gthread.h \
     gsemaphore.h \
-    gshareddatapointer.h \
     gsharedlock.h \
     gvariant.h \
     gshareddata.h \

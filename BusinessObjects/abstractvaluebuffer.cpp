@@ -13,30 +13,25 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
-#include "Custom/datacontainer.h"
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 using namespace GUtil;
+using namespace DataObjects;
 
 BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
         QObject *parent)
             :QObject(parent),
-            Interfaces::IQXmlSerializable(false),
-            Core::Interfaces::IReadOnlyObject(false)
+            _transport(transport)
 {
-    current_data = new Custom::DataTable();
-
-    _transport = transport;
     connect(transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
 }
 
 BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
 {
-    delete current_data;
     delete _transport;
 }
 
@@ -61,10 +56,12 @@ bool BusinessObjects::AbstractValueBuffer::SetValues(const QMap<QString, QByteAr
 {
     FailIfReadOnly();
 
-    current_data_lock.lockForWrite();
+    cur_outgoing_data.LockForWrite();
+
     foreach(QString s, values.keys())
-        current_data->insert(s, values[s]);
-    current_data_lock.unlock();
+        cur_outgoing_data.AddNewRow(Custom::GVariantList() << s << values[s]);
+
+    cur_outgoing_data.Unlock();
 
     return ValueChanged();
 }
@@ -104,31 +101,52 @@ void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt
     }
 }
 
-QByteArray BusinessObjects::AbstractValueBuffer::Value(const QString &key)
+Custom::GVariant BusinessObjects::AbstractValueBuffer::Value(const QString &key)
 {
     return Values(QStringList(key)).value(key);
 }
 
-QMap<QString, QByteArray> BusinessObjects::AbstractValueBuffer::Values(const QStringList &keys)
+QMap<QString, Custom::GVariant> BusinessObjects::AbstractValueBuffer::Values(const QStringList &keys)
 {
-    current_data_lock.lockForRead();
+    cur_outgoing_data.LockForRead();
 
-    QMap<QString, QByteArray> ret;
+    QMap<QString, Custom::GVariant> ret;
     foreach(QString s, keys)
-        ret[s] = current_data->value(s);
+    {
+        // Prepare the "search map"
+        QMap<int, Custom::GVariant> m;
+        m.insert(0, s);
 
-    current_data_lock.unlock();
+        try
+        {
+            DataRow *const r = &cur_outgoing_data.FindRow(m);
+            ret.insert(r->At(0).toString(), r->At(1));
+        }
+        catch(Core::NotFoundException){}    // if key not found, ignore
+    }
+
+    cur_outgoing_data.Unlock();
 
     return ret;
 }
 
 bool BusinessObjects::AbstractValueBuffer::Contains(const QString &key)
 {
-    current_data_lock.lockForRead();
+    cur_outgoing_data.LockForRead();
 
-    bool ret = current_data->contains(key);
+    bool ret = true;
+    try
+    {
+        QMap<int, Custom::GVariant> m;
+        m.insert(0, key);
+        cur_outgoing_data.FindRow(m);
+    }
+    catch(Core::NotFoundException)
+    {
+        ret = false;
+    }
 
-    current_data_lock.unlock();
+    cur_outgoing_data.Unlock();
 
     return ret;
 }
@@ -137,9 +155,9 @@ void BusinessObjects::AbstractValueBuffer::Clear()
 {
     FailIfReadOnly();
 
-    current_data_lock.lockForWrite();
-    current_data->clear();
-    current_data_lock.unlock();
+    cur_outgoing_data.LockForWrite();
+    cur_outgoing_data.Clear();
+    cur_outgoing_data.Unlock();
 
     ValueChanged();
 }
@@ -168,12 +186,19 @@ bool BusinessObjects::AbstractValueBuffer::RemoveValue(const QStringList &keys)
 {
     FailIfReadOnly();
 
-    current_data_lock.lockForWrite();
+    cur_outgoing_data.LockForWrite();
 
     foreach(QString s, keys)
-        current_data->remove(s);
+    {
+        try
+        {
+            cur_outgoing_data.RemoveRow(
+                    cur_outgoing_data.FindRow(0, s));
+        }
+        catch(Core::NotFoundException){}
+    }
 
-    current_data_lock.unlock();
+    cur_outgoing_data.Unlock();
 
     return ValueChanged();
 }
@@ -205,9 +230,9 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     QString data;
 
     if(clear)
-        current_data_lock.lockForWrite();
+        cur_outgoing_data.LockForWrite();
     else
-        current_data_lock.lockForRead();
+        cur_outgoing_data.LockForRead();
 
     // Critical section for current data
     try
@@ -215,24 +240,24 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
         data = get_current_data();
 
         if(clear)
-            current_data->clear();
+            cur_outgoing_data.Clear();
     }
     catch(Core::Exception &ex)
     {
-        current_data_lock.unlock();
+        cur_outgoing_data.Unlock();
 
         Logging::GlobalLogger::LogException(ex);
         return;
     }
 
-    current_data_lock.unlock();
+    cur_outgoing_data.Unlock();
 
     enQueueMessage(OutQueue, data.toAscii());
 }
 
 QByteArray BusinessObjects::AbstractValueBuffer::get_current_data()
 {
-    return current_data->ToXmlQString().toAscii();
+    return cur_outgoing_data.ToXmlQString().toAscii();
 }
 
 QString BusinessObjects::AbstractValueBuffer::import_current_data()
@@ -242,20 +267,20 @@ QString BusinessObjects::AbstractValueBuffer::import_current_data()
 
 void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &data)
 {
-    current_data_lock.lockForWrite();
+    cur_outgoing_data.LockForWrite();
     try
     {
-        current_data->FromXmlQString(QString(data));
+        cur_incoming_data.FromXmlQString(QString(data));
     }
     catch(Core::Exception &ex)
     {
-        current_data_lock.unlock();
+        cur_outgoing_data.Unlock();
 
         Logging::GlobalLogger::LogException(ex);
         return;
     }
 
-    current_data_lock.unlock();
+    cur_outgoing_data.Unlock();
 }
 
 QByteArray BusinessObjects::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
@@ -346,24 +371,17 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 
 void BusinessObjects::AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw)
 {
-    current_data_lock.lockForRead();
-    current_data->WriteXml(sw);
-    current_data_lock.unlock();
+    cur_outgoing_data.LockForRead();
+    cur_outgoing_data.WriteXml(sw);
+    cur_outgoing_data.Unlock();
 }
 
 void BusinessObjects::AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
-    Custom::DataTable tmp;
+    DataTable tmp;
     tmp.ReadXml(sr);
     enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
-}
-
-void BusinessObjects::AbstractValueBuffer::SetXmlHumanReadableFormat(bool h)
-{
-    Core::Interfaces::IXmlSerializable::SetXmlHumanReadableFormat(h);
-
-    current_data->SetXmlHumanReadableFormat(h);
 }
 
 std::string BusinessObjects::AbstractValueBuffer::ReadonlyMessageIdentifier() const

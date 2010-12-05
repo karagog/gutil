@@ -25,7 +25,7 @@ limitations under the License.*/
 #include "Core/Interfaces/iequatable.h"
 #include <QVariantList>
 #include <QStringList>
-
+#include <QReadWriteLock>
 
 
 #define DECLARE_DATATABLE_ROW_TYPE( RowType ) \
@@ -116,6 +116,22 @@ public:
 
     DataTable Clone() const;
 
+
+    // Find a row based on one key column
+    DataRow &FindRow(int, const Custom::GVariant &);
+    const DataRow &FindRow(int, const Custom::GVariant &) const;
+
+    // Find a row based on multiple key columns
+    DataRow &FindRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping)
+            throw(Core::NotFoundException);
+    const DataRow &FindRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const
+            throw(Core::NotFoundException);
+
+    void LockForRead();
+    void LockForWrite();
+    bool TryLockForRead();
+    bool TryLockForWrite();
+    void Unlock();
 
     bool IsDirty() const;
 

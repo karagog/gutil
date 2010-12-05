@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef DO_VALUEBUFFER_H
 #define DO_VALUEBUFFER_H
 
+#include "DataObjects/DataSet/datatable.h"
+#include "Custom/gvariant.h"
 #include "Logging/globallogger.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Interfaces/iqxmlserializable.h"
@@ -32,7 +34,7 @@ namespace GUtil
         class Exception;
     }
 
-    namespace Custom
+    namespace DataObjects
     {
         class DataTable;
     }
@@ -55,8 +57,8 @@ namespace GUtil
             bool SetValue(const QString &key, const QByteArray& value);
             virtual bool SetValues(const QMap<QString, QByteArray> &);
 
-            QByteArray Value(const QString &key);
-            QMap<QString, QByteArray> Values(const QStringList &);
+            Custom::GVariant Value(const QString &key);
+            QMap<QString, Custom::GVariant> Values(const QStringList &);
 
             // Remove a specific key (or keys)
             bool RemoveValue(const QString &);
@@ -115,7 +117,6 @@ namespace GUtil
             virtual void WriteXml(QXmlStreamWriter &);
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
-            virtual void SetXmlHumanReadableFormat(bool);
 
             virtual std::string ReadonlyMessageIdentifier() const;
 
@@ -139,8 +140,8 @@ namespace GUtil
             QQueue< QByteArray > in_queue;
             QQueue< QByteArray > out_queue;
 
-            QReadWriteLock current_data_lock;
-            Custom::DataTable *current_data;
+            DataObjects::DataTable cur_outgoing_data;
+            DataObjects::DataTable cur_incoming_data;
 
             void process_queues();
             void _flush_queue(QueueTypeEnum);

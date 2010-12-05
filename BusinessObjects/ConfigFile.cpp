@@ -157,13 +157,3 @@ std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
 {
     return "DataAccess::ConfigFile";
 }
-
-void BusinessObjects::ConfigFile::SetHumanReadable(bool hr)
-{
-    SetXmlHumanReadableFormat(hr);
-}
-
-bool BusinessObjects::ConfigFile::IsHumanReadable()
-{
-    return IsXmlHumanReadableFormat();
-}

@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "DataObjects/DataSet/datatable.h"
 #include "DataObjects/explicitlysharedobject.h"
-#include "Custom/gshareddatapointer.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/iupdatable.h"

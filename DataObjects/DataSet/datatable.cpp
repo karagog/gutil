@@ -458,3 +458,106 @@ bool DataObjects::DataTable::_key_violations() const
 
     return key_violation;
 }
+
+void DataObjects::DataTable::LockForRead()
+{
+    table_data().SharedLock().LockForRead();
+}
+
+void DataObjects::DataTable::LockForWrite()
+{
+    table_data().SharedLock().LockForWrite();
+}
+
+bool DataObjects::DataTable::TryLockForRead()
+{
+    return table_data().SharedLock().TryLockForRead();
+}
+
+bool DataObjects::DataTable::TryLockForWrite()
+{
+    return table_data().SharedLock().TryLockForWrite();
+}
+
+void DataObjects::DataTable::Unlock()
+{
+    table_data().SharedLock().Unlock();
+}
+
+DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_value_mapping)
+        throw(Core::NotFoundException)
+{
+    if(keycolumn_value_mapping.count() == 0)
+        THROW_NEW_GUTIL_EXCEPTION(Core::NotFoundException,
+                                  "You didn't provide any keys by which to search");
+
+    for(int i = 0; i < RowCount(); i++)
+    {
+        bool found = true;
+        foreach(int c, keycolumn_value_mapping.keys())
+        {
+            if(!found)
+                break;
+
+            found = found && keycolumn_value_mapping[c] == At(c)[1];
+        }
+
+        if(found)
+            return At(i);
+    }
+
+    Core::NotFoundException ex("The row was not found.  Check exception data for search criteria.");
+    int cnt = 1;
+    foreach(int c, keycolumn_value_mapping.keys())
+        ex.SetData(QString("k%1").arg(cnt++).toStdString(),
+                   QString("Column %1: %2").arg(c).arg(keycolumn_value_mapping[c].toString())
+                   .toStdString());
+
+    THROW_GUTIL_EXCEPTION(ex);
+}
+
+const DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_value_mapping) const
+        throw(Core::NotFoundException)
+{
+    if(keycolumn_value_mapping.count() == 0)
+        THROW_NEW_GUTIL_EXCEPTION(Core::NotFoundException,
+                                  "You didn't provide any keys by which to search");
+
+    for(int i = 0; i < RowCount(); i++)
+    {
+        bool found = true;
+        foreach(int c, keycolumn_value_mapping.keys())
+        {
+            if(!found)
+                break;
+
+            found = found && keycolumn_value_mapping[c] == At(c)[1];
+        }
+
+        if(found)
+            return At(i);
+    }
+
+    Core::NotFoundException ex("The row was not found.  Check exception data for search criteria.");
+    int cnt = 1;
+    foreach(int c, keycolumn_value_mapping.keys())
+        ex.SetData(QString("k%1").arg(cnt++).toStdString(),
+                   QString("Column %1: %2").arg(c).arg(keycolumn_value_mapping[c].toString())
+                   .toStdString());
+
+    THROW_GUTIL_EXCEPTION(ex);
+}
+
+DataRow &DataObjects::DataTable::FindRow(int col, const Custom::GVariant &v)
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(col, v);
+    return FindRow(m);
+}
+
+const DataRow &DataObjects::DataTable::FindRow(int col, const Custom::GVariant &v) const
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(col, v);
+    return FindRow(m);
+}

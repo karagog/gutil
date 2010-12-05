@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 #include "Custom/gshareddata.h"
-#include "Custom/gshareddatapointer.h"
 #include <QExplicitlySharedDataPointer>
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
