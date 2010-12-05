@@ -8,16 +8,14 @@ HEADERS += \
     localsockettransport.h \
     giodevice.h \
     gconsoleiodevice.h \
-    gqiodevice.h \
-    gprocessiodevice.h
+    gqiodevice.h
 
 SOURCES += \
     gfileiodevice.cpp \
     localsockettransport.cpp \
     giodevice.cpp \
     gconsoleiodevice.cpp \
-    gqiodevice.cpp \
-    gprocessiodevice.cpp
+    gqiodevice.cpp
 
 INCLUDEPATH += ..
 QT += sql network

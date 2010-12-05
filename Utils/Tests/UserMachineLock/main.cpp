@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    GlobalLogger::SetDefaultLogger(GlobalLogger::SetupLogger(new MessageBoxLogger(&a)));
+    GlobalLogger::SetDefaultLoggerID(GlobalLogger::SetupLogger(new MessageBoxLogger(&a)));
 
     if(argc == 1)
         (new QProcess(&a))->start(QString(argv[0]), QStringList("-n"));
