@@ -496,7 +496,7 @@ DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_va
             if(!found)
                 break;
 
-            found = found && keycolumn_value_mapping[c] == At(c)[1];
+            found = found && keycolumn_value_mapping[c] == At(i)[c];
         }
 
         if(found)
