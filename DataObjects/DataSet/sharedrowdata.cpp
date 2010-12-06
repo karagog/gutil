@@ -19,38 +19,18 @@ using namespace GUtil;
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
-            :UpdatableGVariantCollection(t.ColumnCount()),
+            :UpdatableGVariantCollection(t.ColumnCount(), vals),
             _table(new DataObjects::DataTable(t))
-{
-    for(int i = 0; i < vals.count() && i < Table().ColumnCount(); i++)
-        At(i) = vals[i];
-}
+{}
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
-        :Custom::GSharedData(o),
+        :GSharedData(o),
         UpdatableGVariantCollection(o),
         _table(new DataObjects::DataTable(o.Table()))
 {}
 
 DataObjects::SharedRowData::~SharedRowData(){
     delete _table;
-}
-
-
-DataObjects::DataTable &DataObjects::SharedRowData::Table(){
-    return *_table;
-}
-
-const DataObjects::DataTable &DataObjects::SharedRowData::Table() const{
-    return *_table;
-}
-
-DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple(){
-    return *this;
-}
-
-const DataObjects::UpdatableGVariantCollection &DataObjects::SharedRowData::Tuple() const{
-    return *this;
 }
 
 void DataObjects::SharedRowData::on_value_about_to_change(int index, const Custom::GVariant &newvalue)

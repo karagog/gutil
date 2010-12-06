@@ -30,7 +30,7 @@ class UpdatableGVariantCollection :
         public Core::Interfaces::IUpdatable
 {
 public:
-    UpdatableGVariantCollection(int size = 0);
+    UpdatableGVariantCollection(int size = 0, const Custom::GVariantList &vals = Custom::GVariantList());
     UpdatableGVariantCollection(const UpdatableGVariantCollection &);
 
 protected:

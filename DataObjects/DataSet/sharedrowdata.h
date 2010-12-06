@@ -38,11 +38,11 @@ public:
     virtual ~SharedRowData();
 
 
-    DataTable &Table();
-    const DataTable &Table() const;
+    inline DataTable &Table(){ return *_table; }
+    inline const DataTable &Table() const{ return *_table; }
 
-    UpdatableGVariantCollection &Tuple();
-    const UpdatableGVariantCollection &Tuple() const;
+    inline UpdatableGVariantCollection &Tuple(){ return *this; }
+    inline const UpdatableGVariantCollection &Tuple() const{ return *this; }
 
 
 protected:

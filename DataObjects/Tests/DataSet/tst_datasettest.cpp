@@ -169,6 +169,7 @@ void DataSetTest::test_row_errors()
         t.AddColumn("two");
 
         QVERIFY(t.ColumnCount() == 2);
+        QVERIFY(r.ColumnCount() == 2);
         t.AddNewRow( GVariantList() << "Yay!");
         r = t[1];
 

@@ -30,7 +30,7 @@ UpdatableGVariant &UpdatableGVariant::operator = (const GVariant &o){
     GVariant tmp(*this);
 
     notify_value_about_to_change(*this, o);
-    QVariant::setValue(o);
+    ((QVariant &)*this) = o;
     notify_value_changed(tmp, *this);
     return *this;
 }
