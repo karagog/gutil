@@ -123,7 +123,7 @@ void settingsTest::test_no_value()
 {
     try
     {
-        QVERIFY(settings->Value("novalue.doesn'texist") == "");
+        QVERIFY(settings->Value("novalue.doesn'texist").isNull());
     }
     catch(Core::Exception &ex)
     {
@@ -232,7 +232,7 @@ void settingsTest::test_reload()
 
         settings->SetValue(one, QByteArray("fart"));
 
-        QVERIFY(newsettings.Value(one) == "");
+        QVERIFY(newsettings.Value(one).isNull());
 
         newsettings.Reload();
         QVERIFY(newsettings.Value(one) == "fart");
@@ -294,7 +294,8 @@ void settingsTest::test_erase_value()
         }
 
         newsettings.Reload();
-        QVERIFY(newsettings.Value(tmpkey) == "");
+        QVERIFY2(newsettings.Value(tmpkey).isNull(),
+                 newsettings.Value(tmpkey).toString().toStdString().c_str());
         QVERIFY(newsettings.Value(permkey) == "value");
     }
     catch(Core::Exception &ex)
@@ -329,8 +330,8 @@ void settingsTest::test_clear_all_values()
         }
 
         newsettings.Reload();
-        QVERIFY(newsettings.Value(tmpkey) == "");
-        QVERIFY(newsettings.Value(permkey) == "");
+        QVERIFY(newsettings.Value(tmpkey).isNull());
+        QVERIFY(newsettings.Value(permkey).isNull());
     }
     catch(Core::Exception &ex)
     {
