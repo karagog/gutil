@@ -28,10 +28,11 @@ SharedTableData::SharedTableData(const DataSet &ds)
 SharedTableData::SharedTableData(const SharedTableData &d)
     :GSharedData(d),
     _dataset(d._dataset),
-    _rows(this, d.Rows()),
     _columns(d.Columns()),
     _name(d._name),
-    _key_columns(d._key_columns){}
+    _key_columns(d._key_columns),
+    _rows(this, d.Rows())
+{}
 
 void SharedTableData::SetDataSet(const DataSet &ds)
 {

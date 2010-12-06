@@ -90,10 +90,10 @@ protected:
 private:
 
     DataSet *_dataset;
-    DataRowCollection _rows;
     DataColumnCollection _columns;
     QString _name;
     QSet<int> _key_columns;
+    DataRowCollection _rows;
 
 };
 

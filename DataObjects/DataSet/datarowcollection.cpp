@@ -23,10 +23,11 @@ DataRowCollection::DataRowCollection(SharedTableData *td, const DataRowCollectio
     :_table(new DataTable(td))
 {
     // Clone each row explicitly; each row must detach itself from the shared pointer
-    for(int i = 0; i < Collection<DataRow>::Count(); i++)
+    for(int i = 0; i < o.Count(); i++)
     {
         const DataRow &r = o[i];
         Custom::GVariantList vals;
+
         for(int j = 0; j < r.ColumnCount(); j++)
             vals.append(r[j]);
 
