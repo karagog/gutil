@@ -24,10 +24,8 @@ class DataRow;
 class DataTable;
 class SharedTableData;
 
-class DataRowCollection
-            :
-            public Collection<DataRow>,
-            public Core::Interfaces::IClonable< DataRowCollection >
+class DataRowCollection :
+        public Collection<DataRow>
 {
     friend class DataTable;
     friend class SharedTableData;
@@ -45,17 +43,11 @@ public:
 protected:
 
     DataRowCollection(SharedTableData *);
-
-    DataRowCollection(const DataRowCollection &o);
-
+    DataRowCollection(SharedTableData *, const DataRowCollection &o);
     ~DataRowCollection();
 
     virtual void validate_new_item(const DataRow &i)
             throw(Core::ValidationException);
-
-
-    // Protect our clonable interface
-    virtual DataRowCollection &CloneTo(DataRowCollection &o) const;
 
 
 private:

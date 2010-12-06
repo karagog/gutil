@@ -19,33 +19,23 @@ GUTIL_USING_NAMESPACE( DataObjects );
 DataRowCollection::DataRowCollection(SharedTableData *td)
     :_table(new DataTable(td)){}
 
-DataRowCollection::DataRowCollection(const DataRowCollection &o)
-    :_table(0)
+DataRowCollection::DataRowCollection(SharedTableData *td, const DataRowCollection &o)
+    :_table(new DataTable(td))
 {
-    o.CloneTo(*this);
+    // Clone each row explicitly; each row must detach itself from the shared pointer
+    for(int i = 0; i < Collection<DataRow>::Count(); i++)
+    {
+        const DataRow &r = o[i];
+        Custom::GVariantList vals;
+        for(int j = 0; j < r.ColumnCount(); j++)
+            vals.append(r[j]);
+
+        Add(DataRow(Table(), vals));
+    }
 }
 
 DataRowCollection::~DataRowCollection(){
     delete _table;
-}
-
-DataRowCollection &DataRowCollection::CloneTo(DataRowCollection &o) const
-{
-    if(o._table)
-        delete o._table;
-    o._table = new DataTable(Table());
-
-    o.Clear();
-
-    // Clone each row explicitly; each row must detach itself from the shared pointer
-    for(int i = 0; i < Collection<DataRow>::Count(); i++)
-    {
-        DataRow dr(Table());
-        Collection<DataRow>::At(i).CloneTo(dr);
-        o.Add(dr);
-    }
-
-    return o;
 }
 
 void DataRowCollection::validate_new_item(const DataRow &i)
