@@ -54,11 +54,6 @@ namespace GUtil
                                     public GUtil::Interfaces::IQXmlSerializable
         {
             Q_OBJECT
-        public:
-
-            // Flushes the data queue and clears the current data container
-            void Clear();
-
 
         protected:
 

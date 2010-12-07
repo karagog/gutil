@@ -77,7 +77,7 @@ void DataSetTest::test_dataRows()
         QVERIFY(r1[0].Equals(r2[0]));
         QVERIFY(r1[0].Equals("Value"));
         QVERIFY(r2[0].Equals("Value"));
-        QVERIFY(r1["0"].Equals("Value"));
+        QVERIFY(r1[t.ColumnKeys()[0]].Equals("Value"));
 
         DataRow r3(r2);
         r2.CloneTo(r3);

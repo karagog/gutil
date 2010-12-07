@@ -62,10 +62,17 @@ void DataObjects::DataTable::_init(const QString &name, int num_cols)
 {
     table_data().SetName(name);
 
-    QStringList sl;
-    for(int i = 0; i < num_cols; i++)
-        sl.append(QString("%1").arg(i));
-    SetColumnHeaders(sl);
+    SetNumberOfColumns(num_cols);
+}
+
+void DataObjects::DataTable::SetNumberOfColumns(int n)
+{
+    if(n < ColumnCount())
+        while(n < ColumnCount())
+            RemoveColumn(ColumnCount() - 1);
+    else if(n > ColumnCount())
+        while(n > ColumnCount())
+            AddColumn(QUuid::createUuid().toString());
 }
 
 DataObjects::SharedTableData &
@@ -188,6 +195,19 @@ void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
 
     for(int i = 0; i < RowCount(); i++)
         Rows()[i].set_number_of_columns(ColumnCount());
+}
+
+void DataObjects::DataTable::RemoveColumn(int ind)
+{
+    if(ind < 0 || ind >= ColumnCount())
+        return;
+
+    table_data().Columns().Remove(ind);
+}
+
+void DataObjects::DataTable::RemoveColumn(const QString &k)
+{
+    RemoveColumn(GetColumnIndex(k));
 }
 
 void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QStringList &labels)

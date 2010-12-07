@@ -55,12 +55,6 @@ void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt
     }
 }
 
-void BusinessObjects::AbstractValueBuffer::Clear()
-{
-    cur_outgoing_data.Clear();
-    cur_outgoing_data.SetColumnHeaders(QStringList("0") << "1");
-}
-
 void BusinessObjects::AbstractValueBuffer::clearQueues()
 {
     _clear_queue(in_queue_mutex, in_queue);

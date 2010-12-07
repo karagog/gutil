@@ -85,10 +85,14 @@ public:
     void Clear();
 
     void AddColumn(const QString &key, const QString &label = QString::null);
+    void RemoveColumn(int);
+    void RemoveColumn(const QString &);
     void SetColumnHeaders(const QStringList &keys, const QStringList &labels = QStringList());
     void SetColumnLabel(int col_index, const QString &);
     void SetColumnKey(int col_index, const QString &);
     void ClearColumns();
+
+    void SetNumberOfColumns(int);
 
     QSet<int> KeyColumns() const;
     void AddKeyColumn(int);

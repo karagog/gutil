@@ -52,8 +52,7 @@ void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &
     _identity = identity;
     _modifier = modifier;
 
-    // Two columns to the table
-    table().SetColumnHeaders(QStringList("key") << "value");
+    _init_column_headers();
 
     importData();
 }
@@ -76,9 +75,16 @@ void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modi
 
 void BusinessObjects::ConfigFile::Clear()
 {
-    AbstractValueBuffer::Clear();
+    table().Clear();
+    _init_column_headers();
 
     _value_changed();
+}
+
+void BusinessObjects::ConfigFile::_init_column_headers()
+{
+    // Two columns to the table
+    table().SetColumnHeaders(QStringList("key") << "value");
 }
 
 void BusinessObjects::ConfigFile::_value_changed()
