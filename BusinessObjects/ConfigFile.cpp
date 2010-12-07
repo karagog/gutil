@@ -74,6 +74,13 @@ void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modi
     modifier = _modifier;
 }
 
+void BusinessObjects::ConfigFile::Clear()
+{
+    AbstractValueBuffer::Clear();
+
+    _value_changed();
+}
+
 void BusinessObjects::ConfigFile::_value_changed()
 {
     // Export the changed data to the config file

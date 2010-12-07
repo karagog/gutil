@@ -39,7 +39,8 @@ namespace GUtil
         //   binary data as well as normal string data, because it translates strings
         //   into base64 before writing them to disk.
 
-        class ConfigFile : public AbstractValueBuffer
+        class ConfigFile :
+                public AbstractValueBuffer
         {
             Q_OBJECT
         public:
@@ -59,6 +60,8 @@ namespace GUtil
             void RemoveValues(const QStringList &);
 
             bool Contains(const QString &key) const;
+
+            void Clear();
 
 
             void Reload();

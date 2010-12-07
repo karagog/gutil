@@ -330,7 +330,8 @@ void settingsTest::test_clear_all_values()
         }
 
         newsettings.Reload();
-        QVERIFY(newsettings.Value(tmpkey).isNull());
+        QVERIFY2(newsettings.Value(tmpkey).isNull(),
+                 newsettings.Value(tmpkey).toString().toStdString().c_str());
         QVERIFY(newsettings.Value(permkey).isNull());
     }
     catch(Core::Exception &ex)
