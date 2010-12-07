@@ -147,7 +147,7 @@ void BusinessObjects::ConfigFile::SetValues(const QMap<QString, Custom::GVariant
         bool ex_hit = false;
         try
         {
-            DataObjects::DataRow &r = table().FindRow(0, s);
+            DataObjects::DataRow &r = table().FindFirstRow(0, s);
             r[1] = values[s];
         }
         catch(Core::NotFoundException &)
@@ -186,7 +186,7 @@ QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(const QStrin
 
         try
         {
-            const DataObjects::DataRow *const r = &table().FindRow(m);
+            const DataObjects::DataRow *const r = &table().FindFirstRow(m);
             ret.insert(r->At(0).toString(), r->At(1));
         }
         catch(Core::NotFoundException &){}    // if key not found, ignore
@@ -202,7 +202,7 @@ bool BusinessObjects::ConfigFile::Contains(const QString &key) const
     {
         QMap<int, Custom::GVariant> m;
         m.insert(0, key);
-        table().FindRow(m);
+        table().FindFirstRow(m);
     }
     catch(Core::NotFoundException &)
     {
@@ -229,7 +229,7 @@ void BusinessObjects::ConfigFile::RemoveValues(const QStringList &keys)
         try
         {
             table().RemoveRow(
-                    table().FindRow(0, s)
+                    table().FindFirstRow(0, s)
                     );
         }
         catch(Core::NotFoundException &){}

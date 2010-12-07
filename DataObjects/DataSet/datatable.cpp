@@ -401,14 +401,7 @@ void DataObjects::DataTable::RemoveKeyColumn(const QString &k)
 void DataObjects::DataTable::validate_new_row(const DataRow &r)
         throw(Core::ValidationException)
 {
-    if(*this != r.Table())
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                  "The row does not belong to this table.  "
-                                  "If you still want to add it, then call 'ImportRow' "
-                                  "on the parent table.");
-    else if(Rows().Contains(r))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
-                                  "Row already exists in the table");
+
 }
 
 bool DataObjects::DataTable::IsDirty() const{
@@ -481,7 +474,7 @@ void DataObjects::DataTable::Unlock()
     table_data().SharedLock().unlock();
 }
 
-DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_value_mapping)
+DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolumn_value_mapping)
         throw(Core::NotFoundException)
 {
     if(keycolumn_value_mapping.count() == 0)
@@ -495,6 +488,12 @@ DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_va
         {
             if(!found)
                 break;
+
+            if(c < 0 || c >= ColumnCount())
+            {
+                found = false;
+                break;
+            }
 
             found = found && keycolumn_value_mapping[c] == At(i)[c];
         }
@@ -513,7 +512,7 @@ DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_va
     THROW_GUTIL_EXCEPTION(ex);
 }
 
-const DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycolumn_value_mapping) const
+const DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolumn_value_mapping) const
         throw(Core::NotFoundException)
 {
     if(keycolumn_value_mapping.count() == 0)
@@ -527,6 +526,12 @@ const DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycol
         {
             if(!found)
                 break;
+
+            if(c < 0 || c >= ColumnCount())
+            {
+                found = false;
+                break;
+            }
 
             found = found && keycolumn_value_mapping[c] == At(i)[c];
         }
@@ -545,16 +550,123 @@ const DataRow &DataObjects::DataTable::FindRow(const QMap<int, GVariant> &keycol
     THROW_GUTIL_EXCEPTION(ex);
 }
 
-DataRow &DataObjects::DataTable::FindRow(int col, const Custom::GVariant &v)
+DataRow &DataObjects::DataTable::
+        FindFirstRow(const QMap<QString, GVariant> &keycolumn_value_mapping)
+        throw(Core::NotFoundException)
 {
-    QMap<int, Custom::GVariant> m;
-    m.insert(col, v);
-    return FindRow(m);
+    QMap<int, Custom::GVariant> tmp;
+    foreach(QString s, keycolumn_value_mapping.keys())
+        tmp.insert(GetColumnIndex(s), keycolumn_value_mapping[s]);
+    return FindFirstRow(tmp);
 }
 
-const DataRow &DataObjects::DataTable::FindRow(int col, const Custom::GVariant &v) const
+const DataRow &DataObjects::DataTable::
+        FindFirstRow(const QMap<QString, GVariant> &keycolumn_value_mapping) const
+        throw(Core::NotFoundException)
+{
+    QMap<int, Custom::GVariant> tmp;
+    foreach(QString s, keycolumn_value_mapping.keys())
+        tmp.insert(GetColumnIndex(s), keycolumn_value_mapping[s]);
+    return FindFirstRow(tmp);
+}
+
+DataRow &DataObjects::DataTable::FindFirstRow(int col, const Custom::GVariant &v)
 {
     QMap<int, Custom::GVariant> m;
     m.insert(col, v);
-    return FindRow(m);
+    return FindFirstRow(m);
+}
+
+const DataRow &DataObjects::DataTable::FindFirstRow(int col, const Custom::GVariant &v) const
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(col, v);
+    return FindFirstRow(m);
+}
+
+DataRow &DataObjects::DataTable::FindFirstRow(const QString &col, const Custom::GVariant &v)
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(GetColumnIndex(col), v);
+    return FindFirstRow(m);
+}
+
+const DataRow &DataObjects::DataTable::FindFirstRow(const QString &col, const Custom::GVariant &v) const
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(GetColumnIndex(col), v);
+    return FindFirstRow(m);
+}
+
+
+
+DataRowCollection DataObjects::DataTable::
+        FindRows(const QMap<int, GVariant> &keycolumn_value_mapping) const
+        throw(Core::NotFoundException)
+{
+    if(keycolumn_value_mapping.count() == 0)
+        THROW_NEW_GUTIL_EXCEPTION(Core::NotFoundException,
+                                  "You didn't provide any keys by which to search");
+
+    DataRowCollection ret(GetExplicitlySharedData());
+
+    for(int i = 0; i < RowCount(); i++)
+    {
+        bool found = true;
+        foreach(int c, keycolumn_value_mapping.keys())
+        {
+            if(!found)
+                break;
+
+            if(c < 0 || c >= ColumnCount())
+            {
+                found = false;
+                break;
+            }
+
+            found = found && keycolumn_value_mapping[c] == At(i)[c];
+        }
+
+        if(found)
+            ret.Add(At(i));
+    }
+
+    if(ret.Count() == 0)
+    {
+        Core::NotFoundException ex("The row was not found.  Check exception data for search criteria.");
+        int cnt = 1;
+        foreach(int c, keycolumn_value_mapping.keys())
+            ex.SetData(QString("k%1").arg(cnt++).toStdString(),
+                       QString("Column %1: %2").arg(c).arg(keycolumn_value_mapping[c].toString())
+                       .toStdString());
+
+        THROW_GUTIL_EXCEPTION(ex);
+    }
+
+    return ret;
+}
+
+DataRowCollection DataObjects::DataTable::
+        FindRows(const QMap<QString, GVariant> &keycolumn_value_mapping) const
+        throw(Core::NotFoundException)
+{
+    QMap<int, Custom::GVariant> tmp;
+    foreach(QString s, keycolumn_value_mapping.keys())
+        tmp.insert(GetColumnIndex(s), keycolumn_value_mapping[s]);
+    return FindRows(tmp);
+}
+
+DataRowCollection DataObjects::DataTable::FindRows(int col, const Custom::GVariant &v) const
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(col, v);
+    return FindRows(m);
+}
+
+DataRowCollection DataObjects::DataTable::
+        FindRows(const QString &col, const Custom::GVariant &v) const
+{
+    QMap<int, Custom::GVariant> m;
+    m.insert(GetColumnIndex(col), v);
+    return FindRows(m);
 }

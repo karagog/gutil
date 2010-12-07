@@ -22,6 +22,38 @@ DataRowCollection::DataRowCollection(SharedTableData *td)
 DataRowCollection::DataRowCollection(SharedTableData *td, const DataRowCollection &o)
     :_table(new DataTable(td))
 {
+    _init_cloned_rows(o);
+}
+
+DataRowCollection::DataRowCollection(const DataRowCollection &o)
+    :_table(new DataTable(o.Table()))
+{
+    _init_cloned_rows(o);
+
+    SetReadOnly(true);
+}
+
+DataRowCollection::~DataRowCollection(){
+    delete _table;
+}
+
+void DataRowCollection::validate_new_item(const DataRow &i)
+        throw(Core::ValidationException)
+{
+    Table().validate_new_row(i);
+
+    if(Table() != i.Table())
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "The row does not belong to this table.  "
+                                  "If you still want to add it, then call 'ImportRow' "
+                                  "on the parent table.");
+    else if(Contains(i))
+        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+                                  "Row already exists in the collection");
+}
+
+void DataRowCollection::_init_cloned_rows(const DataRowCollection &o)
+{
     // Clone each row explicitly; each row must detach itself from the shared pointer
     for(int i = 0; i < o.Count(); i++)
     {
@@ -33,14 +65,4 @@ DataRowCollection::DataRowCollection(SharedTableData *td, const DataRowCollectio
 
         Add(DataRow(Table(), vals));
     }
-}
-
-DataRowCollection::~DataRowCollection(){
-    delete _table;
-}
-
-void DataRowCollection::validate_new_item(const DataRow &i)
-        throw(Core::ValidationException)
-{
-    Table().validate_new_row(i);
 }

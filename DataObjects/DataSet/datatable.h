@@ -118,14 +118,32 @@ public:
 
 
     // Find a row based on one key column
-    DataRow &FindRow(int, const Custom::GVariant &);
-    const DataRow &FindRow(int, const Custom::GVariant &) const;
+    DataRow &FindFirstRow(int, const Custom::GVariant &);
+    const DataRow &FindFirstRow(int, const Custom::GVariant &) const;
+
+    DataRow &FindFirstRow(const QString &, const Custom::GVariant &);
+    const DataRow &FindFirstRow(const QString &, const Custom::GVariant &) const;
 
     // Find a row based on multiple key columns
-    DataRow &FindRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping)
+    DataRow &FindFirstRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping)
             throw(Core::NotFoundException);
-    const DataRow &FindRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const
+    const DataRow &FindFirstRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const
             throw(Core::NotFoundException);
+    DataRow &FindFirstRow(const QMap<QString, Custom::GVariant> &keycolumn_value_mapping)
+            throw(Core::NotFoundException);
+    const DataRow &FindFirstRow(const QMap<QString, Custom::GVariant> &keycolumn_value_mapping) const
+            throw(Core::NotFoundException);
+
+    // Find rows based on one key column
+    DataRowCollection FindRows(int, const Custom::GVariant &) const;
+    DataRowCollection FindRows(const QString &, const Custom::GVariant &) const;
+
+    // Find rows based on multiple key columns
+    DataRowCollection FindRows(const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const
+            throw(Core::NotFoundException);
+    DataRowCollection FindRows(const QMap<QString, Custom::GVariant> &keycolumn_value_mapping) const
+            throw(Core::NotFoundException);
+
 
     void LockForRead();
     void LockForWrite();

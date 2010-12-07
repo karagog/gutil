@@ -286,6 +286,7 @@ void DataSetTest::test_dataTable()
         dr2[0] = "Hello World!";
         QVERIFY(dr2[0].Equals("Hello World!"));
 
+
         // Test the xml import/export
         QString xml = dt.ToXmlQString(true);
         //qDebug(xml.toStdString().c_str());
@@ -306,6 +307,23 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt2[1][0].Equals("Hello World!"));
         QVERIFY(dt2[1]["second"].Equals(QVariant()));
 
+
+        // Test that we can find rows
+        DataRow &asdf = dt.FindFirstRow("second", "v");
+        QVERIFY(asdf == dr);
+
+        // Test finding a collection of rows:
+        DataRow tmpr1 = dt.AddNewRow(GVariantList() << "blah");
+        DataRow tmpr2 = dt.AddNewRow(GVariantList() << "blah");
+        QVERIFY(tmpr1 != tmpr2);
+        QVERIFY(tmpr1.Equals(tmpr2));
+
+        DataRowCollection rc = dt.FindRows(0, "blah");
+        QVERIFY2(rc.Count() == 2, QString("%1").arg(rc.Count()).toStdString().c_str());
+        QVERIFY(dt.RowCount() > 2);
+        QVERIFY(rc.Table() == dt);
+        QVERIFY(rc.IndexOf(tmpr1) == 0);
+        QVERIFY(rc.IndexOf(tmpr2) == 1);
 
 
         // Test cloning

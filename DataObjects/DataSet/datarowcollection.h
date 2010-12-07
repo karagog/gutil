@@ -32,6 +32,10 @@ class DataRowCollection :
 
 public:
 
+    // This deep copy constructor clones the entire table
+    DataRowCollection(const DataRowCollection &);
+    ~DataRowCollection();
+
     inline DataTable &Table(){
         return *_table;
     }
@@ -43,8 +47,11 @@ public:
 protected:
 
     DataRowCollection(SharedTableData *);
+
+    // This is the deep-copy constructor; but you need to provide it with a new
+    //  data table
     DataRowCollection(SharedTableData *, const DataRowCollection &o);
-    ~DataRowCollection();
+
 
     virtual void validate_new_item(const DataRow &i)
             throw(Core::ValidationException);
@@ -53,6 +60,8 @@ protected:
 private:
 
     DataTable *_table;
+
+    void _init_cloned_rows(const DataRowCollection &);
 
 };
 
