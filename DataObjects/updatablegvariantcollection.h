@@ -19,25 +19,39 @@ limitations under the License.*/
 #include "gvariantcollection.h"
 #include "Custom/updatablegvariant.h"
 #include "Core/Interfaces/iupdatable.h"
-#include "Core/Interfaces/ivalueobserver.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
+class GVariantCollectionObserver;
+
 class UpdatableGVariantCollection :
         public ResizableCollection< Custom::UpdatableGVariant >,
-        public Core::Interfaces::IValueObserver<Custom::GVariant>,
+        public Custom::UpdatableGVariant::Observer,
         public Core::Interfaces::IUpdatable
 {
 public:
+
     UpdatableGVariantCollection(int size = 0, const Custom::GVariantList &vals = Custom::GVariantList());
     UpdatableGVariantCollection(const UpdatableGVariantCollection &);
 
-protected:
 
-    // Classes may derive from this one to implement their own functions
-    virtual void on_value_about_to_change(int index, const Custom::GVariant &newvalue);
-    virtual void on_value_changed(int index, const Custom::GVariant &previousvalue);
+    // Classes who wish to observe the gvariantcollection
+    //   may derive from this and set themselves as the gvariant observer
+    class Observer
+    {
+        friend class UpdatableGVariantCollection;
+    protected:
+
+        virtual void value_about_to_change(int, const Custom::GVariant &){}
+        virtual void value_changed(int, const Custom::GVariant &){}
+
+    };
+
+    inline void SetCollectionObserver(Observer *o){ _observer = o; }
+
+
+protected:
 
     // Every new observable gvariant we add must be initialized
     virtual void on_add(Custom::UpdatableGVariant *);
@@ -52,11 +66,19 @@ private:
     void value_about_to_change(const Custom::GVariant &, const Custom::GVariant &);
     void value_changed(const Custom::GVariant &, const Custom::GVariant &);
 
-    int _index_mem;
-
     void _init();
 
+    // This function updates _index_mem to point to the index being changed
+    void _find_changed_index(const Custom::GVariant &);
+    int _index_mem;
+
+    Observer *_observer;
+
 };
+
+
+
+
 
 
 GUTIL_END_NAMESPACE;

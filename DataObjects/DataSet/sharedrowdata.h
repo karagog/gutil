@@ -26,7 +26,7 @@ class DataTable;
 
 class SharedRowData :
         public Custom::GSharedData,
-        protected UpdatableGVariantCollection
+        public UpdatableGVariantCollection::Observer
 {
 public:
 
@@ -41,18 +41,18 @@ public:
     inline DataTable &Table(){ return *_table; }
     inline const DataTable &Table() const{ return *_table; }
 
-    inline UpdatableGVariantCollection &Tuple(){ return *this; }
-    inline const UpdatableGVariantCollection &Tuple() const{ return *this; }
-
-
-protected:
-
-    virtual void on_value_about_to_change(int index, const Custom::GVariant &newvalue);
+    inline UpdatableGVariantCollection &Tuple(){ return _tuple; }
+    inline const UpdatableGVariantCollection &Tuple() const{ return _tuple; }
 
 
 private:
 
     DataTable *_table;
+    UpdatableGVariantCollection _tuple;
+
+
+    // UpdatableGVariantCollection::Observer interface:
+    void value_about_to_change(int index, const Custom::GVariant &newvalue);
 
 };
 

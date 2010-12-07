@@ -33,6 +33,4 @@ HEADERS += \
     Interfaces/iequatable.h \
     Interfaces/iequalitycomparer.h \
     Interfaces/iclonable.h \
-    Interfaces/iconvertable.h \
-    Interfaces/ivalueobserver.h \
-    Interfaces/iobservablevalue.h
+    Interfaces/iconvertable.h

@@ -18,11 +18,15 @@ GUTIL_USING_NAMESPACE( Custom );
 
 UpdatableGVariant::UpdatableGVariant(const GVariant &gv)
     :GVariant(gv),
-    _backup(*this){}
+    _backup(*this),
+    _observer(0)
+{}
 
 UpdatableGVariant::UpdatableGVariant(const UpdatableGVariant &ogv)
     :GVariant(ogv),
-    _backup(*this){}
+    _backup(*this),
+    _observer(0)
+{}
 
 
 // We override these functions from QVariant, so we can call our callback functions
@@ -69,10 +73,17 @@ void UpdatableGVariant::commit_reject_changes(bool commit)
         *this = _backup;
 }
 
+void UpdatableGVariant::notify_value_about_to_change(const GVariant &before, const GVariant &after)
+{
+    if(_observer)
+        _observer->value_about_to_change(before, after);
+}
+
 void UpdatableGVariant::notify_value_changed(const GVariant &o, const GVariant &t)
 {
     if(o != t)
         MakeDirty();
 
-    Core::Interfaces::IObservableValue<GVariant>::notify_value_changed(o, t);
+    if(_observer)
+        _observer->value_changed(o, t);
 }

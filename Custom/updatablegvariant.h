@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "gvariant.h"
 #include "Core/Interfaces/iupdatable.h"
-#include "Core/Interfaces/iobservablevalue.h"
 
 GUTIL_BEGIN_NAMESPACE( Custom );
 
@@ -27,13 +26,27 @@ GUTIL_BEGIN_NAMESPACE( Custom );
 
 class UpdatableGVariant :
         public GVariant,
-        public Core::Interfaces::IUpdatable,
-        public Core::Interfaces::IObservableValue<GVariant>
+        public Core::Interfaces::IUpdatable
 {
 public:
 
     UpdatableGVariant(const GVariant &gv = GVariant());
     UpdatableGVariant(const UpdatableGVariant &ogv);
+
+
+    // If you want to observe the gvariant class, then derive from this class
+    //  and set yourself as this class' observer
+    class Observer
+    {
+        friend class UpdatableGVariant;
+    protected:
+
+        virtual void value_about_to_change(const GVariant &, const GVariant &){}
+        virtual void value_changed(const GVariant &, const GVariant &){}
+
+    };
+
+    inline void SetValueObserver(Observer *o){ _observer = o; }
 
 
     // We override these functions from QVariant, so we can call our callback functions
@@ -45,6 +58,8 @@ public:
 
 protected:
 
+    virtual void notify_value_about_to_change(const GVariant &before, const GVariant &after);
+
     // Override this to know if our value has changed
     virtual void notify_value_changed(const GVariant &, const GVariant &);
 
@@ -55,6 +70,7 @@ protected:
 private:
 
     GVariant _backup;
+    Observer *_observer;
 };
 
 

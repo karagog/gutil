@@ -19,7 +19,8 @@ GUTIL_USING_NAMESPACE( Custom );
 
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(int size, const GVariantList &v)
-    :ResizableCollection<Custom::UpdatableGVariant>(size)
+    :ResizableCollection<Custom::UpdatableGVariant>(size),
+    _observer(0)
 {
     for(int i = 0; i < v.count() && i < size; i++)
         At(i) = v[i];
@@ -28,7 +29,8 @@ UpdatableGVariantCollection::UpdatableGVariantCollection(int size, const GVarian
 }
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(const UpdatableGVariantCollection &v)
-    : ResizableCollection<Custom::UpdatableGVariant>(v)
+    : ResizableCollection<Custom::UpdatableGVariant>(v),
+    _observer(0)
 {
     _init();
 }
@@ -58,23 +60,34 @@ void UpdatableGVariantCollection::commit_reject_changes(bool commit)
 void UpdatableGVariantCollection::value_about_to_change(
         const GVariant &orig, const GVariant &newval)
 {
-    // Find the index of the value which is about to change
+    // Have to reset _index_mem to -1 so that it will update it in the 'find' function
     _index_mem = -1;
-    for(int i = 0; _index_mem == -1 && i < Count(); i++)
-        if(&At(i) == &orig)
-            _index_mem = i;
 
-    Q_ASSERT(_index_mem != -1);
-
-    on_value_about_to_change(_index_mem, newval);
+    if(_observer)
+    {
+        _find_changed_index(orig);
+        _observer->value_about_to_change(_index_mem, newval);
+    }
 }
 
 void UpdatableGVariantCollection::value_changed(
         const GVariant &oldval, const GVariant &newval)
 {
-    // We reuse _index_mem so we don't have to find the same index twice
-    on_value_changed(_index_mem, oldval);
+    if(_observer)
+    {
+        _find_changed_index(newval);
+
+        // We reuse _index_mem so we don't have to find the same index twice
+        _observer->value_changed(_index_mem, oldval);
+    }
 }
 
-void UpdatableGVariantCollection::on_value_about_to_change(int, const GVariant &){}
-void UpdatableGVariantCollection::on_value_changed(int, const GVariant &){}
+void UpdatableGVariantCollection::_find_changed_index(const Custom::GVariant &v)
+{
+    // Find the index of the value which is about to change
+    for(int i = 0; _index_mem == -1 && i < Count(); i++)
+        if(&At(i) == &v)
+            _index_mem = i;
+
+    Q_ASSERT(_index_mem != -1);
+}
