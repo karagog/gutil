@@ -32,7 +32,7 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
             QString("%1.%2")
             .arg(get_file_location(identifier))
             .arg(modifier)),
-                                     parent),
+                                          parent),
     _config_is_human_readable(true)
 {
     // Set the file transport to overwrite the config file rather than append

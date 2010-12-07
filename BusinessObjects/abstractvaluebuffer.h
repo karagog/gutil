@@ -60,7 +60,11 @@ namespace GUtil
             // No public constructor; this class must be derived
             AbstractValueBuffer(DataAccess::GIODevice *transport,
                                 QObject *parent = 0);
-            virtual ~AbstractValueBuffer();
+
+            AbstractValueBuffer(DataAccess::GIODevice *transport,
+                                const DataObjects::DataTable &dt = DataObjects::DataTable(),
+                                QObject *parent = 0);
+            ~AbstractValueBuffer();
 
             // The method of transport (could be file, socket, network I/O)
             inline DataAccess::GIODevice &transport(){ return *_transport; }
@@ -130,7 +134,9 @@ namespace GUtil
             DataObjects::DataTable cur_outgoing_data;
             DataObjects::DataTable cur_incoming_data;
 
-            void process_queues();
+            void _init_abstract_value_buffer();
+
+            void _process_queues();
             void _flush_queue(QueueTypeEnum);
 
             void _clear_queue(QMutex &, QQueue< QByteArray > &);

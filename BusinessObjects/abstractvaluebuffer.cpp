@@ -27,7 +27,23 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
             :QObject(parent),
             _transport(transport)
 {
-    connect(transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
+    _init_abstract_value_buffer();
+}
+
+BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
+        DataAccess::GIODevice *transport,
+        const DataObjects::DataTable &dt,
+        QObject *parent)
+            :QObject(parent),
+            _transport(transport),
+            cur_outgoing_data(dt)
+{
+    _init_abstract_value_buffer();
+}
+
+void BusinessObjects::AbstractValueBuffer::_init_abstract_value_buffer()
+{
+    connect(_transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
 }
 
 BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
@@ -169,12 +185,12 @@ QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum
 
     // We want to get rid of anything in the queue as soon as possible
     if(enqueue)
-        process_queues();
+        _process_queues();
 
     return ret;
 }
 
-void BusinessObjects::AbstractValueBuffer::process_queues()
+void BusinessObjects::AbstractValueBuffer::_process_queues()
 {
     // Flush the queues
     _flush_queue(OutQueue);

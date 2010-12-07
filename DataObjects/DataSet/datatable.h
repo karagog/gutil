@@ -74,6 +74,7 @@ public:
     DECLARE_DATATABLE_ROW_TYPE( DataRow );
 
     DataTable(int num_cols = 0);
+    DataTable(const QStringList &column_keys);
     DataTable(const QString &table_name, int num_cols = 0);
     DataTable(const DataTable &);
     virtual ~DataTable();

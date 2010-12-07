@@ -34,6 +34,13 @@ DataObjects::DataTable::DataTable(int num_cols)
     _init(QString::null, num_cols);
 }
 
+DataObjects::DataTable::DataTable(const QStringList &column_keys)
+        :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
+{
+    _init(QString::null, 0);
+    SetColumnHeaders(column_keys);
+}
+
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
     :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
 {
