@@ -25,8 +25,8 @@ limitations under the License.*/
 private: \
     type _p_##name; \
 public: \
-    type Get##name() const{ return _p_##name; } \
-    void Set##name(const type &value){ _p_##name = value; } \
+    inline type Get##name() const{ return _p_##name; } \
+    inline void Set##name(const type &value){ _p_##name = value; } \
     enum{}
 
 
@@ -35,7 +35,7 @@ public: \
 private: \
     type _p_##name; \
 public: \
-    type Get##name() const{ return _p_##name; } \
+    inline type Get##name() const{ return _p_##name; } \
     enum{}
 
 
