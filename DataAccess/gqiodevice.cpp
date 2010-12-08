@@ -24,11 +24,6 @@ DataAccess::GQIODevice::GQIODevice(QIODevice *io, QObject *parent) :
     connect(&IODevice(), SIGNAL(readyRead()), this, SLOT(raiseReadyRead()));
 }
 
-QIODevice &DataAccess::GQIODevice::IODevice() const
-{
-    return *_io_device;
-}
-
 void DataAccess::GQIODevice::send_data(const QByteArray &data)
         throw(Core::DataTransportException)
 {

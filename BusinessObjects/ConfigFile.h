@@ -17,10 +17,9 @@ limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
 #include "DataAccess/gfileiodevice.h"
+#include "Utils/usermachinelocks.h"
 #include <QObject>
 #include <QString>
-
-class QtLockedFile;
 
 namespace GUtil
 {
@@ -46,6 +45,7 @@ namespace GUtil
         {
             Q_OBJECT
         public:
+
             explicit ConfigFile(const QString &, const QString &modifier = "",
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
@@ -70,14 +70,10 @@ namespace GUtil
 
             inline QString FileName() const{ return FileTransport().FileName(); }
 
-            inline void GetIdentity(QString &identifier, QString &modifier){
+            inline void GetIdentity(QString &identifier, QString &modifier) const{
                 identifier = _identity;
                 modifier = _modifier;
             }
-
-            // Overrides of AbstractValueBuffer functions (to support compression of the data)
-            QByteArray get_current_data() const;
-            QString import_incoming_data();
 
             // If the configuration is supposed to be interfaced with humans,
             //  then set this to true.  It not, then the configuration will be
@@ -95,6 +91,12 @@ namespace GUtil
 
 
         protected:
+
+            // Overrides of AbstractValueBuffer functions (to support compression of the data)
+            QByteArray get_current_data() const;
+            QString import_incoming_data();
+
+            void write_out_data(const QByteArray &);
 
             void process_input_data(const QByteArray &);
 
@@ -119,6 +121,8 @@ namespace GUtil
             void _init_column_headers();
 
             void _value_changed();
+
+            Utils::UserMachineReadWriteLock _config_lock;
 
         };
     }

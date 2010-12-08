@@ -70,11 +70,6 @@ bool DataAccess::GFileIODevice::HasDataAvailable() const
     return has_been_updated();
 }
 
-QFile &DataAccess::GFileIODevice::File() const
-{
-    return (QFile &)IODevice();
-}
-
 void DataAccess::GFileIODevice::SetFileName(const QString &filename)
 {
     if(FileName().length() > 0)

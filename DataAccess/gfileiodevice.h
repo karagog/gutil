@@ -57,7 +57,8 @@ namespace GUtil
             virtual QByteArray receive_data()
                     throw(GUtil::Core::DataTransportException);
 
-            QFile &File() const;
+            inline QFile &File(){ return (QFile &)IODevice(); }
+            inline const QFile &File() const{ return (const QFile &)IODevice(); }
 
             // Has the file been updated since we've seen it?
             bool has_been_updated() const;

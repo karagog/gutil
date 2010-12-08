@@ -37,7 +37,8 @@ namespace GUtil
 
         protected:
 
-            QIODevice &IODevice() const;
+            inline QIODevice &IODevice(){ return *_io_device; }
+            inline const QIODevice &IODevice() const{ return *_io_device; }
 
             virtual void send_data(const QByteArray &)
                     throw(GUtil::Core::DataTransportException);

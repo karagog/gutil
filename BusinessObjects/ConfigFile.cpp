@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
+#include "ThirdParty/QtLockedFile/qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileSystemWatcher>
@@ -33,7 +34,8 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
             .arg(modifier)),
                                           parent),
     _p_IsHumanReadable(true),
-    _p_AutoCommitChanges(true)
+    _p_AutoCommitChanges(true),
+    _config_lock(identifier, QString("%1.config").arg(modifier))
 {
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
@@ -42,7 +44,10 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
 }
 
 BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
-    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent)
+    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent),
+    _p_IsHumanReadable(other._p_IsHumanReadable),
+    _p_AutoCommitChanges(other._p_AutoCommitChanges),
+    _config_lock(other._identity, QString("%1.config").arg(other._modifier))
 {
     _init(other._identity, other._modifier);
 }
@@ -115,7 +120,10 @@ QByteArray BusinessObjects::ConfigFile::get_current_data() const
 
 QString BusinessObjects::ConfigFile::import_incoming_data()
 {
+    _config_lock.LockForReadOnMachine(true);
     QString data = AbstractValueBuffer::import_incoming_data();
+    _config_lock.UnlockForMachine();
+
 
     #ifdef CRYPTOPP_COMPRESSION
     // try to decompress it,
@@ -130,6 +138,13 @@ QString BusinessObjects::ConfigFile::import_incoming_data()
     #endif
 
     return data;
+}
+
+void BusinessObjects::ConfigFile::write_out_data(const QByteArray &ba)
+{
+    _config_lock.LockForWriteOnMachine(true);
+    AbstractValueBuffer::write_out_data(ba);
+    _config_lock.UnlockForMachine();
 }
 
 void BusinessObjects::ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
@@ -280,6 +295,8 @@ void BusinessObjects::ConfigFile::process_input_data(const QByteArray &ba)
 
     // copy the input data to the current data table
     table() = table_incoming().Clone();
+
+    emit NotifyConfigurationUpdate();
 }
 
 void BusinessObjects::ConfigFile::commit_reject_changes(bool commit)

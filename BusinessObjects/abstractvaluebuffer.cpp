@@ -231,9 +231,14 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                transport().SendData(ba);
+                write_out_data(ba);
         }
     }
+}
+
+void BusinessObjects::AbstractValueBuffer::write_out_data(const QByteArray &ba)
+{
+    transport().SendData(ba);
 }
 
 void BusinessObjects::AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw) const
