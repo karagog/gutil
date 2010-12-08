@@ -41,7 +41,8 @@ namespace GUtil
         //   into base64 before writing them to disk.
 
         class ConfigFile :
-                public AbstractValueBuffer
+                public AbstractValueBuffer,
+                public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
         public:
@@ -103,6 +104,9 @@ namespace GUtil
             inline const DataAccess::GFileIODevice &FileTransport() const {
                 return (const DataAccess::GFileIODevice &)transport();
             }
+
+            // IUpdatable interface:
+            void commit_reject_changes(bool commit);
 
 
         private:

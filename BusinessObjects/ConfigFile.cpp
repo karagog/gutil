@@ -79,8 +79,7 @@ void BusinessObjects::ConfigFile::_init_column_headers()
 void BusinessObjects::ConfigFile::_value_changed()
 {
     if(GetAutoCommitChanges())
-        // Export the changed data to the config file
-        enQueueCurrentData(false);
+        CommitChanges();
 }
 
 
@@ -281,4 +280,13 @@ void BusinessObjects::ConfigFile::process_input_data(const QByteArray &ba)
 
     // copy the input data to the current data table
     table() = table_incoming().Clone();
+}
+
+void BusinessObjects::ConfigFile::commit_reject_changes(bool commit)
+{
+    table().CommitChanges(commit);
+
+    if(commit)
+        // Export the changed data to the config file (don't clear the current data in it)
+        enQueueCurrentData(false);
 }
