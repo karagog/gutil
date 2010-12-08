@@ -22,7 +22,8 @@ QMap<QString, QReadWriteLock *> Utils::MachineLockBase::process_locks;
 QReadWriteLock Utils::MachineLockBase::process_locks_lock;
 Custom::GSemaphore Utils::MachineLockBase::process_locks_sem;
 
-Utils::MachineLockBase::MachineLockBase(const QString &id, const QString &modifier)
+Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &id, const QString &modifier)
+    :_p_StringModifier(u)
 {
     _pre_init();
 
@@ -31,7 +32,8 @@ Utils::MachineLockBase::MachineLockBase(const QString &id, const QString &modifi
     _post_init();
 }
 
-Utils::MachineLockBase::MachineLockBase(const QString &file_name)
+Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &file_name)
+    :_p_StringModifier(u)
 {
     _pre_init();
 
@@ -87,7 +89,7 @@ void Utils::MachineLockBase::SetUserMachineLockIdentifier(
                                .arg(modifier.length() != 0 ?
                                     QString(".%1").arg(modifier) :
                                     QString::null)
-                               .arg(string_modifier()));
+                               .arg(GetStringModifier()));
 }
 
 void Utils::MachineLockBase::SetUserMachineLockFileName(const QString &fn)
@@ -210,14 +212,15 @@ QReadWriteLock &Utils::MachineLockBase::_get_lock_reference()
 
 
 
+#define UM_RWLOCK_IDENTIFIER "MACHINE_RW_LOCK"
 
 Utils::UserMachineReadWriteLock::UserMachineReadWriteLock(const QString &identifier, const QString &modifier)
-    :MachineLockBase(identifier, modifier)
+    :MachineLockBase(UM_RWLOCK_IDENTIFIER, identifier, modifier)
 {
 }
 
 Utils::UserMachineReadWriteLock::UserMachineReadWriteLock(const QString &file_name)
-    :MachineLockBase(file_name)
+    :MachineLockBase(UM_RWLOCK_IDENTIFIER, file_name)
 {
 }
 
@@ -245,22 +248,18 @@ bool Utils::UserMachineReadWriteLock::IsLockedForWriteOnMachine() const
     return IsLockedOnMachine() && !_i_have_read_lock;
 }
 
-QString Utils::UserMachineReadWriteLock::string_modifier() const
-{
-    return "MACHINE_RW_LOCK";
-}
 
 
 
-
+#define UM_LOCK_IDENTIFIER "MACHINE_LOCK"
 
 Utils::UserMachineMutex::UserMachineMutex(const QString &identifier, const QString &modifier)
-    :MachineLockBase(identifier, modifier)
+    :MachineLockBase(UM_LOCK_IDENTIFIER, identifier, modifier)
 {
 }
 
 Utils::UserMachineMutex::UserMachineMutex(const QString &file_name)
-    :MachineLockBase(file_name)
+    :MachineLockBase(UM_LOCK_IDENTIFIER, file_name)
 {
 }
 
@@ -269,9 +268,4 @@ void Utils::UserMachineMutex::LockMutexOnMachine(bool block)
               GUtil::Core::Exception)
 {
     lock(false, block);
-}
-
-QString Utils::UserMachineMutex::string_modifier() const
-{
-    return "MACHINE_LOCK";
 }

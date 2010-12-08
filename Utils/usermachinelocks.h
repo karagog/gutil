@@ -43,10 +43,16 @@ namespace GUtil
 
             QString FileNameForMachineLock() const;
 
+            PROPERTY( StringModifier, QString );
+
+
         protected:
 
-            explicit MachineLockBase(const QString &identifier, const QString &modifier);
-            explicit MachineLockBase(const QString &file_name = QString::null);
+            explicit MachineLockBase(const QString &unique_modifier,
+                                     const QString &identifier,
+                                     const QString &modifier);
+            explicit MachineLockBase(const QString &unique_modifier,
+                                     const QString &file_name = QString::null);
             virtual ~MachineLockBase();
 
             void lock(bool for_read, bool block);
@@ -54,10 +60,9 @@ namespace GUtil
             bool _i_own_lock;
             bool _i_have_read_lock;
 
-            // identifiers are modified with this modifier, so there are no naming collisions
-            virtual QString string_modifier() const = 0;
 
         private:
+
             QtLockedFile *_usermachinelockfile;
 
             void _grab_lock_in_process(bool for_read, bool block);
@@ -93,9 +98,6 @@ namespace GUtil
             bool IsLockedForReadOnMachine() const;
             bool IsLockedForWriteOnMachine() const;
 
-        protected:
-            virtual QString string_modifier() const;
-
         };
 
 
@@ -109,9 +111,6 @@ namespace GUtil
             void LockMutexOnMachine(bool block = false)
                     throw(GUtil::Core::LockException,
                           GUtil::Core::Exception);
-
-        protected:
-            virtual QString string_modifier() const;
 
         };
     }
