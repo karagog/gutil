@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ConfigFile.h"
-#include "DataAccess/gfileiodevice.h"
 #include "Core/exception.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
@@ -33,7 +32,8 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
             .arg(get_file_location(identifier))
             .arg(modifier)),
                                           parent),
-    _config_is_human_readable(true)
+    _p_IsHumanReadable(true),
+    _p_AutoCommitChanges(true)
 {
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
@@ -62,17 +62,6 @@ void BusinessObjects::ConfigFile::Reload()
     importData();
 }
 
-QString BusinessObjects::ConfigFile::FileName() const
-{
-    return FileTransport().FileName();
-}
-
-void BusinessObjects::ConfigFile::GetIdentity(QString &identifier, QString &modifier)
-{
-    identifier = _identity;
-    modifier = _modifier;
-}
-
 void BusinessObjects::ConfigFile::Clear()
 {
     table().Clear();
@@ -89,8 +78,9 @@ void BusinessObjects::ConfigFile::_init_column_headers()
 
 void BusinessObjects::ConfigFile::_value_changed()
 {
-    // Export the changed data to the config file
-    enQueueCurrentData(false);
+    if(GetAutoCommitChanges())
+        // Export the changed data to the config file
+        enQueueCurrentData(false);
 }
 
 
@@ -110,7 +100,7 @@ void BusinessObjects::ConfigFile::_value_changed()
 
 QByteArray BusinessObjects::ConfigFile::get_current_data() const
 {
-    QByteArray ba = AbstractValueBuffer::get_current_data(IsHumanReadable());
+    QByteArray ba = AbstractValueBuffer::get_current_data(GetIsHumanReadable());
 
     #ifdef CRYPTOPP_COMPRESSION
     if(!IsHumanReadable())
@@ -124,9 +114,9 @@ QByteArray BusinessObjects::ConfigFile::get_current_data() const
     return ba;
 }
 
-QString BusinessObjects::ConfigFile::import_current_data()
+QString BusinessObjects::ConfigFile::import_incoming_data()
 {
-    QString data = AbstractValueBuffer::import_current_data();
+    QString data = AbstractValueBuffer::import_incoming_data();
 
     #ifdef CRYPTOPP_COMPRESSION
     // try to decompress it,
@@ -251,11 +241,6 @@ void BusinessObjects::ConfigFile::RemoveValues(const QStringList &keys)
     _value_changed();
 }
 
-DataAccess::GFileIODevice &BusinessObjects::ConfigFile::FileTransport() const
-{
-    return (DataAccess::GFileIODevice &)transport();
-}
-
 QString BusinessObjects::ConfigFile::get_file_location(QString id)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
@@ -288,21 +273,6 @@ QString BusinessObjects::ConfigFile::get_file_location(QString id)
     }
 
     return _config_filename;
-}
-
-std::string BusinessObjects::ConfigFile::ReadonlyMessageIdentifier() const
-{
-    return "DataAccess::ConfigFile";
-}
-
-bool BusinessObjects::ConfigFile::IsHumanReadable() const
-{
-    return _config_is_human_readable;
-}
-
-void BusinessObjects::ConfigFile::SetHumanReadable(bool r)
-{
-    _config_is_human_readable = r;
 }
 
 void BusinessObjects::ConfigFile::process_input_data(const QByteArray &ba)

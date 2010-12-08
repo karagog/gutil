@@ -90,7 +90,7 @@ void BusinessObjects::AbstractValueBuffer::importData()
 
     try
     {
-        data = import_current_data();
+        data = import_incoming_data();
     }
     catch(Core::Exception &ex)
     {
@@ -132,7 +132,7 @@ QByteArray BusinessObjects::AbstractValueBuffer::get_current_data(bool hr) const
     return cur_outgoing_data.ToXmlQString(hr).toAscii();
 }
 
-QString BusinessObjects::AbstractValueBuffer::import_current_data()
+QString BusinessObjects::AbstractValueBuffer::import_incoming_data()
 {
     return QString(transport().ReceiveData(false));
 }

@@ -15,9 +15,10 @@ limitations under the License.*/
 #ifndef DA_CONFIGFILE_H
 #define DA_CONFIGFILE_H
 
+#include "abstractvaluebuffer.h"
+#include "DataAccess/gfileiodevice.h"
 #include <QObject>
 #include <QString>
-#include "abstractvaluebuffer.h"
 
 class QtLockedFile;
 
@@ -66,31 +67,43 @@ namespace GUtil
 
             void Reload();
 
-            QString FileName() const;
+            inline QString FileName() const{ return FileTransport().FileName(); }
 
-            void GetIdentity(QString &identifier, QString &modifier);
+            inline void GetIdentity(QString &identifier, QString &modifier){
+                identifier = _identity;
+                modifier = _modifier;
+            }
 
-            virtual QByteArray get_current_data() const;
-            virtual QString import_current_data();
+            // Overrides of AbstractValueBuffer functions (to support compression of the data)
+            QByteArray get_current_data() const;
+            QString import_incoming_data();
 
             // If the configuration is supposed to be interfaced with humans,
             //  then set this to true.  It not, then the configuration will be
             //  in a compressed file that only the application can read.
             // Note: You must define "CRYPTOPP_COMPRESSION" in the preprocessor
             //  and link with libcryptopp.a to benefit from compression.
-            void SetHumanReadable(bool);
-            bool IsHumanReadable() const;
+            PROPERTY(IsHumanReadable, bool);
+
+            PROPERTY(AutoCommitChanges, bool);
+
 
         signals:
+
             void NotifyConfigurationUpdate();
+
 
         protected:
 
-            virtual void process_input_data(const QByteArray &);
+            void process_input_data(const QByteArray &);
 
-            DataAccess::GFileIODevice &FileTransport() const;
+            inline DataAccess::GFileIODevice &FileTransport() {
+                return (DataAccess::GFileIODevice &)transport();
+            }
+            inline const DataAccess::GFileIODevice &FileTransport() const {
+                return (const DataAccess::GFileIODevice &)transport();
+            }
 
-            virtual std::string ReadonlyMessageIdentifier() const;
 
         private:
 
@@ -103,7 +116,6 @@ namespace GUtil
 
             void _value_changed();
 
-            bool _config_is_human_readable;
         };
     }
 }

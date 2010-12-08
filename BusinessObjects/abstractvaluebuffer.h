@@ -79,7 +79,7 @@ namespace GUtil
 
             // If you need to do some special data processing, reimplement these
             virtual QByteArray get_current_data(bool human_readable_xml = false) const;
-            virtual QString import_current_data();
+            virtual QString import_incoming_data();
 
             // Forcefully remove all data from the queue
             void clearQueues();
