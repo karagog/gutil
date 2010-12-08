@@ -35,11 +35,6 @@ void DataAccess::GFileIODevice::SetWriteMode(WriteModeEnum mode)
     _write_mode = mode;
 }
 
-DataAccess::GFileIODevice::WriteModeEnum DataAccess::GFileIODevice::GetWriteMode()
-{
-    return _write_mode;
-}
-
 void DataAccess::GFileIODevice::send_data(const QByteArray &data)
         throw(Core::DataTransportException)
 {
@@ -65,12 +60,12 @@ QByteArray DataAccess::GFileIODevice::receive_data()
     return ret;
 }
 
-bool DataAccess::GFileIODevice::has_been_updated()
+bool DataAccess::GFileIODevice::has_been_updated() const
 {
     return _last_update_time != QFileInfo(FileName()).lastModified();
 }
 
-bool DataAccess::GFileIODevice::HasDataAvailable()
+bool DataAccess::GFileIODevice::HasDataAvailable() const
 {
     return has_been_updated();
 }
@@ -100,11 +95,6 @@ void DataAccess::GFileIODevice::SetFileName(const QString &filename)
 
         _file_watcher->addPath(FileName());
     }
-}
-
-QString DataAccess::GFileIODevice::FileName() const
-{
-    return File().fileName();
 }
 
 QByteArray DataAccess::GFileIODevice::FileData()

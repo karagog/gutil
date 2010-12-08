@@ -35,8 +35,8 @@ BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
         const DataObjects::DataTable &dt,
         QObject *parent)
             :QObject(parent),
-            _transport(transport),
-            cur_outgoing_data(dt)
+            cur_outgoing_data(dt),
+            _transport(transport)
 {
     _init_abstract_value_buffer();
 }

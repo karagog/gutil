@@ -32,7 +32,7 @@ namespace GUtil
 
             explicit GQIODevice(QIODevice *, QObject *parent = 0);
 
-            virtual bool HasDataAvailable();
+            virtual bool HasDataAvailable() const;
 
 
         protected:

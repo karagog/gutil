@@ -32,21 +32,6 @@ DataAccess::GConsoleIODevice::~GConsoleIODevice()
     Disengage();
 }
 
-void DataAccess::GConsoleIODevice::Engage()
-{
-    SetEngaged(true);
-}
-
-void DataAccess::GConsoleIODevice::Disengage()
-{
-    SetEngaged(false);
-}
-
-bool DataAccess::GConsoleIODevice::IsEngaged()
-{
-    return _engaged;
-}
-
 void DataAccess::GConsoleIODevice::SetEngaged(bool engage)
 {
     if(engage)
@@ -70,7 +55,7 @@ void DataAccess::GConsoleIODevice::SetEngaged(bool engage)
     }
 }
 
-bool DataAccess::GConsoleIODevice::HasDataAvailable()
+bool DataAccess::GConsoleIODevice::HasDataAvailable() const
 {
     return _messages_received.length() > 0;
 }

@@ -60,7 +60,7 @@ QByteArray DataAccess::GQIODevice::receive_data()
     return ret;
 }
 
-bool DataAccess::GQIODevice::HasDataAvailable()
+bool DataAccess::GQIODevice::HasDataAvailable() const
 {
     if(!IODevice().isOpen())
         return false;

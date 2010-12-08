@@ -8,7 +8,8 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class LocalSocketTransport : public GQIODevice
+        class LocalSocketTransport :
+                public GQIODevice
         {
             Q_OBJECT
         public:
@@ -20,6 +21,8 @@ namespace GUtil
             void DisconnectFromServer();
 
             QString ServerName() const;
+
+            bool HasDataAvailable() const;
 
 
         protected:

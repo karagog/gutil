@@ -30,12 +30,12 @@ namespace GUtil
             explicit GConsoleIODevice(QObject *parent = 0);
             virtual ~GConsoleIODevice();
 
-            void Engage();
-            void Disengage();
+            inline void Engage(){ SetEngaged(true); }
+            inline void Disengage(){ SetEngaged(false); }
 
-            bool IsEngaged();
+            inline bool IsEngaged() const{ return _engaged; }
 
-            virtual bool HasDataAvailable();
+            virtual bool HasDataAvailable() const;
 
         public slots:
             void WriteLine(const QString &);

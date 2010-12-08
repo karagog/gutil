@@ -17,8 +17,8 @@ limitations under the License.*/
 
 #include "DataAccess/gqiodevice.h"
 #include <QDateTime>
+#include <QFile>
 
-class QFile;
 class QFileSystemWatcher;
 
 namespace GUtil
@@ -26,8 +26,10 @@ namespace GUtil
     namespace DataAccess
     {
         // A mechanism for exchanging data with a file
-        class GFileIODevice : public GQIODevice
+        class GFileIODevice :
+                public GQIODevice
         {
+            Q_OBJECT
         public:
             explicit GFileIODevice(const QString &filename = QString::null, QObject *parent = 0);
 
@@ -38,12 +40,12 @@ namespace GUtil
             };
 
             void SetWriteMode(WriteModeEnum);
-            WriteModeEnum GetWriteMode();
+            inline WriteModeEnum GetWriteMode() const { return _write_mode; }
 
-            virtual bool HasDataAvailable();
+            virtual bool HasDataAvailable() const;
 
             void SetFileName(const QString &);
-            QString FileName() const;
+            inline QString FileName() const{ return File().fileName(); }
             QByteArray FileData();
 
             void TruncateFile();
@@ -58,7 +60,7 @@ namespace GUtil
             QFile &File() const;
 
             // Has the file been updated since we've seen it?
-            bool has_been_updated();
+            bool has_been_updated() const;
 
         private:
             WriteModeEnum _write_mode;

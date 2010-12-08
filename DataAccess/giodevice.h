@@ -61,7 +61,7 @@ namespace GUtil
             QByteArray ReceiveData(bool block = true)
                     throw(Core::DataTransportException);
 
-            virtual bool HasDataAvailable() = 0;
+            virtual bool HasDataAvailable() const = 0;
 
             GIODevice &operator << (const char*);
             GIODevice &operator << (const std::string &);
