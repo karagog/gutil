@@ -23,7 +23,9 @@ QReadWriteLock Utils::MachineLockBase::process_locks_lock;
 Custom::GSemaphore Utils::MachineLockBase::process_locks_sem;
 
 Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &id, const QString &modifier)
-    :_p_StringModifier(u)
+    :_p_StringModifier(u),
+    _p_LockOwner(false),
+    _p_ReadLockOwner(false)
 {
     _pre_init();
 
@@ -33,7 +35,9 @@ Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &id, con
 }
 
 Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &file_name)
-    :_p_StringModifier(u)
+    :_p_StringModifier(u),
+    _p_LockOwner(false),
+    _p_ReadLockOwner(false)
 {
     _pre_init();
 
@@ -44,9 +48,6 @@ Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &file_na
 
 void Utils::MachineLockBase::_pre_init()
 {
-    _i_own_lock = false;
-    _i_have_read_lock = false;
-
     _usermachinelockfile = new QtLockedFile();
 }
 
@@ -149,11 +150,6 @@ void Utils::MachineLockBase::UnlockForMachine()
     _release_lock();
 }
 
-bool Utils::MachineLockBase::IsLockedOnMachine() const
-{
-    return _i_own_lock;
-}
-
 QString Utils::MachineLockBase::FileNameForMachineLock() const
 {
     return QFileInfo(*_usermachinelockfile).absoluteFilePath();
@@ -177,18 +173,18 @@ void Utils::MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
         else
             l.lockForWrite();
 
-        _i_own_lock = true;
+        SetLockOwner(true);
     }
     else
     {
         if(for_read)
-            _i_own_lock = l.tryLockForRead();
+            SetLockOwner(l.tryLockForRead());
         else
-            _i_own_lock = l.tryLockForWrite();
+            SetLockOwner(l.tryLockForWrite());
     }
 
-    if(_i_own_lock)
-        _i_have_read_lock = for_read;
+    if(GetLockOwner())
+        SetReadLockOwner(for_read);
     else
         THROW_NEW_GUTIL_EXCEPTION( Core::LockException, "Lock held by someone else in this process!" );
 }
@@ -196,7 +192,7 @@ void Utils::MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
 void Utils::MachineLockBase::_release_lock()
 {
     _get_lock_reference().unlock();
-    _i_own_lock = false;
+    SetLockOwner(false);
 }
 
 QReadWriteLock &Utils::MachineLockBase::_get_lock_reference()
@@ -243,12 +239,12 @@ void Utils::UserMachineReadWriteLock::LockForWriteOnMachine(bool block)
 
 bool Utils::UserMachineReadWriteLock::IsLockedForReadOnMachine() const
 {
-    return IsLockedOnMachine() && _i_have_read_lock;
+    return GetLockOwner() && GetReadLockOwner();
 }
 
 bool Utils::UserMachineReadWriteLock::IsLockedForWriteOnMachine() const
 {
-    return IsLockedOnMachine() && !_i_have_read_lock;
+    return GetLockOwner() && !GetReadLockOwner();
 }
 
 

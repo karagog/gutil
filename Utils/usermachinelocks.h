@@ -39,11 +39,13 @@ namespace GUtil
             void SetUserMachineLockFileName(const QString &);
 
             void UnlockForMachine();
-            bool IsLockedOnMachine() const;
+            inline bool IsLockedOnMachine() const{ return GetLockOwner(); }
 
             QString FileNameForMachineLock() const;
 
             PROPERTY( StringModifier, QString );
+            PROPERTY( LockOwner, bool );
+            PROPERTY( ReadLockOwner, bool );
 
 
         protected:
@@ -58,9 +60,6 @@ namespace GUtil
             virtual ~MachineLockBase();
 
             void lock(bool for_read, bool block);
-
-            bool _i_own_lock;
-            bool _i_have_read_lock;
 
 
         private:
