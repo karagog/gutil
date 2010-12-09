@@ -16,6 +16,7 @@ limitations under the License.*/
 #define FILETRANSPORT_H
 
 #include "DataAccess/gqiodevice.h"
+#include "Utils/usermachinelocks.h"
 #include <QDateTime>
 #include <QFile>
 
@@ -25,12 +26,20 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        // A mechanism for exchanging data with a file
+        // A mechanism for exchanging data with a file.
+
+        // This class has a read/write lock for the file, so separate processes
+        //  on the same machine will have controlled access to the file, but
+        //  processes on separate machines will not.
+
+        // TODO: Implement one that locks across machines too.
+
         class GFileIODevice :
                 public GQIODevice
         {
             Q_OBJECT
         public:
+
             explicit GFileIODevice(const QString &filename = QString::null, QObject *parent = 0);
 
             enum WriteModeEnum
@@ -39,12 +48,11 @@ namespace GUtil
                 WriteOver
             };
 
-            void SetWriteMode(WriteModeEnum);
-            inline WriteModeEnum GetWriteMode() const { return _write_mode; }
+            PROPERTY(WriteMode, WriteModeEnum);
 
             virtual bool HasDataAvailable() const;
 
-            void SetFileName(const QString &);
+            virtual void SetFileName(const QString &);
             inline QString FileName() const{ return File().fileName(); }
             QByteArray FileData();
 
@@ -52,6 +60,7 @@ namespace GUtil
 
 
         protected:
+
             virtual void send_data(const QByteArray &)
                     throw(GUtil::Core::DataTransportException);
             virtual QByteArray receive_data()
@@ -63,14 +72,20 @@ namespace GUtil
             // Has the file been updated since we've seen it?
             bool has_been_updated() const;
 
+            virtual void lock_file(bool write);
+            virtual void unlock_file();
+
+
         private:
-            WriteModeEnum _write_mode;
 
             QFileSystemWatcher *_file_watcher;
             QDateTime _last_update_time;
 
             void _open_file(bool for_write);
             void _close_file();
+
+            Utils::UserMachineReadWriteLock _machine_lock;
+
         };
     }
 }

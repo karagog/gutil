@@ -34,8 +34,7 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
             .arg(modifier)),
                                           parent),
     _p_IsHumanReadable(true),
-    _p_AutoCommitChanges(true),
-    _config_lock(identifier, QString("%1.config").arg(modifier))
+    _p_AutoCommitChanges(true)
 {
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
@@ -46,8 +45,7 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
 BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
     :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent),
     _p_IsHumanReadable(other._p_IsHumanReadable),
-    _p_AutoCommitChanges(other._p_AutoCommitChanges),
-    _config_lock(other._identity, QString("%1.config").arg(other._modifier))
+    _p_AutoCommitChanges(other._p_AutoCommitChanges)
 {
     _init(other._identity, other._modifier);
 }
@@ -120,9 +118,7 @@ QByteArray BusinessObjects::ConfigFile::get_current_data() const
 
 QString BusinessObjects::ConfigFile::import_incoming_data()
 {
-    _config_lock.LockForReadOnMachine(true);
     QString data = AbstractValueBuffer::import_incoming_data();
-    _config_lock.UnlockForMachine();
 
 
     #ifdef CRYPTOPP_COMPRESSION
@@ -138,13 +134,6 @@ QString BusinessObjects::ConfigFile::import_incoming_data()
     #endif
 
     return data;
-}
-
-void BusinessObjects::ConfigFile::write_out_data(const QByteArray &ba)
-{
-    _config_lock.LockForWriteOnMachine(true);
-    AbstractValueBuffer::write_out_data(ba);
-    _config_lock.UnlockForMachine();
 }
 
 void BusinessObjects::ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)

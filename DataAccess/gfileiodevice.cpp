@@ -21,7 +21,8 @@ using namespace GUtil;
 using namespace std;
 
 DataAccess::GFileIODevice::GFileIODevice(const QString &filename, QObject *parent)
-    :GQIODevice(new QFile, parent)
+    :GQIODevice(new QFile, parent),
+    _machine_lock(filename)
 {
     _file_watcher = new QFileSystemWatcher(this);
     connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(raiseReadyRead()));
@@ -30,30 +31,29 @@ DataAccess::GFileIODevice::GFileIODevice(const QString &filename, QObject *paren
     SetWriteMode(WriteAppend);
 }
 
-void DataAccess::GFileIODevice::SetWriteMode(WriteModeEnum mode)
-{
-    _write_mode = mode;
-}
-
 void DataAccess::GFileIODevice::send_data(const QByteArray &data)
         throw(Core::DataTransportException)
 {
+    lock_file(true);
     _open_file(true);
 
     // At this point the settings file is ours for sole writing
     GQIODevice::send_data(data);
 
     _close_file();
+    unlock_file();
 }
 
 QByteArray DataAccess::GFileIODevice::receive_data()
         throw(Core::DataTransportException)
 {
+    lock_file(false);
     _open_file(false);
 
     QByteArray ret = DataAccess::GQIODevice::receive_data();
 
     _close_file();
+    unlock_file();
 
     _last_update_time = QFileInfo(FileName()).lastModified();
 
@@ -72,14 +72,18 @@ bool DataAccess::GFileIODevice::HasDataAvailable() const
 
 void DataAccess::GFileIODevice::SetFileName(const QString &filename)
 {
+    if(filename == FileName())
+        return;
+
     if(FileName().length() > 0)
         _file_watcher->removePath(FileName());
 
     File().setFileName(filename);
+    _machine_lock.SetUserMachineLockFileName(filename);
 
-    if(FileName().length() > 0)
+    if(filename.length() > 0)
     {
-        QFile f(FileName());
+        QFile f(filename);
 
         // Create the file if it doesn't exist
         if(!f.exists())
@@ -88,7 +92,7 @@ void DataAccess::GFileIODevice::SetFileName(const QString &filename)
             f.close();
         }
 
-        _file_watcher->addPath(FileName());
+        _file_watcher->addPath(filename);
     }
 }
 
@@ -115,9 +119,9 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
     {
         flags = QFile::WriteOnly;
 
-        if(_write_mode == WriteAppend)
+        if(GetWriteMode() == WriteAppend)
             flags |= QFile::Append;
-        else if(_write_mode == WriteOver)
+        else if(GetWriteMode() == WriteOver)
             flags |= QFile::Truncate;
         else
             THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "" );
@@ -141,4 +145,17 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
 void DataAccess::GFileIODevice::_close_file()
 {
     File().close();
+}
+
+void DataAccess::GFileIODevice::lock_file(bool write)
+{
+    if(write)
+        _machine_lock.LockForWriteOnMachine(true);
+    else
+        _machine_lock.LockForReadOnMachine(true);
+}
+
+void DataAccess::GFileIODevice::unlock_file()
+{
+    _machine_lock.UnlockForMachine();
 }

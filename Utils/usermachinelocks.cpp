@@ -94,6 +94,9 @@ void Utils::MachineLockBase::SetUserMachineLockIdentifier(
 
 void Utils::MachineLockBase::SetUserMachineLockFileName(const QString &fn)
 {
+    if(fn == FileNameForMachineLock())
+        return;
+
     UnlockForMachine();
 
     delete _usermachinelockfile;

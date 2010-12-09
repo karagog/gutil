@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
+#include "Logging/debuglogger.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 using namespace GUtil;
@@ -231,14 +232,20 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
             if(qt == InQueue)
                 process_input_data(ba);
             else if (qt == OutQueue)
-                write_out_data(ba);
+            {
+                try
+                {
+                    transport().SendData(ba);
+                }
+                catch(Core::Exception &ex)
+                {
+                    dLogException(ex);
+                    // Don't crash on transport errors
+                    //throw;
+                }
+            }
         }
     }
-}
-
-void BusinessObjects::AbstractValueBuffer::write_out_data(const QByteArray &ba)
-{
-    transport().SendData(ba);
 }
 
 void BusinessObjects::AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw) const
@@ -252,9 +259,4 @@ void BusinessObjects::AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
     DataTable tmp;
     tmp.ReadXml(sr);
     enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
-}
-
-std::string BusinessObjects::AbstractValueBuffer::ReadonlyMessageIdentifier() const
-{
-    return "DataAccess::AbstractValueBuffer";
 }

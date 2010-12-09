@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "abstractvaluebuffer.h"
 #include "DataAccess/gfileiodevice.h"
-#include "Utils/usermachinelocks.h"
 #include <QObject>
 #include <QString>
 
@@ -96,8 +95,6 @@ namespace GUtil
             QByteArray get_current_data() const;
             QString import_incoming_data();
 
-            void write_out_data(const QByteArray &);
-
             void process_input_data(const QByteArray &);
 
             inline DataAccess::GFileIODevice &FileTransport() {
@@ -121,8 +118,6 @@ namespace GUtil
             void _init_column_headers();
 
             void _value_changed();
-
-            Utils::UserMachineReadWriteLock _config_lock;
 
         };
     }

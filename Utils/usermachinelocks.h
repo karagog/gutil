@@ -48,6 +48,8 @@ namespace GUtil
 
         protected:
 
+            // The unique modifier is basically a stamp that derived classes want
+            //  put on the filenames of all the lock files they create
             explicit MachineLockBase(const QString &unique_modifier,
                                      const QString &identifier,
                                      const QString &modifier);

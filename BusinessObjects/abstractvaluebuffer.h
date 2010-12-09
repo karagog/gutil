@@ -81,10 +81,6 @@ namespace GUtil
             virtual QByteArray get_current_data(bool human_readable_xml = false) const;
             virtual QString import_incoming_data();
 
-            // This function is called to actually write the data to the transport.  Override to listen
-            //   to the 'event'
-            virtual void write_out_data(const QByteArray &);
-
             // Forcefully remove all data from the queue
             void clearQueues();
 
@@ -113,8 +109,6 @@ namespace GUtil
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
-
-            virtual std::string ReadonlyMessageIdentifier() const;
 
 
         protected slots:
