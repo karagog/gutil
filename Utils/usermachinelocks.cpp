@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "ThirdParty/QtLockedFile/qtlockedfile.h"
 #include <QFileInfo>
 #include <QDesktopServices>
+#include <QHostInfo>
 using namespace GUtil;
 
 QMap<QString, QReadWriteLock *> Utils::MachineLockBase::process_locks;
@@ -84,12 +85,13 @@ void Utils::MachineLockBase::SetUserMachineLockIdentifier(
     if(identifier.length() == 0)
         return;
 
-    SetUserMachineLockFileName(QString("%1/%2%3.%4")
+    SetUserMachineLockFileName(QString("%1/%2%3.%4.%5")
                                .arg(QDesktopServices::storageLocation(QDesktopServices::DataLocation))
                                .arg(identifier)
                                .arg(modifier.length() != 0 ?
                                     QString(".%1").arg(modifier) :
                                     QString::null)
+                               .arg(QHostInfo::localHostName())
                                .arg(GetStringModifier()));
 }
 

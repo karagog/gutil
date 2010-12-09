@@ -114,6 +114,7 @@ void MainWindow::set_mutex_lock(bool mutex)
 {
     ui->btn_lockRead->setVisible(!mutex);
     ui->btn_lockWrite->setText(mutex ? "Lock" : "Lock Write");
+    ui->lbl_filename->setText(_get_lock()->FileNameForMachineLock());
 }
 
 bool MainWindow::using_mutex()
