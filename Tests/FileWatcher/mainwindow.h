@@ -30,14 +30,19 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    inline QString FileName() const{ return _filename; }
+
 private slots:
     void update_file();
     void caught_file_updated();
+
+    void choose_file();
 
 private:
     Ui::MainWindow *ui;
 
     QFileSystemWatcher *fsw;
+    QString _filename;
 
     int update_count;
 };

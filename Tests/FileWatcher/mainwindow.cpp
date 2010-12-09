@@ -14,13 +14,16 @@ limitations under the License.*/
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "Controls/line_edit_with_button.h"
 #include <QFile>
+#include <QFileDialog>
 
-#define FILENAME "filewatcher.testfile"
+#define DEFAULT_FILENAME "filewatcher.testfile"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    _filename(DEFAULT_FILENAME)
 {
     ui->setupUi(this);
 
@@ -28,16 +31,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     update_file();
 
-    fsw = new QFileSystemWatcher(QStringList(FILENAME));
+    fsw = new QFileSystemWatcher(QStringList(_filename));
     connect(fsw, SIGNAL(fileChanged(QString)), this, SLOT(caught_file_updated()));
+
+    connect(&ui->txt_file_chooser->pushButton(), SIGNAL(clicked()),
+            this, SLOT(choose_file()));
 }
 
 void MainWindow::update_file()
 {
-    QFile f(FILENAME);
+    QFile f(FileName());
     if(!f.open(QFile::WriteOnly))
     {
-        ui->lbl_notify->setText(QString("Couldn't open file: %1").arg(FILENAME));
+        ui->lbl_notify->setText(QString("Couldn't open file: %1").arg(FileName()));
     }
     f.close();
 }
@@ -45,6 +51,19 @@ void MainWindow::update_file()
 void MainWindow::caught_file_updated()
 {
     ui->lbl_notify->setText(QString("Caught update #%1").arg(++update_count));
+}
+
+void MainWindow::choose_file()
+{
+    QString f = QFileDialog::getOpenFileName(this, "File to Watch");
+    if(f.length() == 0)
+        return;
+
+    fsw->removePath(FileName());
+    fsw->addPath(_filename = f);
+    ui->txt_file_chooser->lineEdit().setText(FileName());
+    update_count = -1;
+    caught_file_updated();
 }
 
 MainWindow::~MainWindow()
