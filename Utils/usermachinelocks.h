@@ -85,6 +85,7 @@ namespace GUtil
         class UserMachineReadWriteLock : public MachineLockBase
         {
         public:
+
             explicit UserMachineReadWriteLock(const QString &identifier, const QString &modifier);
             explicit UserMachineReadWriteLock(const QString &file_name = QString::null);
 
@@ -96,9 +97,12 @@ namespace GUtil
                     throw(GUtil::Core::LockException,
                           GUtil::Core::Exception);
 
-            bool IsLockedForReadOnMachine() const;
-            bool IsLockedForWriteOnMachine() const;
-
+            inline bool IsLockedForReadOnMachine() const{
+                return GetLockOwner() && GetReadLockOwner();
+            }
+            inline bool IsLockedForWriteOnMachine() const{
+                return GetLockOwner() && !GetReadLockOwner();
+            }
         };
 
 

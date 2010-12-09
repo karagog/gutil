@@ -239,16 +239,6 @@ void Utils::UserMachineReadWriteLock::LockForWriteOnMachine(bool block)
     lock(false, block);
 }
 
-bool Utils::UserMachineReadWriteLock::IsLockedForReadOnMachine() const
-{
-    return GetLockOwner() && GetReadLockOwner();
-}
-
-bool Utils::UserMachineReadWriteLock::IsLockedForWriteOnMachine() const
-{
-    return GetLockOwner() && !GetReadLockOwner();
-}
-
 
 
 
