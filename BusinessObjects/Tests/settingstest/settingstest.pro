@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += testlib
+QT       += testlib network
 
 TARGET = tst_settingstesttest
 CONFIG   += console
