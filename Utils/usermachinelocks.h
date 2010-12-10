@@ -23,102 +23,107 @@ limitations under the License.*/
 
 class QtLockedFile;
 
-namespace GUtil
+GUTIL_BEGIN_NAMESPACE( Utils );
+
+
+// An easy to use inter-process locking mechanism.
+
+// Classes can implement this interface to achieve locking across the
+//    machine for the user who invokes it
+class MachineLockBase
 {
-    namespace Utils
-    {
-        // An easy to use inter-process locking mechanism.
+public:
 
-        // Classes can implement this interface to achieve locking across the
-        //    machine for the user who invokes it
-        class MachineLockBase
-        {
-        public:
+    void SetUserMachineLockIdentifier(const QString &identifier, const QString &modifier);
+    void SetUserMachineLockFileName(const QString &);
 
-            void SetUserMachineLockIdentifier(const QString &identifier, const QString &modifier);
-            void SetUserMachineLockFileName(const QString &);
+    void UnlockForMachine();
+    inline bool IsLockedOnMachine() const{ return GetLockOwner(); }
 
-            void UnlockForMachine();
-            inline bool IsLockedOnMachine() const{ return GetLockOwner(); }
+    QString FileNameForMachineLock() const;
 
-            QString FileNameForMachineLock() const;
-
-            PROPERTY( StringModifier, QString );
-            PROPERTY( LockOwner, bool );
-            PROPERTY( ReadLockOwner, bool );
+    PROPERTY( StringModifier, QString );
+    PROPERTY( LockOwner, bool );
+    PROPERTY( ReadLockOwner, bool );
 
 
-        protected:
+protected:
 
-            // The unique modifier is basically a stamp that derived classes want
-            //  put on the filenames of all the lock files they create
-            explicit MachineLockBase(const QString &unique_modifier,
-                                     const QString &identifier,
-                                     const QString &modifier);
-            explicit MachineLockBase(const QString &unique_modifier,
-                                     const QString &file_name = QString::null);
-            virtual ~MachineLockBase();
+    // The unique modifier is basically a stamp that derived classes want
+    //  put on the filenames of all the lock files they create
+    explicit MachineLockBase(const QString &unique_modifier,
+                             const QString &identifier,
+                             const QString &modifier);
+    explicit MachineLockBase(const QString &unique_modifier,
+                             const QString &file_name = QString::null);
+    virtual ~MachineLockBase();
 
-            void lock(bool for_read, bool block);
+    void lock(bool for_read, bool block);
 
 
-        private:
+private:
 
-            QtLockedFile *_usermachinelockfile;
+    QtLockedFile *_usermachinelockfile;
 
-            void _grab_lock_in_process(bool for_read, bool block);
-            void _release_lock();
+    void _grab_lock_in_process(bool for_read, bool block);
+    void _release_lock();
 
-            void _pre_init();
-            void _post_init();
+    void _pre_init();
+    void _post_init();
 
-            QReadWriteLock &_get_lock_reference();
+    QReadWriteLock &_get_lock_reference();
 
-            // All of these objects share these global variables
-            static QMap<QString, QReadWriteLock *> process_locks;
-            static QReadWriteLock process_locks_lock;
-            static GUtil::Custom::GSemaphore process_locks_sem;
-        };
+    // All of these objects share these global variables
+    static QMap<QString, QReadWriteLock *> process_locks;
+    static QReadWriteLock process_locks_lock;
+    static GUtil::Custom::GSemaphore process_locks_sem;
+
+};
 
 
 
-        class UserMachineReadWriteLock : public MachineLockBase
-        {
-        public:
+class UserMachineReadWriteLock :
+        public MachineLockBase
+{
+public:
 
-            explicit UserMachineReadWriteLock(const QString &identifier, const QString &modifier);
-            explicit UserMachineReadWriteLock(const QString &file_name = QString::null);
+    explicit UserMachineReadWriteLock(const QString &identifier, const QString &modifier);
+    explicit UserMachineReadWriteLock(const QString &file_name = QString::null);
 
-            // Use these functions to lock/unlock this object for the user's machine
-            void LockForReadOnMachine(bool block = false)
-                    throw(GUtil::Core::LockException,
-                          GUtil::Core::Exception);
-            void LockForWriteOnMachine(bool block = false)
-                    throw(GUtil::Core::LockException,
-                          GUtil::Core::Exception);
+    // Use these functions to lock/unlock this object for the user's machine
+    void LockForReadOnMachine(bool block = false)
+            throw(GUtil::Core::LockException,
+                  GUtil::Core::Exception);
+    void LockForWriteOnMachine(bool block = false)
+            throw(GUtil::Core::LockException,
+                  GUtil::Core::Exception);
 
-            inline bool IsLockedForReadOnMachine() const{
-                return GetLockOwner() && GetReadLockOwner();
-            }
-            inline bool IsLockedForWriteOnMachine() const{
-                return GetLockOwner() && !GetReadLockOwner();
-            }
-        };
-
-
-
-        class UserMachineMutex : public MachineLockBase
-        {
-        public:
-            explicit UserMachineMutex(const QString &identifier, const QString &modifier);
-            explicit UserMachineMutex(const QString &file_name = QString::null);
-
-            void LockMutexOnMachine(bool block = false)
-                    throw(GUtil::Core::LockException,
-                          GUtil::Core::Exception);
-
-        };
+    inline bool IsLockedForReadOnMachine() const{
+        return GetLockOwner() && GetReadLockOwner();
     }
-}
+    inline bool IsLockedForWriteOnMachine() const{
+        return GetLockOwner() && !GetReadLockOwner();
+    }
+
+};
+
+
+
+class UserMachineMutex :
+        public MachineLockBase
+{
+public:
+
+    explicit UserMachineMutex(const QString &identifier, const QString &modifier);
+    explicit UserMachineMutex(const QString &file_name = QString::null);
+
+    void LockMutexOnMachine(bool block = false)
+            throw(GUtil::Core::LockException,
+                  GUtil::Core::Exception);
+
+};
+
+
+GUTIL_END_NAMESPACE;
 
 #endif // APPLICATIONLOCK_H
