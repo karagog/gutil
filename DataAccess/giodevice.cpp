@@ -65,7 +65,7 @@ QByteArray DataAccess::GIODevice::ReceiveData(bool block)
 {
     this_giodevice_lock.lock();
 
-    if(block && !HasDataAvailable())
+    while(block && !HasDataAvailable())
     {
         // Wait for new line to become available
         condition_new_data_available.wait(&this_giodevice_lock);
@@ -128,7 +128,7 @@ void DataAccess::GIODevice::operator >> (std::string &dt)
 
 void DataAccess::GIODevice::raiseReadyRead()
 {
-    condition_new_data_available.wakeAll();
+    condition_new_data_available.wakeOne();
     emit ReadyRead();
 }
 

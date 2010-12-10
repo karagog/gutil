@@ -75,9 +75,6 @@ namespace GUtil
 
             explicit GIODevice(QObject *parent = 0);
 
-            // Because we're a QThread, we can implement this function to run when 'start()' is called
-            virtual void run();
-
             // Derived classes must implement these functions
             //  Note that locking is taken care of by this interface class,
             //  so you can trust that these are atomic WRT each other

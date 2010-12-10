@@ -57,6 +57,7 @@ namespace GUtil
         private:
 
             QQueue<QString> _messages_received;
+            QMutex _messages_lock;
 
             // Only one of these objects can interface with the console
             static QMutex global_console_mutex;

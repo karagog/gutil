@@ -70,7 +70,12 @@ void DataAccess::GConsoleIODevice::run()
 
         if(c == '\n')
         {
-            _messages_received.enqueue(buf);
+            _messages_lock.lock();
+            {
+                _messages_received.enqueue(buf);
+            }
+            _messages_lock.unlock();
+
             raiseReadyRead();
             buf.clear();
         }
@@ -109,10 +114,12 @@ QByteArray DataAccess::GConsoleIODevice::receive_data()
         throw(GUtil::Core::DataTransportException)
 {
     QByteArray ret;
-
-    if(HasDataAvailable())
-        ret = _messages_received.dequeue().toAscii();
-
+    _messages_lock.lock();
+    {
+        if(HasDataAvailable())
+            ret = _messages_received.dequeue().toAscii();
+    }
+    _messages_lock.unlock();
     return ret;
 }
 
