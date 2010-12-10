@@ -18,7 +18,7 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::GIODevice::GIODevice(QObject *parent)
-    :QThread(parent), Core::Interfaces::IReadOnlyObject(false)
+    :QThread(parent)
 {
 }
 
@@ -119,9 +119,9 @@ void DataAccess::GIODevice::raiseReadyRead()
     emit ReadyRead();
 }
 
-QString DataAccess::GIODevice::ReadonlyMessageIdentifier()
+std::string DataAccess::GIODevice::ReadonlyMessageIdentifier() const
 {
-    return "DataAccess::DataTransports::AbstractDataTransportMechanism";
+    return "DataAccess::GIODevice";
 }
 
 bool DataAccess::GIODevice::HasDataAvailable()

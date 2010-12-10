@@ -35,6 +35,9 @@ namespace GUtil
         // These functions simplify data transportation to send/receive commands.  The derived transport class
         //   will be responsible for the actual transport mechanism, including protocols and the data exchange.
 
+        // This is a thread-safe class.  You can call any of the public functions from different threads
+        //  and the class implements mutex locking for you.
+
         class GIODevice :
                 public QThread,
                 public Core::Interfaces::IReadOnlyObject
@@ -85,7 +88,7 @@ namespace GUtil
             virtual QByteArray receive_data()
                     throw(GUtil::Core::DataTransportException) = 0;
 
-            virtual QString ReadonlyMessageIdentifier();
+            virtual std::string ReadonlyMessageIdentifier() const;
 
             // Derived classes can wait on this condition to block until
             //   new data is available

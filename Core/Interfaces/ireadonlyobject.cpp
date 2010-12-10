@@ -36,7 +36,7 @@ void Interfaces::IReadOnlyObject::_init_readonly_interface(bool readonly)
 std::string Interfaces::IReadOnlyObject::ReadonlyMessageIdentifier() const
 {
     // This string is not too useful.  Derived classes should override to give more information
-    return "IReadonlyObject";
+    return "Core::Interfaces::IReadonlyObject";
 }
 
 void Interfaces::IReadOnlyObject::SetReadonlyBooleanReference(bool &readonlybool)
