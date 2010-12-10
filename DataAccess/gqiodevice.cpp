@@ -42,7 +42,7 @@ QByteArray DataAccess::GQIODevice::receive_data()
 {
     _fail_if_not_open();
 
-    bool has_data = HasDataAvailable();
+    bool has_data = has_data_available();
     QByteArray ret = IODevice().readAll();
 
     if(has_data && ret.length() == 0)
@@ -55,7 +55,7 @@ QByteArray DataAccess::GQIODevice::receive_data()
     return ret;
 }
 
-bool DataAccess::GQIODevice::HasDataAvailable() const
+bool DataAccess::GQIODevice::has_data_available()
 {
     if(!IODevice().isOpen())
         return false;

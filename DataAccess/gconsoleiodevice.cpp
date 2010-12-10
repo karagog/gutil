@@ -55,7 +55,18 @@ void DataAccess::GConsoleIODevice::SetEngaged(bool engage)
     }
 }
 
-bool DataAccess::GConsoleIODevice::HasDataAvailable() const
+bool DataAccess::GConsoleIODevice::has_data_available()
+{
+    bool ret;
+    _messages_lock.lock();
+    {
+        ret = _has_data_available_locked();
+    }
+    _messages_lock.unlock();
+    return ret;
+}
+
+bool DataAccess::GConsoleIODevice::_has_data_available_locked() const
 {
     return _messages_received.length() > 0;
 }
@@ -116,7 +127,7 @@ QByteArray DataAccess::GConsoleIODevice::receive_data()
     QByteArray ret;
     _messages_lock.lock();
     {
-        if(HasDataAvailable())
+        if(_has_data_available_locked())
             ret = _messages_received.dequeue().toAscii();
     }
     _messages_lock.unlock();

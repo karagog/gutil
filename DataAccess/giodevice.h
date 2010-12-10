@@ -40,11 +40,10 @@ namespace GUtil
                 public Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT
-
         public slots:
 
             void SendData(const QByteArray &);
-            void Write(const QByteArray &);
+            inline void Write(const QByteArray &data){ SendData(data); }
 
 
         signals:
@@ -57,11 +56,11 @@ namespace GUtil
 
             virtual ~GIODevice();
 
-            // Note: You can rely on the signal 'ReadyRead' to get the new data, but you can also call this manually
+            bool HasDataAvailable();
+
+            // ReadyRead() will tell you when you can get new data
             QByteArray ReceiveData(bool block = true)
                     throw(Core::DataTransportException);
-
-            virtual bool HasDataAvailable() const = 0;
 
             GIODevice &operator << (const char*);
             GIODevice &operator << (const std::string &);
@@ -74,6 +73,9 @@ namespace GUtil
         protected:
 
             explicit GIODevice(QObject *parent = 0);
+
+            // Derived classes implement a method to determine if data is available
+            virtual bool has_data_available() = 0;
 
             // Derived classes must implement these functions
             //  Note that locking is taken care of by this interface class,
@@ -99,7 +101,7 @@ namespace GUtil
         private:
 
             // Protects us so we can be thread-safe
-            QMutex this_giodevice_lock;
+            QMutex _this_lock;
 
 
         };

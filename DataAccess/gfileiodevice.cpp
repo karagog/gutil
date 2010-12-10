@@ -65,7 +65,7 @@ bool DataAccess::GFileIODevice::has_been_updated() const
     return _last_update_time != QFileInfo(FileName()).lastModified();
 }
 
-bool DataAccess::GFileIODevice::HasDataAvailable() const
+bool DataAccess::GFileIODevice::has_data_available()
 {
     return has_been_updated();
 }

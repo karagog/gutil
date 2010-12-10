@@ -28,14 +28,9 @@ namespace GUtil
                 public GIODevice
         {
             Q_OBJECT
-        public:
+        protected:
 
             explicit GQIODevice(QIODevice *, QObject *parent = 0);
-
-            virtual bool HasDataAvailable() const;
-
-
-        protected:
 
             inline QIODevice &IODevice(){ return *_io_device; }
             inline const QIODevice &IODevice() const{ return *_io_device; }
@@ -44,6 +39,8 @@ namespace GUtil
                     throw(GUtil::Core::DataTransportException);
             virtual QByteArray receive_data()
                     throw(GUtil::Core::DataTransportException);
+
+            virtual bool has_data_available();
 
 
         private:

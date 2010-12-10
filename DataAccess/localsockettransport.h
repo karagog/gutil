@@ -22,12 +22,12 @@ namespace GUtil
 
             QString ServerName() const;
 
-            bool HasDataAvailable() const;
-
 
         protected:
 
             QLocalSocket &Socket() const;
+
+            bool has_data_available();
 
         };
     }

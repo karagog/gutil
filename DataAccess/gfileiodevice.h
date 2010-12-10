@@ -50,9 +50,7 @@ namespace GUtil
 
             PROPERTY(WriteMode, WriteModeEnum);
 
-            virtual bool HasDataAvailable() const;
-
-            virtual void SetFileName(const QString &);
+            void SetFileName(const QString &);
             inline QString FileName() const{ return File().fileName(); }
             QByteArray FileData();
 
@@ -68,6 +66,8 @@ namespace GUtil
 
             inline QFile &File(){ return (QFile &)IODevice(); }
             inline const QFile &File() const{ return (const QFile &)IODevice(); }
+
+            bool has_data_available();
 
             // Has the file been updated since we've seen it?
             bool has_been_updated() const;

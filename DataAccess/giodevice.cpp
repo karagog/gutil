@@ -31,21 +31,11 @@ DataAccess::GIODevice::~GIODevice()
     }
 }
 
-void DataAccess::GIODevice::run()
-{
-    THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "This IO does not support threading" );
-}
-
-void DataAccess::GIODevice::Write(const QByteArray &data)
-{
-    SendData(data);
-}
-
 void DataAccess::GIODevice::SendData(const QByteArray &data)
 {
     FailIfReadOnly();
 
-    this_giodevice_lock.lock();
+    _this_lock.lock();
 
     try
     {
@@ -53,37 +43,34 @@ void DataAccess::GIODevice::SendData(const QByteArray &data)
     }
     catch(...)
     {
-        this_giodevice_lock.unlock();
+        _this_lock.unlock();
         throw;
     }
 
-    this_giodevice_lock.unlock();
+    _this_lock.unlock();
 }
 
 QByteArray DataAccess::GIODevice::ReceiveData(bool block)
         throw(Core::DataTransportException)
 {
-    this_giodevice_lock.lock();
+    _this_lock.lock();
 
-    while(block && !HasDataAvailable())
-    {
-        // Wait for new line to become available
-        condition_new_data_available.wait(&this_giodevice_lock);
-    }
+    while(block && !has_data_available())
+        // Wait for new data to become available
+        condition_new_data_available.wait(&_this_lock);
 
     QByteArray ret;
     try
     {
         ret = receive_data();
     }
-    //catch(Core::EndOfFileException &){}
     catch(...)
     {
-        this_giodevice_lock.unlock();
+        _this_lock.unlock();
         throw;
     }
 
-    this_giodevice_lock.unlock();
+    _this_lock.unlock();
 
     return ret;
 }
@@ -128,11 +115,22 @@ void DataAccess::GIODevice::operator >> (std::string &dt)
 
 void DataAccess::GIODevice::raiseReadyRead()
 {
-    condition_new_data_available.wakeOne();
+    condition_new_data_available.wakeAll();
     emit ReadyRead();
 }
 
 QString DataAccess::GIODevice::ReadonlyMessageIdentifier()
 {
     return "DataAccess::DataTransports::AbstractDataTransportMechanism";
+}
+
+bool DataAccess::GIODevice::HasDataAvailable()
+{
+    bool ret;
+    _this_lock.lock();
+    {
+        ret = has_data_available();
+    }
+    _this_lock.unlock();
+    return ret;
 }

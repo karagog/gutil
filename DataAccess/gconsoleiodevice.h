@@ -27,6 +27,7 @@ namespace GUtil
         {
             Q_OBJECT
         public:
+
             explicit GConsoleIODevice(QObject *parent = 0);
             virtual ~GConsoleIODevice();
 
@@ -35,24 +36,29 @@ namespace GUtil
 
             inline bool IsEngaged() const{ return _engaged; }
 
-            virtual bool HasDataAvailable() const;
 
         public slots:
+
             void WriteLine(const QString &);
             QString ReadLine(bool block = true);
 
             // stops/starts the object from listening to cin/cout
             void SetEngaged(bool);
 
+
         protected:
+
             // Just reads/writes to stdin/out
             virtual void send_data(const QByteArray &)
                     throw(GUtil::Core::DataTransportException);
             virtual QByteArray receive_data()
                     throw(GUtil::Core::DataTransportException);
 
+            bool has_data_available();
+
             // We continually read cin on a separate thread
             virtual void run();
+
 
         private:
 
@@ -64,6 +70,9 @@ namespace GUtil
 
             bool _engaged;
             void _fail_if_not_initialized();
+
+            bool _has_data_available_locked() const;
+
         };
     }
 }
