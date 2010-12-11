@@ -60,8 +60,10 @@ public: \
             {
 
 #define GUTIL_END_NAMESPACE }}
-
 #define GUTIL_END_CORE_NAMESPACE }}}
+
+#define BEGIN_NAMESPACE( ns ) namespace ns{
+#define END_NAMESPACE }
 
 
 #define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
