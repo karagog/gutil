@@ -63,7 +63,13 @@ void AbstractValueBuffer::_init_abstract_value_buffer()
 
 AbstractValueBuffer::~AbstractValueBuffer()
 {
-    _exiting = true;
+    _data_incoming_mutex.lock();
+    _data_outgoing_mutex.lock();
+    {
+        _exiting = true;
+    }
+    _data_outgoing_mutex.unlock();
+    _data_incoming_mutex.unlock();
 
     // Wake up our background workers and wait for them to finish
     _condition_data_sent.wakeOne();
@@ -197,6 +203,7 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
     QQueue< QPair<QUuid, QByteArray> > *tmpq;
 
     bool *bln_new_data_flag;
+    QMutex *data_mutex;
     QWaitCondition *wc;
 
     try
@@ -214,10 +221,12 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
     {
     case InQueue:
         bln_new_data_flag = &_new_incoming_work_dequeued;
+        data_mutex = &_data_incoming_mutex;
         wc = &_condition_data_arrived;
         break;
     case OutQueue:
         bln_new_data_flag = &_new_outgoing_work_queued;
+        data_mutex = &_data_outgoing_mutex;
         wc = &_condition_data_sent;
         break;
     default:
@@ -232,11 +241,7 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
     m->lock();
     {
         if(enqueue)
-        {
             tmpq->enqueue(ret);
-
-            *bln_new_data_flag = true;
-        }
         else if(!tmpq->empty())
             ret = tmpq->dequeue();
     }
@@ -247,7 +252,15 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
     //  running, then they will see that _new_***_work_queued has
     //  been set to true, and they will reprocess the appropriate queue.
     if(enqueue)
+    {
+        data_mutex->lock();
+        {
+            *bln_new_data_flag = true;
+        }
+        data_mutex->unlock();
+
         wc->wakeOne();
+    }
 
     return ret;
 }
@@ -310,46 +323,56 @@ void AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
 
 void AbstractValueBuffer::_worker_outgoing()
 {
-    _data_outgoing_mutex.lock();
-
     forever
     {
-        if(_exiting)
-            break;
+        _data_outgoing_mutex.lock();
+        {
+            // There are flags that need to be protected by the
+            //  critical section, and whoever else modifies them
+            //  needs to grab the lock
+            if(_exiting)
+            {
+                _data_outgoing_mutex.unlock();
+                break;
+            }
 
-        // Somebody may have queued more data for us while we were processing
-        //  the last run.  Maybe we picked it up, or maybe we exited before
-        //  sending it.  Better be safe and reprocess the queue, so we skip
-        //  the wait here.
-        if(!_new_outgoing_work_queued)
-            // Wait for someone to tell us to send data
-            _condition_data_sent.wait(&_data_outgoing_mutex);
+            // Somebody may have queued more data for us while we
+            //   were processing the last run.  Maybe we picked it up,
+            //   or maybe we exited before sending it.  Better be safe
+            //   and reprocess the queue, so we skip the wait here.
+            if(!_new_outgoing_work_queued)
+                // Wait for someone to tell us to send data
+                _condition_data_sent.wait(&_data_outgoing_mutex);
 
-        // lower the flag
-        _new_outgoing_work_queued = false;
+            // lower the flag
+            _new_outgoing_work_queued = false;
+        }
+        _data_outgoing_mutex.unlock();
 
         // Then send it
         _flush_queue(OutQueue);
     }
-
-    _data_outgoing_mutex.unlock();
 }
 
 void AbstractValueBuffer::_worker_incoming()
 {
-    _data_incoming_mutex.lock();
-
     forever
     {
-        if(_exiting)
-            break;
+        _data_incoming_mutex.lock();
+        {
+            if(_exiting)
+            {
+                _data_incoming_mutex.unlock();
+                break;
+            }
 
-        if(!_new_incoming_work_dequeued)
-            _condition_data_arrived.wait(&_data_incoming_mutex);
+            if(!_new_incoming_work_dequeued)
+                _condition_data_arrived.wait(&_data_incoming_mutex);
 
-        _new_incoming_work_dequeued = false;
+            _new_incoming_work_dequeued = false;
+        }
+        _data_incoming_mutex.unlock();
+
         _flush_queue(InQueue);
     }
-
-    _data_incoming_mutex.unlock();
 }
