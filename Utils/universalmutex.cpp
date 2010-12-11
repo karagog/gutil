@@ -28,9 +28,17 @@ UniversalMutex::UniversalMutex(const QString &file_path)
     connect(&_fsw, SIGNAL(fileChanged(QString)), this, SLOT(lock_file_updated()));
 }
 
+UniversalMutex::~UniversalMutex()
+{
+    // Kill the thread
+    if(isRunning())
+        terminate();
+    wait();
+}
+
 void UniversalMutex::lock_file_updated()
 {
-    if(_is_locked)
+    if(_is_locked && !isRunning())
         start();
 
     _condition_file_updated.wakeAll();
@@ -199,7 +207,10 @@ void UniversalMutex::_fail_if_locked() const
 
 void UniversalMutex::run()
 {
-    // Read in the file on a background thread and check if we still have the lock
+    // Read in the file and check if we still have the lock
     if(!HasLock(false))
+    {
+        _is_locked = false;
         emit NotifyLostLock();
+    }
 }

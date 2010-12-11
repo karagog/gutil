@@ -39,6 +39,7 @@ namespace GUtil
         public:
 
             UniversalMutex(const QString &file_path);
+            ~UniversalMutex();
 
             // If you don't block, then it will throw a LockException if lock fails
             void Lock(bool block = true)
