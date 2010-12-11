@@ -23,9 +23,13 @@ limitations under the License.*/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    _filename(DEFAULT_FILENAME)
+    _filename(DEFAULT_FILENAME),
+    _file(DEFAULT_FILENAME)
 {
     ui->setupUi(this);
+    ui->txt_file_chooser->lineEdit().setReadOnly(true);
+
+    ui->btnWriteBytes->setEnabled(false);
 
     update_count = 0;
 
@@ -59,8 +63,11 @@ void MainWindow::choose_file()
     if(f.length() == 0)
         return;
 
+    _filename = f;
+    _file.setFileName(f);
+
     fsw->removePath(FileName());
-    fsw->addPath(_filename = f);
+    fsw->addPath(f);
     ui->txt_file_chooser->lineEdit().setText(FileName());
     update_count = -1;
     caught_file_updated();
@@ -69,4 +76,34 @@ void MainWindow::choose_file()
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::open_read()
+{
+    _file.open(QFile::ReadOnly);
+}
+
+void MainWindow::open_readwrite()
+{
+    _file.open(QFile::ReadWrite);
+
+    ui->btnWriteBytes->setEnabled(true);
+}
+
+void MainWindow::open_write()
+{
+    _file.open(QFile::WriteOnly);
+    ui->btnWriteBytes->setEnabled(true);
+}
+
+void MainWindow::close_file()
+{
+    _file.close();
+    ui->btnWriteBytes->setEnabled(false);
+}
+
+void MainWindow::write_bytes()
+{
+    if(_file.isOpen())
+        _file.write("Hello World!");
 }

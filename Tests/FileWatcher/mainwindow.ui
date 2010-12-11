@@ -39,6 +39,47 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="btnRead">
+         <property name="text">
+          <string>Read</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnWrite">
+         <property name="text">
+          <string>Write</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnReadWrite">
+         <property name="text">
+          <string>ReadWrite</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnClose">
+         <property name="text">
+          <string>Close</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnWriteBytes">
+      <property name="text">
+       <string>Write Bytes</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -79,8 +120,8 @@
    <slot>update_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>190</x>
-     <y>250</y>
+     <x>201</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
      <x>193</x>
@@ -88,8 +129,93 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnRead</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_read()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>70</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>19</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnWrite</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_write()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>100</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnReadWrite</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_readwrite()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>271</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>240</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnClose</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>345</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnWriteBytes</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>write_bytes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>250</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>360</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>update_file()</slot>
+  <slot>open_read()</slot>
+  <slot>open_write()</slot>
+  <slot>open_readwrite()</slot>
+  <slot>close_file()</slot>
+  <slot>write_bytes()</slot>
  </slots>
 </ui>

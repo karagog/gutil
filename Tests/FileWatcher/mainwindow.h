@@ -17,12 +17,14 @@ limitations under the License.*/
 
 #include <QMainWindow>
 #include <QFileSystemWatcher>
+#include <QFile>
 
 namespace Ui {
     class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindow :
+        public QMainWindow
 {
     Q_OBJECT
 
@@ -38,11 +40,20 @@ private slots:
 
     void choose_file();
 
+    void open_read();
+    void open_readwrite();
+    void open_write();
+    void close_file();
+
+    void write_bytes();
+
 private:
     Ui::MainWindow *ui;
 
     QFileSystemWatcher *fsw;
     QString _filename;
+
+    QFile _file;
 
     int update_count;
 };
