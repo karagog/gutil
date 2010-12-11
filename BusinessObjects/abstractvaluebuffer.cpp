@@ -27,9 +27,9 @@ AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
         QObject *parent)
             :QObject(parent),
-            _new_outgoing_work_queued(false),
-            _new_incoming_work_dequeued(false),
-            _exiting(false),
+            _flag_new_outgoing_data_enqueued(false),
+            _flag_new_incoming_data_enqueued(false),
+            _flag_exiting(false),
             _transport(transport)
 {
     _init_abstract_value_buffer();
@@ -41,9 +41,9 @@ AbstractValueBuffer::AbstractValueBuffer(
         QObject *parent)
             :QObject(parent),
             cur_outgoing_data(dt),
-            _new_outgoing_work_queued(false),
-            _new_incoming_work_dequeued(false),
-            _exiting(false),
+            _flag_new_outgoing_data_enqueued(false),
+            _flag_new_incoming_data_enqueued(false),
+            _flag_exiting(false),
             _transport(transport)
 {
     _init_abstract_value_buffer();
@@ -63,13 +63,13 @@ void AbstractValueBuffer::_init_abstract_value_buffer()
 
 AbstractValueBuffer::~AbstractValueBuffer()
 {
-    _data_incoming_mutex.lock();
-    _data_outgoing_mutex.lock();
+    _incoming_flags_mutex.lock();
+    _outgoing_flags_mutex.lock();
     {
-        _exiting = true;
+        _flag_exiting = true;
     }
-    _data_outgoing_mutex.unlock();
-    _data_incoming_mutex.unlock();
+    _outgoing_flags_mutex.unlock();
+    _incoming_flags_mutex.unlock();
 
     // Wake up our background workers and wait for them to finish
     _condition_data_sent.wakeOne();
@@ -144,20 +144,20 @@ QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
 
     try
     {
-        _data_outgoing_mutex.lock();
+        _outgoing_flags_mutex.lock();
         {
             data = get_current_data();
 
             if(clear)
                 cur_outgoing_data.Clear();
         }
-        _data_outgoing_mutex.unlock();
+        _outgoing_flags_mutex.unlock();
     }
     catch(Core::Exception &ex)
     {
         // I want to log the exception before yielding control
         Logging::GlobalLogger::LogException(ex);
-        _data_outgoing_mutex.unlock();
+        _outgoing_flags_mutex.unlock();
         return QUuid();
     }
 
@@ -220,13 +220,13 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
     switch(q)
     {
     case InQueue:
-        bln_new_data_flag = &_new_incoming_work_dequeued;
-        data_mutex = &_data_incoming_mutex;
+        bln_new_data_flag = &_flag_new_incoming_data_enqueued;
+        data_mutex = &_incoming_flags_mutex;
         wc = &_condition_data_arrived;
         break;
     case OutQueue:
-        bln_new_data_flag = &_new_outgoing_work_queued;
-        data_mutex = &_data_outgoing_mutex;
+        bln_new_data_flag = &_flag_new_outgoing_data_enqueued;
+        data_mutex = &_outgoing_flags_mutex;
         wc = &_condition_data_sent;
         break;
     default:
@@ -325,14 +325,14 @@ void AbstractValueBuffer::_worker_outgoing()
 {
     forever
     {
-        _data_outgoing_mutex.lock();
+        _outgoing_flags_mutex.lock();
         {
             // There are flags that need to be protected by the
             //  critical section, and whoever else modifies them
             //  needs to grab the lock
-            if(_exiting)
+            if(_flag_exiting)
             {
-                _data_outgoing_mutex.unlock();
+                _outgoing_flags_mutex.unlock();
                 break;
             }
 
@@ -340,14 +340,14 @@ void AbstractValueBuffer::_worker_outgoing()
             //   were processing the last run.  Maybe we picked it up,
             //   or maybe we exited before sending it.  Better be safe
             //   and reprocess the queue, so we skip the wait here.
-            if(!_new_outgoing_work_queued)
+            if(!_flag_new_outgoing_data_enqueued)
                 // Wait for someone to tell us to send data
-                _condition_data_sent.wait(&_data_outgoing_mutex);
+                _condition_data_sent.wait(&_outgoing_flags_mutex);
 
             // lower the flag
-            _new_outgoing_work_queued = false;
+            _flag_new_outgoing_data_enqueued = false;
         }
-        _data_outgoing_mutex.unlock();
+        _outgoing_flags_mutex.unlock();
 
         // Then send it
         _flush_queue(OutQueue);
@@ -358,20 +358,20 @@ void AbstractValueBuffer::_worker_incoming()
 {
     forever
     {
-        _data_incoming_mutex.lock();
+        _incoming_flags_mutex.lock();
         {
-            if(_exiting)
+            if(_flag_exiting)
             {
-                _data_incoming_mutex.unlock();
+                _incoming_flags_mutex.unlock();
                 break;
             }
 
-            if(!_new_incoming_work_dequeued)
-                _condition_data_arrived.wait(&_data_incoming_mutex);
+            if(!_flag_new_incoming_data_enqueued)
+                _condition_data_arrived.wait(&_incoming_flags_mutex);
 
-            _new_incoming_work_dequeued = false;
+            _flag_new_incoming_data_enqueued = false;
         }
-        _data_incoming_mutex.unlock();
+        _incoming_flags_mutex.unlock();
 
         _flush_queue(InQueue);
     }

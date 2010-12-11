@@ -135,8 +135,8 @@ namespace GUtil
             QMutex _in_queue_mutex;
             QMutex _out_queue_mutex;
 
-            QMutex _data_incoming_mutex;
-            QMutex _data_outgoing_mutex;
+            QMutex _incoming_flags_mutex;
+            QMutex _outgoing_flags_mutex;
             QWaitCondition _condition_data_arrived;
             QWaitCondition _condition_data_sent;
 
@@ -159,10 +159,10 @@ namespace GUtil
             QFuture<void> _ref_worker_outgoing;
             QFuture<void> _ref_worker_incoming;
 
-            bool _new_outgoing_work_queued;
-            bool _new_incoming_work_dequeued;
+            bool _flag_new_outgoing_data_enqueued;
+            bool _flag_new_incoming_data_enqueued;
 
-            bool _exiting;
+            bool _flag_exiting;
 
             void _clear_queue(QMutex &, QQueue< QPair<QUuid, QByteArray> > &);
 
