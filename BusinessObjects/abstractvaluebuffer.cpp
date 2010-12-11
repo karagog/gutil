@@ -53,9 +53,8 @@ BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
 }
 
 void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
-                                                           QQueue<QByteArray> **q,
+                                                           QQueue< QPair<QUuid, QByteArray> > **q,
                                                            QMutex **m)
-        throw(Core::Exception)
 {
     switch(qt)
     {
@@ -78,7 +77,8 @@ void BusinessObjects::AbstractValueBuffer::clearQueues()
     _clear_queue(out_queue_mutex, out_queue);
 }
 
-void BusinessObjects::AbstractValueBuffer::_clear_queue(QMutex &lock, QQueue< QByteArray > &queue)
+void BusinessObjects::AbstractValueBuffer::_clear_queue(QMutex &lock,
+                                                        QQueue< QPair<QUuid, QByteArray> > &queue)
 {
     lock.lock();
     queue.clear();
@@ -102,12 +102,12 @@ void BusinessObjects::AbstractValueBuffer::importData()
     enQueueMessage(InQueue, data.toAscii());
 }
 
-void BusinessObjects::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
+QUuid BusinessObjects::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
 {
-    en_deQueueMessage(q, msg, true);
+    return en_deQueueMessage(q, msg, true).first;
 }
 
-void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
+QUuid BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
 {
     QString data;
 
@@ -122,10 +122,10 @@ void BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
     catch(Core::Exception &ex)
     {
         Logging::GlobalLogger::LogException(ex);
-        return;
+        return QUuid();
     }
 
-    enQueueMessage(OutQueue, data.toAscii());
+    return enQueueMessage(OutQueue, data.toAscii());
 }
 
 QByteArray BusinessObjects::AbstractValueBuffer::get_current_data(bool hr) const
@@ -138,11 +138,11 @@ QString BusinessObjects::AbstractValueBuffer::import_incoming_data()
     return QString(transport().ReceiveData(false));
 }
 
-void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &data)
+void BusinessObjects::AbstractValueBuffer::process_input_data(const QPair<QUuid, QByteArray> &data)
 {
     try
     {
-        cur_incoming_data.FromXmlQString(QString(data));
+        cur_incoming_data.FromXmlQString(QString(data.second));
     }
     catch(Core::Exception &ex)
     {
@@ -153,16 +153,16 @@ void BusinessObjects::AbstractValueBuffer::process_input_data(const QByteArray &
 
 QByteArray BusinessObjects::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
 {
-    return en_deQueueMessage(q, QByteArray(), false);
+    return en_deQueueMessage(q, QByteArray(), false).second;
 }
 
-QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
+QPair<QUuid, QByteArray> BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
                                                               const QByteArray &msg,
                                                               bool enqueue)
 {
-    QByteArray ret;
+    QPair<QUuid, QByteArray> ret;
     QMutex *m;
-    QQueue<QByteArray> *tmpq;
+    QQueue< QPair<QUuid, QByteArray> > *tmpq;
 
     try
     {
@@ -174,11 +174,16 @@ QByteArray BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum
         return ret;
     }
 
+
+    // Stamp each outgoing message with a GUID so we can refer to it later
+    if(enqueue)
+        ret = QPair<QUuid, QByteArray>(QUuid::createUuid(), msg);
+
     m->lock();
     {
         // Critical section
         if(enqueue)
-            tmpq->enqueue(msg);
+            tmpq->enqueue(ret);
         else if(!tmpq->empty())
             ret = tmpq->dequeue();
     }
@@ -200,7 +205,7 @@ void BusinessObjects::AbstractValueBuffer::_process_queues()
 
 void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 {
-    QQueue<QByteArray> *queue;
+    QQueue< QPair<QUuid, QByteArray> > *queue;
     QMutex *mutex;
 
     try
@@ -217,25 +222,25 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 
     while(queue_has_data)
     {
-        QByteArray ba;
+        QPair<QUuid, QByteArray> item;
 
         mutex->lock();
-
-        if(queue->count() > 0)
-            ba = queue->dequeue();
-        queue_has_data = queue->count() > 0;
-
+        {
+            if(queue->count() > 0)
+                item = queue->dequeue();
+            queue_has_data = queue->count() > 0;
+        }
         mutex->unlock();
 
-        if(!ba.isNull())
+        if(!item.second.isNull())
         {
             if(qt == InQueue)
-                process_input_data(ba);
+                process_input_data(item);
             else if (qt == OutQueue)
             {
                 try
                 {
-                    transport().SendData(ba);
+                    transport().SendData(item.second);
                 }
                 catch(Core::Exception &ex)
                 {

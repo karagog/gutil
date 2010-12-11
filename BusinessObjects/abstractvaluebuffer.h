@@ -95,16 +95,16 @@ namespace GUtil
             QByteArray deQueueMessage(QueueTypeEnum);
 
             // Use this to add a byte array to the current queue
-            void enQueueMessage(QueueTypeEnum, const QByteArray &);
+            QUuid enQueueMessage(QueueTypeEnum, const QByteArray &);
 
             // Use this to prepare to enqueue the current message for sending
-            void enQueueCurrentData(bool clear = true);
+            QUuid enQueueCurrentData(bool clear = true);
 
             // Subclasses implement this to process a new byte array after it
             //   gets dequeued off the in_queue.
             // The default implementation automatically loads the xml into the
             //    "incoming" data table
-            virtual void process_input_data(const QByteArray &);
+            virtual void process_input_data(const QPair<QUuid, QByteArray> &);
 
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
@@ -119,15 +119,18 @@ namespace GUtil
 
         private:
 
-            QByteArray en_deQueueMessage(QueueTypeEnum, const QByteArray &msg, bool enqueue);
+            QPair<QUuid, QByteArray> en_deQueueMessage(QueueTypeEnum,
+                                                       const QByteArray &msg,
+                                                       bool enqueue);
 
-            void _get_queue_and_mutex(QueueTypeEnum, QQueue<QByteArray> **, QMutex **)
-                    throw(GUtil::Core::Exception);
+            void _get_queue_and_mutex(QueueTypeEnum,
+                                      QQueue< QPair<QUuid, QByteArray> > **,
+                                      QMutex **);
 
             QMutex in_queue_mutex;
             QMutex out_queue_mutex;
-            QQueue< QByteArray > in_queue;
-            QQueue< QByteArray > out_queue;
+            QQueue< QPair<QUuid, QByteArray> > in_queue;
+            QQueue< QPair<QUuid, QByteArray> > out_queue;
 
             DataObjects::DataTable cur_outgoing_data;
             DataObjects::DataTable cur_incoming_data;
@@ -137,7 +140,7 @@ namespace GUtil
             void _process_queues();
             void _flush_queue(QueueTypeEnum);
 
-            void _clear_queue(QMutex &, QQueue< QByteArray > &);
+            void _clear_queue(QMutex &, QQueue< QPair<QUuid, QByteArray> > &);
 
             DataAccess::GIODevice *_transport;
 

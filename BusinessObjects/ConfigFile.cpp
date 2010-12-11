@@ -278,9 +278,9 @@ QString BusinessObjects::ConfigFile::get_file_location(QString id)
     return _config_filename;
 }
 
-void BusinessObjects::ConfigFile::process_input_data(const QByteArray &ba)
+void BusinessObjects::ConfigFile::process_input_data(const QPair<QUuid, QByteArray> &msg)
 {
-    AbstractValueBuffer::process_input_data(ba);
+    AbstractValueBuffer::process_input_data(msg);
 
     // copy the input data to the current data table
     table() = table_incoming().Clone();

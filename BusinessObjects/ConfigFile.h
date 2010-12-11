@@ -95,7 +95,7 @@ namespace GUtil
             QByteArray get_current_data() const;
             QString import_incoming_data();
 
-            void process_input_data(const QByteArray &);
+            void process_input_data(const QPair<QUuid, QByteArray>  &);
 
             inline DataAccess::GFileIODevice &FileTransport() {
                 return (DataAccess::GFileIODevice &)transport();
