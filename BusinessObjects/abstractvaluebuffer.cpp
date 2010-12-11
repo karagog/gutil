@@ -304,19 +304,6 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
 }
 
-void AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw) const
-{
-    _cur_outgoing_data.WriteXml(sw);
-}
-
-void AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
-        throw(Core::XmlException)
-{
-    DataTable tmp;
-    tmp.ReadXml(sr);
-    enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
-}
-
 void AbstractValueBuffer::_queue_processor_thread(
         QMutex *flags_mutex,
         QWaitCondition *condition_data_ready,

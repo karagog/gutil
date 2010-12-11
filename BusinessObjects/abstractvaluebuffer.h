@@ -18,7 +18,6 @@ limitations under the License.*/
 #include "DataObjects/DataSet/datatable.h"
 #include "Custom/gvariant.h"
 #include "Logging/globallogger.h"
-#include "Interfaces/iqxmlserializable.h"
 #include <QMap>
 #include <QString>
 #include <QObject>
@@ -56,8 +55,7 @@ namespace GUtil
         // Do NOT use from more than 1 thread
 
         class AbstractValueBuffer :
-                public QObject,
-                public GUtil::Interfaces::IQXmlSerializable
+                public QObject
         {
             Q_OBJECT
         public:
@@ -129,10 +127,6 @@ namespace GUtil
 
             // Use this to prepare to enqueue the current message for sending
             QUuid enQueueCurrentData(bool clear = true);
-
-            virtual void WriteXml(QXmlStreamWriter &) const;
-            virtual void ReadXml(QXmlStreamReader &)
-                    throw(GUtil::Core::XmlException);
 
 
         protected slots:
