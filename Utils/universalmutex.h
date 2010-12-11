@@ -20,7 +20,8 @@ limitations under the License.*/
 #include <QDateTime>
 #include <QFileSystemWatcher>
 #include <QWaitCondition>
-#include <QMutex>
+#include <QReadWriteLock>
+#include <QThread>
 
 
 namespace GUtil
@@ -32,15 +33,16 @@ namespace GUtil
         //  class the access will be controlled
 
         class UniversalMutex :
-                public QObject
+                public QThread
         {
             Q_OBJECT
         public:
 
             UniversalMutex(const QString &file_path);
 
-            // Lock blocks until it has the lock.
-            bool Lock(bool block = true);
+            // If you don't block, then it will throw a LockException if lock fails
+            void Lock(bool block = true)
+                    throw(Core::LockException);
             void Unlock();
 
             void SetFilePath(const QString &fp);
@@ -48,9 +50,19 @@ namespace GUtil
 
             // If you pass 'false', it will take significantly longer to determine if it has the lock,
             //  but it will be the most up-to-date
-            bool HasLock(bool from_cache = true) const;
+            bool HasLock(bool from_cache = true);
 
-            void CleanupLockFile() const;
+
+        signals:
+
+            // This is a bad signal, and means that for one reason or another
+            //  you have lost the lock on the file
+            void NotifyLostLock();
+
+
+        protected:
+
+            void run();
 
 
         private slots:
@@ -67,11 +79,13 @@ namespace GUtil
 
             // These data objects are used to check for updates and wait on the update condition
             QFileSystemWatcher _fsw;
-            QMutex _lock_file_mutex;
+            QReadWriteLock _lockfile_lock;
             QWaitCondition _condition_file_updated;
 
             void _lock(bool block);
             void _unlock();
+
+            bool has_lock(bool) const;
 
             void _fail_if_locked() const;
             inline bool _lock_file_set() const{ return _lock_file_path.length() > 0; }

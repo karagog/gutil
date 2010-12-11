@@ -17,6 +17,8 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace Utils;
 
+#define UNIVERSAL_MUTEX_MODIFIER "UNIVERSAL_LOCK"
+
 UniversalMutex::UniversalMutex(const QString &file_path)
     :_machine_mutex(file_path),
     _is_locked(false)
@@ -28,46 +30,50 @@ UniversalMutex::UniversalMutex(const QString &file_path)
 
 void UniversalMutex::lock_file_updated()
 {
+    if(_is_locked)
+        start();
+
     _condition_file_updated.wakeAll();
 }
 
-bool UniversalMutex::Lock(bool block)
+void UniversalMutex::Lock(bool block)
+        throw(Core::LockException)
 {
-    bool ret = false;
     _fail_if_locked();
 
+    _lockfile_lock.lockForWrite();
     while(block)
     {
-        try
-        {
-            _machine_mutex.LockMutexOnMachine(block);
-        }
-        catch(Core::LockException &)
-        {
-            // The only time we hit an exception is if the call to 'LockMutexOnMachine' does not block
-            break;
-        }
+        // This might throw a LockException if you don't block and it fails
+        _machine_mutex.LockMutexOnMachine(block);
 
         // After we have the machine lock, call our own locking function
         _lock(block);
 
         // Then we verify the file after the fact, to make sure our ID is still in the file
-        if(HasLock(false))
+        if(has_lock(false))
         {
             _is_locked = true;
-            ret = true;
             break;
         }
         else
             _machine_mutex.UnlockForMachine();
     }
+    _lockfile_lock.unlock();
 
-    return ret;
+    if(!_is_locked)
+        THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+                                  "Lock failed" );
 }
 
 void UniversalMutex::Unlock()
 {
-    _unlock();
+    _lockfile_lock.lockForWrite();
+    {
+        _unlock();
+    }
+    _lockfile_lock.unlock();
+
     _machine_mutex.UnlockForMachine();
     _is_locked = false;
 }
@@ -76,21 +82,33 @@ void UniversalMutex::SetFilePath(const QString &fp)
 {
     _fail_if_locked();
 
-    _machine_mutex.SetUserMachineLockFileName(fp);
-
-    // Create the file if it doesn't exist
-    if(!QFile::exists(file_path))
-    {
-        QFile f(file_path);
-        f.open(QFile::WriteOnly);
-        f.close();
-    }
-
-
+    // Remove the old file path from the watch list
     if(_lock_file_set())
-        _fsw.removePath(GetFilepath());
+        _fsw.removePath(_lock_file_path);
 
-    _fsw.addPath(file_path);
+
+    // Set the path on our machine mutex, and our lock file path
+    _machine_mutex.SetUserMachineLockFileName(fp);
+    _lock_file_path = QString("%1." UNIVERSAL_MUTEX_MODIFIER).arg(fp);
+
+
+    // Create our watch file if it doesn't exist
+    if(_lock_file_set())
+    {
+        if(!QFile::exists(fp))
+        {
+            _lockfile_lock.lockForWrite();
+            {
+                QFile f(_lock_file_path);
+                f.open(QFile::WriteOnly);
+                f.close();
+            }
+            _lockfile_lock.unlock();
+        }
+
+        // Add the new path to the watch list
+        _fsw.addPath(_lock_file_path);
+    }
 }
 
 QString UniversalMutex::GetFilepath() const
@@ -98,18 +116,35 @@ QString UniversalMutex::GetFilepath() const
     return _machine_mutex.FileNameForMachineLock();
 }
 
-
-
-#define UNIVERSAL_MUTEX_MODIFIER "UNIVERSAL_LOCK"
-
 void UniversalMutex::_lock(bool block)
 {
-    QFile f(_lock_file_path = QString("%1." + UNIVERSAL_MUTEX_MODIFIER)
-            .arg(GetFilepath()));
+    QFile f(_lock_file_path);
 
     f.open(QFile::ReadWrite);
     {
-        f.write((_id = QUuid::createUuid()).toString());
+        bool unrecognized_guid = true;
+
+        // First determine if someone else has the lock
+        if(!block && f.size() > 0)
+        {
+            QUuid tmp(f.readAll().constData());
+            if(!tmp.isNull())
+            {
+                if((unrecognized_guid = tmp != _id))
+                {
+                    f.close();
+                    THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+                                               "Someone else already owns the universal lock" );
+                }
+            }
+        }
+
+        if(block && unrecognized_guid)
+            while(f.size() > 0)
+                _condition_file_updated.wait(&_lockfile_lock);
+
+        f.resize(0);
+        f.write((_id = QUuid::createUuid()).toString().toAscii());
     }
     f.close();
 }
@@ -125,28 +160,30 @@ void UniversalMutex::_unlock()
     f.close();
 }
 
-bool UniversalMutex::HasLock(bool from_cache) const
+bool UniversalMutex::HasLock(bool from_cache)
+{
+    bool ret;
+    _lockfile_lock.lockForRead();
+    {
+        ret = has_lock(from_cache);
+    }
+    _lockfile_lock.unlock();
+    return ret;
+}
+
+bool UniversalMutex::has_lock(bool from_cache) const
 {
     if(from_cache)
         return _is_locked;
 
-    QFile f(_lock_file_path);
     QUuid tmp_id;
+    QFile f(_lock_file_path);
 
     f.open(QFile::ReadOnly);
-    {
-        tmp_id = f.readAll();
-    }
+    tmp_id = f.readAll().constData();
     f.close();
 
     return tmp_id == _id;
-}
-
-void UniversalMutex::CleanupLockFile() const
-{
-    _fail_if_locked();
-
-    QFile::remove(GetFilepath());
 }
 
 void UniversalMutex::_fail_if_locked() const
@@ -158,4 +195,11 @@ void UniversalMutex::_fail_if_locked() const
     if(_is_locked)
         THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
                                    "Cannot complete operation while mutex is locked" );
+}
+
+void UniversalMutex::run()
+{
+    // Read in the file on a background thread and check if we still have the lock
+    if(!HasLock(false))
+        emit NotifyLostLock();
 }
