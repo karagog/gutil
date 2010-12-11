@@ -96,14 +96,16 @@ void ConfigFile::_value_changed()
 #ifdef CRYPTOPP_COMPRESSION
 #   define CRYPTOPP_DECOMPRESS( data ) \
         Core::Utils::CryptoHelpers::decompress( \
-                    std::string(data.toStdString().c_str(), data.length()))
+                    std::string(data.constData(), data.length()))
 
 #   define CRYPTOPP_COMPRESS( data ) \
         Core::Utils::CryptoHelpers::compress( \
-                    std::string(data.toStdString().c_str(), data.length()))
+                    std::string(data.constData(), data.length()))
 #else
-#   define CRYPTOPP_DECOMPRESS(data) std::string(data.toStdString().c_str(), data.length())
-#   define CRYPTOPP_COMPRESS(data) std::string(data.toStdString().c_str(), data.length())
+#   define CRYPTOPP_DECOMPRESS(data) \
+        std::string(data.constData(), data.length())
+#   define CRYPTOPP_COMPRESS(data) \
+        std::string(data.constData(), data.length())
 #endif
 
 QByteArray ConfigFile::get_current_data() const
@@ -123,10 +125,10 @@ QByteArray ConfigFile::get_current_data() const
     return ba;
 }
 
-QString ConfigFile::import_incoming_data()
+QByteArray ConfigFile::import_incoming_data()
         throw(Core::Exception)
 {
-    QString data = AbstractValueBuffer::import_incoming_data();
+    QByteArray data = AbstractValueBuffer::import_incoming_data();
 
 
     #ifdef CRYPTOPP_COMPRESSION
@@ -286,9 +288,7 @@ QString ConfigFile::get_file_location(QString id)
     return _config_filename;
 }
 
-void ConfigFile::process_input_data(
-        const QUuid &,
-        const DataObjects::DataTable &tbl)
+void ConfigFile::process_input_data(const DataObjects::DataTable &tbl)
 {
     // copy the input data to the current data table
     table() = tbl.Clone();

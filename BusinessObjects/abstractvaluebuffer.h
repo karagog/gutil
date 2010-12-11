@@ -66,8 +66,8 @@ namespace GUtil
                 friend class AbstractValueBuffer;
             protected:
 
-                virtual void process_input_data(const QUuid &,
-                                        const DataObjects::DataTable &) = 0;
+                virtual void process_input_data(
+                        const DataObjects::DataTable &) = 0;
 
             };
 
@@ -97,16 +97,16 @@ namespace GUtil
 
             // Access the table of data
             inline DataObjects::DataTable &table(){
-                return _cur_outgoing_data;
+                return _cur_data;
             }
             inline const DataObjects::DataTable &table() const{
-                return _cur_outgoing_data;
+                return _cur_data;
             }
 
             // If you need to do some special data processing, reimplement these
             virtual QByteArray get_current_data(
                     bool human_readable_xml = false) const;
-            virtual QString import_incoming_data()
+            virtual QByteArray import_incoming_data()
                     throw(Core::Exception);
 
             // Forcefully remove all data from the queue
@@ -120,18 +120,16 @@ namespace GUtil
             };
 
             // Use this to safely remove an item from the in_queue
-            QByteArray deQueueMessage(QueueTypeEnum);
+            DataObjects::DataTable deQueueMessage(QueueTypeEnum);
 
-            // Use this to add a byte array to the current queue
-            QUuid enQueueMessage(QueueTypeEnum, const QByteArray &);
-
-            // Use this to prepare to enqueue the current message for sending
+            // Use this to enqueue the current message for sending
             QUuid enQueueCurrentData(bool clear = true);
 
 
         protected slots:
 
-            // This is called automatically when the transport layer says there's new data
+            // This is called automatically when the transport layer
+            //   says there's new data
             void importData();
 
 
@@ -142,12 +140,12 @@ namespace GUtil
             NewDataProcessor *_new_data_processor;
 
 
-            QPair<QUuid, QByteArray> en_deQueueMessage(QueueTypeEnum,
-                                                       const QByteArray &msg,
-                                                       bool enqueue);
+            DataObjects::DataTable en_deQueueMessage(QueueTypeEnum,
+                                   const QByteArray &msg,
+                                   bool enqueue);
 
             void _get_queue_and_mutex(QueueTypeEnum,
-                                      QQueue< QPair<QUuid, QByteArray> > **,
+                                      QQueue<DataObjects::DataTable> **,
                                       QMutex **);
 
             QMutex _in_queue_mutex;
@@ -158,10 +156,10 @@ namespace GUtil
             QWaitCondition _condition_data_arrived;
             QWaitCondition _condition_data_sent;
 
-            QQueue< QPair<QUuid, QByteArray> > in_queue;
-            QQueue< QPair<QUuid, QByteArray> > out_queue;
+            QQueue<DataObjects::DataTable> in_queue;
+            QQueue<DataObjects::DataTable> out_queue;
 
-            DataObjects::DataTable _cur_outgoing_data;
+            DataObjects::DataTable _cur_data;
 
             void _flush_queue(QueueTypeEnum);
 
@@ -181,7 +179,7 @@ namespace GUtil
 
             bool _flag_exiting;
 
-            void _clear_queue(QMutex &, QQueue< QPair<QUuid, QByteArray> > &);
+            void _clear_queue(QMutex &, QQueue< DataObjects::DataTable > &);
 
             DataAccess::GIODevice *_transport;
 

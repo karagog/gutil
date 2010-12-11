@@ -94,7 +94,7 @@ namespace GUtil
 
             // Overrides of AbstractValueBuffer functions (to support compression of the data)
             QByteArray get_current_data() const;
-            QString import_incoming_data()
+            QByteArray import_incoming_data()
                     throw(Core::Exception);
 
             inline DataAccess::GFileIODevice &FileTransport() {
@@ -118,8 +118,7 @@ namespace GUtil
             void _init_column_headers();
 
             // NewDataProcessor interface:
-            void process_input_data(const QUuid &,
-                                    const DataObjects::DataTable &);
+            void process_input_data(const DataObjects::DataTable &);
 
             void _value_changed();
 

@@ -79,7 +79,7 @@ AbstractValueBuffer::~AbstractValueBuffer()
 
 void AbstractValueBuffer::_get_queue_and_mutex(
         QueueTypeEnum qt,
-        QQueue< QPair<QUuid, QByteArray> > **q,
+        QQueue<DataObjects::DataTable> **q,
         QMutex **m)
 {
     switch(qt)
@@ -103,8 +103,9 @@ void AbstractValueBuffer::clearQueues()
     _clear_queue(_out_queue_mutex, out_queue);
 }
 
-void AbstractValueBuffer::_clear_queue(QMutex &lock,
-                                                        QQueue< QPair<QUuid, QByteArray> > &queue)
+void AbstractValueBuffer::_clear_queue(
+        QMutex &lock,
+        QQueue<DataObjects::DataTable> &queue)
 {
     lock.lock();
     queue.clear();
@@ -125,65 +126,63 @@ void AbstractValueBuffer::importData()
         return;
     }
 
-    enQueueMessage(InQueue, data.toAscii());
-}
-
-QUuid AbstractValueBuffer::enQueueMessage(QueueTypeEnum q,
-                                          const QByteArray &msg)
-{
-    return en_deQueueMessage(q, msg, true).first;
+    en_deQueueMessage(InQueue, data.toAscii(), true);
 }
 
 QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
 {
     QString data;
+    QUuid ret;
 
-    try
+    _outgoing_flags_mutex.lock();
     {
-        _outgoing_flags_mutex.lock();
+        // Tag the table data with a GUID
+        table().SetTableName((ret = QUuid::createUuid()).toString());
+
+        try
         {
             data = get_current_data();
-
             if(clear)
-                _cur_outgoing_data.Clear();
+                _cur_data.Clear();
         }
-        _outgoing_flags_mutex.unlock();
+        catch(Core::Exception &ex)
+        {
+            // I want to log the exception before yielding control
+            Logging::GlobalLogger::LogException(ex);
+            _outgoing_flags_mutex.unlock();
+            return QUuid();
+        }
     }
-    catch(Core::Exception &ex)
-    {
-        // I want to log the exception before yielding control
-        Logging::GlobalLogger::LogException(ex);
-        _outgoing_flags_mutex.unlock();
-        return QUuid();
-    }
+    _outgoing_flags_mutex.unlock();
 
-    return enQueueMessage(OutQueue, data.toAscii());
+    en_deQueueMessage(OutQueue, data.toAscii(), true);
+    return ret;
 }
 
 QByteArray AbstractValueBuffer::get_current_data(bool hr) const
 {
-    return _cur_outgoing_data.ToXmlQString(hr).toAscii();
+    return _cur_data.ToXmlQString(hr).toAscii();
 }
 
-QString AbstractValueBuffer::import_incoming_data()
+QByteArray AbstractValueBuffer::import_incoming_data()
         throw(Core::Exception)
 {
-    return QString(transport().ReceiveData(false));
+    return transport().ReceiveData(false);
 }
 
-QByteArray AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
+DataTable AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
 {
-    return en_deQueueMessage(q, QByteArray(), false).second;
+    return en_deQueueMessage(q, QByteArray(), false);
 }
 
-QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
+DataTable AbstractValueBuffer::en_deQueueMessage(
         QueueTypeEnum q,
         const QByteArray &msg,
         bool enqueue)
 {
-    QPair<QUuid, QByteArray> ret;
+    DataTable ret;
     QMutex *m;
-    QQueue< QPair<QUuid, QByteArray> > *tmpq;
+    QQueue<DataObjects::DataTable> *tmpq;
 
     bool *bln_new_data_flag;
     QMutex *data_mutex;
@@ -216,15 +215,13 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
         THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException, "");
     }
 
-
-    // Stamp each outgoing message with a GUID so we can refer to it later
-    if(enqueue)
-        ret = QPair<QUuid, QByteArray>(QUuid::createUuid(), msg);
-
     m->lock();
     {
         if(enqueue)
+        {
+            ret.FromXmlQString(msg);
             tmpq->enqueue(ret);
+        }
         else if(!tmpq->empty())
             ret = tmpq->dequeue();
     }
@@ -250,7 +247,7 @@ QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
 
 void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 {
-    QQueue< QPair<QUuid, QByteArray> > *queue;
+    QQueue<DataTable> *queue;
     QMutex *mutex;
 
     bool queue_has_data(true);
@@ -259,46 +256,30 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 
     while(queue_has_data)
     {
-        QPair<QUuid, QByteArray> item;
+        DataTable tbl;
 
         mutex->lock();
         {
             if(queue->count() > 0)
-                item = queue->dequeue();
+                tbl = queue->dequeue();
 
             queue_has_data = queue->count() > 0;
         }
         mutex->unlock();
 
-        if(!item.second.isNull())
+        if(qt == InQueue)
+            _new_data_processor->process_input_data(tbl);
+        else if (qt == OutQueue)
         {
-            if(qt == InQueue)
+            try
             {
-                DataTable tbl;
-                try
-                {
-                    tbl.FromXmlQString(item.second);
-                }
-                catch(Core::Exception &ex)
-                {
-                    Logging::GlobalLogger::LogException(ex);
-                    continue;
-                }
-
-                _new_data_processor->process_input_data(item.first, tbl);
+                transport().SendData(tbl.ToXmlQString().toAscii());
             }
-            else if (qt == OutQueue)
+            catch(Core::Exception &ex)
             {
-                try
-                {
-                    transport().SendData(item.second);
-                }
-                catch(Core::Exception &ex)
-                {
-                    Logging::GlobalLogger::LogException(ex);
-                    // Don't crash on transport errors
-                    //throw;
-                }
+                Logging::GlobalLogger::LogException(ex);
+                // Don't crash on transport errors
+                //throw;
             }
         }
     }
