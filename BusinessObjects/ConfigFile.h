@@ -93,7 +93,8 @@ namespace GUtil
 
             // Overrides of AbstractValueBuffer functions (to support compression of the data)
             QByteArray get_current_data() const;
-            QString import_incoming_data();
+            QString import_incoming_data()
+                    throw(Core::Exception);
 
             void process_input_data(const QPair<QUuid, QByteArray>  &);
 

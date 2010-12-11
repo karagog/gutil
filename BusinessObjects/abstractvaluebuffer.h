@@ -25,6 +25,8 @@ limitations under the License.*/
 #include <QQueue>
 #include <QReadWriteLock>
 #include <QMutex>
+#include <QWaitCondition>
+#include <QFuture>
 
 namespace GUtil
 {
@@ -54,7 +56,6 @@ namespace GUtil
                                     public GUtil::Interfaces::IQXmlSerializable
         {
             Q_OBJECT
-
         protected:
 
             // No public constructor; this class must be derived
@@ -78,8 +79,10 @@ namespace GUtil
             inline const DataObjects::DataTable &table_incoming() const{ return cur_incoming_data; }
 
             // If you need to do some special data processing, reimplement these
-            virtual QByteArray get_current_data(bool human_readable_xml = false) const;
-            virtual QString import_incoming_data();
+            virtual QByteArray get_current_data(
+                    bool human_readable_xml = false) const;
+            virtual QString import_incoming_data()
+                    throw(Core::Exception);
 
             // Forcefully remove all data from the queue
             void clearQueues();
@@ -100,11 +103,13 @@ namespace GUtil
             // Use this to prepare to enqueue the current message for sending
             QUuid enQueueCurrentData(bool clear = true);
 
-            // Subclasses implement this to process a new byte array after it
-            //   gets dequeued off the in_queue.
-            // The default implementation automatically loads the xml into the
-            //    "incoming" data table
-            virtual void process_input_data(const QPair<QUuid, QByteArray> &);
+            // Subclasses implement this to process new data after it comes
+            //  in from the GIODevice
+            // The default implementation automatically loads the xml
+            //  into the "incoming" data table, call it first in an overrided
+            //  method, then operate on the incoming DataTable
+            virtual void process_input_data(
+                    const QPair<QUuid, QByteArray> &);
 
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
@@ -127,8 +132,14 @@ namespace GUtil
                                       QQueue< QPair<QUuid, QByteArray> > **,
                                       QMutex **);
 
-            QMutex in_queue_mutex;
-            QMutex out_queue_mutex;
+            QMutex _in_queue_mutex;
+            QMutex _out_queue_mutex;
+
+            QMutex _data_incoming_mutex;
+            QMutex _data_outgoing_mutex;
+            QWaitCondition _condition_data_arrived;
+            QWaitCondition _condition_data_sent;
+
             QQueue< QPair<QUuid, QByteArray> > in_queue;
             QQueue< QPair<QUuid, QByteArray> > out_queue;
 
@@ -137,8 +148,21 @@ namespace GUtil
 
             void _init_abstract_value_buffer();
 
-            void _process_queues();
+            //void _process_queues();
             void _flush_queue(QueueTypeEnum);
+
+            // The bodies for the queue managers, which run on
+            //  separate threads
+            void _worker_incoming();
+            void _worker_outgoing();
+
+            QFuture<void> _ref_worker_outgoing;
+            QFuture<void> _ref_worker_incoming;
+
+            bool _new_outgoing_work_queued;
+            bool _new_incoming_work_dequeued;
+
+            bool _exiting;
 
             void _clear_queue(QMutex &, QQueue< QPair<QUuid, QByteArray> > &);
 

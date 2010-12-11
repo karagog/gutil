@@ -117,6 +117,7 @@ QByteArray BusinessObjects::ConfigFile::get_current_data() const
 }
 
 QString BusinessObjects::ConfigFile::import_incoming_data()
+        throw(Core::Exception)
 {
     QString data = AbstractValueBuffer::import_incoming_data();
 

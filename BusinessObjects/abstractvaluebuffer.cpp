@@ -16,54 +16,78 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
-#include "Logging/debuglogger.h"
+//#include "Logging/debuglogger.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 using namespace GUtil;
 using namespace DataObjects;
+using namespace BusinessObjects;
 
-BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
+AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
         QObject *parent)
             :QObject(parent),
+            _new_outgoing_work_queued(false),
+            _new_incoming_work_dequeued(false),
+            _exiting(false),
             _transport(transport)
 {
     _init_abstract_value_buffer();
 }
 
-BusinessObjects::AbstractValueBuffer::AbstractValueBuffer(
+AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
         const DataObjects::DataTable &dt,
         QObject *parent)
             :QObject(parent),
             cur_outgoing_data(dt),
+            _new_outgoing_work_queued(false),
+            _new_incoming_work_dequeued(false),
+            _exiting(false),
             _transport(transport)
 {
     _init_abstract_value_buffer();
 }
 
-void BusinessObjects::AbstractValueBuffer::_init_abstract_value_buffer()
+void AbstractValueBuffer::_init_abstract_value_buffer()
 {
     connect(_transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
+
+    // Start up our background workers
+    _ref_worker_outgoing =
+            QtConcurrent::run(this, &AbstractValueBuffer::_worker_outgoing);
+
+    _ref_worker_incoming =
+            QtConcurrent::run(this, &AbstractValueBuffer::_worker_incoming);
 }
 
-BusinessObjects::AbstractValueBuffer::~AbstractValueBuffer()
+AbstractValueBuffer::~AbstractValueBuffer()
 {
+    _exiting = true;
+
+    // Wake up our background workers and wait for them to finish
+    _condition_data_sent.wakeOne();
+    _condition_data_arrived.wakeOne();
+
+    _ref_worker_incoming.waitForFinished();
+    _ref_worker_outgoing.waitForFinished();
+
     delete _transport;
 }
 
-void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt,
-                                                           QQueue< QPair<QUuid, QByteArray> > **q,
-                                                           QMutex **m)
+void AbstractValueBuffer::_get_queue_and_mutex(
+        QueueTypeEnum qt,
+        QQueue< QPair<QUuid, QByteArray> > **q,
+        QMutex **m)
 {
     switch(qt)
     {
     case InQueue:
-        *m = &in_queue_mutex;
+        *m = &_in_queue_mutex;
         *q = &in_queue;
         break;
     case OutQueue:
-        *m = &out_queue_mutex;
+        *m = &_out_queue_mutex;
         *q = &out_queue;
         break;
     default:
@@ -71,13 +95,13 @@ void BusinessObjects::AbstractValueBuffer::_get_queue_and_mutex(QueueTypeEnum qt
     }
 }
 
-void BusinessObjects::AbstractValueBuffer::clearQueues()
+void AbstractValueBuffer::clearQueues()
 {
-    _clear_queue(in_queue_mutex, in_queue);
-    _clear_queue(out_queue_mutex, out_queue);
+    _clear_queue(_in_queue_mutex, in_queue);
+    _clear_queue(_out_queue_mutex, out_queue);
 }
 
-void BusinessObjects::AbstractValueBuffer::_clear_queue(QMutex &lock,
+void AbstractValueBuffer::_clear_queue(QMutex &lock,
                                                         QQueue< QPair<QUuid, QByteArray> > &queue)
 {
     lock.lock();
@@ -85,7 +109,7 @@ void BusinessObjects::AbstractValueBuffer::_clear_queue(QMutex &lock,
     lock.unlock();
 }
 
-void BusinessObjects::AbstractValueBuffer::importData()
+void AbstractValueBuffer::importData()
 {
     QString data;
 
@@ -102,43 +126,51 @@ void BusinessObjects::AbstractValueBuffer::importData()
     enQueueMessage(InQueue, data.toAscii());
 }
 
-QUuid BusinessObjects::AbstractValueBuffer::enQueueMessage(QueueTypeEnum q, const QByteArray &msg)
+QUuid AbstractValueBuffer::enQueueMessage(QueueTypeEnum q,
+                                          const QByteArray &msg)
 {
     return en_deQueueMessage(q, msg, true).first;
 }
 
-QUuid BusinessObjects::AbstractValueBuffer::enQueueCurrentData(bool clear)
+QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
 {
     QString data;
 
-    // Critical section for current data
     try
     {
-        data = get_current_data();
+        _data_outgoing_mutex.lock();
+        {
+            data = get_current_data();
 
-        if(clear)
-            cur_outgoing_data.Clear();
+            if(clear)
+                cur_outgoing_data.Clear();
+        }
+        _data_outgoing_mutex.unlock();
     }
     catch(Core::Exception &ex)
     {
+        // I want to log the exception before yielding control
         Logging::GlobalLogger::LogException(ex);
+        _data_outgoing_mutex.unlock();
         return QUuid();
     }
 
     return enQueueMessage(OutQueue, data.toAscii());
 }
 
-QByteArray BusinessObjects::AbstractValueBuffer::get_current_data(bool hr) const
+QByteArray AbstractValueBuffer::get_current_data(bool hr) const
 {
     return cur_outgoing_data.ToXmlQString(hr).toAscii();
 }
 
-QString BusinessObjects::AbstractValueBuffer::import_incoming_data()
+QString AbstractValueBuffer::import_incoming_data()
+        throw(Core::Exception)
 {
     return QString(transport().ReceiveData(false));
 }
 
-void BusinessObjects::AbstractValueBuffer::process_input_data(const QPair<QUuid, QByteArray> &data)
+void AbstractValueBuffer::process_input_data(
+        const QPair<QUuid, QByteArray> &data)
 {
     try
     {
@@ -147,22 +179,25 @@ void BusinessObjects::AbstractValueBuffer::process_input_data(const QPair<QUuid,
     catch(Core::Exception &ex)
     {
         Logging::GlobalLogger::LogException(ex);
-        return;
     }
 }
 
-QByteArray BusinessObjects::AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
+QByteArray AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
 {
     return en_deQueueMessage(q, QByteArray(), false).second;
 }
 
-QPair<QUuid, QByteArray> BusinessObjects::AbstractValueBuffer::en_deQueueMessage(QueueTypeEnum q,
-                                                              const QByteArray &msg,
-                                                              bool enqueue)
+QPair<QUuid, QByteArray> AbstractValueBuffer::en_deQueueMessage(
+        QueueTypeEnum q,
+        const QByteArray &msg,
+        bool enqueue)
 {
     QPair<QUuid, QByteArray> ret;
     QMutex *m;
     QQueue< QPair<QUuid, QByteArray> > *tmpq;
+
+    bool *bln_new_data_flag;
+    QWaitCondition *wc;
 
     try
     {
@@ -174,6 +209,21 @@ QPair<QUuid, QByteArray> BusinessObjects::AbstractValueBuffer::en_deQueueMessage
         return ret;
     }
 
+    // Set the wait condition and the missed wake-up flags
+    switch(q)
+    {
+    case InQueue:
+        bln_new_data_flag = &_new_incoming_work_dequeued;
+        wc = &_condition_data_arrived;
+        break;
+    case OutQueue:
+        bln_new_data_flag = &_new_outgoing_work_queued;
+        wc = &_condition_data_sent;
+        break;
+    default:
+        THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException, "");
+    }
+
 
     // Stamp each outgoing message with a GUID so we can refer to it later
     if(enqueue)
@@ -181,44 +231,35 @@ QPair<QUuid, QByteArray> BusinessObjects::AbstractValueBuffer::en_deQueueMessage
 
     m->lock();
     {
-        // Critical section
         if(enqueue)
+        {
             tmpq->enqueue(ret);
+
+            *bln_new_data_flag = true;
+        }
         else if(!tmpq->empty())
             ret = tmpq->dequeue();
     }
     m->unlock();
 
-    // We want to get rid of anything in the queue as soon as possible
+    // Wake up our background worker to the fact that there's new
+    //  data available.  If they miss the wakeup because they're already
+    //  running, then they will see that _new_***_work_queued has
+    //  been set to true, and they will reprocess the appropriate queue.
     if(enqueue)
-        _process_queues();
+        wc->wakeOne();
 
     return ret;
 }
 
-void BusinessObjects::AbstractValueBuffer::_process_queues()
-{
-    // Flush the queues
-    _flush_queue(OutQueue);
-    _flush_queue(InQueue);
-}
-
-void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
+void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 {
     QQueue< QPair<QUuid, QByteArray> > *queue;
     QMutex *mutex;
 
-    try
-    {
-        _get_queue_and_mutex(qt, &queue, &mutex);
-    }
-    catch(Core::Exception &ex)
-    {
-        Logging::GlobalLogger::LogException(ex);
-        return;
-    }
+    bool queue_has_data(true);
 
-    bool queue_has_data = true;
+    _get_queue_and_mutex(qt, &queue, &mutex);
 
     while(queue_has_data)
     {
@@ -228,6 +269,7 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
         {
             if(queue->count() > 0)
                 item = queue->dequeue();
+
             queue_has_data = queue->count() > 0;
         }
         mutex->unlock();
@@ -244,7 +286,7 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
                 }
                 catch(Core::Exception &ex)
                 {
-                    dLogException(ex);
+                    Logging::GlobalLogger::LogException(ex);
                     // Don't crash on transport errors
                     //throw;
                 }
@@ -253,15 +295,61 @@ void BusinessObjects::AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
 }
 
-void BusinessObjects::AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw) const
+void AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw) const
 {
     cur_outgoing_data.WriteXml(sw);
 }
 
-void BusinessObjects::AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
+void AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
         throw(Core::XmlException)
 {
     DataTable tmp;
     tmp.ReadXml(sr);
     enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
+}
+
+void AbstractValueBuffer::_worker_outgoing()
+{
+    _data_outgoing_mutex.lock();
+
+    forever
+    {
+        if(_exiting)
+            break;
+
+        // Somebody may have queued more data for us while we were processing
+        //  the last run.  Maybe we picked it up, or maybe we exited before
+        //  sending it.  Better be safe and reprocess the queue, so we skip
+        //  the wait here.
+        if(!_new_outgoing_work_queued)
+            // Wait for someone to tell us to send data
+            _condition_data_sent.wait(&_data_outgoing_mutex);
+
+        // lower the flag
+        _new_outgoing_work_queued = false;
+
+        // Then send it
+        _flush_queue(OutQueue);
+    }
+
+    _data_outgoing_mutex.unlock();
+}
+
+void AbstractValueBuffer::_worker_incoming()
+{
+    _data_incoming_mutex.lock();
+
+    forever
+    {
+        if(_exiting)
+            break;
+
+        if(!_new_incoming_work_dequeued)
+            _condition_data_arrived.wait(&_data_incoming_mutex);
+
+        _new_incoming_work_dequeued = false;
+        _flush_queue(InQueue);
+    }
+
+    _data_incoming_mutex.unlock();
 }
