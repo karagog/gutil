@@ -151,10 +151,13 @@ namespace GUtil
             //void _process_queues();
             void _flush_queue(QueueTypeEnum);
 
-            // The bodies for the queue managers, which run on
+            // The body for the queue managers, which run on
             //  separate threads
-            void _worker_incoming();
-            void _worker_outgoing();
+            void _queue_processor_thread(
+                    QMutex *flags_mutex,
+                    QWaitCondition *condition_data_ready,
+                    bool *flag_data_ready,
+                    int queue_type);
 
             QFuture<void> _ref_worker_outgoing;
             QFuture<void> _ref_worker_incoming;

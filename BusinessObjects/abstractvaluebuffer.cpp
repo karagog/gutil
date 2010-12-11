@@ -55,10 +55,18 @@ void AbstractValueBuffer::_init_abstract_value_buffer()
 
     // Start up our background workers
     _ref_worker_outgoing =
-            QtConcurrent::run(this, &AbstractValueBuffer::_worker_outgoing);
+            QtConcurrent::run(this, &AbstractValueBuffer::_queue_processor_thread,
+                              &_outgoing_flags_mutex,
+                              &_condition_data_sent,
+                              &_flag_new_outgoing_data_enqueued,
+                              OutQueue);
 
     _ref_worker_incoming =
-            QtConcurrent::run(this, &AbstractValueBuffer::_worker_incoming);
+            QtConcurrent::run(this, &AbstractValueBuffer::_queue_processor_thread,
+                              &_incoming_flags_mutex,
+                              &_condition_data_arrived,
+                              &_flag_new_incoming_data_enqueued,
+                              InQueue);
 }
 
 AbstractValueBuffer::~AbstractValueBuffer()
@@ -321,58 +329,37 @@ void AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
     enQueueMessage(InQueue, tmp.ToXmlQString().toAscii());
 }
 
-void AbstractValueBuffer::_worker_outgoing()
+void AbstractValueBuffer::_queue_processor_thread(
+        QMutex *flags_mutex,
+        QWaitCondition *condition_data_ready,
+        bool *flag_data_ready,
+        int queue_type)
 {
     forever
     {
-        _outgoing_flags_mutex.lock();
+        // Process any data in the queue
+        _flush_queue((QueueTypeEnum)queue_type);
+
+        flags_mutex->lock();
         {
-            // There are flags that need to be protected by the
-            //  critical section, and whoever else modifies them
-            //  needs to grab the lock
             if(_flag_exiting)
             {
-                _outgoing_flags_mutex.unlock();
+                flags_mutex->unlock();
                 break;
             }
 
             // Somebody may have queued more data for us while we
-            //   were processing the last run.  Maybe we picked it up,
-            //   or maybe we exited before sending it.  Better be safe
-            //   and reprocess the queue, so we skip the wait here.
-            if(!_flag_new_outgoing_data_enqueued)
-                // Wait for someone to tell us to send data
-                _condition_data_sent.wait(&_outgoing_flags_mutex);
+            //  were processing the last run.  If so, we skip waiting and
+            //  go right to process the queue.
+            if(!(*flag_data_ready))
+                condition_data_ready->wait(flags_mutex);
 
             // lower the flag
-            _flag_new_outgoing_data_enqueued = false;
+            *flag_data_ready = false;
         }
-        _outgoing_flags_mutex.unlock();
-
-        // Then send it
-        _flush_queue(OutQueue);
+        flags_mutex->unlock();
     }
-}
 
-void AbstractValueBuffer::_worker_incoming()
-{
-    forever
-    {
-        _incoming_flags_mutex.lock();
-        {
-            if(_flag_exiting)
-            {
-                _incoming_flags_mutex.unlock();
-                break;
-            }
-
-            if(!_flag_new_incoming_data_enqueued)
-                _condition_data_arrived.wait(&_incoming_flags_mutex);
-
-            _flag_new_incoming_data_enqueued = false;
-        }
-        _incoming_flags_mutex.unlock();
-
-        _flush_queue(InQueue);
-    }
+    // Flush the queue one last time before exiting, just in case
+    _flush_queue((QueueTypeEnum)queue_type);
 }
