@@ -39,7 +39,7 @@ namespace GUtil
         //  and the class implements mutex locking for you.
 
         class GIODevice :
-                public QThread,
+                protected QThread,
                 public Core::Interfaces::IReadOnlyObject
         {
             Q_OBJECT

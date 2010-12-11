@@ -28,7 +28,8 @@ namespace GUtil
         //   ProvidesAn interface for a thread that implements cancelling
         //    Note: You have to manually check if 'isCancelled()' is true and then
         //     exit by yourself.  That's why I say this is just an interface.
-        class GThread : public QThread
+        class GThread :
+                public QThread
         {
             Q_OBJECT
         public:

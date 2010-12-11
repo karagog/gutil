@@ -33,7 +33,7 @@ namespace GUtil
         //  class the access will be controlled
 
         class UniversalMutex :
-                public QThread
+                protected QThread
         {
             Q_OBJECT
         public:
