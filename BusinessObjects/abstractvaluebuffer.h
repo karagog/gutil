@@ -47,36 +47,63 @@ namespace GUtil
 
     namespace BusinessObjects
     {
-        // Serves as a generic class to hold values and send/receive them with
-        //   the provided transport mechanism.
+        // Serves as a generic class to hold values and
+        //  send/receive them with the provided transport mechanism.
+
+        // Derived classes must implement the NewDataProcessor class and
+        //  inject a pointer to themselves into the constructor
 
         // Do NOT use from more than 1 thread
 
-        class AbstractValueBuffer : public QObject,
-                                    public GUtil::Interfaces::IQXmlSerializable
+        class AbstractValueBuffer :
+                public QObject,
+                public GUtil::Interfaces::IQXmlSerializable
         {
             Q_OBJECT
+        public:
+
+            // Derived classes must inherit this also:
+            class NewDataProcessor
+            {
+                friend class AbstractValueBuffer;
+            protected:
+
+                virtual void process_input_data(const QUuid &,
+                                        const DataObjects::DataTable &) = 0;
+
+            };
+
+
         protected:
 
-            // No public constructor; this class must be derived
-            AbstractValueBuffer(DataAccess::GIODevice *transport,
-                                QObject *parent = 0);
+            // No public constructor; this class must be derived.
+            AbstractValueBuffer(
+                    DataAccess::GIODevice *transport,
+                    NewDataProcessor *dp,
+                    QObject *parent = 0);
 
-            AbstractValueBuffer(DataAccess::GIODevice *transport,
-                                const DataObjects::DataTable &dt = DataObjects::DataTable(),
-                                QObject *parent = 0);
             ~AbstractValueBuffer();
 
+            // Derived classes must call this to start the worker threads.
+            //  This is because it depends on a pure virtual method, so this
+            //  class' vtable must be set up when the threads run
+            void start_worker_threads();
+
             // The method of transport (could be file, socket, network I/O)
-            inline DataAccess::GIODevice &transport(){ return *_transport; }
-            inline const DataAccess::GIODevice &transport() const{ return *_transport; }
+            inline DataAccess::GIODevice &transport(){
+                return *_transport;
+            }
+            inline const DataAccess::GIODevice &transport() const{
+                return *_transport;
+            }
 
             // Access the table of data
-            inline DataObjects::DataTable &table(){ return cur_outgoing_data; }
-            inline const DataObjects::DataTable &table() const{ return cur_outgoing_data; }
-
-            inline DataObjects::DataTable &table_incoming(){ return cur_incoming_data; }
-            inline const DataObjects::DataTable &table_incoming() const{ return cur_incoming_data; }
+            inline DataObjects::DataTable &table(){
+                return _cur_outgoing_data;
+            }
+            inline const DataObjects::DataTable &table() const{
+                return _cur_outgoing_data;
+            }
 
             // If you need to do some special data processing, reimplement these
             virtual QByteArray get_current_data(
@@ -103,14 +130,6 @@ namespace GUtil
             // Use this to prepare to enqueue the current message for sending
             QUuid enQueueCurrentData(bool clear = true);
 
-            // Subclasses implement this to process new data after it comes
-            //  in from the GIODevice
-            // The default implementation automatically loads the xml
-            //  into the "incoming" data table, call it first in an overrided
-            //  method, then operate on the incoming DataTable
-            virtual void process_input_data(
-                    const QPair<QUuid, QByteArray> &);
-
             virtual void WriteXml(QXmlStreamWriter &) const;
             virtual void ReadXml(QXmlStreamReader &)
                     throw(GUtil::Core::XmlException);
@@ -123,6 +142,11 @@ namespace GUtil
 
 
         private:
+
+            // Subclasses inject this dependency, which in most cases is
+            //  a pointer to themselves
+            NewDataProcessor *_new_data_processor;
+
 
             QPair<QUuid, QByteArray> en_deQueueMessage(QueueTypeEnum,
                                                        const QByteArray &msg,
@@ -143,12 +167,8 @@ namespace GUtil
             QQueue< QPair<QUuid, QByteArray> > in_queue;
             QQueue< QPair<QUuid, QByteArray> > out_queue;
 
-            DataObjects::DataTable cur_outgoing_data;
-            DataObjects::DataTable cur_incoming_data;
+            DataObjects::DataTable _cur_outgoing_data;
 
-            void _init_abstract_value_buffer();
-
-            //void _process_queues();
             void _flush_queue(QueueTypeEnum);
 
             // The body for the queue managers, which run on

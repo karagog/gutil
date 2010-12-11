@@ -25,31 +25,19 @@ using namespace BusinessObjects;
 
 AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
+        NewDataProcessor *dp,
         QObject *parent)
             :QObject(parent),
+            _new_data_processor(dp),
             _flag_new_outgoing_data_enqueued(false),
             _flag_new_incoming_data_enqueued(false),
             _flag_exiting(false),
             _transport(transport)
 {
-    _init_abstract_value_buffer();
+    start_worker_threads();
 }
 
-AbstractValueBuffer::AbstractValueBuffer(
-        DataAccess::GIODevice *transport,
-        const DataObjects::DataTable &dt,
-        QObject *parent)
-            :QObject(parent),
-            cur_outgoing_data(dt),
-            _flag_new_outgoing_data_enqueued(false),
-            _flag_new_incoming_data_enqueued(false),
-            _flag_exiting(false),
-            _transport(transport)
-{
-    _init_abstract_value_buffer();
-}
-
-void AbstractValueBuffer::_init_abstract_value_buffer()
+void AbstractValueBuffer::start_worker_threads()
 {
     connect(_transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
 
@@ -157,7 +145,7 @@ QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
             data = get_current_data();
 
             if(clear)
-                cur_outgoing_data.Clear();
+                _cur_outgoing_data.Clear();
         }
         _outgoing_flags_mutex.unlock();
     }
@@ -174,26 +162,13 @@ QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
 
 QByteArray AbstractValueBuffer::get_current_data(bool hr) const
 {
-    return cur_outgoing_data.ToXmlQString(hr).toAscii();
+    return _cur_outgoing_data.ToXmlQString(hr).toAscii();
 }
 
 QString AbstractValueBuffer::import_incoming_data()
         throw(Core::Exception)
 {
     return QString(transport().ReceiveData(false));
-}
-
-void AbstractValueBuffer::process_input_data(
-        const QPair<QUuid, QByteArray> &data)
-{
-    try
-    {
-        cur_incoming_data.FromXmlQString(QString(data.second));
-    }
-    catch(Core::Exception &ex)
-    {
-        Logging::GlobalLogger::LogException(ex);
-    }
 }
 
 QByteArray AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
@@ -298,7 +273,20 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
         if(!item.second.isNull())
         {
             if(qt == InQueue)
-                process_input_data(item);
+            {
+                DataTable tbl;
+                try
+                {
+                    tbl.FromXmlQString(item.second);
+                }
+                catch(Core::Exception &ex)
+                {
+                    Logging::GlobalLogger::LogException(ex);
+                    continue;
+                }
+
+                _new_data_processor->process_input_data(item.first, tbl);
+            }
             else if (qt == OutQueue)
             {
                 try
@@ -318,7 +306,7 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
 
 void AbstractValueBuffer::WriteXml(QXmlStreamWriter &sw) const
 {
-    cur_outgoing_data.WriteXml(sw);
+    _cur_outgoing_data.WriteXml(sw);
 }
 
 void AbstractValueBuffer::ReadXml(QXmlStreamReader &sr)
@@ -337,9 +325,6 @@ void AbstractValueBuffer::_queue_processor_thread(
 {
     forever
     {
-        // Process any data in the queue
-        _flush_queue((QueueTypeEnum)queue_type);
-
         flags_mutex->lock();
         {
             if(_flag_exiting)
@@ -358,6 +343,9 @@ void AbstractValueBuffer::_queue_processor_thread(
             *flag_data_ready = false;
         }
         flags_mutex->unlock();
+
+        // Process any data in the queue
+        _flush_queue((QueueTypeEnum)queue_type);
     }
 
     // Flush the queue one last time before exiting, just in case

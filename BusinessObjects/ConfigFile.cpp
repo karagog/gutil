@@ -24,15 +24,17 @@ limitations under the License.*/
 #include <QDir>
 #include <QTimer>
 using namespace GUtil;
+using namespace BusinessObjects;
 
-BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
+ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
-    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(
-            QString("%1.%2")
-            .arg(get_file_location(identifier))
-            .arg(modifier)),
-                                          parent),
+    :AbstractValueBuffer(
+            new DataAccess::GFileIODevice(QString("%1.%2")
+                                          .arg(get_file_location(identifier))
+                                          .arg(modifier)),
+            this,
+            parent),
     _p_IsHumanReadable(true),
     _p_AutoCommitChanges(true)
 {
@@ -42,15 +44,19 @@ BusinessObjects::ConfigFile::ConfigFile(const QString &identifier,
     _init(identifier, modifier);
 }
 
-BusinessObjects::ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other, QObject *parent)
-    :BusinessObjects::AbstractValueBuffer(new DataAccess::GFileIODevice(other.FileName()), parent),
+ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
+                       QObject *parent)
+    :AbstractValueBuffer(
+            new DataAccess::GFileIODevice(other.FileName()),
+            this,
+            parent),
     _p_IsHumanReadable(other._p_IsHumanReadable),
     _p_AutoCommitChanges(other._p_AutoCommitChanges)
 {
     _init(other._identity, other._modifier);
 }
 
-void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &modifier)
+void ConfigFile::_init(const QString &identity, const QString &modifier)
 {
     _identity = identity;
     _modifier = modifier;
@@ -60,12 +66,12 @@ void BusinessObjects::ConfigFile::_init(const QString &identity, const QString &
     importData();
 }
 
-void BusinessObjects::ConfigFile::Reload()
+void ConfigFile::Reload()
 {
     importData();
 }
 
-void BusinessObjects::ConfigFile::Clear()
+void ConfigFile::Clear()
 {
     table().Clear();
     _init_column_headers();
@@ -73,13 +79,13 @@ void BusinessObjects::ConfigFile::Clear()
     _value_changed();
 }
 
-void BusinessObjects::ConfigFile::_init_column_headers()
+void ConfigFile::_init_column_headers()
 {
     // Two columns to the table
     table().SetColumnHeaders(QStringList("key") << "value");
 }
 
-void BusinessObjects::ConfigFile::_value_changed()
+void ConfigFile::_value_changed()
 {
     if(GetAutoCommitChanges())
         CommitChanges();
@@ -100,9 +106,10 @@ void BusinessObjects::ConfigFile::_value_changed()
 #   define CRYPTOPP_COMPRESS(data) std::string(data.toStdString().c_str(), data.length())
 #endif
 
-QByteArray BusinessObjects::ConfigFile::get_current_data() const
+QByteArray ConfigFile::get_current_data() const
 {
-    QByteArray ba = AbstractValueBuffer::get_current_data(GetIsHumanReadable());
+    QByteArray ba = AbstractValueBuffer::get_current_data(
+            GetIsHumanReadable());
 
     #ifdef CRYPTOPP_COMPRESSION
     if(!IsHumanReadable())
@@ -116,7 +123,7 @@ QByteArray BusinessObjects::ConfigFile::get_current_data() const
     return ba;
 }
 
-QString BusinessObjects::ConfigFile::import_incoming_data()
+QString ConfigFile::import_incoming_data()
         throw(Core::Exception)
 {
     QString data = AbstractValueBuffer::import_incoming_data();
@@ -137,14 +144,14 @@ QString BusinessObjects::ConfigFile::import_incoming_data()
     return data;
 }
 
-void BusinessObjects::ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
+void ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
 {
     QMap<QString, Custom::GVariant> m;
     m.insert(key, value);
     return SetValues(m);
 }
 
-void BusinessObjects::ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
+void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
 {
     if(values.keys().count() == 0)
         return;
@@ -169,7 +176,7 @@ void BusinessObjects::ConfigFile::SetValues(const QMap<QString, Custom::GVariant
     _value_changed();
 }
 
-Custom::GVariant BusinessObjects::ConfigFile::Value(const QString &key) const
+Custom::GVariant ConfigFile::Value(const QString &key) const
 {
     return Values(QStringList(key)).value(key);
 }
@@ -202,7 +209,7 @@ QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(const QStrin
     return ret;
 }
 
-bool BusinessObjects::ConfigFile::Contains(const QString &key) const
+bool ConfigFile::Contains(const QString &key) const
 {
     bool ret = true;
     try
@@ -219,14 +226,14 @@ bool BusinessObjects::ConfigFile::Contains(const QString &key) const
     return ret;
 }
 
-void BusinessObjects::ConfigFile::RemoveValue(const QString &key)
+void ConfigFile::RemoveValue(const QString &key)
 {
     QStringList sl;
     sl.append(key);
     RemoveValues(sl);
 }
 
-void BusinessObjects::ConfigFile::RemoveValues(const QStringList &keys)
+void ConfigFile::RemoveValues(const QStringList &keys)
 {
     if(keys.count() == 0)
         return;
@@ -245,7 +252,7 @@ void BusinessObjects::ConfigFile::RemoveValues(const QStringList &keys)
     _value_changed();
 }
 
-QString BusinessObjects::ConfigFile::get_file_location(QString id)
+QString ConfigFile::get_file_location(QString id)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     QString fl = id.toLower() + ".config.xml";
@@ -279,17 +286,17 @@ QString BusinessObjects::ConfigFile::get_file_location(QString id)
     return _config_filename;
 }
 
-void BusinessObjects::ConfigFile::process_input_data(const QPair<QUuid, QByteArray> &msg)
+void ConfigFile::process_input_data(
+        const QUuid &,
+        const DataObjects::DataTable &tbl)
 {
-    AbstractValueBuffer::process_input_data(msg);
-
     // copy the input data to the current data table
-    table() = table_incoming().Clone();
+    table() = tbl.Clone();
 
     emit NotifyConfigurationUpdate();
 }
 
-void BusinessObjects::ConfigFile::commit_reject_changes(bool commit)
+void ConfigFile::commit_reject_changes(bool commit)
 {
     table().CommitChanges(commit);
 
