@@ -25,10 +25,10 @@ using namespace BusinessObjects;
 
 AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
-        NewDataProcessor *dp,
+        DerivedClass *dp,
         QObject *parent)
             :QObject(parent),
-            _new_data_processor(dp),
+            _derived_class_pointer(dp),
             _flag_new_outgoing_data_enqueued(false),
             _flag_new_incoming_data_enqueued(false),
             _flag_exiting(false),
@@ -114,11 +114,12 @@ void AbstractValueBuffer::_clear_queue(
 
 void AbstractValueBuffer::importData()
 {
-    QString data;
+    QByteArray *data;
 
     try
     {
-        data = import_incoming_data();
+        // First get the data off the io device
+        data = new QByteArray(transport().ReceiveData(false));
     }
     catch(Core::Exception &ex)
     {
@@ -126,106 +127,102 @@ void AbstractValueBuffer::importData()
         return;
     }
 
-    en_deQueueMessage(InQueue, data.toAscii(), true);
-}
 
-QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
-{
-    QString data;
-    QUuid ret;
+    // Translate, if necessary
+    if(_derived_class_pointer)
+        _derived_class_pointer->preprocess_incoming_data(*data);
 
-    _outgoing_flags_mutex.lock();
-    {
-        // Tag the table data with a GUID
-        table().SetTableName((ret = QUuid::createUuid()).toString());
 
-        try
-        {
-            data = get_current_data();
-            if(clear)
-                _cur_data.Clear();
-        }
-        catch(Core::Exception &ex)
-        {
-            // I want to log the exception before yielding control
-            Logging::GlobalLogger::LogException(ex);
-            _outgoing_flags_mutex.unlock();
-            return QUuid();
-        }
-    }
-    _outgoing_flags_mutex.unlock();
-
-    en_deQueueMessage(OutQueue, data.toAscii(), true);
-    return ret;
-}
-
-QByteArray AbstractValueBuffer::get_current_data(bool hr) const
-{
-    return _cur_data.ToXmlQString(hr).toAscii();
-}
-
-QByteArray AbstractValueBuffer::import_incoming_data()
-        throw(Core::Exception)
-{
-    return transport().ReceiveData(false);
-}
-
-DataTable AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
-{
-    return en_deQueueMessage(q, QByteArray(), false);
-}
-
-DataTable AbstractValueBuffer::en_deQueueMessage(
-        QueueTypeEnum q,
-        const QByteArray &msg,
-        bool enqueue)
-{
-    DataTable ret;
-    QMutex *m;
-    QQueue<DataObjects::DataTable> *tmpq;
-
-    bool *bln_new_data_flag;
-    QMutex *data_mutex;
-    QWaitCondition *wc;
-
+    DataTable tbl;
     try
     {
-        _get_queue_and_mutex(q, &tmpq, &m);
+        // Populate the table with the xml data
+        tbl.FromXmlQString(*data);
     }
     catch(Core::Exception &ex)
     {
         Logging::GlobalLogger::LogException(ex);
-        return ret;
+        delete data;
+        return;
     }
 
-    // Set the wait condition and the missed wake-up flags
+    // Enqueue it
+    en_deQueueMessage(InQueue, tbl, true);
+    delete data;
+}
+
+QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
+{
+    QUuid ret;
+    DataTable *tmp = 0;
+
+    // Tag the table data with a GUID
+    table().SetTableName((ret = QUuid::createUuid()).toString());
+
+    tmp = new DataTable(_cur_data.Clone());
+    if(clear)
+        _cur_data.Clear();
+
+    en_deQueueMessage(OutQueue, *tmp, true);
+
+    delete tmp;
+    return ret;
+}
+
+DataTable AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
+{
+    return en_deQueueMessage(q, DataTable(), false);
+}
+
+DataTable AbstractValueBuffer::en_deQueueMessage(
+        QueueTypeEnum q,
+        const DataTable &msg,
+        bool enqueue)
+{
+    DataTable *tmp_tbl;
+    QMutex *queue_mutex;
+    QQueue<DataTable> *queue;
+
+    bool *flag_new_data;
+    QMutex *flags_mutex;
+    QWaitCondition *condition_newdata_available;
+
+    try
+    {
+        _get_queue_and_mutex(q, &queue, &queue_mutex);
+    }
+    catch(Core::Exception &ex)
+    {
+        Logging::GlobalLogger::LogException(ex);
+        return DataTable();
+    }
+
+    // Set the wait condition and the new data flags
     switch(q)
     {
     case InQueue:
-        bln_new_data_flag = &_flag_new_incoming_data_enqueued;
-        data_mutex = &_incoming_flags_mutex;
-        wc = &_condition_data_arrived;
+        flag_new_data = &_flag_new_incoming_data_enqueued;
+        flags_mutex = &_incoming_flags_mutex;
+        condition_newdata_available = &_condition_data_arrived;
         break;
     case OutQueue:
-        bln_new_data_flag = &_flag_new_outgoing_data_enqueued;
-        data_mutex = &_outgoing_flags_mutex;
-        wc = &_condition_data_sent;
+        flag_new_data = &_flag_new_outgoing_data_enqueued;
+        flags_mutex = &_outgoing_flags_mutex;
+        condition_newdata_available = &_condition_data_sent;
         break;
     default:
         THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException, "");
     }
 
-    m->lock();
+    // en/dequeue the data
+    queue_mutex->lock();
     {
         if(enqueue)
-        {
-            ret.FromXmlQString(msg);
-            tmpq->enqueue(ret);
-        }
-        else if(!tmpq->empty())
-            ret = tmpq->dequeue();
+            queue->enqueue(*(tmp_tbl = new DataTable(msg.Clone())));
+        else if(!queue->empty())
+            tmp_tbl = new DataTable(queue->dequeue());
     }
-    m->unlock();
+    queue_mutex->unlock();
 
     // Wake up our background worker to the fact that there's new
     //  data available.  If they miss the wakeup because they're already
@@ -233,15 +230,23 @@ DataTable AbstractValueBuffer::en_deQueueMessage(
     //  been set to true, and they will reprocess the appropriate queue.
     if(enqueue)
     {
-        data_mutex->lock();
+        flags_mutex->lock();
         {
-            *bln_new_data_flag = true;
+            *flag_new_data = true;
         }
-        data_mutex->unlock();
+        flags_mutex->unlock();
 
-        wc->wakeOne();
+        condition_newdata_available->wakeOne();
     }
 
+    // Create a return table on the stack.  We do this because creating a
+    //  DataTable using the copy constructor is significantly less time consuming
+    //  than creating it with the default constructor.  It is a shared data class
+    //  so when copying all it does is set a single pointer, but when creating
+    //  from scratch it would allocate a new shared data structure only to
+    //  delete it when you use the '=' operator to set the return data
+    DataTable ret(*tmp_tbl);
+    delete tmp_tbl;
     return ret;
 }
 
@@ -268,12 +273,39 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
         mutex->unlock();
 
         if(qt == InQueue)
-            _new_data_processor->process_input_data(tbl);
-        else if (qt == OutQueue)
         {
+            QByteArray *data;
             try
             {
-                transport().SendData(tbl.ToXmlQString().toAscii());
+                data = new QByteArray(transport().ReceiveData(false));
+            }
+            catch(Core::Exception &ex)
+            {
+                Logging::GlobalLogger::LogException(ex);
+                return;
+            }
+
+            if(_derived_class_pointer)
+            {
+                _derived_class_pointer->preprocess_incoming_data(*data);
+
+                DataTable tbl;
+                tbl.FromXmlQString(*data);
+                _derived_class_pointer->new_input_data_arrived(tbl);
+            }
+
+            delete data;
+        }
+        else if(qt == OutQueue)
+        {
+            QByteArray data = tbl.ToXmlQString().toAscii();
+
+            if(_derived_class_pointer)
+                _derived_class_pointer->preprocess_outgoing_data(data);
+
+            try
+            {
+                transport().SendData(data);
             }
             catch(Core::Exception &ex)
             {

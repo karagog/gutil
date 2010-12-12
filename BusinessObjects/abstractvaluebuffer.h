@@ -60,14 +60,21 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            // Derived classes must inherit this also:
-            class NewDataProcessor
+            // Derived classes must inherit this also, because the background
+            //  threads don't always work with virtual functions inside AVB:
+            class DerivedClass
             {
                 friend class AbstractValueBuffer;
             protected:
 
-                virtual void process_input_data(
-                        const DataObjects::DataTable &) = 0;
+                // Use these functions to do anything to the data before it
+                //  goes and just before it comes in.  For example you might
+                //  do things like encrypt/compress the data.
+                virtual void preprocess_incoming_data(QByteArray &) const{}
+                virtual void preprocess_outgoing_data(QByteArray &) const{}
+
+                virtual void new_input_data_arrived(
+                        const DataObjects::DataTable &){}
 
             };
 
@@ -77,7 +84,7 @@ namespace GUtil
             // No public constructor; this class must be derived.
             AbstractValueBuffer(
                     DataAccess::GIODevice *transport,
-                    NewDataProcessor *dp,
+                    DerivedClass *dp = 0,
                     QObject *parent = 0);
 
             ~AbstractValueBuffer();
@@ -103,11 +110,11 @@ namespace GUtil
                 return _cur_data;
             }
 
-            // If you need to do some special data processing, reimplement these
-            virtual QByteArray get_current_data(
-                    bool human_readable_xml = false) const;
-            virtual QByteArray import_incoming_data()
-                    throw(Core::Exception);
+            // Make sure to lock this table, if it might be updated in a
+            //  background thread
+            inline QMutex &table_lock(){
+                return _cur_data_lock;
+            }
 
             // Forcefully remove all data from the queue
             void clearQueues();
@@ -137,12 +144,13 @@ namespace GUtil
 
             // Subclasses inject this dependency, which in most cases is
             //  a pointer to themselves
-            NewDataProcessor *_new_data_processor;
+            DerivedClass *_derived_class_pointer;
 
 
-            DataObjects::DataTable en_deQueueMessage(QueueTypeEnum,
-                                   const QByteArray &msg,
-                                   bool enqueue);
+            DataObjects::DataTable en_deQueueMessage(
+                    QueueTypeEnum,
+                    const DataObjects::DataTable &msg,
+                    bool enqueue);
 
             void _get_queue_and_mutex(QueueTypeEnum,
                                       QQueue<DataObjects::DataTable> **,
@@ -160,6 +168,7 @@ namespace GUtil
             QQueue<DataObjects::DataTable> out_queue;
 
             DataObjects::DataTable _cur_data;
+            QMutex _cur_data_lock;
 
             void _flush_queue(QueueTypeEnum);
 

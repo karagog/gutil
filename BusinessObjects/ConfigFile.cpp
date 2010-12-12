@@ -108,11 +108,8 @@ void ConfigFile::_value_changed()
         std::string(data.constData(), data.length())
 #endif
 
-QByteArray ConfigFile::get_current_data() const
+void ConfigFile::preprocess_outgoing_data(QByteArray &ba) const
 {
-    QByteArray ba = AbstractValueBuffer::get_current_data(
-            GetIsHumanReadable());
-
     #ifdef CRYPTOPP_COMPRESSION
     if(!IsHumanReadable())
     {
@@ -121,29 +118,31 @@ QByteArray ConfigFile::get_current_data() const
         ba = QByteArray(tmpres.c_str(), tmpres.length());
     }
     #endif
-
-    return ba;
 }
 
-QByteArray ConfigFile::import_incoming_data()
-        throw(Core::Exception)
+void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 {
-    QByteArray data = AbstractValueBuffer::import_incoming_data();
-
-
     #ifdef CRYPTOPP_COMPRESSION
     // try to decompress it,
     try
     {
-        std::string tmpres = CRYPTOPP_DECOMPRESS(data);
-
-        data = QString(tmpres.c_str());
+        data = CRYPTOPP_DECOMPRESS(data).c_str();
     }
     catch(Core::Exception &)
     {}
     #endif
+}
 
-    return data;
+void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
+{
+    // copy the input data to the current data table
+    table_lock().lock();
+    {
+        table() = tbl.Clone();
+    }
+    table_lock().unlock();
+
+    emit NotifyConfigurationUpdate();
 }
 
 void ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
@@ -286,14 +285,6 @@ QString ConfigFile::get_file_location(QString id)
     }
 
     return _config_filename;
-}
-
-void ConfigFile::process_input_data(const DataObjects::DataTable &tbl)
-{
-    // copy the input data to the current data table
-    table() = tbl.Clone();
-
-    emit NotifyConfigurationUpdate();
 }
 
 void ConfigFile::commit_reject_changes(bool commit)

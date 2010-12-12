@@ -40,7 +40,7 @@ namespace GUtil
 
         class ConfigFile :
                 public AbstractValueBuffer,
-                public AbstractValueBuffer::NewDataProcessor,
+                public AbstractValueBuffer::DerivedClass,
                 public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
@@ -92,11 +92,6 @@ namespace GUtil
 
         protected:
 
-            // Overrides of AbstractValueBuffer functions (to support compression of the data)
-            QByteArray get_current_data() const;
-            QByteArray import_incoming_data()
-                    throw(Core::Exception);
-
             inline DataAccess::GFileIODevice &FileTransport() {
                 return (DataAccess::GFileIODevice &)transport();
             }
@@ -117,8 +112,13 @@ namespace GUtil
             void _init(const QString &, const QString &);
             void _init_column_headers();
 
-            // NewDataProcessor interface:
-            void process_input_data(const DataObjects::DataTable &);
+            // Overrides of AbstractValueBuffer functions
+            //  (to support compression of the data)
+            void preprocess_outgoing_data(QByteArray &) const;
+            void preprocess_incoming_data(QByteArray &) const;
+
+            // This copies the new input table into the current table
+            void new_input_data_arrived(const DataObjects::DataTable &);
 
             void _value_changed();
 
