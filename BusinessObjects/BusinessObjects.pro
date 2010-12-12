@@ -9,14 +9,12 @@ HEADERS += \
     BinaryDataStore.h \
     LocalClientServer.h \
     ConfigFile.h \
-    abstractvaluebuffer.h \
-    io_queue_worker.h
+    abstractvaluebuffer.h
 
 SOURCES += \
     BinaryDataStore.cpp \
     LocalClientServer.cpp \
     ConfigFile.cpp \
-    abstractvaluebuffer.cpp \
-    io_queue_worker.cpp
+    abstractvaluebuffer.cpp
 
 INCLUDEPATH += ..
