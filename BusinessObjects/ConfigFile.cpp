@@ -61,7 +61,11 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
     _identity = identity;
     _modifier = modifier;
 
-    _init_column_headers();
+    table_lock().lock();
+    {
+        _init_column_headers();
+    }
+    table_lock().unlock();
 
     importData();
 }
@@ -73,8 +77,12 @@ void ConfigFile::Reload()
 
 void ConfigFile::Clear()
 {
-    table().Clear();
-    _init_column_headers();
+    table_lock().lock();
+    {
+        table().Clear();
+        _init_column_headers();
+    }
+    table_lock().unlock();
 
     _value_changed();
 }
@@ -157,6 +165,7 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
     if(values.keys().count() == 0)
         return;
 
+    table_lock().lock();
     foreach(QString s, values.keys())
     {
         bool ex_hit = false;
@@ -173,46 +182,54 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
         if(ex_hit)
             table().AddNewRow(Custom::GVariantList() << s << values[s]);
     }
+    table_lock().unlock();
 
     _value_changed();
 }
 
-Custom::GVariant ConfigFile::Value(const QString &key) const
+Custom::GVariant ConfigFile::Value(const QString &key)
 {
     return Values(QStringList(key)).value(key);
 }
 
-QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(const QStringList &keys) const
+QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(
+        const QStringList &keys)
 {
     QMap<QString, Custom::GVariant> ret;
     QStringList keys_copy(keys);
 
-    if(keys.isEmpty())
+    table_lock().lock();
     {
-        for(int i = 0; i < table().RowCount(); i++)
-            keys_copy.append(table()[i]["key"].toString());
-    }
-
-    foreach(QString s, keys_copy)
-    {
-        // Prepare the "search map"
-        QMap<int, Custom::GVariant> m;
-        m.insert(0, s);
-
-        try
+        if(keys.isEmpty())
         {
-            const DataObjects::DataRow *const r = &table().FindFirstRow(m);
-            ret.insert(r->At(0).toString(), r->At(1));
+            for(int i = 0; i < table().RowCount(); i++)
+                keys_copy.append(table()[i]["key"].toString());
         }
-        catch(Core::NotFoundException &){}    // if key not found, ignore
+
+        foreach(QString s, keys_copy)
+        {
+            // Prepare the "search map"
+            QMap<int, Custom::GVariant> m;
+            m.insert(0, s);
+
+            try
+            {
+                const DataObjects::DataRow *const r = &table().FindFirstRow(m);
+                ret.insert(r->At(0).toString(), r->At(1));
+            }
+            catch(Core::NotFoundException &){}    // if key not found, ignore
+        }
     }
+    table_lock().unlock();
 
     return ret;
 }
 
-bool ConfigFile::Contains(const QString &key) const
+bool ConfigFile::Contains(const QString &key)
 {
     bool ret = true;
+
+    table_lock().lock();
     try
     {
         QMap<int, Custom::GVariant> m;
@@ -223,6 +240,7 @@ bool ConfigFile::Contains(const QString &key) const
     {
         ret = false;
     }
+    table_lock().unlock();
 
     return ret;
 }
@@ -239,6 +257,7 @@ void ConfigFile::RemoveValues(const QStringList &keys)
     if(keys.count() == 0)
         return;
 
+    table_lock().lock();
     foreach(QString s, keys)
     {
         try
@@ -249,6 +268,7 @@ void ConfigFile::RemoveValues(const QStringList &keys)
         }
         catch(Core::NotFoundException &){}
     }
+    table_lock().unlock();
 
     _value_changed();
 }
@@ -289,9 +309,8 @@ QString ConfigFile::get_file_location(QString id)
 
 void ConfigFile::commit_reject_changes(bool commit)
 {
-    table().CommitChanges(commit);
-
     if(commit)
-        // Export the changed data to the config file (don't clear the current data in it)
+        // Export the changed data to the config file
+        //  (don't clear the current data in it)
         enQueueCurrentData(false);
 }

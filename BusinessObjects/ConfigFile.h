@@ -51,8 +51,9 @@ namespace GUtil
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
 
 
-            Custom::GVariant Value(const QString &key) const;
-            QMap<QString, Custom::GVariant> Values(const QStringList &keys = QStringList()) const;
+            Custom::GVariant Value(const QString &key);
+            QMap<QString, Custom::GVariant> Values(
+                    const QStringList &keys = QStringList());
 
             void SetValue(const QString &key, const Custom::GVariant& value);
             void SetValues(const QMap<QString, Custom::GVariant> &);
@@ -61,7 +62,7 @@ namespace GUtil
             void RemoveValue(const QString &);
             void RemoveValues(const QStringList &);
 
-            bool Contains(const QString &key) const;
+            bool Contains(const QString &key);
 
             void Clear();
 

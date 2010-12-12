@@ -156,12 +156,20 @@ QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
     QUuid ret;
     DataTable *tmp = 0;
 
-    // Tag the table data with a GUID
-    table().SetTableName((ret = QUuid::createUuid()).toString());
+    _cur_data_lock.lock();
+    {
+        // Tag the table data with a GUID
+        _cur_data.SetTableName((ret = QUuid::createUuid()).toString());
 
-    tmp = new DataTable(_cur_data.Clone());
-    if(clear)
-        _cur_data.Clear();
+        tmp = new DataTable(_cur_data.Clone());
+        if(clear)
+            _cur_data.Clear();
+
+        // Automatically commit the changes in the table, even if we didn't
+        //  just clear it, because that is our policy
+        _cur_data.CommitChanges();
+    }
+    _cur_data_lock.unlock();
 
     en_deQueueMessage(OutQueue, *tmp, true);
 
