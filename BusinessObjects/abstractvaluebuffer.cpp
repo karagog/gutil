@@ -344,17 +344,17 @@ void AbstractValueBuffer::_queue_processor_thread(
     {
         flags_mutex->lock();
         {
-            if(_flag_exiting)
-            {
-                flags_mutex->unlock();
-                break;
-            }
-
             // Somebody may have queued more data for us while we
             //  were processing the last run.  If so, we skip waiting and
             //  go right to process the queue.
             if(!(*flag_data_ready))
                 condition_data_ready->wait(flags_mutex);
+
+            if(_flag_exiting)
+            {
+                flags_mutex->unlock();
+                break;
+            }
 
             // lower the flag
             *flag_data_ready = false;
@@ -364,9 +364,6 @@ void AbstractValueBuffer::_queue_processor_thread(
         // Process any data in the queue
         _flush_queue((QueueTypeEnum)queue_type);
     }
-
-    // Flush the queue one last time before exiting, just in case
-    _flush_queue((QueueTypeEnum)queue_type);
 }
 
 void AbstractValueBuffer::wait_for_message_sent(const QUuid &id)

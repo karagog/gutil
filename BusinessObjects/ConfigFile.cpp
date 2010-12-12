@@ -160,9 +160,15 @@ void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
     table_lock().lock();
     {
         table() = tbl.Clone();
+
+        // Mark it dirty and commit, so we can count how many times
+        //  it's been updated
+        table().MakeDirty();
+        table().CommitChanges();
     }
     table_lock().unlock();
 
+    _condition_config_update.wakeAll();
     emit NotifyConfigurationUpdate();
 }
 

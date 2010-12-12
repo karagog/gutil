@@ -40,7 +40,8 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            explicit GFileIODevice(const QString &filename = QString::null, QObject *parent = 0);
+            explicit GFileIODevice(const QString &filename = QString::null,
+                                   QObject *parent = 0);
 
             enum WriteModeEnum
             {

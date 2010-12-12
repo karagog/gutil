@@ -167,6 +167,8 @@ namespace GUtil
             QMutex _out_queue_mutex;
             QWaitCondition _condition_outgoing_data_sent;
 
+            // These wait conditions correspond to the events when data is
+            //  put on the queue to be processed by the background threads
             QMutex _incoming_flags_mutex;
             QMutex _outgoing_flags_mutex;
             QWaitCondition _condition_incoming_data_enqueued;
