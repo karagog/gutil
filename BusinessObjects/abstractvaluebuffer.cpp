@@ -147,11 +147,14 @@ void AbstractValueBuffer::importData()
         // Populate the table with the xml data
         tbl.FromXmlQString(*data);
     }
-    catch(Core::Exception &ex)
+    catch(Core::XmlException &)
     {
-        Logging::GlobalLogger::LogException(ex);
-        delete data;
-        return;
+        // If the xml parse fails, then it's corrupt for whatever reason.
+        //  we'll ignore it and treat it as a null configuration
+        tbl.Clear();
+
+        if(_derived_class_pointer)
+            _derived_class_pointer->init_new_table(tbl);
     }
 
     // Enqueue it
@@ -306,7 +309,18 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
                 _derived_class_pointer->preprocess_incoming_data(*data);
 
                 DataTable tbl;
-                tbl.FromXmlQString(*data);
+                try
+                {
+                    tbl.FromXmlQString(*data);
+                }
+                catch(Core::XmlException &)
+                {
+                    // Ignore and treat as null configuration
+                    tbl.Clear();
+
+                    _derived_class_pointer->init_new_table(tbl);
+                }
+
                 _derived_class_pointer->new_input_data_arrived(tbl);
             }
 

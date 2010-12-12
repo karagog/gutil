@@ -72,7 +72,7 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
 
     table_lock().lock();
     {
-        _init_column_headers();
+        init_new_table(table());
 
         while(table().GetUpdateCounter() == 0)
             _condition_config_update.wait(&table_lock());
@@ -106,17 +106,17 @@ void ConfigFile::Clear()
     table_lock().lock();
     {
         table().Clear();
-        _init_column_headers();
+        init_new_table(table());
     }
     table_lock().unlock();
 
     _value_changed();
 }
 
-void ConfigFile::_init_column_headers()
+void ConfigFile::init_new_table(DataObjects::DataTable &tbl) const
 {
     // Two columns to the table
-    table().SetColumnHeaders(QStringList("key") << "value");
+    tbl.SetColumnHeaders(QStringList("key") << "value");
 }
 
 void ConfigFile::_value_changed()

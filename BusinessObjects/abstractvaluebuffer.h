@@ -75,6 +75,9 @@ namespace GUtil
                 virtual void new_input_data_arrived(
                         const DataObjects::DataTable &){}
 
+                // Any time a new table is created you can modify it with this
+                virtual void init_new_table(DataObjects::DataTable &) const{}
+
             };
 
         protected:

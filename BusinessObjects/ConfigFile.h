@@ -114,7 +114,7 @@ namespace GUtil
 
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
-            void _init_column_headers();
+            void init_new_table(DataObjects::DataTable &) const;
 
             // Overrides of AbstractValueBuffer functions
             //  (to support compression of the data)
