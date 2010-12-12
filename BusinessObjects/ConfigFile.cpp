@@ -56,6 +56,13 @@ ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
     _init(other._identity, other._modifier);
 }
 
+ConfigFile::~ConfigFile()
+{
+    // This makes sure our virtual functions are still valid while the threads
+    //  are running
+    kill_worker_threads();
+}
+
 void ConfigFile::_init(const QString &identity, const QString &modifier)
 {
     _identity = identity;
@@ -168,7 +175,7 @@ void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
     }
     table_lock().unlock();
 
-    _condition_config_update.wakeAll();
+    //_condition_config_update.wakeAll();
     emit NotifyConfigurationUpdate();
 }
 

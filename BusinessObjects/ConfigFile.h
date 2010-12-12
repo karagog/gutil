@@ -40,7 +40,7 @@ namespace GUtil
 
         class ConfigFile :
                 public AbstractValueBuffer,
-                public AbstractValueBuffer::DerivedClass,
+                public AbstractValueBuffer::DerivedClassFunctions,
                 public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
@@ -49,6 +49,7 @@ namespace GUtil
             explicit ConfigFile(const QString &, const QString &modifier = "",
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
+            ~ConfigFile();
 
 
             Custom::GVariant Value(const QString &key);

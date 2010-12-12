@@ -25,15 +25,15 @@ using namespace BusinessObjects;
 
 AbstractValueBuffer::AbstractValueBuffer(
         DataAccess::GIODevice *transport,
-        DerivedClass *dp,
+        DerivedClassFunctions *dp,
         QObject *parent)
             :QObject(parent),
             _p_AsyncWrite(true),
-            _derived_class_pointer(dp),
             _flag_new_outgoing_data_enqueued(false),
             _flag_new_incoming_data_enqueued(false),
             _flag_exiting(false),
-            _transport(transport)
+            _transport(transport),
+            _derived_class_pointer(dp)
 {
     start_worker_threads();
 }
@@ -60,6 +60,16 @@ void AbstractValueBuffer::start_worker_threads()
 
 AbstractValueBuffer::~AbstractValueBuffer()
 {
+    // Derived classes must call this first thing in their destructors, but just
+    //  in case we still call it here.  But this may cause a seg fault if called
+    //  here
+    kill_worker_threads();
+
+    delete _transport;
+}
+
+void AbstractValueBuffer::kill_worker_threads()
+{
     _incoming_flags_mutex.lock();
     _outgoing_flags_mutex.lock();
     {
@@ -74,8 +84,6 @@ AbstractValueBuffer::~AbstractValueBuffer()
 
     _ref_worker_incoming.waitForFinished();
     _ref_worker_outgoing.waitForFinished();
-
-    delete _transport;
 }
 
 void AbstractValueBuffer::_get_queue_and_mutex(

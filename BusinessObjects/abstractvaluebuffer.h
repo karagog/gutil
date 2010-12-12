@@ -64,9 +64,8 @@ namespace GUtil
             PROPERTY( AsyncWrite, bool );
 
 
-            // Derived classes must inherit this also, because the background
-            //  threads don't always work with virtual functions inside AVB:
-            class DerivedClass
+            // Derived classes use this to control the behavior of the AVB
+            class DerivedClassFunctions
             {
                 friend class AbstractValueBuffer;
             protected:
@@ -82,16 +81,19 @@ namespace GUtil
 
             };
 
-
         protected:
 
             // No public constructor; this class must be derived.
             AbstractValueBuffer(
                     DataAccess::GIODevice *transport,
-                    DerivedClass *dp = 0,
+                    DerivedClassFunctions *dp = 0,
                     QObject *parent = 0);
 
             ~AbstractValueBuffer();
+
+            // Derived classes MUST call this on the first line of their
+            //  destructor
+            void kill_worker_threads();
 
             // Derived classes must call this to start the worker threads.
             //  This is because it depends on a pure virtual method, so this
@@ -149,11 +151,6 @@ namespace GUtil
 
         private:
 
-            // Subclasses inject this dependency, which in most cases is
-            //  a pointer to themselves
-            DerivedClass *_derived_class_pointer;
-
-
             DataObjects::DataTable en_deQueueMessage(
                     QueueTypeEnum,
                     const DataObjects::DataTable &msg,
@@ -201,6 +198,7 @@ namespace GUtil
             void _clear_queue(QMutex &, QQueue< DataObjects::DataTable > &);
 
             DataAccess::GIODevice *_transport;
+            DerivedClassFunctions *_derived_class_pointer;
 
         };
     }
