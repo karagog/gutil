@@ -60,6 +60,10 @@ namespace GUtil
             Q_OBJECT
         public:
 
+            // Should we send data asynchronously, or block until we've sent it?
+            PROPERTY( AsyncWrite, bool );
+
+
             // Derived classes must inherit this also, because the background
             //  threads don't always work with virtual functions inside AVB:
             class DerivedClass
@@ -119,6 +123,9 @@ namespace GUtil
             // Forcefully remove all data from the queue
             void clearQueues();
 
+            // Blocks until the message denoted by the unique identifier is sent
+            void wait_for_message_sent(const QUuid &);
+
 
             enum QueueTypeEnum
             {
@@ -158,14 +165,15 @@ namespace GUtil
 
             QMutex _in_queue_mutex;
             QMutex _out_queue_mutex;
+            QWaitCondition _condition_outgoing_data_sent;
 
             QMutex _incoming_flags_mutex;
             QMutex _outgoing_flags_mutex;
-            QWaitCondition _condition_data_arrived;
-            QWaitCondition _condition_data_sent;
+            QWaitCondition _condition_incoming_data_enqueued;
+            QWaitCondition _condition_outgoing_data_enqueued;
 
-            QQueue<DataObjects::DataTable> in_queue;
-            QQueue<DataObjects::DataTable> out_queue;
+            QQueue<DataObjects::DataTable> _in_queue;
+            QQueue<DataObjects::DataTable> _out_queue;
 
             DataObjects::DataTable _cur_data;
             QMutex _cur_data_lock;

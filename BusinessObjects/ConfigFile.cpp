@@ -61,13 +61,26 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
     _identity = identity;
     _modifier = modifier;
 
+    // Manually load the file; don't wait for the queue worker in this case
+    QByteArray ba;
+    try
+    {
+        ba = transport().ReceiveData(false);
+    }
+    catch(...)
+    {}
+
     table_lock().lock();
     {
         _init_column_headers();
+
+        if(!ba.isNull())
+        {
+            preprocess_incoming_data(ba);
+            table().FromXmlQString(ba);
+        }
     }
     table_lock().unlock();
-
-    importData();
 }
 
 void ConfigFile::Reload()

@@ -28,6 +28,7 @@ AbstractValueBuffer::AbstractValueBuffer(
         DerivedClass *dp,
         QObject *parent)
             :QObject(parent),
+            _p_AsyncWrite(true),
             _derived_class_pointer(dp),
             _flag_new_outgoing_data_enqueued(false),
             _flag_new_incoming_data_enqueued(false),
@@ -45,14 +46,14 @@ void AbstractValueBuffer::start_worker_threads()
     _ref_worker_outgoing =
             QtConcurrent::run(this, &AbstractValueBuffer::_queue_processor_thread,
                               &_outgoing_flags_mutex,
-                              &_condition_data_sent,
+                              &_condition_outgoing_data_enqueued,
                               &_flag_new_outgoing_data_enqueued,
                               OutQueue);
 
     _ref_worker_incoming =
             QtConcurrent::run(this, &AbstractValueBuffer::_queue_processor_thread,
                               &_incoming_flags_mutex,
-                              &_condition_data_arrived,
+                              &_condition_incoming_data_enqueued,
                               &_flag_new_incoming_data_enqueued,
                               InQueue);
 }
@@ -68,8 +69,8 @@ AbstractValueBuffer::~AbstractValueBuffer()
     _incoming_flags_mutex.unlock();
 
     // Wake up our background workers and wait for them to finish
-    _condition_data_sent.wakeOne();
-    _condition_data_arrived.wakeOne();
+    _condition_outgoing_data_enqueued.wakeOne();
+    _condition_incoming_data_enqueued.wakeOne();
 
     _ref_worker_incoming.waitForFinished();
     _ref_worker_outgoing.waitForFinished();
@@ -86,11 +87,11 @@ void AbstractValueBuffer::_get_queue_and_mutex(
     {
     case InQueue:
         *m = &_in_queue_mutex;
-        *q = &in_queue;
+        *q = &_in_queue;
         break;
     case OutQueue:
         *m = &_out_queue_mutex;
-        *q = &out_queue;
+        *q = &_out_queue;
         break;
     default:
         throw Core::NotImplementedException("Unrecognized queue type");
@@ -99,8 +100,8 @@ void AbstractValueBuffer::_get_queue_and_mutex(
 
 void AbstractValueBuffer::clearQueues()
 {
-    _clear_queue(_in_queue_mutex, in_queue);
-    _clear_queue(_out_queue_mutex, out_queue);
+    _clear_queue(_in_queue_mutex, _in_queue);
+    _clear_queue(_out_queue_mutex, _out_queue);
 }
 
 void AbstractValueBuffer::_clear_queue(
@@ -211,12 +212,12 @@ DataTable AbstractValueBuffer::en_deQueueMessage(
     case InQueue:
         flag_new_data = &_flag_new_incoming_data_enqueued;
         flags_mutex = &_incoming_flags_mutex;
-        condition_newdata_available = &_condition_data_arrived;
+        condition_newdata_available = &_condition_incoming_data_enqueued;
         break;
     case OutQueue:
         flag_new_data = &_flag_new_outgoing_data_enqueued;
         flags_mutex = &_outgoing_flags_mutex;
-        condition_newdata_available = &_condition_data_sent;
+        condition_newdata_available = &_condition_outgoing_data_enqueued;
         break;
     default:
         THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException, "");
@@ -255,6 +256,12 @@ DataTable AbstractValueBuffer::en_deQueueMessage(
     //  delete it when you use the '=' operator to set the return data
     DataTable ret(*tmp_tbl);
     delete tmp_tbl;
+
+    // If we write synchronously, then we wait here we wait until the data
+    //   is actually written
+    if(!GetAsyncWrite())
+        wait_for_message_sent(ret.Name());
+
     return ret;
 }
 
@@ -321,6 +328,8 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
                 // Don't crash on transport errors
                 //throw;
             }
+
+            _condition_outgoing_data_sent.wakeAll();
         }
     }
 }
@@ -358,4 +367,31 @@ void AbstractValueBuffer::_queue_processor_thread(
 
     // Flush the queue one last time before exiting, just in case
     _flush_queue((QueueTypeEnum)queue_type);
+}
+
+void AbstractValueBuffer::wait_for_message_sent(const QUuid &id)
+{
+    _out_queue_mutex.lock();
+    {
+        bool contains(true);
+
+        while(contains)
+        {
+            contains = false;
+
+            // Figure out if the queue contains the given id
+            foreach(DataTable tbl, _out_queue)
+            {
+                if(id == tbl.Name())
+                {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if(contains)
+                _condition_outgoing_data_sent.wait(&_out_queue_mutex);
+        }
+    }
+    _out_queue_mutex.unlock();
 }
