@@ -110,6 +110,8 @@ namespace GUtil
             QString _identity;
             QString _modifier;
 
+            QWaitCondition _condition_config_update;
+
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
             void _init_column_headers();

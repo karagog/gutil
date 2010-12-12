@@ -68,31 +68,37 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
     _identity = identity;
     _modifier = modifier;
 
-    // Manually load the file; don't wait for the queue worker in this case
-    QByteArray ba;
-    try
-    {
-        ba = transport().ReceiveData(false);
-    }
-    catch(...)
-    {}
+    importData();
 
     table_lock().lock();
     {
         _init_column_headers();
 
-        if(!ba.isNull())
-        {
-            preprocess_incoming_data(ba);
-            table().FromXmlQString(ba);
-        }
+        while(table().GetUpdateCounter() == 0)
+            _condition_config_update.wait(&table_lock());
     }
     table_lock().unlock();
 }
 
 void ConfigFile::Reload()
 {
+    long counter;
+    table_lock().lock();
+    {
+        counter = table().GetUpdateCounter();
+    }
+    table_lock().unlock();
+
+
     importData();
+
+
+    table_lock().lock();
+    {
+        while(counter == table().GetUpdateCounter())
+            _condition_config_update.wait(&table_lock());
+    }
+    table_lock().unlock();
 }
 
 void ConfigFile::Clear()
@@ -175,7 +181,7 @@ void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
     }
     table_lock().unlock();
 
-    //_condition_config_update.wakeAll();
+    _condition_config_update.wakeAll();
     emit NotifyConfigurationUpdate();
 }
 
