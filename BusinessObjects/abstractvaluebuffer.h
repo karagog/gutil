@@ -60,10 +60,6 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            // Should we send data asynchronously, or block until we've sent it?
-            PROPERTY( AsyncWrite, bool );
-
-
             // Derived classes use this to control the behavior of the AVB
             class DerivedClassFunctions
             {
@@ -126,7 +122,7 @@ namespace GUtil
             void clearQueues();
 
             // Blocks until the message denoted by the unique identifier is sent
-            void wait_for_message_sent(const QUuid &);
+            //void wait_for_message_sent(const QUuid &);
 
 
             enum QueueTypeEnum

@@ -28,7 +28,6 @@ AbstractValueBuffer::AbstractValueBuffer(
         DerivedClassFunctions *dp,
         QObject *parent)
             :QObject(parent),
-            _p_AsyncWrite(true),
             _flag_new_outgoing_data_enqueued(false),
             _flag_new_incoming_data_enqueued(false),
             _flag_exiting(false),
@@ -264,12 +263,6 @@ DataTable AbstractValueBuffer::en_deQueueMessage(
     //  delete it when you use the '=' operator to set the return data
     DataTable ret(*tmp_tbl);
     delete tmp_tbl;
-
-    // If we write synchronously, then we wait here we wait until the data
-    //   is actually written
-    if(!GetAsyncWrite())
-        wait_for_message_sent(ret.Name());
-
     return ret;
 }
 
@@ -374,29 +367,29 @@ void AbstractValueBuffer::_queue_processor_thread(
     }
 }
 
-void AbstractValueBuffer::wait_for_message_sent(const QUuid &id)
-{
-    _out_queue_mutex.lock();
-    {
-        bool contains(true);
+//void AbstractValueBuffer::wait_for_message_sent(const QUuid &id)
+//{
+//    _out_queue_mutex.lock();
+//    {
+//        bool contains(true);
 
-        while(contains)
-        {
-            contains = false;
+//        while(contains)
+//        {
+//            contains = false;
 
-            // Figure out if the queue contains the given id
-            foreach(DataTable tbl, _out_queue)
-            {
-                if(id == tbl.Name())
-                {
-                    contains = true;
-                    break;
-                }
-            }
+//            // Figure out if the queue contains the given id
+//            foreach(DataTable tbl, _out_queue)
+//            {
+//                if(id == tbl.Name())
+//                {
+//                    contains = true;
+//                    break;
+//                }
+//            }
 
-            if(contains)
-                _condition_outgoing_data_sent.wait(&_out_queue_mutex);
-        }
-    }
-    _out_queue_mutex.unlock();
-}
+//            if(contains)
+//                _condition_outgoing_data_sent.wait(&_out_queue_mutex);
+//        }
+//    }
+//    _out_queue_mutex.unlock();
+//}

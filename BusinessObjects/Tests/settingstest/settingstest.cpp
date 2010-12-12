@@ -63,7 +63,6 @@ settingsTest::settingsTest(QObject *parent) :
     QObject(parent)
 {
     settings = new BusinessObjects::ConfigFile("GTestLib", "", this);
-    settings->SetAsyncWrite(false);
     settings->Clear();
 }
 
