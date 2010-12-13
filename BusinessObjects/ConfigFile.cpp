@@ -169,10 +169,16 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 
 void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
 {
+    bool table_updated(true);
+
     // copy the input data to the current data table
     table_lock().lock();
     {
-        table() = tbl.Clone();
+        // Don't bother cloning the table if this is the same table we just exported
+        if(tbl.Name() == table().Name())
+            table_updated = false;
+        else
+            table() = tbl.Clone();
 
         // Mark it dirty and commit, so we can count how many times
         //  it's been updated
@@ -182,7 +188,9 @@ void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
     table_lock().unlock();
 
     _condition_config_update.wakeAll();
-    emit NotifyConfigurationUpdate();
+
+    if(table_updated)
+        emit NotifyConfigurationUpdate();
 }
 
 void ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
@@ -342,7 +350,13 @@ QString ConfigFile::get_file_location(QString id)
 void ConfigFile::commit_reject_changes(bool commit)
 {
     if(commit)
+    {
         // Export the changed data to the config file
         //  (don't clear the current data in it)
         enQueueCurrentData(false);
+
+        // Notify immediately; the signal is suppressed when the file is loaded
+        //  and found to be the same data, so it is only emitted once.
+        emit NotifyConfigurationUpdate();
+    }
 }
