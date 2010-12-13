@@ -358,6 +358,11 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
         while(sr.readNext() != QXmlStreamReader::EndElement ||
               sr.name() != DATATABLE_XML_ID);
     }
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION( Core::XmlException,
+                                   "Not a valid DataTable serialization" );
+    }
 }
 
 DataObjects::DataTable &DataObjects::DataTable::CloneTo(DataObjects::DataTable &t) const
