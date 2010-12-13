@@ -14,9 +14,36 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="GUtil::Controls::FileChooser" name="widget" native="true"/>
+     <widget class="GUtil::Controls::FileChooser" name="file_chooser" native="true"/>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_2" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="btnLock">
+         <property name="text">
+          <string>Lock</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnUnlock">
+         <property name="text">
+          <string>Unlock</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -50,5 +77,42 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>btnLock</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>lock()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>132</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>68</x>
+     <y>272</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnUnlock</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>unlock()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>242</x>
+     <y>233</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>lock()</slot>
+  <slot>unlock()</slot>
+ </slots>
 </ui>

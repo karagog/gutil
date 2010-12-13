@@ -21,6 +21,7 @@ using namespace Utils;
 
 UniversalMutex::UniversalMutex(const QString &file_path)
     :_machine_mutex(file_path),
+    _lock_file_path(file_path),
     _is_locked(false)
 {
     SetFilePath(file_path);

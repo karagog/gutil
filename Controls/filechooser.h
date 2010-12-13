@@ -33,12 +33,18 @@ namespace GUtil
             // Open the file dialog and ask for a new file
             inline void GetFileSelection(){ _button_clicked(); }
 
-            PROPERTY(SelectedFile, QString);
+            void SetSelectedFile(const QString &);
+            QString GetSelectedFile() const;
 
 
         private slots:
 
             void _button_clicked();
+
+
+        private:
+
+            QString _selected_file;
 
         };
     }

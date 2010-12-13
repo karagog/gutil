@@ -27,8 +27,16 @@ void FileChooser::_button_clicked()
 {
     QString fn = QFileDialog::getOpenFileName(this);
     if(fn.length() > 0)
-    {
-        _p_SelectedFile = fn;
-        lineEdit().setText(fn);
-    }
+        SetSelectedFile(fn);
+}
+
+void FileChooser::SetSelectedFile(const QString &s)
+{
+    _selected_file = s;
+    lineEdit().setText(s);
+}
+
+QString FileChooser::GetSelectedFile() const
+{
+    return _selected_file;
 }

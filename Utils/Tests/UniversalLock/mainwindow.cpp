@@ -15,14 +15,41 @@ limitations under the License.*/
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#define DEFAULT_FILE_PATH "temp_file"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    _universal_lock(DEFAULT_FILE_PATH)
 {
     ui->setupUi(this);
+
+    ui->file_chooser->SetSelectedFile(DEFAULT_FILE_PATH);
+
+    connect(&ui->file_chooser->lineEdit(), SIGNAL(textChanged(QString)),
+            this, SLOT(file_selected()));
 }
 
 MainWindow::~MainWindow()
 {
+    _universal_lock.Unlock();
     delete ui;
+}
+
+void MainWindow::file_selected()
+{
+    _universal_lock.SetFilePath(ui->file_chooser->GetSelectedFile());
+    ui->label->clear();
+}
+
+void MainWindow::lock()
+{
+    _universal_lock.Lock(true);
+    ui->label->setText("File Locked");
+}
+
+void MainWindow::unlock()
+{
+    _universal_lock.Unlock();
+    ui->label->clear();
 }

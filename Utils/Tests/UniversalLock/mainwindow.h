@@ -16,6 +16,7 @@ limitations under the License.*/
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "Utils/universalmutex.h"
 
 namespace Ui {
     class MainWindow;
@@ -29,8 +30,20 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+
+private slots:
+
+    void file_selected();
+
+    void lock();
+    void unlock();
+
+
 private:
     Ui::MainWindow *ui;
+
+    GUtil::Utils::UniversalMutex _universal_lock;
+
 };
 
 #endif // MAINWINDOW_H
