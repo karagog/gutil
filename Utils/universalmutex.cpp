@@ -53,11 +53,11 @@ void UniversalMutex::lock_file_updated()
 void UniversalMutex::Lock()
         throw(Core::LockException)
 {
-    _fail_if_locked();
-
     _lockfile_lock.lockForWrite();
     try
     {
+        _fail_if_locked();
+
         // This might throw a LockException if you don't block and it fails
         _machine_mutex.LockMutexOnMachine(false);
 
@@ -83,9 +83,10 @@ void UniversalMutex::Lock()
         _lockfile_lock.unlock();
         throw;
     }
-    _lockfile_lock.unlock();
 
     Q_ASSERT(_is_locked);
+
+    _lockfile_lock.unlock();
 }
 
 void UniversalMutex::Unlock()
@@ -95,42 +96,45 @@ void UniversalMutex::Unlock()
         _unlock();
     }
     _lockfile_lock.unlock();
-
-    _machine_mutex.UnlockForMachine();
-    _is_locked = false;
 }
 
 void UniversalMutex::SetFilePath(const QString &fp)
 {
-    _fail_if_locked();
-
-    // Remove the old file path from the watch list
-    if(_lock_file_set())
-        _fsw.removePath(_lock_file_path);
-
-
-    // Set the path on our machine mutex, and our lock file path
-    _machine_mutex.SetUserMachineLockFileName(fp);
-    _lock_file_path = QString("%1." UNIVERSAL_MUTEX_MODIFIER).arg(fp);
-
-
-    // Create our watch file if it doesn't exist
-    if(_lock_file_set())
+    _lockfile_lock.lockForWrite();
+    try
     {
-        if(!QFile::exists(fp))
+        _fail_if_locked();
+
+        // Remove the old file path from the watch list
+        if(_lock_file_set())
+            _fsw.removePath(_lock_file_path);
+
+
+        // Set the path on our machine mutex, and our lock file path
+        _machine_mutex.SetUserMachineLockFileName(fp);
+        _lock_file_path = QString("%1." UNIVERSAL_MUTEX_MODIFIER).arg(fp);
+
+
+        // Create our watch file if it doesn't exist
+        if(_lock_file_set())
         {
-            _lockfile_lock.lockForWrite();
+            if(!QFile::exists(fp))
             {
                 QFile f(_lock_file_path);
                 f.open(QFile::WriteOnly);
                 f.close();
             }
-            _lockfile_lock.unlock();
-        }
 
-        // Add the new path to the watch list
-        _fsw.addPath(_lock_file_path);
+            // Add the new path to the watch list
+            _fsw.addPath(_lock_file_path);
+        }
     }
+    catch(Core::Exception &)
+    {
+        _lockfile_lock.unlock();
+        throw;
+    }
+    _lockfile_lock.unlock();
 }
 
 QString UniversalMutex::GetFilepath() const
@@ -180,6 +184,9 @@ void UniversalMutex::_unlock()
         f.resize(0);
     }
     f.close();
+
+    _machine_mutex.UnlockForMachine();
+    _is_locked = false;
 }
 
 bool UniversalMutex::HasLock(bool from_cache)
@@ -221,9 +228,7 @@ void UniversalMutex::_fail_if_locked() const
 
 void UniversalMutex::run()
 {
-    bool lost_lock(false);
-
-    _lockfile_lock.lockForRead();
+    _lockfile_lock.lockForWrite();
     {
         // Read in the file and check if we still have the lock
 
@@ -232,14 +237,10 @@ void UniversalMutex::run()
         if(has_lock(true) && !has_lock(false))
         {
             _is_locked = false;
-            lost_lock = true;
+
+            _machine_mutex.UnlockForMachine();
+            emit NotifyLostLock();
         }
     }
     _lockfile_lock.unlock();
-
-    if(lost_lock)
-    {
-        _machine_mutex.UnlockForMachine();
-        emit NotifyLostLock();
-    }
 }
