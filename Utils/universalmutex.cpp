@@ -74,7 +74,7 @@ void UniversalMutex::Lock()
         }
 
         // Then we verify the file after the fact, to make sure our ID is still in the file
-        if(has_lock(false))
+        if(_has_lock(false))
             _is_locked = true;
     }
     catch(Core::Exception &)
@@ -174,7 +174,7 @@ void UniversalMutex::_lock()
 
 void UniversalMutex::_unlock()
 {
-    if(!has_lock(true))
+    if(!_has_lock(true))
         return;
 
     QFile f(_lock_file_path);
@@ -189,18 +189,18 @@ void UniversalMutex::_unlock()
     _is_locked = false;
 }
 
-bool UniversalMutex::HasLock(bool from_cache)
+bool UniversalMutex::HasLock()
 {
     bool ret;
     _lockfile_lock.lockForRead();
     {
-        ret = has_lock(from_cache);
+        ret = _has_lock(true);
     }
     _lockfile_lock.unlock();
     return ret;
 }
 
-bool UniversalMutex::has_lock(bool from_cache) const
+bool UniversalMutex::_has_lock(bool from_cache) const
 {
     if(from_cache)
         return _is_locked;
@@ -234,7 +234,7 @@ void UniversalMutex::run()
 
         // (if our cache says we're locked, but reading the file says we're not, then we've
         //   lost the lock somehow)
-        if(has_lock(true) && !has_lock(false))
+        if(_has_lock(true) && !_has_lock(false))
         {
             _is_locked = false;
 

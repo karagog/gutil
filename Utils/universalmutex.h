@@ -48,9 +48,7 @@ namespace GUtil
             void SetFilePath(const QString &fp);
             QString GetFilepath() const;
 
-            // If you pass 'false', it will take significantly longer to determine if it has the lock,
-            //  but it will be the most up-to-date
-            bool HasLock(bool from_cache = true);
+            bool HasLock();
 
 
         signals:
@@ -84,7 +82,7 @@ namespace GUtil
             void _lock();
             void _unlock();
 
-            bool has_lock(bool) const;
+            bool _has_lock(bool) const;
 
             void _fail_if_locked() const;
             inline bool _lock_file_set() const{ return _lock_file_path.length() > 0; }
