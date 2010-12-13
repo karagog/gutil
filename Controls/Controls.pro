@@ -12,4 +12,4 @@ SOURCES += progressbarcontrol.cpp \
 INCLUDEPATH += ..
 
 # All the controls are built off the controls in Core
-include(Core.pri)
+include(Core/Core.pri)

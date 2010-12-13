@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
-//#include "Logging/debuglogger.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 using namespace GUtil;

@@ -6,31 +6,14 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 SOURCES += \
-    Utils/Private/strings_p.cc \
-    Utils/stringhelpers.cc \
-    exception.cc \
-    Utils/encryption.cc \
-    BusinessObjects/actionstack.cpp \
-    Utils/cl_menu.cc \
-    DataAccess/da_serialport.cc \
-    Interfaces/ireadonlyobject.cpp
+    exception.cc
 
 INCLUDEPATH += .. ../ThirdParty/CryptoPP
 
 HEADERS += \
-    Utils/stringhelpers.h \
-    exception.h \
-    Utils/encryption.h \
-    BusinessObjects/actionstack.h \
-    Utils/cl_menu.h \
-    DataAccess/da_serialport.h \
-    Interfaces/ireadonlyobject.h \
-    Interfaces/ixmlserializable.h \
-    Interfaces/istringable.h \
-    Interfaces/iupdatable.h \
-    Interfaces/icomparable.h \
-    Interfaces/icomparer.h \
-    Interfaces/iequatable.h \
-    Interfaces/iequalitycomparer.h \
-    Interfaces/iclonable.h \
-    Interfaces/iconvertable.h
+    exception.h
+
+include(BusinessObjects/BusinessObjects.pri)
+include(DataAccess/DataAccess.pri)
+include(Interfaces/Interfaces.pri)
+include(Utils/Utils.pri)

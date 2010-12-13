@@ -14,4 +14,4 @@ SOURCES += \
 
 INCLUDEPATH += .. ../..
 
-include(DataSet.pri)
+include(DataSet/DataSet.pri)
