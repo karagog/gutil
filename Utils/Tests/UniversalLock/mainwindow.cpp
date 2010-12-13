@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    _universal_lock.Unlock();
     delete ui;
 }
 

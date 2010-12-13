@@ -37,6 +37,22 @@ namespace GUtil
             QString GetSelectedFile() const;
 
 
+            PROPERTY( DialogCaption, QString );
+            PROPERTY( StartingDirectory, QString );
+            PROPERTY( SelectionFilters, QString );
+
+
+            enum SelectionTypeEnum
+            {
+                ChooseOpenFile,
+                ChooseOpenFiles,
+                ChooseNewFile,
+                ChooseExistingDirectory
+            };
+
+            PROPERTY( SelectionType, SelectionTypeEnum );
+
+
         private slots:
 
             void _button_clicked();

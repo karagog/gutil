@@ -17,7 +17,8 @@ limitations under the License.*/
 using namespace GUtil::Controls;
 
 FileChooser::FileChooser(QWidget *parent)
-    :line_edit_with_button(parent)
+    :line_edit_with_button(parent),
+    _p_SelectionType( ChooseOpenFile )
 {
     connect(&pushButton(), SIGNAL(clicked()),
             this, SLOT(_button_clicked()));
@@ -25,9 +26,51 @@ FileChooser::FileChooser(QWidget *parent)
 
 void FileChooser::_button_clicked()
 {
-    QString fn = QFileDialog::getOpenFileName(this);
-    if(fn.length() > 0)
-        SetSelectedFile(fn);
+    QString *fn(0);
+    QStringList *lst_fn(0);
+
+    switch(GetSelectionType())
+    {
+    case ChooseOpenFile:
+        fn = new QString(QFileDialog::getOpenFileName(this,
+                                                      GetDialogCaption(),
+                                                      GetStartingDirectory(),
+                                                      GetSelectionFilters()));
+        break;
+    case ChooseOpenFiles:
+        lst_fn = new QStringList(QFileDialog::getOpenFileNames(this,
+                                                               GetDialogCaption(),
+                                                               GetStartingDirectory(),
+                                                               GetSelectionFilters()));
+        break;
+    case ChooseNewFile:
+        fn = new QString(QFileDialog::getSaveFileName(this,
+                                                      GetDialogCaption(),
+                                                      GetStartingDirectory(),
+                                                      GetSelectionFilters()));
+        break;
+    case ChooseExistingDirectory:
+        fn = new QString(QFileDialog::getExistingDirectory(this,
+                                                           GetDialogCaption(),
+                                                           GetStartingDirectory()));
+        break;
+    default:
+        return;
+    }
+
+
+    if(fn)
+    {
+        if(fn->length() > 0)
+            SetSelectedFile(*fn);
+
+        delete fn;
+    }
+
+    if(lst_fn)
+    {
+        delete lst_fn;
+    }
 }
 
 void FileChooser::SetSelectedFile(const QString &s)

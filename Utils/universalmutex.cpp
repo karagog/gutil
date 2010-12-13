@@ -39,8 +39,13 @@ UniversalMutex::~UniversalMutex()
 
 void UniversalMutex::lock_file_updated()
 {
-    if(_is_locked && !isRunning())
-        start();
+    _lockfile_lock.lockForRead();
+    {
+        if(has_lock(true) &&
+           !isRunning())
+            start();
+    }
+    _lockfile_lock.unlock();
 
     _condition_file_updated.wakeAll();
 }
@@ -208,10 +213,22 @@ void UniversalMutex::_fail_if_locked() const
 
 void UniversalMutex::run()
 {
-    // Read in the file and check if we still have the lock
-    if(!HasLock(false))
+    bool lost_lock(false);
+
+    _lockfile_lock.lockForWrite();
     {
-        _is_locked = false;
-        emit NotifyLostLock();
+        // Read in the file and check if we still have the lock
+
+        // (if our cache says we're locked, but reading the file says we're not, then we've
+        //   lost the lock somehow)
+        if(has_lock(true) && !has_lock(false))
+        {
+            _is_locked = false;
+            lost_lock = true;
+        }
     }
+    _lockfile_lock.unlock();
+
+    if(lost_lock)
+        emit NotifyLostLock();
 }
