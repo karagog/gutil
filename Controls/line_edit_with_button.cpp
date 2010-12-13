@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "line_edit_with_button.h"
-#include "EffectsWidgets/faderwidget.h"
+#include "faderwidget.h"
 #include <QShowEvent>
 #include <QEvent>
 #include <QHBoxLayout>

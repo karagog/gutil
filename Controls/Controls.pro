@@ -4,13 +4,12 @@
 DESTDIR = ../lib
 TEMPLATE = lib
 CONFIG += staticlib
-HEADERS += line_edit_with_button.h \
-    progressbarcontrol.h \
-    EffectsWidgets/faderwidget.h \
+HEADERS += progressbarcontrol.h \
     filechooser.h
-SOURCES += line_edit_with_button.cpp \
-    progressbarcontrol.cpp \
-    EffectsWidgets/faderwidget.cpp \
+SOURCES += progressbarcontrol.cpp \
     filechooser.cpp
 
 INCLUDEPATH += ..
+
+# All the controls are built off the controls in Core
+include(Core.pri)
