@@ -34,6 +34,7 @@ public:
 private slots:
 
     void file_selected();
+    void lost_lock();
 
     void lock();
     void unlock();

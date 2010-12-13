@@ -38,12 +38,11 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            UniversalMutex(const QString &file_path);
+            UniversalMutex(const QString &file_path, QObject *parent = 0);
             ~UniversalMutex();
 
-            // If you don't block, then it will throw a LockException if lock fails
-            void Lock(bool block = true)
-                    throw(Core::LockException);
+            // Thows a LockException if lock fails
+            void Lock() throw(Core::LockException);
             void Unlock();
 
             void SetFilePath(const QString &fp);
@@ -81,9 +80,8 @@ namespace GUtil
             // These data objects are used to check for updates and wait on the update condition
             QFileSystemWatcher _fsw;
             QReadWriteLock _lockfile_lock;
-            QWaitCondition _condition_file_updated;
 
-            void _lock(bool block);
+            void _lock();
             void _unlock();
 
             bool has_lock(bool) const;

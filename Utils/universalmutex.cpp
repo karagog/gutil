@@ -19,8 +19,9 @@ using namespace Utils;
 
 #define UNIVERSAL_MUTEX_MODIFIER "UNIVERSAL_LOCK"
 
-UniversalMutex::UniversalMutex(const QString &file_path)
-    :_machine_mutex(file_path),
+UniversalMutex::UniversalMutex(const QString &file_path, QObject *parent)
+    :QThread(parent),
+    _machine_mutex(file_path),
     _lock_file_path(file_path),
     _is_locked(false)
 {
@@ -31,6 +32,8 @@ UniversalMutex::UniversalMutex(const QString &file_path)
 
 UniversalMutex::~UniversalMutex()
 {
+    Unlock();
+
     // Kill the thread
     if(isRunning())
         terminate();
@@ -39,45 +42,50 @@ UniversalMutex::~UniversalMutex()
 
 void UniversalMutex::lock_file_updated()
 {
-    _lockfile_lock.lockForRead();
+    // If we have the lock, start the background thread to check if we've just lost it
+    if(HasLock())
     {
-        if(has_lock(true) &&
-           !isRunning())
+        if(!isRunning())
             start();
     }
-    _lockfile_lock.unlock();
-
-    _condition_file_updated.wakeAll();
 }
 
-void UniversalMutex::Lock(bool block)
+void UniversalMutex::Lock()
         throw(Core::LockException)
 {
     _fail_if_locked();
 
     _lockfile_lock.lockForWrite();
-    while(block)
+    try
     {
         // This might throw a LockException if you don't block and it fails
-        _machine_mutex.LockMutexOnMachine(block);
+        _machine_mutex.LockMutexOnMachine(false);
 
         // After we have the machine lock, call our own locking function
-        _lock(block);
+        try
+        {
+            _lock();
+        }
+        catch(Core::Exception &)
+        {
+            // Unlock the machine lock before propagating the exception
+            _machine_mutex.UnlockForMachine();
+            throw;
+        }
 
         // Then we verify the file after the fact, to make sure our ID is still in the file
         if(has_lock(false))
-        {
             _is_locked = true;
-            break;
-        }
-        else
-            _machine_mutex.UnlockForMachine();
+    }
+    catch(Core::Exception &)
+    {
+        // Unlock ourselves before propagating the exception
+        _lockfile_lock.unlock();
+        throw;
     }
     _lockfile_lock.unlock();
 
-    if(!_is_locked)
-        THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
-                                  "Lock failed" );
+    Q_ASSERT(_is_locked);
 }
 
 void UniversalMutex::Unlock()
@@ -130,32 +138,29 @@ QString UniversalMutex::GetFilepath() const
     return _machine_mutex.FileNameForMachineLock();
 }
 
-void UniversalMutex::_lock(bool block)
+void UniversalMutex::_lock()
 {
     QFile f(_lock_file_path);
 
     f.open(QFile::ReadWrite);
     {
-        bool unrecognized_guid = true;
+        bool unrecognized_guid(false);
 
         // First determine if someone else has the lock
-        if(!block && f.size() > 0)
+        if(f.size() > 0)
         {
             QUuid tmp(f.readAll().constData());
             if(!tmp.isNull())
-            {
-                if((unrecognized_guid = tmp != _id))
-                {
-                    f.close();
-                    THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
-                                               "Someone else already owns the universal lock" );
-                }
-            }
+                unrecognized_guid = tmp != _id;
         }
 
-        if(block && unrecognized_guid)
-            while(f.size() > 0)
-                _condition_file_updated.wait(&_lockfile_lock);
+        if(unrecognized_guid)
+        {
+            f.close();
+            THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+                                       QString("Someone else already owns the universal lock: %1")
+                                       .arg(GetFilepath()).toStdString());
+        }
 
         f.resize(0);
         f.write((_id = QUuid::createUuid()).toString().toAscii());
@@ -165,6 +170,9 @@ void UniversalMutex::_lock(bool block)
 
 void UniversalMutex::_unlock()
 {
+    if(!has_lock(true))
+        return;
+
     QFile f(_lock_file_path);
 
     f.open(QFile::ReadWrite);
@@ -215,7 +223,7 @@ void UniversalMutex::run()
 {
     bool lost_lock(false);
 
-    _lockfile_lock.lockForWrite();
+    _lockfile_lock.lockForRead();
     {
         // Read in the file and check if we still have the lock
 
@@ -230,5 +238,8 @@ void UniversalMutex::run()
     _lockfile_lock.unlock();
 
     if(lost_lock)
+    {
+        _machine_mutex.UnlockForMachine();
         emit NotifyLostLock();
+    }
 }

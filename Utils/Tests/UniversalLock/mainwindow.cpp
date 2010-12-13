@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+using namespace GUtil;
 
 #define DEFAULT_FILE_PATH "temp_file"
 
@@ -28,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&ui->file_chooser->lineEdit(), SIGNAL(textChanged(QString)),
             this, SLOT(file_selected()));
+
+    connect(&_universal_lock, SIGNAL(NotifyLostLock()), this, SLOT(lost_lock()));
 }
 
 MainWindow::~MainWindow()
@@ -41,9 +44,23 @@ void MainWindow::file_selected()
     ui->label->clear();
 }
 
+void MainWindow::lost_lock()
+{
+    ui->label->setText("LOCK LOST!!!");
+}
+
 void MainWindow::lock()
 {
-    _universal_lock.Lock(true);
+    try
+    {
+        _universal_lock.Lock();
+    }
+    catch(Core::LockException)
+    {
+        ui->label->setText("Lock Failed");
+        return;
+    }
+
     ui->label->setText("File Locked");
 }
 
