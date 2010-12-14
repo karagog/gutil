@@ -28,6 +28,25 @@ namespace GUtil
                 public GIODevice
         {
             Q_OBJECT
+        signals:
+
+            // Progress between 0 and 100.  Control the resolution between
+            //  updates with the 'Write/ReadProgressResolution' member
+            void WriteProgressUpdated(int);
+            void ReadProgressUpdated(int);
+
+
+        public:
+
+            // The number of bytes to write in one chunk, before updating
+            //  progress.  Set to -1 by default, which writes all in one chunk.
+            PROPERTY( WriteProgressResolution, int );
+            PROPERTY( ReadProgressResolution, int );
+
+            READONLY_PROPERTY( WriteProgress, int );
+            READONLY_PROPERTY( ReadProgress, int );
+
+
         protected:
 
             explicit GQIODevice(QIODevice *, QObject *parent = 0);

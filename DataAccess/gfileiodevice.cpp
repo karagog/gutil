@@ -25,7 +25,8 @@ DataAccess::GFileIODevice::GFileIODevice(const QString &filename, QObject *paren
     _machine_lock(filename)
 {
     _file_watcher = new QFileSystemWatcher(this);
-    connect(_file_watcher, SIGNAL(fileChanged(QString)), this, SLOT(raiseReadyRead()));
+    connect(_file_watcher, SIGNAL(fileChanged(QString)),
+            this, SLOT(raiseReadyRead()));
 
     SetFileName(filename);
     SetWriteMode(WriteAppend);
