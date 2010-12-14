@@ -22,7 +22,6 @@ using namespace Utils;
 UniversalMutex::UniversalMutex(const QString &file_path, QObject *parent)
     :QThread(parent),
     _machine_mutex(file_path),
-    _condition_lockfile_updated(this),
     _lock_file_path(file_path),
     _is_locked(false)
 {
@@ -51,7 +50,7 @@ void UniversalMutex::lock_file_updated()
     }
 }
 
-void UniversalMutex::Lock(bool block)
+void UniversalMutex::Lock()
         throw(Core::LockException)
 {
     _lockfile_lock.lockForWrite();
@@ -60,12 +59,12 @@ void UniversalMutex::Lock(bool block)
         _fail_if_locked();
 
         // This might throw a LockException if you don't block and it fails
-        _machine_mutex.LockMutexOnMachine(block);
+        _machine_mutex.LockMutexOnMachine(false);
 
         // After we have the machine lock, call our own locking function
         try
         {
-            _lock(block);
+            _lock();
         }
         catch(Core::Exception &)
         {
@@ -143,7 +142,7 @@ QString UniversalMutex::GetFilepath() const
     return _machine_mutex.FileNameForMachineLock();
 }
 
-void UniversalMutex::_lock(bool block)
+void UniversalMutex::_lock()
 {
     QFile f(_lock_file_path);
 
@@ -161,20 +160,10 @@ void UniversalMutex::_lock(bool block)
 
         if(unrecognized_guid)
         {
-            if(block)
-            {
-                _condition_lockfile_updated.WaitForSignal(
-                        &_lockfile_lock,
-                        &_fsw, SIGNAL(fileChanged(QString)));
-            }
-            else
-            {
-                f.close();
-                THROW_NEW_GUTIL_EXCEPTION(
-                        Core::LockException,
-                        QString("Someone else already owns the universal lock: %1")
-                        .arg(GetFilepath()).toStdString());
-            }
+            f.close();
+            THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+                                       QString("Someone else already owns the universal lock: %1")
+                                       .arg(GetFilepath()).toStdString());
         }
 
         f.resize(0);

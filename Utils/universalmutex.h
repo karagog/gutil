@@ -16,7 +16,6 @@ limitations under the License.*/
 #define UNIVERSALMUTEX_H
 
 #include "usermachinelocks.h"
-#include "Custom/signalwaitcondition.h"
 #include <QUuid>
 #include <QDateTime>
 #include <QFileSystemWatcher>
@@ -43,7 +42,7 @@ namespace GUtil
             ~UniversalMutex();
 
             // Thows a LockException if lock fails
-            void Lock(bool block = true) throw(Core::LockException);
+            void Lock() throw(Core::LockException);
             void Unlock();
 
             void SetFilePath(const QString &fp);
@@ -72,8 +71,6 @@ namespace GUtil
         private:
 
             UserMachineMutex _machine_mutex;
-            Custom::SignalWaitCondition _condition_lockfile_updated;
-
             QUuid _id;
             QString _lock_file_path;
             QDateTime _last_read_date;
@@ -82,7 +79,7 @@ namespace GUtil
             QFileSystemWatcher _fsw;
             QReadWriteLock _lockfile_lock;
 
-            void _lock(bool block);
+            void _lock();
             void _unlock();
 
             bool _has_lock(bool) const;
