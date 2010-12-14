@@ -10,7 +10,8 @@ HEADERS += \
     gsharedlock.h \
     gvariant.h \
     gshareddata.h \
-    updatablegvariant.h
+    updatablegvariant.h \
+    signalwaitcondition.h
 
 SOURCES += \
     myflattreemodel.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
     gsemaphore.cpp \
     gsharedlock.cpp \
     gvariant.cpp \
-    updatablegvariant.cpp
+    updatablegvariant.cpp \
+    signalwaitcondition.cpp
 
 INCLUDEPATH += ..
