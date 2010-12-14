@@ -22,6 +22,7 @@ using namespace Utils;
 UniversalMutex::UniversalMutex(const QString &file_path, QObject *parent)
     :QThread(parent),
     _machine_mutex(file_path),
+    _condition_lockfile_updated(this),
     _lock_file_path(file_path),
     _is_locked(false)
 {
@@ -50,7 +51,7 @@ void UniversalMutex::lock_file_updated()
     }
 }
 
-void UniversalMutex::Lock()
+void UniversalMutex::Lock(bool block)
         throw(Core::LockException)
 {
     _lockfile_lock.lockForWrite();
@@ -59,12 +60,12 @@ void UniversalMutex::Lock()
         _fail_if_locked();
 
         // This might throw a LockException if you don't block and it fails
-        _machine_mutex.LockMutexOnMachine(false);
+        _machine_mutex.LockMutexOnMachine(block);
 
         // After we have the machine lock, call our own locking function
         try
         {
-            _lock();
+            _lock(block);
         }
         catch(Core::Exception &)
         {
@@ -142,7 +143,7 @@ QString UniversalMutex::GetFilepath() const
     return _machine_mutex.FileNameForMachineLock();
 }
 
-void UniversalMutex::_lock()
+void UniversalMutex::_lock(bool block)
 {
     QFile f(_lock_file_path);
 
@@ -160,10 +161,20 @@ void UniversalMutex::_lock()
 
         if(unrecognized_guid)
         {
-            f.close();
-            THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
-                                       QString("Someone else already owns the universal lock: %1")
-                                       .arg(GetFilepath()).toStdString());
+            if(block)
+            {
+                _condition_lockfile_updated.WaitForSignal(
+                        &_lockfile_lock,
+                        &_fsw, SIGNAL(fileChanged(QString)));
+            }
+            else
+            {
+                f.close();
+                THROW_NEW_GUTIL_EXCEPTION(
+                        Core::LockException,
+                        QString("Someone else already owns the universal lock: %1")
+                        .arg(GetFilepath()).toStdString());
+            }
         }
 
         f.resize(0);
