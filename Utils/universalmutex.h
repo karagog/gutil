@@ -38,7 +38,9 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            UniversalMutex(const QString &file_path, QObject *parent = 0);
+            UniversalMutex(const QString &file_path,
+                           const QUuid &id = QUuid(),
+                           QObject *parent = 0);
             ~UniversalMutex();
 
             // Thows a LockException if lock fails

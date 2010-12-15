@@ -19,12 +19,18 @@ using namespace Utils;
 
 #define UNIVERSAL_MUTEX_MODIFIER "UNIVERSAL_LOCK"
 
-UniversalMutex::UniversalMutex(const QString &file_path, QObject *parent)
+UniversalMutex::UniversalMutex(const QString &file_path,
+                               const QUuid &id,
+                               QObject *parent)
     :QThread(parent),
     _machine_mutex(file_path),
+    _id(id),
     _lock_file_path(file_path),
     _is_locked(false)
 {
+    if(_id.isNull())
+        _id = QUuid::createUuid();
+
     SetFilePath(file_path);
 
     connect(&_fsw, SIGNAL(fileChanged(QString)), this, SLOT(lock_file_updated()));
@@ -167,7 +173,7 @@ void UniversalMutex::_lock()
         }
 
         f.resize(0);
-        f.write((_id = QUuid::createUuid()).toString().toAscii());
+        f.write(_id.toString().toAscii());
     }
     f.close();
 }
