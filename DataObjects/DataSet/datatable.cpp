@@ -164,7 +164,7 @@ DataRow &DataTable::add_row(const DataRow &r)
     {
         Rows().Remove(Rows().Count() - 1);
 
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   "The primary key would be violated");
     }
 
@@ -264,7 +264,7 @@ int DataObjects::DataTable::GetColumnIndex(const QString &key) const
         }
 
     if(ret == -1)
-        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::IndexOutOfRangeException,
                                   QString("The column key '%1' does not exist in the %2 table")
                                   .arg(key).arg(table_data().GetName()).toStdString());
 
@@ -360,7 +360,7 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION( Core::XmlException,
+        THROW_NEW_GUTIL_EXCEPTION2( Core::XmlException,
                                    "Not a valid DataTable serialization" );
     }
 }
@@ -398,7 +398,7 @@ void DataObjects::DataTable::AddKeyColumn(int k)
         {
             table_data().KeyColumns().remove(k);
 
-            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+            THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                       "The table's primary key would be violated");
         }
     }
@@ -419,7 +419,7 @@ void DataObjects::DataTable::RemoveKeyColumn(int k)
         {
             table_data().KeyColumns().insert(k);
 
-            THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+            THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                       "The table's primary key would be violated");
         }
     }
@@ -510,7 +510,7 @@ DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolu
         throw(Core::NotFoundException)
 {
     if(keycolumn_value_mapping.count() == 0)
-        THROW_NEW_GUTIL_EXCEPTION(Core::NotFoundException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
                                   "You didn't provide any keys by which to search");
 
     for(int i = 0; i < RowCount(); i++)
@@ -548,7 +548,7 @@ const DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &k
         throw(Core::NotFoundException)
 {
     if(keycolumn_value_mapping.count() == 0)
-        THROW_NEW_GUTIL_EXCEPTION(Core::NotFoundException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
                                   "You didn't provide any keys by which to search");
 
     for(int i = 0; i < RowCount(); i++)
@@ -637,7 +637,7 @@ DataRowCollection DataObjects::DataTable::
         throw(Core::NotFoundException)
 {
     if(keycolumn_value_mapping.count() == 0)
-        THROW_NEW_GUTIL_EXCEPTION(Core::NotFoundException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
                                   "You didn't provide any keys by which to search");
 
     DataRowCollection ret(GetExplicitlySharedData());

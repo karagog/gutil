@@ -74,8 +74,13 @@ void Logging::AbstractLogger::LogException(const Core::Exception &ex)
                                .arg(QString::fromStdString(ex.GetData(*it))));
     }
 
-    Log(QString("%1%2").arg(QString::fromStdString(ex.Message())).arg(data_string),
-        QString("Exception Caught: %1").arg(QString::fromStdString(ex.ToString())),
+    Log(QString("%1%2")
+        .arg(QString::fromStdString(ex.GetMessage()))
+        .arg(data_string),
+
+        QString("Exception Caught: %1")
+        .arg(QString::fromStdString(ex.ToString())),
+
         Error);
 }
 
@@ -120,7 +125,7 @@ QString Logging::AbstractLogger::prepare_log_message(
         msg_id = "ERROR";
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException, "Invalid Message Type" );
+        THROW_NEW_GUTIL_EXCEPTION2( Core::NotImplementedException, "Invalid Message Type" );
     }
 
     return QString("%1  %2: %3%4\n\n\n")

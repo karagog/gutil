@@ -148,7 +148,7 @@ void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
     if(sr.readNextStartElement())
     {
         if(sr.name() != ROW_XML_ID)
-            THROW_NEW_GUTIL_EXCEPTION( Core::XmlException, QString("Unrecognized XML node: %1")
+            THROW_NEW_GUTIL_EXCEPTION2( Core::XmlException, QString("Unrecognized XML node: %1")
                                      .arg(sr.name().toString()).toStdString() );
 
         int cnt = sr.attributes().at(0).value().toString().toInt();
@@ -191,7 +191,7 @@ void DataObjects::DataRow::row_value_about_to_change(int index, const Custom::GV
     }
 
     if(key_violation)
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   QString("Primary key violation trying to set index %1 "
                                           "to the value \"%2\"")
                                   .arg(index)

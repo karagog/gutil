@@ -136,5 +136,5 @@ bool DataAccess::GQIODevice::has_data_available()
 void DataAccess::GQIODevice::_fail_if_not_open()
 {
     if(!IODevice().isOpen())
-        THROW_NEW_GUTIL_EXCEPTION( Core::DataTransportException, "IO Device is not open!" );
+        THROW_NEW_GUTIL_EXCEPTION2( Core::DataTransportException, "IO Device is not open!" );
 }

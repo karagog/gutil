@@ -134,7 +134,7 @@ DataObjects::SharedSetData &DataObjects::DataSet::set_data()
 void DataObjects::DataSet::validate_new_table(const DataTable &dt)
 {
     if(Tables().Contains(dt))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   "Table already exists in data set");
 }
 
@@ -192,7 +192,7 @@ void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
     if(sr.readNextStartElement())
     {
         if(sr.name() != DATASET_XML_ID)
-            THROW_NEW_GUTIL_EXCEPTION( Core::XmlException, "Unrecognized XML Node" );
+            THROW_NEW_GUTIL_EXCEPTION2( Core::XmlException, "Unrecognized XML Node" );
 
         int len = sr.attributes().at(0).value().toString().toInt();
         for(int i = 0; i < len; i++)

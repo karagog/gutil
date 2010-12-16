@@ -167,7 +167,7 @@ void UniversalMutex::_lock()
         if(unrecognized_guid)
         {
             f.close();
-            THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+            THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,
                                        QString("Someone else already owns the universal lock: %1")
                                        .arg(GetFilepath()).toStdString());
         }
@@ -224,11 +224,11 @@ bool UniversalMutex::_has_lock(bool from_cache) const
 void UniversalMutex::_fail_if_locked() const
 {
     if(!_lock_file_set())
-        THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+        THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,
                                    "No file path set!" );
 
     if(_is_locked)
-        THROW_NEW_GUTIL_EXCEPTION( Core::LockException,
+        THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,
                                    "Cannot complete operation while mutex is locked" );
 }
 

@@ -230,7 +230,7 @@ DataTable AbstractValueBuffer::en_deQueueMessage(
         condition_newdata_available = &_condition_outgoing_data_enqueued;
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION(Core::NotImplementedException, "");
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotImplementedException, "");
     }
 
     // en/dequeue the data

@@ -65,7 +65,7 @@ void DataObjects::DataColumnCollection::SetKey(int ind, const QString &s)
     if(Key(ind) == s)
         return;
     else if(Contains( DataColumn(s) ))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   QString("Key already exists in column collection: '%1'")
                                   .arg(s).toStdString());
 
@@ -81,7 +81,7 @@ void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::Dat
         throw(Core::ValidationException)
 {
     if(Contains(c))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   QString("Column collection already contains key '%1'")
                                   .arg(c.Key()).toStdString());
 }

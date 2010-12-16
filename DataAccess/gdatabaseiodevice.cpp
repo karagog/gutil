@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "gdatabaseiodevice.h"
 #include "DataObjects/DataSet/datatable.h"
 using namespace GUtil;
+using namespace DataObjects;
 using namespace DataAccess;
 
 GDatabaseIODevice::GDatabaseIODevice(const QSqlDatabase &db,
@@ -27,10 +28,33 @@ GDatabaseIODevice::GDatabaseIODevice(const QSqlDatabase &db,
 
 }
 
-void GDatabaseIODevice::send_data(const QByteArray &)
+void GDatabaseIODevice::send_data(const QByteArray &d)
         throw(Core::DataTransportException)
 {
+    DataTable t;
 
+    try
+    {
+
+    }
+    catch(Core::XmlException &)
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                  "Not a valid XML string");
+    }
+
+    switch(GetWriteCommand())
+    {
+    case Insert:
+
+        break;
+    case Update:
+        break;
+    case Delete:
+        break;
+    default:
+        return;
+    }
 }
 
 QByteArray GDatabaseIODevice::receive_data()

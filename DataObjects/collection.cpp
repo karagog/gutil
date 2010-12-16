@@ -235,7 +235,7 @@ template <typename T> int DataObjects::CollectionBase<T>::indexOf_protected(cons
 template<typename T> void DataObjects::CollectionBase<T>::_validate_index(int index) const
 {
     if(index < 0 || index >= count_protected())
-        THROW_NEW_GUTIL_EXCEPTION(Core::IndexOutOfRangeException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::IndexOutOfRangeException,
                                   QString("Collection only has %1 items in it, and you tried to "
                                           "index the item at %2")
                                   .arg(count_protected()).arg(index).toStdString());

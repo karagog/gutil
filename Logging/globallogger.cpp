@@ -91,7 +91,7 @@ void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
     else if(id == NewId)
     {
         if(!allow_new_id)
-            THROW_NEW_GUTIL_EXCEPTION( Core::ArgumentException, "Can't create new ID here" );
+            THROW_NEW_GUTIL_EXCEPTION2( Core::ArgumentException, "Can't create new ID here" );
 
         // Auto-assign a logger id
         id = 1;

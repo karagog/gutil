@@ -43,12 +43,12 @@ void DataRowCollection::validate_new_item(const DataRow &i)
     Table().validate_new_row(i);
 
     if(Table() != i.Table())
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   "The row does not belong to this table.  "
                                   "If you still want to add it, then call 'ImportRow' "
                                   "on the parent table.");
     else if(Contains(i))
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   "Row already exists in the collection");
 }
 

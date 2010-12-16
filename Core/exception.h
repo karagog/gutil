@@ -31,14 +31,32 @@ do{ \
     throw except; \
 }while(0)
 
+
+#define THROW_NEW_GUTIL_EXCEPTION( ex_type ) \
+do{ \
+    throw ex_type(message); \
+}while(0)
+
 // pass an exception type and the message you want it to have
-#define THROW_NEW_GUTIL_EXCEPTION( ex_type, message ) \
+#define THROW_NEW_GUTIL_EXCEPTION2( ex_type, message ) \
 do{ \
     ex_type except(message); \
 \
     char tmp_except_line[15];  \
     except.SetData("line", std::string(itoa(__LINE__, tmp_except_line, 10))); \
     except.SetData("file", std::string(__FILE__)); \
+    throw except; \
+}while(0)
+
+// This version lets you pass an inner exception into it
+#define THROW_NEW_GUTIL_EXCEPTION3( ex_type, message, inner_except ) \
+do{ \
+    ex_type except(message); \
+\
+    char tmp_except_line[15];  \
+    except.SetData("line", std::string(itoa(__LINE__, tmp_except_line, 10))); \
+    except.SetData("file", std::string(__FILE__)); \
+    except.SetInnerException(inner_except); \
     throw except; \
 }while(0)
 
