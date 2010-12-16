@@ -78,10 +78,14 @@ void Logging::AbstractLogger::LogException(const Core::Exception &ex)
         .arg(QString::fromStdString(ex.GetMessage()))
         .arg(data_string),
 
-        QString("Exception Caught: %1")
+        QString("Exception Caught%1: %2")
+        .arg(ex.GetInnerException() ? " (Inner exception follows immediately)" : "")
         .arg(QString::fromStdString(ex.ToString())),
 
         Error);
+
+    if(ex.GetInnerException())
+        LogException(*ex.GetInnerException());
 }
 
 void Logging::AbstractLogger::LogException(const std::exception &ex)
