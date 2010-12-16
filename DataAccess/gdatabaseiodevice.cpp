@@ -22,17 +22,19 @@ using namespace GUtil;
 using namespace DataObjects;
 using namespace DataAccess;
 
-GDatabaseIODevice::GDatabaseIODevice(const QSqlDatabase &db,
+GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
                                      QObject *parent)
     :GIODevice(parent),
     _p_WriteCommand(Noop),
-    _database(db),
-    _selection_parameters(new DataTable())
+    _selection_parameters(new DataTable()),
+    _connection(db_connection_id)
 {}
 
 GDatabaseIODevice::~GDatabaseIODevice()
 {
     delete _selection_parameters;
+    QSqlDatabase::database(_connection).close();
+    QSqlDatabase::removeDatabase(_connection);
 }
 
 void GDatabaseIODevice::send_data(const QByteArray &d)
@@ -54,7 +56,12 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
         THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
                                    "No data to send");
 
-    _database.open();
+    QSqlDatabase _database = QSqlDatabase::database(_connection);
+    if(!_database.isOpen() && !_database.open())
+        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                   QString("Unable to open database: %1")
+                                   .arg(_database.lastError().text()).toStdString());
+
     try
     {
         for(int i = 0; i < t.RowCount(); i++)
@@ -64,13 +71,12 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             QSqlQuery query(_database);
             QString where;
             QString values;
-            int cnt(0);
             switch(GetWriteCommand())
             {
             case Insert:
                 for(int j = 0; j < t.ColumnCount(); j++)
                 {
-                    values.append(QString(":val%1,").arg(j));
+                    values.append("?,");
                     where.append(QString("%1,").arg(t.ColumnKeys()[j]));
                 }
 
@@ -86,7 +92,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
                 // Bind values after preparing the query
                 for(int j = 0; j < t.ColumnCount(); j++)
-                    query.bindValue(j, row[j]);
+                    query.addBindValue(row[j]);
 
                 break;
             case Update:
@@ -109,10 +115,8 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 {
                     if(!row[j].isNull())
                     {
-                        where.append(QString("%1=:val%2 AND ")
-                                    .arg(t.ColumnKeys()[j])
-                                    .arg(cnt));
-                        cnt++;
+                        where.append(QString("%1=? AND ")
+                                    .arg(t.ColumnKeys()[j]));
                     }
                 }
 
@@ -127,11 +131,10 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                       .arg(t.Name())
                       .arg(where));
 
-                cnt = 0;
                 for(int j = 0; j < t.ColumnCount(); j++)
                 {
                     if(!row[j].isNull())
-                        query.bindValue(cnt++, row[j]);
+                        query.addBindValue(row[j]);
                 }
 
                 break;
@@ -161,8 +164,10 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             else
             {
                 Core::DataTransportException ex("Query Failed");
+                ex.SetData("db_name", _database.databaseName().toStdString());
                 ex.SetData("error", query.lastError().text().toStdString());
                 ex.SetData("query", query.lastQuery().toStdString());
+                ex.SetData("executed", query.executedQuery().toStdString());
 
                 for(int k = 0; k < query.boundValues().count(); k++)
                 {
@@ -176,11 +181,8 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
     }
     catch(Core::Exception &)
     {
-        _database.close();
         throw;
     }
-
-    _database.close();
 }
 
 QByteArray GDatabaseIODevice::receive_data()
@@ -193,11 +195,16 @@ QByteArray GDatabaseIODevice::receive_data()
                                     "for the selection");
 
     QByteArray ret;
-    QString sql;
     QString values, where;
+    QSqlDatabase _database = QSqlDatabase::database(_connection);
+
+    if(!_database.isOpen() && !_database.open())
+        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                   QString("Unable to open database: %1")
+                                   .arg(_database.lastError().text()).toStdString());
+
     QSqlQuery query(_database);
 
-    _database.open();
     try
     {
         DataRow r(_selection_parameters->Rows()[0]);
@@ -206,36 +213,38 @@ QByteArray GDatabaseIODevice::receive_data()
         {
             values.append(QString("%1,")
                           .arg(_selection_parameters->ColumnKeys()[i]));
-        }
-        values.remove(values.length() - 1, 1);
 
-
-        int cnt(0);
-        for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
-        {
             if(!r[i].isNull())
             {
-                query.bindValue(cnt, r[i]);
-                where.append(QString("%1=:val%2 AND ")
-                          .arg(_selection_parameters->ColumnKeys()[i])
-                          .arg(cnt));
-                cnt++;
+                where.append(QString("%1=? AND ")
+                          .arg(_selection_parameters->ColumnKeys()[i]));
             }
         }
 
-        if(where.length() == 0)
-            THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                       "No selection parameters specified");
-        else
+        values.remove(values.length() - 1, 1);
+        if(where.length() > 0)
+        {
             where.remove(where.length() - 5, 5);
 
-        sql = QString("SELECT %1 FROM %2 WHERE %3")
-              .arg(values)
-              .arg(_selection_parameters->Name())
-              .arg(where);
+            where = QString("WHERE %1").arg(where);
+        }
 
+
+        QString sql(QString("SELECT %1 FROM %2")
+                    .arg(values)
+                    .arg(_selection_parameters->Name()));
+
+        if(where.length() > 0)
+            sql = QString("%1 %2").arg(sql).arg(where);
 
         query.prepare(sql);
+
+        // Bind values after preparing the query
+        for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+        {
+            if(!r[i].isNull())
+                query.addBindValue(r[i], QSql::InOut);
+        }
 
         if(query.exec())
         {
@@ -258,17 +267,24 @@ QByteArray GDatabaseIODevice::receive_data()
         else
         {
             Core::DataTransportException ex("Query Failed");
+            ex.SetData("db_name", _database.databaseName().toStdString());
             ex.SetData("error", query.lastError().text().toStdString());
-            ex.SetData("query", sql.toStdString());
+            ex.SetData("query", query.lastQuery().toStdString());
+            ex.SetData("executed", query.executedQuery().toStdString());
+
+            for(int k = 0; k < query.boundValues().count(); k++)
+            {
+                ex.SetData(QString("Bound Value %1").arg(k).toStdString(),
+                           query.boundValue(k).toString().toStdString());
+            }
+
             THROW_GUTIL_EXCEPTION(ex);
         }
     }
     catch(Core::Exception &)
     {
-        _database.close();
         throw;
     }
-    _database.close();
 
     return ret;
 }

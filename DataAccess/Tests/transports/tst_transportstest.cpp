@@ -116,33 +116,38 @@ void TransportsTest::test_file_transport()
 
 void TransportsTest::test_database_transport()
 {
-    QSqlDatabase db(QSqlDatabase::addDatabase("QSQLITE"));
-    db.setDatabaseName("temp.sqlite");
-
-    // Prepare the database
-    db.open();
+    QString connection_name;
     {
+        QSqlDatabase db(QSqlDatabase::addDatabase("QSQLITE", "MyConnection"));
+        db.setDatabaseName("temp.sqlite");
+
+        // Prepare the database
+        db.open();
+
         QSqlQuery q(db);
         q.prepare("DROP TABLE IF EXISTS test");
         bool res = q.exec();
-
-        res = q.exec("CREATE TABLE test (one, two)");
         QVERIFY2(res, q.lastError().text().toStdString().c_str());
+
+        res = q.exec("CREATE TABLE test (one INTEGER, two TEXT)");
+        QVERIFY2(res, q.lastError().text().toStdString().c_str());
+        q.finish();
+
+        connection_name = db.connectionName();
     }
-    db.close();
 
 
-    GDatabaseIODevice d(db, this);
-    d.SetWriteCommand(GDatabaseIODevice::Insert);
+    GDatabaseIODevice dbio(connection_name, this);
+    dbio.SetWriteCommand(GDatabaseIODevice::Insert);
 
     DataObjects::DataTable tbl("test");
     tbl.SetColumnHeaders(QStringList() << "one" << "two");
 
     // Insert the row
-    tbl.AddNewRow(Custom::GVariantList() << "1" << 2);
+    tbl.AddNewRow(Custom::GVariantList() << "1" << "2");
     try
     {
-        d.SendData(tbl);
+        dbio.SendData(tbl);
     }
     catch(Core::Exception &ex)
     {
@@ -152,7 +157,27 @@ void TransportsTest::test_database_transport()
 
 
     // Select the row we just inserted
+    dbio.SelectParams().SetTableName("test");
+    dbio.SelectParams().SetColumnHeaders(QStringList() << "one" << "two");
+    DataObjects::DataRow sel_row = dbio.SelectParams().AddNewRow();
+    sel_row[0] = "1";
 
+    QByteArray ret;
+    try
+    {
+        ret = dbio.ReceiveData();
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL(ex.GetMessage().c_str());
+    }
+
+    DataObjects::DataTable newtbl;
+    newtbl.FromXmlQString(ret);
+
+    QVERIFY2(newtbl[0][0] == 1, newtbl[0][0].toString().toStdString().c_str());
+    QVERIFY2(newtbl[0][1] == 2, newtbl[0][1].toString().toStdString().c_str());
 }
 
 QTEST_MAIN(TransportsTest);

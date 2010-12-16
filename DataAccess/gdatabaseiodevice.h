@@ -43,13 +43,12 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            explicit GDatabaseIODevice(const QSqlDatabase &db = QSqlDatabase(),
+            explicit GDatabaseIODevice(const QString &db_connection_id,
                                        QObject *parent = 0);
             ~GDatabaseIODevice();
 
             // The database must be properly configured before using this device
-            inline QSqlDatabase &Database(){ return _database; }
-            inline const QSqlDatabase &Database() const{ return _database; }
+            inline QString GetDatabaseConnectionId(){ return _connection; }
 
             // To issue a select command, first prepare the table with the
             //  parameters of your query.  Each row in the table represents
@@ -94,9 +93,8 @@ namespace GUtil
 
         private:
 
-            QSqlDatabase _database;
-
             DataObjects::DataTable *_selection_parameters;
+            QString _connection;
 
         };
 
