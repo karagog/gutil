@@ -48,6 +48,12 @@ Custom::GVariant::GVariant(int i)
 Custom::GVariant::GVariant(uint i)
     :QVariant(i){}
 
+Custom::GVariant::GVariant(long long i)
+    :QVariant(i){}
+
+Custom::GVariant::GVariant(unsigned long long i)
+    :QVariant(i){}
+
 Custom::GVariant::GVariant(char *c)
     :QVariant(c){}
 
@@ -142,6 +148,12 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         sw.writeAttribute("d", toString());
         break;
     case UInt:
+        sw.writeAttribute("d", toString());
+        break;
+    case LongLong:
+        sw.writeAttribute("d", toString());
+        break;
+    case ULongLong:
         sw.writeAttribute("d", toString());
         break;
     case Bool:
@@ -280,6 +292,12 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             break;
         case UInt:
             setValue(d.toUInt());
+            break;
+        case LongLong:
+            setValue(d.toLongLong());
+            break;
+        case ULongLong:
+            setValue(d.toULongLong());
             break;
         case Bool:
             setValue(d == "1" ? true : false);

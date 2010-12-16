@@ -52,6 +52,8 @@ public:
     GVariant(const QChar &);
     GVariant(int);
     GVariant(uint);
+    GVariant(long long);
+    GVariant(unsigned long long);
     GVariant(char *);
     GVariant(const char *);
     GVariant(bool);
