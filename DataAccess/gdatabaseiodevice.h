@@ -17,9 +17,15 @@ limitations under the License.*/
 
 #include "giodevice.h"
 #include <QSqlDatabase>
+#include <QVariant>
 
 namespace GUtil
 {
+    namespace DataObjects
+    {
+        class DataTable;
+    }
+
     namespace DataAccess
     {
         // Treat a database like an IO device.  It is a simplified database
@@ -39,10 +45,26 @@ namespace GUtil
 
             explicit GDatabaseIODevice(const QSqlDatabase &db = QSqlDatabase(),
                                        QObject *parent = 0);
+            ~GDatabaseIODevice();
 
+            // The database must be properly configured before using this device
             inline QSqlDatabase &Database(){ return _database; }
             inline const QSqlDatabase &Database() const{ return _database; }
 
+            // To issue a select command, first prepare the table with the
+            //  parameters of your query.  Each row in the table represents
+            //  one query that will be executed, one on each call to 'Receive
+            //  Data'.  Each column key corresponds to a
+            //  column of the same name in the database, and if the row
+            //  contains a value for a column, that will filter the results
+            //  based on that column (or multiple columns if you set values
+            //  for them)
+            inline DataObjects::DataTable &SelectParams(){
+                return *_selection_parameters;
+            }
+            inline const DataObjects::DataTable &SelectParams() const{
+                return *_selection_parameters;
+            }
 
             // These are the possible read/write commands in enum form
             enum WriteCommandsEnum
@@ -53,15 +75,11 @@ namespace GUtil
                 Delete
             };
 
-            enum ReadCommandsEnum
-            {
-                Select
-            };
-
 
             // Control what commands to issue
             PROPERTY( WriteCommand, WriteCommandsEnum );
-            PROPERTY( ReadCommand, ReadCommandsEnum );
+
+            READONLY_PROPERTY( ReturnValue, QVariant );
 
 
         protected:
@@ -77,6 +95,8 @@ namespace GUtil
         private:
 
             QSqlDatabase _database;
+
+            DataObjects::DataTable *_selection_parameters;
 
         };
 

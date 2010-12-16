@@ -14,8 +14,10 @@ limitations under the License.*/
 
 #include "gdatabaseiodevice.h"
 #include "DataObjects/DataSet/datatable.h"
+#include "DataObjects/DataSet/datarow.h"
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlResult>
 using namespace GUtil;
 using namespace DataObjects;
 using namespace DataAccess;
@@ -24,10 +26,13 @@ GDatabaseIODevice::GDatabaseIODevice(const QSqlDatabase &db,
                                      QObject *parent)
     :GIODevice(parent),
     _p_WriteCommand(Noop),
-    _p_ReadCommand(Select),
-    _database(db)
-{
+    _database(db),
+    _selection_parameters(new DataTable())
+{}
 
+GDatabaseIODevice::~GDatabaseIODevice()
+{
+    delete _selection_parameters;
 }
 
 void GDatabaseIODevice::send_data(const QByteArray &d)
@@ -60,6 +65,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             QString where;
             QString values;
             QString sql;
+            int cnt(0);
             switch(GetWriteCommand())
             {
             case Insert:
@@ -96,10 +102,11 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 {
                     if(!row[j].isNull())
                     {
-                        query.bindValue(j, row[j]);
+                        query.bindValue(cnt, row[j]);
                         where.append(QString("%1=@val%2 AND ")
                                     .arg(t.ColumnKeys()[j])
-                                    .arg(j));
+                                    .arg(cnt));
+                        cnt++;
                     }
                 }
 
@@ -119,10 +126,31 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 return;
             }
 
-            if(!query.exec(sql))
+            if(query.exec(sql))
             {
-                THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                           query.lastError().text().toStdString());
+                _p_ReturnValue.clear();
+
+                switch(GetWriteCommand())
+                {
+                case Insert:
+                    break;
+                case Update:
+                    break;
+                case Delete:
+                    // This is supposed to return the number of rows affected,
+                    //  but I'm not sure if that's what it does
+                    _p_ReturnValue = query.value(0);
+                    break;
+                default:
+                    return;
+                }
+            }
+            else
+            {
+                Core::DataTransportException ex("Query Failed");
+                ex.SetData("error", query.lastError().text().toStdString());
+                ex.SetData("query", sql.toStdString());
+                THROW_GUTIL_EXCEPTION(ex);
             }
         }
     }
@@ -138,7 +166,89 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 QByteArray GDatabaseIODevice::receive_data()
         throw(Core::DataTransportException)
 {
+    if(_selection_parameters->RowCount() == 0 ||
+       _selection_parameters->ColumnCount() == 0)
+        THROW_NEW_GUTIL_EXCEPTION2( Core::DataTransportException,
+                                    "You have not specified any parameters "
+                                    "for the selection");
+
     QByteArray ret;
+    QString sql;
+    QString values, where;
+    QSqlQuery query(_database);
+
+    _database.open();
+    try
+    {
+        DataRow r(_selection_parameters->Rows()[0]);
+
+        for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+        {
+            values.append(QString("%1,")
+                          .arg(_selection_parameters->ColumnKeys()[i]));
+        }
+        values.remove(values.length() - 1, 1);
+
+
+        int cnt(0);
+        for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+        {
+            if(!r[i].isNull())
+            {
+                query.bindValue(cnt, r[i]);
+                where.append(QString("%1=@val%2 AND ")
+                          .arg(_selection_parameters->ColumnKeys()[i])
+                          .arg(cnt));
+                cnt++;
+            }
+        }
+
+        if(where.length() == 0)
+            THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                       "No selection parameters specified");
+        else
+            where.remove(where.length() - 5, 5);
+
+        sql = QString("SELECT %1 FROM %2 WHERE %3")
+              .arg(values)
+              .arg(_selection_parameters->Name())
+              .arg(where);
+
+
+        query.prepare(sql);
+
+        if(query.exec())
+        {
+            DataTable tbl(_selection_parameters->Name());
+            tbl.SetColumnHeaders(_selection_parameters->ColumnKeys(),
+                                 _selection_parameters->ColumnLabels());
+            while(query.next())
+            {
+                Custom::GVariantList lst;
+                for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+                    lst.append(query.value(i));
+                tbl.AddNewRow(lst);
+            }
+
+            ret = tbl.ToXmlQString().toAscii();
+
+            // Remove the row now that we've processed the query
+            tbl.RemoveRow(0);
+        }
+        else
+        {
+            Core::DataTransportException ex("Query Failed");
+            ex.SetData("error", query.lastError().text().toStdString());
+            ex.SetData("query", sql.toStdString());
+            THROW_GUTIL_EXCEPTION(ex);
+        }
+    }
+    catch(Core::Exception &)
+    {
+        _database.close();
+        throw;
+    }
+    _database.close();
 
     return ret;
 }
