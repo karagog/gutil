@@ -118,7 +118,7 @@ class ex_name##Exception : public GUtil::Core::Exception \
 { \
 public: \
     ex_name##Exception(const std::string &message = "") \
-        :Exception(STRINGIFY(ex_name##Exception), message ){} \
+        :Exception(STRINGIFY(ex_name), message ){} \
 };
 
 

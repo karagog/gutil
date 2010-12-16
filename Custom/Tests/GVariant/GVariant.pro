@@ -4,9 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += testlib
-
-QT       -= gui
+QT       += gui network testlib
 
 TARGET = tst_gvarianttest
 CONFIG   += console

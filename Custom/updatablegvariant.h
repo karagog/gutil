@@ -53,7 +53,13 @@ public:
     UpdatableGVariant &operator = (const GVariant &o);
     void clear();
     void convert(Type t);
-    template <class U> void setValue(const U &value);
+    template <class U> void setValue(const U &value){
+        GVariant tmp(*this);
+
+        notify_value_about_to_change(*this, value);
+        QVariant::setValue(value);
+        notify_value_changed(tmp, *this);
+    }
 
 
 protected:

@@ -6,13 +6,16 @@
 #include <QVariantList>
 #include <QVariantMap>
 #include "Custom/gvariant.h"
+#include "Custom/updatablegvariant.h"
 #include "Logging/debuglogger.h"
 using namespace GUtil;
 using namespace Custom;
 using namespace Logging;
 
 
-class GVariantTest : public QObject
+class GVariantTest :
+        public QObject,
+        public UpdatableGVariant::Observer
 {
     Q_OBJECT
 
@@ -27,7 +30,7 @@ private Q_SLOTS:
 
 private:
 
-    void dont_accept_fives(const GVariant &old, const GVariant &newval);
+    void value_about_to_change(const GVariant &old, const GVariant &newval);
 
 };
 
@@ -255,58 +258,65 @@ void GVariantTest::test_collections()
 }
 
 
-void GVariantTest::dont_accept_fives(const GVariant &old, const GVariant &newval)
+void GVariantTest::value_about_to_change(const GVariant &, const GVariant &newval)
 {
     if(newval == 5)
-        THROW_NEW_GUTIL_EXCEPTION(Core::ValidationException,
+        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   "No fives!");
 }
 
 void GVariantTest::test_callbacks()
 {
-    ObservableGVariant<GVariantTest> v;
-    v.SetValueAboutToChangeFunction(this, &GVariantTest::dont_accept_fives);
-
-    bool exception_hit = false;
     try
     {
-        v.setValue(5);
-    }
-    catch(Core::ValidationException &)
-    {
-        exception_hit = true;
-    }
-    QVERIFY(exception_hit);
+        UpdatableGVariant v;
+        v.SetValueObserver(this);
+
+        bool exception_hit = false;
+        try
+        {
+            v.setValue(5);
+        }
+        catch(Core::ValidationException &)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
 
 
-    exception_hit = false;
-    try
-    {
-        v = 5;
-    }
-    catch(Core::ValidationException &)
-    {
-        exception_hit = true;
-    }
-    QVERIFY(exception_hit);
+        exception_hit = false;
+        try
+        {
+            v = 5;
+        }
+        catch(Core::ValidationException &)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
 
 
-    // Conversion from "6" is fine
-    v = "6";
-    v.convert(GVariant::Int);
-
-    // But if it's a 5 it fails
-    v = "5";
-    exception_hit = false;
-    try
-    {
+        // Conversion from "6" is fine
+        v = "6";
         v.convert(GVariant::Int);
+
+        // But if it's a 5 it fails
+        exception_hit = false;
+        try
+        {
+            v = "5";
+        }
+        catch(Core::ValidationException &)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
     }
-    catch(Core::ValidationException &)
+    catch(Core::Exception &ex)
     {
-        exception_hit = true;
+        dLogException(ex);
+        QFAIL("Exception Hit");
     }
-    QVERIFY(exception_hit);
 }
 
 QTEST_APPLESS_MAIN(GVariantTest);

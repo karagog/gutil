@@ -57,14 +57,6 @@ void UpdatableGVariant::convert(Type t){
     notify_value_changed(tmp1, *this);
 }
 
-template <class U> void UpdatableGVariant::setValue(const U &value){
-    GVariant tmp(*this);
-
-    notify_value_about_to_change(*this, value);
-    QVariant::setValue(value);
-    notify_value_changed(tmp, *this);
-}
-
 void UpdatableGVariant::commit_reject_changes(bool commit)
 {
     if(commit)
