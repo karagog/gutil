@@ -101,7 +101,6 @@ protected:
 private:
 
     std::string _exception_id;
-    std::string _message;
     std::map<std::string, std::string> _data;
 
     Exception *_inner_exception;

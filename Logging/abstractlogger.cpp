@@ -78,9 +78,9 @@ void Logging::AbstractLogger::LogException(const Core::Exception &ex)
         .arg(QString::fromStdString(ex.GetMessage()))
         .arg(data_string),
 
-        QString("Exception Caught%1: %2")
-        .arg(ex.GetInnerException() ? " (Inner exception follows immediately)" : "")
-        .arg(QString::fromStdString(ex.ToString())),
+        QString("%1 Caught%2:")
+        .arg(QString::fromStdString(ex.ToString()))
+        .arg(ex.GetInnerException() ? " (Inner exception follows immediately)" : ""),
 
         Error);
 
@@ -88,7 +88,7 @@ void Logging::AbstractLogger::LogException(const Core::Exception &ex)
         LogException(*ex.GetInnerException());
 }
 
-void Logging::AbstractLogger::LogException(const std::exception &ex)
+void Logging::AbstractLogger::LogException(const std::exception &)
 {
     Log(QString::null, "Exception Caught: std::exception", Error);
 }

@@ -18,22 +18,22 @@ using namespace GUtil;
 
 Core::Exception::Exception(const std::string &message)
     :exception(),
-    _message(message),
+    _p_Message(message),
     _inner_exception(0)
 {}
 
 Core::Exception::Exception(const std::string &id,
                            const std::string &message)
     :exception(),
+    _p_Message(message),
     _exception_id(id),
-    _message(message),
     _inner_exception(0)
 {}
 
 Core::Exception::Exception(const Core::Exception &o)
     :exception(o),
+    _p_Message(o._p_Message),
     _exception_id(o._exception_id),
-    _message(o._message),
     _data(o._data),
     _inner_exception(o._inner_exception ?
                      new Exception(*o._inner_exception) : 0)
