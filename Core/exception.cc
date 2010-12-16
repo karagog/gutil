@@ -17,19 +17,33 @@ limitations under the License.*/
 using namespace GUtil;
 
 Core::Exception::Exception(const std::string &message)
-    :exception()
-{
-    _message = message;
-}
+    :exception(),
+    _message(message),
+    _inner_exception(0)
+{}
 
-std::string Core::Exception::Message() const
-{
-    return _message;
-}
+Core::Exception::Exception(const std::string &id,
+                           const std::string &message)
+    :exception(),
+    _exception_id(id),
+    _message(message),
+    _inner_exception(0)
+{}
 
-void Core::Exception::SetMessage(const std::string &msg)
+Core::Exception::Exception(const Core::Exception &o)
+    :exception(o),
+    _exception_id(o._exception_id),
+    _message(o._message),
+    _data(o._data),
+    _inner_exception(o._inner_exception ?
+                     new Exception(*o._inner_exception) : 0)
+{}
+
+Core::Exception::~Exception()
+        throw()
 {
-    _message = msg;
+    if(_inner_exception)
+        delete _inner_exception;
 }
 
 void Core::Exception::SetData(const std::string &key, const std::string &value)
@@ -60,10 +74,5 @@ std::vector<std::string> Core::Exception::GetDataKeys(bool include_blanks) const
 
 std::string Core::Exception::ToString() const
 {
-    return "GUtil::Core::" + ToString_protected() + "Exception";
-}
-
-std::string Core::Exception::ToString_protected() const
-{
-    return "";
+    return "GUtil::Core::" + _exception_id + "Exception";
 }

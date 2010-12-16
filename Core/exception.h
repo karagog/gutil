@@ -47,13 +47,16 @@ GUTIL_BEGIN_NAMESPACE( Core );
 
 
 // The base class for all of my exceptions
-class Exception : public std::exception
+class Exception :
+        public std::exception
 {
 public:
-    Exception(const std::string &message = "");
-    virtual ~Exception() throw(){}
 
-    void SetMessage(const std::string &msg);
+    Exception(const std::string &message = "");
+    Exception(const Exception &);
+    virtual ~Exception() throw();
+
+    PROPERTY( Message, std::string );
 
     void SetData(const std::string &, const std::string &);
     std::string GetData(const std::string &) const;
@@ -61,20 +64,35 @@ public:
     // Get a list of the keys you've put in the data collection
     std::vector<std::string> GetDataKeys(bool include_blanks = false) const;
 
-    std::string Message() const;
-
     std::string ToString() const;
 
-        protected:
-    // Derived exceptions should reimplement this so their type can be shown in string format
-    virtual std::string ToString_protected() const;
+    inline void SetInnerException(const Exception &ex){
+        if(_inner_exception)
+            delete _inner_exception;
+        _inner_exception = new Exception(ex);
+    }
 
-        private:
+    inline Exception *GetInnerException() const{ return _inner_exception; }
+
+
+protected:
+
+    Exception(const std::string &identifier, const std::string &message);
+
+
+private:
+
+    std::string _exception_id;
     std::string _message;
     std::map<std::string, std::string> _data;
+
+    Exception *_inner_exception;
+
 };
 
 
+
+#define STRINGIFY( something )  #something
 
 // Use this to declare any new exceptions
 #define EXCEPTION_DECLARE( ex_name ) \
@@ -82,12 +100,7 @@ class ex_name##Exception : public GUtil::Core::Exception \
 { \
 public: \
     ex_name##Exception(const std::string &message = "") \
-        :Exception(message){} \
-        \
-protected: \
-    virtual std::string ToString_protected() const{ \
-        return #ex_name; \
-    } \
+        :Exception(STRINGIFY(ex_name##Exception), message ){} \
 };
 
 
