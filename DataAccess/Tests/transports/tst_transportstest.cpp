@@ -14,12 +14,19 @@ limitations under the License.*/
 
 #include "DataAccess/gconsoleiodevice.h"
 #include "DataAccess/gfileiodevice.h"
+#include "DataAccess/gdatabaseiodevice.h"
+#include "DataObjects/DataSet/datatable.h"
 #include "Logging/filelogger.h"
 #include "Logging/globallogger.h"
+#include "Logging/debuglogger.h"
 #include "Core/exception.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <QtCore/QCoreApplication>
+#include <QSqlDatabase>
+#include <QSqlDriver>
+#include <QSqlQuery>
+#include <QSqlError>
 using namespace GUtil::DataAccess;
 using namespace GUtil::Logging;
 using namespace GUtil;
@@ -34,8 +41,9 @@ public:
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
-    void test_console_transport();
+    //void test_console_transport();
     void test_file_transport();
+    void test_database_transport();
 };
 
 TransportsTest::TransportsTest()
@@ -51,28 +59,28 @@ void TransportsTest::cleanupTestCase()
 {
 }
 
-void TransportsTest::test_console_transport()
-{
-    try
-    {
-        GConsoleIODevice ct;
-        std::string inval;
+//void TransportsTest::test_console_transport()
+//{
+//    try
+//    {
+//        GConsoleIODevice ct;
+//        std::string inval;
 
-        ct<<"Hello World!\n\nYou must type an h: ";
-        ct>>inval;
+//        ct<<"Hello World!\n\nYou must type an h: ";
+//        ct>>inval;
 
-        QVERIFY2(inval == "h", inval.c_str());
+//        QVERIFY2(inval == "h", inval.c_str());
 
-        ct<<"Now type a k: ";
-        ct>>inval;
-        QVERIFY2(inval == "k", inval.c_str());
-    }
-    catch(Core::Exception &ex)
-    {
-        GlobalLogger::LogException(ex);
-        QVERIFY2(false, "Check log for details");
-    }
-}
+//        ct<<"Now type a k: ";
+//        ct>>inval;
+//        QVERIFY2(inval == "k", inval.c_str());
+//    }
+//    catch(Core::Exception &ex)
+//    {
+//        GlobalLogger::LogException(ex);
+//        QVERIFY2(false, "Check log for details");
+//    }
+//}
 
 void TransportsTest::test_file_transport()
 {
@@ -104,6 +112,47 @@ void TransportsTest::test_file_transport()
         GlobalLogger::LogException(ex);
         throw;
     }
+}
+
+void TransportsTest::test_database_transport()
+{
+    QSqlDatabase db(QSqlDatabase::addDatabase("QSQLITE"));
+    db.setDatabaseName("temp.sqlite");
+
+    // Prepare the database
+    db.open();
+    {
+        QSqlQuery q(db);
+        q.prepare("DROP TABLE IF EXISTS test");
+        bool res = q.exec();
+
+        res = q.exec("CREATE TABLE test (one, two)");
+        QVERIFY2(res, q.lastError().text().toStdString().c_str());
+    }
+    db.close();
+
+
+    GDatabaseIODevice d(db, this);
+    d.SetWriteCommand(GDatabaseIODevice::Insert);
+
+    DataObjects::DataTable tbl("test");
+    tbl.SetColumnHeaders(QStringList() << "one" << "two");
+
+    // Insert the row
+    tbl.AddNewRow(Custom::GVariantList() << "1" << 2);
+    try
+    {
+        d.SendData(tbl);
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL(ex.GetMessage().c_str());
+    }
+
+
+    // Select the row we just inserted
+
 }
 
 QTEST_MAIN(TransportsTest);

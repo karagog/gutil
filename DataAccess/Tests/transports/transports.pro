@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += network testlib
+QT       += network sql testlib
 
 TARGET = tst_transportstest
 CONFIG   += console
@@ -14,7 +14,7 @@ TEMPLATE = app
 
 
 SOURCES += tst_transportstest.cpp
-DEFINES += SRCDIR=\\\"$$PWD/\\\"
+DEFINES += DEBUG_LOGGING SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
 LIBS += -L../../.. -lGUtil

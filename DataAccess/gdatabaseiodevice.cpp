@@ -39,10 +39,6 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
         throw(Core::DataTransportException)
 {
     DataTable t;
-
-    if(t.ColumnCount() == 0 || t.RowCount() == 0)
-        return;
-
     try
     {
         t.FromXmlQString(d);
@@ -54,6 +50,10 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                                   ex);
     }
 
+    if(t.ColumnCount() == 0 || t.RowCount() == 0)
+        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                   "No data to send");
+
     _database.open();
     try
     {
@@ -64,23 +64,30 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             QSqlQuery query(_database);
             QString where;
             QString values;
-            QString sql;
             int cnt(0);
             switch(GetWriteCommand())
             {
             case Insert:
                 for(int j = 0; j < t.ColumnCount(); j++)
                 {
-                    query.bindValue(i, row[j]);
-                    values += QString("@val%1,").arg(j);
+                    values.append(QString(":val%1,").arg(j));
+                    where.append(QString("%1,").arg(t.ColumnKeys()[j]));
                 }
 
                 // Remove the trailing comma
                 values.remove(values.length() - 1, 1);
+                where.remove(where.length() - 1, 1);
 
-                sql = QString("INSERT INTO %1 VALUES (%2)")
+                // Prepare the query string
+                query.prepare(QString("INSERT INTO %1 (%2) VALUES (%3)")
                       .arg(t.Name())
-                      .arg(values);
+                      .arg(where)
+                      .arg(values));
+
+                // Bind values after preparing the query
+                for(int j = 0; j < t.ColumnCount(); j++)
+                    query.bindValue(j, row[j]);
+
                 break;
             case Update:
                 if(t.KeyColumns().count() == 0)
@@ -102,8 +109,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 {
                     if(!row[j].isNull())
                     {
-                        query.bindValue(cnt, row[j]);
-                        where.append(QString("%1=@val%2 AND ")
+                        where.append(QString("%1=:val%2 AND ")
                                     .arg(t.ColumnKeys()[j])
                                     .arg(cnt));
                         cnt++;
@@ -117,16 +123,23 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 // Remove the trailing 'and'
                 where.remove(where.length() - 5, 5);
 
-                sql = QString("DELETE FROM %1 WHERE %2")
+                query.prepare(QString("DELETE FROM %1 WHERE %2")
                       .arg(t.Name())
-                      .arg(where);
+                      .arg(where));
+
+                cnt = 0;
+                for(int j = 0; j < t.ColumnCount(); j++)
+                {
+                    if(!row[j].isNull())
+                        query.bindValue(cnt++, row[j]);
+                }
 
                 break;
             default:
                 return;
             }
 
-            if(query.exec(sql))
+            if(query.exec())
             {
                 _p_ReturnValue.clear();
 
@@ -149,7 +162,14 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             {
                 Core::DataTransportException ex("Query Failed");
                 ex.SetData("error", query.lastError().text().toStdString());
-                ex.SetData("query", sql.toStdString());
+                ex.SetData("query", query.lastQuery().toStdString());
+
+                for(int k = 0; k < query.boundValues().count(); k++)
+                {
+                    ex.SetData(QString("Bound Value %1").arg(k).toStdString(),
+                               query.boundValue(k).toString().toStdString());
+                }
+
                 THROW_GUTIL_EXCEPTION(ex);
             }
         }
@@ -196,7 +216,7 @@ QByteArray GDatabaseIODevice::receive_data()
             if(!r[i].isNull())
             {
                 query.bindValue(cnt, r[i]);
-                where.append(QString("%1=@val%2 AND ")
+                where.append(QString("%1=:val%2 AND ")
                           .arg(_selection_parameters->ColumnKeys()[i])
                           .arg(cnt));
                 cnt++;
