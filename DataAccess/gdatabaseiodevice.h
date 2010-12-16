@@ -22,7 +22,10 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        // Treat a database like an IO device.
+        // Treat a database like an IO device.  It is a simplified database
+        //  representation that does CRUD operations on a single table, with
+        //  limited, though very useful in a lot of cases, functionality.  It
+        //  is not able to handle foreign relationships or table joins.
 
         // The data to send/receive is XML data generated from a
         //  DataObjects::DataTable object.  The data you receive from it can be
