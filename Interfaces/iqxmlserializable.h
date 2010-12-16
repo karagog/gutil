@@ -16,17 +16,18 @@ limitations under the License.*/
 #define IQXMLSERIALIZABLE_H
 
 #include "Core/Interfaces/ixmlserializable.h"
+#include <QByteArray>
+#include <QString>
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
-class QString;
-class QByteArray;
 
 namespace GUtil
 {
     namespace Interfaces
     {
-        class IQXmlSerializable : public GUtil::Core::Interfaces::IXmlSerializable
+        class IQXmlSerializable :
+                public GUtil::Core::Interfaces::IXmlSerializable
         {
         public:
 
@@ -45,7 +46,11 @@ namespace GUtil
             virtual void FromXmlString(const std::string &)
                     throw(GUtil::Core::XmlException);
 
+            inline operator QByteArray() const{ return ToXmlQString().toAscii(); }
+            inline operator QString() const{ return (QByteArray)*this; }
+
             virtual ~IQXmlSerializable();
+
 
         protected:
 
