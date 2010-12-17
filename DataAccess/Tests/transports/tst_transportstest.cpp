@@ -138,44 +138,48 @@ void TransportsTest::test_database_transport()
 
         // The new row is blank for the first column, because it will be assigned an auto-incrementing id
         tbl.AddNewRow(Custom::GVariantList() << Custom::GVariant() << "2");
-        try
-        {
-            // To start we shouldn't have any data in the table
-            QVERIFY(dbio.Count("test") == 0);
-            QVERIFY(dbio.LastInsertId() == 0);
 
-            dbio.Insert(tbl);
+        // To start we shouldn't have any data in the table
+        QVERIFY(dbio.Count("test") == 0);
+        QVERIFY(dbio.LastInsertId() == 0);
 
-            // Verify that the auto-incrementing key is working
-            QVERIFY2(dbio.LastInsertId() == 1,
-                     QString("%1").arg(dbio.LastInsertId()).toStdString().c_str());
+        dbio.Insert(tbl);
 
-            // Now we have one row in the database
-            QVERIFY(dbio.Count("test") == 1);
-        }
-        catch(Core::Exception &ex)
-        {
-            dLogException(ex);
-            QFAIL(ex.GetMessage().c_str());
-        }
+        // Verify that the auto-incrementing key is working
+        QVERIFY2(dbio.LastInsertId() == 1,
+                 QString("%1").arg(dbio.LastInsertId()).toStdString().c_str());
+
+        // Now we have one row in the database
+        QVERIFY(dbio.Count("test") == 1);
 
 
         // Select the row we just inserted
-        try
-        {
-            DatabaseSelectionParameters params = dbio.GetBlankSelectionParameters("test");
-            params["one"] = "1";
+        DatabaseSelectionParameters params(dbio.GetBlankSelectionParameters("test"));
+        params["one"] = "1";
 
-            tbl = dbio.Select(params);
-        }
-        catch(Core::Exception &ex)
-        {
-            dLogException(ex);
-            QFAIL(ex.GetMessage().c_str());
-        }
+        tbl = dbio.Select(params);
 
         QVERIFY2(tbl[0][0] == 1, tbl[0][0].toString().toStdString().c_str());
         QVERIFY2(tbl[0][1] == 2, tbl[0][1].toString().toStdString().c_str());
+
+
+        // Insert a few more rows
+        tbl = dbio.GetBlankTable("test");
+        for(int i = 0; i < 10; i++)
+            tbl.AddNewRow(DataObjects::GVariantCollection() <<
+                          Custom::GVariant() << (i + 100));
+        dbio.Insert(tbl);
+
+        int cnt = dbio.Count("test");
+        QVERIFY2(cnt == 11, QString("%1").arg(cnt).toStdString().c_str());
+
+
+        // Update the second column to a 3
+        DatabaseValueParameters values(dbio.GetBlankValueParameters("test"));
+        values["two"] = 3;
+
+        // The same selection parameters should select out the first row
+        dbio.Update(params, values);
     }
     catch(Core::Exception &ex)
     {

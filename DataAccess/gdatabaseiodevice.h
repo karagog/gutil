@@ -89,7 +89,8 @@ namespace GUtil
             inline long Count(const QString &table_name){ return Count(GetBlankSelectionParameters(table_name)); }
 
 
-            // Pass parameters to select out the data you want to update, and pass values with which to update them
+            // Pass parameters to select out the data you want to update, and
+            //  pass values to which to update them
             void Update(const DatabaseSelectionParameters &, const DatabaseValueParameters &);
 
             void Delete(const DatabaseSelectionParameters &);

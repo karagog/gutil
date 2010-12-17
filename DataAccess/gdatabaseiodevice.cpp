@@ -126,7 +126,6 @@ int GDatabaseIODevice::CreateTable(const QString &name,
                 QString keys;
                 for(int i = 0; i < key_columns.count(); i++)
                 {
-                    tbl.AddKeyColumn(key_columns[i]);
                     keys.append(QString("%1,").arg(tbl.ColumnKeys()[key_columns[i]]));
                 }
                 keys.remove(keys.length() - 1, 1);
@@ -262,8 +261,10 @@ void GDatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
     _fail_if_not_ready();
 
     if(sp.Table() != vp.Table())
-        THROW_NEW_GUTIL_EXCEPTION2(Core::ArgumentException,
-                                   "The selection and value parameters originate from different tables");
+        THROW_NEW_GUTIL_EXCEPTION2(
+                Core::ArgumentException,
+                "The selection and value parameters originate from "
+                "different tables");
 
     if(_tables.contains(sp.Table().Name()))
     {
@@ -393,6 +394,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             {
                 DataRow row(t[i]);
 
+                values.clear(); where.clear();
                 for(int j = 0; j < t.ColumnCount(); j++)
                 {
                     values.append("?,");
@@ -463,6 +465,11 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             {
                 if(!values_row[j].isNull())
                     query.addBindValue(values_row[j]);
+            }
+            for(int j = 0; j < selection_row.ColumnCount(); j++)
+            {
+                if(!values_row[j].isNull())
+                    query.addBindValue(selection_row[j]);
             }
 
             // Execute

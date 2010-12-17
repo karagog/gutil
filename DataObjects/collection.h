@@ -30,6 +30,20 @@ template <typename T> class CollectionBase :
         protected Core::Interfaces::IEquatable< CollectionBase<T> >,
         protected Core::Interfaces::IClonable< CollectionBase<T> >
 {
+public:
+
+    inline CollectionBase<T> &operator << (const T &o){
+        add_protected(o);
+        return *this;
+    }
+
+
+    // You can cast this as a QList
+    inline operator QList<T> () const{
+        return _collection;
+    }
+
+
 protected:
 
     // Derived classes can do things to the added/removed object by overriding
