@@ -21,9 +21,11 @@ namespace GUtil
 {
     namespace Custom
     {
-        class GSemaphore : QSemaphore
+        class GSemaphore :
+                public QSemaphore
         {
         public:
+
             explicit GSemaphore(int init_val = 0);
 
             void Up(int n = 1);

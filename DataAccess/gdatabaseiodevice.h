@@ -18,13 +18,19 @@ limitations under the License.*/
 #include "giodevice.h"
 #include "Custom/gpairlist.h"
 #include "DataObjects/DataSet/datarow.h"
-#include <QSqlDatabase>
 #include <QVariant>
 #include <QMap>
 #include <QMutex>
 
+class QSqlQuery;
+
 namespace GUtil
 {
+    namespace Custom
+    {
+        class GSemaphore;
+    }
+
     namespace DataAccess
     {
         typedef DataObjects::DataRow DatabaseSelectionParameters;
@@ -148,7 +154,7 @@ namespace GUtil
             void _execute_query(QSqlQuery &) const;
 
             static QMutex _database_locks_lock;
-            static QStringList _occupied_databases;
+            static QMap<QString, Custom::GSemaphore *> _occupied_databases;
 
         };
 

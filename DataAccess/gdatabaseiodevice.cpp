@@ -13,17 +13,18 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gdatabaseiodevice.h"
-#include "DataObjects/DataSet/datatable.h"
-#include "DataObjects/DataSet/datarow.h"
+#include "Custom/gsemaphore.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlResult>
+#include <QSqlDatabase>
 using namespace GUtil;
 using namespace DataObjects;
 using namespace DataAccess;
+using namespace Custom;
 
 QMutex GDatabaseIODevice::_database_locks_lock;
-QStringList GDatabaseIODevice::_occupied_databases;
+QMap<QString, GSemaphore *> GDatabaseIODevice::_occupied_databases;
 
 GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
                                      QObject *parent)
@@ -36,20 +37,19 @@ GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
 {
     _database_locks_lock.lock();
     {
-        if(!_occupied_databases.contains(_connection_id))
-        {
-            _occupied_databases.append(_connection_id);
-            _p_IsReady = true;
-        }
+        QSqlDatabase db(QSqlDatabase::database(_connection_id));
 
-        if(_p_IsReady)
+        if(db.isValid())
         {
             // Open the database; we'll close it in our destructor
-            QSqlDatabase db(QSqlDatabase::database(_connection_id));
+            if((_p_IsReady = (db.isOpen() || db.open())))
+            {
+                if(!_occupied_databases.contains(_connection_id))
+                    _occupied_databases.insert(_connection_id, new GSemaphore);
 
-            if(!(_p_IsReady = (db.isOpen() || db.open())))
-                // If our open fails, then remove ourselves from the occupied list
-                _occupied_databases.removeOne(_connection_id);
+                // Up the semaphore, to say that we're using this database
+                _occupied_databases[_connection_id]->Up();
+            }
         }
     }
     _database_locks_lock.unlock();
@@ -59,10 +59,18 @@ GDatabaseIODevice::~GDatabaseIODevice()
 {
     _database_locks_lock.lock();
     {
-        _occupied_databases.removeOne(_connection_id);
+        // Down the semaphore, and if we're the last one using it, then cleanup the database
+        _occupied_databases[_connection_id]->Down();
 
-        QSqlDatabase::database(_connection_id).close();
-        QSqlDatabase::removeDatabase(_connection_id);
+        if(_occupied_databases[_connection_id]->IsEmpty())
+        {
+            // Delete and remove the semaphore
+            delete _occupied_databases[_connection_id];
+            _occupied_databases.remove(_connection_id);
+
+            QSqlDatabase::database(_connection_id).close();
+            QSqlDatabase::removeDatabase(_connection_id);
+        }
 
         _p_IsReady = false;
     }
