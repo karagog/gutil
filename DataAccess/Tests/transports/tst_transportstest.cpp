@@ -142,8 +142,13 @@ void TransportsTest::test_database_transport()
         {
             // To start we shouldn't have any data in the table
             QVERIFY(dbio.Count("test") == 0);
+            QVERIFY(dbio.LastInsertId() == 0);
 
             dbio.Insert(tbl);
+
+            // Verify that the auto-incrementing key is working
+            QVERIFY2(dbio.LastInsertId() == 1,
+                     QString("%1").arg(dbio.LastInsertId()).toStdString().c_str());
 
             // Now we have one row in the database
             QVERIFY(dbio.Count("test") == 1);
