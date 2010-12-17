@@ -46,9 +46,6 @@ namespace GUtil
             virtual void FromXmlString(const std::string &)
                     throw(GUtil::Core::XmlException);
 
-            inline operator QByteArray() const{ return ToXmlQString().toAscii(); }
-            inline operator QString() const{ return (QByteArray)*this; }
-
             virtual ~IQXmlSerializable();
 
 
