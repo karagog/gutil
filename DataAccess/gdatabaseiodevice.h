@@ -48,7 +48,7 @@ namespace GUtil
             ~GDatabaseIODevice();
 
             // The database must be properly configured before using this device
-            inline QString GetDatabaseConnectionId(){ return _connection; }
+            inline QString GetDatabaseConnectionId(){ return _connection_id; }
 
             // To issue a select command, first prepare the table with the
             //  parameters of your query.  Each row in the table represents
@@ -94,7 +94,7 @@ namespace GUtil
         private:
 
             DataObjects::DataTable *_selection_parameters;
-            QString _connection;
+            QString _connection_id;
 
         };
 

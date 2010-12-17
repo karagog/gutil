@@ -27,14 +27,14 @@ GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
     :GIODevice(parent),
     _p_WriteCommand(Noop),
     _selection_parameters(new DataTable()),
-    _connection(db_connection_id)
+    _connection_id(db_connection_id)
 {}
 
 GDatabaseIODevice::~GDatabaseIODevice()
 {
     delete _selection_parameters;
-    QSqlDatabase::database(_connection).close();
-    QSqlDatabase::removeDatabase(_connection);
+    QSqlDatabase::database(_connection_id).close();
+    QSqlDatabase::removeDatabase(_connection_id);
 }
 
 void GDatabaseIODevice::send_data(const QByteArray &d)
@@ -56,7 +56,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
         THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
                                    "No data to send");
 
-    QSqlDatabase _database = QSqlDatabase::database(_connection);
+    QSqlDatabase _database = QSqlDatabase::database(_connection_id);
     if(!_database.isOpen() && !_database.open())
         THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
                                    QString("Unable to open database: %1")
@@ -196,7 +196,7 @@ QByteArray GDatabaseIODevice::receive_data()
 
     QByteArray ret;
     QString values, where;
-    QSqlDatabase _database = QSqlDatabase::database(_connection);
+    QSqlDatabase _database = QSqlDatabase::database(_connection_id);
 
     if(!_database.isOpen() && !_database.open())
         THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
