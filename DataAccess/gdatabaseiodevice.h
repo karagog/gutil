@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QSqlDatabase>
 #include <QVariant>
 #include <QMap>
+#include <QMutex>
 
 namespace GUtil
 {
@@ -88,6 +89,10 @@ namespace GUtil
             DatabaseValueParameters GetBlankValueParameters(const QString &table_name);
             DataObjects::DataTable GetBlankTable(const QString &table_name);
 
+            // This is true if the io device is ready to use (must supply a valid database
+            READONLY_PROPERTY( IsReady, bool );
+
+
             READONLY_PROPERTY( ReturnValue, QVariant );
 
 
@@ -126,6 +131,9 @@ namespace GUtil
 
             QMap<QString, DataObjects::DataTable> _tables;
             DatabaseSelectionParameters *_selection_parameters;
+
+            static QMutex _database_locks_lock;
+            static QStringList _occupied_databases;
 
         };
 

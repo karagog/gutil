@@ -22,21 +22,53 @@ using namespace GUtil;
 using namespace DataObjects;
 using namespace DataAccess;
 
+QMutex GDatabaseIODevice::_database_locks_lock;
+QStringList GDatabaseIODevice::_occupied_databases;
+
 GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
                                      QObject *parent)
     :GIODevice(parent),
+    _p_IsReady(false),
     _connection_id(db_connection_id),
     _p_WriteCommand(CommandNoop),
     _selection_parameters(0)
-{}
+{
+    _database_locks_lock.lock();
+    {
+        if(!_occupied_databases.contains(_connection_id))
+        {
+            _occupied_databases.append(_connection_id);
+            _p_IsReady = true;
+        }
+
+        if(_p_IsReady)
+        {
+            // Open the database; we'll close it in our destructor
+            QSqlDatabase db(QSqlDatabase::database(_connection_id));
+
+            if(!(_p_IsReady = (db.isOpen() || db.open())))
+                // If our open fails, then remove ourselves from the occupied list
+                _occupied_databases.removeOne(_connection_id);
+        }
+    }
+    _database_locks_lock.unlock();
+}
 
 GDatabaseIODevice::~GDatabaseIODevice()
 {
+    _database_locks_lock.lock();
+    {
+        _occupied_databases.removeOne(_connection_id);
+
+        QSqlDatabase::database(_connection_id).close();
+        QSqlDatabase::removeDatabase(_connection_id);
+
+        _p_IsReady = false;
+    }
+    _database_locks_lock.unlock();
+
     if(_selection_parameters)
         delete _selection_parameters;
-
-    QSqlDatabase::database(_connection_id).close();
-    QSqlDatabase::removeDatabase(_connection_id);
 }
 
 int GDatabaseIODevice::CreateTable(const QString &name,
@@ -56,7 +88,14 @@ int GDatabaseIODevice::CreateTable(const QString &name,
             ret = 1;
         else
         {
+            QSqlDatabase db(QSqlDatabase::database(_connection_id));
 
+            QSqlQuery q(db);
+            q.prepare("DROP TABLE IF EXISTS test");
+            bool res = q.exec();
+
+            res = q.exec("CREATE TABLE test (one INTEGER, two TEXT)");
+            q.finish();
         }
     }
     catch(Core::Exception &)
