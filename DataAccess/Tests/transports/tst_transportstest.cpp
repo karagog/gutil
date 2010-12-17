@@ -180,6 +180,9 @@ void TransportsTest::test_database_transport()
 
         // The same selection parameters should select out the first row
         dbio.Update(params, values);
+        tbl = dbio.Select(params);
+        QVERIFY2(tbl[0][0] == 1, tbl[0][0].toString().toStdString().c_str());
+        QVERIFY2(tbl[0][1] == 3, tbl[0][1].toString().toStdString().c_str());
     }
     catch(Core::Exception &ex)
     {

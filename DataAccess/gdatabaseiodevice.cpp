@@ -467,7 +467,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             }
             for(int j = 0; j < selection_row.ColumnCount(); j++)
             {
-                if(!values_row[j].isNull())
+                if(!selection_row[j].isNull())
                     query.addBindValue(selection_row[j]);
             }
 
