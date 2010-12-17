@@ -64,9 +64,9 @@ namespace GUtil
             //  It returns 0 if successful, 1 if the table already exists and 2
             //  if it failed to create the table for some reason
             int CreateTable(const QString &name,
-                             const Custom::GPairList<QString, QString> &column_names_n_types,
-                             const QList<int> &key_columns = QList<int>(),
-                             bool drop_if_exists = true);
+                            const Custom::GPairList<QString, QString> &column_names_n_types,
+                            const QList<int> &key_columns = QList<int>(),
+                            bool drop_if_exists = true);
 
             bool DropTable(const QString &name);
 
@@ -144,6 +144,7 @@ namespace GUtil
             DatabaseSelectionParameters *_selection_parameters;
 
             void _fail_if_not_ready() const;
+            void _execute_query(QSqlQuery &) const;
 
             static QMutex _database_locks_lock;
             static QStringList _occupied_databases;

@@ -27,10 +27,17 @@ namespace GUtil
         {
         public:
 
-            GPairList(){}
-            GPairList(const GPairList<T, U> &o)
+            inline GPairList(){}
+            inline GPairList(const GPairList<T, U> &o)
                 :QList< QPair<T, U> >(o)
             {}
+            inline GPairList(const QList< QPair<T, U> > &o)
+                :QList< QPair<T, U> >(o)
+            {}
+
+            inline GPairList operator <<(const QPair<T, U> &p){
+                return *((QList< QPair<T, U> > *)this) << p;
+            }
         };
     }
 }

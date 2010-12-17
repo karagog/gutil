@@ -116,68 +116,65 @@ void TransportsTest::test_file_transport()
 
 void TransportsTest::test_database_transport()
 {
-    QString connection_name;
-    {
-        QSqlDatabase db(QSqlDatabase::addDatabase("QSQLITE", "MyConnection"));
-        db.setDatabaseName("temp.sqlite");
-
-        // Prepare the database
-        db.open();
-
-        QSqlQuery q(db);
-        q.prepare("DROP TABLE IF EXISTS test");
-        bool res = q.exec();
-        QVERIFY2(res, q.lastError().text().toStdString().c_str());
-
-        res = q.exec("CREATE TABLE test (one INTEGER, two TEXT)");
-        QVERIFY2(res, q.lastError().text().toStdString().c_str());
-        q.finish();
-
-        connection_name = db.connectionName();
-    }
-
-
-    GDatabaseIODevice dbio(connection_name, this);
-    dbio.SetWriteCommand(GDatabaseIODevice::Insert);
-
-    DataObjects::DataTable tbl("test");
-    tbl.SetColumnHeaders(QStringList() << "one" << "two");
-
-    // Insert the row
-    tbl.AddNewRow(Custom::GVariantList() << "1" << "2");
     try
     {
-        dbio.SendData(tbl);
+        QString connection_name("MyConnection");
+        QSqlDatabase::addDatabase("QSQLITE", connection_name)
+                .setDatabaseName("temp.sqlite");
+
+        GDatabaseIODevice dbio(connection_name, this);
+
+        // Create a table with two columns, the first an integer, the second
+        //  is text, and make the first column a primary key
+        dbio.CreateTable("test",
+                         Custom::GPairList<QString, QString>() <<
+                         QPair<QString, QString>("one", "INTEGER") <<
+                         QPair<QString, QString>("two", "TEXT"),
+                         QList<int>() << 0,
+                         true);
+
+        // Insert a new row
+        DataObjects::DataTable tbl(dbio.GetBlankTable("test"));
+        tbl.AddNewRow(Custom::GVariantList() << "1" << "2");
+        try
+        {
+            // To start we shouldn't have any data in the table
+            QVERIFY(dbio.Count(dbio.GetBlankSelectionParameters("test")) == 0);
+
+            dbio.Insert(tbl);
+
+            // Now we have one row in the database
+            QVERIFY(dbio.Count(dbio.GetBlankSelectionParameters("test")) == 1);
+        }
+        catch(Core::Exception &ex)
+        {
+            dLogException(ex);
+            QFAIL(ex.GetMessage().c_str());
+        }
+
+
+        // Select the row we just inserted
+        DatabaseSelectionParameters params = dbio.GetBlankSelectionParameters("test");
+        params["one"] = "1";
+
+        try
+        {
+            tbl = dbio.Select(params);
+        }
+        catch(Core::Exception &ex)
+        {
+            dLogException(ex);
+            QFAIL(ex.GetMessage().c_str());
+        }
+
+        QVERIFY2(tbl[0][0] == 1, tbl[0][0].toString().toStdString().c_str());
+        QVERIFY2(tbl[0][1] == 2, tbl[0][1].toString().toStdString().c_str());
     }
     catch(Core::Exception &ex)
     {
         dLogException(ex);
-        QFAIL(ex.GetMessage().c_str());
+        QFAIL("Exception caught");
     }
-
-
-    // Select the row we just inserted
-    dbio.SelectParams().SetTableName("test");
-    dbio.SelectParams().SetColumnHeaders(QStringList() << "one" << "two");
-    DataObjects::DataRow sel_row = dbio.SelectParams().AddNewRow();
-    sel_row[0] = "1";
-
-    QByteArray ret;
-    try
-    {
-        ret = dbio.ReceiveData();
-    }
-    catch(Core::Exception &ex)
-    {
-        dLogException(ex);
-        QFAIL(ex.GetMessage().c_str());
-    }
-
-    DataObjects::DataTable newtbl;
-    newtbl.FromXmlQString(ret);
-
-    QVERIFY2(newtbl[0][0] == 1, newtbl[0][0].toString().toStdString().c_str());
-    QVERIFY2(newtbl[0][1] == 2, newtbl[0][1].toString().toStdString().c_str());
 }
 
 QTEST_MAIN(TransportsTest);
