@@ -388,6 +388,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
         switch(_p_WriteCommand)
         {
         case CommandInsert:
+
             for(int i = 0; i < t.RowCount(); i++)
             {
                 DataRow row(t[i]);
@@ -416,15 +417,16 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
                 _p_ReturnValue = query.lastInsertId();
             }
+
             break;
+
+
         case CommandUpdate:
-            if(t.KeyColumns().count() == 0)
-                THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                           "The table is required to have"
-                                           " at least one key column");
+
+            Q_ASSERT(values_row != selection_row);
 
             // Prepare the where clause
-            for(int j = 0; j < t.ColumnCount(); j++)
+            for(int j = 0; j < selection_row.ColumnCount(); j++)
             {
                 if(!selection_row[j].isNull())
                 {
@@ -432,11 +434,45 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                                 .arg(t.ColumnKeys()[j]));
                 }
             }
+            if(where.length() > 0)
+            {
+                where.remove(where.length() - 5, 5);
+                where = QString("WHERE %1").arg(where);
+            }
 
+            // Prepare the values clause
+            for(int j = 0; j < values_row.ColumnCount(); j++)
+            {
+                if(!values_row[j].isNull())
+                {
+                    values.append(QString("%1=?,")
+                                  .arg(values_row.Table().ColumnKeys()[j]));
+                }
+            }
+            if(values.length() > 0)
+                values.remove(values.length() - 1, 1);
+
+            // Prepare the query
+            query.prepare(QString("UPDATE %1 SET %2 %3")
+                          .arg(t.Name())
+                          .arg(values)
+                          .arg(where));
+
+            // Bind the parameters
+            for(int j = 0; j < values_row.ColumnCount(); j++)
+            {
+                if(!values_row[j].isNull())
+                    query.addBindValue(values_row[j]);
+            }
+
+            // Execute
             _execute_query(query);
 
             break;
+
+
         case CommandDelete:
+
             // Prepare the where clause
             for(int j = 0; j < t.ColumnCount(); j++)
             {
@@ -446,15 +482,13 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                                 .arg(t.ColumnKeys()[j]));
                 }
             }
+            if(where.length() > 0)
+            {
+                where.remove(where.length() - 5, 5);
+                where = QString("WHERE %1").arg(where);
+            }
 
-            if(where.length() == 0)
-                THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                           "No parameters set for deletion");
-
-            // Remove the trailing 'and'
-            where.remove(where.length() - 5, 5);
-
-            query.prepare(QString("DELETE FROM %1 WHERE %2")
+            query.prepare(QString("DELETE FROM %1 %2")
                   .arg(t.Name())
                   .arg(where));
 
@@ -467,6 +501,8 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             _execute_query(query);
 
             break;
+
+
         default:
             return;
         }
