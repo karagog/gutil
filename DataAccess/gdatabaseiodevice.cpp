@@ -447,8 +447,13 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             {
                 if(!values_row[j].isNull())
                 {
-                    values.append(QString("%1=?,")
-                                  .arg(values_row.Table().ColumnKeys()[j]));
+                    QString oper("=");
+
+                    //  TODO: Maybe give them a way to change the operator?
+
+                    values.append(QString("%1 %2 ?,")
+                                  .arg(values_row.Table().ColumnKeys()[j])
+                                  .arg(oper));
                 }
             }
             if(values.length() > 0)
