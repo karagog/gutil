@@ -30,7 +30,8 @@ GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
     :GIODevice(parent),
     _p_IsReady(false),
     _connection_id(db_connection_id),
-    _p_WriteCommand(CommandNoop),
+    _p_WriteCommand(CommandWriteNoop),
+    _p_ReadCommand(CommandReadNoop),
     _selection_parameters(0)
 {
     _database_locks_lock.lock();
@@ -76,6 +77,8 @@ int GDatabaseIODevice::CreateTable(const QString &name,
                                     const QList<int> &key_columns,
                                     bool drop_if_exists)
 {
+    _fail_if_not_ready();
+
     int ret(0);
 
     try
@@ -88,14 +91,38 @@ int GDatabaseIODevice::CreateTable(const QString &name,
             ret = 1;
         else
         {
-            QSqlDatabase db(QSqlDatabase::database(_connection_id));
+            // Prepare column declaration string
+            QString cols;
+            for(int i = 0; i < column_names_n_types.count(); i++)
+            {
+                cols.append(QString("%1 %2,")
+                            .arg(column_names_n_types[i].first)
+                            .arg(column_names_n_types[i].second));
+            }
 
-            QSqlQuery q(db);
-            q.prepare("DROP TABLE IF EXISTS test");
-            bool res = q.exec();
+            if(key_columns.count() == 0)
+            {
+                // Remove the trailing comma
+                if(column_names_n_types.count() > 0)
+                    cols.remove(cols.length() - 1, 1);
+            }
+            else
+            {
+                QString keys;
+                for(int i = 0; i < key_columns.count(); i++)
+                    keys.append(QString("%1,").arg(column_names_n_types[key_columns[i]].first));
+                keys.remove(keys.length() - 1, 1);
 
-            res = q.exec("CREATE TABLE test (one INTEGER, two TEXT)");
-            q.finish();
+                cols.append(QString("PRIMARY KEY (%1)").arg(keys));
+            }
+
+            if(!QSqlQuery(QSqlDatabase::database(_connection_id)).exec(
+                                        QString("CREATE TABLE IF NOT EXISTS %1 (%2)")
+                                        .arg(name)
+                                        .arg(cols)))
+            {
+                ret = 2;
+            }
         }
     }
     catch(Core::Exception &)
@@ -108,13 +135,18 @@ int GDatabaseIODevice::CreateTable(const QString &name,
 
 bool GDatabaseIODevice::DropTable(const QString &name)
 {
-    bool ret(true);
+    _fail_if_not_ready();
+
+    bool ret(false);
 
     try
     {
         if(_tables.contains(name))
         {
             _tables.remove(name);
+
+            ret = QSqlQuery(QSqlDatabase(QSqlDatabase::database(_connection_id)))
+                  .exec(QString("DROP TABLE IF EXISTS %1").arg(name));
         }
     }
     catch(Core::Exception &)
@@ -127,6 +159,8 @@ bool GDatabaseIODevice::DropTable(const QString &name)
 
 void GDatabaseIODevice::Insert(const DataTable &t)
 {
+    _fail_if_not_ready();
+
     if(_tables.contains(t.Name()))
     {
         _p_WriteCommand = CommandInsert;
@@ -142,7 +176,11 @@ void GDatabaseIODevice::Insert(const DataTable &t)
 
 DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params)
 {
+    _fail_if_not_ready();
+
     DataTable *t(0);
+    _p_ReadCommand = CommandSelect;
+
     if(_tables.contains(params.Table().Name()))
     {
         if(_selection_parameters)
@@ -165,15 +203,56 @@ DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params)
     return ret;
 }
 
+long GDatabaseIODevice::Count(const DatabaseSelectionParameters &params)
+{
+    _fail_if_not_ready();
+
+    DataTable *t(0);
+    _p_ReadCommand = CommandCount;
+
+    if(_tables.contains(params.Table().Name()))
+    {
+        if(_selection_parameters)
+            delete _selection_parameters;
+
+        _selection_parameters = new DatabaseSelectionParameters(params);
+
+        (t = new DataTable())
+                ->FromXmlQString(ReceiveData(true));
+    }
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
+                                   QString("Table not recognized: (%1)")
+                                   .arg(params.Table().Name()).toStdString());
+    }
+
+    long ret(0);
+    Q_ASSERT(t->ColumnCount() == 1);
+    Q_ASSERT(t->RowCount() == 1);
+
+    ret = t->Rows()[0][0].value<long>();
+    delete t;
+    return ret;
+}
+
 void GDatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
                                const DatabaseValueParameters &vp)
 {
+    _fail_if_not_ready();
 
 }
 
 void GDatabaseIODevice::Delete(const DatabaseSelectionParameters &p)
 {
+    _fail_if_not_ready();
+}
 
+void GDatabaseIODevice::_fail_if_not_ready() const
+{
+    if(!GetIsReady())
+        THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                   "Database IO device not read for use");
 }
 
 DatabaseSelectionParameters GDatabaseIODevice::GetBlankSelectionParameters(
@@ -348,8 +427,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 Core::DataTransportException ex("Query Failed");
                 ex.SetData("db_name", _database.databaseName().toStdString());
                 ex.SetData("error", query.lastError().text().toStdString());
-                ex.SetData("query", query.lastQuery().toStdString());
-                ex.SetData("executed", query.executedQuery().toStdString());
+                ex.SetData("query", query.executedQuery().toStdString());
 
                 for(int k = 0; k < query.boundValues().count(); k++)
                 {
@@ -370,14 +448,14 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 QByteArray GDatabaseIODevice::receive_data()
         throw(Core::DataTransportException)
 {
-    if(!_selection_parameters ||
+    if(_p_ReadCommand == CommandReadNoop ||
+       !_selection_parameters ||
        _selection_parameters->ColumnCount() == 0)
         THROW_NEW_GUTIL_EXCEPTION2( Core::DataTransportException,
                                     "You have not specified any parameters "
                                     "for the selection");
 
     QByteArray ret;
-    QString values, where;
     QSqlDatabase _database = QSqlDatabase::database(_connection_id);
 
     if(!_database.isOpen() && !_database.open())
@@ -389,37 +467,55 @@ QByteArray GDatabaseIODevice::receive_data()
 
     try
     {
+        QString sql;
+        QString values, where;
+
+        // Prepare the where clause; affects all read command types
         for(int i = 0; i < _selection_parameters->Table().ColumnCount(); i++)
         {
-            values.append(QString("%1,")
-                          .arg(_selection_parameters->Table().ColumnKeys()[i]));
-
             if(!_selection_parameters->At(i).isNull())
             {
                 where.append(QString("%1=? AND ")
-                          .arg(_selection_parameters->Table().ColumnKeys()[i]));
+                             .arg(_selection_parameters->Table().ColumnKeys()[i]));
             }
         }
 
-        values.remove(values.length() - 1, 1);
         if(where.length() > 0)
         {
             where.remove(where.length() - 5, 5);
-
             where = QString("WHERE %1").arg(where);
         }
 
 
-        QString sql(QString("SELECT %1 FROM %2")
-                    .arg(values)
-                    .arg(_selection_parameters->Table().Name()));
+        // The following portion depends on the command type
+        if(_p_ReadCommand == CommandSelect)
+        {
+            // Prepare the columns we want to select
+            for(int i = 0; i < _selection_parameters->Table().ColumnCount(); i++)
+            {
+                values.append(QString("%1,")
+                              .arg(_selection_parameters->Table().ColumnKeys()[i]));
+            }
 
-        if(where.length() > 0)
-            sql = QString("%1 %2").arg(sql).arg(where);
+            values.remove(values.length() - 1, 1);
 
+            sql = QString("SELECT %1 FROM %2 %3")
+                  .arg(values)
+                  .arg(_selection_parameters->Table().Name())
+                  .arg(where);
+        }
+        else if(_p_ReadCommand == CommandCount)
+        {
+            sql = QString("SELECT COUNT(*) FROM %1 %2")
+                  .arg(_selection_parameters->Table().Name())
+                  .arg(where);
+        }
+
+
+
+        // Prepare and Execute the query (all command types)
         query.prepare(sql);
 
-        // Bind values after preparing the query
         for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
         {
             if(!_selection_parameters->At(i).isNull())
@@ -428,24 +524,38 @@ QByteArray GDatabaseIODevice::receive_data()
 
         if(query.exec())
         {
-            DataTable tbl(_selection_parameters->Table().Clone());
-            while(query.next())
+            DataTable *tbl(0);
+            if(_p_ReadCommand == CommandSelect)
             {
-                Custom::GVariantList lst;
-                for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
-                    lst.append(query.value(i));
-                tbl.AddNewRow(lst);
+                tbl = new DataTable(_selection_parameters->Table().Clone());
+                while(query.next())
+                {
+                    Custom::GVariantList lst;
+                    for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+                        lst.append(query.value(i));
+                    tbl->AddNewRow(lst);
+                }
+            }
+            else if(_p_ReadCommand == CommandCount)
+            {
+                if(query.next())
+                {
+                    tbl = new DataTable(_selection_parameters->Table().Name());
+                    tbl->SetColumnHeaders(QStringList("COUNT"));
+                    tbl->AddNewRow(Custom::GVariantList() << query.value(0));
+                }
             }
 
-            ret = tbl.ToXmlQString().toAscii();
+            ret = tbl->ToXmlQString().toAscii();
+            if(tbl)
+                delete tbl;
         }
         else
         {
             Core::DataTransportException ex("Query Failed");
             ex.SetData("db_name", _database.databaseName().toStdString());
             ex.SetData("error", query.lastError().text().toStdString());
-            ex.SetData("query", query.lastQuery().toStdString());
-            ex.SetData("executed", query.executedQuery().toStdString());
+            ex.SetData("query", query.executedQuery().toStdString());
 
             for(int k = 0; k < query.boundValues().count(); k++)
             {

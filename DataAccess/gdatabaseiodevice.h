@@ -79,6 +79,9 @@ namespace GUtil
             //  that will be used to filter the data in the select clause.
             DataObjects::DataTable Select(const DatabaseSelectionParameters &params);
 
+            // A count query, based on your selection parameter filters
+            long Count(const DatabaseSelectionParameters &);
+
             // Pass parameters to select out the data you want to update, and pass values with which to update them
             void Update(const DatabaseSelectionParameters &, const DatabaseValueParameters &);
 
@@ -119,18 +122,28 @@ namespace GUtil
             // These are the possible read/write commands in enum form
             enum WriteCommandsEnum
             {
-                CommandNoop,
+                CommandWriteNoop,
                 CommandInsert,
                 CommandUpdate,
                 CommandDelete
             };
 
+            enum ReadCommandsEnum
+            {
+                CommandReadNoop,
+                CommandSelect,
+                CommandCount
+            };
+
 
             // Control what commands to issue
             WriteCommandsEnum _p_WriteCommand;
+            ReadCommandsEnum _p_ReadCommand;
 
             QMap<QString, DataObjects::DataTable> _tables;
             DatabaseSelectionParameters *_selection_parameters;
+
+            void _fail_if_not_ready() const;
 
             static QMutex _database_locks_lock;
             static QStringList _occupied_databases;
