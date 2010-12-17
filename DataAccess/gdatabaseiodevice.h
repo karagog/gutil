@@ -16,18 +16,25 @@ limitations under the License.*/
 #define GDATABASEIODEVICE_H
 
 #include "giodevice.h"
+#include "Custom/gpairlist.h"
 #include <QSqlDatabase>
 #include <QVariant>
+#include <QMap>
 
 namespace GUtil
 {
     namespace DataObjects
     {
         class DataTable;
+        class DataRow;
     }
 
     namespace DataAccess
     {
+        typedef DataObjects::DataRow DatabaseSelectionParameters;
+        typedef DataObjects::DataRow DatabaseValueParameters;
+
+
         // Treat a database like an IO device.  It is a simplified database
         //  representation that does CRUD operations on a single table, with
         //  limited, though very useful in a lot of cases, functionality.  It
@@ -50,38 +57,48 @@ namespace GUtil
             // The database must be properly configured before using this device
             inline QString GetDatabaseConnectionId(){ return _connection_id; }
 
-            // To issue a select command, first prepare the table with the
-            //  parameters of your query.  Each row in the table represents
-            //  one query that will be executed, one on each call to 'Receive
-            //  Data'.  Each column key corresponds to a
-            //  column of the same name in the database, and if the row
-            //  contains a value for a column, that will filter the results
-            //  based on that column (or multiple columns if you set values
-            //  for them)
-            inline DataObjects::DataTable &SelectParams(){
-                return *_selection_parameters;
-            }
-            inline const DataObjects::DataTable &SelectParams() const{
-                return *_selection_parameters;
-            }
+            // Here are the various database commands you can issue:
 
-            // These are the possible read/write commands in enum form
-            enum WriteCommandsEnum
-            {
-                Noop,
-                Insert,
-                Update,
-                Delete
-            };
+            // You must create a table before using this object for anything
+            //  It returns 0 if successful, 1 if the table already exists and 2
+            //  if it failed to create the table for some reason
+            int CreateTable(const QString &name,
+                             const Custom::GPairList<QString, QString> &column_names_n_types,
+                             const QList<int> &key_columns = QList<int>(),
+                             bool drop_if_exists = true);
+
+            bool DropTable(const QString &name);
 
 
-            // Control what commands to issue
-            PROPERTY( WriteCommand, WriteCommandsEnum );
+            // Insert the rows in the provided table into the database table of the same name
+            //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
+            void Insert(const DataObjects::DataTable &);
+
+            // The 'params' variable is a row of data that matches the layout of the table, and you can set values in it
+            //  that will be used to filter the data in the select clause.
+            DataObjects::DataTable Select(const DatabaseSelectionParameters &params);
+
+            // Pass parameters to select out the data you want to update, and pass values with which to update them
+            void Update(const DatabaseSelectionParameters &, const DatabaseValueParameters &);
+
+            void Delete(const DatabaseSelectionParameters &);
+
+            // Call these functions to get a blank table or parameters object that matches the table you declared
+            DatabaseSelectionParameters GetBlankSelectionParameters(const QString &table_name);
+            DatabaseValueParameters GetBlankValueParameters(const QString &table_name);
+            DataObjects::DataTable GetBlankTable(const QString &table_name);
 
             READONLY_PROPERTY( ReturnValue, QVariant );
 
 
-        protected:
+        private:
+
+            // Here are the overridden methods from GIODevice
+            //  Hide these members from the public; nobody should use this interface.
+            inline void SendData(const QByteArray &d)
+                    throw(Core::DataTransportException){ GIODevice::SendData(d); }
+            inline QByteArray ReceiveData(bool block)
+                    throw(Core::DataTransportException){ return GIODevice::ReceiveData(block); }
 
             void send_data(const QByteArray &)
                     throw(Core::DataTransportException);
@@ -91,10 +108,24 @@ namespace GUtil
             bool has_data_available();
 
 
-        private:
-
-            DataObjects::DataTable *_selection_parameters;
+            // A reference to the QSqlDatabase connection
             QString _connection_id;
+
+            // These are the possible read/write commands in enum form
+            enum WriteCommandsEnum
+            {
+                CommandNoop,
+                CommandInsert,
+                CommandUpdate,
+                CommandDelete
+            };
+
+
+            // Control what commands to issue
+            WriteCommandsEnum _p_WriteCommand;
+
+            QMap<QString, DataObjects::DataTable> _tables;
+            DatabaseSelectionParameters *_selection_parameters;
 
         };
 

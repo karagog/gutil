@@ -25,16 +25,159 @@ using namespace DataAccess;
 GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
                                      QObject *parent)
     :GIODevice(parent),
-    _p_WriteCommand(Noop),
-    _selection_parameters(new DataTable()),
-    _connection_id(db_connection_id)
+    _connection_id(db_connection_id),
+    _p_WriteCommand(CommandNoop),
+    _selection_parameters(0)
 {}
 
 GDatabaseIODevice::~GDatabaseIODevice()
 {
-    delete _selection_parameters;
+    if(_selection_parameters)
+        delete _selection_parameters;
+
     QSqlDatabase::database(_connection_id).close();
     QSqlDatabase::removeDatabase(_connection_id);
+}
+
+int GDatabaseIODevice::CreateTable(const QString &name,
+                                    const Custom::GPairList<QString, QString> &column_names_n_types,
+                                    const QList<int> &key_columns,
+                                    bool drop_if_exists)
+{
+    int ret(0);
+
+    try
+    {
+        // First figure out if we need to drop the table
+        if(drop_if_exists && _tables.contains(name))
+            DropTable(name);
+
+        if(_tables.contains(name))
+            ret = 1;
+        else
+        {
+
+        }
+    }
+    catch(Core::Exception &)
+    {
+        ret = 2;
+    }
+
+    return ret;
+}
+
+bool GDatabaseIODevice::DropTable(const QString &name)
+{
+    bool ret(true);
+
+    try
+    {
+        if(_tables.contains(name))
+        {
+            _tables.remove(name);
+        }
+    }
+    catch(Core::Exception &)
+    {
+        ret = false;
+    }
+
+    return ret;
+}
+
+void GDatabaseIODevice::Insert(const DataTable &t)
+{
+    if(_tables.contains(t.Name()))
+    {
+        _p_WriteCommand = CommandInsert;
+        SendData(t.ToXmlQString().toAscii());
+    }
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
+                                   QString("Table not recognized: (%1)")
+                                   .arg(t.Name()).toStdString());
+    }
+}
+
+DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params)
+{
+    DataTable *t(0);
+    if(_tables.contains(params.Table().Name()))
+    {
+        if(_selection_parameters)
+            delete _selection_parameters;
+
+        _selection_parameters = new DatabaseSelectionParameters(params);
+
+        (t = new DataTable())
+                ->FromXmlQString(ReceiveData(true));
+    }
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
+                                   QString("Table not recognized: (%1)")
+                                   .arg(params.Table().Name()).toStdString());
+    }
+
+    DataTable ret(*t);
+    delete t;
+    return ret;
+}
+
+void GDatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
+                               const DatabaseValueParameters &vp)
+{
+
+}
+
+void GDatabaseIODevice::Delete(const DatabaseSelectionParameters &p)
+{
+
+}
+
+DatabaseSelectionParameters GDatabaseIODevice::GetBlankSelectionParameters(
+        const QString &table_name)
+{
+    DatabaseSelectionParameters *p(0);
+
+    if(_tables.contains(table_name))
+        p = new DatabaseSelectionParameters(
+                _tables[table_name].CreateNewRow()
+                );
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
+                                   QString("Table not recognized: (%1)")
+                                   .arg(table_name).toStdString());
+    }
+
+    DatabaseSelectionParameters ret(*p);
+    delete p;
+    return ret;
+}
+
+DatabaseValueParameters GDatabaseIODevice::GetBlankValueParameters(const QString &table_name)
+{
+    return GetBlankSelectionParameters(table_name);
+}
+
+DataTable GDatabaseIODevice::GetBlankTable(const QString &table_name)
+{
+    DataTable *t(0);
+    if(_tables.contains(table_name))
+        t = new DataTable(_tables[table_name].Clone());
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
+                                   QString("Table not recognized: (%1)")
+                                   .arg(table_name).toStdString());
+    }
+
+    DataTable ret(*t);
+    delete t;
+    return ret;
 }
 
 void GDatabaseIODevice::send_data(const QByteArray &d)
@@ -71,9 +214,9 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             QSqlQuery query(_database);
             QString where;
             QString values;
-            switch(GetWriteCommand())
+            switch(_p_WriteCommand)
             {
-            case Insert:
+            case CommandInsert:
                 for(int j = 0; j < t.ColumnCount(); j++)
                 {
                     values.append("?,");
@@ -95,7 +238,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                     query.addBindValue(row[j]);
 
                 break;
-            case Update:
+            case CommandUpdate:
                 if(t.KeyColumns().count() == 0)
                     THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
                                                "The table is required to have"
@@ -110,7 +253,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                 }
 
                 break;
-            case Delete:
+            case CommandDelete:
                 for(int j = 0; j < t.ColumnCount(); j++)
                 {
                     if(!row[j].isNull())
@@ -146,13 +289,13 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             {
                 _p_ReturnValue.clear();
 
-                switch(GetWriteCommand())
+                switch(_p_WriteCommand)
                 {
-                case Insert:
+                case CommandInsert:
                     break;
-                case Update:
+                case CommandUpdate:
                     break;
-                case Delete:
+                case CommandDelete:
                     // This is supposed to return the number of rows affected,
                     //  but I'm not sure if that's what it does
                     _p_ReturnValue = query.value(0);
@@ -188,7 +331,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 QByteArray GDatabaseIODevice::receive_data()
         throw(Core::DataTransportException)
 {
-    if(_selection_parameters->RowCount() == 0 ||
+    if(!_selection_parameters ||
        _selection_parameters->ColumnCount() == 0)
         THROW_NEW_GUTIL_EXCEPTION2( Core::DataTransportException,
                                     "You have not specified any parameters "
@@ -207,17 +350,15 @@ QByteArray GDatabaseIODevice::receive_data()
 
     try
     {
-        DataRow r(_selection_parameters->Rows()[0]);
-
-        for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+        for(int i = 0; i < _selection_parameters->Table().ColumnCount(); i++)
         {
             values.append(QString("%1,")
-                          .arg(_selection_parameters->ColumnKeys()[i]));
+                          .arg(_selection_parameters->Table().ColumnKeys()[i]));
 
-            if(!r[i].isNull())
+            if(!_selection_parameters->At(i).isNull())
             {
                 where.append(QString("%1=? AND ")
-                          .arg(_selection_parameters->ColumnKeys()[i]));
+                          .arg(_selection_parameters->Table().ColumnKeys()[i]));
             }
         }
 
@@ -232,7 +373,7 @@ QByteArray GDatabaseIODevice::receive_data()
 
         QString sql(QString("SELECT %1 FROM %2")
                     .arg(values)
-                    .arg(_selection_parameters->Name()));
+                    .arg(_selection_parameters->Table().Name()));
 
         if(where.length() > 0)
             sql = QString("%1 %2").arg(sql).arg(where);
@@ -242,15 +383,13 @@ QByteArray GDatabaseIODevice::receive_data()
         // Bind values after preparing the query
         for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
         {
-            if(!r[i].isNull())
-                query.addBindValue(r[i], QSql::InOut);
+            if(!_selection_parameters->At(i).isNull())
+                query.addBindValue(_selection_parameters->At(i));
         }
 
         if(query.exec())
         {
-            DataTable tbl(_selection_parameters->Name());
-            tbl.SetColumnHeaders(_selection_parameters->ColumnKeys(),
-                                 _selection_parameters->ColumnLabels());
+            DataTable tbl(_selection_parameters->Table().Clone());
             while(query.next())
             {
                 Custom::GVariantList lst;
@@ -260,9 +399,6 @@ QByteArray GDatabaseIODevice::receive_data()
             }
 
             ret = tbl.ToXmlQString().toAscii();
-
-            // Remove the row now that we've processed the query
-            tbl.RemoveRow(0);
         }
         else
         {
