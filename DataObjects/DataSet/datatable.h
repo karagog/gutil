@@ -34,10 +34,11 @@ limitations under the License.*/
     inline RowType &At(int index){ return (RowType &)Rows()[index]; } \
     inline const RowType &At(int index) const{ return (const RowType &)Rows()[index]; } \
     \
-    RowType &AddRow(const RowType &r){ return (RowType &)add_row(r); } \
-    RowType &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList()) \
+    inline RowType &AddRow(const RowType &r){ return (RowType &)add_row(r); } \
+    inline RowType &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList()) \
         { return (RowType &)add_new_row(values); } \
-    RowType &ImportRow(const RowType &r){ return (RowType &)import_row(r); } \
+    inline RowType &ImportRow(const RowType &r){ return (RowType &)import_row(r); } \
+    inline RowType CreateNewRow(const Custom::GVariantList &values = Custom::GVariantList()){ return (RowType)create_row(values); } \
     enum{}
 
 
@@ -187,6 +188,7 @@ protected:
 
     DataRow &add_new_row(const Custom::GVariantList &);
     DataRow &add_row(const DataRow &);
+    DataRow create_row(const Custom::GVariantList &);
     DataRow &import_row(const DataRow &);
 
     // This is called any time you add a new row to the table

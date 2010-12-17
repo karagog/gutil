@@ -29,7 +29,7 @@ class PersonDataRow :
 
 public:
 
-    PersonDataRow(const PersonDataRow &o, bool clone = false)
+    PersonDataRow(const DataRow &o, bool clone = false)
         :DataRow(o, clone)
     {}
 

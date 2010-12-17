@@ -149,11 +149,7 @@ const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
 
 DataRow &DataObjects::DataTable::add_new_row(const Custom::GVariantList &values)
 {
-    DataRow dr(*this, values);
-
-    init_new_row(dr);
-
-    return add_row(dr);
+    return add_row(create_row(values));
 }
 
 DataRow &DataTable::add_row(const DataRow &r)
@@ -169,6 +165,13 @@ DataRow &DataTable::add_row(const DataRow &r)
     }
 
     return ret;
+}
+
+DataRow DataTable::create_row(const Custom::GVariantList &values)
+{
+    DataRow dr(*this, values);
+    init_new_row(dr);
+    return dr;
 }
 
 DataObjects::DataRow &DataObjects::DataTable::import_row(const DataObjects::DataRow &r)

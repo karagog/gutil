@@ -23,7 +23,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 INCLUDEPATH += ../../..
 LIBS += -L../../../lib -lGUtil
 
-DEFINES += DEBUG_LOGGING
+#DEFINES += DEBUG_LOGGING
 
 HEADERS += \
     persondatarow.h \

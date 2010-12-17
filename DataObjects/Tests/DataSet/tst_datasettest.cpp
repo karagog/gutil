@@ -551,7 +551,7 @@ void DataSetTest::test_derived_classes()
 
         pt[0].SetName("Julian");
         QVERIFY(pdr.GetName() == "Julian");
-        QVERIFY(pdr[0] == "Julian");
+        QVERIFY(pdr[0].toString() == "Julian");
 
         pt[0].SetLastName("Toker");
         QVERIFY(pdr.GetLastName() == "Toker");
@@ -592,8 +592,8 @@ void DataSetTest::test_derived_classes()
         QVERIFY(pt.Rows().Contains(dr));
 
         pdr.CloneTo(dr);
-        QVERIFY(dr[0] == "Julian");
-        QVERIFY(dr[1] == "Toker");
+        QVERIFY(dr[0].toString() == "Julian");
+        QVERIFY(dr[1].toString() == "Toker");
 
         // You can't get to the id though, unless you cast the data row as a persondatarow
         QVERIFY(((PersonDataRow &)dr).GetId() == id.toString());
@@ -622,8 +622,8 @@ void DataSetTest::test_derived_classes()
         QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
 
         // Test that the people data is in order
-        QVERIFY(ds[0][0][0] == "Julian");
-        QVERIFY(ds[0][0][1] == "Toker");
+        QVERIFY(ds[0][0][0].toString() == "Julian");
+        QVERIFY(ds[0][0][1].toString() == "Toker");
 
         // Test that we can reconstruct from xml
         DataSet ds2;
@@ -632,8 +632,8 @@ void DataSetTest::test_derived_classes()
         //qDebug(ds2.ToXmlString(true).c_str());
 
         QVERIFY(_verify_dog_data((const DogTable &)ds[1]));
-        QVERIFY(ds2[0][0][0] == "Julian");
-        QVERIFY(ds2[0][0][1] == "Toker");
+        QVERIFY(ds2[0][0][0].toString() == "Julian");
+        QVERIFY(ds2[0][0][1].toString() == "Toker");
         QVERIFY(((PersonDataRow &)ds2[0][0]).GetId() == id);
 
 
