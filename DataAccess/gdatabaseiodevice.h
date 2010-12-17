@@ -66,7 +66,7 @@ namespace GUtil
             //  if it failed to create the table for some reason
             int CreateTable(const QString &name,
                             const Custom::GPairList<QString, QString> &column_names_n_types,
-                            const QList<int> &key_columns = QList<int>(),
+                            int primary_key_column = -1,
                             bool drop_if_exists = true);
 
             bool DropTable(const QString &name);

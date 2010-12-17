@@ -82,7 +82,7 @@ GDatabaseIODevice::~GDatabaseIODevice()
 
 int GDatabaseIODevice::CreateTable(const QString &name,
                                     const Custom::GPairList<QString, QString> &column_names_n_types,
-                                    const QList<int> &key_columns,
+                                    int primary_key_column,
                                     bool drop_if_exists)
 {
     _fail_if_not_ready();
@@ -114,7 +114,7 @@ int GDatabaseIODevice::CreateTable(const QString &name,
                               column_names_n_types[i].second);
             }
 
-            if(key_columns.count() == 0)
+            if(primary_key_column == -1)
             {
                 // Remove the trailing comma
                 if(column_names_n_types.count() > 0)
@@ -122,15 +122,9 @@ int GDatabaseIODevice::CreateTable(const QString &name,
             }
             else
             {
-                // Set the primary key columns:
-                QString keys;
-                for(int i = 0; i < key_columns.count(); i++)
-                {
-                    keys.append(QString("%1,").arg(tbl.ColumnKeys()[key_columns[i]]));
-                }
-                keys.remove(keys.length() - 1, 1);
-
-                cols.append(QString("PRIMARY KEY (%1)").arg(keys));
+                // Set the primary key column:
+                cols.append(QString("PRIMARY KEY (%1)")
+                            .arg(tbl.ColumnKeys()[primary_key_column]));
             }
 
             if(QSqlQuery(QSqlDatabase::database(_connection_id)).exec(

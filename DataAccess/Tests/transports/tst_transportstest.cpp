@@ -130,7 +130,7 @@ void TransportsTest::test_database_transport()
                          Custom::GPairList<QString, QString>() <<
                          QPair<QString, QString>("one", "INTEGER") <<
                          QPair<QString, QString>("two", "TEXT"),
-                         QList<int>() << 0,
+                         0,
                          true);
 
         // Insert a new row
