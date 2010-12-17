@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "giodevice.h"
 #include "Custom/gpairlist.h"
+#include "DataObjects/DataSet/datarow.h"
 #include <QSqlDatabase>
 #include <QVariant>
 #include <QMap>
@@ -24,12 +25,6 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace DataObjects
-    {
-        class DataTable;
-        class DataRow;
-    }
-
     namespace DataAccess
     {
         typedef DataObjects::DataRow DatabaseSelectionParameters;
@@ -75,12 +70,18 @@ namespace GUtil
             //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
             void Insert(const DataObjects::DataTable &);
 
+            inline int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
+
             // The 'params' variable is a row of data that matches the layout of the table, and you can set values in it
             //  that will be used to filter the data in the select clause.
             DataObjects::DataTable Select(const DatabaseSelectionParameters &params);
 
             // A count query, based on your selection parameter filters
             long Count(const DatabaseSelectionParameters &);
+
+            // A count query that counts all records in the table
+            inline long Count(const QString &table_name){ return Count(GetBlankSelectionParameters(table_name)); }
+
 
             // Pass parameters to select out the data you want to update, and pass values with which to update them
             void Update(const DatabaseSelectionParameters &, const DatabaseValueParameters &);

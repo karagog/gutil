@@ -135,16 +135,18 @@ void TransportsTest::test_database_transport()
 
         // Insert a new row
         DataObjects::DataTable tbl(dbio.GetBlankTable("test"));
-        tbl.AddNewRow(Custom::GVariantList() << "1" << "2");
+
+        // The new row is blank for the first column, because it will be assigned an auto-incrementing id
+        tbl.AddNewRow(Custom::GVariantList() << Custom::GVariant() << "2");
         try
         {
             // To start we shouldn't have any data in the table
-            QVERIFY(dbio.Count(dbio.GetBlankSelectionParameters("test")) == 0);
+            QVERIFY(dbio.Count("test") == 0);
 
             dbio.Insert(tbl);
 
             // Now we have one row in the database
-            QVERIFY(dbio.Count(dbio.GetBlankSelectionParameters("test")) == 1);
+            QVERIFY(dbio.Count("test") == 1);
         }
         catch(Core::Exception &ex)
         {
@@ -154,11 +156,11 @@ void TransportsTest::test_database_transport()
 
 
         // Select the row we just inserted
-        DatabaseSelectionParameters params = dbio.GetBlankSelectionParameters("test");
-        params["one"] = "1";
-
         try
         {
+            DatabaseSelectionParameters params = dbio.GetBlankSelectionParameters("test");
+            params["one"] = "1";
+
             tbl = dbio.Select(params);
         }
         catch(Core::Exception &ex)

@@ -345,6 +345,8 @@ DataTable GDatabaseIODevice::GetBlankTable(const QString &table_name)
 void GDatabaseIODevice::send_data(const QByteArray &d)
         throw(Core::DataTransportException)
 {
+    _p_ReturnValue.clear();
+
     DataTable t;
     try
     {
@@ -403,6 +405,8 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                     query.addBindValue(row[j]);
 
                 _execute_query(query);
+
+                _p_ReturnValue = query.lastInsertId();
             }
             break;
         case CommandUpdate:
@@ -465,27 +469,11 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
     }
 }
 
-void GDatabaseIODevice::_execute_query(QSqlQuery &query) const
-{
-    if(!query.exec())
-    {
-        Core::DataTransportException ex("Query Failed");
-        ex.SetData("error", query.lastError().text().toStdString());
-        ex.SetData("query", query.executedQuery().toStdString());
-
-        for(int k = 0; k < query.boundValues().count(); k++)
-        {
-            ex.SetData(QString("Bound Value %1").arg(k).toStdString(),
-                       query.boundValue(k).toString().toStdString());
-        }
-
-        THROW_GUTIL_EXCEPTION(ex);
-    }
-}
-
 QByteArray GDatabaseIODevice::receive_data()
         throw(Core::DataTransportException)
 {
+    _p_ReturnValue.clear();
+
     if(_p_ReadCommand == CommandReadNoop ||
        !_selection_parameters ||
        _selection_parameters->ColumnCount() == 0)
@@ -616,6 +604,24 @@ bool GDatabaseIODevice::has_data_available()
 {
     // We can always query the database for more data
     return true;
+}
+
+void GDatabaseIODevice::_execute_query(QSqlQuery &query) const
+{
+    if(!query.exec())
+    {
+        Core::DataTransportException ex("Query Failed");
+        ex.SetData("error", query.lastError().text().toStdString());
+        ex.SetData("query", query.executedQuery().toStdString());
+
+        for(int k = 0; k < query.boundValues().count(); k++)
+        {
+            ex.SetData(QString("Bound Value %1").arg(k).toStdString(),
+                       query.boundValue(k).toString().toStdString());
+        }
+
+        THROW_GUTIL_EXCEPTION(ex);
+    }
 }
 
 void GDatabaseIODevice::_fail_if_not_ready() const
