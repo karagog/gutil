@@ -363,8 +363,9 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2( Core::XmlException,
-                                   "Not a valid DataTable serialization" );
+        Core::XmlException ex("Not a valid DataTable serialization");
+        ex.SetData("Token", sr.tokenString().toStdString());
+        THROW_GUTIL_EXCEPTION(ex);
     }
 }
 

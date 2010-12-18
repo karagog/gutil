@@ -18,6 +18,8 @@ limitations under the License.*/
 #include <QSqlError>
 #include <QSqlResult>
 #include <QSqlDatabase>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 using namespace GUtil;
 using namespace DataObjects;
 using namespace DataAccess;
@@ -31,7 +33,6 @@ GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
     :GIODevice(parent),
     _p_IsReady(false),
     _connection_id(db_connection_id),
-    _p_WriteCommand(CommandWriteNoop),
     _p_ReadCommand(CommandReadNoop),
     _selection_parameters(0)
 {
@@ -176,8 +177,7 @@ void GDatabaseIODevice::Insert(const DataTable &t)
 
     if(_tables.contains(t.Name()))
     {
-        _p_WriteCommand = CommandInsert;
-        SendData(t.ToXmlQString().toAscii());
+        SendData( prepare_send_data(CommandInsert, t) );
     }
     else
     {
@@ -272,16 +272,7 @@ void GDatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
 
     if(_tables.contains(sp.Table().Name()))
     {
-        _p_WriteCommand = CommandUpdate;
-        DataTable t(sp.Table().Clone());
-
-        // First row is selection parameters
-        t.ImportRow(sp.FilterValues());
-
-        // Second row is value parameters
-        t.ImportRow(vp.Values());
-
-        SendData(t.ToXmlQString().toAscii());
+        SendData( prepare_send_data(CommandUpdate, sp, vp) );
     }
     else
     {
@@ -297,12 +288,7 @@ void GDatabaseIODevice::Delete(const DatabaseSelectionParameters &p)
 
     if(_tables.contains(p.Table().Name()))
     {
-        _p_WriteCommand = CommandDelete;
-
-        DataTable t(p.Table().Clone());
-        t.ImportRow(p.FilterValues());
-
-        SendData(t.ToXmlQString().toAscii());
+        SendData( prepare_send_data(CommandDelete, p) );
     }
     else
     {
@@ -375,37 +361,67 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 {
     _p_ReturnValue.clear();
 
-    DataTable t;
     try
     {
-        t.FromXmlQString(d);
-    }
-    catch(Core::XmlException &ex)
-    {
-        THROW_NEW_GUTIL_EXCEPTION3(Core::DataTransportException,
-                                  "Not a valid XML string",
-                                  ex);
-    }
+        WriteCommandsEnum write_cmd(CommandWriteNoop);
+        QByteArray data;
 
-    if(t.ColumnCount() == 0 || t.RowCount() == 0)
-        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                   "No data to send");
+        // Parse our write command
+        {
+            QString tmp(d);
+            bool ok(false);
+            int loc = tmp.indexOf(":");
 
-    QSqlDatabase _database = QSqlDatabase::database(_connection_id);
-    if(!_database.isOpen() && !_database.open())
-        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                   QString("Unable to open database: %1")
-                                   .arg(_database.lastError().text()).toStdString());
+            Q_ASSERT(loc > 0 && loc < 5);
 
-    try
-    {
-        DataRow selection_row(t[0]);
-        DataRow values_row(t[ t.RowCount() > 1 ? 1 : 0 ]);
+            {
+                QString sub(tmp.left(loc));
+                write_cmd = (WriteCommandsEnum)sub.toInt(&ok);
+            }
+
+            Q_ASSERT(ok);
+
+            // Remove the prepending commands from the rest of the string
+            data = tmp.right(tmp.length() - (loc + 1)).toAscii();
+        }
+
+
+
+        DatabaseSelectionParameters sp;
+        DatabaseValueParameters vp;
+        DataTable t;
+        try
+        {
+            QXmlStreamReader sr(data);
+            if(!sr.readNextStartElement() || sr.name() != "x")
+                THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
+
+            sp.ReadXml(sr);
+            vp.ReadXml(sr);
+            t.ReadXml(sr);
+        }
+        catch(Core::XmlException &ex)
+        {
+            THROW_NEW_GUTIL_EXCEPTION3(Core::DataTransportException,
+                                      "Not a valid XML string",
+                                      ex);
+        }
+
+        if(t.ColumnCount() == 0)
+            THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                       "No data to send");
+
+        QSqlDatabase _database = QSqlDatabase::database(_connection_id);
+        if(!_database.isOpen() && !_database.open())
+            THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                       QString("Unable to open database: %1")
+                                       .arg(_database.lastError().text()).toStdString());
+
 
         QSqlQuery query(_database);
         QString where;
         QString values;
-        switch(_p_WriteCommand)
+        switch(write_cmd)
         {
         case CommandInsert:
 
@@ -444,12 +460,10 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
         case CommandUpdate:
 
-            Q_ASSERT(values_row != selection_row);
-
             // Prepare the where clause
-            for(int j = 0; j < selection_row.ColumnCount(); j++)
+            for(int j = 0; j < sp.ColumnCount(); j++)
             {
-                if(!selection_row[j].isNull())
+                if(!sp.FilterValues()[j].isNull())
                 {
                     where.append(QString("%1=? AND ")
                                 .arg(t.ColumnKeys()[j]));
@@ -462,16 +476,16 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             }
 
             // Prepare the values clause
-            for(int j = 0; j < values_row.ColumnCount(); j++)
+            for(int j = 0; j < vp.ColumnCount(); j++)
             {
-                if(!values_row[j].isNull())
+                if(!vp.Values()[j].isNull())
                 {
                     QString oper("=");
 
                     //  TODO: Maybe give them a way to change the operator?
 
                     values.append(QString("%1 %2 ?,")
-                                  .arg(values_row.Table().ColumnKeys()[j])
+                                  .arg(t.ColumnKeys()[j])
                                   .arg(oper));
                 }
             }
@@ -485,15 +499,15 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                           .arg(where));
 
             // Bind the parameters
-            for(int j = 0; j < values_row.ColumnCount(); j++)
+            for(int j = 0; j < vp.ColumnCount(); j++)
             {
-                if(!values_row[j].isNull())
-                    query.addBindValue(values_row[j]);
+                if(!vp.Values()[j].isNull())
+                    query.addBindValue(vp.Values()[j]);
             }
-            for(int j = 0; j < selection_row.ColumnCount(); j++)
+            for(int j = 0; j < sp.ColumnCount(); j++)
             {
-                if(!selection_row[j].isNull())
-                    query.addBindValue(selection_row[j]);
+                if(!sp.FilterValues()[j].isNull())
+                    query.addBindValue(sp.FilterValues()[j]);
             }
 
             // Execute
@@ -507,7 +521,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
             // Prepare the where clause
             for(int j = 0; j < t.ColumnCount(); j++)
             {
-                if(!selection_row[j].isNull())
+                if(!sp.FilterValues()[j].isNull())
                 {
                     where.append(QString("%1=? AND ")
                                 .arg(t.ColumnKeys()[j]));
@@ -525,8 +539,8 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
             for(int j = 0; j < t.ColumnCount(); j++)
             {
-                if(!selection_row[j].isNull())
-                    query.addBindValue(selection_row[j]);
+                if(!sp.FilterValues()[j].isNull())
+                    query.addBindValue(sp.FilterValues()[j]);
             }
 
             _execute_query(query);
@@ -704,4 +718,70 @@ void GDatabaseIODevice::_fail_if_not_ready() const
     if(!GetIsReady())
         THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
                                    "Database IO device not read for use");
+}
+
+QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
+                                              const DataObjects::DataTable &t)
+{
+    QString tbl(t.Name());
+    return prepare_send_data(cmd, t,
+                             GetBlankSelectionParameters(tbl),
+                             GetBlankValueParameters(tbl));
+}
+
+QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
+                                                const DatabaseSelectionParameters &sp)
+{
+    QString tbl(sp.Table().Name());
+    return prepare_send_data(cmd, GetBlankTable(tbl), sp,
+                             GetBlankValueParameters(tbl));
+}
+
+QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
+                                                const DatabaseSelectionParameters &sp,
+                                                const DatabaseValueParameters &vp)
+{
+    return prepare_send_data(cmd, GetBlankTable(sp.Table().Name()), sp, vp);
+}
+
+QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
+                                                const DataTable &t,
+                                                const DatabaseSelectionParameters &sp,
+                                                const DatabaseValueParameters &vp)
+{
+    return QString("%1:<x>%2%3%4</x>")
+            .arg((int)cmd)
+            .arg(sp.ToXmlQString())
+            .arg(vp.ToXmlQString())
+            .arg(t.ToXmlQString())
+            .toAscii();
+}
+
+
+
+
+
+void DatabaseParametersBase::ReadXml(QXmlStreamReader &sr)
+        throw(Core::XmlException)
+{
+    DataRow col_opts(Table().CreateNewRow());
+
+    _row.ReadXml(sr);
+    col_opts.ReadXml(sr);
+
+    ColumnOptions.Clear();
+    for(int i = 0; i < col_opts.ColumnCount(); i++)
+        ColumnOptions.Add((GDatabaseIODevice::ColumnOption)col_opts[i].toInt());
+}
+
+void DatabaseParametersBase::WriteXml(QXmlStreamWriter &sw) const
+{
+    Custom::GVariantList gvl;
+    for(int i = 0; i < ColumnOptions.Count(); i++)
+        gvl.append((int)ColumnOptions[i]);
+
+    DataRow col_opts(Table().CreateNewRow(gvl));
+
+    _row.WriteXml(sw);
+    col_opts.WriteXml(sw);
 }

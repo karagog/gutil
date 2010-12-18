@@ -40,6 +40,10 @@ DataObjects::DataRow::DataRow(SharedRowData *rd)
     :ExplicitlySharedObject<SharedRowData>(rd)
 {}
 
+DataObjects::DataRow::DataRow()
+    :ExplicitlySharedObject<SharedRowData>(new SharedRowData)
+{}
+
 DataObjects::DataRow::~DataRow(){}
 
 DataObjects::DataRow &DataObjects::DataRow::operator =(const DataObjects::DataRow &o)
@@ -82,7 +86,7 @@ int DataObjects::DataRow::Index() const
 
 int DataObjects::DataRow::ColumnCount() const
 {
-    return row_data().Table().ColumnCount();
+    return row_data().Tuple().Count();
 }
 
 DataObjects::SharedRowData &DataObjects::DataRow::row_data()

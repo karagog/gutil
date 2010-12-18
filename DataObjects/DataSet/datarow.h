@@ -58,6 +58,7 @@ class DataRow :
 
 public:
 
+    DataRow();
     DataRow(const DataRow &, bool clone = false);
     virtual ~DataRow();
 

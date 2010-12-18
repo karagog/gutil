@@ -124,6 +124,38 @@ namespace GUtil
             Q_DECLARE_FLAGS(ColumnOptions, ColumnOption);
 
 
+        protected:
+
+            // These are the possible read/write commands in enum form
+            enum WriteCommandsEnum
+            {
+                CommandWriteNoop,
+                CommandInsert,
+                CommandUpdate,
+                CommandDelete
+            };
+
+            enum ReadCommandsEnum
+            {
+                CommandReadNoop,
+                CommandSelect,
+                CommandCount
+            };
+
+
+            QByteArray prepare_send_data(WriteCommandsEnum cmd,
+                                         const DataObjects::DataTable &);
+            QByteArray prepare_send_data(WriteCommandsEnum cmd,
+                                         const DatabaseSelectionParameters &);
+            QByteArray prepare_send_data(WriteCommandsEnum cmd,
+                                         const DatabaseSelectionParameters &,
+                                         const DatabaseValueParameters &);
+            QByteArray prepare_send_data(WriteCommandsEnum cmd,
+                                         const DataObjects::DataTable &,
+                                         const DatabaseSelectionParameters &,
+                                         const DatabaseValueParameters &);
+
+
         private:
 
             // Here are the overridden methods from GIODevice
@@ -144,25 +176,8 @@ namespace GUtil
             // A reference to the QSqlDatabase connection
             QString _connection_id;
 
-            // These are the possible read/write commands in enum form
-            enum WriteCommandsEnum
-            {
-                CommandWriteNoop,
-                CommandInsert,
-                CommandUpdate,
-                CommandDelete
-            };
-
-            enum ReadCommandsEnum
-            {
-                CommandReadNoop,
-                CommandSelect,
-                CommandCount
-            };
-
 
             // Control what commands to issue
-            WriteCommandsEnum _p_WriteCommand;
             ReadCommandsEnum _p_ReadCommand;
 
             QMap<QString, DataObjects::DataTable> _tables;
@@ -178,7 +193,8 @@ namespace GUtil
 
 
 
-        class DatabaseParametersBase
+        class DatabaseParametersBase :
+                public Interfaces::IQXmlSerializable
         {
         public:
 
@@ -191,7 +207,7 @@ namespace GUtil
                 return _row.Table();
             }
 
-            inline int ColumnCount() const{ return Table().ColumnCount(); }
+            inline int ColumnCount() const{ return _row.ColumnCount(); }
 
             inline DatabaseParametersBase(
                     const DatabaseParametersBase &p)
@@ -207,9 +223,17 @@ namespace GUtil
                 _row(fv)
             {}
 
+            inline DatabaseParametersBase()
+                :_row()
+            {}
+
             // Use the Filtervalues to declare a "where" clause, where every
             //  item in the result set matches the FilterValues.
             DataObjects::DataRow _row;
+
+            void ReadXml(QXmlStreamReader &)
+                    throw(Core::XmlException);
+            void WriteXml(QXmlStreamWriter &) const;
 
         };
 
@@ -235,6 +259,8 @@ namespace GUtil
                 :DatabaseParametersBase(r)
             {}
 
+            inline DatabaseSelectionParameters(){}
+
         };
 
 
@@ -258,6 +284,8 @@ namespace GUtil
             inline DatabaseValueParameters(const DataObjects::DataRow &r)
                 :DatabaseParametersBase(r)
             {}
+
+            inline DatabaseValueParameters(){}
 
         };
     }

@@ -33,6 +33,10 @@ DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
     _tuple.SetCollectionObserver(this);
 }
 
+DataObjects::SharedRowData::SharedRowData()
+    :_table(new DataObjects::DataTable)
+{}
+
 DataObjects::SharedRowData::~SharedRowData(){
     delete _table;
 }

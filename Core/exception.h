@@ -34,7 +34,7 @@ do{ \
 
 #define THROW_NEW_GUTIL_EXCEPTION( ex_type ) \
 do{ \
-    throw ex_type(message); \
+    throw ex_type(""); \
 }while(0)
 
 // pass an exception type and the message you want it to have

@@ -34,6 +34,7 @@ public:
                   const Custom::GVariantList &vals);
 
     SharedRowData(const SharedRowData &o);
+    SharedRowData();
 
     virtual ~SharedRowData();
 
