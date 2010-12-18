@@ -9,12 +9,12 @@ HEADERS += \
     BinaryDataStore.h \
     LocalClientServer.h \
     ConfigFile.h \
-    abstractvaluebuffer.h
+    giodevicebundlemanager.h
 
 SOURCES += \
     BinaryDataStore.cpp \
     LocalClientServer.cpp \
     ConfigFile.cpp \
-    abstractvaluebuffer.cpp
+    giodevicebundlemanager.cpp
 
 INCLUDEPATH += ..

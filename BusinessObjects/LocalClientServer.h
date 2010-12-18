@@ -15,7 +15,7 @@
 //#ifndef DA_LOCALCLIENTSERVER_H
 //#define DA_LOCALCLIENTSERVER_H
 
-//#include "abstractvaluebuffer.h"
+//#include "giodevicebundlemanager.h"
 //#include <QString>
 //#include <QList>
 //#include <QMap>
@@ -46,7 +46,7 @@
 //        // Terminate the session on either the client or server with the 'goodbye' function
 
 //        // The base class for both client and server endpoints (abstract)
-//        class LocalClientServer : public AbstractValueBuffer
+//        class LocalClientServer : public GIODeviceBundleManager
 //        {
 //            Q_OBJECT
 //        signals:

@@ -54,7 +54,7 @@ namespace GUtil
 
         // Do NOT use from more than 1 thread
 
-        class AbstractValueBuffer :
+        class GIODeviceBundleManager :
                 public QObject
         {
             Q_OBJECT
@@ -67,7 +67,7 @@ namespace GUtil
             // Derived classes use this to control the behavior of the AVB
             class DerivedClassFunctions
             {
-                friend class AbstractValueBuffer;
+                friend class GIODeviceBundleManager;
             protected:
 
                 // Use these functions to do anything to the data before it
@@ -87,12 +87,12 @@ namespace GUtil
         protected:
 
             // No public constructor; this class must be derived.
-            AbstractValueBuffer(
+            GIODeviceBundleManager(
                     DataAccess::GIODevice *transport,
                     DerivedClassFunctions *dp = 0,
                     QObject *parent = 0);
 
-            ~AbstractValueBuffer();
+            ~GIODeviceBundleManager();
 
             // Derived classes MUST call this on the first line of their
             //  destructor

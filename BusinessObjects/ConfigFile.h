@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DA_CONFIGFILE_H
 #define DA_CONFIGFILE_H
 
-#include "abstractvaluebuffer.h"
+#include "giodevicebundlemanager.h"
 #include "DataAccess/gfileiodevice.h"
 #include <QObject>
 #include <QString>
@@ -39,8 +39,8 @@ namespace GUtil
         //   into base64 before writing them to disk.
 
         class ConfigFile :
-                public AbstractValueBuffer,
-                public AbstractValueBuffer::DerivedClassFunctions,
+                public GIODeviceBundleManager,
+                public GIODeviceBundleManager::DerivedClassFunctions,
                 public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
@@ -115,7 +115,7 @@ namespace GUtil
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
 
-            // Overrides of AbstractValueBuffer functions
+            // Overrides of GIODeviceBundleManager functions
             //  (to support compression of the data)
             void preprocess_outgoing_data(QByteArray &) const;
             void preprocess_incoming_data(QByteArray &) const;

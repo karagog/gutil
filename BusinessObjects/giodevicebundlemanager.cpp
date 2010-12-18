@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "abstractvaluebuffer.h"
+#include "giodevicebundlemanager.h"
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
@@ -22,7 +22,7 @@ using namespace GUtil;
 using namespace DataObjects;
 using namespace BusinessObjects;
 
-AbstractValueBuffer::AbstractValueBuffer(
+GIODeviceBundleManager::GIODeviceBundleManager(
         DataAccess::GIODevice *transport,
         DerivedClassFunctions *dp,
         QObject *parent)
@@ -37,27 +37,27 @@ AbstractValueBuffer::AbstractValueBuffer(
     start_worker_threads();
 }
 
-void AbstractValueBuffer::start_worker_threads()
+void GIODeviceBundleManager::start_worker_threads()
 {
     connect(_transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
 
     // Start up our background workers
     _ref_worker_outgoing =
-            QtConcurrent::run(this, &AbstractValueBuffer::_queue_processor_thread,
+            QtConcurrent::run(this, &GIODeviceBundleManager::_queue_processor_thread,
                               &_outgoing_flags_mutex,
                               &_condition_outgoing_data_enqueued,
                               &_flag_new_outgoing_data_enqueued,
                               OutQueue);
 
     _ref_worker_incoming =
-            QtConcurrent::run(this, &AbstractValueBuffer::_queue_processor_thread,
+            QtConcurrent::run(this, &GIODeviceBundleManager::_queue_processor_thread,
                               &_incoming_flags_mutex,
                               &_condition_incoming_data_enqueued,
                               &_flag_new_incoming_data_enqueued,
                               InQueue);
 }
 
-AbstractValueBuffer::~AbstractValueBuffer()
+GIODeviceBundleManager::~GIODeviceBundleManager()
 {
     // Derived classes must call this first thing in their destructors, but just
     //  in case we still call it here.  But this may cause a seg fault if called
@@ -67,7 +67,7 @@ AbstractValueBuffer::~AbstractValueBuffer()
     delete _transport;
 }
 
-void AbstractValueBuffer::kill_worker_threads()
+void GIODeviceBundleManager::kill_worker_threads()
 {
     _incoming_flags_mutex.lock();
     _outgoing_flags_mutex.lock();
@@ -85,7 +85,7 @@ void AbstractValueBuffer::kill_worker_threads()
     _ref_worker_outgoing.waitForFinished();
 }
 
-void AbstractValueBuffer::_get_queue_and_mutex(
+void GIODeviceBundleManager::_get_queue_and_mutex(
         QueueTypeEnum qt,
         QQueue<DataObjects::DataTable> **q,
         QMutex **m)
@@ -105,13 +105,13 @@ void AbstractValueBuffer::_get_queue_and_mutex(
     }
 }
 
-void AbstractValueBuffer::clearQueues()
+void GIODeviceBundleManager::clearQueues()
 {
     _clear_queue(_in_queue_mutex, _in_queue);
     _clear_queue(_out_queue_mutex, _out_queue);
 }
 
-void AbstractValueBuffer::_clear_queue(
+void GIODeviceBundleManager::_clear_queue(
         QMutex &lock,
         QQueue<DataObjects::DataTable> &queue)
 {
@@ -120,7 +120,7 @@ void AbstractValueBuffer::_clear_queue(
     lock.unlock();
 }
 
-void AbstractValueBuffer::importData()
+void GIODeviceBundleManager::importData()
 {
     QByteArray *data;
 
@@ -162,7 +162,7 @@ void AbstractValueBuffer::importData()
     delete data;
 }
 
-QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
+QUuid GIODeviceBundleManager::enQueueCurrentData(bool clear)
 {
     QUuid ret;
     DataTable *tmp = 0;
@@ -188,12 +188,12 @@ QUuid AbstractValueBuffer::enQueueCurrentData(bool clear)
     return ret;
 }
 
-DataTable AbstractValueBuffer::deQueueMessage(QueueTypeEnum q)
+DataTable GIODeviceBundleManager::deQueueMessage(QueueTypeEnum q)
 {
     return en_deQueueMessage(q, DataTable(), false);
 }
 
-DataTable AbstractValueBuffer::en_deQueueMessage(
+DataTable GIODeviceBundleManager::en_deQueueMessage(
         QueueTypeEnum q,
         const DataTable &msg,
         bool enqueue)
@@ -274,7 +274,7 @@ DataTable AbstractValueBuffer::en_deQueueMessage(
     return ret;
 }
 
-void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
+void GIODeviceBundleManager::_flush_queue(QueueTypeEnum qt)
 {
     QQueue<DataTable> *queue;
     QMutex *mutex;
@@ -354,7 +354,7 @@ void AbstractValueBuffer::_flush_queue(QueueTypeEnum qt)
     }
 }
 
-void AbstractValueBuffer::_queue_processor_thread(
+void GIODeviceBundleManager::_queue_processor_thread(
         QMutex *flags_mutex,
         QWaitCondition *condition_data_ready,
         bool *flag_data_ready,
@@ -386,7 +386,7 @@ void AbstractValueBuffer::_queue_processor_thread(
     }
 }
 
-void AbstractValueBuffer::wait_for_message_sent(const QUuid &id)
+void GIODeviceBundleManager::wait_for_message_sent(const QUuid &id)
 {
     _out_queue_mutex.lock();
     {

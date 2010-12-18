@@ -29,7 +29,7 @@ using namespace BusinessObjects;
 ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
-    :AbstractValueBuffer(
+    :GIODeviceBundleManager(
             new DataAccess::GFileIODevice(QString("%1.%2")
                                           .arg(get_file_location(identifier))
                                           .arg(modifier)),
@@ -46,7 +46,7 @@ ConfigFile::ConfigFile(const QString &identifier,
 
 ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
                        QObject *parent)
-    :AbstractValueBuffer(
+    :GIODeviceBundleManager(
             new DataAccess::GFileIODevice(other.FileName()),
             this,
             parent),
