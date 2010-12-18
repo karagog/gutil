@@ -202,7 +202,16 @@ void TransportsTest::test_database_transport()
         QVERIFY(exception_hit);
 
 
-        // Future: How many records are over 100?
+        // How many records are over 100?
+        DatabaseSelectionParameters new_params(
+                dbio.GetBlankSelectionParameters("test"));
+        new_params.FilterValues()["two"] = 100;
+        new_params.ColumnOptions()[1] |= GDatabaseIODevice::CompareGreaterThan;
+        QVERIFY(dbio.Count(new_params) == 10);
+
+        // How many are not greater than 100 ?
+        new_params.ColumnOptions()[1] |= GDatabaseIODevice::Not;
+        QVERIFY(dbio.Count(new_params) == 1);
 
 
         // Now delete the first row

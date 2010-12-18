@@ -114,8 +114,11 @@ namespace GUtil
             enum ColumnOption
             {
                 None,
+                CompareNotEquals,
                 CompareGreaterThan,
+                CompareGreaterThanOrEqualTo,
                 CompareLessThan,
+                CompareLessThanOrEqualTo,
                 Or,
                 Not,
                 Binary  // Must use if the column is binary
@@ -186,6 +189,10 @@ namespace GUtil
             void _fail_if_not_ready() const;
             void _execute_query(QSqlQuery &) const;
 
+            QString _prepare_where_clause(
+                    const QStringList &column_keys,
+                    const DatabaseSelectionParameters &) const;
+
             static QMutex _database_locks_lock;
             static QMap<QString, Custom::GSemaphore *> _occupied_databases;
 
@@ -200,8 +207,14 @@ namespace GUtil
 
             // Use ColumnOptions to set various options on the columns, like
             //  a different compare operator, NOT/OR it, etc...
-            DataObjects::ResizableCollection<GDatabaseIODevice::ColumnOptions>
-                    ColumnOptions;
+            inline DataObjects::ResizableCollection
+                    <GDatabaseIODevice::ColumnOptions> &ColumnOptions(){
+                return _column_options;
+            }
+            inline const DataObjects::ResizableCollection
+                    <GDatabaseIODevice::ColumnOptions> &ColumnOptions() const{
+                return _column_options;
+            }
 
             inline DataObjects::DataTable Table() const{
                 return _row.Table();
@@ -211,7 +224,7 @@ namespace GUtil
 
             inline DatabaseParametersBase(
                     const DatabaseParametersBase &p)
-                :ColumnOptions(p.ColumnOptions),
+                :_column_options(p._column_options),
                 _row(p._row)
             {}
 
@@ -219,13 +232,16 @@ namespace GUtil
         protected:
 
             inline DatabaseParametersBase(const DataObjects::DataRow &fv)
-                :ColumnOptions(fv.ColumnCount()),
+                :_column_options(fv.ColumnCount()),
                 _row(fv)
             {}
 
             inline DatabaseParametersBase()
                 :_row()
             {}
+
+            DataObjects::ResizableCollection<GDatabaseIODevice::ColumnOptions>
+                    _column_options;
 
             // Use the Filtervalues to declare a "where" clause, where every
             //  item in the result set matches the FilterValues.

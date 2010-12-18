@@ -403,6 +403,9 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
         QSqlQuery query(_database);
         QString where;
         QString values;
+
+        QString oper("=");
+        QString conjunction("AND");
         switch(write_cmd)
         {
         case CommandInsert:
@@ -430,7 +433,14 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
                 // Bind values after preparing the query
                 for(int j = 0; j < t.ColumnCount(); j++)
-                    query.addBindValue(row[j]);
+                {
+                    QSql::ParamTypeFlag p(QSql::In);
+
+                    if(vp.ColumnOptions()[j].testFlag(Binary))
+                        p = QSql::Binary;
+
+                    query.addBindValue(row[j], p);
+                }
 
                 _execute_query(query);
 
@@ -442,33 +452,15 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
         case CommandUpdate:
 
-            // Prepare the where clause
-            for(int j = 0; j < sp.ColumnCount(); j++)
-            {
-                if(!sp.FilterValues()[j].isNull())
-                {
-                    where.append(QString("%1=? AND ")
-                                .arg(t.ColumnKeys()[j]));
-                }
-            }
-            if(where.length() > 0)
-            {
-                where.remove(where.length() - 5, 5);
-                where = QString("WHERE %1").arg(where);
-            }
+            where = _prepare_where_clause(t.ColumnKeys(), sp);
 
             // Prepare the values clause
             for(int j = 0; j < vp.ColumnCount(); j++)
             {
                 if(!vp.Values()[j].isNull())
                 {
-                    QString oper("=");
-
-                    //  TODO: Maybe give them a way to change the operator?
-
-                    values.append(QString("%1 %2 ?,")
-                                  .arg(t.ColumnKeys()[j])
-                                  .arg(oper));
+                    values.append(QString("%1 = ?,")
+                                  .arg(t.ColumnKeys()[j]));
                 }
             }
             if(values.length() > 0)
@@ -500,20 +492,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
         case CommandDelete:
 
-            // Prepare the where clause
-            for(int j = 0; j < t.ColumnCount(); j++)
-            {
-                if(!sp.FilterValues()[j].isNull())
-                {
-                    where.append(QString("%1=? AND ")
-                                .arg(t.ColumnKeys()[j]));
-                }
-            }
-            if(where.length() > 0)
-            {
-                where.remove(where.length() - 5, 5);
-                where = QString("WHERE %1").arg(where);
-            }
+            where = _prepare_where_clause(t.ColumnKeys(), sp);
 
             query.prepare(QString("DELETE FROM %1 %2")
                   .arg(t.Name())
@@ -538,6 +517,52 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
     {
         throw;
     }
+}
+
+QString GDatabaseIODevice::_prepare_where_clause(
+        const QStringList &column_keys,
+        const DatabaseSelectionParameters &sp) const
+{
+    QString where;
+    QString oper("=");
+    QString conjunction("AND");
+
+    for(int j = 0; j < sp.ColumnCount(); j++)
+    {
+        if(!sp.FilterValues()[j].isNull())
+        {
+            QFlags<ColumnOption> opts = sp.ColumnOptions()[j];
+            QString n(opts.testFlag(Not) ? "NOT" : "");
+
+            if(opts.testFlag(CompareGreaterThan))
+                oper = ">";
+            else if(opts.testFlag(CompareLessThan))
+                oper = "<";
+            else if(opts.testFlag(CompareGreaterThanOrEqualTo))
+                oper = ">=";
+            else if(opts.testFlag(CompareLessThanOrEqualTo))
+                oper = "<=";
+            else if(opts.testFlag(CompareNotEquals))
+                oper = "<>";
+
+//                    if(sp.ColumnOptions()[j].testFlag(Or))
+//                        conjunction = "OR";
+
+            where.append(QString("%1 %2 %3 ? %4 ")
+                         .arg(n)
+                        .arg(column_keys[j])
+                        .arg(oper)
+                        .arg(conjunction));
+        }
+    }
+    if(where.length() > 0)
+    {
+        where.remove(where.length() - (conjunction.length() + 2),
+                     conjunction.length() + 2);
+        where = QString("WHERE %1").arg(where);
+    }
+
+    return where;
 }
 
 QByteArray GDatabaseIODevice::receive_data()
@@ -568,20 +593,8 @@ QByteArray GDatabaseIODevice::receive_data()
         QString values, where;
 
         // Prepare the where clause; affects all read command types
-        for(int i = 0; i < _selection_parameters->Table().ColumnCount(); i++)
-        {
-            if(!_selection_parameters->FilterValues().At(i).isNull())
-            {
-                where.append(QString("%1=? AND ")
-                             .arg(_selection_parameters->Table().ColumnKeys()[i]));
-            }
-        }
-
-        if(where.length() > 0)
-        {
-            where.remove(where.length() - 5, 5);
-            where = QString("WHERE %1").arg(where);
-        }
+        where = _prepare_where_clause(_selection_parameters->Table().ColumnKeys(),
+                              *_selection_parameters);
 
 
         // The following portion depends on the command type
@@ -757,16 +770,16 @@ void DatabaseParametersBase::ReadXml(QXmlStreamReader &sr)
     _row.ReadXml(sr);
     col_opts.ReadXml(sr);
 
-    ColumnOptions.Clear();
+    ColumnOptions().Clear();
     for(int i = 0; i < col_opts.ColumnCount(); i++)
-        ColumnOptions.Add((GDatabaseIODevice::ColumnOption)col_opts[i].toInt());
+        ColumnOptions().Add((GDatabaseIODevice::ColumnOption)col_opts[i].toInt());
 }
 
 void DatabaseParametersBase::WriteXml(QXmlStreamWriter &sw) const
 {
     Custom::GVariantList gvl;
-    for(int i = 0; i < ColumnOptions.Count(); i++)
-        gvl.append((int)ColumnOptions[i]);
+    for(int i = 0; i < ColumnOptions().Count(); i++)
+        gvl.append((int)ColumnOptions()[i]);
 
     DataRow col_opts(Table().CreateNewRow(gvl));
 
