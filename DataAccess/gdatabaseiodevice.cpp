@@ -364,37 +364,19 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
     try
     {
         WriteCommandsEnum write_cmd(CommandWriteNoop);
-        QByteArray data;
-
-        // Parse our write command
-        {
-            QString tmp(d);
-            bool ok(false);
-            int loc = tmp.indexOf(":");
-
-            Q_ASSERT(loc > 0 && loc < 5);
-
-            {
-                QString sub(tmp.left(loc));
-                write_cmd = (WriteCommandsEnum)sub.toInt(&ok);
-            }
-
-            Q_ASSERT(ok);
-
-            // Remove the prepending commands from the rest of the string
-            data = tmp.right(tmp.length() - (loc + 1)).toAscii();
-        }
-
-
-
         DatabaseSelectionParameters sp;
         DatabaseValueParameters vp;
         DataTable t;
         try
         {
-            QXmlStreamReader sr(data);
+            bool ok(false);
+            QXmlStreamReader sr(d);
             if(!sr.readNextStartElement() || sr.name() != "x")
                 THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
+
+            write_cmd = (WriteCommandsEnum)
+                        sr.attributes().at(0).value().toString().toInt(&ok);
+            Q_ASSERT(ok);
 
             sp.ReadXml(sr);
             vp.ReadXml(sr);
@@ -749,12 +731,18 @@ QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
                                                 const DatabaseSelectionParameters &sp,
                                                 const DatabaseValueParameters &vp)
 {
-    return QString("%1:<x>%2%3%4</x>")
-            .arg((int)cmd)
-            .arg(sp.ToXmlQString())
-            .arg(vp.ToXmlQString())
-            .arg(t.ToXmlQString())
-            .toAscii();
+    QByteArray ret;
+    QXmlStreamWriter sw(&ret);
+
+    sw.writeStartElement("x");
+    sw.writeAttribute("c", QString("%1").arg((int)cmd));
+    {
+        sp.WriteXml(sw);
+        vp.WriteXml(sw);
+        t.WriteXml(sw);
+    }
+    sw.writeEndElement();
+    return ret;
 }
 
 
