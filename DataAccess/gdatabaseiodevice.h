@@ -82,6 +82,9 @@ namespace GUtil
             //  that will be used to filter the data in the select clause.
             DataObjects::DataTable Select(const DatabaseSelectionParameters &params);
 
+            // Select all the data in the table
+            DataObjects::DataTable Select(const QString &table_name);
+
             // A count query, based on your selection parameter filters
             long Count(const DatabaseSelectionParameters &);
 

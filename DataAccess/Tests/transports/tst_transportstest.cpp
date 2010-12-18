@@ -178,11 +178,51 @@ void TransportsTest::test_database_transport()
         DatabaseValueParameters values(dbio.GetBlankValueParameters("test"));
         values["two"] = 3;
 
-        // The same selection parameters should select out the first row
+        // The same selection parameters should select out the first row for update
         dbio.Update(params, values);
+
         tbl = dbio.Select(params);
+        QVERIFY(tbl.RowCount() == 1);
         QVERIFY2(tbl[0][0] == 1, tbl[0][0].toString().toStdString().c_str());
         QVERIFY2(tbl[0][1] == 3, tbl[0][1].toString().toStdString().c_str());
+
+
+        // Try something illegal, like violating the primary key
+        bool exception_hit(false);
+        try
+        {
+            dbio.Insert(tbl);
+        }
+        catch(Core::Exception &ex)
+        {
+//            qDebug(ex.GetMessage().c_str());
+//            qDebug(ex.GetData("error").c_str());
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        // Future: How many records are over 100?
+
+
+        // Now delete the first row
+        dbio.Delete(params);
+        tbl = dbio.Select("test");
+        QVERIFY(tbl.RowCount() == 10);
+
+        // Make sure it doesn't exist anymore
+        exception_hit = false;
+        try
+        {
+            tbl.FindRows(0, 1);
+        }
+        catch(Core::NotFoundException &)
+        {
+            exception_hit = true;
+        }
+
+        QVERIFY(exception_hit);
+        QVERIFY(tbl.FindRows(0, 2).Count() == 1);  // Dummy check
     }
     catch(Core::Exception &ex)
     {

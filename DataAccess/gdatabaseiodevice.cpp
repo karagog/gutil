@@ -187,6 +187,11 @@ void GDatabaseIODevice::Insert(const DataTable &t)
     }
 }
 
+DataTable GDatabaseIODevice::Select(const QString &table_name)
+{
+    return Select(GetBlankSelectionParameters(table_name));
+}
+
 DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params)
 {
     _fail_if_not_ready();
