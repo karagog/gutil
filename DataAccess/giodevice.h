@@ -15,12 +15,13 @@ limitations under the License.*/
 #ifndef GIODEVICE_H
 #define GIODEVICE_H
 
+#include "Core/exception.h"
+#include "Core/Interfaces/ireadonlyobject.h"
 #include <QByteArray>
 #include <QMutex>
 #include <QWaitCondition>
 #include <QThread>
-#include "Core/exception.h"
-#include "Core/Interfaces/ireadonlyobject.h"
+#include <QUuid>
 
 namespace GUtil
 {
@@ -52,7 +53,7 @@ namespace GUtil
         signals:
 
             // This signal happens when there's new data available
-            void ReadyRead();
+            void ReadyRead(const QUuid &identity_of_emitter);
 
 
         public:
@@ -64,6 +65,8 @@ namespace GUtil
             // ReadyRead() will tell you when you can get new data
             QByteArray ReceiveData(bool block = true)
                     throw(Core::DataTransportException);
+
+            READONLY_PROPERTY( Identity, QUuid );
 
             GIODevice &operator << (const char*);
             GIODevice &operator << (const std::string &);
@@ -105,7 +108,6 @@ namespace GUtil
 
             // Protects us so we can be thread-safe
             QMutex _this_lock;
-
 
         };
     }

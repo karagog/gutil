@@ -18,7 +18,8 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataAccess::GIODevice::GIODevice(QObject *parent)
-    :QThread(parent)
+    :QThread(parent),
+    _p_Identity(QUuid::createUuid())
 {
 }
 
@@ -116,7 +117,7 @@ void DataAccess::GIODevice::operator >> (std::string &dt)
 void DataAccess::GIODevice::raiseReadyRead()
 {
     condition_new_data_available.wakeAll();
-    emit ReadyRead();
+    emit ReadyRead(GetIdentity());
 }
 
 std::string DataAccess::GIODevice::ReadonlyMessageIdentifier() const
