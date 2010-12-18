@@ -254,6 +254,11 @@ long GDatabaseIODevice::Count(const DatabaseSelectionParameters &params)
     return ret;
 }
 
+long GDatabaseIODevice::Count(const QString &table_name)
+{
+    return Count(GetBlankSelectionParameters(table_name));
+}
+
 void GDatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
                                const DatabaseValueParameters &vp)
 {
@@ -271,10 +276,10 @@ void GDatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
         DataTable t(sp.Table().Clone());
 
         // First row is selection parameters
-        t.ImportRow(sp);
+        t.ImportRow(sp.FilterValues());
 
         // Second row is value parameters
-        t.ImportRow(vp);
+        t.ImportRow(vp.Values());
 
         SendData(t.ToXmlQString().toAscii());
     }
@@ -295,7 +300,7 @@ void GDatabaseIODevice::Delete(const DatabaseSelectionParameters &p)
         _p_WriteCommand = CommandDelete;
 
         DataTable t(p.Table().Clone());
-        t.ImportRow(p);
+        t.ImportRow(p.FilterValues());
 
         SendData(t.ToXmlQString().toAscii());
     }
@@ -330,7 +335,22 @@ DatabaseSelectionParameters GDatabaseIODevice::GetBlankSelectionParameters(
 
 DatabaseValueParameters GDatabaseIODevice::GetBlankValueParameters(const QString &table_name)
 {
-    return GetBlankSelectionParameters(table_name);
+    DatabaseValueParameters *p(0);
+
+    if(_tables.contains(table_name))
+        p = new DatabaseValueParameters(
+                _tables[table_name].CreateNewRow()
+                );
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
+                                   QString("Table not recognized: (%1)")
+                                   .arg(table_name).toStdString());
+    }
+
+    DatabaseValueParameters ret(*p);
+    delete p;
+    return ret;
 }
 
 DataTable GDatabaseIODevice::GetBlankTable(const QString &table_name)
@@ -554,7 +574,7 @@ QByteArray GDatabaseIODevice::receive_data()
         // Prepare the where clause; affects all read command types
         for(int i = 0; i < _selection_parameters->Table().ColumnCount(); i++)
         {
-            if(!_selection_parameters->At(i).isNull())
+            if(!_selection_parameters->FilterValues().At(i).isNull())
             {
                 where.append(QString("%1=? AND ")
                              .arg(_selection_parameters->Table().ColumnKeys()[i]));
@@ -599,8 +619,8 @@ QByteArray GDatabaseIODevice::receive_data()
 
         for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
         {
-            if(!_selection_parameters->At(i).isNull())
-                query.addBindValue(_selection_parameters->At(i));
+            if(!_selection_parameters->FilterValues().At(i).isNull())
+                query.addBindValue(_selection_parameters->FilterValues().At(i));
         }
 
         if(query.exec())

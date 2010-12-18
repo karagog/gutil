@@ -17,10 +17,12 @@ limitations under the License.*/
 
 #include "giodevice.h"
 #include "Custom/gpairlist.h"
+#include "DataObjects/collection.h"
 #include "DataObjects/DataSet/datarow.h"
 #include <QVariant>
 #include <QMap>
 #include <QMutex>
+#include <QFlags>
 
 class QSqlQuery;
 
@@ -33,8 +35,8 @@ namespace GUtil
 
     namespace DataAccess
     {
-        typedef DataObjects::DataRow DatabaseSelectionParameters;
-        typedef DataObjects::DataRow DatabaseValueParameters;
+        class DatabaseSelectionParameters;
+        class DatabaseValueParameters;
 
 
         // Treat a database like an IO device.  It is a simplified database
@@ -89,8 +91,7 @@ namespace GUtil
             long Count(const DatabaseSelectionParameters &);
 
             // A count query that counts all records in the table
-            inline long Count(const QString &table_name){ return Count(GetBlankSelectionParameters(table_name)); }
-
+            long Count(const QString &table_name);
 
             // Pass parameters to select out the data you want to update, and
             //  pass values to which to update them
@@ -106,8 +107,21 @@ namespace GUtil
             // This is true if the io device is ready to use (must supply a valid database
             READONLY_PROPERTY( IsReady, bool );
 
-
+            // The value returned by the last query
             READONLY_PROPERTY( ReturnValue, QVariant );
+
+
+            enum ColumnOption
+            {
+                None,
+                CompareGreaterThan,
+                CompareLessThan,
+                Or,
+                Not,
+                Binary  // Must use if the column is binary
+            };
+
+            Q_DECLARE_FLAGS(ColumnOptions, ColumnOption);
 
 
         private:
@@ -162,6 +176,90 @@ namespace GUtil
 
         };
 
+
+
+        class DatabaseParametersBase
+        {
+        public:
+
+            // Use ColumnOptions to set various options on the columns, like
+            //  a different compare operator, NOT/OR it, etc...
+            DataObjects::ResizableCollection<GDatabaseIODevice::ColumnOptions>
+                    ColumnOptions;
+
+            inline DataObjects::DataTable Table() const{
+                return _row.Table();
+            }
+
+            inline int ColumnCount() const{ return Table().ColumnCount(); }
+
+            inline DatabaseParametersBase(
+                    const DatabaseParametersBase &p)
+                :ColumnOptions(p.ColumnOptions),
+                _row(p._row)
+            {}
+
+
+        protected:
+
+            inline DatabaseParametersBase(const DataObjects::DataRow &fv)
+                :ColumnOptions(fv.ColumnCount()),
+                _row(fv)
+            {}
+
+            // Use the Filtervalues to declare a "where" clause, where every
+            //  item in the result set matches the FilterValues.
+            DataObjects::DataRow _row;
+
+        };
+
+
+        class DatabaseSelectionParameters :
+                public DatabaseParametersBase
+        {
+            friend class GDatabaseIODevice;
+        public:
+
+            // DataRow is an explicitly shared class, so changes to the
+            //   returned object will hold
+            inline DataObjects::DataRow FilterValues() const{ return _row; }
+
+            inline DatabaseSelectionParameters(const DatabaseParametersBase &p)
+                :DatabaseParametersBase(p)
+            {}
+
+
+        protected:
+
+            inline DatabaseSelectionParameters(const DataObjects::DataRow &r)
+                :DatabaseParametersBase(r)
+            {}
+
+        };
+
+
+        class DatabaseValueParameters :
+                public DatabaseParametersBase
+        {
+            friend class GDatabaseIODevice;
+        public:
+
+            // DataRow is an explicitly shared class, so changes to the
+            //   returned object will hold
+            inline DataObjects::DataRow Values() const{ return _row; }
+
+            inline DatabaseValueParameters(const DatabaseParametersBase &p)
+                :DatabaseParametersBase(p)
+            {}
+
+
+        protected:
+
+            inline DatabaseValueParameters(const DataObjects::DataRow &r)
+                :DatabaseParametersBase(r)
+            {}
+
+        };
     }
 }
 

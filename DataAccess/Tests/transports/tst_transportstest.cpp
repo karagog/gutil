@@ -155,7 +155,7 @@ void TransportsTest::test_database_transport()
 
         // Select the row we just inserted
         DatabaseSelectionParameters params(dbio.GetBlankSelectionParameters("test"));
-        params["one"] = "1";
+        params.FilterValues()["one"] = "1";
 
         tbl = dbio.Select(params);
 
@@ -176,7 +176,7 @@ void TransportsTest::test_database_transport()
 
         // Update the second column to a 3
         DatabaseValueParameters values(dbio.GetBlankValueParameters("test"));
-        values["two"] = 3;
+        values.Values()["two"] = 3;
 
         // The same selection parameters should select out the first row for update
         dbio.Update(params, values);

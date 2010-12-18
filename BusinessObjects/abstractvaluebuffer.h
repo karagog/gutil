@@ -47,7 +47,7 @@ namespace GUtil
     namespace BusinessObjects
     {
         // Serves as a generic class to hold values and
-        //  send/receive them with the provided transport mechanism.
+        //  send/receive them over the provided transport mechanisms.
 
         // Derived classes must implement the NewDataProcessor class and
         //  inject a pointer to themselves into the constructor
