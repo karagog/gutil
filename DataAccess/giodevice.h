@@ -53,7 +53,7 @@ namespace GUtil
         signals:
 
             // This signal happens when there's new data available
-            void ReadyRead(const QUuid &identity_of_emitter);
+            void ReadyRead(const QUuid &identity_of_emitter = QUuid());
 
 
         public:
