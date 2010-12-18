@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "DataObjects/DataSet/datatable.h"
 #include "Custom/gvariant.h"
+#include "DataAccess/giodevice.h"
 #include "Logging/globallogger.h"
 #include <QMap>
 #include <QString>
@@ -39,13 +40,12 @@ namespace GUtil
         class DataTable;
     }
 
-    namespace DataAccess
-    {
-        class GIODevice;
-    }
-
     namespace BusinessObjects
     {
+        class IODevicePackage;
+
+
+
         // Serves as a generic class to hold values and
         //  send/receive them over the provided transport mechanisms.
 
@@ -58,10 +58,32 @@ namespace GUtil
                 public QObject
         {
             Q_OBJECT
+        signals:
+
+            void NewDataArrived(const QUuid &);
+
+
         public:
 
-            // Should we send data asynchronously, or block until we've sent it?
-            PROPERTY( AsyncWrite, bool );
+            // Returns a GUID that each message is stamped with
+            QUuid SendData(const QUuid &, const DataObjects::DataTable &);
+
+            DataObjects::DataTable ReceiveData(const QUuid &);
+            bool HasData(const QUuid &);
+
+
+            // Insert an IO device into the bundle
+            // This object will take ownership of the io device and delete it
+            //   when it's finished with it
+            void InsertIntoBundle(DataAccess::GIODevice *iodevice);
+            inline void AddToBundle(DataAccess::GIODevice *io){
+                InsertIntoBundle(io);
+            }
+
+            void Remove(const QUuid &);
+            inline void Remove(DataAccess::GIODevice *io){
+                Remove(io->GetIdentity());
+            }
 
 
             // Derived classes use this to control the behavior of the AVB
@@ -76,21 +98,13 @@ namespace GUtil
                 virtual void preprocess_incoming_data(QByteArray &) const{}
                 virtual void preprocess_outgoing_data(QByteArray &) const{}
 
-                virtual void new_input_data_arrived(
-                        const DataObjects::DataTable &){}
-
-                // Any time a new table is created you can modify it with this
-                virtual void init_new_table(DataObjects::DataTable &) const{}
-
             };
 
         protected:
 
             // No public constructor; this class must be derived.
-            GIODeviceBundleManager(
-                    DataAccess::GIODevice *transport,
-                    DerivedClassFunctions *dp = 0,
-                    QObject *parent = 0);
+            GIODeviceBundleManager(DerivedClassFunctions *dp = 0,
+                                   QObject *parent = 0);
 
             ~GIODeviceBundleManager();
 
@@ -104,32 +118,17 @@ namespace GUtil
             void start_worker_threads();
 
             // The method of transport (could be file, socket, network I/O)
-            inline DataAccess::GIODevice &transport(){
-                return *_transport;
+            inline DataAccess::GIODevice &transport(const QUuid &id = QUuid()){
+                return *_get_package(id)->IODevice;
             }
-            inline const DataAccess::GIODevice &transport() const{
-                return *_transport;
+            inline const DataAccess::GIODevice &transport(
+                    const QUuid &id = QUuid()) const{
+                return *_get_package(id)->IODevice;
             }
-
-            // Access the table of data
-            inline DataObjects::DataTable &table(){
-                return _cur_data;
-            }
-            inline const DataObjects::DataTable &table() const{
-                return _cur_data;
-            }
-
-            // Make sure to lock this table, if it might be updated in a
-            //  background thread
-            inline QMutex &table_lock(){
-                return _cur_data_lock;
-            }
-
-            // Forcefully remove all data from the queue
-            void clearQueues();
 
             // Blocks until the message denoted by the unique identifier is sent
-            void wait_for_message_sent(const QUuid &);
+            void wait_for_message_sent(const QUuid &message_id,
+                                       const QUuid &iodevice_id = QUuid());
 
 
             enum QueueTypeEnum
@@ -139,69 +138,91 @@ namespace GUtil
             };
 
             // Use this to safely remove an item from the in_queue
-            DataObjects::DataTable deQueueMessage(QueueTypeEnum);
+            DataObjects::DataTable deQueueMessage(QueueTypeEnum,
+                                                  const QUuid &device_id = QUuid());
 
-            // Use this to enqueue the current message for sending
-            QUuid enQueueCurrentData(bool clear = true);
+            DataObjects::DataTable en_deQueueMessage(
+                    QueueTypeEnum,
+                    const DataObjects::DataTable &msg,
+                    bool enqueue,
+                    const QUuid &device_id = QUuid());
 
 
         protected slots:
 
             // This is called automatically when the transport layer
             //   says there's new data
-            void importData();
+            void importData(const QUuid &id = QUuid());
 
 
         private:
 
-            DataObjects::DataTable en_deQueueMessage(
-                    QueueTypeEnum,
-                    const DataObjects::DataTable &msg,
-                    bool enqueue);
+            // This represents one IO Device in the bundle bundle
+            class IODevicePackage
+            {
+            public:
 
-            void _get_queue_and_mutex(QueueTypeEnum,
+                inline IODevicePackage(DataAccess::GIODevice *dev)
+                    :IODevice(dev),
+                    _p_AsyncWrite(true),
+                    FlagNewIncomingDataReady(false),
+                    FlagNewOutgoingDataEnqueued(false)
+                {}
+
+                ~IODevicePackage(){
+                    delete IODevice;
+                }
+
+                DataAccess::GIODevice *IODevice;
+
+                // Should we send data asynchronously, or block until we've sent it?
+                PROPERTY( AsyncWrite, bool );
+
+                QMutex InQueueMutex;
+                QQueue<DataObjects::DataTable> InQueue;
+
+                QMutex OutQueueMutex;
+                QQueue<DataObjects::DataTable> OutQueue;
+
+                // So people can block until their data's written
+                QWaitCondition ConditionDataWritten;
+
+                QFuture<void> WorkerOutgoing;
+                QFuture<void> WorkerIncoming;
+
+                // These wait conditions are used by the background threads to
+                //  wait until data is ready to read.
+                bool FlagNewIncomingDataReady;
+                QMutex IncomingFlagsMutex;
+                QWaitCondition ConditionIncomingDataReadyToRead;
+
+                bool FlagNewOutgoingDataEnqueued;
+                QMutex OutgoingFlagsMutex;
+                QWaitCondition ConditionOutgoingDataEnqueued;
+
+            };
+
+            QMap<QUuid, IODevicePackage *> _iodevices;
+
+
+            void _get_queue_and_mutex(IODevicePackage *,
+                                      QueueTypeEnum,
                                       QQueue<DataObjects::DataTable> **,
                                       QMutex **);
 
-            QMutex _in_queue_mutex;
-            QMutex _out_queue_mutex;
-            QWaitCondition _condition_outgoing_data_sent;
-
-            // These wait conditions correspond to the events when data is
-            //  put on the queue to be processed by the background threads
-            QMutex _incoming_flags_mutex;
-            QMutex _outgoing_flags_mutex;
-            QWaitCondition _condition_incoming_data_enqueued;
-            QWaitCondition _condition_outgoing_data_enqueued;
-
-            QQueue<DataObjects::DataTable> _in_queue;
-            QQueue<DataObjects::DataTable> _out_queue;
-
-            DataObjects::DataTable _cur_data;
-            QMutex _cur_data_lock;
-
-            void _flush_queue(QueueTypeEnum);
+            void _flush_out_queue(IODevicePackage *);
+            void _receive_incoming_data(IODevicePackage *);
 
             // The body for the queue managers, which run on
             //  separate threads
-            void _queue_processor_thread(
-                    QMutex *flags_mutex,
-                    QWaitCondition *condition_data_ready,
-                    bool *flag_data_ready,
-                    int queue_type);
-
-            QFuture<void> _ref_worker_outgoing;
-            QFuture<void> _ref_worker_incoming;
-
-            bool _flag_new_outgoing_data_enqueued;
-            bool _flag_new_incoming_data_enqueued;
+            void _worker_outgoing(IODevicePackage *io_package);
+            void _worker_incoming(IODevicePackage *io_package);
 
             bool _flag_exiting;
 
-            void _clear_queue(QMutex &, QQueue< DataObjects::DataTable > &);
-
-            DataAccess::GIODevice *_transport;
             DerivedClassFunctions *_derived_class_pointer;
+
+            IODevicePackage *_get_package(const QUuid &) const;
 
         };
     }

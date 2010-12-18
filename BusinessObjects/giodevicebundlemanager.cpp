@@ -27,7 +27,6 @@ GIODeviceBundleManager::GIODeviceBundleManager(
         DerivedClassFunctions *dp,
         QObject *parent)
             :QObject(parent),
-            _p_AsyncWrite(true),
             _flag_new_outgoing_data_enqueued(false),
             _flag_new_incoming_data_enqueued(false),
             _flag_exiting(false),
@@ -37,34 +36,12 @@ GIODeviceBundleManager::GIODeviceBundleManager(
     start_worker_threads();
 }
 
-void GIODeviceBundleManager::start_worker_threads()
-{
-    connect(_transport, SIGNAL(ReadyRead()), this, SLOT(importData()));
-
-    // Start up our background workers
-    _ref_worker_outgoing =
-            QtConcurrent::run(this, &GIODeviceBundleManager::_queue_processor_thread,
-                              &_outgoing_flags_mutex,
-                              &_condition_outgoing_data_enqueued,
-                              &_flag_new_outgoing_data_enqueued,
-                              OutQueue);
-
-    _ref_worker_incoming =
-            QtConcurrent::run(this, &GIODeviceBundleManager::_queue_processor_thread,
-                              &_incoming_flags_mutex,
-                              &_condition_incoming_data_enqueued,
-                              &_flag_new_incoming_data_enqueued,
-                              InQueue);
-}
-
 GIODeviceBundleManager::~GIODeviceBundleManager()
 {
     // Derived classes must call this first thing in their destructors, but just
     //  in case we still call it here.  But this may cause a seg fault if called
     //  here
-    kill_worker_threads();
-
-    delete _transport;
+    //kill_worker_threads();
 }
 
 void GIODeviceBundleManager::kill_worker_threads()
@@ -86,6 +63,7 @@ void GIODeviceBundleManager::kill_worker_threads()
 }
 
 void GIODeviceBundleManager::_get_queue_and_mutex(
+        IODevicePackage *pack,
         QueueTypeEnum qt,
         QQueue<DataObjects::DataTable> **q,
         QMutex **m)
@@ -93,111 +71,45 @@ void GIODeviceBundleManager::_get_queue_and_mutex(
     switch(qt)
     {
     case InQueue:
-        *m = &_in_queue_mutex;
-        *q = &_in_queue;
+        *m = &pack->InQueueMutex;
+        *q = &pack->InQueue;
         break;
     case OutQueue:
-        *m = &_out_queue_mutex;
-        *q = &_out_queue;
+        *m = &pack->OutQueueMutex;
+        *q = &pack->OutQueue;
         break;
     default:
         throw Core::NotImplementedException("Unrecognized queue type");
     }
 }
 
-void GIODeviceBundleManager::clearQueues()
+// Wake up our background worker in charge of this ID
+void GIODeviceBundleManager::importData(const QUuid &id)
 {
-    _clear_queue(_in_queue_mutex, _in_queue);
-    _clear_queue(_out_queue_mutex, _out_queue);
+    IODevicePackage *pack(_get_package(id);
+
+    pack->IncomingFlagsMutex.lock();
+    {
+        pack->FlagNewIncomingDataReady = true;
+    }
+    pack->IncomingFlagsMutex.unlock();
+
+    pack->ConditionIncomingDataReadyToRead.wakeOne();
 }
 
-void GIODeviceBundleManager::_clear_queue(
-        QMutex &lock,
-        QQueue<DataObjects::DataTable> &queue)
+DataTable GIODeviceBundleManager::deQueueMessage(QueueTypeEnum q,
+                                                 const QUuid &id)
 {
-    lock.lock();
-    queue.clear();
-    lock.unlock();
-}
-
-void GIODeviceBundleManager::importData()
-{
-    QByteArray *data;
-
-    try
-    {
-        // First get the data off the io device
-        data = new QByteArray(transport().ReceiveData(false));
-    }
-    catch(Core::Exception &ex)
-    {
-        Logging::GlobalLogger::LogException(ex);
-        return;
-    }
-
-
-    // Translate, if necessary
-    if(_derived_class_pointer)
-        _derived_class_pointer->preprocess_incoming_data(*data);
-
-
-    DataTable tbl;
-    try
-    {
-        // Populate the table with the xml data
-        tbl.FromXmlQString(*data);
-    }
-    catch(Core::XmlException &)
-    {
-        // If the xml parse fails, then it's corrupt for whatever reason.
-        //  we'll ignore it and treat it as a null configuration
-        tbl.Clear();
-
-        if(_derived_class_pointer)
-            _derived_class_pointer->init_new_table(tbl);
-    }
-
-    // Enqueue it
-    en_deQueueMessage(InQueue, tbl, true);
-    delete data;
-}
-
-QUuid GIODeviceBundleManager::enQueueCurrentData(bool clear)
-{
-    QUuid ret;
-    DataTable *tmp = 0;
-
-    _cur_data_lock.lock();
-    {
-        // Tag the table data with a GUID
-        _cur_data.SetTableName((ret = QUuid::createUuid()).toString());
-
-        tmp = new DataTable(_cur_data.Clone());
-        if(clear)
-            _cur_data.Clear();
-
-        // Automatically commit the changes in the table, even if we didn't
-        //  just clear it, because that is our policy
-        _cur_data.CommitChanges();
-    }
-    _cur_data_lock.unlock();
-
-    en_deQueueMessage(OutQueue, *tmp, true);
-
-    delete tmp;
-    return ret;
-}
-
-DataTable GIODeviceBundleManager::deQueueMessage(QueueTypeEnum q)
-{
-    return en_deQueueMessage(q, DataTable(), false);
+    return en_deQueueMessage(q, DataTable(), false, id);
 }
 
 DataTable GIODeviceBundleManager::en_deQueueMessage(
         QueueTypeEnum q,
         const DataTable &msg,
-        bool enqueue)
+        bool enqueue,
+        const QUuid &id)
 {
+    IODevicePackage *pack(_get_package(id));
     DataTable *tmp_tbl;
     QMutex *queue_mutex;
     QQueue<DataTable> *queue;
@@ -208,7 +120,7 @@ DataTable GIODeviceBundleManager::en_deQueueMessage(
 
     try
     {
-        _get_queue_and_mutex(q, &queue, &queue_mutex);
+        _get_queue_and_mutex(pack, q, &queue, &queue_mutex);
     }
     catch(Core::Exception &ex)
     {
@@ -274,14 +186,14 @@ DataTable GIODeviceBundleManager::en_deQueueMessage(
     return ret;
 }
 
-void GIODeviceBundleManager::_flush_queue(QueueTypeEnum qt)
+void GIODeviceBundleManager::_flush_out_queue(IODevicePackage *pack)
 {
     QQueue<DataTable> *queue;
     QMutex *mutex;
 
     bool queue_has_data(true);
 
-    _get_queue_and_mutex(qt, &queue, &mutex);
+    _get_queue_and_mutex(pack, OutQueue, &queue, &mutex);
 
     while(queue_has_data)
     {
@@ -296,99 +208,131 @@ void GIODeviceBundleManager::_flush_queue(QueueTypeEnum qt)
         }
         mutex->unlock();
 
-        if(qt == InQueue)
+        QByteArray data = tbl.ToXmlQString().toAscii();
+
+        if(_derived_class_pointer)
+            _derived_class_pointer->preprocess_outgoing_data(data);
+
+        try
         {
-            QByteArray *data;
-            try
-            {
-                data = new QByteArray(transport().ReceiveData(false));
-            }
-            catch(Core::Exception &ex)
-            {
-                Logging::GlobalLogger::LogException(ex);
-                return;
-            }
-
-            if(_derived_class_pointer)
-            {
-                _derived_class_pointer->preprocess_incoming_data(*data);
-
-                DataTable tbl;
-                try
-                {
-                    tbl.FromXmlQString(*data);
-                }
-                catch(Core::XmlException &)
-                {
-                    // Ignore and treat as null configuration
-                    tbl.Clear();
-
-                    _derived_class_pointer->init_new_table(tbl);
-                }
-
-                _derived_class_pointer->new_input_data_arrived(tbl);
-            }
-
-            delete data;
+            transport().SendData(data);
         }
-        else if(qt == OutQueue)
+        catch(Core::Exception &ex)
         {
-            QByteArray data = tbl.ToXmlQString().toAscii();
-
-            if(_derived_class_pointer)
-                _derived_class_pointer->preprocess_outgoing_data(data);
-
-            try
-            {
-                transport().SendData(data);
-            }
-            catch(Core::Exception &ex)
-            {
-                Logging::GlobalLogger::LogException(ex);
-                // Don't crash on transport errors
-                //throw;
-            }
-
-            _condition_outgoing_data_sent.wakeAll();
+            Logging::GlobalLogger::LogException(ex);
+            // Don't crash on transport errors
+            //throw;
         }
+
+        _condition_outgoing_data_sent.wakeAll();
     }
 }
 
-void GIODeviceBundleManager::_queue_processor_thread(
-        QMutex *flags_mutex,
-        QWaitCondition *condition_data_ready,
-        bool *flag_data_ready,
-        int queue_type)
+void GIODeviceBundleManager::_receive_incoming_data(IODevicePackage *pack)
 {
-    forever
+    QByteArray data;
+    try
     {
-        flags_mutex->lock();
+        data = pack->IODevice->ReceiveData(false);
+    }
+    catch(Core::Exception &ex)
+    {
+        Logging::GlobalLogger::LogException(ex);
+        return;
+    }
+
+
+    if(_derived_class_pointer)
+        _derived_class_pointer->preprocess_incoming_data(data);
+
+    bool exception_hit(false);
+    DataTable tbl;
+    try
+    {
+        tbl.FromXmlQString(data);
+    }
+    catch(Core::Exception &)
+    {
+        // Ignore and treat as if received nothing
+        exception_hit = true;
+    }
+
+    if(!exception_hit)
+    {
+        pack->InQueueMutex.lock();
+        {
+            pack->InQueue.enqueue(tbl);
+        }
+        pack->InQueueMutex.unlock();
+
+        emit NewDataArrived(pack->IODevice->GetIdentity());
+    }
+}
+
+void GIODeviceBundleManager::_worker_outgoing(IODevicePackage *pack)
+{
+//    QMutex *flags_mutex(&pack->OutgoingFlagsMutex);
+//    QWaitCondition *condition_data_ready(&pack->ConditionOutgoingDataEnqueued);
+//    bool *flag_data_ready(&pack->FlagNewOutgoingDataEnqueued);
+
+    pack->OutgoingFlagsMutex->lock();
+    {
+        forever
         {
             // Somebody may have queued more data for us while we
             //  were processing the last run.  If so, we skip waiting and
             //  go right to process the queue.
-            if(!(*flag_data_ready))
-                condition_data_ready->wait(flags_mutex);
+            while(!pack->FlagNewOutgoingDataEnqueued && !_flag_exiting)
+                pack->ConditionOutgoingDataEnqueued->
+                        wait(&pack->OutgoingFlagsMutex);
 
             if(_flag_exiting)
-            {
-                flags_mutex->unlock();
                 break;
-            }
 
             // lower the flag
-            *flag_data_ready = false;
-        }
-        flags_mutex->unlock();
+            pack->FlagNewOutgoingDataEnqueued = false;
 
-        // Process any data in the queue
-        _flush_queue((QueueTypeEnum)queue_type);
+
+            // Process any data in the queue (without holding the lock)
+            pack->OutgoingFlagsMutex->unlock();
+
+            _flush_out_queue(pack);
+
+            pack->OutgoingFlagsMutex->lock();
+        }
     }
+    pack->OutgoingFlagsMutex->unlock();
 }
 
-void GIODeviceBundleManager::wait_for_message_sent(const QUuid &id)
+void GIODeviceBundleManager::_worker_incoming(IODevicePackage *pack)
 {
-    _out_queue_mutex.lock();
+    pack->IncomingFlagsMutex.lock();
+    {
+        forever
+        {
+            while(!pack->FlagNewIncomingDataReady && !_flag_exiting)
+                pack->ConditionIncomingDataReadyToRead.wait(&pack);
+
+            if(_flag_exiting)
+                break;
+
+            pack->FlagNewIncomingDataReady = false;
+            pack->IncomingFlagsMutex.unlock();
+
+            _receive_incoming_data(pack);
+
+            pack->IncomingFlagsMutex.lock();
+        }
+    }
+    pack->IncomingFlagsMutex.unlock();
+}
+
+void GIODeviceBundleManager::wait_for_message_sent(const QUuid &msg_id,
+                                                   const QUuid &device_id)
+{
+    IODevicePackage *pack(_get_package(device_id));
+
+    pack->OutQueueMutex.lock();
     {
         bool contains(true);
 
@@ -397,9 +341,9 @@ void GIODeviceBundleManager::wait_for_message_sent(const QUuid &id)
             contains = false;
 
             // Figure out if the queue contains the given id
-            foreach(DataTable tbl, _out_queue)
+            foreach(DataTable tbl, pack->OutQueue)
             {
-                if(id == tbl.Name())
+                if(msg_id == tbl.Name())
                 {
                     contains = true;
                     break;
@@ -407,8 +351,121 @@ void GIODeviceBundleManager::wait_for_message_sent(const QUuid &id)
             }
 
             if(contains)
-                _condition_outgoing_data_sent.wait(&_out_queue_mutex);
+                _condition_outgoing_data_sent.wait(&pack->OutQueueMutex);
         }
     }
-    _out_queue_mutex.unlock();
+    pack->OutQueueMutex.unlock();
+}
+
+GIODeviceBundleManager::IODevicePackage *
+        GIODeviceBundleManager::_get_package(const QUuid &id) const
+{
+    IODevicePackage *ret(0);
+    if(id.isNull())
+    {
+        Q_ASSERT(_iodevices.count() > 0);
+        ret = _iodevices.begin().value();
+    }
+    else
+        ret = _iodevices[id];
+    return ret;
+}
+
+QUuid GIODeviceBundleManager::SendData(const QUuid &id, const DataTable &t)
+{
+    IODevicePackage *pack(_iodevices[id]);
+    QUuid ret(QUuid::createUuid());
+    DataTable tmp(t.Clone());
+
+    // Tag the table data with a GUID
+    tmp.SetTableName(ret.toString());
+
+    en_deQueueMessage(pack, OutQueue, tmp, true);
+
+    return ret;
+}
+
+DataTable GIODeviceBundleManager::ReceiveData(const QUuid &)
+{
+    QByteArray *data;
+
+    try
+    {
+        // First get the data off the io device
+        data = new QByteArray(transport(id).ReceiveData(false));
+    }
+    catch(Core::Exception &ex)
+    {
+        Logging::GlobalLogger::LogException(ex);
+        return;
+    }
+
+
+    // Translate, if necessary
+    if(_derived_class_pointer)
+        _derived_class_pointer->preprocess_incoming_data(*data);
+
+
+    DataTable tbl;
+    try
+    {
+        // Populate the table with the xml data
+        tbl.FromXmlQString(*data);
+    }
+    catch(Core::XmlException &)
+    {
+        // If the xml parse fails, then it's corrupt for whatever reason.
+        //  we'll ignore it and treat it as a null configuration
+        tbl.Clear();
+
+        if(_derived_class_pointer)
+            _derived_class_pointer->init_new_table(tbl);
+    }
+
+    // Enqueue it
+    en_deQueueMessage(InQueue, tbl, true);
+    delete data;
+}
+
+bool GIODeviceBundleManager::HasData(const QUuid &id)
+{
+    return _iodevices[id]->IODevice->HasDataAvailable();
+}
+
+void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
+{
+    QUuid id(iodevice->GetIdentity());
+    if(_iodevices.contains(id))
+        return;
+
+    IODevicePackage *pack = new IODevicePackage(iodevice);
+
+
+
+    _iodevices.insert(iodevice->GetIdentity(), pack);
+
+
+    connect(iodevice, SIGNAL(ReadyRead(QUuid)),
+            this, SLOT(importData(QUuid)));
+
+    // Start up our background workers for this device
+    pack->WorkerOutgoing =
+            QtConcurrent::run(this, &GIODeviceBundleManager::_worker_outgoing,
+                              pack);
+
+    pack->WorkerIncoming =
+            QtConcurrent::run(this, &GIODeviceBundleManager::_worker_incoming,
+                              pack);
+}
+
+void GIODeviceBundleManager::Remove(const QUuid &id)
+{
+    if(_iodevices.contains(id))
+    {
+        disconnect(_iodevices[id]->IODevice, SIGNAL(ReadyRead(QUuid)),
+                   this, SLOT(importData(QUuid)));
+
+        delete _iodevices[id];
+        _iodevices.remove(id);
+    }
 }

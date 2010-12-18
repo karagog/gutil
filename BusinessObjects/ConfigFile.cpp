@@ -30,14 +30,15 @@ ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
     :GIODeviceBundleManager(
-            new DataAccess::GFileIODevice(QString("%1.%2")
-                                          .arg(get_file_location(identifier))
-                                          .arg(modifier)),
             this,
             parent),
     _p_IsHumanReadable(true),
     _p_AutoCommitChanges(true)
 {
+    InsertIntoBundle(new DataAccess::GFileIODevice(QString("%1.%2")
+                                  .arg(get_file_location(identifier))
+                                  .arg(modifier)));
+
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
 
@@ -47,12 +48,13 @@ ConfigFile::ConfigFile(const QString &identifier,
 ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
                        QObject *parent)
     :GIODeviceBundleManager(
-            new DataAccess::GFileIODevice(other.FileName()),
             this,
             parent),
     _p_IsHumanReadable(other._p_IsHumanReadable),
     _p_AutoCommitChanges(other._p_AutoCommitChanges)
 {
+    InsertIntoBundle(new DataAccess::GFileIODevice(other.FileName()));
+
     _init(other._identity, other._modifier);
 }
 
@@ -70,45 +72,18 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
 
     importData();
 
-    table_lock().lock();
-    {
-        init_new_table(table());
-
-        while(table().GetUpdateCounter() == 0)
-            _condition_config_update.wait(&table_lock());
-    }
-    table_lock().unlock();
+    init_new_table(_table);
 }
 
 void ConfigFile::Reload()
 {
-    long counter;
-    table_lock().lock();
-    {
-        counter = table().GetUpdateCounter();
-    }
-    table_lock().unlock();
-
-
     importData();
-
-
-    table_lock().lock();
-    {
-        while(counter == table().GetUpdateCounter())
-            _condition_config_update.wait(&table_lock());
-    }
-    table_lock().unlock();
 }
 
 void ConfigFile::Clear()
 {
-    table_lock().lock();
-    {
-        table().Clear();
-        init_new_table(table());
-    }
-    table_lock().unlock();
+    _table.Clear();
+    init_new_table(_table);
 
     _value_changed();
 }
@@ -171,23 +146,16 @@ void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
 {
     bool table_updated(true);
 
-    // copy the input data to the current data table
-    table_lock().lock();
-    {
-        // Don't bother cloning the table if this is the same table we just exported
-        if(tbl.Name() == table().Name())
-            table_updated = false;
-        else
-            table() = tbl.Clone();
+    // Don't bother cloning the table if this is the same table we just exported
+    if(tbl.Name() == _table.Name())
+        table_updated = false;
+    else
+        _table = tbl.Clone();
 
-        // Mark it dirty and commit, so we can count how many times
-        //  it's been updated
-        table().MakeDirty();
-        table().CommitChanges();
-    }
-    table_lock().unlock();
-
-    _condition_config_update.wakeAll();
+    // Mark it dirty and commit, so we can count how many times
+    //  it's been updated
+    _table.MakeDirty();
+    _table.CommitChanges();
 
     if(table_updated)
         emit NotifyConfigurationUpdate();
@@ -205,13 +173,12 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
     if(values.keys().count() == 0)
         return;
 
-    table_lock().lock();
     foreach(QString s, values.keys())
     {
         bool ex_hit = false;
         try
         {
-            DataObjects::DataRow &r = table().FindFirstRow(0, s);
+            DataObjects::DataRow &r = _table.FindFirstRow(0, s);
             r[1] = values[s];
         }
         catch(Core::NotFoundException &)
@@ -220,9 +187,8 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
         }
 
         if(ex_hit)
-            table().AddNewRow(Custom::GVariantList() << s << values[s]);
+            _table.AddNewRow(Custom::GVariantList() << s << values[s]);
     }
-    table_lock().unlock();
 
     _value_changed();
 }
@@ -238,29 +204,25 @@ QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(
     QMap<QString, Custom::GVariant> ret;
     QStringList keys_copy(keys);
 
-    table_lock().lock();
+    if(keys.isEmpty())
     {
-        if(keys.isEmpty())
-        {
-            for(int i = 0; i < table().RowCount(); i++)
-                keys_copy.append(table()[i]["key"].toString());
-        }
-
-        foreach(QString s, keys_copy)
-        {
-            // Prepare the "search map"
-            QMap<int, Custom::GVariant> m;
-            m.insert(0, s);
-
-            try
-            {
-                const DataObjects::DataRow *const r = &table().FindFirstRow(m);
-                ret.insert(r->At(0).toString(), r->At(1));
-            }
-            catch(Core::NotFoundException &){}    // if key not found, ignore
-        }
+        for(int i = 0; i < _table.RowCount(); i++)
+            keys_copy.append(_table[i]["key"].toString());
     }
-    table_lock().unlock();
+
+    foreach(QString s, keys_copy)
+    {
+        // Prepare the "search map"
+        QMap<int, Custom::GVariant> m;
+        m.insert(0, s);
+
+        try
+        {
+            const DataObjects::DataRow *const r = &_table.FindFirstRow(m);
+            ret.insert(r->At(0).toString(), r->At(1));
+        }
+        catch(Core::NotFoundException &){}    // if key not found, ignore
+    }
 
     return ret;
 }
@@ -269,18 +231,16 @@ bool ConfigFile::Contains(const QString &key)
 {
     bool ret = true;
 
-    table_lock().lock();
     try
     {
         QMap<int, Custom::GVariant> m;
         m.insert(0, key);
-        table().FindFirstRow(m);
+        _table.FindFirstRow(m);
     }
     catch(Core::NotFoundException &)
     {
         ret = false;
     }
-    table_lock().unlock();
 
     return ret;
 }
@@ -297,18 +257,16 @@ void ConfigFile::RemoveValues(const QStringList &keys)
     if(keys.count() == 0)
         return;
 
-    table_lock().lock();
     foreach(QString s, keys)
     {
         try
         {
-            table().RemoveRow(
-                    table().FindFirstRow(0, s)
+            _table.RemoveRow(
+                    _table.FindFirstRow(0, s)
                     );
         }
         catch(Core::NotFoundException &){}
     }
-    table_lock().unlock();
 
     _value_changed();
 }
@@ -353,7 +311,7 @@ void ConfigFile::commit_reject_changes(bool commit)
     {
         // Export the changed data to the config file
         //  (don't clear the current data in it)
-        enQueueCurrentData(false);
+        en_deQueueMessage(OutQueue, _table, true);
 
         // Notify immediately; the signal is suppressed when the file is loaded
         //  and found to be the same data, so it is only emitted once.

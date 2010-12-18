@@ -105,10 +105,17 @@ namespace GUtil
             void commit_reject_changes(bool commit);
 
 
+        protected slots:
+
+            void new_input_data_arrived(const DataObjects::DataTable &);
+
+
         private:
 
             QString _identity;
             QString _modifier;
+
+            DataObjects::DataTable _table;
 
             QWaitCondition _condition_config_update;
 
@@ -119,9 +126,6 @@ namespace GUtil
             //  (to support compression of the data)
             void preprocess_outgoing_data(QByteArray &) const;
             void preprocess_incoming_data(QByteArray &) const;
-
-            // This copies the new input table into the current table
-            void new_input_data_arrived(const DataObjects::DataTable &);
 
             void init_new_table(DataObjects::DataTable &) const;
 
