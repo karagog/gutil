@@ -637,7 +637,6 @@ const DataRow &DataObjects::DataTable::FindFirstRow(const QString &col, const Cu
 
 DataRowCollection DataObjects::DataTable::
         FindRows(const QMap<int, GVariant> &keycolumn_value_mapping) const
-        throw(Core::NotFoundException)
 {
     if(keycolumn_value_mapping.count() == 0)
         THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
@@ -666,24 +665,11 @@ DataRowCollection DataObjects::DataTable::
             ret.Add(At(i));
     }
 
-    if(ret.Count() == 0)
-    {
-        Core::NotFoundException ex("The row was not found.  Check exception data for search criteria.");
-        int cnt = 1;
-        foreach(int c, keycolumn_value_mapping.keys())
-            ex.SetData(QString("k%1").arg(cnt++).toStdString(),
-                       QString("Column %1: %2").arg(c).arg(keycolumn_value_mapping[c].toString())
-                       .toStdString());
-
-        THROW_GUTIL_EXCEPTION(ex);
-    }
-
     return ret;
 }
 
 DataRowCollection DataObjects::DataTable::
         FindRows(const QMap<QString, GVariant> &keycolumn_value_mapping) const
-        throw(Core::NotFoundException)
 {
     QMap<int, Custom::GVariant> tmp;
     foreach(QString s, keycolumn_value_mapping.keys())

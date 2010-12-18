@@ -145,10 +145,10 @@ public:
     DataRowCollection FindRows(const QString &, const Custom::GVariant &) const;
 
     // Find rows based on multiple key columns
-    DataRowCollection FindRows(const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const
-            throw(Core::NotFoundException);
-    DataRowCollection FindRows(const QMap<QString, Custom::GVariant> &keycolumn_value_mapping) const
-            throw(Core::NotFoundException);
+    DataRowCollection FindRows(
+            const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const;
+    DataRowCollection FindRows(
+            const QMap<QString, Custom::GVariant> &keycolumn_value_mapping) const;
 
 
     void LockForRead();

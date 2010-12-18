@@ -211,17 +211,7 @@ void TransportsTest::test_database_transport()
         QVERIFY(tbl.RowCount() == 10);
 
         // Make sure it doesn't exist anymore
-        exception_hit = false;
-        try
-        {
-            tbl.FindRows(0, 1);
-        }
-        catch(Core::NotFoundException &)
-        {
-            exception_hit = true;
-        }
-
-        QVERIFY(exception_hit);
+        QVERIFY(tbl.FindRows(0, 1).Count() == 0);
         QVERIFY(tbl.FindRows(0, 2).Count() == 1);  // Dummy check
     }
     catch(Core::Exception &ex)
