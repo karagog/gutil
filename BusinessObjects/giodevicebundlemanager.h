@@ -66,10 +66,15 @@ namespace GUtil
         public:
 
             // Returns a GUID that each message is stamped with
-            QUuid SendData(const QUuid &, const DataObjects::DataTable &);
+            QUuid SendData(const DataObjects::DataTable &,
+                           const QUuid &id = QUuid());
 
+            // Use this to safely remove an item from the in_queue
             DataObjects::DataTable ReceiveData(const QUuid &);
             bool HasData(const QUuid &);
+
+            // Should we send data asynchronously, or block until we've sent it?
+            PROPERTY( AsyncWrite, bool );
 
 
             // Insert an IO device into the bundle
@@ -137,16 +142,6 @@ namespace GUtil
                 OutQueue
             };
 
-            // Use this to safely remove an item from the in_queue
-            DataObjects::DataTable deQueueMessage(QueueTypeEnum,
-                                                  const QUuid &device_id = QUuid());
-
-            DataObjects::DataTable en_deQueueMessage(
-                    QueueTypeEnum,
-                    const DataObjects::DataTable &msg,
-                    bool enqueue,
-                    const QUuid &device_id = QUuid());
-
 
         protected slots:
 
@@ -164,9 +159,9 @@ namespace GUtil
 
                 inline IODevicePackage(DataAccess::GIODevice *dev)
                     :IODevice(dev),
-                    _p_AsyncWrite(true),
                     FlagNewIncomingDataReady(false),
-                    FlagNewOutgoingDataEnqueued(false)
+                    FlagNewOutgoingDataEnqueued(false),
+                    FlagCancel(false)
                 {}
 
                 ~IODevicePackage(){
@@ -174,9 +169,6 @@ namespace GUtil
                 }
 
                 DataAccess::GIODevice *IODevice;
-
-                // Should we send data asynchronously, or block until we've sent it?
-                PROPERTY( AsyncWrite, bool );
 
                 QMutex InQueueMutex;
                 QQueue<DataObjects::DataTable> InQueue;
@@ -200,10 +192,18 @@ namespace GUtil
                 QMutex OutgoingFlagsMutex;
                 QWaitCondition ConditionOutgoingDataEnqueued;
 
+                bool FlagCancel;
+
             };
 
             QMap<QUuid, IODevicePackage *> _iodevices;
 
+
+            void enQueueMessage(const DataObjects::DataTable &msg,
+                                const QUuid &device_id = QUuid());
+
+            DataObjects::DataTable deQueueMessage(
+                    const QUuid &device_id = QUuid());
 
             void _get_queue_and_mutex(IODevicePackage *,
                                       QueueTypeEnum,
@@ -217,8 +217,6 @@ namespace GUtil
             //  separate threads
             void _worker_outgoing(IODevicePackage *io_package);
             void _worker_incoming(IODevicePackage *io_package);
-
-            bool _flag_exiting;
 
             DerivedClassFunctions *_derived_class_pointer;
 

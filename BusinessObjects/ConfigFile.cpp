@@ -311,7 +311,7 @@ void ConfigFile::commit_reject_changes(bool commit)
     {
         // Export the changed data to the config file
         //  (don't clear the current data in it)
-        en_deQueueMessage(OutQueue, _table, true);
+        SendData(_table);
 
         // Notify immediately; the signal is suppressed when the file is loaded
         //  and found to be the same data, so it is only emitted once.
