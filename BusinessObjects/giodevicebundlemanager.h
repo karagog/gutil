@@ -73,8 +73,12 @@ namespace GUtil
             DataObjects::DataTable ReceiveData(const QUuid &);
             bool HasData(const QUuid &);
 
-            // Should we send data asynchronously, or block until we've sent it?
-            PROPERTY( AsyncWrite, bool );
+            inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
+                return _get_package(id)->GetAsyncWrite();
+            }
+            inline void SetAsyncWrite(bool b, const QUuid &id = QUuid ()) const{
+                _get_package(id)->SetAsyncWrite(b);
+            }
 
 
             // Insert an IO device into the bundle
@@ -170,6 +174,8 @@ namespace GUtil
 
                 DataAccess::GIODevice *IODevice;
 
+                PROPERTY( AsyncWrite, bool );
+
                 QMutex InQueueMutex;
                 QQueue<DataObjects::DataTable> InQueue;
 
@@ -198,12 +204,6 @@ namespace GUtil
 
             QMap<QUuid, IODevicePackage *> _iodevices;
 
-
-            void enQueueMessage(const DataObjects::DataTable &msg,
-                                const QUuid &device_id = QUuid());
-
-            DataObjects::DataTable deQueueMessage(
-                    const QUuid &device_id = QUuid());
 
             void _get_queue_and_mutex(IODevicePackage *,
                                       QueueTypeEnum,

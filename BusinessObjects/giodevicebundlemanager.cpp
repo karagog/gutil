@@ -26,7 +26,6 @@ GIODeviceBundleManager::GIODeviceBundleManager(
         DerivedClassFunctions *dp,
         QObject *parent)
             :QObject(parent),
-            _p_AsyncWrite(true),
             _derived_class_pointer(dp)
 {}
 
@@ -103,56 +102,6 @@ void GIODeviceBundleManager::importData(const QUuid &id)
     pack->IncomingFlagsMutex.unlock();
 
     pack->ConditionIncomingDataReadyToRead.wakeOne();
-}
-
-void GIODeviceBundleManager::enQueueMessage(
-        const DataTable &msg,
-        const QUuid &id)
-{
-    IODevicePackage *pack(_get_package(id));
-    DataTable *tmp_tbl;
-
-    // enqueue the data
-    pack->OutQueueMutex.lock();
-    {
-        pack->OutQueue.enqueue(*(tmp_tbl = new DataTable(msg.Clone())));
-    }
-    pack->OutQueueMutex.unlock();
-
-    // Wake up our background worker to the fact that there's new
-    //  data available.  If they miss the wakeup because they're already
-    //  running, then they will see that _new_***_work_queued has
-    //  been set to true, and they will reprocess the appropriate queue.
-    pack->OutgoingFlagsMutex.lock();
-    {
-        pack->FlagNewOutgoingDataEnqueued = true;
-    }
-    pack->OutgoingFlagsMutex.unlock();
-
-    pack->ConditionOutgoingDataEnqueued.wakeOne();
-
-    QUuid msg_id(tmp_tbl->Name());
-    delete tmp_tbl;
-
-    // If we write synchronously, then we wait here until the data is actually written
-    if(!GetAsyncWrite())
-        wait_for_message_sent(msg_id, id);
-}
-
-DataTable GIODeviceBundleManager::deQueueMessage(const QUuid &device_id)
-{
-    IODevicePackage *pack(_get_package(device_id));
-    DataTable ret;
-
-    // en/dequeue the data
-    pack->InQueueMutex.lock();
-    {
-        if(!pack->InQueue.empty())
-            ret = pack->InQueue.dequeue();
-    }
-    pack->InQueueMutex.unlock();
-
-    return ret;
 }
 
 void GIODeviceBundleManager::_flush_out_queue(IODevicePackage *pack)
@@ -343,20 +292,53 @@ GIODeviceBundleManager::IODevicePackage *
 QUuid GIODeviceBundleManager::SendData(const DataTable &t,
                                        const QUuid &id)
 {
+    IODevicePackage *pack(_get_package(id));
     QUuid ret(QUuid::createUuid());
     DataTable tmp(t.Clone());
 
     // Tag the table data with a GUID
     tmp.SetTableName(ret.toString());
 
-    enQueueMessage(tmp, id);
+    // enqueue the data
+    pack->OutQueueMutex.lock();
+    {
+        pack->OutQueue.enqueue(tmp);
+    }
+    pack->OutQueueMutex.unlock();
+
+    // Wake up our background worker to the fact that there's new
+    //  data available.  If they miss the wakeup because they're already
+    //  running, then they will see that _new_***_work_queued has
+    //  been set to true, and they will reprocess the appropriate queue.
+    pack->OutgoingFlagsMutex.lock();
+    {
+        pack->FlagNewOutgoingDataEnqueued = true;
+    }
+    pack->OutgoingFlagsMutex.unlock();
+
+    pack->ConditionOutgoingDataEnqueued.wakeOne();
+
+    // If we write synchronously, then we wait here until the data is actually written
+    if(!pack->GetAsyncWrite())
+        wait_for_message_sent(ret, id);
 
     return ret;
 }
 
 DataTable GIODeviceBundleManager::ReceiveData(const QUuid &id)
 {
-    return deQueueMessage(id);
+    IODevicePackage *pack(_get_package(id));
+    DataTable ret;
+
+    // en/dequeue the data
+    pack->InQueueMutex.lock();
+    {
+        if(!pack->InQueue.empty())
+            ret = pack->InQueue.dequeue();
+    }
+    pack->InQueueMutex.unlock();
+
+    return ret;
 }
 
 bool GIODeviceBundleManager::HasData(const QUuid &id)

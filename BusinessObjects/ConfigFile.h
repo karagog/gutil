@@ -68,7 +68,7 @@ namespace GUtil
             void Clear();
 
 
-            void Reload();
+            bool Reload();
 
             inline QString FileName() const{ return FileTransport().FileName(); }
 
