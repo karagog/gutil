@@ -104,10 +104,8 @@ namespace GUtil
             DatabaseValueParameters GetBlankValueParameters(const QString &table_name);
             DataObjects::DataTable GetBlankTable(const QString &table_name);
 
-            // This is true if the io device is ready to use (must supply a valid database
-            READONLY_PROPERTY( IsReady, bool );
-
             // The value returned by the last query
+            READONLY_PROPERTY( IsReady, bool );
             READONLY_PROPERTY( ReturnValue, QVariant );
 
 

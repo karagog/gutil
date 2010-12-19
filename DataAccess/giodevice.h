@@ -91,6 +91,7 @@ namespace GUtil
             virtual QByteArray receive_data()
                     throw(GUtil::Core::DataTransportException) = 0;
 
+            // IReadonly interface
             virtual std::string ReadonlyMessageIdentifier() const;
 
             // Derived classes can wait on this condition to block until

@@ -42,8 +42,9 @@ GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
 
         if(db.isValid())
         {
-            // Open the database; we'll close it in our destructor
-            if((_p_IsReady = (db.isOpen() || db.open())))
+            _p_IsReady = db.isOpen() || db.open();
+
+            if(_p_IsReady)
             {
                 if(!_occupied_databases.contains(_connection_id))
                     _occupied_databases.insert(_connection_id, new GSemaphore);

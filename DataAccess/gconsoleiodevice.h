@@ -23,7 +23,8 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class GConsoleIODevice : public GIODevice
+        class GConsoleIODevice :
+                public GIODevice
         {
             Q_OBJECT
         public:

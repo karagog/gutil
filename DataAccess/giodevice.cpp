@@ -20,8 +20,7 @@ using namespace GUtil;
 DataAccess::GIODevice::GIODevice(QObject *parent)
     :QThread(parent),
     _p_Identity(QUuid::createUuid())
-{
-}
+{}
 
 DataAccess::GIODevice::~GIODevice()
 {
@@ -127,7 +126,7 @@ std::string DataAccess::GIODevice::ReadonlyMessageIdentifier() const
 
 bool DataAccess::GIODevice::HasDataAvailable()
 {
-    bool ret;
+    bool ret(false);
     _this_lock.lock();
     {
         ret = has_data_available();
