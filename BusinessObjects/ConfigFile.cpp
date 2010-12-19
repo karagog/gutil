@@ -72,14 +72,24 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
     _identity = identity;
     _modifier = modifier;
 
-    importData();
-
     init_new_table(_table);
+
+    Reload();
 }
 
 void ConfigFile::Reload()
 {
-    importData();
+    QByteArray d;
+    try
+    {
+        d = FileTransport().FileData();
+    }
+    catch(Core::Exception &)
+    {
+        return;
+    }
+
+    _table.FromXmlQString(d);
 }
 
 void ConfigFile::Clear()
