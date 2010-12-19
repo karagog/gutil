@@ -40,7 +40,7 @@ namespace GUtil
         //   into base64 before writing them to disk.
 
         class ConfigFile :
-                public GIODeviceBundleManager,
+                public QObject,
                 public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
@@ -85,6 +85,13 @@ namespace GUtil
 
             PROPERTY(AutoCommitChanges, bool);
 
+            inline bool GetAsyncWrite() const{
+                return _device_manager.GetAsyncWrite();
+            }
+            inline void SetAsyncWrite(bool b){
+                _device_manager.SetAsyncWrite(b);
+            }
+
 
         signals:
 
@@ -94,10 +101,10 @@ namespace GUtil
         protected:
 
             inline DataAccess::GFileIODevice &FileTransport() {
-                return (DataAccess::GFileIODevice &)transport();
+                return (DataAccess::GFileIODevice &)_device_manager.Transport();
             }
             inline const DataAccess::GFileIODevice &FileTransport() const {
-                return (const DataAccess::GFileIODevice &)transport();
+                return (const DataAccess::GFileIODevice &)_device_manager.Transport();
             }
 
             // IUpdatable interface:
@@ -128,6 +135,8 @@ namespace GUtil
             void init_new_table(DataObjects::DataTable &) const;
 
             void _value_changed();
+
+            GIODeviceBundleManager _device_manager;
 
         };
     }

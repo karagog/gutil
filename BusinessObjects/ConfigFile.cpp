@@ -29,16 +29,18 @@ using namespace BusinessObjects;
 ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
-    :GIODeviceBundleManager(parent),
+    :QObject(parent),
     _p_IsHumanReadable(true),
-    _p_AutoCommitChanges(true)
+    _p_AutoCommitChanges(true),
+    _device_manager(this)
 {
-    connect(this, SIGNAL(NewDataArrived()),
+    connect(&_device_manager, SIGNAL(NewDataArrived()),
             this, SLOT(new_input_data_arrived()));
 
-    InsertIntoBundle(new DataAccess::GFileIODevice(QString("%1.%2")
-                                  .arg(get_file_location(identifier))
-                                  .arg(modifier)));
+    _device_manager.InsertIntoBundle(
+            new DataAccess::GFileIODevice(QString("%1.%2")
+                                          .arg(get_file_location(identifier))
+                                          .arg(modifier)));
 
     // Set the file transport to overwrite the config file rather than append
     FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
@@ -48,13 +50,14 @@ ConfigFile::ConfigFile(const QString &identifier,
 
 ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
                        QObject *parent)
-    :GIODeviceBundleManager(
-            parent),
+    :QObject(parent),
     Core::Interfaces::IUpdatable(),
     _p_IsHumanReadable(other._p_IsHumanReadable),
-    _p_AutoCommitChanges(other._p_AutoCommitChanges)
+    _p_AutoCommitChanges(other._p_AutoCommitChanges),
+    _device_manager(this)
 {
-    InsertIntoBundle(new DataAccess::GFileIODevice(other.FileName()));
+    _device_manager.InsertIntoBundle(
+            new DataAccess::GFileIODevice(other.FileName()));
 
     _init(other._identity, other._modifier);
 }
@@ -149,7 +152,7 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 void ConfigFile::new_input_data_arrived()
 {
     DataObjects::DataTable tbl;
-    QByteArray data(ReceiveData());
+    QByteArray data(_device_manager.ReceiveData());
 
     preprocess_incoming_data(data);
 
@@ -319,7 +322,7 @@ void ConfigFile::commit_reject_changes(bool commit)
 
         // Export the changed data to the config file
         //  (don't clear the current data in it)
-        SendData(data);
+        _device_manager.SendData(data);
 
         // Notify immediately; the signal is suppressed when the file is loaded
         //  and found to be the same data, so it is only emitted once.

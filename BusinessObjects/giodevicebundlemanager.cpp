@@ -30,10 +30,10 @@ GIODeviceBundleManager::GIODeviceBundleManager(QObject *parent)
 GIODeviceBundleManager::~GIODeviceBundleManager()
 {
     // Kill all the running threads
-    remove_all_iodevices();
+    RemoveAll();
 }
 
-void GIODeviceBundleManager::remove_all_iodevices()
+void GIODeviceBundleManager::RemoveAll()
 {
     // Loop through and cancel all the threads
     foreach(QUuid id, _iodevices.keys())
@@ -182,7 +182,7 @@ void GIODeviceBundleManager::_worker_thread(IODevicePackage *pack)
     pack->FlagsMutex.unlock();
 }
 
-void GIODeviceBundleManager::wait_for_message_sent(const QUuid &msg_id,
+void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
                                                    const QUuid &device_id)
 {
     IODevicePackage *pack(_get_package(device_id));
@@ -253,7 +253,7 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
 
     // If we write synchronously, then we wait here until the data is actually written
     if(!pack->GetAsyncWrite())
-        wait_for_message_sent(ret, id);
+        WaitForMessageSent(ret, id);
 
     return ret;
 }

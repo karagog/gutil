@@ -64,6 +64,9 @@ namespace GUtil
 
         public:
 
+            GIODeviceBundleManager(QObject *parent = 0);
+            ~GIODeviceBundleManager();
+
             // Returns a GUID that each message is stamped with
             QUuid SendData(const QByteArray &,
                            const QUuid &id = QUuid());
@@ -93,37 +96,20 @@ namespace GUtil
                 Remove(io->GetIdentity());
             }
 
+            void RemoveAll();
 
-        protected:
-
-            // No public constructor; this class must be derived.
-            GIODeviceBundleManager(QObject *parent = 0);
-
-            ~GIODeviceBundleManager();
-
-            // Derived classes MUST call this on the first line of their
-            //  destructor
-            void remove_all_iodevices();
+            // Blocks until the message denoted by the unique identifier is sent
+            void WaitForMessageSent(const QUuid &message_id,
+                                    const QUuid &iodevice_id = QUuid());
 
             // The method of transport (could be file, socket, network I/O)
-            inline DataAccess::GIODevice &transport(const QUuid &id = QUuid()){
+            inline DataAccess::GIODevice &Transport(const QUuid &id = QUuid()){
                 return *_get_package(id)->IODevice;
             }
-            inline const DataAccess::GIODevice &transport(
+            inline const DataAccess::GIODevice &Transport(
                     const QUuid &id = QUuid()) const{
                 return *_get_package(id)->IODevice;
             }
-
-            // Blocks until the message denoted by the unique identifier is sent
-            void wait_for_message_sent(const QUuid &message_id,
-                                       const QUuid &iodevice_id = QUuid());
-
-
-            enum QueueTypeEnum
-            {
-                InQueue,
-                OutQueue
-            };
 
 
         protected slots:
