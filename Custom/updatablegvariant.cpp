@@ -24,6 +24,7 @@ UpdatableGVariant::UpdatableGVariant(const GVariant &gv)
 
 UpdatableGVariant::UpdatableGVariant(const UpdatableGVariant &ogv)
     :GVariant(ogv),
+    IUpdatable(),
     _backup(*this),
     _observer(0)
 {}

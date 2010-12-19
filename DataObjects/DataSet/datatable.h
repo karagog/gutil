@@ -53,14 +53,13 @@ class SharedTableData;
 // A Data Table class used to hold data and serialize
 //   the values to xml or access them conveniently with string keys
 
-class DataTable
-            :
-            public ExplicitlySharedObject< SharedTableData >,
-            public Interfaces::IQXmlSerializable,
-            public Core::Interfaces::IReadOnlyObject,
-            public Core::Interfaces::IUpdatable,
-            public Core::Interfaces::IClonable< DataTable >,
-            public Core::Interfaces::IEquatable< DataTable >
+class DataTable :
+        public ExplicitlySharedObject< SharedTableData >,
+        public Interfaces::IQXmlSerializable,
+        public Core::Interfaces::IReadOnlyObject,
+        public Core::Interfaces::IUpdatable,
+        public Core::Interfaces::IClonable< DataTable >,
+        public Core::Interfaces::IEquatable< DataTable >
 {
     friend class DataSet;
     friend class DataTableCollection;

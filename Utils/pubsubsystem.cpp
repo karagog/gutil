@@ -27,7 +27,7 @@ void Utils::PubSubSystem::PublishMessage(const QByteArray &msg)
     emit NotifyMessage(msg);
 }
 
-void Utils::PubSubSystem::on_message_published(const QByteArray &msg)
+void Utils::PubSubSystem::on_message_published(const QByteArray &)
 {
     // Subclasses can do something interesting here
 }

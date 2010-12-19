@@ -30,7 +30,12 @@ DataObjects::DataRow::DataRow(const DataObjects::DataTable &dt,
 {}
 
 DataObjects::DataRow::DataRow(const DataRow &o, bool clone)
-    :ExplicitlySharedObject<SharedRowData>(o)
+    :ExplicitlySharedObject<SharedRowData>(o),
+    Interfaces::IQXmlSerializable(),
+    Core::Interfaces::IEquatable<DataRow>(),
+    Core::Interfaces::IClonable<DataRow>(),
+    Core::Interfaces::IReadOnlyObject(),
+    Core::Interfaces::IUpdatable()
 {
     if(clone)
         o.CloneTo(*this);

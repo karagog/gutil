@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "progressbarcontrol.h"
-#include <Qlabel>
+#include <QLabel>
 #include <QStackedLayout>
 #include <QVBoxLayout>
 #include <QPushButton>

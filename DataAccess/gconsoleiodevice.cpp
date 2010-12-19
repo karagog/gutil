@@ -118,7 +118,7 @@ void DataAccess::GConsoleIODevice::send_data(const QByteArray &d)
 {
     _fail_if_not_initialized();
 
-    printf(QString(d).toStdString().c_str());
+    printf("%s", QString(d).toStdString().c_str());
 }
 
 QByteArray DataAccess::GConsoleIODevice::receive_data()

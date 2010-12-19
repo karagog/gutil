@@ -80,8 +80,8 @@ void settingsTest::initTestCase()
 //        QVERIFY(false);
 //    }
 
-    qDebug((QString("Settings initialized with file: %1").arg(settings->FileName()))
-           .toStdString().c_str());
+    qDebug((QString("Settings initialized with file: %1")
+            .arg(settings->FileName())).toStdString().c_str());
     //qDebug(QString("%1 items to begin with").arg(settings->Values().count()).toStdString().c_str());
 }
 
@@ -348,6 +348,6 @@ void settingsTest::cleanupTestCase()
     QFile::remove(QString::fromStdString(Core::Utils::StringHelpers::pathName(settings->FileName().toStdString())));
 }
 
-QTEST_APPLESS_MAIN(settingsTest);
+QTEST_MAIN(settingsTest);
 
 #include "settingstest.moc"

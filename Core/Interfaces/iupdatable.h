@@ -75,7 +75,7 @@ protected:
     virtual void on_make_dirty(){}
 
     // True if committing, otherwise rejecting
-    virtual void commit_reject_changes(bool commit){}
+    virtual void commit_reject_changes(bool){}
 
 
 private:

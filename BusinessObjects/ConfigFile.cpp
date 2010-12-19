@@ -50,6 +50,8 @@ ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
     :GIODeviceBundleManager(
             this,
             parent),
+    GIODeviceBundleManager::DerivedClassFunctions(),
+    Core::Interfaces::IUpdatable(),
     _p_IsHumanReadable(other._p_IsHumanReadable),
     _p_AutoCommitChanges(other._p_AutoCommitChanges)
 {

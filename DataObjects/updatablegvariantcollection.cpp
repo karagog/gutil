@@ -29,7 +29,9 @@ UpdatableGVariantCollection::UpdatableGVariantCollection(int size, const GVarian
 }
 
 UpdatableGVariantCollection::UpdatableGVariantCollection(const UpdatableGVariantCollection &v)
-    : ResizableCollection<Custom::UpdatableGVariant>(v),
+    :ResizableCollection<Custom::UpdatableGVariant>(v),
+    Custom::UpdatableGVariant::Observer(),
+    Core::Interfaces::IUpdatable(),
     _observer(0)
 {
     _init();

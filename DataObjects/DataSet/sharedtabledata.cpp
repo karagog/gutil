@@ -27,6 +27,7 @@ SharedTableData::SharedTableData(const DataSet &ds)
 
 SharedTableData::SharedTableData(const SharedTableData &d)
     :GSharedData(d),
+    IUpdatable(),
     _dataset(d._dataset),
     _columns(d.Columns()),
     _name(d._name),

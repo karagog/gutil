@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GEXCEPTION_H
 
 #include "gutil_macros.h"
-#include <stdlib.h>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -26,8 +26,9 @@ limitations under the License.*/
 #define THROW_GUTIL_EXCEPTION( except ) \
 do{ \
     char tmp_except_line[15];  \
-    except.SetData("line", std::string(itoa(__LINE__, tmp_except_line, 10))); \
-    except.SetData("file", std::string(__FILE__)); \
+    sprintf(tmp_except_line, "%d", __LINE__); \
+    except.SetData("line", tmp_except_line); \
+    except.SetData("file", __FILE__); \
     throw except; \
 }while(0)
 
@@ -43,8 +44,9 @@ do{ \
     ex_type except(message); \
 \
     char tmp_except_line[15];  \
-    except.SetData("line", std::string(itoa(__LINE__, tmp_except_line, 10))); \
-    except.SetData("file", std::string(__FILE__)); \
+    sprintf(tmp_except_line, "%d", __LINE__); \
+    except.SetData("line", tmp_except_line); \
+    except.SetData("file", __FILE__); \
     throw except; \
 }while(0)
 
@@ -54,8 +56,9 @@ do{ \
     ex_type except(message); \
 \
     char tmp_except_line[15];  \
-    except.SetData("line", std::string(itoa(__LINE__, tmp_except_line, 10))); \
-    except.SetData("file", std::string(__FILE__)); \
+    sprintf(tmp_except_line, "%d", __LINE__); \
+    except.SetData("line", tmp_except_line); \
+    except.SetData("file", __FILE__); \
     except.SetInnerException(inner_except); \
     throw except; \
 }while(0)

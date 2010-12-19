@@ -47,9 +47,14 @@ DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
     _init(nm, num_cols);
 }
 
-DataObjects::DataTable::
-        DataTable(const DataObjects::DataTable &o)
-            :ExplicitlySharedObject< SharedTableData >(o){}
+DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
+    :ExplicitlySharedObject< SharedTableData >(o),
+    Interfaces::IQXmlSerializable(),
+    Core::Interfaces::IReadOnlyObject(),
+    Core::Interfaces::IUpdatable(),
+    Core::Interfaces::IClonable<DataTable>(),
+    Core::Interfaces::IEquatable<DataTable>()
+{}
 
 DataObjects::DataTable::
         DataTable(const DataObjects::DataSet &ds_parent,
@@ -434,7 +439,7 @@ void DataObjects::DataTable::RemoveKeyColumn(const QString &k)
     RemoveKeyColumn(GetColumnIndex(k));
 }
 
-void DataObjects::DataTable::validate_new_row(const DataRow &r)
+void DataObjects::DataTable::validate_new_row(const DataRow &)
         throw(Core::ValidationException)
 {
 

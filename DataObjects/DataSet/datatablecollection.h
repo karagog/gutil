@@ -43,10 +43,7 @@ public:
 protected:
 
     DataTableCollection(SharedSetData *d, int size = 0);
-
-    DataTableCollection(const DataTableCollection &o){
-        o.CloneTo(*this);
-    }
+    DataTableCollection(const DataTableCollection &o);
 
 
     // Protect our clonable interface

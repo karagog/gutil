@@ -59,7 +59,7 @@ protected:
 
     virtual ~ExplicitlySharedObject(){
         // This is a template constraint; T must be a type derived from GSharedData
-        if(T::IsDerivedFromGSharedData);
+        if(T::IsDerivedFromGSharedData){}
     }
 
     inline T *GetExplicitlySharedData() const{

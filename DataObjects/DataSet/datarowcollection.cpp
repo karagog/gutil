@@ -26,7 +26,8 @@ DataRowCollection::DataRowCollection(SharedTableData *td, const DataRowCollectio
 }
 
 DataRowCollection::DataRowCollection(const DataRowCollection &o)
-    :_table(new DataTable(o.Table()))
+    :Collection<DataRow>(),
+    _table(new DataTable(o.Table()))
 {
     _init_cloned_rows(o);
 

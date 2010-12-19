@@ -78,7 +78,7 @@ public:
 
     inline ~GSharedDataPointer(){
         // Make sure T is derived from GSharedData
-        if(T::IsDerivedFromGSharedData);
+        if(T::IsDerivedFromGSharedData){}
     }
 };
 
