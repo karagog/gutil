@@ -35,6 +35,9 @@ ConfigFile::ConfigFile(const QString &identifier,
     _p_IsHumanReadable(true),
     _p_AutoCommitChanges(true)
 {
+    connect(this, SIGNAL(NewDataArrived()),
+            this, SLOT(new_input_data_arrived()));
+
     InsertIntoBundle(new DataAccess::GFileIODevice(QString("%1.%2")
                                   .arg(get_file_location(identifier))
                                   .arg(modifier)));
@@ -154,23 +157,9 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
     #endif
 }
 
-void ConfigFile::new_input_data_arrived(const DataObjects::DataTable &tbl)
+void ConfigFile::new_input_data_arrived()
 {
-    bool table_updated(true);
-
-    // Don't bother cloning the table if this is the same table we just exported
-    if(tbl.Name() == _table.Name())
-        table_updated = false;
-    else
-        _table = tbl.Clone();
-
-    // Mark it dirty and commit, so we can count how many times
-    //  it's been updated
-    _table.MakeDirty();
-    _table.CommitChanges();
-
-    if(table_updated)
-        emit NotifyConfigurationUpdate();
+    emit NotifyConfigurationUpdate();
 }
 
 void ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)

@@ -60,7 +60,7 @@ namespace GUtil
             Q_OBJECT
         signals:
 
-            void NewDataArrived(const QUuid &);
+            void NewDataArrived(const QUuid &id = QUuid());
 
 
         public:
@@ -221,6 +221,8 @@ namespace GUtil
             DerivedClassFunctions *_derived_class_pointer;
 
             IODevicePackage *_get_package(const QUuid &) const;
+
+            int _current_threads;
 
         };
     }

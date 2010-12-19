@@ -107,7 +107,7 @@ namespace GUtil
 
         protected slots:
 
-            void new_input_data_arrived(const DataObjects::DataTable &);
+            void new_input_data_arrived();
 
 
         private:

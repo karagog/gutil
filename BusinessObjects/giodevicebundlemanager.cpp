@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include <QStringList>
 #include <QtConcurrentRun>
+#include <QThreadPool>
 using namespace GUtil;
 using namespace DataObjects;
 using namespace BusinessObjects;
@@ -26,7 +27,8 @@ GIODeviceBundleManager::GIODeviceBundleManager(
         DerivedClassFunctions *dp,
         QObject *parent)
             :QObject(parent),
-            _derived_class_pointer(dp)
+            _derived_class_pointer(dp),
+            _current_threads(1)
 {}
 
 GIODeviceBundleManager::~GIODeviceBundleManager()
@@ -354,13 +356,16 @@ void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
 
     IODevicePackage *pack = new IODevicePackage(iodevice);
 
-
-
     _iodevices.insert(iodevice->GetIdentity(), pack);
 
 
     connect(iodevice, SIGNAL(ReadyRead(QUuid)),
             this, SLOT(importData(QUuid)));
+
+    // Make sure we have enough threads to effectively use this device
+    _current_threads += 2;
+    if(_current_threads > QThreadPool::globalInstance()->maxThreadCount())
+        QThreadPool::globalInstance()->setMaxThreadCount(_current_threads);
 
     // Start up our background workers for this device
     pack->WorkerOutgoing =
@@ -393,6 +398,8 @@ void GIODeviceBundleManager::Remove(const QUuid &id)
 
     pack->WorkerOutgoing.waitForFinished();
     pack->WorkerIncoming.waitForFinished();
+
+    _current_threads -= 2;
 
     // Then disconnect and delete the io device
     disconnect(_iodevices[id]->IODevice, SIGNAL(ReadyRead(QUuid)),
