@@ -119,7 +119,7 @@ namespace GUtil
 
             // Derived classes MUST call this on the first line of their
             //  destructor
-            void kill_worker_threads();
+            void remove_all_iodevices();
 
             // Derived classes must call this to start the worker threads.
             //  This is because it depends on a pure virtual method, so this
@@ -177,46 +177,36 @@ namespace GUtil
                 PROPERTY( AsyncWrite, bool );
 
                 QMutex InQueueMutex;
-                QQueue<DataObjects::DataTable> InQueue;
-
                 QMutex OutQueueMutex;
+                QQueue<DataObjects::DataTable> InQueue;
                 QQueue<DataObjects::DataTable> OutQueue;
 
-                // So people can block until their data's written
-                QWaitCondition ConditionDataWritten;
+                // So people can block until their data is written
+                QWaitCondition ForDataWritten;
 
-                QFuture<void> WorkerOutgoing;
-                QFuture<void> WorkerIncoming;
+                // A reference to the worker thread
+                QFuture<void> Worker;
 
-                // These wait conditions are used by the background threads to
-                //  wait until data is ready to read.
+                // These booleans command the worker thread, and are protected
+                //  by the flags mutex.  Wake the thread with the wait condition,
+                //  after setting the booleans for what it's supposed to do
                 bool FlagNewIncomingDataReady;
-                QMutex IncomingFlagsMutex;
-                QWaitCondition ConditionIncomingDataReadyToRead;
-
                 bool FlagNewOutgoingDataEnqueued;
-                QMutex OutgoingFlagsMutex;
-                QWaitCondition ConditionOutgoingDataEnqueued;
-
                 bool FlagCancel;
+
+                QMutex FlagsMutex;
+                QWaitCondition ForSomethingToDo;
 
             };
 
             QMap<QUuid, IODevicePackage *> _iodevices;
 
 
-            void _get_queue_and_mutex(IODevicePackage *,
-                                      QueueTypeEnum,
-                                      QQueue<DataObjects::DataTable> **,
-                                      QMutex **);
-
             void _flush_out_queue(IODevicePackage *);
             void _receive_incoming_data(IODevicePackage *);
 
-            // The body for the queue managers, which run on
-            //  separate threads
-            void _worker_outgoing(IODevicePackage *io_package);
-            void _worker_incoming(IODevicePackage *io_package);
+            // The body for the background worker thread
+            void _worker_thread(IODevicePackage *io_package);
 
             DerivedClassFunctions *_derived_class_pointer;
 

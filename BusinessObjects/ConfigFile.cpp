@@ -67,7 +67,7 @@ ConfigFile::~ConfigFile()
 {
     // This makes sure our virtual functions are still valid while the threads
     //  are running
-    kill_worker_threads();
+    remove_all_iodevices();
 }
 
 void ConfigFile::_init(const QString &identity, const QString &modifier)
