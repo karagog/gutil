@@ -29,9 +29,7 @@ using namespace BusinessObjects;
 ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
-    :GIODeviceBundleManager(
-            this,
-            parent),
+    :GIODeviceBundleManager(parent),
     _p_IsHumanReadable(true),
     _p_AutoCommitChanges(true)
 {
@@ -51,9 +49,7 @@ ConfigFile::ConfigFile(const QString &identifier,
 ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
                        QObject *parent)
     :GIODeviceBundleManager(
-            this,
             parent),
-    GIODeviceBundleManager::DerivedClassFunctions(),
     Core::Interfaces::IUpdatable(),
     _p_IsHumanReadable(other._p_IsHumanReadable),
     _p_AutoCommitChanges(other._p_AutoCommitChanges)
@@ -61,13 +57,6 @@ ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
     InsertIntoBundle(new DataAccess::GFileIODevice(other.FileName()));
 
     _init(other._identity, other._modifier);
-}
-
-ConfigFile::~ConfigFile()
-{
-    // This makes sure our virtual functions are still valid while the threads
-    //  are running
-    remove_all_iodevices();
 }
 
 void ConfigFile::_init(const QString &identity, const QString &modifier)
@@ -160,8 +149,11 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 void ConfigFile::new_input_data_arrived()
 {
     DataObjects::DataTable tbl;
+    QByteArray data(ReceiveData());
 
-    tbl.FromXmlQString(ReceiveData());
+    preprocess_incoming_data(data);
+
+    tbl.FromXmlQString(data);
 
     // Only update if the table was updated by someone other than us
     if(tbl.NotEquals(_table))
@@ -320,9 +312,14 @@ void ConfigFile::commit_reject_changes(bool commit)
 {
     if(commit)
     {
+        QByteArray data(
+                _table.ToXmlQString().toAscii());
+
+        preprocess_outgoing_data(data);
+
         // Export the changed data to the config file
         //  (don't clear the current data in it)
-        SendData(_table.ToXmlQString().toAscii());
+        SendData(data);
 
         // Notify immediately; the signal is suppressed when the file is loaded
         //  and found to be the same data, so it is only emitted once.

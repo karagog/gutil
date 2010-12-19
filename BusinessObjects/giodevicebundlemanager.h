@@ -94,25 +94,10 @@ namespace GUtil
             }
 
 
-            // Derived classes use this to control the behavior of the AVB
-            class DerivedClassFunctions
-            {
-                friend class GIODeviceBundleManager;
-            protected:
-
-                // Use these functions to do anything to the data before it
-                //  goes and just before it comes in.  For example you might
-                //  do things like encrypt/compress the data.
-                virtual void preprocess_incoming_data(QByteArray &) const{}
-                virtual void preprocess_outgoing_data(QByteArray &) const{}
-
-            };
-
         protected:
 
             // No public constructor; this class must be derived.
-            GIODeviceBundleManager(DerivedClassFunctions *dp = 0,
-                                   QObject *parent = 0);
+            GIODeviceBundleManager(QObject *parent = 0);
 
             ~GIODeviceBundleManager();
 
@@ -201,8 +186,6 @@ namespace GUtil
 
             // The body for the background worker thread
             void _worker_thread(IODevicePackage *io_package);
-
-            DerivedClassFunctions *_derived_class_pointer;
 
             IODevicePackage *_get_package(const QUuid &) const;
 

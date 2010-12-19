@@ -41,7 +41,6 @@ namespace GUtil
 
         class ConfigFile :
                 public GIODeviceBundleManager,
-                public GIODeviceBundleManager::DerivedClassFunctions,
                 public Core::Interfaces::IUpdatable
         {
             Q_OBJECT
@@ -50,7 +49,6 @@ namespace GUtil
             explicit ConfigFile(const QString &, const QString &modifier = "",
                                 QObject *parent = 0);
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
-            ~ConfigFile();
 
 
             Custom::GVariant Value(const QString &key);
@@ -123,8 +121,7 @@ namespace GUtil
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
 
-            // Overrides of GIODeviceBundleManager functions
-            //  (to support compression of the data)
+            // In case you want to do encryption/compression
             void preprocess_outgoing_data(QByteArray &) const;
             void preprocess_incoming_data(QByteArray &) const;
 

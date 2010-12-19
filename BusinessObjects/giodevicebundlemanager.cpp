@@ -23,23 +23,13 @@ using namespace GUtil;
 using namespace DataObjects;
 using namespace BusinessObjects;
 
-GIODeviceBundleManager::GIODeviceBundleManager(
-        DerivedClassFunctions *dp,
-        QObject *parent)
-            :QObject(parent),
-            _derived_class_pointer(dp)
+GIODeviceBundleManager::GIODeviceBundleManager(QObject *parent)
+            :QObject(parent)
 {}
 
 GIODeviceBundleManager::~GIODeviceBundleManager()
 {
-    // Derived classes must call 'remove_all_iodevices', or remove all of them
-    //  with the 'Remove' function in their destructor, otherwise
-    //  it may cause a seg fault if it would access the derived class' members
-
-    // We'll remove them all here, because in any case we can't allow the
-    //  threads to keep on going after we die, so if there's a segfault,
-    //  shame on you as a programmer for not calling this in the derived
-    //  constructor
+    // Kill all the running threads
     remove_all_iodevices();
 }
 
@@ -100,9 +90,6 @@ void GIODeviceBundleManager::_flush_out_queue(IODevicePackage *pack)
         }
         pack->OutQueueMutex.unlock();
 
-        if(_derived_class_pointer)
-            _derived_class_pointer->preprocess_outgoing_data(data);
-
         try
         {
             pack->IODevice->SendData(data);
@@ -133,10 +120,6 @@ void GIODeviceBundleManager::_receive_incoming_data(IODevicePackage *pack)
             Logging::GlobalLogger::LogException(ex);
             return;
         }
-
-
-        if(_derived_class_pointer)
-            _derived_class_pointer->preprocess_incoming_data(*data);
 
         pack->InQueueMutex.lock();
         {
