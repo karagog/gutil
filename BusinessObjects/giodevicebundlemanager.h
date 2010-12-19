@@ -207,8 +207,6 @@ namespace GUtil
 
             IODevicePackage *_get_package(const QUuid &) const;
 
-            int _current_threads;
-
         };
     }
 }

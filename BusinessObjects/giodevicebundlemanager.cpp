@@ -27,8 +27,7 @@ GIODeviceBundleManager::GIODeviceBundleManager(
         DerivedClassFunctions *dp,
         QObject *parent)
             :QObject(parent),
-            _derived_class_pointer(dp),
-            _current_threads(QThreadPool::globalInstance()->maxThreadCount())
+            _derived_class_pointer(dp)
 {}
 
 GIODeviceBundleManager::~GIODeviceBundleManager()
@@ -335,11 +334,6 @@ void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
     connect(iodevice, SIGNAL(ReadyRead(QUuid)),
             this, SLOT(importData(QUuid)));
 
-    // Make sure we have enough threads to effectively use this device
-    _current_threads += 1;
-    if(_current_threads > QThreadPool::globalInstance()->maxThreadCount())
-        QThreadPool::globalInstance()->setMaxThreadCount(_current_threads);
-
     // Start up our background workers for this device
     pack->Worker = QtConcurrent::run(
             this, &GIODeviceBundleManager::_worker_thread, pack);
@@ -363,8 +357,6 @@ void GIODeviceBundleManager::Remove(const QUuid &id)
 
 
     pack->Worker.waitForFinished();
-
-    _current_threads -= 1;
 
     // Then disconnect and delete the io device
     disconnect(_iodevices[id]->IODevice, SIGNAL(ReadyRead(QUuid)),
