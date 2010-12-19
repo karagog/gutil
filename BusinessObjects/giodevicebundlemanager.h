@@ -135,7 +135,7 @@ namespace GUtil
 
         private:
 
-            // This represents one IO Device in the bundle bundle
+            // This represents one IO Device in the bundle
             class IODevicePackage
             {
             public:
