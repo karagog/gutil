@@ -159,6 +159,12 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 
 void ConfigFile::new_input_data_arrived()
 {
+    DataObjects::DataTable tbl(ReceiveData());
+
+    // Only update if the table was updated by someone other than us
+    if(tbl.Name() != _table.Name())
+        _table = tbl;
+
     emit NotifyConfigurationUpdate();
 }
 

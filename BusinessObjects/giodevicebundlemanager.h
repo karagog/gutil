@@ -70,8 +70,8 @@ namespace GUtil
                            const QUuid &id = QUuid());
 
             // Use this to safely remove an item from the in_queue
-            DataObjects::DataTable ReceiveData(const QUuid &);
-            bool HasData(const QUuid &);
+            DataObjects::DataTable ReceiveData(const QUuid &id = QUuid());
+            bool HasData(const QUuid &id = QUuid());
 
             inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
                 return _get_package(id)->GetAsyncWrite();

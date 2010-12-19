@@ -191,10 +191,6 @@ void GIODeviceBundleManager::_receive_incoming_data(IODevicePackage *pack)
 
 void GIODeviceBundleManager::_worker_outgoing(IODevicePackage *pack)
 {
-//    QMutex *flags_mutex(&pack->OutgoingFlagsMutex);
-//    QWaitCondition *condition_data_ready(&pack->ConditionOutgoingDataEnqueued);
-//    bool *flag_data_ready(&pack->FlagNewOutgoingDataEnqueued);
-
     pack->OutgoingFlagsMutex.lock();
     {
         forever
@@ -231,7 +227,8 @@ void GIODeviceBundleManager::_worker_incoming(IODevicePackage *pack)
         forever
         {
             while(!pack->FlagNewIncomingDataReady && !pack->FlagCancel)
-                pack->ConditionIncomingDataReadyToRead.wait(&pack->IncomingFlagsMutex);
+                pack->ConditionIncomingDataReadyToRead.wait(
+                        &pack->IncomingFlagsMutex);
 
             if(pack->FlagCancel)
                 break;
