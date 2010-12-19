@@ -89,18 +89,16 @@ void GIODeviceBundleManager::_flush_out_queue(IODevicePackage *pack)
 
     while(queue_has_data)
     {
-        DataTable tbl;
+        QByteArray data;
 
         pack->OutQueueMutex.lock();
         {
             if(pack->OutQueue.count() > 0)
-                tbl = pack->OutQueue.dequeue();
+                data = pack->OutQueue.dequeue().second;
 
             queue_has_data = pack->OutQueue.count() > 0;
         }
         pack->OutQueueMutex.unlock();
-
-        QByteArray data = tbl.ToXmlQString().toAscii();
 
         if(_derived_class_pointer)
             _derived_class_pointer->preprocess_outgoing_data(data);
@@ -122,40 +120,31 @@ void GIODeviceBundleManager::_flush_out_queue(IODevicePackage *pack)
 
 void GIODeviceBundleManager::_receive_incoming_data(IODevicePackage *pack)
 {
-    QByteArray data;
-    try
+    while(pack->IODevice->HasDataAvailable())
     {
-        data = pack->IODevice->ReceiveData(false);
-    }
-    catch(Core::Exception &ex)
-    {
-        Logging::GlobalLogger::LogException(ex);
-        return;
-    }
+        QByteArray *data;
+
+        try
+        {
+            data = new QByteArray(pack->IODevice->ReceiveData(false));
+        }
+        catch(Core::Exception &ex)
+        {
+            Logging::GlobalLogger::LogException(ex);
+            return;
+        }
 
 
-    if(_derived_class_pointer)
-        _derived_class_pointer->preprocess_incoming_data(data);
+        if(_derived_class_pointer)
+            _derived_class_pointer->preprocess_incoming_data(*data);
 
-    bool exception_hit(false);
-    DataTable tbl;
-    try
-    {
-        tbl.FromXmlQString(data);
-    }
-    catch(Core::Exception &)
-    {
-        // Ignore and treat as if received nothing
-        exception_hit = true;
-    }
-
-    if(!exception_hit)
-    {
         pack->InQueueMutex.lock();
         {
-            pack->InQueue.enqueue(tbl);
+            pack->InQueue.enqueue(*data);
         }
         pack->InQueueMutex.unlock();
+
+        delete data;
 
         emit NewDataArrived(pack->IODevice->GetIdentity());
     }
@@ -224,9 +213,9 @@ void GIODeviceBundleManager::wait_for_message_sent(const QUuid &msg_id,
             contains = false;
 
             // Figure out if the queue contains the given id
-            foreach(DataTable tbl, pack->OutQueue)
+            for(int i = 0; i < pack->OutQueue.count(); i++)
             {
-                if(msg_id == tbl.Name())
+                if(msg_id == pack->OutQueue[i].first)
                 {
                     contains = true;
                     break;
@@ -254,20 +243,16 @@ GIODeviceBundleManager::IODevicePackage *
     return ret;
 }
 
-QUuid GIODeviceBundleManager::SendData(const DataTable &t,
+QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
                                        const QUuid &id)
 {
     IODevicePackage *pack(_get_package(id));
     QUuid ret(QUuid::createUuid());
-    DataTable tmp(t.Clone());
-
-    // Tag the table data with a GUID
-    tmp.SetTableName(ret.toString());
 
     // enqueue the data
     pack->OutQueueMutex.lock();
     {
-        pack->OutQueue.enqueue(tmp);
+        pack->OutQueue.enqueue(QPair<QUuid, QByteArray>(ret, data));
     }
     pack->OutQueueMutex.unlock();
 
@@ -290,10 +275,10 @@ QUuid GIODeviceBundleManager::SendData(const DataTable &t,
     return ret;
 }
 
-DataTable GIODeviceBundleManager::ReceiveData(const QUuid &id)
+QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 {
     IODevicePackage *pack(_get_package(id));
-    DataTable ret;
+    QByteArray ret;
 
     // en/dequeue the data
     pack->InQueueMutex.lock();

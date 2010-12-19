@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef DO_VALUEBUFFER_H
 #define DO_VALUEBUFFER_H
 
-#include "DataObjects/DataSet/datatable.h"
 #include "Custom/gvariant.h"
 #include "DataAccess/giodevice.h"
 #include "Logging/globallogger.h"
@@ -66,11 +65,11 @@ namespace GUtil
         public:
 
             // Returns a GUID that each message is stamped with
-            QUuid SendData(const DataObjects::DataTable &,
+            QUuid SendData(const QByteArray &,
                            const QUuid &id = QUuid());
 
             // Use this to safely remove an item from the in_queue
-            DataObjects::DataTable ReceiveData(const QUuid &id = QUuid());
+            QByteArray ReceiveData(const QUuid &id = QUuid());
             bool HasData(const QUuid &id = QUuid());
 
             inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
@@ -173,8 +172,8 @@ namespace GUtil
 
                 QMutex InQueueMutex;
                 QMutex OutQueueMutex;
-                QQueue<DataObjects::DataTable> InQueue;
-                QQueue<DataObjects::DataTable> OutQueue;
+                QQueue<QByteArray> InQueue;
+                QQueue< QPair<QUuid, QByteArray> > OutQueue;
 
                 // So people can block until their data is written
                 QWaitCondition ForDataWritten;

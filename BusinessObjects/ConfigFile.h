@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "giodevicebundlemanager.h"
 #include "DataAccess/gfileiodevice.h"
+#include "DataObjects/DataSet/datatable.h"
 #include <QObject>
 #include <QString>
 

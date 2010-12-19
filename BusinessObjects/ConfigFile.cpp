@@ -159,13 +159,17 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 
 void ConfigFile::new_input_data_arrived()
 {
-    DataObjects::DataTable tbl(ReceiveData());
+    DataObjects::DataTable tbl;
+
+    tbl.FromXmlQString(ReceiveData());
 
     // Only update if the table was updated by someone other than us
-    if(tbl.Name() != _table.Name())
+    if(tbl.NotEquals(_table))
+    {
         _table = tbl;
 
-    emit NotifyConfigurationUpdate();
+        emit NotifyConfigurationUpdate();
+    }
 }
 
 void ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
@@ -318,7 +322,7 @@ void ConfigFile::commit_reject_changes(bool commit)
     {
         // Export the changed data to the config file
         //  (don't clear the current data in it)
-        SendData(_table);
+        SendData(_table.ToXmlQString().toAscii());
 
         // Notify immediately; the signal is suppressed when the file is loaded
         //  and found to be the same data, so it is only emitted once.
