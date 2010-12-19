@@ -309,7 +309,16 @@ DataTable GIODeviceBundleManager::ReceiveData(const QUuid &id)
 
 bool GIODeviceBundleManager::HasData(const QUuid &id)
 {
-    return transport(id).HasDataAvailable();
+    IODevicePackage *pack(_get_package(id));
+    bool ret;
+
+    pack->InQueueMutex.lock();
+    {
+        ret = !pack->InQueue.isEmpty();
+    }
+    pack->InQueueMutex.unlock();
+
+    return ret;
 }
 
 void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)

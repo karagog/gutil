@@ -121,11 +121,6 @@ namespace GUtil
             //  destructor
             void remove_all_iodevices();
 
-            // Derived classes must call this to start the worker threads.
-            //  This is because it depends on a pure virtual method, so this
-            //  class' vtable must be set up when the threads run
-            void start_worker_threads();
-
             // The method of transport (could be file, socket, network I/O)
             inline DataAccess::GIODevice &transport(const QUuid &id = QUuid()){
                 return *_get_package(id)->IODevice;
