@@ -15,59 +15,63 @@ limitations under the License.*/
 #ifndef FILE_MANAGER_H
 #define FILE_MANAGER_H
 
+#include "giodevicebundlemanager.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QString>
-#include <QMutex>
-#include <QSqlDatabase>
-#include <QMap>
+#include <QSet>
 
 // Use this class to manage binary data.  This is useful for storing and accessing
 //  lots of files without consuming lots of memory
 
 namespace GUtil
 {
+    namespace DataAccess
+    {
+        class GDatabaseIODevice;
+    }
+
     namespace BusinessObjects
     {
-        class BinaryDataStore : public Core::Interfaces::IReadOnlyObject
+        class BinaryDataStore :
+                public Core::Interfaces::IReadOnlyObject
         {
         public:
 
-            explicit BinaryDataStore(const QString&, bool primary = true);
-            virtual ~BinaryDataStore();
+            explicit BinaryDataStore(const QString &);
 
             //  (All of the public functions can be treated atomically,
             //   and can be executed safely from multiple threads)
 
             // For manipulating files
-            int addFile(const QString &);
-            int addFile(int, const QString &);
-            void removeFile(int);
-            QString getFile(int);
-            bool hasFile(int id);
+            int AddFile(const QString &, int id = -1);
+            void RemoveFile(int);
+            QString GetFile(int);
+            bool HasFile(int id);
 
-            // Clear all files
-            void reset();
+            // Remove all files
+            void Reset();
 
-            // List the id's that we've got
-            QList<int> idList();
+            inline QSet<int> GetIds() const { return _ids; }
 
-            // Set aside the list of ids
-            bool reserveIdList(const QList<int> &);
 
         private:
-            QString my_id;
-            QString file_location;
 
-            int get_free_file_id(QSqlDatabase &);
+            QString _my_id;
+            QString _file_location;
 
-            void prep_database(QSqlDatabase &);
-            static QString get_file_loc(const QString &id);
+            QSet<int> _ids;
+            int _max_id;
 
-            int add_file(int, const QString &, QSqlDatabase&);
-            bool has_file(int id, QSqlDatabase &);
-            void remove_file(int, QSqlDatabase &);
+            QString _database_connection_string;
 
-            void _execute_insertion(QSqlQuery &, int, const QString &);
+            void _get_free_file_id();
+
+            static QString _get_file_loc(const QString &id);
+
+            // For asynchronous writes to the database
+            GIODeviceBundleManager _file_manager;
+            DataAccess::GDatabaseIODevice *_dbio;
+
         };
     }
 }

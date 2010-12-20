@@ -78,8 +78,16 @@ namespace GUtil
             inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
                 return _get_package(id)->GetAsyncWrite();
             }
-            inline void SetAsyncWrite(bool b, const QUuid &id = QUuid ()) const{
+            inline void SetAsyncWrite(bool b, const QUuid &id = QUuid()) const{
                 _get_package(id)->SetAsyncWrite(b);
+            }
+
+            // Drop all incoming data on the floor
+            inline void SetDropInput(bool b, const QUuid &id = QUuid()){
+                _get_package(id)->SetDropInput(b);
+            }
+            inline bool GetDropInput(const QUuid &id = QUuid()) const{
+                return _get_package(id)->GetDropInput();
             }
 
 
@@ -128,6 +136,8 @@ namespace GUtil
 
                 inline IODevicePackage(DataAccess::GIODevice *dev)
                     :IODevice(dev),
+                    _p_AsyncWrite(true),
+                    _p_DropInput(false),
                     FlagNewIncomingDataReady(false),
                     FlagNewOutgoingDataEnqueued(false),
                     FlagCancel(false)
@@ -140,6 +150,7 @@ namespace GUtil
                 DataAccess::GIODevice *IODevice;
 
                 PROPERTY( AsyncWrite, bool );
+                PROPERTY( DropInput, bool );
 
                 QMutex InQueueMutex;
                 QMutex OutQueueMutex;

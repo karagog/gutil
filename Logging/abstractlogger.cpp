@@ -68,10 +68,18 @@ void Logging::AbstractLogger::LogException(const Core::Exception &ex)
     {
         data_string = "\n\nException Data:";
 
-        for(std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); it++)
+        for(std::vector<std::string>::const_iterator it = keys.begin();
+        it != keys.end();
+        it++)
+        {
+            std::string tmps(ex.GetData(*it));
+            if(tmps.length() > 1000)
+                tmps = tmps.substr(0, 1000) + "<--- TRUNCATED";
+
             data_string.append(QString("\n\tKey: %1   Value: %2")
                                .arg(QString::fromStdString(*it))
-                               .arg(QString::fromStdString(ex.GetData(*it))));
+                               .arg(QString::fromStdString(tmps)));
+        }
     }
 
     Log(QString("%1%2")

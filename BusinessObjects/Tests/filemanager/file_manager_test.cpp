@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "BusinessObjects/BinaryDataStore.h"
 #include "Core/exception.h"
+#include "Logging/debuglogger.h"
 #include <QTest>
 using namespace GUtil;
 GUTIL_USING_NAMESPACE( BusinessObjects );
@@ -33,12 +34,12 @@ signals:
 private Q_SLOTS:
     void simple_startup_test();
     void test_binary_dat();
-    void test_reset();
+    void test_Reset();
     void test_second_object();
     void test_large_files();
-    void test_idList();
+    void test_GetIds();
     void test_file_queuing();
-    void test_hasFile();
+    void test_HasFile();
     void test_remove();
 
 private:
@@ -55,128 +56,200 @@ file_manager_test::file_manager_test()// :
 
 void file_manager_test::simple_startup_test()
 {
-    QString teststr = "Hello World!";
-    int id = fm->addFile(teststr);
-    QVERIFY(teststr == fm->getFile(id));
+    try
+    {
+        QString teststr = "Hello World!";
+        int id = fm->AddFile(teststr);
+        QVERIFY(teststr == fm->GetFile(id));
 
-    QString teststr2 = "Next data";
-    int id2 = fm->addFile(teststr2);
-    QVERIFY(id != id2);
-    QVERIFY(teststr2 == fm->getFile(id2));
+        QString teststr2 = "Next data";
+        int id2 = fm->AddFile(teststr2);
+        QVERIFY(id != id2);
+        QVERIFY(teststr2 == fm->GetFile(id2));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
 void file_manager_test::test_binary_dat()
 {
-    QString teststr;
-    teststr.append('a');
-    teststr.append(0x00);
-    teststr.append('a');
-
-    int id = fm->addFile(teststr);
-    QVERIFY(teststr == fm->getFile(id));
-}
-
-void file_manager_test::test_reset()
-{
-    fm->reset();
-
-    bool exception_hit = false;
     try
     {
-        fm->getFile(0);
+        QString teststr;
+        teststr.append('a');
+        teststr.append(0x00);
+        teststr.append('a');
+
+        int id = fm->AddFile(teststr);
+        QVERIFY(teststr == fm->GetFile(id));
     }
-    catch(Core::Exception)
+    catch(Core::Exception &ex)
     {
-        exception_hit = true;
+        dLogException(ex);
+        QFAIL("Exception");
     }
-    QVERIFY(exception_hit);
+}
+
+void file_manager_test::test_Reset()
+{
+    try
+    {
+        fm->Reset();
+
+        bool exception_hit = false;
+        try
+        {
+            fm->GetFile(0);
+        }
+        catch(Core::Exception)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
 void file_manager_test::test_second_object()
 {
-    fm->reset();
-    BinaryDataStore *fm2 = new BinaryDataStore("filemanagertest", false);
-    QVERIFY(fm->addFile("test1") == 0);
-    QVERIFY(fm2->addFile("test2") == 1);
-    QVERIFY(fm->addFile("test3") == 2);
-    delete fm2;
+    try
+    {
+        fm->Reset();
+        BinaryDataStore *fm2 = new BinaryDataStore("filemanagertest");
+        QVERIFY(fm->AddFile("test1") == 0);
+        QVERIFY(fm2->AddFile("test2") == 1);
+        QVERIFY(fm->AddFile("test3") == 2);
+        delete fm2;
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
 void file_manager_test::test_large_files()
 {
-    QString dat(10000000, 'a');
-    int id = fm->addFile(dat);
-    QVERIFY(dat == fm->getFile(id));
+    try
+    {
+        QString dat(10000000, 'a');
+        int id = fm->AddFile(dat);
+        QVERIFY(dat == fm->GetFile(id));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
-void file_manager_test::test_idList()
+void file_manager_test::test_GetIds()
 {
-    fm->reset();
+    try
+    {
+        fm->Reset();
 
-    QList<int> l;
-    l.append(fm->addFile("HI"));
-    l.append(fm->addFile(""));
-    l.append(fm->addFile("hi"));
+        QList<int> l;
+        l.append(fm->AddFile("HI"));
+        l.append(fm->AddFile(""));
+        l.append(fm->AddFile("hi"));
 
-    QList<int> l2 = fm->idList();
+        QSet<int> l2 = fm->GetIds();
 
-    QVERIFY(l2.count() == l.count());
-    for(int i = l2.count() - 1; i >= 0; i--)
-        QVERIFY(l2[i] == l[i]);
+        QVERIFY(l2.count() == l.count());
+        for(int i = l2.count() - 1; i >= 0; i--)
+            QVERIFY(l2.contains(l[i]));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
 void file_manager_test::test_file_queuing()
 {
-    fm->reset();
-    fm->addFile("file1");
-    fm->addFile("file2");
+    try
+    {
+        fm->Reset();
+        fm->AddFile("file1");
+        fm->AddFile("file2");
 
-    fm->addFile("file3");
-    fm->addFile("file4");
-    fm->addFile("file5");
+        fm->AddFile("file3");
+        fm->AddFile("file4");
+        fm->AddFile("file5");
 
-    QVERIFY(fm->getFile(0) == "file1");
-    QVERIFY(fm->getFile(1) == "file2");
-    QVERIFY(fm->getFile(2) == "file3");
-    QVERIFY(fm->getFile(3) == "file4");
-    QVERIFY(fm->getFile(4) == "file5");
+        QVERIFY(fm->GetFile(0) == "file1");
+        QVERIFY(fm->GetFile(1) == "file2");
+        QVERIFY(fm->GetFile(2) == "file3");
+        QVERIFY(fm->GetFile(3) == "file4");
+        QVERIFY(fm->GetFile(4) == "file5");
 
-    QList<int> idList = fm->idList();
-    QVERIFY(idList.count() == 5);
-    QVERIFY(idList[0] == 0);
-    QVERIFY(idList[1] == 1);
-    QVERIFY(idList[2] == 2);
-    QVERIFY(idList[3] == 3);
-    QVERIFY(idList[4] == 4);
+        QSet<int> idList = fm->GetIds();
+        QVERIFY(idList.count() == 5);
+        QVERIFY(idList.contains(0));
+        QVERIFY(idList.contains(1));
+        QVERIFY(idList.contains(2));
+        QVERIFY(idList.contains(3));
+        QVERIFY(idList.contains(4));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
-void file_manager_test::test_hasFile()
+void file_manager_test::test_HasFile()
 {
-    fm->reset();
-    fm->addFile("HI");
-    fm->addFile("HI");
-    QVERIFY(fm->hasFile(0));
-    QVERIFY(fm->hasFile(1));
-    QVERIFY(!fm->hasFile(2));
+    try
+    {
+        fm->Reset();
+        fm->AddFile("HI");
+        fm->AddFile("HI");
+        QVERIFY(fm->HasFile(0));
+        QVERIFY(fm->HasFile(1));
+        QVERIFY(!fm->HasFile(2));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
 void file_manager_test::test_remove()
 {
-    fm->reset();
-    QVERIFY(!fm->hasFile(0));
+    try
+    {
+        fm->Reset();
+        QVERIFY(!fm->HasFile(0));
 
-    fm->addFile("HI");
-    fm->addFile("HI");
-    QVERIFY(fm->hasFile(0));
+        fm->AddFile("HI");
+        fm->AddFile("HI");
+        QVERIFY(fm->HasFile(0));
 
-    fm->removeFile(0);
-    QVERIFY(!fm->hasFile(0));
+        fm->RemoveFile(0);
+        QVERIFY(!fm->HasFile(0));
 
-    QVERIFY(fm->hasFile(1));
-    QVERIFY(fm->getFile(1) == "HI");
+        QVERIFY(fm->HasFile(1));
+        QVERIFY(fm->GetFile(1) == "HI");
 
-    fm->removeFile(1);
-    QVERIFY(!fm->hasFile(1));
+        fm->RemoveFile(1);
+        QVERIFY(!fm->HasFile(1));
+    }
+    catch(Core::Exception &ex)
+    {
+        dLogException(ex);
+        QFAIL("Exception");
+    }
 }
 
 QTEST_APPLESS_MAIN(file_manager_test);

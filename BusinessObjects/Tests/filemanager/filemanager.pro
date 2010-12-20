@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += testlib sql
+QT       += testlib sql network
 
 TARGET = file_manager_test
 CONFIG   += console
@@ -15,7 +15,8 @@ TEMPLATE = app
 
 SOURCES += file_manager_test.cpp
 #tst_filemanagertest.cpp \
-DEFINES += SRCDIR=\\\"$$PWD/\\\"
+DEFINES += SRCDIR=\\\"$$PWD/\\\" \
+            DEBUG_LOGGING
 
 #HEADERS +=
 

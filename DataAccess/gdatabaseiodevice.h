@@ -77,15 +77,19 @@ namespace GUtil
             // Insert the rows in the provided table into the database table of the same name
             //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
             void Insert(const DataObjects::DataTable &);
+            void Insert(const DataObjects::DataTable &t,
+                        const DatabaseValueParameters &vp);
 
             inline int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
 
             // The 'params' variable is a row of data that matches the layout of the table, and you can set values in it
             //  that will be used to filter the data in the select clause.
-            DataObjects::DataTable Select(const DatabaseSelectionParameters &params);
+            DataObjects::DataTable Select(const DatabaseSelectionParameters &where,
+                                          const QList<int> &columns = QList<int>());
 
             // Select all the data in the table
-            DataObjects::DataTable Select(const QString &table_name);
+            DataObjects::DataTable Select(const QString &table_name,
+                                          const QList<int> &columns = QList<int>());
 
             // A count query, based on your selection parameter filters
             long Count(const DatabaseSelectionParameters &);
@@ -125,8 +129,6 @@ namespace GUtil
             Q_DECLARE_FLAGS(ColumnOptions, ColumnOption);
 
 
-        protected:
-
             // These are the possible read/write commands in enum form
             enum WriteCommandsEnum
             {
@@ -144,17 +146,28 @@ namespace GUtil
             };
 
 
-            QByteArray prepare_send_data(WriteCommandsEnum cmd,
-                                         const DataObjects::DataTable &);
-            QByteArray prepare_send_data(WriteCommandsEnum cmd,
-                                         const DatabaseSelectionParameters &);
-            QByteArray prepare_send_data(WriteCommandsEnum cmd,
-                                         const DatabaseSelectionParameters &,
-                                         const DatabaseValueParameters &);
-            QByteArray prepare_send_data(WriteCommandsEnum cmd,
-                                         const DataObjects::DataTable &,
-                                         const DatabaseSelectionParameters &,
-                                         const DatabaseValueParameters &);
+            // You can use these low-level functions if you need to generate
+            //  byte array commands of your own, but generally you should use
+            //  the convenient functions above
+            QByteArray prepare_send_data(
+                    WriteCommandsEnum cmd,
+                    const DataObjects::DataTable &,
+                    const DatabaseValueParameters &);
+
+            QByteArray prepare_send_data(
+                    WriteCommandsEnum cmd,
+                    const DatabaseSelectionParameters &);
+
+            QByteArray prepare_send_data(
+                    WriteCommandsEnum cmd,
+                    const DatabaseSelectionParameters &,
+                    const DatabaseValueParameters &);
+
+            QByteArray prepare_send_data(
+                    WriteCommandsEnum cmd,
+                    const DataObjects::DataTable &,
+                    const DatabaseSelectionParameters &,
+                    const DatabaseValueParameters &);
 
 
         private:
@@ -182,6 +195,8 @@ namespace GUtil
             ReadCommandsEnum _p_ReadCommand;
 
             QMap<QString, DataObjects::DataTable> _tables;
+
+            QList<int> _columns_requested;
             DatabaseSelectionParameters *_selection_parameters;
 
             void _fail_if_not_ready() const;

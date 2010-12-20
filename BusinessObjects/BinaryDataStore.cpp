@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "BinaryDataStore.h"
+#include "DataAccess/gdatabaseiodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
 #include "Core/exception.h"
@@ -24,324 +25,128 @@ limitations under the License.*/
 #include <QMutex>
 #include <QReadWriteLock>
 #include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QSqlResult>
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
 using namespace GUtil;
+using namespace DataObjects;
+using namespace DataAccess;
+using namespace BusinessObjects;
 using namespace std;
 
-// A class to keep track of our mutexes
-class mutex_record_t
+#define BS_TABLE_NAME "data"
+
+BusinessObjects::BinaryDataStore::BinaryDataStore(const QString &id)
+    :IReadOnlyObject(false),
+    _my_id(id),
+    _file_location(_get_file_loc(id)),
+    _max_id(0),
+    _database_connection_string(QString("%1_database").arg(id))
 {
-public:
-    mutex_record_t()
+    if(!QSqlDatabase::database(_database_connection_string).isValid())
     {
-        count = 1;
-        mut = new QReadWriteLock();
+        if(QFile::exists(_file_location))
+            QFile::remove(_file_location);
+
+        QSqlDatabase::addDatabase(
+                "QSQLITE",
+                _database_connection_string)
+                .setDatabaseName(_file_location);
     }
-    ~mutex_record_t(){ delete mut;}
 
-    QReadWriteLock *mut;
-    int count;
-};
+    _dbio = new GDatabaseIODevice(_database_connection_string, &_file_manager);
 
-QMap<QString, mutex_record_t *> mutexes;
-QReadWriteLock mutex_lock;
+    _file_manager.InsertIntoBundle(_dbio);
+    _file_manager.SetDropInput(true);
 
-BusinessObjects::BinaryDataStore::BinaryDataStore(const QString &id, bool primary)
-    :IReadOnlyObject(false)
+    Reset();
+}
+
+int BusinessObjects::BinaryDataStore::AddFile(const QString &data, int id)
 {
-    my_id = id;
-    file_location = get_file_loc(id);
+    FailIfReadOnly();
 
-    mutex_lock.lockForWrite();
-    if(mutexes.contains(id))
+    int ret(id);
+    DatabaseValueParameters params(
+            _dbio->GetBlankValueParameters(BS_TABLE_NAME));
+    params.ColumnOptions()[1] |= GDatabaseIODevice::Binary;
+
+    if(id == -1 || !HasFile(id))
     {
-        mutexes.value(id)->mut->lockForWrite();
+        // Insert a new record
+        DataTable t(_dbio->GetBlankTable(BS_TABLE_NAME));
+        t.AddNewRow(Custom::GVariantList() << Custom::GVariant() << data);
 
-        mutexes[id]->count++;
+        if(id != -1)
+            t[0][0] = id;
 
-        mutexes.value(id)->mut->unlock();
+        _dbio->Insert(t, params);
+        ret = _dbio->LastInsertId();
+
+        _ids.insert(ret);
     }
     else
     {
-        mutexes.insert(id, new mutex_record_t());
+        // Update an existing record
+        DatabaseSelectionParameters select(
+                _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+        select.FilterValues()[0] = id;
+        params.Values()[1] = data;
+
+        _dbio->Update(select, params);
     }
-    mutex_lock.unlock();
-
-    if(primary)
-    {
-        if(QFile::exists(file_location))
-            QFile::remove(file_location);
-
-        QSqlDatabase::addDatabase("QSQLITE").setDatabaseName(file_location);
-        reset();
-    }
-}
-
-BusinessObjects::BinaryDataStore::~BinaryDataStore()
-{
-
-}
-
-int BusinessObjects::BinaryDataStore::addFile(const QString &data)
-{
-    FailIfReadOnly();
-
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForWrite();
-
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    int ret = get_free_file_id(dbase);
-    add_file(ret, data, dbase);
-
-    dbase.close();
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
 
     return ret;
 }
 
-int BusinessObjects::BinaryDataStore::addFile(int id, const QString &data)
+void BusinessObjects::BinaryDataStore::RemoveFile(int id)
 {
     FailIfReadOnly();
 
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForWrite();
+    DatabaseSelectionParameters s(
+            _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
 
-    QSqlDatabase dbase;
-    prep_database(dbase);
+    s.FilterValues()[0] = id;
+    _dbio->Delete(s);
 
-    int ret = add_file(id, data, dbase);
-
-    dbase.close();
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
-
-    return ret;
+    _ids.remove(id);
 }
 
-int BusinessObjects::BinaryDataStore::add_file(int id, const QString &data, QSqlDatabase &dbase)
+QString BusinessObjects::BinaryDataStore::GetFile(int id)
 {
-    if(has_file(id, dbase))
-        remove_file(id, dbase);
+    DatabaseSelectionParameters s(
+            _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+    s.FilterValues()[0] = id;
 
-    QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
+    DataTable t(_dbio->Select(s, QList<int>() << 1));
 
-    _execute_insertion(q, id, data);
+    if(t.RowCount() == 0)
+        THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
 
-    return id;
-}
-
-void BusinessObjects::BinaryDataStore::_execute_insertion(QSqlQuery &q, int id, const QString &data)
-{
-    q.bindValue(":id", id);
-    q.bindValue(":data", data, QSql::Binary);
-    if(!q.exec())
-        THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, q.lastError().text().toStdString() );
-}
-
-void BusinessObjects::BinaryDataStore::removeFile(int id)
-{
-    FailIfReadOnly();
-
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForWrite();
-
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    remove_file(id, dbase);
-
-    dbase.close();
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
-}
-
-void BusinessObjects::BinaryDataStore::remove_file(int id, QSqlDatabase &dbase)
-{
-    // Remove each item one by one
-    QSqlQuery q("DELETE FROM files WHERE id=:id", dbase);
-    q.bindValue(":id", id);
-    q.exec();
-}
-
-QString BusinessObjects::BinaryDataStore::getFile(int id)
-{
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForRead();
-
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    QSqlQuery q("SELECT data, COUNT(data) FROM files WHERE id=:id", dbase);
-    q.bindValue(":id", id);
-    q.exec();
-
-    if(q.first() && (q.value(1).toInt() == 1))
-    {
-        QByteArray ba = q.value(0).toByteArray();
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        return QString::fromStdString(string(ba.constData(), ba.length()));
-    }
-
-    dbase.close();
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
-    THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
+    return t[0][1].toString();
 }
 
 // Clear all files
-void BusinessObjects::BinaryDataStore::reset()
+void BusinessObjects::BinaryDataStore::Reset()
 {
     FailIfReadOnly();
 
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForWrite();
-
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    QSqlQuery q(dbase);
-    q.exec("DROP TABLE \"files\"");
-    q.exec("CREATE TABLE \"files\" ("
-               "\"id\" INTEGER NOT NULL,"
-               "\"data\" BLOB NOT NULL)");
-    q.exec("CREATE INDEX idx ON files(id)");
-    dbase.close();
-
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
+    // Create a table with two columns, an integer primary key and blob,
+    //  dropping the table if it already exists
+    Custom::GPairList<QString, QString> pl;
+    pl <<
+            QPair<QString, QString>("a", "INTEGER") <<
+            QPair<QString, QString> ("b", "BLOB");
+    _dbio->CreateTable(BS_TABLE_NAME, pl, 0, true);
 }
 
-void BusinessObjects::BinaryDataStore::prep_database(QSqlDatabase &dbase)
-{
-    dbase = QSqlDatabase::database();
-    if(!dbase.open())
-    {
-        mutexes.value(my_id)->mut->unlock();
-        mutex_lock.unlock();
-        THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "Cannot open database" );
-    }
-}
-
-QString BusinessObjects::BinaryDataStore::get_file_loc(const QString &id)
+QString BusinessObjects::BinaryDataStore::_get_file_loc(const QString &id)
 {
     return QDesktopServices::storageLocation(QDesktopServices::TempLocation)
             + QString("/%1.tempfile").arg(id);
 }
 
-QList<int> BusinessObjects::BinaryDataStore::idList()
+bool BusinessObjects::BinaryDataStore::HasFile(int id)
 {
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForRead();
-
-    QList<int> ret;
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    QSqlQuery q("SELECT id FROM files");
-    if(q.exec())
-    {
-        while(q.next())
-        {
-            ret.append(q.value(0).toInt());
-        }
-    }
-
-    dbase.close();
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
-    return ret;
-}
-
-bool BusinessObjects::BinaryDataStore::hasFile(int id)
-{
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForRead();
-
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    bool ret = has_file(id, dbase);
-
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
-    return ret;
-}
-
-bool BusinessObjects::BinaryDataStore::has_file(int id, QSqlDatabase &dbase)
-{
-    QSqlQuery q("SELECT id FROM files WHERE id=:id", dbase);
-    q.bindValue(":id", id);
-    q.exec();
-    return q.first();
-}
-
-int BusinessObjects::BinaryDataStore::get_free_file_id(QSqlDatabase &dbase)
-{
-    // You must already have a lock on the database before using this function!
-
-    int max_id = 0;
-    bool found_id = false;
-
-    QSqlQuery q("SELECT COUNT(id),MAX(id) FROM files", dbase);
-    q.exec();
-    if(q.first())
-    {
-        if(q.value(0).toInt() > 0)
-        {
-            max_id = q.value(1).toInt();
-            found_id = true;
-        }
-    }
-
-    bool first_time = true;
-    do
-    {
-        if(first_time)
-        {
-            first_time = false;
-            if(found_id)
-                max_id++;
-        }
-        else
-            max_id++;
-
-        if(max_id < 0)
-            max_id = 0;
-
-    // Make sure the id isn't taken
-    }while(has_file(max_id, dbase));
-
-    return max_id;
-}
-
-bool BusinessObjects::BinaryDataStore::reserveIdList(const QList<int> &list)
-{
-    FailIfReadOnly();
-
-    mutex_lock.lockForRead();
-    mutexes.value(my_id)->mut->lockForWrite();
-
-    bool ret = true;
-    QSqlDatabase dbase;
-    prep_database(dbase);
-
-    QSqlQuery q("INSERT INTO files (id, data) VALUES (:id, :data)", dbase);
-
-    foreach(int id, list)
-        _execute_insertion(q, id, "");
-
-    dbase.close();
-    mutexes.value(my_id)->mut->unlock();
-    mutex_lock.unlock();
-
-    return ret;
+    return _ids.contains(id);
 }

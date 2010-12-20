@@ -173,7 +173,7 @@ void GIODeviceBundleManager::_worker_thread(IODevicePackage *pack)
                 if(data_out)
                     _flush_out_queue(pack);
 
-                if(data_in)
+                if(!pack->GetDropInput() && data_in)
                     _receive_incoming_data(pack);
             }
             pack->FlagsMutex.lock();

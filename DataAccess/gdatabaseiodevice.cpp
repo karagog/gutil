@@ -174,11 +174,17 @@ bool GDatabaseIODevice::DropTable(const QString &name)
 
 void GDatabaseIODevice::Insert(const DataTable &t)
 {
+    Insert(t, GetBlankValueParameters(t.Name()));
+}
+
+void GDatabaseIODevice::Insert(const DataTable &t,
+                               const DatabaseValueParameters &vp)
+{
     _fail_if_not_ready();
 
     if(_tables.contains(t.Name()))
     {
-        SendData( prepare_send_data(CommandInsert, t) );
+        SendData( prepare_send_data(CommandInsert, t, vp) );
     }
     else
     {
@@ -188,12 +194,14 @@ void GDatabaseIODevice::Insert(const DataTable &t)
     }
 }
 
-DataTable GDatabaseIODevice::Select(const QString &table_name)
+DataTable GDatabaseIODevice::Select(const QString &table_name,
+                                    const QList<int> &cols)
 {
-    return Select(GetBlankSelectionParameters(table_name));
+    return Select(GetBlankSelectionParameters(table_name), cols);
 }
 
-DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params)
+DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params,
+                                    const QList<int> &columns)
 {
     _fail_if_not_ready();
 
@@ -203,9 +211,13 @@ DataTable GDatabaseIODevice::Select(const DatabaseSelectionParameters &params)
     if(_tables.contains(params.Table().Name()))
     {
         if(_selection_parameters)
+        {
             delete _selection_parameters;
+            _columns_requested.clear();
+        }
 
         _selection_parameters = new DatabaseSelectionParameters(params);
+        _columns_requested = columns;
 
         (t = new DataTable())
                 ->FromXmlQString(ReceiveData(true));
@@ -604,9 +616,14 @@ QByteArray GDatabaseIODevice::receive_data()
             // Prepare the columns we want to select
             for(int i = 0; i < _selection_parameters->Table().ColumnCount(); i++)
             {
-                values.append(QString("%1,")
-                              .arg(_selection_parameters->Table().ColumnKeys()[i]));
+                if(_columns_requested.isEmpty() ||
+                   _columns_requested.contains(i))
+                {
+                    values.append(QString("%1,").arg(
+                            _selection_parameters->Table().ColumnKeys()[i]));
+                }
             }
+            Q_ASSERT(values.length() > 0);
 
             values.remove(values.length() - 1, 1);
 
@@ -641,9 +658,20 @@ QByteArray GDatabaseIODevice::receive_data()
                 tbl = new DataTable(_selection_parameters->Table().Clone());
                 while(query.next())
                 {
-                    Custom::GVariantList lst;
-                    for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
-                        lst.append(query.value(i));
+                    GVariantCollection lst;
+                    if(_columns_requested.isEmpty())
+                    {
+                        for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
+                            lst.Add(query.value(i));
+                    }
+                    else
+                    {
+                        lst.Resize(_selection_parameters->ColumnCount());
+
+                        for(int i = 0; i < _columns_requested.count(); i++)
+                            lst[_columns_requested[i]] =
+                                    query.value(_columns_requested[i]);
+                    }
                     tbl->AddNewRow(lst);
                 }
             }
@@ -717,12 +745,13 @@ void GDatabaseIODevice::_fail_if_not_ready() const
 }
 
 QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
-                                              const DataObjects::DataTable &t)
+                                              const DataObjects::DataTable &t,
+                                              const DatabaseValueParameters &vp)
 {
     QString tbl(t.Name());
     return prepare_send_data(cmd, t,
                              GetBlankSelectionParameters(tbl),
-                             GetBlankValueParameters(tbl));
+                             vp);
 }
 
 QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
