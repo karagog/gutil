@@ -52,6 +52,7 @@ file_manager_test::file_manager_test()// :
     //QObject(parent)
 {
     fm = new BinaryDataStore("filemanagertest");
+    fm->SetAsyncWrite(false);
 }
 
 void file_manager_test::simple_startup_test()

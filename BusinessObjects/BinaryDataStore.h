@@ -53,6 +53,13 @@ namespace GUtil
 
             inline QSet<int> GetIds() const { return _ids; }
 
+            inline void SetAsyncWrite(bool b){
+                _file_manager.SetAsyncWrite(b);
+            }
+            inline bool GetAsyncWrite() const{
+                return _file_manager.GetAsyncWrite();
+            }
+
 
         private:
 
