@@ -174,17 +174,11 @@ bool GDatabaseIODevice::DropTable(const QString &name)
 
 void GDatabaseIODevice::Insert(const DataTable &t)
 {
-    Insert(t, GetBlankValueParameters(t.Name()));
-}
-
-void GDatabaseIODevice::Insert(const DataTable &t,
-                               const DatabaseValueParameters &vp)
-{
     _fail_if_not_ready();
 
     if(_tables.contains(t.Name()))
     {
-        SendData( prepare_send_data(CommandInsert, t, vp) );
+        SendData( prepare_send_data(CommandInsert, t, GetBlankValueParameters(t.Name())) );
     }
     else
     {
@@ -446,14 +440,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
                 // Bind values after preparing the query
                 for(int j = 0; j < t.ColumnCount(); j++)
-                {
-                    QSql::ParamTypeFlag p(QSql::In);
-
-                    if(vp.ColumnOptions()[j].testFlag(Binary))
-                        p = QSql::Binary;
-
-                    query.addBindValue(row[j], p);
-                }
+                    query.addBindValue(row[j]);
 
                 _execute_query(query);
 

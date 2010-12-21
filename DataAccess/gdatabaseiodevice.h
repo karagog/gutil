@@ -77,8 +77,6 @@ namespace GUtil
             // Insert the rows in the provided table into the database table of the same name
             //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
             void Insert(const DataObjects::DataTable &);
-            void Insert(const DataObjects::DataTable &t,
-                        const DatabaseValueParameters &vp);
 
             inline int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
 
@@ -122,8 +120,7 @@ namespace GUtil
                 CompareLessThan,
                 CompareLessThanOrEqualTo,
                 Or,
-                Not,
-                Binary  // Must use if the column is binary
+                Not
             };
 
             Q_DECLARE_FLAGS(ColumnOptions, ColumnOption);

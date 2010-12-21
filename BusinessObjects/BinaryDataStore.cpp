@@ -69,7 +69,6 @@ int BusinessObjects::BinaryDataStore::AddFile(const QString &data, int id)
     int ret(id);
     DatabaseValueParameters params(
             _dbio->GetBlankValueParameters(BS_TABLE_NAME));
-    params.ColumnOptions()[1] |= GDatabaseIODevice::Binary;
 
     if(id == -1 || !HasFile(id))
     {
@@ -80,7 +79,7 @@ int BusinessObjects::BinaryDataStore::AddFile(const QString &data, int id)
         if(id != -1)
             t[0][0] = id;
 
-        _dbio->Insert(t, params);
+        _dbio->Insert(t);
         ret = _dbio->LastInsertId();
 
         _ids.insert(ret);
