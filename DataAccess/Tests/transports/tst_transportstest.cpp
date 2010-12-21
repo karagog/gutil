@@ -222,6 +222,44 @@ void TransportsTest::test_database_transport()
         // Make sure it doesn't exist anymore
         QVERIFY(tbl.FindRows(0, 1).Count() == 0);
         QVERIFY(tbl.FindRows(0, 2).Count() == 1);  // Dummy check
+
+
+        // Test blob data
+
+        // Create a simple blob table
+        Custom::GPairList<QString, QString> pl;
+        pl<< QPair<QString, QString>("o", "BLOB");
+        QVERIFY(dbio.CreateTable("blob", pl) == 0);
+
+        tbl = dbio.GetBlankTable("blob");
+        values = dbio.GetBlankValueParameters("blob");
+        //values.ColumnOptions()[0] |= dbio.Binary;
+
+        tbl.AddNewRow(DataObjects::GVariantCollection() << "Hello");
+
+        dbio.Insert(tbl);
+
+        tbl = dbio.Select("blob");
+        QVERIFY(tbl.RowCount() == 1);
+        QVERIFY(tbl[0][0] == "Hello");
+
+        // Now try actual binary data
+        QString tmps;
+        tmps.append(QChar((char)0x02));
+        tmps.append(QChar((char)0x01));
+        tmps.append(QChar((char)0x00));
+        tmps.append(QChar((char)0x01));
+        QVERIFY(tmps.length() == 4);
+
+        tbl = dbio.GetBlankTable("blob");
+        tbl.AddNewRow(Custom::GVariantList() << tmps);
+        dbio.Insert(tbl);
+        tbl = dbio.Select("blob");
+
+        QVERIFY(tbl.RowCount() == 2);
+        QVERIFY(tbl[0][0] == "Hello");
+        QVERIFY(tbl[1][0] == tmps);
+        QVERIFY(tbl[1][0].toString().length() == tmps.length());
     }
     catch(Core::Exception &ex)
     {
