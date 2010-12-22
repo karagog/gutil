@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef FILE_MANAGER_H
 #define FILE_MANAGER_H
 
-#include "giodevicebundlemanager.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QString>
 #include <QSet>
@@ -38,6 +37,7 @@ namespace GUtil
         public:
 
             explicit BinaryDataStore(const QString &);
+            ~BinaryDataStore();
 
             //  (All of the public functions can be treated atomically,
             //   and can be executed safely from multiple threads)
@@ -52,13 +52,6 @@ namespace GUtil
             void Reset();
 
             inline QSet<int> GetIds() const { return _ids; }
-
-            inline void SetAsyncWrite(bool b){
-                _file_manager.SetAsyncWrite(b);
-            }
-            inline bool GetAsyncWrite() const{
-                return _file_manager.GetAsyncWrite();
-            }
 
             inline QString FileName() const{
                 return _file_location;
@@ -77,8 +70,6 @@ namespace GUtil
 
             static QString _get_file_loc(const QString &id);
 
-            // For asynchronous writes to the database
-            GIODeviceBundleManager _file_manager;
             DataAccess::GDatabaseIODevice *_dbio;
 
         };

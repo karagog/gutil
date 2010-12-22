@@ -52,12 +52,14 @@ BusinessObjects::BinaryDataStore::BinaryDataStore(const QString &id)
                 .setDatabaseName(_file_location);
     }
 
-    _dbio = new GDatabaseIODevice(_database_connection_string, &_file_manager);
-
-    _file_manager.InsertIntoBundle(_dbio);
-    _file_manager.SetDropInput(true);
+    _dbio = new GDatabaseIODevice(_database_connection_string);
 
     Reset();
+}
+
+BusinessObjects::BinaryDataStore::~BinaryDataStore()
+{
+    delete _dbio;
 }
 
 int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
