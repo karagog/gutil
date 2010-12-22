@@ -16,8 +16,7 @@ limitations under the License.*/
 #define GSOCKETIODEVICE_H
 
 #include "gqiodevice.h"
-
-class QLocalSocket;
+#include <QLocalSocket>
 
 namespace GUtil
 {
@@ -27,6 +26,14 @@ namespace GUtil
                 public GQIODevice
         {
             Q_OBJECT
+        signals:
+
+            void Connected(const QUuid &id = QUuid());
+            void Disconnected(const QUuid &id = QUuid());
+            void Error(const QUuid &id, QLocalSocket::LocalSocketError);
+            void StateChanged(const QUuid &id, QLocalSocket::LocalSocketState);
+
+
         public:
 
             explicit GSocketIODevice(QLocalSocket *,
@@ -40,6 +47,14 @@ namespace GUtil
             inline const QLocalSocket &Socket() const{
                 return (const QLocalSocket &)IODevice();
             }
+
+
+        private slots:
+
+            void _localsocket_connected();
+            void _localsocket_disconnected();
+            void _localsocket_error(QLocalSocket::LocalSocketError);
+            void _localsocket_state_changed(QLocalSocket::LocalSocketState);
 
         };
     }

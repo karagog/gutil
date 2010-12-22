@@ -263,7 +263,7 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
     IODevicePackage *pack(_get_package(id));
     QByteArray ret;
 
-    // en/dequeue the data
+    // dequeue the data
     pack->InQueueMutex.lock();
     {
         if(!pack->InQueue.empty())

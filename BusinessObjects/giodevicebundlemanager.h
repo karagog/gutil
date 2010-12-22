@@ -119,6 +119,10 @@ namespace GUtil
                 return *_get_package(id)->IODevice;
             }
 
+            inline QList<QUuid> GetIds() const{
+                return _iodevices.keys();
+            }
+
 
         protected slots:
 

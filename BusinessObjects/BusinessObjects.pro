@@ -7,14 +7,16 @@ TEMPLATE = lib
 CONFIG += staticlib
 HEADERS += \
     BinaryDataStore.h \
-    LocalClientServer.h \
     ConfigFile.h \
-    giodevicebundlemanager.h
+    giodevicebundlemanager.h \
+    localsocketserver.h \
+    localsocketclient.h
 
 SOURCES += \
     BinaryDataStore.cpp \
-    LocalClientServer.cpp \
     ConfigFile.cpp \
-    giodevicebundlemanager.cpp
+    giodevicebundlemanager.cpp \
+    localsocketserver.cpp \
+    localsocketclient.cpp
 
 INCLUDEPATH += ..
