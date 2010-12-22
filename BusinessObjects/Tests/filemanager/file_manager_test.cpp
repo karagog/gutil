@@ -25,11 +25,9 @@ class file_manager_test : public QObject
     Q_OBJECT
 public:
     explicit file_manager_test();
-    virtual ~file_manager_test(){}
-
-signals:
-
-//public slots:
+    virtual ~file_manager_test(){
+        delete fm;
+    }
 
 private Q_SLOTS:
     void simple_startup_test();
