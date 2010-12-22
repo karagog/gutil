@@ -60,6 +60,10 @@ namespace GUtil
                 return _file_manager.GetAsyncWrite();
             }
 
+            inline QString FileName() const{
+                return _file_location;
+            }
+
 
         private:
 

@@ -36,7 +36,7 @@ private Q_SLOTS:
     void test_binary_dat();
     void test_Reset();
     void test_second_object();
-    void test_large_files();
+    //void test_large_files();
     void test_GetIds();
     void test_file_queuing();
     void test_HasFile();
@@ -57,16 +57,21 @@ file_manager_test::file_manager_test()// :
 
 void file_manager_test::simple_startup_test()
 {
+    qDebug() << fm->FileName();
+
+    QString probe;
     try
     {
         QString teststr = "Hello World!";
         int id = fm->AddFile(teststr);
-        QVERIFY(teststr == fm->GetFile(id));
+        probe = fm->GetFile(id);
+        QVERIFY(teststr == probe);
 
         QString teststr2 = "Next data";
         int id2 = fm->AddFile(teststr2);
         QVERIFY(id != id2);
-        QVERIFY(teststr2 == fm->GetFile(id2));
+        probe = fm->GetFile(id2);
+        QVERIFY(teststr2 == probe);
     }
     catch(Core::Exception &ex)
     {
@@ -136,20 +141,20 @@ void file_manager_test::test_second_object()
     }
 }
 
-void file_manager_test::test_large_files()
-{
-    try
-    {
-        QString dat(10000000, 'a');
-        int id = fm->AddFile(dat);
-        QVERIFY(dat == fm->GetFile(id));
-    }
-    catch(Core::Exception &ex)
-    {
-        dLogException(ex);
-        QFAIL("Exception");
-    }
-}
+//void file_manager_test::test_large_files()
+//{
+//    try
+//    {
+//        QString dat(10000000, 'a');
+//        int id = fm->AddFile(dat);
+//        QVERIFY(dat == fm->GetFile(id));
+//    }
+//    catch(Core::Exception &ex)
+//    {
+//        dLogException(ex);
+//        QFAIL("Exception");
+//    }
+//}
 
 void file_manager_test::test_GetIds()
 {

@@ -657,7 +657,7 @@ QByteArray GDatabaseIODevice::receive_data()
 
                         for(int i = 0; i < _columns_requested.count(); i++)
                             lst[_columns_requested[i]] =
-                                    query.value(_columns_requested[i]);
+                                    query.value(i);
                     }
                     tbl->AddNewRow(lst);
                 }

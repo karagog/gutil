@@ -80,8 +80,10 @@ namespace GUtil
 
             inline int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
 
-            // The 'params' variable is a row of data that matches the layout of the table, and you can set values in it
-            //  that will be used to filter the data in the select clause.
+            // The 'params' variable is a row of data that matches the layout
+            //  of the table, and you can set values in it that will be used
+            //  to filter the data in the select clause.  It will select the
+            //  columns you give it in the 'columns' variable
             DataObjects::DataTable Select(const DatabaseSelectionParameters &where,
                                           const QList<int> &columns = QList<int>());
 

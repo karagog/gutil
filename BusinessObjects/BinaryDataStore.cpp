@@ -142,7 +142,7 @@ void BusinessObjects::BinaryDataStore::Reset()
 QString BusinessObjects::BinaryDataStore::_get_file_loc(const QString &id)
 {
     return QDesktopServices::storageLocation(QDesktopServices::TempLocation)
-            + QString("/%1.tempfile").arg(id);
+            + QString("/%1.GUTIL.sqlite").arg(id);
 }
 
 bool BusinessObjects::BinaryDataStore::HasFile(int id)
