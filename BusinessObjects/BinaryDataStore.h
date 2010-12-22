@@ -61,12 +61,9 @@ namespace GUtil
         private:
 
             QString _file_location;
-
-            QSet<int> _ids;
-
             QString _database_connection_string;
 
-            void _get_free_file_id();
+            QSet<int> _ids;
 
             static QString _get_file_loc(const QString &id);
 
