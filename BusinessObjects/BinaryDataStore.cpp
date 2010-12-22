@@ -38,9 +38,7 @@ using namespace std;
 
 BusinessObjects::BinaryDataStore::BinaryDataStore(const QString &id)
     :IReadOnlyObject(false),
-    _my_id(id),
     _file_location(_get_file_loc(id)),
-    _max_id(0),
     _database_connection_string(QString("%1_database").arg(id))
 {
     if(!QSqlDatabase::database(_database_connection_string).isValid())
@@ -62,7 +60,7 @@ BusinessObjects::BinaryDataStore::BinaryDataStore(const QString &id)
     Reset();
 }
 
-int BusinessObjects::BinaryDataStore::AddFile(const QString &data, int id)
+int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
 {
     FailIfReadOnly();
 
@@ -111,7 +109,7 @@ void BusinessObjects::BinaryDataStore::RemoveFile(int id)
     _ids.remove(id);
 }
 
-QString BusinessObjects::BinaryDataStore::GetFile(int id)
+QByteArray BusinessObjects::BinaryDataStore::GetFile(int id)
 {
     DatabaseSelectionParameters s(
             _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
@@ -122,7 +120,7 @@ QString BusinessObjects::BinaryDataStore::GetFile(int id)
     if(t.RowCount() == 0)
         THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
 
-    return t[0][1].toString();
+    return t[0][1].toByteArray();
 }
 
 // Clear all files

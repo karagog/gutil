@@ -43,9 +43,9 @@ namespace GUtil
             //   and can be executed safely from multiple threads)
 
             // For manipulating files
-            int AddFile(const QString &, int id = -1);
+            int AddFile(const QByteArray &, int id = -1);
             void RemoveFile(int);
-            QString GetFile(int);
+            QByteArray GetFile(int);
             bool HasFile(int id);
 
             // Remove all files
@@ -67,11 +67,9 @@ namespace GUtil
 
         private:
 
-            QString _my_id;
             QString _file_location;
 
             QSet<int> _ids;
-            int _max_id;
 
             QString _database_connection_string;
 

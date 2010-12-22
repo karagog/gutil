@@ -61,12 +61,12 @@ void file_manager_test::simple_startup_test()
     try
     {
         QString teststr = "Hello World!";
-        int id = fm->AddFile(teststr);
+        int id = fm->AddFile(teststr.toAscii());
         probe = fm->GetFile(id);
         QVERIFY(teststr == probe);
 
         QString teststr2 = "Next data";
-        int id2 = fm->AddFile(teststr2);
+        int id2 = fm->AddFile(teststr2.toAscii());
         QVERIFY(id != id2);
         probe = fm->GetFile(id2);
         QVERIFY(teststr2 == probe);
@@ -82,9 +82,9 @@ void file_manager_test::test_binary_dat()
 {
     try
     {
-        QString teststr;
+        QByteArray teststr;
         teststr.append('a');
-        teststr.append(0x00);
+        teststr.append(QChar(0x00));
         teststr.append('a');
 
         int id = fm->AddFile(teststr);
