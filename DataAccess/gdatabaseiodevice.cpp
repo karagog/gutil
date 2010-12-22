@@ -178,7 +178,7 @@ void GDatabaseIODevice::Insert(const DataTable &t)
 
     if(_tables.contains(t.Name()))
     {
-        SendData( prepare_send_data(CommandInsert, t, GetBlankValueParameters(t.Name())) );
+        SendData( prepare_send_data(CommandInsert, t) );
     }
     else
     {
@@ -732,13 +732,12 @@ void GDatabaseIODevice::_fail_if_not_ready() const
 }
 
 QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,
-                                              const DataObjects::DataTable &t,
-                                              const DatabaseValueParameters &vp)
+                                              const DataObjects::DataTable &t)
 {
     QString tbl(t.Name());
     return prepare_send_data(cmd, t,
                              GetBlankSelectionParameters(tbl),
-                             vp);
+                             GetBlankValueParameters(tbl));
 }
 
 QByteArray GDatabaseIODevice::prepare_send_data(WriteCommandsEnum cmd,

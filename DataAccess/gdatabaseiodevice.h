@@ -145,13 +145,14 @@ namespace GUtil
             };
 
 
+        protected:
+
             // You can use these low-level functions if you need to generate
             //  byte array commands of your own, but generally you should use
             //  the convenient functions above
             QByteArray prepare_send_data(
                     WriteCommandsEnum cmd,
-                    const DataObjects::DataTable &,
-                    const DatabaseValueParameters &);
+                    const DataObjects::DataTable &);
 
             QByteArray prepare_send_data(
                     WriteCommandsEnum cmd,
