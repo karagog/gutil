@@ -130,6 +130,8 @@ void BusinessObjects::BinaryDataStore::Reset()
 {
     FailIfReadOnly();
 
+    _ids.clear();
+
     // Create a table with two columns, an integer primary key and blob,
     //  dropping the table if it already exists
     Custom::GPairList<QString, QString> pl;

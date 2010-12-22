@@ -103,12 +103,14 @@ void file_manager_test::test_Reset()
 {
     try
     {
+        QVERIFY(fm->HasFile(1));
+
         fm->Reset();
 
         bool exception_hit = false;
         try
         {
-            fm->GetFile(0);
+            fm->GetFile(1);
         }
         catch(Core::Exception)
         {
@@ -129,9 +131,9 @@ void file_manager_test::test_second_object()
     {
         fm->Reset();
         BinaryDataStore *fm2 = new BinaryDataStore("filemanagertest");
-        QVERIFY(fm->AddFile("test1") == 0);
-        QVERIFY(fm2->AddFile("test2") == 1);
-        QVERIFY(fm->AddFile("test3") == 2);
+        QVERIFY(fm->AddFile("test1") == 1);
+        QVERIFY(fm2->AddFile("test2") == 2);
+        QVERIFY(fm->AddFile("test3") == 3);
         delete fm2;
     }
     catch(Core::Exception &ex)
@@ -192,19 +194,19 @@ void file_manager_test::test_file_queuing()
         fm->AddFile("file4");
         fm->AddFile("file5");
 
-        QVERIFY(fm->GetFile(0) == "file1");
-        QVERIFY(fm->GetFile(1) == "file2");
-        QVERIFY(fm->GetFile(2) == "file3");
-        QVERIFY(fm->GetFile(3) == "file4");
-        QVERIFY(fm->GetFile(4) == "file5");
+        QVERIFY(fm->GetFile(1) == "file1");
+        QVERIFY(fm->GetFile(2) == "file2");
+        QVERIFY(fm->GetFile(3) == "file3");
+        QVERIFY(fm->GetFile(4) == "file4");
+        QVERIFY(fm->GetFile(5) == "file5");
 
         QSet<int> idList = fm->GetIds();
         QVERIFY(idList.count() == 5);
-        QVERIFY(idList.contains(0));
         QVERIFY(idList.contains(1));
         QVERIFY(idList.contains(2));
         QVERIFY(idList.contains(3));
         QVERIFY(idList.contains(4));
+        QVERIFY(idList.contains(5));
     }
     catch(Core::Exception &ex)
     {
@@ -220,9 +222,9 @@ void file_manager_test::test_HasFile()
         fm->Reset();
         fm->AddFile("HI");
         fm->AddFile("HI");
-        QVERIFY(fm->HasFile(0));
         QVERIFY(fm->HasFile(1));
-        QVERIFY(!fm->HasFile(2));
+        QVERIFY(fm->HasFile(2));
+        QVERIFY(!fm->HasFile(3));
     }
     catch(Core::Exception &ex)
     {
@@ -236,20 +238,20 @@ void file_manager_test::test_remove()
     try
     {
         fm->Reset();
-        QVERIFY(!fm->HasFile(0));
+        QVERIFY(!fm->HasFile(1));
 
         fm->AddFile("HI");
-        fm->AddFile("HI");
-        QVERIFY(fm->HasFile(0));
-
-        fm->RemoveFile(0);
-        QVERIFY(!fm->HasFile(0));
-
+        fm->AddFile("HI2");
         QVERIFY(fm->HasFile(1));
-        QVERIFY(fm->GetFile(1) == "HI");
 
         fm->RemoveFile(1);
         QVERIFY(!fm->HasFile(1));
+
+        QVERIFY(fm->HasFile(2));
+        QVERIFY(fm->GetFile(2) == "HI2");
+
+        fm->RemoveFile(2);
+        QVERIFY(!fm->HasFile(2));
     }
     catch(Core::Exception &ex)
     {
