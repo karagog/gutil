@@ -148,7 +148,9 @@ namespace GUtil
                 {}
 
                 ~IODevicePackage(){
-                    delete IODevice;
+                    // We delete later, because we may get deleted in a function
+                    //  triggered by the io device's own signal.
+                    IODevice->deleteLater();
                 }
 
                 DataAccess::GIODevice *IODevice;
