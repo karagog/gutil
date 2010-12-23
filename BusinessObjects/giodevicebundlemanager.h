@@ -48,10 +48,10 @@ namespace GUtil
         // Serves as a generic class to hold values and
         //  send/receive them over the provided transport mechanisms.
 
-        // Derived classes must implement the NewDataProcessor class and
-        //  inject a pointer to themselves into the constructor
+        // It does all of the transport work on background threads, one for
+        //  each of the io devices.
 
-        // It is safe to send/receive data from multiple threads; this class
+        // It is safe to send/receive data on multiple threads; this class
         //  implements the necessary variable locking
 
         class GIODeviceBundleManager :
