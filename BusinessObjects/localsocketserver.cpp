@@ -80,7 +80,7 @@ void LocalSocketServer::ShutDownServer()
 {
     foreach(QUuid id, _socket_manager->GetIds())
     {
-        socket_device(id).Socket().close();
+        socket_device(id).Socket().disconnect();
         _socket_manager->Remove(id);
     }
 }

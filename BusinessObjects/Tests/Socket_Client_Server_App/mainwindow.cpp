@@ -47,6 +47,9 @@ MainWindow::MainWindow(bool server,
             connect(_server, SIGNAL(Disconnected(QUuid)),
                     this, SLOT(client_disconnected(QUuid)));
 
+            connect(_server, SIGNAL(NewMessageArrived(QUuid)),
+                    this, SLOT(receive_message(QUuid)));
+
             _server->ListenForConnections(IDENTIFIER, MODIFIER);
         }
         else
@@ -55,6 +58,10 @@ MainWindow::MainWindow(bool server,
             ui->lstClients->setVisible(false);
 
             _client = new LocalSocketClient(this);
+            connect(_client, SIGNAL(NewMessageArrived()),
+                    this, SLOT(receive_message()));
+            connect(_client, SIGNAL(Disconnected()),
+                    this, SLOT(close()));
 
             _client->ConnectToServer(IDENTIFIER, MODIFIER);
         }
@@ -126,4 +133,27 @@ void MainWindow::send_message()
     }
     if(_client)
         _client->SendMessage(message);
+}
+
+void MainWindow::receive_message(const QUuid &id)
+{
+    QByteArray msg;
+
+    if(id.isNull())
+    {
+        // We're the client
+        msg = _client->ReceiveMessage();
+
+        ui->lstEvents->addItem(QString("From Server %1")
+                               .arg(msg.constData()));
+    }
+    else
+    {
+        // We're the server
+        msg = _server->ReceiveMessage(id);
+
+        ui->lstEvents->addItem(QString("From %1: %2")
+                               .arg(id.toString())
+                               .arg(msg.constData()));
+    }
 }
