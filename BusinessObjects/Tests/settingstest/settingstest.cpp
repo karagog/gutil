@@ -345,7 +345,18 @@ void settingsTest::test_clear_all_values()
 
 void settingsTest::test_with_compression()
 {
+    // newsettings is human readable
+    BusinessObjects::ConfigFile newsettings(*settings);
+
+    // But now settings is not
     settings->SetIsHumanReadable(false);
+
+    // We write a compressed file
+    settings->SetValue("test", "value");
+
+    // Then try to read it with the "Human readable" settings
+    newsettings.Reload();
+    QVERIFY(newsettings.Value("test") == "value");
 }
 
 void settingsTest::cleanupTestCase()

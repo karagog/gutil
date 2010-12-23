@@ -129,10 +129,10 @@ namespace GUtil
             void _init(const QString &, const QString &);
 
             // In case you want to do encryption/compression
-            void preprocess_outgoing_data(QByteArray &) const;
-            void preprocess_incoming_data(QByteArray &) const;
+            void _preprocess_outgoing_data(QByteArray &) const;
+            void _preprocess_incoming_data(QByteArray &) const;
 
-            void init_new_table(DataObjects::DataTable &) const;
+            void _init_new_table(DataObjects::DataTable &) const;
 
             void _value_changed();
 

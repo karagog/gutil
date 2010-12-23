@@ -68,7 +68,7 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
     _modifier = modifier;
 
     if(!Reload())
-        init_new_table(_table);
+        _init_new_table(_table);
 }
 
 bool ConfigFile::Reload()
@@ -78,6 +78,7 @@ bool ConfigFile::Reload()
     try
     {
         d = FileTransport().FileData();
+        _preprocess_incoming_data(d);
         _table.FromXmlQString(d);
     }
     catch(Core::Exception &)
@@ -90,12 +91,12 @@ bool ConfigFile::Reload()
 void ConfigFile::Clear()
 {
     _table.Clear();
-    init_new_table(_table);
+    _init_new_table(_table);
 
     _value_changed();
 }
 
-void ConfigFile::init_new_table(DataObjects::DataTable &tbl) const
+void ConfigFile::_init_new_table(DataObjects::DataTable &tbl) const
 {
     // Two columns to the table
     tbl.SetColumnHeaders(QStringList("key") << "value");
@@ -118,7 +119,7 @@ void ConfigFile::_value_changed()
         Core::Utils::CryptoHelpers::compress( \
                     std::string(data.constData(), data.length()))
 
-void ConfigFile::preprocess_outgoing_data(QByteArray &ba) const
+void ConfigFile::_preprocess_outgoing_data(QByteArray &ba) const
 {
     if(!GetIsHumanReadable())
     {
@@ -128,7 +129,7 @@ void ConfigFile::preprocess_outgoing_data(QByteArray &ba) const
     }
 }
 
-void ConfigFile::preprocess_incoming_data(QByteArray &data) const
+void ConfigFile::_preprocess_incoming_data(QByteArray &data) const
 {
     // try to decompress it,
     try
@@ -143,20 +144,25 @@ void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 
 void ConfigFile::new_input_data_arrived()
 {
-    DataObjects::DataTable tbl;
-    QByteArray data(_device_manager.ReceiveData());
-
-    preprocess_incoming_data(data);
-
-    tbl.FromXmlQString(data);
-
-    // Only update if the table was updated by someone other than us
-    if(tbl.NotEquals(_table))
+    try
     {
-        _table = tbl;
+        DataObjects::DataTable tbl;
+        QByteArray data(_device_manager.ReceiveData());
 
-        emit NotifyConfigurationUpdate();
+        _preprocess_incoming_data(data);
+
+        tbl.FromXmlQString(data);
+
+        // Only update if the table was updated by someone other than us
+        if(tbl.NotEquals(_table))
+        {
+            _table = tbl;
+
+            emit NotifyConfigurationUpdate();
+        }
     }
+    catch(Core::Exception &)
+    {}
 }
 
 void ConfigFile::SetValue(const QString &key, const Custom::GVariant& value)
@@ -310,7 +316,7 @@ void ConfigFile::commit_reject_changes(bool commit)
         QByteArray data(
                 _table.ToXmlQString().toAscii());
 
-        preprocess_outgoing_data(data);
+        _preprocess_outgoing_data(data);
 
         // Export the changed data to the config file
         //  (don't clear the current data in it)
