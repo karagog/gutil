@@ -109,44 +109,36 @@ void ConfigFile::_value_changed()
 
 
 
-#ifdef CRYPTOPP_COMPRESSION
-#   define CRYPTOPP_DECOMPRESS( data ) \
+
+#define CRYPTOPP_DECOMPRESS( data ) \
         Core::Utils::CryptoHelpers::decompress( \
                     std::string(data.constData(), data.length()))
 
-#   define CRYPTOPP_COMPRESS( data ) \
+#define CRYPTOPP_COMPRESS( data ) \
         Core::Utils::CryptoHelpers::compress( \
                     std::string(data.constData(), data.length()))
-#else
-#   define CRYPTOPP_DECOMPRESS(data) \
-        std::string(data.constData(), data.length())
-#   define CRYPTOPP_COMPRESS(data) \
-        std::string(data.constData(), data.length())
-#endif
 
 void ConfigFile::preprocess_outgoing_data(QByteArray &ba) const
 {
-    #ifdef CRYPTOPP_COMPRESSION
-    if(!IsHumanReadable())
+    if(!GetIsHumanReadable())
     {
         // Compress the configuration data
         std::string tmpres = CRYPTOPP_COMPRESS(ba);
         ba = QByteArray(tmpres.c_str(), tmpres.length());
     }
-    #endif
 }
 
 void ConfigFile::preprocess_incoming_data(QByteArray &data) const
 {
-    #ifdef CRYPTOPP_COMPRESSION
     // try to decompress it,
     try
     {
         data = CRYPTOPP_DECOMPRESS(data).c_str();
     }
     catch(Core::Exception &)
-    {}
-    #endif
+    {
+        // If decompression fails we ignore it 'cause it's a human-readable file
+    }
 }
 
 void ConfigFile::new_input_data_arrived()

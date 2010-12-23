@@ -47,6 +47,7 @@ private slots:
     void test_bin_dat();
     void test_erase_value();
     void test_clear_all_values();
+    void test_with_compression();
 
     void cleanupTestCase();
 
@@ -340,6 +341,11 @@ void settingsTest::test_clear_all_values()
         dLogException(ex);
         QFAIL("Unhandled exception");
     }
+}
+
+void settingsTest::test_with_compression()
+{
+    settings->SetIsHumanReadable(false);
 }
 
 void settingsTest::cleanupTestCase()

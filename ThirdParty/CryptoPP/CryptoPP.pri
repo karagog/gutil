@@ -1,7 +1,8 @@
 
-!exists(CryptoPP/libcryptopp.a){
-    build_cryptopp.commands = cd CryptoPP; make libcryptopp.a;
-}
+build_cryptopp.commands = \
+    if [ `ls CryptoPP -l | grep libcryptopp.a | wc -l` = 0 ]; then \
+        cd CryptoPP; make libcryptopp.a; \
+    fi;
 
 
 #TEMP_LIBDIRECTORY = ../lib

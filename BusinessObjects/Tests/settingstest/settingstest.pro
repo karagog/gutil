@@ -22,4 +22,10 @@ DEFINES += \
 HEADERS +=
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../ -lGUtil
+LIBS += -L../../../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilCustom \
+    -lGUtilDataObjects \
+    -lGUtilLogging \
+    -lGUtilBusinessObjects
