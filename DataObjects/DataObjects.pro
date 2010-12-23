@@ -1,7 +1,10 @@
 DESTDIR = ../lib
 
+TARGET = GUtilDataObjects
+LIBS += -L../lib -lGUtilCore -lGUtilInterfaces -lGUtilCustom -lGUtilUtils
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 HEADERS += \
     collection.h \

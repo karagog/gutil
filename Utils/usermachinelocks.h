@@ -16,10 +16,10 @@ limitations under the License.*/
 #define APPLICATIONLOCK_H
 
 #include "Core/exception.h"
-#include "Custom/gsemaphore.h"
 #include <QString>
 #include <QMap>
 #include <QReadWriteLock>
+#include <QSemaphore>
 
 class QtLockedFile;
 
@@ -76,7 +76,7 @@ private:
     // All of these objects share these global variables
     static QMap<QString, QReadWriteLock *> process_locks;
     static QReadWriteLock process_locks_lock;
-    static GUtil::Custom::GSemaphore process_locks_sem;
+    static QSemaphore process_locks_sem;
 
 };
 

@@ -1,17 +1,20 @@
 DESTDIR = ../lib
 
+TARGET = GUtilCore
+
 QT -= gui core
 
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
-SOURCES += \
-    exception.cc
-
-INCLUDEPATH += .. ../ThirdParty/CryptoPP
+CRYPTOPP_PATH = ../ThirdParty/CryptoPP
+INCLUDEPATH += .. $$CRYPTOPP_PATH
+LIBS += -L$$CRYPTOPP_PATH -lcryptopp
 
 HEADERS += \
     exception.h
+SOURCES += \
+    exception.cc
 
 include(BusinessObjects/BusinessObjects.pri)
 include(DataAccess/DataAccess.pri)

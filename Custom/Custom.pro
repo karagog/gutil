@@ -1,7 +1,11 @@
 DESTDIR = ../lib
 
+TARGET = GUtilCustom
+
+LIBS += -L../lib -lGUtilCore -lGUtilInterfaces -lGUtilUtils
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 HEADERS += \
     myflattreemodel.h \

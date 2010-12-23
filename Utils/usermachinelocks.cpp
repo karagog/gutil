@@ -21,7 +21,7 @@ using namespace GUtil;
 
 QMap<QString, QReadWriteLock *> Utils::MachineLockBase::process_locks;
 QReadWriteLock Utils::MachineLockBase::process_locks_lock;
-Custom::GSemaphore Utils::MachineLockBase::process_locks_sem;
+QSemaphore Utils::MachineLockBase::process_locks_sem;
 
 Utils::MachineLockBase::MachineLockBase(const QString &u, const QString &id, const QString &modifier)
     :_p_StringModifier(u),
@@ -55,7 +55,7 @@ void Utils::MachineLockBase::_pre_init()
 void Utils::MachineLockBase::_post_init()
 {
     process_locks_lock.lockForWrite();
-    process_locks_sem.Up();
+    process_locks_sem.release();    // Up the semaphore
     process_locks_lock.unlock();
 }
 
@@ -66,10 +66,10 @@ Utils::MachineLockBase::~MachineLockBase()
     delete _usermachinelockfile;
 
     process_locks_lock.lockForWrite();
-    process_locks_sem.Down();
+    process_locks_sem.acquire();    // Down the semaphore
 
     // Clean up the locks if i'm the last one dying
-    if(process_locks_sem.IsEmpty())
+    if(process_locks_sem.available() == 0)
     {
         foreach(QString k, process_locks.keys())
             delete process_locks.value(k);

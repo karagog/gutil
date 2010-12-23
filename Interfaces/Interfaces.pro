@@ -1,7 +1,9 @@
 DESTDIR = ../lib
 
+TARGET = GUtilInterfaces
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 INCLUDEPATH += ..
 

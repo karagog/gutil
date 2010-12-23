@@ -3,8 +3,18 @@
 # -------------------------------------------------
 QT += sql network
 DESTDIR = ../lib
+
+TARGET = GUtilBusinessObjects
+LIBS += -L../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilCustom \
+    -lGUtilDataObjects \
+    -lGUtilDataAccess \
+    -lGUtilLogging
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 HEADERS += \
     BinaryDataStore.h \
     ConfigFile.h \

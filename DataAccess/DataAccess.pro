@@ -1,7 +1,15 @@
 DESTDIR = ../lib
 
+TARGET = GUtilDataAccess
+LIBS += -L../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilUtils \
+    -lGUtilCustom \
+    -lGUtilDataObjects
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 HEADERS += \
     gfileiodevice.h \

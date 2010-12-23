@@ -4,9 +4,13 @@
 
 QT += network
 
+TARGET = GUtilUtils
+
+LIBS += -L../lib -lGUtilCore -lGUtilThirdParty
+
 DESTDIR = ../lib
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 SOURCES += \
     pubsubsystem.cpp \
     usermachinelocks.cpp \

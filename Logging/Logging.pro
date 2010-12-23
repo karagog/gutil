@@ -2,8 +2,11 @@ QT += sql
 
 DESTDIR = ../lib
 
+TARGET = GUtilLogging
+LIBS += -L../lib -lGUtilCore -lGUtilUtils -lGUtilDataAccess
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 INCLUDEPATH += ..
 

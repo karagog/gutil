@@ -1,7 +1,9 @@
 DESTDIR = ../lib
 
+TARGET = GUtilThirdParty
+
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 include(QtLockedFile/QtLockedFile.pri)
 include(CryptoPP/CryptoPP.pri)
