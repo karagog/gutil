@@ -79,7 +79,7 @@ MainWindow::~MainWindow()
 
     if(_client)
     {
-        _client->Disconnect();
+        _client->DisconnectFromServer();
         delete _client;
     }
 

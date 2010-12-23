@@ -55,7 +55,7 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
     }
 }
 
-void LocalSocketClient::Disconnect()
+void LocalSocketClient::DisconnectFromServer()
 {
     ((GSocketIODevice &)_socket_manager->Transport())
             .Socket().disconnectFromServer();

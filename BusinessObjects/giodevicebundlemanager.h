@@ -51,7 +51,8 @@ namespace GUtil
         // Derived classes must implement the NewDataProcessor class and
         //  inject a pointer to themselves into the constructor
 
-        // Do NOT use from more than 1 thread
+        // It is safe to send/receive data from multiple threads; this class
+        //  implements the necessary variable locking
 
         class GIODeviceBundleManager :
                 public QObject

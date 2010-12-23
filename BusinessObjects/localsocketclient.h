@@ -41,7 +41,7 @@ namespace GUtil
 
             void ConnectToServer(const QString &identifier,
                                  const QString &modifier = QString::null);
-            void Disconnect();
+            void DisconnectFromServer();
             bool IsConnected() const;
 
             void SendMessage(const QByteArray &);
