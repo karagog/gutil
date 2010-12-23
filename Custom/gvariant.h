@@ -112,7 +112,6 @@ public:
 
 GUTIL_END_NAMESPACE;
 
-
 // Register these types with the Qt meta-type system
 Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
 Q_DECLARE_METATYPE(QUuid);

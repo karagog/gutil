@@ -46,6 +46,8 @@ namespace GUtil
             READONLY_PROPERTY( WriteProgress, int );
             READONLY_PROPERTY( ReadProgress, int );
 
+            virtual ~GQIODevice(){}
+
 
         protected:
 

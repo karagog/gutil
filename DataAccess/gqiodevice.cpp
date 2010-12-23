@@ -27,6 +27,7 @@ DataAccess::GQIODevice::GQIODevice(QIODevice *io, QObject *parent)
     _p_ReadProgress(0)
 {
     _io_device = io;
+    _io_device->setParent(this);
 
     connect(&IODevice(), SIGNAL(readyRead()), this, SLOT(raiseReadyRead()));
 }

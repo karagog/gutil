@@ -21,10 +21,11 @@ using namespace DataAccess;
 
 LocalSocketServer::LocalSocketServer(QObject *parent)
     :QObject(parent),
-    _socket_manager(new GIODeviceBundleManager(this)),
-    _server(this)
+    _socket_manager(new GIODeviceBundleManager(this))
 {
-    connect(&_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
+    _server = new QLocalServer(this);
+
+    connect(_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
     connect(_socket_manager, SIGNAL(NewDataArrived(QUuid)),
             this, SLOT(new_data(QUuid)));
 }
@@ -32,14 +33,15 @@ LocalSocketServer::LocalSocketServer(QObject *parent)
 LocalSocketServer::~LocalSocketServer()
 {
     delete _socket_manager;
+    delete _server;
 }
 
 void LocalSocketServer::new_connection()
 {
-    while(_server.hasPendingConnections())
+    while(_server->hasPendingConnections())
     {
         GSocketIODevice *sock(new GSocketIODevice(
-                _server.nextPendingConnection(), this));
+                _server->nextPendingConnection(), this));
 
         connect(sock, SIGNAL(Disconnected(QUuid)),
                 this, SLOT(socket_disconnected(QUuid)));
@@ -66,11 +68,11 @@ void LocalSocketServer::ListenForConnections(const QString &identifier,
                                              const QString &modifier)
 {
     QString id(QString("%1.%2").arg(identifier).arg(modifier));
-    if(!_server.listen(id))
+    if(!_server->listen(id))
     {
         Core::Exception ex(QString("Cannot listen for connections with id %1")
                            .arg(id).toStdString());
-        ex.SetData("error", _server.errorString().toStdString());
+        ex.SetData("error", _server->errorString().toStdString());
     }
 }
 

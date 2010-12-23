@@ -22,6 +22,7 @@ limitations under the License.*/
 #include <QWaitCondition>
 #include <QThread>
 #include <QUuid>
+#include <QMetaType>
 
 namespace GUtil
 {

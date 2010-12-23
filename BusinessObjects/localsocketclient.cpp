@@ -35,7 +35,7 @@ LocalSocketClient::~LocalSocketClient()
 void LocalSocketClient::ConnectToServer(const QString &identifier,
                                         const QString &modifier)
 {
-    GSocketIODevice *sock(new GSocketIODevice(new QLocalSocket(this), this));
+    GSocketIODevice *sock(new GSocketIODevice(new QLocalSocket, this));
 
     QString id(QString("%1.%2").arg(identifier).arg(modifier));
     sock->Socket().connectToServer(id);

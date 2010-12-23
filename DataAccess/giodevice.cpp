@@ -20,7 +20,10 @@ using namespace GUtil;
 DataAccess::GIODevice::GIODevice(QObject *parent)
     :QThread(parent),
     _p_Identity(QUuid::createUuid())
-{}
+{
+    // So you can pass QUuid's through signals and slots
+    qRegisterMetaType<QUuid>("QUuid");
+}
 
 DataAccess::GIODevice::~GIODevice()
 {

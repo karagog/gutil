@@ -23,6 +23,9 @@
      </widget>
     </item>
     <item>
+     <widget class="QListWidget" name="lstClients"/>
+    </item>
+    <item>
      <widget class="QListWidget" name="lstEvents"/>
     </item>
     <item>

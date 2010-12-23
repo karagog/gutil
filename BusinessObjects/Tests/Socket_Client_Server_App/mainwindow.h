@@ -38,6 +38,9 @@ private slots:
     void start_new_client();
     void send_message();
 
+    void new_connection(const QUuid &);
+    void client_disconnected(const QUuid &);
+
 
 private:
     Ui::MainWindow *ui;

@@ -76,7 +76,7 @@ namespace GUtil
         private:
 
             GIODeviceBundleManager *_socket_manager;
-            QLocalServer _server;
+            QLocalServer *_server;
 
             DataAccess::GSocketIODevice &socket_device(const QUuid &);
             const DataAccess::GSocketIODevice &socket_device(const QUuid &) const;
