@@ -35,9 +35,9 @@ DataAccess::GQIODevice::GQIODevice(QIODevice *io, QObject *parent)
 void DataAccess::GQIODevice::send_data(const QByteArray &data)
         throw(Core::DataTransportException)
 {
-    _p_WriteProgress = 0;
-
     _fail_if_not_open();
+
+    emit WriteProgressUpdated(_p_WriteProgress = 0);
 
     int bytes_written(0);
     int byte_resolution( GetWriteProgressResolution() == -1 ?
@@ -84,9 +84,9 @@ void DataAccess::GQIODevice::send_data(const QByteArray &data)
 QByteArray DataAccess::GQIODevice::receive_data()
         throw(Core::DataTransportException)
 {
-    _p_ReadProgress = 0;
-
     _fail_if_not_open();
+
+    emit ReadProgressUpdated(_p_ReadProgress = 0);
 
     QByteArray ret;
     int bytes_available(IODevice().bytesAvailable());
