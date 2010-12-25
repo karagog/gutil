@@ -21,4 +21,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\" \
 #HEADERS +=
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../ -lGUtil
+LIBS += -L../../../lib \
+    -lGUtilCore \
+    -lGUtilLogging \
+    -lGUtilBusinessObjects

@@ -23,7 +23,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="lstClients"/>
+     <widget class="QListWidget" name="lstClients">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QListWidget" name="lstEvents"/>

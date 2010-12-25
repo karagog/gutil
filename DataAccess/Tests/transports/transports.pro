@@ -17,4 +17,11 @@ SOURCES += tst_transportstest.cpp
 DEFINES += DEBUG_LOGGING SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
-LIBS += -L../../.. -lGUtil
+LIBS += -L../../../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilUtils \
+    -lGUtilCustom \
+    -lGUtilDataObjects \
+    -lGUtilDataAccess \
+    -lGUtilLogging

@@ -21,7 +21,11 @@ SOURCES += tst_datasettest.cpp \
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../lib -lGUtil
+LIBS += -L../../../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilDataObjects \
+    -lGUtilCustom
 
 #DEFINES += DEBUG_LOGGING
 
