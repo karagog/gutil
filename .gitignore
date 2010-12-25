@@ -21,3 +21,6 @@ qrc_*.cpp
 *.pro.user*
 *-build-desktop
 
+*.sqlite
+*.log
+*.txt
