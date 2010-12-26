@@ -105,6 +105,16 @@ Custom::GVariant::GVariant(const QSize &s)
 Custom::GVariant::GVariant(const QUuid &i)
     :QVariant(QUuidType, new QUuid(i)){}
 
+QUuid Custom::GVariant::toUuid() const
+{
+    QUuid ret;
+    if(type() == String || type() == ByteArray)
+        ret = toString();
+    else if(type() == UserType && userType() == QUuidType)
+        ret = value<QUuid>();
+    return ret;
+}
+
 QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
     return GVariant(v).ToXmlQString(h);

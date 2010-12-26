@@ -72,6 +72,7 @@ public:
     GVariant(const QVariantMap &);
     GVariant(const QUuid &);
 
+    QUuid toUuid() const;
 
     void WriteXml(QXmlStreamWriter &) const;
     void ReadXml(QXmlStreamReader &)
