@@ -7,12 +7,15 @@ TARGET = GUtilControls
 
 TEMPLATE = lib
 #CONFIG += staticlib
-HEADERS += progressbarcontrol.h \
-    filechooser.h
-SOURCES += progressbarcontrol.cpp \
-    filechooser.cpp
+HEADERS += \
+    progressbarcontrol.h \
+    filechooser.h \
+    line_edit_with_button.h \
+    faderwidget.h
+SOURCES += \
+    progressbarcontrol.cpp \
+    filechooser.cpp \
+    line_edit_with_button.cpp \
+    faderwidget.cpp
 
 INCLUDEPATH += ..
-
-# All the controls are built off the controls in Core
-include(Core/Core.pri)
