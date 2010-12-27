@@ -29,6 +29,14 @@ public: \
     inline void Set##name(const type &value){ _p_##name = value; } \
     enum{}
 
+#define PROPERTY_POINTER( name, ptr_type ) \
+private: \
+    ptr_type *_p_##name; \
+public: \
+    inline ptr_type *Get##name() const{ return _p_##name; } \
+    inline void Set##name(ptr_type *value){ _p_##name = value; } \
+    enum{}
+
 
 #define PROTECTED_PROPERTY( name, type ) \
 private: \
