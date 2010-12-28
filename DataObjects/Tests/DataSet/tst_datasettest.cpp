@@ -22,6 +22,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 
+using namespace GUtil;
 GUTIL_USING_NAMESPACE( DataObjects );
 GUTIL_USING_NAMESPACE( Core );
 GUTIL_USING_NAMESPACE( Custom );

@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "DataObjects/updatablegvariantcollection.h"
 #include "Custom/gshareddata.h"
 #include "Core/Interfaces/iupdatable.h"
+#include "Core/Interfaces/iupdatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
@@ -26,7 +27,8 @@ class DataTable;
 
 class SharedRowData :
         public Custom::GSharedData,
-        public UpdatableGVariantCollection::Observer
+        public UpdatableGVariantCollection::Observer,
+        public Core::Interfaces::IUpdatable
 {
 public:
 
@@ -54,6 +56,8 @@ private:
 
     // UpdatableGVariantCollection::Observer interface:
     void value_about_to_change(int index, const Custom::GVariant &newvalue);
+
+    void on_make_dirty();
 
 };
 

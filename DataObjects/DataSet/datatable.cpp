@@ -445,17 +445,6 @@ void DataObjects::DataTable::validate_new_row(const DataRow &)
 
 }
 
-bool DataObjects::DataTable::IsDirty() const{
-    bool ret = table_data().IsDirty();
-
-    // If the table itself was not marked dirty, it could still be dirty
-    //  if any of the rows are dirty
-    for(int i = 0; !ret && i < RowCount(); i++)
-        ret = Rows()[i].IsDirty();
-
-    return ret;
-}
-
 void DataObjects::DataTable::on_make_dirty()
 {
     table_data().MakeDirty();

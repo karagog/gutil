@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "DataObjects/DataSet/datarow.h"
 #include "DataObjects/explicitlysharedobject.h"
+#include "DataObjects/DataSet/sharedtabledata.h"
 #include "Custom/gvariant.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
@@ -35,10 +36,10 @@ limitations under the License.*/
     inline const RowType &At(int index) const{ return (const RowType &)Rows()[index]; } \
     \
     inline RowType &AddRow(const RowType &r){ return (RowType &)add_row(r); } \
-    inline RowType &AddNewRow(const Custom::GVariantList &values = Custom::GVariantList()) \
+    inline RowType &AddNewRow(const GUtil::Custom::GVariantList &values = GUtil::Custom::GVariantList()) \
         { return (RowType &)add_new_row(values); } \
     inline RowType &ImportRow(const RowType &r){ return (RowType &)import_row(r); } \
-    inline RowType CreateNewRow(const Custom::GVariantList &values = Custom::GVariantList()){ return (RowType)create_row(values); } \
+    inline RowType CreateNewRow(const GUtil::Custom::GVariantList &values = GUtil::Custom::GVariantList()){ return (RowType)create_row(values); } \
     enum{}
 
 
@@ -156,7 +157,13 @@ public:
     bool TryLockForWrite();
     void Unlock();
 
-    bool IsDirty() const;
+    inline bool IsDirty() const{
+        return table_data().IsDirty();
+    }
+
+    inline long GetUpdateCounter() const{
+        return table_data().GetUpdateCounter();
+    }
 
     // Interface for IEquatable:
     virtual bool Equals(const DataTable &) const;

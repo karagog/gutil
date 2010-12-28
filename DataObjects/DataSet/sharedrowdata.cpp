@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "sharedrowdata.h"
 #include "datatable.h"
+#include "sharedtabledata.h"
 #include "DataObjects/updatablegvariantcollection.h"
 using namespace GUtil;
 
@@ -43,5 +44,13 @@ DataObjects::SharedRowData::~SharedRowData(){
 
 void DataObjects::SharedRowData::value_about_to_change(int index, const Custom::GVariant &newvalue)
 {
+    if(_tuple[index] != newvalue)
+        MakeDirty();
+
     DataRow(this).row_value_about_to_change(index, newvalue);
+}
+
+void DataObjects::SharedRowData::on_make_dirty()
+{
+    _table->table_data().MakeDirty();
 }

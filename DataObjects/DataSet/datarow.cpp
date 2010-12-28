@@ -34,8 +34,7 @@ DataObjects::DataRow::DataRow(const DataRow &o, bool clone)
     Interfaces::IQXmlSerializable(),
     Core::Interfaces::IEquatable<DataRow>(),
     Core::Interfaces::IClonable<DataRow>(),
-    Core::Interfaces::IReadOnlyObject(),
-    Core::Interfaces::IUpdatable()
+    Core::Interfaces::IReadOnlyObject()
 {
     if(clone)
         o.CloneTo(*this);

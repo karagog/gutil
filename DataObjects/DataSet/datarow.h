@@ -48,8 +48,7 @@ class DataRow :
         public Interfaces::IQXmlSerializable,
         public Core::Interfaces::IEquatable<DataRow>,
         public Core::Interfaces::IClonable<DataRow>,
-        public Core::Interfaces::IReadOnlyObject,
-        protected Core::Interfaces::IUpdatable
+        public Core::Interfaces::IReadOnlyObject
 {
     friend class DataTable;
     friend class SharedTableData;
@@ -75,14 +74,8 @@ public:
     int Index() const;
     int ColumnCount() const;
 
-    // Our row data is an IUpdatable
     inline bool IsDirty() const{
-        bool ret = false;
-
-        for(int i = 0; !ret && i < ColumnCount(); i++)
-            ret = At(i).IsDirty();
-
-        return ret;
+        return row_data().IsDirty();
     }
 
     // Derived classes can follow this example when specifying

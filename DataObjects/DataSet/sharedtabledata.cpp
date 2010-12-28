@@ -45,5 +45,5 @@ void SharedTableData::SetDataSet(const DataSet &ds)
 void SharedTableData::commit_reject_changes(bool commit)
 {
     for(int i = 0; i < Rows().Count(); i++)
-        Rows()[i].CommitChanges(commit);
+        Rows()[i].row_data().CommitChanges(commit);
 }
