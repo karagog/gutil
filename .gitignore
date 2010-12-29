@@ -5,6 +5,7 @@ debug
 *~
 *.lib
 *.dll
+*.so*
 *.user
 *.exe
 *.out
