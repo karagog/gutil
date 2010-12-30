@@ -2,7 +2,11 @@
 DESTDIR = ../lib
 
 TARGET = GUtilDataModels
-LIBS += -L../lib -lGUtilCore -lGUtilInterfaces -lGUtilDataObjects
+LIBS += -L../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilCustom \
+    -lGUtilDataObjects
 
 TEMPLATE = lib
 #CONFIG += staticlib

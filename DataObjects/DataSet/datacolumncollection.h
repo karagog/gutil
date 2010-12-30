@@ -35,9 +35,6 @@ public:
     QStringList Keys() const;
     QStringList Labels() const;
 
-    void SetKey(int, const QString &);
-    void SetLabel(int, const QString &);
-
     bool ContainsKey(const QString &) const;
 
 

@@ -102,14 +102,21 @@ public:
     void RemoveKeyColumn(int);
     void RemoveKeyColumn(const QString &);
 
-    int RowCount() const;
-    int ColumnCount() const;
+    inline int RowCount() const{
+        return Rows().Count();
+    }
+    inline int ColumnCount() const{
+        return Columns().Count();
+    }
 
     int GetColumnIndex(const QString &key) const;
 
 
-    DataRowCollection &Rows();
-    const DataRowCollection &Rows() const;
+    inline DataRowCollection &Rows(){ return table_data().Rows(); }
+    inline const DataRowCollection &Rows() const{ return table_data().Rows(); }
+
+    inline DataColumnCollection &Columns(){ return table_data().Columns(); }
+    inline const DataColumnCollection &Columns() const{ return table_data().Columns(); }
 
 
     DataTable &operator =(const DataTable &);

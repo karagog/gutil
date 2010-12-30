@@ -141,17 +141,6 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
     return ret;
 }
 
-DataObjects::DataRowCollection &
-        DataObjects::DataTable::Rows()
-{
-    return table_data().Rows();
-}
-
-const DataObjects::DataRowCollection &DataObjects::DataTable::Rows() const
-{
-    return table_data().Rows();
-}
-
 DataRow &DataObjects::DataTable::add_new_row(const Custom::GVariantList &values)
 {
     return add_row(create_row(values));
@@ -233,32 +222,22 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
         AddColumn(k);
 
     for(int i = 0; i < labels.length(); i++)
-        table_data().Columns().SetLabel(i, labels.at(i));
+        Columns()[i].SetLabel(labels.at(i));
 }
 
 void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
 {
-    table_data().Columns().Label(col_index) = l;
+    Columns().Label(col_index) = l;
 }
 
 void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
 {
-    table_data().Columns().SetKey(col_index, k);
+    Columns()[col_index].SetKey(k);
 }
 
 void DataObjects::DataTable::ClearColumns()
 {
-    table_data().Columns().Clear();
-}
-
-int DataObjects::DataTable::RowCount() const
-{
-    return Rows().Count();
-}
-
-int DataObjects::DataTable::ColumnCount() const
-{
-    return table_data().Columns().Count();
+    Columns().Clear();
 }
 
 int DataObjects::DataTable::GetColumnIndex(const QString &key) const

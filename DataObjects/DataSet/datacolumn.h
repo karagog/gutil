@@ -15,55 +15,37 @@ limitations under the License.*/
 #ifndef DATACOLUMN_H
 #define DATACOLUMN_H
 
-#include "Core/Interfaces/iequatable.h"
 #include "gutil_macros.h"
-#include <QPair>
+#include <QUuid>
 
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 
-class DataColumnCollection;
-
-class DataColumn :
-        public Core::Interfaces::IEquatable<DataColumn>
+class DataColumn
 {
-    friend class DataTable;
-    friend class DataColumnCollection;
-    template <class T> friend class ResizableCollection;
-
 public:
 
-    DataColumn(const DataColumn &);
+    inline DataColumn(const QString &key = QUuid::createUuid().toString(),
+               const QString &label = QString::null)
+        :_p_Key(key),
+          _p_Label(label)
+    {}
+    inline DataColumn(const DataColumn &o)
+        :_p_Key(o._p_Key),
+          _p_Label(o._p_Label)
+    {}
 
-    QString Key() const;
-    QString Label() const;
+    PROPERTY(Key, QString);
+    PROPERTY(Label, QString);
 
-    DataColumn &operator =(const DataColumn &);
-    bool operator == (const DataColumn &) const;
-    bool operator != (const DataColumn &) const;
-
-    int Index() const;
-
-    // IEquatable:
-    virtual bool Equals(const DataColumn &) const;
-
-
-protected:
-
-    DataColumn(const QString &key = QString::null,
-               const QString &label = QString::null,
-               DataColumnCollection *c = 0);
-
-    void set_key(const QString &);
-    void set_label(const QString &);
-
-
-private:
-
-    QPair<QString, QString> _data;
-
-    DataColumnCollection * _collection;
+    inline bool operator == (const DataColumn &o) const{
+        return GetKey() == o.GetKey();
+    }
+    inline bool operator != (const DataColumn &o) const{
+        return GetKey() != o.GetKey();
+    }
 
 };
+
 
 GUTIL_END_NAMESPACE
 

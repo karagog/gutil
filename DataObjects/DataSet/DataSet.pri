@@ -20,5 +20,4 @@ SOURCES += \
     DataSet/dataset.cpp \
     DataSet/datarowcollection.cpp \
     DataSet/datarow.cpp \
-    DataSet/datacolumncollection.cpp \
-    DataSet/datacolumn.cpp
+    DataSet/datacolumncollection.cpp

@@ -27,7 +27,7 @@ DataObjects::DataColumnCollection::DataColumnCollection(const DataColumnCollecti
 
 QString DataObjects::DataColumnCollection::Key(int ind) const
 {
-    return At(ind).Key();
+    return At(ind).GetKey();
 }
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
@@ -37,7 +37,7 @@ bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
 
 QString DataObjects::DataColumnCollection::Label(int ind) const
 {
-    return At(ind).Label();
+    return At(ind).GetLabel();
 }
 
 QStringList DataObjects::DataColumnCollection::Keys() const
@@ -45,7 +45,7 @@ QStringList DataObjects::DataColumnCollection::Keys() const
     QStringList ret;
 
     for(int i = 0; i < Count(); i++)
-        ret.append(Key(i));
+        ret.append(At(i).GetKey());
 
     return ret;
 }
@@ -60,28 +60,11 @@ QStringList DataObjects::DataColumnCollection::Labels() const
     return ret;
 }
 
-void DataObjects::DataColumnCollection::SetKey(int ind, const QString &s)
-{
-    if(Key(ind) == s)
-        return;
-    else if(Contains( DataColumn(s) ))
-        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
-                                  QString("Key already exists in column collection: '%1'")
-                                  .arg(s).toStdString());
-
-    At(ind).set_key(s);
-}
-
-void DataObjects::DataColumnCollection::SetLabel(int ind, const QString &s)
-{
-    At(ind).set_label(s);
-}
-
 void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::DataColumn &c) const
         throw(Core::ValidationException)
 {
     if(Contains(c))
         THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   QString("Column collection already contains key '%1'")
-                                  .arg(c.Key()).toStdString());
+                                  .arg(c.GetKey()).toStdString());
 }

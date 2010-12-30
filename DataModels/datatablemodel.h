@@ -15,21 +15,54 @@ limitations under the License.*/
 #ifndef DATATABLEMODEL_H
 #define DATATABLEMODEL_H
 
+#include "gutil_macros.h"
 #include "DataObjects/DataSet/datatable.h"
 #include <QAbstractTableModel>
 
+
+namespace GUtil{ namespace DataModels {
+
+
+// Use this as a datamodel for the data table object
+
 class DataTableModel :
-        public QAbstractTableModel,
-        public GUtil::DataObjects::DataTable
+        public QAbstractTableModel
 {
     Q_OBJECT
 public:
+
     explicit DataTableModel(QObject *parent = 0);
+    virtual ~DataTableModel(){}
 
-signals:
+    PROPERTY_POINTER(DataTable, GUtil::DataObjects::DataTable);
 
-public slots:
+
+    // QAbstractTableModel interface:
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    bool insertRows(int row, int count, const QModelIndex &parent);
+    bool insertColumns(int column, int count, const QModelIndex &parent);
+    bool removeRows(int row, int count, const QModelIndex &parent);
+    bool removeColumns(int column, int count, const QModelIndex &parent);
+
+
+protected:
+
+    virtual QVariant _data(const QModelIndex &, int) const;
+    virtual QVariant _headerData(int, Qt::Orientation, int) const;
+
+    virtual bool _setData(const QModelIndex &, const QVariant &, int);
 
 };
+
+
+}}
 
 #endif // DATATABLEMODEL_H
