@@ -187,6 +187,8 @@ template <typename T> void GUtil::DataObjects::CollectionBase<T>::remove_protect
 {
     FailIfReadOnly();
 
+    on_remove(&_collection[index]);
+
     _collection.removeAt(index);
 }
 

@@ -48,6 +48,7 @@ protected:
 
     // Derived classes can do things to the added/removed object by overriding
     virtual void on_add(T *){}
+    virtual void on_remove(T *){}
 
     // You can define a different equality specification by overriding
     virtual bool compare_equality(const T &lhs, const T &rhs) const{
@@ -103,7 +104,8 @@ private:
 
 
 
-template <typename T> class Collection : public CollectionBase<T>
+template <typename T> class Collection :
+        public CollectionBase<T>
 {
 public:
 

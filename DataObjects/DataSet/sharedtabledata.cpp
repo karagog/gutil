@@ -19,11 +19,15 @@ GUTIL_USING_NAMESPACE( DataObjects );
 
 SharedTableData::SharedTableData()
     :_dataset(new DataSet),
-    _rows(this){}
+      _columns(this),
+      _rows(this)
+{}
 
 SharedTableData::SharedTableData(const DataSet &ds)
     :_dataset(new DataSet(ds)),
-    _rows(this){}
+      _columns(this),
+      _rows(this)
+{}
 
 SharedTableData::SharedTableData(const SharedTableData &d)
     :GSharedData(d),

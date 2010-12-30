@@ -47,10 +47,10 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    bool insertRows(int row, int count, const QModelIndex &parent);
-    bool insertColumns(int column, int count, const QModelIndex &parent);
-    bool removeRows(int row, int count, const QModelIndex &parent);
-    bool removeColumns(int column, int count, const QModelIndex &parent);
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
 
 protected:

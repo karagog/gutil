@@ -15,12 +15,10 @@ limitations under the License.*/
 #ifndef LABELLEDPROGRESSBAR_H
 #define LABELLEDPROGRESSBAR_H
 
-#include <QVariant>
 #include <QWidget>
-
-class QLabel;
-class QPushButton;
-class QProgressBar;
+#include <QLabel>
+#include <QPushButton>
+#include <QProgressBar>
 
 namespace GUtil
 {
@@ -29,20 +27,28 @@ namespace GUtil
         class ProgressBarControl : public QWidget
         {
             Q_OBJECT
-
         public:
+
             explicit ProgressBarControl(QWidget *parent = 0);
 
             void setButtonEnabled(bool which = true);
 
-            QLabel *label();
-            QProgressBar *progressBar();
-            QPushButton *pushButton();
+            inline QLabel &Label(){ return _label; }
+            inline const QLabel &Label() const{ return _label; }
+
+            inline QProgressBar &ProgressBar(){return _progressBar; }
+            inline const QProgressBar &ProgressBar() const{return _progressBar; }
+
+            inline QPushButton &PushButton(){ return _button; }
+            inline const QPushButton &PushButton() const{ return _button; }
+
 
         private:
-            QProgressBar *_progressBar;
-            QLabel *_label;
-            QPushButton *button;
+
+            QProgressBar _progressBar;
+            QLabel _label;
+            QPushButton _button;
+
         };
     }
 }

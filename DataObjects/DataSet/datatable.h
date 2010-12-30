@@ -68,13 +68,14 @@ class DataTable :
     friend class SharedRowData;
     friend class DataRowCollection;
     friend class SharedTableData;
+    friend class DataColumnCollection;
 
 public:
 
     // This declares all the accessors for the data row type
     DECLARE_DATATABLE_ROW_TYPE( DataRow );
 
-    DataTable(int num_cols = 0);
+    DataTable(int num_cols = 0, const QStringList &column_labels = QStringList());
     DataTable(const QStringList &column_keys);
     DataTable(const QString &table_name, int num_cols = 0);
     DataTable(const DataTable &);
@@ -86,15 +87,7 @@ public:
     // Clears all data and columns
     void Clear();
 
-    void AddColumn(const QString &key, const QString &label = QString::null);
-    void RemoveColumn(int);
-    void RemoveColumn(const QString &);
     void SetColumnHeaders(const QStringList &keys, const QStringList &labels = QStringList());
-    void SetColumnLabel(int col_index, const QString &);
-    void SetColumnKey(int col_index, const QString &);
-    void ClearColumns();
-
-    void SetNumberOfColumns(int);
 
     QSet<int> KeyColumns() const;
     void AddKeyColumn(int);
@@ -190,6 +183,9 @@ protected:
     // Derived classes can call this constructor with their own derived
     //  version of the shared data object
     DataTable(SharedTableData *);
+
+    void column_inserted(int);
+    void column_removed(int);
 
     // Derived tables can implement their own row initializations, like incrementing
     //  an id or initializing a GUID

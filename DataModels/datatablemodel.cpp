@@ -42,7 +42,7 @@ int DataTableModel::columnCount(const QModelIndex &parent) const
 QVariant DataTableModel::data(const QModelIndex &index, int role) const
 {
     if(!_p_DataTable ||
-            index.isValid())
+            !index.isValid())
         return QVariant();
 
     return _data(index, role);
@@ -55,6 +55,9 @@ QVariant DataTableModel::_data(const QModelIndex &index, int role) const
     switch((Qt::ItemDataRole)role)
     {
     case Qt::DisplayRole:
+        ret = GetDataTable()->Rows()[index.row()][index.column()];
+        break;
+    case Qt::EditRole:
         ret = GetDataTable()->Rows()[index.row()][index.column()];
         break;
     default:
@@ -106,7 +109,7 @@ bool DataTableModel::setData(const QModelIndex &index, const QVariant &value, in
 {
     if(!_p_DataTable ||
             GetDataTable()->IsReadOnly() ||
-            index.isValid())
+            !index.isValid())
         return false;
 
     return _setData(index, value, role);
@@ -119,6 +122,9 @@ bool DataTableModel::_setData(const QModelIndex &index, const QVariant &value, i
     switch((Qt::ItemDataRole)role)
     {
     case Qt::DisplayRole:
+        GetDataTable()->Rows()[index.row()][index.column()] = value;
+        break;
+    case Qt::EditRole:
         GetDataTable()->Rows()[index.row()][index.column()] = value;
         break;
     default:
@@ -136,7 +142,7 @@ Qt::ItemFlags DataTableModel::flags(const QModelIndex &index) const
                       Qt::ItemIsUserCheckable);
 
     if(!_p_DataTable ||
-            index.isValid())
+            !index.isValid())
         return ret;
 
     ret |= Qt::ItemIsEditable;
@@ -174,7 +180,7 @@ bool DataTableModel::insertColumns(int column, int count, const QModelIndex &par
         for(int i = 0; i < count; i++)
         {
             GetDataTable()->Columns().Insert(
-                        DataColumn(QUuid::createUuid().toString()), column);
+                        DataColumn(), column);
         }
     }
     endInsertColumns();

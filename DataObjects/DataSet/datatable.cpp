@@ -28,10 +28,13 @@ using namespace GUtil;
 using namespace Custom;
 using namespace DataObjects;
 
-DataObjects::DataTable::DataTable(int num_cols)
+DataObjects::DataTable::DataTable(int num_cols, const QStringList &labels)
     :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
 {
     _init(QString::null, num_cols);
+
+    for(int i = 0; i < num_cols && i < labels.count(); i++)
+        Columns()[i].SetLabel(labels[i]);
 }
 
 DataObjects::DataTable::DataTable(const QStringList &column_keys)
@@ -74,17 +77,7 @@ void DataObjects::DataTable::_init(const QString &name, int num_cols)
 {
     table_data().SetName(name);
 
-    SetNumberOfColumns(num_cols);
-}
-
-void DataObjects::DataTable::SetNumberOfColumns(int n)
-{
-    if(n < ColumnCount())
-        while(n < ColumnCount())
-            RemoveColumn(ColumnCount() - 1);
-    else if(n > ColumnCount())
-        while(n > ColumnCount())
-            AddColumn(QUuid::createUuid().toString());
+    Columns().Resize(num_cols);
 }
 
 DataObjects::SharedTableData &
@@ -109,15 +102,14 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
 {
     bool ret = true;
 
-    // This operator compares their pointers (defined in ExplicitlySharedObject)
     if(*this != t)
     {
         if(ColumnCount() == t.ColumnCount())
         {
             for(int i = 0; ret && i < ColumnCount(); i++)
             {
-                ret = (table_data().Columns().Key(i) == t.table_data().Columns().Key(i)) &&
-                      (table_data().Columns().Label(i) == t.table_data().Columns().Label(i));
+                ret = (table_data().Columns()[i].GetKey() == t.table_data().Columns()[i].GetKey()) &&
+                      (table_data().Columns()[i].GetLabel() == t.table_data().Columns()[i].GetLabel());
             }
 
             if(ret)
@@ -190,54 +182,30 @@ void DataObjects::DataTable::Clear()
 {
     Rows().Clear();
 
-    ClearColumns();
+    Columns().Clear();
 }
 
-void DataObjects::DataTable::AddColumn(const QString &key, const QString &label)
+void DataObjects::DataTable::column_inserted(int c)
 {
-    table_data().Columns().Add( DataColumn(key, label) );
-
     for(int i = 0; i < RowCount(); i++)
-        Rows()[i].set_number_of_columns(ColumnCount());
+        Rows()[i].column_inserted(c);
 }
 
-void DataObjects::DataTable::RemoveColumn(int ind)
+void DataObjects::DataTable::column_removed(int c)
 {
-    if(ind < 0 || ind >= ColumnCount())
-        return;
-
-    table_data().Columns().Remove(ind);
-}
-
-void DataObjects::DataTable::RemoveColumn(const QString &k)
-{
-    RemoveColumn(GetColumnIndex(k));
+    for(int i = 0; i < RowCount(); i++)
+        Rows()[i].column_removed(c);
 }
 
 void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QStringList &labels)
 {
-    ClearColumns();
+    Columns().Clear();
 
     foreach(QString k, keys)
-        AddColumn(k);
+        Columns().Add(DataColumn(k));
 
     for(int i = 0; i < labels.length(); i++)
         Columns()[i].SetLabel(labels.at(i));
-}
-
-void DataObjects::DataTable::SetColumnLabel(int col_index, const QString &l)
-{
-    Columns().Label(col_index) = l;
-}
-
-void DataObjects::DataTable::SetColumnKey(int col_index, const QString &k)
-{
-    Columns()[col_index].SetKey(k);
-}
-
-void DataObjects::DataTable::ClearColumns()
-{
-    Columns().Clear();
 }
 
 int DataObjects::DataTable::GetColumnIndex(const QString &key) const

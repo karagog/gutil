@@ -112,7 +112,7 @@ int GDatabaseIODevice::CreateTable(const QString &name,
                             .arg(column_names_n_types[i].first)
                             .arg(column_names_n_types[i].second));
 
-                tbl.AddColumn(column_names_n_types[i].first,
+                tbl.column_inserted(column_names_n_types[i].first,
                               column_names_n_types[i].second);
             }
 

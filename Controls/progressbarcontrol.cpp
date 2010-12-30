@@ -13,64 +13,43 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "progressbarcontrol.h"
-#include <QLabel>
 #include <QStackedLayout>
 #include <QVBoxLayout>
-#include <QPushButton>
-#include <QProgressBar>
 using namespace GUtil;
 
 Controls::ProgressBarControl::ProgressBarControl(QWidget *parent) :
     QWidget(parent)
 {
-    button = new QPushButton(this);
-    button->setStyleSheet("background-color: rgba(0,0,0,0);");
+    _button.setStyleSheet("background-color: rgba(0,0,0,0);");
 
-    _progressBar = new QProgressBar(this);
-    _progressBar->setTextVisible(false);
+    _progressBar.setTextVisible(false);
 
     setLayout(new QVBoxLayout(this));
     layout()->setContentsMargins(0, 0, 0, 0);
-    layout()->addWidget(_progressBar);
+    layout()->addWidget(&_progressBar);
 
-    _label = new QLabel(this);
-    _label->setAlignment(Qt::AlignCenter);
+    _label.setAlignment(Qt::AlignCenter);
     QFont f;  f.setBold(true);
-    _label->setFont(f);
+    _label.setFont(f);
 
-    _progressBar->setLayout(new QStackedLayout(_progressBar));
-    _progressBar->layout()->setContentsMargins(0, 0, 0, 0);
-    ((QStackedLayout*)_progressBar->layout())->setStackingMode(QStackedLayout::StackAll);
-    _progressBar->layout()->addWidget(_label);
+    _progressBar.setLayout(new QStackedLayout(&_progressBar));
+    _progressBar.layout()->setContentsMargins(0, 0, 0, 0);
+    ((QStackedLayout*)_progressBar.layout())->setStackingMode(QStackedLayout::StackAll);
+    _progressBar.layout()->addWidget(&_label);
 
-    button->hide();
-    _progressBar->layout()->addWidget(button);
+    _button.hide();
+    _progressBar.layout()->addWidget(&_button);
 }
 
 void Controls::ProgressBarControl::setButtonEnabled(bool which)
 {
     if(which)
     {
-        button->show();
-        ((QStackedLayout *)_progressBar->layout())->setCurrentWidget(button);
+        _button.show();
+        ((QStackedLayout *)_progressBar.layout())->setCurrentWidget(&_button);
     }
     else
     {
-        button->hide();
+        _button.hide();
     }
-}
-
-QLabel *Controls::ProgressBarControl::label()
-{
-    return _label;
-}
-
-QProgressBar *Controls::ProgressBarControl::progressBar()
-{
-    return _progressBar;
-}
-
-QPushButton *Controls::ProgressBarControl::pushButton()
-{
-    return button;
 }

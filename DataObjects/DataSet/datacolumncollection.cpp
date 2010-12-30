@@ -13,31 +13,27 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datacolumncollection.h"
-#include <QUuid>
+#include "datatable.h"
 #include <QStringList>
 using namespace GUtil;
 
-DataObjects::DataColumnCollection::DataColumnCollection(int size)
-    :ResizableCollection<DataColumn>(size)
+DataObjects::DataColumnCollection::DataColumnCollection(SharedTableData *t, int size)
+    :ResizableCollection<DataColumn>(size),
+      _table(new DataTable(t))
 {}
+
+DataObjects::DataColumnCollection::~DataColumnCollection()
+{
+    delete _table;
+}
 
 DataObjects::DataColumnCollection::DataColumnCollection(const DataColumnCollection &o)
     :ResizableCollection<DataColumn>(o)
 {}
 
-QString DataObjects::DataColumnCollection::Key(int ind) const
-{
-    return At(ind).GetKey();
-}
-
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
 {
     return Contains( DataColumn(k) );
-}
-
-QString DataObjects::DataColumnCollection::Label(int ind) const
-{
-    return At(ind).GetLabel();
 }
 
 QStringList DataObjects::DataColumnCollection::Keys() const
@@ -55,7 +51,7 @@ QStringList DataObjects::DataColumnCollection::Labels() const
     QStringList ret;
 
     for(int i = 0; i < Count(); i++)
-        ret.append(Label(i));
+        ret.append(At(i).GetLabel());
 
     return ret;
 }
@@ -67,4 +63,28 @@ void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::Dat
         THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   QString("Column collection already contains key '%1'")
                                   .arg(c.GetKey()).toStdString());
+}
+
+void DataObjects::DataColumnCollection::on_add(DataColumn *c)
+{
+    for(int i = 0; i < Count(); i++)
+    {
+        if(&At(i) == c)
+        {
+            _table->column_inserted(i);
+            break;
+        }
+    }
+}
+
+void DataObjects::DataColumnCollection::on_remove(DataColumn *c)
+{
+    for(int i = 0; i < Count(); i++)
+    {
+        if(&At(i) == c)
+        {
+            _table->column_removed(i);
+            break;
+        }
+    }
 }

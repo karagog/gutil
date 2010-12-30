@@ -21,16 +21,17 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 
 
+class SharedTableData;
+class DataTable;
+
 class DataColumnCollection :
         public ResizableCollection<DataColumn>
 {
+    friend class SharedTableData;
 public:
 
-    DataColumnCollection(int size = 0);
     DataColumnCollection(const DataColumnCollection &);
-
-    QString Key(int) const;
-    QString Label(int) const;
+    ~DataColumnCollection();
 
     QStringList Keys() const;
     QStringList Labels() const;
@@ -40,8 +41,15 @@ public:
 
 protected:
 
+    DataColumnCollection(SharedTableData *, int size = 0);
+
+    void on_add(DataColumn *);
+    void on_remove(DataColumn *);
+
     virtual void validate_new_item(const DataColumn &) const
             throw(Core::ValidationException);
+
+    DataTable *_table;
 
 };
 

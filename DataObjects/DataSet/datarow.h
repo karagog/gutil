@@ -99,7 +99,9 @@ protected:
     DataRow(const DataTable &dt,
             const Custom::GVariantList &values = Custom::GVariantList());
 
-    void set_number_of_columns(int);
+    //void set_number_of_columns(int);
+    void column_inserted(int);
+    void column_removed(int);
 
 
 

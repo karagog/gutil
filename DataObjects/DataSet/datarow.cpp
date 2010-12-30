@@ -103,9 +103,19 @@ const DataObjects::SharedRowData &DataObjects::DataRow::row_data() const
     return *((SharedRowData *)GetExplicitlySharedData());
 }
 
-void DataObjects::DataRow::set_number_of_columns(int cols)
+//void DataObjects::DataRow::set_number_of_columns(int cols)
+//{
+//    row_data().Tuple().Resize(cols);
+//}
+
+void DataObjects::DataRow::column_inserted(int c)
 {
-    row_data().Tuple().Resize(cols);
+    row_data().Tuple().Insert(GVariant(), c);
+}
+
+void DataObjects::DataRow::column_removed(int c)
+{
+    row_data().Tuple().Remove(c);
 }
 
 Custom::UpdatableGVariant &DataObjects::DataRow::At(int index)

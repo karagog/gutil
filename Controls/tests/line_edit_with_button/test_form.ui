@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="GUtil::QtControls::line_edit_with_button" name="lineEditWidget" native="true"/>
+    <widget class="GUtil::Controls::line_edit_with_button" name="lineEditWidget" native="true"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -36,26 +36,21 @@
     </widget>
    </item>
    <item>
-    <widget class="GUtil::QtControls::LabelledProgressBar" name="widget" native="true"/>
+    <widget class="GUtil::Controls::ProgressBarControl" name="widget" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GUtil::QtControls::line_edit_with_button</class>
+   <class>GUtil::Controls::ProgressBarControl</class>
    <extends>QWidget</extends>
-   <header>line_edit_with_button.h</header>
+   <header>Controls/progressbarcontrol.h</header>
    <container>1</container>
-   <slots>
-    <slot>reFade()</slot>
-    <slot>toggleButton()</slot>
-    <slot>fadeOut()</slot>
-   </slots>
   </customwidget>
   <customwidget>
-   <class>GUtil::QtControls::LabelledProgressBar</class>
+   <class>GUtil::Controls::line_edit_with_button</class>
    <extends>QWidget</extends>
-   <header>labelledprogressbar.h</header>
+   <header>Controls/line_edit_with_button.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
