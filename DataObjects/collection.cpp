@@ -146,7 +146,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::add_protected(co
     int index = _collection.size();
     _collection.append(value);
 
-    on_add(&_collection[index]);
+    on_add(index);
 
     return _collection[index];
 }
@@ -161,7 +161,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected
 
     _collection.insert(index, value);
 
-    on_add(&_collection[index]);
+    on_add(index);
 
     return _collection[index];
 }
@@ -187,7 +187,7 @@ template <typename T> void GUtil::DataObjects::CollectionBase<T>::remove_protect
 {
     FailIfReadOnly();
 
-    on_remove(&_collection[index]);
+    on_remove(index);
 
     _collection.removeAt(index);
 }

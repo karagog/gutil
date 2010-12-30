@@ -28,20 +28,12 @@ using namespace GUtil;
 using namespace Custom;
 using namespace DataObjects;
 
-DataObjects::DataTable::DataTable(int num_cols, const QStringList &labels)
-    :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
-{
-    _init(QString::null, num_cols);
-
-    for(int i = 0; i < num_cols && i < labels.count(); i++)
-        Columns()[i].SetLabel(labels[i]);
-}
-
-DataObjects::DataTable::DataTable(const QStringList &column_keys)
+DataObjects::DataTable::DataTable(const QStringList &column_keys, const QStringList &column_labels)
         :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
 {
     _init(QString::null, 0);
-    SetColumnHeaders(column_keys);
+
+    SetColumnHeaders(column_keys, column_labels);
 }
 
 DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
@@ -201,11 +193,9 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
 {
     Columns().Clear();
 
-    foreach(QString k, keys)
-        Columns().Add(DataColumn(k));
-
-    for(int i = 0; i < labels.length(); i++)
-        Columns()[i].SetLabel(labels.at(i));
+    for(int i = 0; i < keys.count() || i < labels.count(); i++)
+        Columns().Add(DataColumn(i < keys.count() ? keys[i] : "",
+                                 i < labels.count() ? labels[i] : ""));
 }
 
 int DataObjects::DataTable::GetColumnIndex(const QString &key) const

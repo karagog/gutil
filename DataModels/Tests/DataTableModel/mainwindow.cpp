@@ -20,7 +20,7 @@ GUTIL_USING_NAMESPACE(Custom);
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    _data(4, QStringList() <<
+    _data(QStringList(), QStringList() <<
                            "Hi" <<
                            "Second" <<
                            "More Data" <<

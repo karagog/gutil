@@ -112,8 +112,8 @@ int GDatabaseIODevice::CreateTable(const QString &name,
                             .arg(column_names_n_types[i].first)
                             .arg(column_names_n_types[i].second));
 
-                tbl.column_inserted(column_names_n_types[i].first,
-                              column_names_n_types[i].second);
+                tbl.Columns().Add(DataColumn(column_names_n_types[i].first,
+                                             column_names_n_types[i].second));
             }
 
             if(primary_key_column == -1)

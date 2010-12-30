@@ -43,8 +43,8 @@ protected:
 
     DataColumnCollection(SharedTableData *, int size = 0);
 
-    void on_add(DataColumn *);
-    void on_remove(DataColumn *);
+    void on_add(int);
+    void on_remove(int);
 
     virtual void validate_new_item(const DataColumn &) const
             throw(Core::ValidationException);

@@ -65,26 +65,12 @@ void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::Dat
                                   .arg(c.GetKey()).toStdString());
 }
 
-void DataObjects::DataColumnCollection::on_add(DataColumn *c)
+void DataObjects::DataColumnCollection::on_add(int i)
 {
-    for(int i = 0; i < Count(); i++)
-    {
-        if(&At(i) == c)
-        {
-            _table->column_inserted(i);
-            break;
-        }
-    }
+    _table->column_inserted(i);
 }
 
-void DataObjects::DataColumnCollection::on_remove(DataColumn *c)
+void DataObjects::DataColumnCollection::on_remove(int i)
 {
-    for(int i = 0; i < Count(); i++)
-    {
-        if(&At(i) == c)
-        {
-            _table->column_removed(i);
-            break;
-        }
-    }
+    _table->column_removed(i);
 }
