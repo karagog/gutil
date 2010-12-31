@@ -25,7 +25,7 @@ class DataColumn
 public:
 
     inline DataColumn(const QString &key = QUuid::createUuid().toString(),
-               const QString &label = QString::null)
+                      const QString &label = QString::null)
         :_p_Key(key),
           _p_Label(label)
     {}
