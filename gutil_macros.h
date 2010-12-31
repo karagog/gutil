@@ -55,6 +55,13 @@ public: \
     inline type Get##name() const{ return _p_##name; } \
     enum{}
 
+#define READONLY_PROPERTY_POINTER( name, type ) \
+private: \
+    type *_p_##name; \
+public: \
+    inline type *Get##name() const{ return _p_##name; } \
+    enum{}
+
 
 #define PROTECTED_READONLY_PROPERTY( name, type ) \
 private: \
