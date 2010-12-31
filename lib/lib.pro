@@ -18,6 +18,7 @@ extract_thirdparty.commands = ar -x libGUtilThirdParty.a
 extract_utils.commands = ar -x libGUtilUtils.a
 
 
+migrate_libs.commands = cp --no-dereference *.a $$COPY_LIBS $$LIB_DESTINATION
 BUILD_LIBRARY = libGUtil.a
 win32{
     BUILD_SHARED_LIBRARY = GUtil.dll
