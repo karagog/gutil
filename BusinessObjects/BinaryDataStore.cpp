@@ -111,7 +111,7 @@ void BusinessObjects::BinaryDataStore::RemoveFile(int id)
     _ids.remove(id);
 }
 
-QByteArray BusinessObjects::BinaryDataStore::GetFile(int id)
+QByteArray BusinessObjects::BinaryDataStore::GetFile(int id) const
 {
     DatabaseSelectionParameters s(
             _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
@@ -147,7 +147,7 @@ QString BusinessObjects::BinaryDataStore::_get_file_loc(const QString &id)
             + QString("/%1.GUTIL.sqlite").arg(id);
 }
 
-bool BusinessObjects::BinaryDataStore::HasFile(int id)
+bool BusinessObjects::BinaryDataStore::HasFile(int id) const
 {
     return _ids.contains(id);
 }

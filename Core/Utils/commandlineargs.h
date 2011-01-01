@@ -34,6 +34,8 @@ public:
 
     READONLY_PROPERTY(Arguments, std::vector<std::string>);
 
+    int ArgCount() const;
+
     // Returns -1 if not found
     int FindArgument(const std::string &, bool case_sensitive = true);
 

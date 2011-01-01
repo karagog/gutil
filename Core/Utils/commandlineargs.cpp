@@ -25,6 +25,11 @@ CommandLineArgs::CommandLineArgs(int argc, char **argv)
         _p_Arguments[i] = argv[i];
 }
 
+int CommandLineArgs::ArgCount() const
+{
+    return GetArguments().size();
+}
+
 int CommandLineArgs::FindArgument(const string &f, bool case_sensitive)
 {
     int ret(-1);

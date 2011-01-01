@@ -45,8 +45,8 @@ namespace GUtil
             // For manipulating files
             int AddFile(const QByteArray &, int id = -1);
             void RemoveFile(int);
-            QByteArray GetFile(int);
-            bool HasFile(int id);
+            QByteArray GetFile(int) const;
+            bool HasFile(int id) const;
 
             // Remove all files
             void Reset();
