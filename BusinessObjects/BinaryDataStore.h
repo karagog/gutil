@@ -48,6 +48,9 @@ namespace GUtil
             QByteArray GetFile(int) const;
             bool HasFile(int id) const;
 
+            // Get the size of a file
+            int GetSize(int id) const;
+
             // Remove all files
             void Reset();
 

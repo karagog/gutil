@@ -74,10 +74,15 @@ int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
     {
         // Insert a new record
         DataTable t(_dbio->GetBlankTable(BS_TABLE_NAME));
-        t.AddNewRow(Custom::GVariantList() << Custom::GVariant() << data);
+        {
+            DataRow r(t.AddNewRow(
+                          DataObjects::GVariantCollection(t.ColumnCount())));
+            r["size"] = data.length();
+            r["data"] = data;
+        }
 
         if(id != -1)
-            t[0][0] = id;
+            t[0]["id"] = id;
 
         _dbio->Insert(t);
         ret = _dbio->LastInsertId();
@@ -89,8 +94,9 @@ int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
         // Update an existing record
         DatabaseSelectionParameters select(
                 _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
-        select.FilterValues()[0] = id;
-        params.Values()[1] = data;
+        select.FilterValues()["id"] = id;
+        params.Values()["size"] = data.length();
+        params.Values()["data"] = data;
 
         _dbio->Update(select, params);
     }
@@ -105,7 +111,7 @@ void BusinessObjects::BinaryDataStore::RemoveFile(int id)
     DatabaseSelectionParameters s(
             _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
 
-    s.FilterValues()[0] = id;
+    s.FilterValues()["id"] = id;
     _dbio->Delete(s);
 
     _ids.remove(id);
@@ -115,14 +121,28 @@ QByteArray BusinessObjects::BinaryDataStore::GetFile(int id) const
 {
     DatabaseSelectionParameters s(
             _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
-    s.FilterValues()[0] = id;
+    s.FilterValues()["id"] = id;
 
-    DataTable t(_dbio->Select(s, QList<int>() << 1));
+    DataTable t(_dbio->Select(s, QStringList("data")));
 
     if(t.RowCount() == 0)
         THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
 
-    return t[0][1].toByteArray();
+    return t[0]["data"].toByteArray();
+}
+
+int BusinessObjects::BinaryDataStore::GetSize(int id) const
+{
+    DatabaseSelectionParameters s(
+            _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+    s.FilterValues()["id"] = id;
+
+    DataTable t(_dbio->Select(s, QStringList("size")));
+
+    if(t.RowCount() == 0)
+        THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
+
+    return t[0]["size"].toInt();
 }
 
 // Clear all files
@@ -135,9 +155,10 @@ void BusinessObjects::BinaryDataStore::Reset()
     // Create a table with two columns, an integer primary key and blob,
     //  dropping the table if it already exists
     Custom::GPairList<QString, QString> pl;
-    pl <<
-            QPair<QString, QString>("a", "INTEGER") <<
-            QPair<QString, QString> ("b", "BLOB");
+    pl
+            << QPair<QString, QString>("id", "INTEGER")
+            << QPair<QString, QString>("size", "INTEGER")
+            << QPair<QString, QString> ("data", "BLOB");
     _dbio->CreateTable(BS_TABLE_NAME, pl, 0, true);
 }
 
