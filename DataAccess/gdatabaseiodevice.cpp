@@ -188,6 +188,33 @@ void GDatabaseIODevice::Insert(const DataTable &t)
     }
 }
 
+DataObjects::DataTable GDatabaseIODevice::Select(
+    const DatabaseSelectionParameters &where,
+    const QStringList &columns)
+{
+    QList<int> cols;
+    {
+        DataTable t(where.Table());
+        foreach(QString s, columns)
+            cols.append(t.GetColumnIndex(s));
+    }
+
+    return Select(where, cols);
+}
+
+DataObjects::DataTable GDatabaseIODevice::Select(const QString &table_name,
+                                                 const QStringList &columns)
+{
+    QList<int> cols;
+    {
+        DataTable t(_tables[table_name]);
+        foreach(QString s, columns)
+            cols.append(t.GetColumnIndex(s));
+    }
+
+    return Select(table_name, cols);
+}
+
 DataTable GDatabaseIODevice::Select(const QString &table_name,
                                     const QList<int> &cols)
 {

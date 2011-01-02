@@ -91,6 +91,11 @@ namespace GUtil
             DataObjects::DataTable Select(const QString &table_name,
                                           const QList<int> &columns = QList<int>());
 
+            DataObjects::DataTable Select(const DatabaseSelectionParameters &where,
+                                          const QStringList &columns = QStringList());
+            DataObjects::DataTable Select(const QString &table_name,
+                                          const QStringList &columns = QStringList());
+
             // A count query, based on your selection parameter filters
             long Count(const DatabaseSelectionParameters &);
 
