@@ -21,6 +21,15 @@ limitations under the License.*/
 #include <QObject>
 #include <QString>
 
+
+// Derived classes can make convenient property accessors with this macro
+#define CONFIGFILE_PROPERTY( name, type ) \
+    inline type Get##name() const{ return Value(#name).value<type>(); } \
+    inline void Set##name(const type &value){ SetValue( #name, value ); } \
+    enum{}
+
+
+
 namespace GUtil
 {
     namespace Utils
