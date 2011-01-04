@@ -60,9 +60,9 @@ namespace GUtil
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
 
 
-            Custom::GVariant Value(const QString &key);
+            Custom::GVariant Value(const QString &key) const;
             QMap<QString, Custom::GVariant> Values(
-                    const QStringList &keys = QStringList());
+                    const QStringList &keys = QStringList()) const;
 
             void SetValue(const QString &key, const Custom::GVariant& value);
             void SetValues(const QMap<QString, Custom::GVariant> &);

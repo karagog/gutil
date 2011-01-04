@@ -197,13 +197,13 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
     _value_changed();
 }
 
-Custom::GVariant ConfigFile::Value(const QString &key)
+Custom::GVariant ConfigFile::Value(const QString &key) const
 {
     return Values(QStringList(key)).value(key);
 }
 
 QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(
-        const QStringList &keys)
+        const QStringList &keys) const
 {
     QMap<QString, Custom::GVariant> ret;
     QStringList keys_copy(keys);
