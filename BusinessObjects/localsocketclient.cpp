@@ -13,23 +13,16 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "localsocketclient.h"
-#include "giodevicebundlemanager.h"
 #include "DataAccess/gsocketiodevice.h"
 using namespace GUtil;
 using namespace DataAccess;
 using namespace BusinessObjects;
 
 LocalSocketClient::LocalSocketClient(QObject *parent)
-    :QObject(parent),
-    _socket_manager(new GIODeviceBundleManager(this))
+    :QObject(parent)
 {
-    connect(_socket_manager, SIGNAL(NewDataArrived()),
+    connect(&_socket_manager, SIGNAL(NewDataArrived()),
             this, SLOT(_socket_new_data()));
-}
-
-LocalSocketClient::~LocalSocketClient()
-{
-    delete _socket_manager;
 }
 
 void LocalSocketClient::ConnectToServer(const QString &identifier,
@@ -43,7 +36,7 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
     {
         connect(&sock->Socket(), SIGNAL(disconnected()),
                 this, SLOT(_socket_disconnected()));
-        _socket_manager->AddToBundle(sock);
+        _socket_manager.AddToBundle(sock);
     }
     else
     {
@@ -57,15 +50,15 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
 
 void LocalSocketClient::DisconnectFromServer()
 {
-    ((GSocketIODevice &)_socket_manager->Transport())
+    ((GSocketIODevice &)_socket_manager.Transport())
             .Socket().disconnectFromServer();
 
-    _socket_manager->RemoveAll();
+    _socket_manager.RemoveAll();
 }
 
 bool LocalSocketClient::IsConnected() const
 {
-    return _socket_manager->GetIds().count() > 0;
+    return _socket_manager.GetIds().count() > 0;
 }
 
 void LocalSocketClient::_socket_disconnected()
@@ -80,15 +73,15 @@ void LocalSocketClient::_socket_new_data()
 
 void LocalSocketClient::SendMessage(const QByteArray &msg)
 {
-    _socket_manager->SendData(msg);
+    _socket_manager.SendData(msg);
 }
 
 QByteArray LocalSocketClient::ReceiveMessage()
 {
-    return _socket_manager->ReceiveData();
+    return _socket_manager.ReceiveData();
 }
 
 bool LocalSocketClient::HasMessage() const
 {
-    return _socket_manager->HasData();
+    return _socket_manager.HasData();
 }

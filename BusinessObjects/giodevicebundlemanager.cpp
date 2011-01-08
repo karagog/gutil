@@ -167,7 +167,7 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
     //  been set to true, and they will reprocess the appropriate queue.
     flagsMutex.lock();
     {
-        work_queue.enqueue(WorkItem(ret, WorkItem::Outgoing));
+        work_queue.enqueue(WorkItem(id, WorkItem::Outgoing));
     }
     flagsMutex.unlock();
 
@@ -196,7 +196,7 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
     return ret;
 }
 
-bool GIODeviceBundleManager::HasData(const QUuid &id)
+bool GIODeviceBundleManager::HasData(const QUuid &id) const
 {
     IODevicePackage *pack(get_package(id));
     bool ret;
@@ -216,16 +216,15 @@ void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
     if(_iodevices.contains(id))
         return;
 
+    // Allocate a new thread if we still have room for threads
+    if(_iodevices.count() < _thread_pool.maxThreadCount())
+        _thread_pool.start(new WorkerThread(this));
+
     IODevicePackage *pack = new IODevicePackage(iodevice);
-
     _iodevices.insert(iodevice->GetIdentity(), pack);
-
 
     connect(iodevice, SIGNAL(ReadyRead(QUuid)),
             this, SLOT(importData(QUuid)));
-
-    if(_iodevices.count() < _thread_pool.maxThreadCount())
-        _thread_pool.start(new WorkerThread(this));
 }
 
 void GIODeviceBundleManager::RemoveAll(bool synchronous)

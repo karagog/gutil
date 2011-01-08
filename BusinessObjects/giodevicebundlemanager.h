@@ -73,7 +73,7 @@ namespace GUtil
 
             // Use this to safely remove an item from the in_queue
             QByteArray ReceiveData(const QUuid &id = QUuid());
-            bool HasData(const QUuid &id = QUuid());
+            bool HasData(const QUuid &id = QUuid()) const;
 
             inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
                 return get_package(id)->GetAsyncWrite();
@@ -121,6 +121,10 @@ namespace GUtil
 
             inline QList<QUuid> GetIds() const{
                 return _iodevices.keys();
+            }
+
+            inline int MaxThreads() const{
+                return _thread_pool.maxThreadCount();
             }
 
 

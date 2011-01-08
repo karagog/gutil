@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef LOCALSOCKETCLIENT_H
 #define LOCALSOCKETCLIENT_H
 
+#include "BusinessObjects/giodevicebundlemanager.h"
 #include <QObject>
 #include <QUuid>
 
@@ -22,8 +23,6 @@ namespace GUtil
 {
     namespace BusinessObjects
     {
-        class GIODeviceBundleManager;
-
         class LocalSocketClient :
                 public QObject
         {
@@ -37,7 +36,6 @@ namespace GUtil
         public:
 
             explicit LocalSocketClient(QObject *parent = 0);
-            ~LocalSocketClient();
 
             void ConnectToServer(const QString &identifier,
                                  const QString &modifier = QString::null);
@@ -48,6 +46,10 @@ namespace GUtil
             QByteArray ReceiveMessage();
             bool HasMessage() const;
 
+            inline int MaxThreads() const{
+                return _socket_manager.MaxThreads();
+            }
+
 
         private slots:
 
@@ -57,7 +59,7 @@ namespace GUtil
 
         private:
 
-            GIODeviceBundleManager *_socket_manager;
+            GIODeviceBundleManager _socket_manager;
 
         };
     }

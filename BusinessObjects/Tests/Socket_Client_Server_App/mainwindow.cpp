@@ -71,6 +71,13 @@ MainWindow::MainWindow(bool server,
         ui->lblServer->setText(QString("FAILED TO INITIALIZE: %1")
                                .arg(ex.GetMessage().c_str()));
     }
+
+    {
+        int max = _server ? _server->MaxThreads() :
+                            _client->MaxThreads();
+        ui->lblThreads->setText(QString("Max Threads: %1 with an ideal of %2")
+                                .arg(max).arg(QThread::idealThreadCount()));
+    }
 }
 
 MainWindow::~MainWindow()
