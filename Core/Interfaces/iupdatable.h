@@ -37,6 +37,10 @@ public:
         return _iupdatable_is_dirty;
     }
 
+    inline bool IsClean() const{
+        return !IsDirty();
+    }
+
     void MakeDirty(){
         if(!_iupdatable_is_dirty)
             _iupdatable_is_dirty = true;
