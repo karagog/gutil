@@ -75,25 +75,43 @@ bool ConfigFile::Reload()
 {
     bool ret(true);
     QByteArray d;
+
     try
     {
         d = FileTransport().FileData();
         _preprocess_incoming_data(d);
-        _table.FromXmlQString(d);
     }
     catch(Core::Exception &)
     {
         ret = false;
+    }
+
+    if(ret)
+    {
+        _table.LockForWrite();
+        try
+        {
+            _table.FromXmlQString(d);
+        }
+        catch(Core::Exception &)
+        {
+            ret = false;
+        }
+        _table.Unlock();
     }
     return ret;
 }
 
 void ConfigFile::Clear()
 {
-    _table.Clear();
-    _init_new_table(_table);
+    _table.LockForWrite();
+    {
+        _table.Clear();
+        _init_new_table(_table);
 
-    _value_changed();
+        _value_changed();
+    }
+    _table.Unlock();
 }
 
 void ConfigFile::_init_new_table(DataObjects::DataTable &tbl) const
@@ -177,24 +195,27 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
     if(values.keys().count() == 0)
         return;
 
-    foreach(QString s, values.keys())
+    _table.LockForWrite();
     {
-        bool ex_hit = false;
-        try
+        foreach(QString s, values.keys())
         {
-            DataObjects::DataRow &r = _table.FindFirstRow(0, s);
-            r[1] = values[s];
-        }
-        catch(Core::NotFoundException &)
-        {
-            ex_hit = true;
-        }
+            bool ex_hit = false;
+            try
+            {
+                DataObjects::DataRow &r = _table.FindFirstRow(0, s);
+                r[1] = values[s];
+            }
+            catch(Core::NotFoundException &)
+            {
+                ex_hit = true;
+            }
 
-        if(ex_hit)
-            _table.AddNewRow(Custom::GVariantList() << s << values[s]);
+            if(ex_hit)
+                _table.AddNewRow(Custom::GVariantList() << s << values[s]);
+        }
+        _value_changed();
     }
-
-    _value_changed();
+    _table.Unlock();
 }
 
 Custom::GVariant ConfigFile::Value(const QString &key) const
@@ -208,33 +229,38 @@ QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(
     QMap<QString, Custom::GVariant> ret;
     QStringList keys_copy(keys);
 
-    if(keys.isEmpty())
+    _table.LockForRead();
     {
-        for(int i = 0; i < _table.RowCount(); i++)
-            keys_copy.append(_table[i]["key"].toString());
-    }
-
-    foreach(QString s, keys_copy)
-    {
-        // Prepare the "search map"
-        QMap<int, Custom::GVariant> m;
-        m.insert(0, s);
-
-        try
+        if(keys.isEmpty())
         {
-            const DataObjects::DataRow *const r = &_table.FindFirstRow(m);
-            ret.insert(r->At(0).toString(), r->At(1));
+            for(int i = 0; i < _table.RowCount(); i++)
+                keys_copy.append(_table[i]["key"].toString());
         }
-        catch(Core::NotFoundException &){}    // if key not found, ignore
+
+        foreach(QString s, keys_copy)
+        {
+            // Prepare the "search map"
+            QMap<int, Custom::GVariant> m;
+            m.insert(0, s);
+
+            try
+            {
+                const DataObjects::DataRow *const r = &_table.FindFirstRow(m);
+                ret.insert(r->At(0).toString(), r->At(1));
+            }
+            catch(Core::NotFoundException &){}    // if key not found, ignore
+        }
     }
+    _table.Unlock();
 
     return ret;
 }
 
 bool ConfigFile::Contains(const QString &key)
 {
-    bool ret = true;
+    bool ret(true);
 
+    _table.LockForRead();
     try
     {
         QMap<int, Custom::GVariant> m;
@@ -245,6 +271,7 @@ bool ConfigFile::Contains(const QString &key)
     {
         ret = false;
     }
+    _table.Unlock();
 
     return ret;
 }
@@ -261,18 +288,22 @@ void ConfigFile::RemoveValues(const QStringList &keys)
     if(keys.count() == 0)
         return;
 
-    foreach(QString s, keys)
+    _table.LockForWrite();
     {
-        try
+        foreach(QString s, keys)
         {
-            _table.RemoveRow(
-                    _table.FindFirstRow(0, s)
-                    );
+            try
+            {
+                _table.RemoveRow(
+                            _table.FindFirstRow(0, s)
+                            );
+            }
+            catch(Core::NotFoundException &){}
         }
-        catch(Core::NotFoundException &){}
-    }
 
-    _value_changed();
+        _value_changed();
+    }
+    _table.Unlock();
 }
 
 QString ConfigFile::get_file_location(QString id)
