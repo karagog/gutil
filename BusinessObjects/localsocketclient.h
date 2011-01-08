@@ -29,7 +29,7 @@ namespace GUtil
             Q_OBJECT
         signals:
 
-            void NewMessageArrived();
+            void NewMessageArrived(const QUuid &message_id = QUuid());
             void Disconnected();
 
 
@@ -42,7 +42,11 @@ namespace GUtil
             void DisconnectFromServer();
             bool IsConnected() const;
 
+            // You can send a generic message, or reply specifically to a
+            //  message you received
             void SendMessage(const QByteArray &);
+            void Reply(const QUuid &message_id, const QByteArray &);
+
             QByteArray ReceiveMessage();
             bool HasMessage() const;
 
@@ -54,7 +58,7 @@ namespace GUtil
         private slots:
 
             void _socket_disconnected();
-            void _socket_new_data();
+            void _socket_new_data(const QUuid &, const QByteArray &);
 
 
         private:

@@ -59,7 +59,8 @@ namespace GUtil
 
         signals:
 
-            void NewDataArrived(const QUuid &id = QUuid());
+            void NewDataArrived(const QUuid &id = QUuid(),
+                                const QByteArray &data = QByteArray());
 
 
         public:

@@ -24,8 +24,8 @@ LocalSocketServer::LocalSocketServer(QObject *parent)
     _server = new QLocalServer(this);
 
     connect(_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
-    connect(&_socket_manager, SIGNAL(NewDataArrived(QUuid)),
-            this, SLOT(new_data(QUuid)));
+    connect(&_socket_manager, SIGNAL(NewDataArrived(QUuid, QByteArray)),
+            this, SLOT(new_data(QUuid, QByteArray)));
 }
 
 LocalSocketServer::~LocalSocketServer()
@@ -49,9 +49,9 @@ void LocalSocketServer::new_connection()
     }
 }
 
-void LocalSocketServer::new_data(const QUuid &id)
+void LocalSocketServer::new_data(const QUuid &id, const QByteArray &data)
 {
-    emit NewMessageArrived(id);
+    emit NewMessageArrived(id, QUuid(data.left(data.indexOf(":")).constData()));
 }
 
 void LocalSocketServer::socket_disconnected(const QUuid &id)
@@ -91,13 +91,34 @@ void LocalSocketServer::SendMessage(const QByteArray &message,
     else
         ids.append(id);
 
+    QByteArray newmsg(message);
+    newmsg.prepend(":");
+
     foreach(QUuid i, ids)
-        _socket_manager.SendData(message, i);
+        _socket_manager.SendData(newmsg, i);
+}
+
+void LocalSocketServer::Reply(const QUuid &msg_id,
+                              const QByteArray &message,
+                              const QUuid &conn_id)
+{
+    QList<QUuid> ids;
+    if(conn_id.isNull())
+        ids = _socket_manager.GetIds();
+    else
+        ids.append(conn_id);
+
+    QByteArray newmsg(message);
+    newmsg.prepend(QString("%1:").arg(msg_id.toString()).toAscii());
+
+    foreach(QUuid i, ids)
+        _socket_manager.SendData(newmsg, i);
 }
 
 QByteArray LocalSocketServer::ReceiveMessage(const QUuid &id)
 {
-    return _socket_manager.ReceiveData(id);
+    QByteArray ret(_socket_manager.ReceiveData(id));
+    return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
 bool LocalSocketServer::HasMessage(const QUuid &id) const

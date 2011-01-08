@@ -21,8 +21,8 @@ using namespace BusinessObjects;
 LocalSocketClient::LocalSocketClient(QObject *parent)
     :QObject(parent)
 {
-    connect(&_socket_manager, SIGNAL(NewDataArrived()),
-            this, SLOT(_socket_new_data()));
+    connect(&_socket_manager, SIGNAL(NewDataArrived(QUuid, QByteArray)),
+            this, SLOT(_socket_new_data(QUuid, QByteArray)));
 }
 
 void LocalSocketClient::ConnectToServer(const QString &identifier,
@@ -66,19 +66,28 @@ void LocalSocketClient::_socket_disconnected()
     emit Disconnected();
 }
 
-void LocalSocketClient::_socket_new_data()
+void LocalSocketClient::_socket_new_data(const QUuid &, const QByteArray &data)
 {
-    emit NewMessageArrived();
+    emit NewMessageArrived(QUuid(data.left(data.indexOf(":")).constData()));
 }
 
 void LocalSocketClient::SendMessage(const QByteArray &msg)
 {
-    _socket_manager.SendData(msg);
+    QByteArray cpy(msg);
+    _socket_manager.SendData(cpy.prepend(":"));
+}
+
+void LocalSocketClient::Reply(const QUuid &message_id, const QByteArray &data)
+{
+    QByteArray cpy(data);
+    _socket_manager.SendData(cpy.prepend(QString("%1:")
+                                         .arg(message_id.toString()).toAscii()));
 }
 
 QByteArray LocalSocketClient::ReceiveMessage()
 {
-    return _socket_manager.ReceiveData();
+    QByteArray ret(_socket_manager.ReceiveData());
+    return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
 bool LocalSocketClient::HasMessage() const

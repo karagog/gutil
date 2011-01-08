@@ -38,7 +38,7 @@ namespace GUtil
 
             void NewConnection(const QUuid &);
 
-            void NewMessageArrived(const QUuid &);
+            void NewMessageArrived(const QUuid &, const QUuid &message_id = QUuid());
 
             void Disconnected(const QUuid &);
 
@@ -59,6 +59,10 @@ namespace GUtil
             void SendMessage(const QByteArray &message,
                              const QUuid &id = QUuid());
 
+            // Reply to a specific message you received
+            void Reply(const QUuid &message_id, const QByteArray &,
+                       const QUuid &connection_id = QUuid());
+
             // Returns a null byte array if nothing to read
             QByteArray ReceiveMessage(const QUuid &);
             bool HasMessage(const QUuid &) const;
@@ -71,7 +75,7 @@ namespace GUtil
         private slots:
 
             void new_connection();
-            void new_data(const QUuid &);
+            void new_data(const QUuid &, const QByteArray &data);
 
             void socket_disconnected(const QUuid &);
 

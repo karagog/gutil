@@ -100,7 +100,8 @@ void GIODeviceBundleManager::WorkerThread::_receive_incoming_data(IODevicePackag
         }
         pack->InQueueMutex.unlock();
 
-        emit _bundle_manager->NewDataArrived(pack->IODevice->GetIdentity());
+        emit _bundle_manager->NewDataArrived(pack->IODevice->GetIdentity(),
+                                             data);
     }
 }
 
