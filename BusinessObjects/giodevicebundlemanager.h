@@ -26,6 +26,7 @@ limitations under the License.*/
 #include <QMutex>
 #include <QWaitCondition>
 #include <QFuture>
+#include <QThreadPool>
 
 namespace GUtil
 {
@@ -41,10 +42,6 @@ namespace GUtil
 
     namespace BusinessObjects
     {
-        class IODevicePackage;
-
-
-
         // Serves as a generic class to hold values and
         //  send/receive them over the provided transport mechanisms.
 
@@ -58,6 +55,8 @@ namespace GUtil
                 public QObject
         {
             Q_OBJECT
+            class IODevicePackage;
+
         signals:
 
             void NewDataArrived(const QUuid &id = QUuid());
@@ -77,18 +76,18 @@ namespace GUtil
             bool HasData(const QUuid &id = QUuid());
 
             inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
-                return _get_package(id)->GetAsyncWrite();
+                return get_package(id)->GetAsyncWrite();
             }
             inline void SetAsyncWrite(bool b, const QUuid &id = QUuid()) const{
-                _get_package(id)->SetAsyncWrite(b);
+                get_package(id)->SetAsyncWrite(b);
             }
 
             // Drop all incoming data on the floor
             inline void SetDropInput(bool b, const QUuid &id = QUuid()){
-                _get_package(id)->SetDropInput(b);
+                get_package(id)->SetDropInput(b);
             }
             inline bool GetDropInput(const QUuid &id = QUuid()) const{
-                return _get_package(id)->GetDropInput();
+                return get_package(id)->GetDropInput();
             }
 
 
@@ -105,7 +104,7 @@ namespace GUtil
                 Remove(io->GetIdentity());
             }
 
-            void RemoveAll();
+            void RemoveAll(bool wait_until_finished = false);
 
             // Blocks until the message denoted by the unique identifier is sent
             void WaitForMessageSent(const QUuid &message_id,
@@ -113,11 +112,11 @@ namespace GUtil
 
             // The method of transport (could be file, socket, network I/O)
             inline DataAccess::GIODevice &Transport(const QUuid &id = QUuid()){
-                return *_get_package(id)->IODevice;
+                return *get_package(id)->IODevice;
             }
             inline const DataAccess::GIODevice &Transport(
                     const QUuid &id = QUuid()) const{
-                return *_get_package(id)->IODevice;
+                return *get_package(id)->IODevice;
             }
 
             inline QList<QUuid> GetIds() const{
@@ -132,6 +131,34 @@ namespace GUtil
             void importData(const QUuid &id = QUuid());
 
 
+        protected:
+
+            IODevicePackage *get_package(const QUuid &) const;
+            QWaitCondition forSomethingToDo;
+
+            class WorkItem
+            {
+            public:
+                enum DirectionEnum{
+                    Incoming,
+                    Outgoing
+                };
+
+                inline WorkItem(const QUuid &id = QUuid(),
+                                DirectionEnum direction = Incoming)
+                    :Id(id),
+                      Direction(direction){}
+
+                QUuid Id;
+                DirectionEnum Direction;
+            };
+
+            // these objects are protected by the flags mutex
+            QQueue<WorkItem> work_queue;
+            bool flagCancelThread;
+            QMutex flagsMutex;
+
+
         private:
 
             // This represents one IO Device in the bundle
@@ -142,13 +169,10 @@ namespace GUtil
                 inline IODevicePackage(DataAccess::GIODevice *dev)
                     :IODevice(dev),
                     _p_AsyncWrite(true),
-                    _p_DropInput(false),
-                    FlagNewIncomingDataReady(false),
-                    FlagNewOutgoingDataEnqueued(false),
-                    FlagCancel(false)
+                    _p_DropInput(false)
                 {}
 
-                ~IODevicePackage(){
+                inline ~IODevicePackage(){
                     // We delete later, because we may get deleted in a function
                     //  triggered by the io device's own signal.
                     IODevice->deleteLater();
@@ -167,32 +191,26 @@ namespace GUtil
                 // So people can block until their data is written
                 QWaitCondition ForDataWritten;
 
-                // A reference to the worker thread
-                QFuture<void> Worker;
+            };
 
-                // These booleans command the worker thread, and are protected
-                //  by the flags mutex.  Wake the thread with the wait condition,
-                //  after setting the booleans for what it's supposed to do
-                bool FlagNewIncomingDataReady;
-                bool FlagNewOutgoingDataEnqueued;
-                bool FlagCancel;
+            class WorkerThread :
+                    public QRunnable
+            {
+            public:
+                WorkerThread(GIODeviceBundleManager *bundle_manager)
+                    :_bundle_manager(bundle_manager){}
 
-                QMutex FlagsMutex;
-                QWaitCondition ForSomethingToDo;
+            private:
+                void run();
+                GIODeviceBundleManager *_bundle_manager;
 
+                void _write_one_packet(IODevicePackage *);
+                void _receive_incoming_data(IODevicePackage *);
             };
 
             QMap<QUuid, IODevicePackage *> _iodevices;
 
-
-            void _flush_out_queue(IODevicePackage *);
-            void _receive_incoming_data(IODevicePackage *);
-
-            // The body for the background worker thread
-            void _worker_thread(IODevicePackage *io_package);
-
-            IODevicePackage *_get_package(const QUuid &) const;
-
+            QThreadPool _thread_pool;
         };
     }
 }

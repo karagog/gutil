@@ -16,104 +16,77 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
+#include "Core/gutil_math.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 #include <QThreadPool>
 using namespace GUtil;
+using namespace Core;
 using namespace DataObjects;
 using namespace BusinessObjects;
 
+#define MIN_THREADS 4
+
 GIODeviceBundleManager::GIODeviceBundleManager(QObject *parent)
-            :QObject(parent)
-{}
+            :QObject(parent),
+              flagCancelThread(false)
+{
+    _thread_pool.setExpiryTimeout(-1);
+    _thread_pool.setMaxThreadCount( Max(MIN_THREADS, QThread::idealThreadCount()) );
+}
 
 GIODeviceBundleManager::~GIODeviceBundleManager()
 {
     // Kill all the running threads
-    RemoveAll();
-}
-
-void GIODeviceBundleManager::RemoveAll()
-{
-    // Loop through and cancel all the threads
-    foreach(QUuid id, _iodevices.keys())
-    {
-        IODevicePackage *pack = _iodevices[id];
-
-        pack->FlagsMutex.lock();
-        {
-            pack->FlagCancel = true;
-        }
-        pack->FlagsMutex.unlock();
-
-        pack->ForSomethingToDo.wakeOne();
-    }
-
-    // Now wait for them to finish
-    foreach(QUuid id, _iodevices.keys())
-    {
-        IODevicePackage *pack = _iodevices[id];
-
-        pack->Worker.waitForFinished();
-        Remove(id);
-    }
+    RemoveAll(true);
 }
 
 // Wake up our background worker in charge of this ID
 void GIODeviceBundleManager::importData(const QUuid &id)
 {
-    IODevicePackage *pack(_get_package(id));
-
-    pack->FlagsMutex.lock();
+    flagsMutex.lock();
     {
-        pack->FlagNewIncomingDataReady = true;
+        work_queue.enqueue(WorkItem(id, WorkItem::Incoming));
     }
-    pack->FlagsMutex.unlock();
+    flagsMutex.unlock();
 
-    pack->ForSomethingToDo.wakeOne();
+    forSomethingToDo.wakeOne();
 }
 
-void GIODeviceBundleManager::_flush_out_queue(IODevicePackage *pack)
+void GIODeviceBundleManager::WorkerThread::_write_one_packet(IODevicePackage *pack)
 {
-    bool queue_has_data(true);
+    QByteArray data;
 
-    while(queue_has_data)
+    pack->OutQueueMutex.lock();
+    {
+        if(pack->OutQueue.count() > 0)
+            data = pack->OutQueue.dequeue().second;
+    }
+    pack->OutQueueMutex.unlock();
+
+    try
+    {
+        pack->IODevice->SendData(data);
+    }
+    catch(Core::Exception &ex)
+    {
+        Logging::GlobalLogger::LogException(ex);
+        // Don't crash on transport errors
+        //throw;
+    }
+
+    pack->ForDataWritten.wakeAll();
+}
+
+void GIODeviceBundleManager::WorkerThread::_receive_incoming_data(IODevicePackage *pack)
+{
+    if(pack->IODevice->HasDataAvailable())
     {
         QByteArray data;
 
-        pack->OutQueueMutex.lock();
-        {
-            if(pack->OutQueue.count() > 0)
-                data = pack->OutQueue.dequeue().second;
-
-            queue_has_data = pack->OutQueue.count() > 0;
-        }
-        pack->OutQueueMutex.unlock();
-
         try
         {
-            pack->IODevice->SendData(data);
-        }
-        catch(Core::Exception &ex)
-        {
-            Logging::GlobalLogger::LogException(ex);
-            // Don't crash on transport errors
-            //throw;
-        }
-
-        pack->ForDataWritten.wakeAll();
-    }
-}
-
-void GIODeviceBundleManager::_receive_incoming_data(IODevicePackage *pack)
-{
-    while(pack->IODevice->HasDataAvailable())
-    {
-        QByteArray *data;
-
-        try
-        {
-            data = new QByteArray(pack->IODevice->ReceiveData(false));
+            data = pack->IODevice->ReceiveData(false);
         }
         catch(Core::Exception &ex)
         {
@@ -123,69 +96,18 @@ void GIODeviceBundleManager::_receive_incoming_data(IODevicePackage *pack)
 
         pack->InQueueMutex.lock();
         {
-            pack->InQueue.enqueue(*data);
+            pack->InQueue.enqueue(data);
         }
         pack->InQueueMutex.unlock();
 
-        delete data;
-
-        emit NewDataArrived(pack->IODevice->GetIdentity());
+        emit _bundle_manager->NewDataArrived(pack->IODevice->GetIdentity());
     }
-}
-
-void GIODeviceBundleManager::_worker_thread(IODevicePackage *pack)
-{
-    pack->FlagsMutex.lock();
-    {
-        // The forever breaks when the Cancel flag is set
-        forever
-        {
-            // Somebody may have queued more data for us while we
-            //  were processing the last run.  If so, we skip waiting and
-            //  go right to process the queue.
-            while(!pack->FlagNewOutgoingDataEnqueued &&
-                  !pack->FlagNewIncomingDataReady &&
-                  !pack->FlagCancel)
-            {
-                pack->ForSomethingToDo.wait(&pack->FlagsMutex);
-            }
-
-            if(pack->FlagCancel)
-                break;
-
-            bool data_out(pack->FlagNewOutgoingDataEnqueued);
-            bool data_in(pack->FlagNewIncomingDataReady);
-
-            // lower the flags, 'cause we're about to address the work
-            pack->FlagNewOutgoingDataEnqueued = false;
-            pack->FlagNewIncomingDataReady = false;
-
-            pack->FlagsMutex.unlock();
-            {
-                // NON-Critical/Work section; don't hold the flags lock while
-                //  we do the background work
-
-                // Design decision: send data before receiving data.
-                //  The methodology is that other people waiting for us
-                //  should get their data 'cause we're ready to send it,
-                //  and then we have time to think about some new job
-                //  coming in off the wire.
-                if(data_out)
-                    _flush_out_queue(pack);
-
-                if(!pack->GetDropInput() && data_in)
-                    _receive_incoming_data(pack);
-            }
-            pack->FlagsMutex.lock();
-        }
-    }
-    pack->FlagsMutex.unlock();
 }
 
 void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
                                                    const QUuid &device_id)
 {
-    IODevicePackage *pack(_get_package(device_id));
+    IODevicePackage *pack(get_package(device_id));
 
     pack->OutQueueMutex.lock();
     {
@@ -213,7 +135,7 @@ void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
 }
 
 GIODeviceBundleManager::IODevicePackage *
-        GIODeviceBundleManager::_get_package(const QUuid &id) const
+        GIODeviceBundleManager::get_package(const QUuid &id) const
 {
     IODevicePackage *ret(0);
     if(id.isNull())
@@ -229,7 +151,7 @@ GIODeviceBundleManager::IODevicePackage *
 QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
                                        const QUuid &id)
 {
-    IODevicePackage *pack(_get_package(id));
+    IODevicePackage *pack(get_package(id));
     QUuid ret(QUuid::createUuid());
 
     // enqueue the data
@@ -243,13 +165,13 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
     //  data available.  If they miss the wakeup because they're already
     //  running, then they will see that _new_***_work_queued has
     //  been set to true, and they will reprocess the appropriate queue.
-    pack->FlagsMutex.lock();
+    flagsMutex.lock();
     {
-        pack->FlagNewOutgoingDataEnqueued = true;
+        work_queue.enqueue(WorkItem(ret, WorkItem::Outgoing));
     }
-    pack->FlagsMutex.unlock();
+    flagsMutex.unlock();
 
-    pack->ForSomethingToDo.wakeOne();
+    forSomethingToDo.wakeOne();
 
     // If we write synchronously, then we wait here until the data is actually written
     if(!pack->GetAsyncWrite())
@@ -260,7 +182,7 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
 
 QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 {
-    IODevicePackage *pack(_get_package(id));
+    IODevicePackage *pack(get_package(id));
     QByteArray ret;
 
     // dequeue the data
@@ -276,7 +198,7 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 
 bool GIODeviceBundleManager::HasData(const QUuid &id)
 {
-    IODevicePackage *pack(_get_package(id));
+    IODevicePackage *pack(get_package(id));
     bool ret;
 
     pack->InQueueMutex.lock();
@@ -302,9 +224,17 @@ void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
     connect(iodevice, SIGNAL(ReadyRead(QUuid)),
             this, SLOT(importData(QUuid)));
 
-    // Start up our background workers for this device
-    pack->Worker = QtConcurrent::run(
-            this, &GIODeviceBundleManager::_worker_thread, pack);
+    if(_iodevices.count() < _thread_pool.maxThreadCount())
+        _thread_pool.start(new WorkerThread(this));
+}
+
+void GIODeviceBundleManager::RemoveAll(bool synchronous)
+{
+    foreach(QUuid id, _iodevices.keys())
+        Remove(id);
+
+    if(synchronous)
+        _thread_pool.waitForDone();
 }
 
 void GIODeviceBundleManager::Remove(const QUuid &id)
@@ -312,24 +242,66 @@ void GIODeviceBundleManager::Remove(const QUuid &id)
     if(!_iodevices.contains(id))
         return;
 
-    IODevicePackage *pack(_get_package(id));
-
-    // First gracefully cancel the background threads
-    pack->FlagsMutex.lock();
-    {
-        pack->FlagCancel = true;
-    }
-    pack->FlagsMutex.unlock();
-
-    pack->ForSomethingToDo.wakeOne();
-
-
-    pack->Worker.waitForFinished();
-
-    // Then disconnect and delete the io device
     disconnect(_iodevices[id]->IODevice, SIGNAL(ReadyRead(QUuid)),
                this, SLOT(importData(QUuid)));
 
     delete _iodevices[id];
     _iodevices.remove(id);
+
+    if(_iodevices.count() < _thread_pool.maxThreadCount())
+    {
+        // Cancel a background thead if there's not enough work to go around
+        flagsMutex.lock();
+        {
+            flagCancelThread = true;
+        }
+        flagsMutex.unlock();
+
+        forSomethingToDo.wakeOne();
+    }
+}
+
+void GIODeviceBundleManager::WorkerThread::run()
+{
+    _bundle_manager->flagsMutex.lock();
+    {
+        // The forever breaks when the Cancel flag is set
+        forever
+        {
+            // Somebody may have queued more data for us while we
+            //  were processing the last run.  If so, we skip waiting and
+            //  go right to process the queue.
+            while(_bundle_manager->work_queue.isEmpty() &&
+                  !_bundle_manager->flagCancelThread)
+            {
+                _bundle_manager->forSomethingToDo.wait(&_bundle_manager->flagsMutex);
+            }
+
+            if(_bundle_manager->flagCancelThread)
+            {
+                _bundle_manager->flagCancelThread = false;
+                break;
+            }
+
+            if(!_bundle_manager->work_queue.isEmpty())
+            {
+                _bundle_manager->flagsMutex.unlock();
+
+                GIODeviceBundleManager::WorkItem item(
+                            _bundle_manager->work_queue.dequeue());
+
+                GIODeviceBundleManager::IODevicePackage *pack(
+                            _bundle_manager->get_package(item.Id));
+
+                if(item.Direction == item.Outgoing)
+                    _write_one_packet(pack);
+
+                else if(item.Direction == item.Incoming)
+                    _receive_incoming_data(pack);
+
+                _bundle_manager->flagsMutex.lock();
+            }
+        }
+    }
+    _bundle_manager->flagsMutex.unlock();
 }

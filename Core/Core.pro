@@ -12,9 +12,11 @@ INCLUDEPATH += .. $$CRYPTOPP_PATH
 LIBS += -L$$CRYPTOPP_PATH -lcryptopp
 
 HEADERS += \
-    exception.h
+    exception.h \
+    gutil_math.h
 SOURCES += \
-    exception.cc
+    exception.cc \
+    gutil_math.cpp
 
 include(BusinessObjects/BusinessObjects.pri)
 include(DataAccess/DataAccess.pri)
