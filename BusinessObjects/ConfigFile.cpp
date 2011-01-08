@@ -218,13 +218,13 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
     _table.Unlock();
 }
 
-Custom::GVariant ConfigFile::Value(const QString &key) const
+Custom::GVariant ConfigFile::Value(const QString &key)
 {
     return Values(QStringList(key)).value(key);
 }
 
 QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(
-        const QStringList &keys) const
+        const QStringList &keys)
 {
     QMap<QString, Custom::GVariant> ret;
     QStringList keys_copy(keys);

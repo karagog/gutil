@@ -24,7 +24,7 @@ limitations under the License.*/
 
 // Derived classes can make convenient property accessors with this macro
 #define CONFIGFILE_PROPERTY( name, type ) \
-    inline type Get##name() const{ return Value(#name).value<type>(); } \
+    inline type Get##name(){ return Value(#name).value<type>(); } \
     inline void Set##name(const type &value){ SetValue( #name, value ); } \
     enum{}
 
@@ -60,9 +60,9 @@ namespace GUtil
             explicit ConfigFile(const ConfigFile &, QObject *parent = 0);
 
 
-            Custom::GVariant Value(const QString &key) const;
+            Custom::GVariant Value(const QString &key);
             QMap<QString, Custom::GVariant> Values(
-                    const QStringList &keys = QStringList()) const;
+                    const QStringList &keys = QStringList());
 
             void SetValue(const QString &key, const Custom::GVariant& value);
             void SetValues(const QMap<QString, Custom::GVariant> &);
