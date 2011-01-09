@@ -33,8 +33,14 @@ public:
     // Will set this object's boolean to shadow the other's
     void TrackReadonlyObject(const IReadOnlyObject &);
 
-    bool IsReadOnly() const;
-    virtual void SetReadOnly(bool readonly = true);
+    inline bool IsReadOnly() const{
+        return *_readonly_bool_reference;
+    }
+    inline bool IsNotReadonly() const{
+        return !IsReadOnly();
+    }
+
+    void SetReadOnly(bool readonly = true);
 
     void FailIfReadOnly() const
             throw(GUtil::Core::ReadOnlyException);
@@ -44,6 +50,9 @@ public:
 protected:
     IReadOnlyObject(bool readonly = false);
     IReadOnlyObject(const IReadOnlyObject &other);
+
+    // You can throw an exception to halt the readonly setting
+    virtual void on_set_readonly(bool){}
 
     // Derived classes return a useful string to identify the object
     //  which threw a ReadOnlyException

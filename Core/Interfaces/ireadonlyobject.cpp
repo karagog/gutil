@@ -54,13 +54,9 @@ void Interfaces::IReadOnlyObject::TrackReadonlyObject(const Interfaces::IReadOnl
     SetReadonlyBooleanReference(*other._readonly_bool_reference);
 }
 
-bool Interfaces::IReadOnlyObject::IsReadOnly() const
-{
-    return *_readonly_bool_reference;
-}
-
 void Interfaces::IReadOnlyObject::SetReadOnly(bool readonly)
 {
+    on_set_readonly(readonly);
     *_readonly_bool_reference = readonly;
 }
 
