@@ -10,6 +10,8 @@ debug
 *.exe
 *.out
 
+*.dat
+
 # The user can add this specially if they need it
 Makefile*
 
