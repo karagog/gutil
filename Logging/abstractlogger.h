@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef ABSTRACTLOGGER_H
+#define ABSTRACTLOGGER_H
 
 #include <QDateTime>
 #include <QString>
@@ -33,7 +33,8 @@ namespace GUtil
 
     namespace Logging
     {
-        class AbstractLogger : public QObject
+        class AbstractLogger :
+                public QObject
         {
             Q_OBJECT
         public:
@@ -83,4 +84,4 @@ namespace GUtil
     }
 }
 
-#endif // LOGGER_H
+#endif // ABSTRACTLOGGER_H

@@ -19,18 +19,13 @@ GUTIL_USING_CORE_NAMESPACE(Utils);
 
 
 CommandLineArgs::CommandLineArgs(int argc, char **argv)
-    :_p_Arguments(argc)
+    :vector<string>(argc)
 {
     for(int i = 0; i < argc; i++)
-        _p_Arguments[i] = argv[i];
+        at(i) = argv[i];
 }
 
-int CommandLineArgs::ArgCount() const
-{
-    return GetArguments().size();
-}
-
-int CommandLineArgs::FindArgument(const string &f, bool case_sensitive)
+int CommandLineArgs::FindArgument(const string &f, bool case_sensitive) const
 {
     int ret(-1);
     string search(f);
@@ -38,10 +33,9 @@ int CommandLineArgs::FindArgument(const string &f, bool case_sensitive)
     if(!case_sensitive)
         search = StringHelpers::toUpper(search);
 
-    vector<string> flags(_p_Arguments);
-    for(int i(0); i < (int)flags.size(); i++)
+    for(int i(0); i < Count(); i++)
     {
-        string s(flags.at(i));
+        string s(at(i));
 
         if(!case_sensitive)
             s = StringHelpers::toUpper(s);
@@ -54,11 +48,4 @@ int CommandLineArgs::FindArgument(const string &f, bool case_sensitive)
     }
 
     return ret;
-}
-
-std::string CommandLineArgs::ProgramArgument() const
-{
-    if(_p_Arguments.size() > 0)
-        return _p_Arguments[0];
-    return "";
 }

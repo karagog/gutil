@@ -27,7 +27,8 @@ namespace GUtil
 
         // This class is thread-safe
 
-        class GroupLogger : public AbstractLogger
+        class GroupLogger :
+                public AbstractLogger
         {
             Q_OBJECT
         public:

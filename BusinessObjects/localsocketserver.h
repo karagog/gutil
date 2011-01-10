@@ -34,15 +34,6 @@ namespace GUtil
                 public QObject
         {
             Q_OBJECT
-        signals:
-
-            void NewConnection(const QUuid &);
-
-            void NewMessageArrived(const QUuid &, const QUuid &message_id = QUuid());
-
-            void Disconnected(const QUuid &);
-
-
         public:
 
             explicit LocalSocketServer(QObject *parent = 0);
@@ -70,6 +61,16 @@ namespace GUtil
             inline int MaxThreads() const{
                 return _socket_manager.MaxThreads();
             }
+
+
+        protected:
+
+            // Derived classes take advantage of these functions to react to
+            //  the various events
+            virtual void on_new_connection(const QUuid &conn_id){}
+            virtual void on_new_message_arrived(const QUuid &conn_id,
+                                                const QUuid &message_id){}
+            virtual void on_disconnected(const QUuid &conn_id){}
 
 
         private slots:

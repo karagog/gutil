@@ -26,21 +26,28 @@ GUTIL_BEGIN_CORE_NAMESPACE(Utils);
 //  of this as soon as you're done using it, because it uses extra memory that
 //  is only useful while parsing the arguments.
 
-class CommandLineArgs
+class CommandLineArgs :
+        public std::vector<std::string>
 {
 public:
 
     CommandLineArgs(int argc, char **argv);
 
-    READONLY_PROPERTY(Arguments, std::vector<std::string>);
-
-    int ArgCount() const;
+    inline int Count() const{
+        return size();
+    }
 
     // Returns -1 if not found
-    int FindArgument(const std::string &, bool case_sensitive = true);
+    int FindArgument(const std::string &, bool case_sensitive = true) const;
+
+    inline bool Contains(const std::string &arg, bool case_sensitive = true) const{
+        return FindArgument(arg, case_sensitive) != -1;
+    }
 
     // Get the program name argument
-    std::string ProgramArgument() const;
+    inline std::string ProgramArgument() const{
+        return Count() ? at(0) : "";
+    }
 
 };
 

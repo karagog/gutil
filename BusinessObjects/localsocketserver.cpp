@@ -45,18 +45,18 @@ void LocalSocketServer::new_connection()
 
         _socket_manager.AddToBundle(sock);
 
-        emit NewConnection(sock->GetIdentity());
+        on_new_connection(sock->GetIdentity());
     }
 }
 
 void LocalSocketServer::new_data(const QUuid &id, const QByteArray &data)
 {
-    emit NewMessageArrived(id, QUuid(data.left(data.indexOf(":")).constData()));
+    on_new_message_arrived(id, QUuid(data.left(data.indexOf(":")).constData()));
 }
 
 void LocalSocketServer::socket_disconnected(const QUuid &id)
 {
-    emit Disconnected(id);
+    on_disconnected(id);
 
     _socket_manager.Remove(id);
 }
