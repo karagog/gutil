@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
-#include "Core/gutil_math.h"
+#include "Core/math.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 #include <QThreadPool>
