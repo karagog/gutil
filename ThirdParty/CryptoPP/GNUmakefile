@@ -1,4 +1,4 @@
-CXXFLAGS = -O2
+CXXFLAGS = -O3 -DNDEBUG
 #CXXFLAGS = -g
 # -fPIC is supported. Please report any breakage of -fPIC as a bug.
 # CXXFLAGS += -fPIC
