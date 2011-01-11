@@ -6,7 +6,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! Base64 Encoder Class 
-class Base64Encoder : public SimpleProxyFilter
+class CRYPTOPP_DLL Base64Encoder : public SimpleProxyFilter
 {
 public:
 	Base64Encoder(BufferedTransformation *attachment = NULL, bool insertLineBreaks = true, int maxLineLength = 72)
@@ -19,7 +19,7 @@ public:
 };
 
 //! Base64 Decoder Class 
-class Base64Decoder : public BaseN_Decoder
+class CRYPTOPP_DLL Base64Decoder : public BaseN_Decoder
 {
 public:
 	Base64Decoder(BufferedTransformation *attachment = NULL)

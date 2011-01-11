@@ -9,7 +9,7 @@ TEMPLATE = lib
 
 CRYPTOPP_PATH = ../ThirdParty/CryptoPP
 
-win32: CRYPTOPP_LIB = cryptopp
+win32: CRYPTOPP_LIB = cryptopp.dll
 unix:  CRYPTOPP_LIB = cryptopp
 
 INCLUDEPATH += .. $$CRYPTOPP_PATH
