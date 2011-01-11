@@ -8,8 +8,12 @@ TEMPLATE = lib
 #CONFIG += staticlib
 
 CRYPTOPP_PATH = ../ThirdParty/CryptoPP
+
+win32: CRYPTOPP_LIB = cryptopp
+unix:  CRYPTOPP_LIB = cryptopp
+
 INCLUDEPATH += .. $$CRYPTOPP_PATH
-LIBS += -L$$CRYPTOPP_PATH -lcryptopp
+LIBS += -L$$CRYPTOPP_PATH -l$$CRYPTOPP_LIB
 
 HEADERS += \
     exception.h \
