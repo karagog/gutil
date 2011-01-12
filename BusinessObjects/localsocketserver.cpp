@@ -70,6 +70,7 @@ void LocalSocketServer::ListenForConnections(const QString &identifier,
         Core::Exception ex(QString("Cannot listen for connections with id %1")
                            .arg(id).toStdString());
         ex.SetData("error", _server->errorString().toStdString());
+        THROW_GUTIL_EXCEPTION(ex);
     }
 }
 
