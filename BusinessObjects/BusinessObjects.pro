@@ -8,6 +8,7 @@ TARGET = GUtilBusinessObjects
 LIBS += -L../lib \
     -lGUtilCore \
     -lGUtilInterfaces \
+    -lGUtilUtils \
     -lGUtilCustom \
     -lGUtilDataObjects \
     -lGUtilDataAccess \
@@ -20,13 +21,15 @@ HEADERS += \
     ConfigFile.h \
     giodevicebundlemanager.h \
     localsocketserver.h \
-    localsocketclient.h
+    localsocketclient.h \
+    processstatusindicator.h
 
 SOURCES += \
     BinaryDataStore.cpp \
     ConfigFile.cpp \
     giodevicebundlemanager.cpp \
     localsocketserver.cpp \
-    localsocketclient.cpp
+    localsocketclient.cpp \
+    processstatusindicator.cpp
 
 INCLUDEPATH += ..
