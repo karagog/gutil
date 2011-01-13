@@ -248,3 +248,44 @@ string Utils::CryptoHelpers::randData(int size, int seed)
 
     return ret;
 }
+
+
+
+
+
+
+
+
+#ifdef GUTIL_COM_EXPORTS
+
+GUTIL_COM_EXPORT int Rand(){ return GUtil::Core::Utils::CryptoHelpers::rand(); }
+
+GUTIL_COM_EXPORT std::string EncryptString(const std::string &str, const std::string &password)
+{
+    return GUtil::Core::Utils::CryptoHelpers::encryptString(str, password);
+}
+
+GUTIL_COM_EXPORT std::string DecryptString(const std::string &str, const std::string &password)
+{
+    return GUtil::Core::Utils::CryptoHelpers::decryptString(str, password);
+}
+
+GUTIL_COM_EXPORT char *ToBase64(const char *str, int len, int &out_len)
+{
+    std::string ret = GUtil::Core::Utils::CryptoHelpers::toBase64(std::string(str, len)).c_str();
+    wchar_t *r = new wchar_t[ret.length()];
+    memcpy(r, ret.c_str(), ret.length());
+    out_len = ret.length();
+    return r;
+}
+
+GUTIL_COM_EXPORT char *FromBase64(const char *str, int len, int &out_len)
+{
+    std::string ret = GUtil::Core::Utils::CryptoHelpers::fromBase64(std::string(str, len)).c_str();
+    char *r = new char[ret.length()];
+    memcpy(r, ret.c_str(), ret.length());
+    out_len = ret.length();
+    return r;
+}
+
+#endif

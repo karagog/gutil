@@ -17,6 +17,23 @@ limitations under the License.*/
 
 // Here are some useful macros for you to use:
 
+#ifdef __WIN32__
+    #ifdef GUTIL_COM_EXPORTS
+        #define GUTIL_COM_EXPORT extern "C" __declspec(dllexport)
+    #else
+        #define GUTIL_COM_EXPORT
+    #endif
+
+    #ifdef GUTIL_DLL_EXPORTS
+        #define GUTIL_DLL_EXPORT __declspec(dllexport)
+    #else
+        #define GUTIL_DLL_EXPORT
+    #endif
+#else
+    #define GUTIL_DLL_EXPORT
+    #define GUTIL_COM_EXPORT
+#endif
+
 
 // Use this to succinctly declare property accessors
 //   It declares a Get and Set method for the provided variable type and name,

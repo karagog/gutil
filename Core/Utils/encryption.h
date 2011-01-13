@@ -25,15 +25,20 @@ class CryptoHelpers
 {
 public:
     // For working with strings (returns null if conversion fails)
-    static std::string encryptString(const std::string &instr, const std::string &passPhrase);
-    static std::string decryptString(const std::string &instr, const std::string &passPhrase);
+    static std::string encryptString(const std::string &instr,
+                                     const std::string &passPhrase);
+    static std::string decryptString(const std::string &instr,
+                                                  const std::string &passPhrase);
 
     // For working with files
-    static void encryptFile(const char *in, const char *out, const char *passPhrase);
-    static void decryptFile(const char *in, const char *out, const char *passPhrase);
+    static void encryptFile(const char *in, const char *out,
+                            const char *passPhrase);
+    static void decryptFile(const char *in, const char *out,
+                                         const char *passPhrase);
 
     // Data Compression functions
-    static std::string compress(const std::string &instr, int level = DEFAULT_COMPRESSION_LEVEL);
+    static std::string compress(const std::string &instr,
+                                int level = DEFAULT_COMPRESSION_LEVEL);
     static std::string decompress(const std::string &instr);
 
     static int DEFAULT_COMPRESSION_LEVEL;
@@ -50,7 +55,6 @@ public:
     // Random number generator
     static int rand();
     static std::string randData(int, int seed = -1);
-
 
 };
 
