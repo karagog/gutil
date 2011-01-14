@@ -20,7 +20,7 @@ GUTIL_USING_NAMESPACE(BusinessObjects);
 ProcessStatusIndicator::ProcessStatusIndicator(const QString &process_id, QObject *parent)
     :QObject(parent),
     _status_data(QString(IDENTITY_FORMAT).arg(process_id)),
-    _status_lock(QString(IDENTITY_FORMAT).arg(process_id))
+    _status_lock(QString(IDENTITY_FORMAT).arg(process_id), "")
 {
     connect(&_status_data, SIGNAL(NotifyConfigurationUpdate()),
             this, SLOT(_status_data_changed()));
