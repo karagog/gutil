@@ -16,6 +16,8 @@ limitations under the License.*/
 #define ICANCELLABLETHREAD_H
 
 #include <QThread>
+#include <QReadWriteLock>
+#include <QWaitCondition>
 
 namespace GUtil
 {
@@ -36,21 +38,31 @@ namespace GUtil
             explicit GThread(QObject *parent = 0);
 
             bool isCancelled();
-            void uncancel();
 
             static void sleep(unsigned long seconds);
             static void msleep(unsigned long mseconds);
             static void usleep(unsigned long useconds);
 
         signals:
+
             void notifyCancelled();
 
+
         public slots:
+
             void cancel();
 
 
-        private:
+        protected:
+
+            QReadWriteLock thread_lock;
+            QWaitCondition thread_wait_condition;
+
+            // This is protected, so derived classes can check it without
+            //  double-grabbing the lock, like if they had the lock already
+            //  when they call 'isCancelled()'
             bool is_cancelled;
+
         };
     }
 }

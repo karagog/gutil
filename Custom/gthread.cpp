@@ -16,25 +16,31 @@ limitations under the License.*/
 using namespace GUtil;
 
 Custom::GThread::GThread(QObject *parent) :
-    QThread(parent)
-{
-    is_cancelled = false;
-}
+    QThread(parent),
+    is_cancelled(false)
+{}
 
 void Custom::GThread::cancel()
 {
-    is_cancelled = true;
-    emit notifyCancelled();
-}
+    thread_lock.lockForWrite();
+    {
+        is_cancelled = true;
+    }
+    thread_lock.unlock();
 
-void Custom::GThread::uncancel()
-{
-    is_cancelled = false;
+    thread_wait_condition.wakeAll();
+    emit notifyCancelled();
 }
 
 bool Custom::GThread::isCancelled()
 {
-    return is_cancelled;
+    bool ret;
+    thread_lock.lockForRead();
+    {
+        ret = is_cancelled;
+    }
+    thread_lock.unlock();
+    return ret;
 }
 
 void Custom::GThread::sleep(unsigned long seconds)
