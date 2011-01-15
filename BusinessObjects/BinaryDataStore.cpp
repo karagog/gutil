@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "BinaryDataStore.h"
-#include "DataAccess/gdatabaseiodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
 #include "Core/exception.h"
@@ -28,52 +27,51 @@ limitations under the License.*/
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
-using namespace GUtil;
-using namespace DataObjects;
-using namespace DataAccess;
-using namespace BusinessObjects;
+GUTIL_USING_NAMESPACE(DataAccess);
+GUTIL_USING_NAMESPACE(DataObjects);
+GUTIL_USING_NAMESPACE(BusinessObjects);
 using namespace std;
 
 #define BS_TABLE_NAME "data"
 
-BusinessObjects::BinaryDataStore::BinaryDataStore(const QString &id)
+BinaryDataStore::BinaryDataStore(const QString &id)
     :IReadOnlyObject(false),
-    _file_location(_get_file_loc(id)),
-    _database_connection_string(QString("%1_database").arg(id))
+    _file_location(_get_file_loc(id))
 {
-    if(!QSqlDatabase::database(_database_connection_string).isValid())
+    QString tmp_id(QString("%1_database").arg(id));
+    if(!QSqlDatabase::database(tmp_id).isValid())
     {
         if(QFile::exists(_file_location))
             QFile::remove(_file_location);
 
         QSqlDatabase::addDatabase(
                 "QSQLITE",
-                _database_connection_string)
+                tmp_id)
                 .setDatabaseName(_file_location);
     }
 
-    _dbio = new GDatabaseIODevice(_database_connection_string);
+    dbio = new GDatabaseIODevice(tmp_id);
 
     Reset();
 }
 
-BusinessObjects::BinaryDataStore::~BinaryDataStore()
+BinaryDataStore::~BinaryDataStore()
 {
-    delete _dbio;
+    delete dbio;
 }
 
-int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
+int BinaryDataStore::AddFile(const QByteArray &data, int id)
 {
     FailIfReadOnly();
 
     int ret(id);
     DatabaseValueParameters params(
-            _dbio->GetBlankValueParameters(BS_TABLE_NAME));
+            dbio->GetBlankValueParameters(BS_TABLE_NAME));
 
     if(id == -1 || !HasFile(id))
     {
         // Insert a new record
-        DataTable t(_dbio->GetBlankTable(BS_TABLE_NAME));
+        DataTable t(dbio->GetBlankTable(BS_TABLE_NAME));
         {
             DataRow r(t.AddNewRow(
                           DataObjects::GVariantCollection(t.ColumnCount())));
@@ -84,8 +82,8 @@ int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
         if(id != -1)
             t[0]["id"] = id;
 
-        _dbio->Insert(t);
-        ret = _dbio->LastInsertId();
+        dbio->Insert(t);
+        ret = dbio->LastInsertId();
 
         _ids.insert(ret);
     }
@@ -93,37 +91,37 @@ int BusinessObjects::BinaryDataStore::AddFile(const QByteArray &data, int id)
     {
         // Update an existing record
         DatabaseSelectionParameters select(
-                _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+                dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
         select.FilterValues()["id"] = id;
         params.Values()["size"] = data.length();
         params.Values()["data"] = data;
 
-        _dbio->Update(select, params);
+        dbio->Update(select, params);
     }
 
     return ret;
 }
 
-void BusinessObjects::BinaryDataStore::RemoveFile(int id)
+void BinaryDataStore::RemoveFile(int id)
 {
     FailIfReadOnly();
 
     DatabaseSelectionParameters s(
-            _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+            dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
 
     s.FilterValues()["id"] = id;
-    _dbio->Delete(s);
+    dbio->Delete(s);
 
     _ids.remove(id);
 }
 
-QByteArray BusinessObjects::BinaryDataStore::GetFile(int id) const
+QByteArray BinaryDataStore::GetFile(int id) const
 {
     DatabaseSelectionParameters s(
-            _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+            dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
     s.FilterValues()["id"] = id;
 
-    DataTable t(_dbio->Select(s, QStringList("data")));
+    DataTable t(dbio->Select(s, QStringList("data")));
 
     if(t.RowCount() == 0)
         THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
@@ -131,13 +129,13 @@ QByteArray BusinessObjects::BinaryDataStore::GetFile(int id) const
     return t[0]["data"].toByteArray();
 }
 
-int BusinessObjects::BinaryDataStore::GetSize(int id) const
+int BinaryDataStore::GetSize(int id) const
 {
     DatabaseSelectionParameters s(
-            _dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+            dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
     s.FilterValues()["id"] = id;
 
-    DataTable t(_dbio->Select(s, QStringList("size")));
+    DataTable t(dbio->Select(s, QStringList("size")));
 
     if(t.RowCount() == 0)
         THROW_NEW_GUTIL_EXCEPTION2( Core::Exception, "File not found" );
@@ -146,7 +144,7 @@ int BusinessObjects::BinaryDataStore::GetSize(int id) const
 }
 
 // Clear all files
-void BusinessObjects::BinaryDataStore::Reset()
+void BinaryDataStore::Reset()
 {
     FailIfReadOnly();
 
@@ -159,16 +157,16 @@ void BusinessObjects::BinaryDataStore::Reset()
             << QPair<QString, QString>("id", "INTEGER")
             << QPair<QString, QString>("size", "INTEGER")
             << QPair<QString, QString> ("data", "BLOB");
-    _dbio->CreateTable(BS_TABLE_NAME, pl, 0, true);
+    dbio->CreateTable(BS_TABLE_NAME, pl, 0, true);
 }
 
-QString BusinessObjects::BinaryDataStore::_get_file_loc(const QString &id)
+QString BinaryDataStore::_get_file_loc(const QString &id)
 {
     return QDesktopServices::storageLocation(QDesktopServices::TempLocation)
             + QString("/%1.GUTIL.sqlite").arg(id);
 }
 
-bool BusinessObjects::BinaryDataStore::HasFile(int id) const
+bool BinaryDataStore::HasFile(int id) const
 {
     return _ids.contains(id);
 }

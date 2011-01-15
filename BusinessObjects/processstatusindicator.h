@@ -21,9 +21,11 @@ limitations under the License.*/
 
 namespace GUtil{ namespace BusinessObjects{
 
+class LocalSocketServer;
 
 
-class ProcessStatusIndicator : public QObject
+class ProcessStatusIndicator :
+        public QObject
 {
     Q_OBJECT
 public:
@@ -47,10 +49,15 @@ public:
     void SetIsProcessRunning(bool)
             throw(Core::Exception);
 
+    void SendMessageToControllingProcess(const QString &);
+
+    QString GetProcessIdentityString() const;
+
 
 signals:
 
     void StatusChanged(int new_status);
+    void NewMessageReceived(const QString &);
 
 
 private:
@@ -58,10 +65,12 @@ private:
     ConfigFile _status_data;
     Utils::UserMachineReadWriteLock _status_lock;
 
+    LocalSocketServer *_server;
 
 private slots:
 
     void _status_data_changed();
+    void _client_message_arrived();
 
 };
 

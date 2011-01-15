@@ -16,6 +16,7 @@ limitations under the License.*/
 #define FILE_MANAGER_H
 
 #include "Core/Interfaces/ireadonlyobject.h"
+#include "DataAccess/gdatabaseiodevice.h"
 #include <QString>
 #include <QSet>
 
@@ -24,11 +25,6 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace DataAccess
-    {
-        class GDatabaseIODevice;
-    }
-
     namespace BusinessObjects
     {
         class BinaryDataStore :
@@ -61,16 +57,18 @@ namespace GUtil
             }
 
 
+        protected:
+
+            DataAccess::GDatabaseIODevice *dbio;
+
+
         private:
 
             QString _file_location;
-            QString _database_connection_string;
 
             QSet<int> _ids;
 
             static QString _get_file_loc(const QString &id);
-
-            DataAccess::GDatabaseIODevice *_dbio;
 
         };
     }

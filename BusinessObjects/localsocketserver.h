@@ -55,12 +55,20 @@ namespace GUtil
                        const QUuid &connection_id = QUuid());
 
             // Returns a null byte array if nothing to read
-            QByteArray ReceiveMessage(const QUuid &);
-            bool HasMessage(const QUuid &) const;
+            QByteArray ReceiveMessage(const QUuid &conn_id = QUuid());
+            bool HasMessage(const QUuid &conn_id = QUuid()) const;
 
             inline int MaxThreads() const{
                 return _socket_manager.MaxThreads();
             }
+
+
+        signals:
+
+            void NewConnection(const QUuid &conn_id = QUuid());
+            void NewMessageArrived(const QUuid &conn_id = QUuid(),
+                                   const QUuid &message_id = QUuid());
+            void ClientDisconnected(const QUuid &conn_id = QUuid());
 
 
         protected:

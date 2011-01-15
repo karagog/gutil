@@ -13,6 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "processstatusindicator.h"
+#include "localsocketclient.h"
+#include "localsocketserver.h"
 GUTIL_USING_NAMESPACE(BusinessObjects);
 
 #define IDENTITY_FORMAT "%1_PROCESS_STATUS"
@@ -20,7 +22,8 @@ GUTIL_USING_NAMESPACE(BusinessObjects);
 ProcessStatusIndicator::ProcessStatusIndicator(const QString &process_id, QObject *parent)
     :QObject(parent),
     _status_data(QString(IDENTITY_FORMAT).arg(process_id)),
-    _status_lock(QString(IDENTITY_FORMAT).arg(process_id), "")
+    _status_lock(QString(IDENTITY_FORMAT).arg(process_id), ""),
+    _server(0)
 {
     connect(&_status_data, SIGNAL(NotifyConfigurationUpdate()),
             this, SLOT(_status_data_changed()));
@@ -86,7 +89,41 @@ void ProcessStatusIndicator::SetIsProcessRunning(bool is_running)
     }
 
     if(update_status)
+    {
         SetStatus((int)(is_running ? Normal : NotRunning));
+        if(is_running)
+        {
+            _server = new LocalSocketServer(this);
+            _server->ListenForConnections(GetProcessIdentityString());
+            connect(_server, SIGNAL(NewMessageArrived()),
+                    this, SLOT(_client_message_arrived()));
+        }
+        else if(_server)
+            delete _server;
+    }
 }
 
+void ProcessStatusIndicator::SendMessageToControllingProcess(const QString &message)
+{
+    if(IsProcessRunning())
+    {
+        LocalSocketClient sock;
+        sock.ConnectToServer(GetProcessIdentityString());
+        sock.SendMessage(message.toAscii());
+    }
+}
 
+QString ProcessStatusIndicator::GetProcessIdentityString() const
+{
+    QString id, dummy;
+    _status_data.GetIdentity(id, dummy);
+    return id;
+}
+
+void ProcessStatusIndicator::_client_message_arrived()
+{
+    while(_server->HasMessage())
+    {
+        emit NewMessageReceived(_server->ReceiveMessage());
+    }
+}
