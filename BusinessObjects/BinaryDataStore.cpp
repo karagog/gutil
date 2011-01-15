@@ -36,7 +36,8 @@ using namespace std;
 
 BinaryDataStore::BinaryDataStore(const QString &id)
     :IReadOnlyObject(false),
-    _file_location(_get_file_loc(id))
+    _file_location(_get_file_loc(id)),
+    _max_id(0)
 {
     QString tmp_id(QString("%1_database").arg(id));
     if(!QSqlDatabase::database(tmp_id).isValid())
@@ -68,7 +69,7 @@ int BinaryDataStore::AddFile(const QByteArray &data, int id)
     DatabaseValueParameters params(
             dbio->GetBlankValueParameters(BS_TABLE_NAME));
 
-    if(id == -1 || !HasFile(id))
+    if(id <= 0 || !HasFile(id))
     {
         // Insert a new record
         DataTable t(dbio->GetBlankTable(BS_TABLE_NAME));
@@ -79,8 +80,10 @@ int BinaryDataStore::AddFile(const QByteArray &data, int id)
             r["data"] = data;
         }
 
-        if(id != -1)
-            t[0]["id"] = id;
+        if(id <= 0)
+            id = GetFreeId();
+
+        t[0]["id"] = id;
 
         dbio->Insert(t);
         ret = dbio->LastInsertId();
@@ -169,4 +172,15 @@ QString BinaryDataStore::_get_file_loc(const QString &id)
 bool BinaryDataStore::HasFile(int id) const
 {
     return _ids.contains(id);
+}
+
+int BinaryDataStore::GetFreeId()
+{
+    while(_ids.contains(++_max_id))
+    {
+        // Once we hit 4 billion we could roll over into negatives
+        if(_max_id < 0)
+            _max_id = 1;
+    }
+    return _max_id;
 }

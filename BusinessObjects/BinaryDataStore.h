@@ -44,6 +44,8 @@ namespace GUtil
             QByteArray GetFile(int) const;
             bool HasFile(int id) const;
 
+            int GetFreeId();
+
             // Get the size of a file
             int GetSize(int id) const;
 
@@ -67,6 +69,7 @@ namespace GUtil
             QString _file_location;
 
             QSet<int> _ids;
+            int _max_id;
 
             static QString _get_file_loc(const QString &id);
 
