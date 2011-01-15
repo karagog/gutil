@@ -13,21 +13,50 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "pubsubsystem.h"
-using namespace GUtil;
+#include "gutil_macros.h"
+#include "Core/exception.h"
+#include <QMetaType>
+GUTIL_USING_NAMESPACE(Utils);
 
-Utils::PubSubSystem::PubSubSystem(QObject *parent)
+PubSubSystem::PubSubSystem(QObject *parent)
     :QObject(parent)
 {
+    // So passing exceptions through signals and slots will work
+    qRegisterMetaType<GUtil::Core::Exception>("GUtil::Core::Exception");
 }
 
-void Utils::PubSubSystem::PublishMessage(const QByteArray &msg)
+void PubSubSystem::PublishMessage(const QByteArray &msg)
 {
     on_message_published(msg);
 
     emit NotifyMessage(msg);
 }
 
-void Utils::PubSubSystem::on_message_published(const QByteArray &)
+void PubSubSystem::PublishProgress(int progress, int progress_id)
+{
+    on_progress_published(progress, progress_id);
+
+    emit NotifyProgress(progress, progress_id);
+}
+
+void PubSubSystem::PublishException(const GUtil::Core::Exception &ex)
+{
+    on_exception_published(ex);
+
+    emit NotifyException(ex);
+}
+
+void PubSubSystem::on_message_published(const QByteArray &)
 {
     // Subclasses can do something interesting here
+}
+
+void PubSubSystem::on_progress_published(int, int)
+{
+
+}
+
+void PubSubSystem::on_exception_published(const Core::Exception &)
+{
+
 }

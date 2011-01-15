@@ -19,28 +19,41 @@ limitations under the License.*/
 
 namespace GUtil
 {
+    namespace Core
+    {
+        class Exception;
+    }
+
     namespace Utils
     {
         class PubSubSystem : public QObject
         {
             Q_OBJECT
         public:
+
             explicit PubSubSystem(QObject *parent = 0);
 
 
         public slots:
+
             void PublishMessage(const QByteArray &);
+            void PublishProgress(int progress, int progress_id = -1);
+            void PublishException(const Core::Exception &);
 
 
         signals:
-            void NotifyMessage(const QByteArray &);
 
+            void NotifyMessage(const QByteArray &);
+            void NotifyProgress(int progress, int progress_id = -1);
+            void NotifyException(const Core::Exception &);
 
         protected:
 
             // Derived classes can override this function to do other interesting things
             //   with the published message
             virtual void on_message_published(const QByteArray &);
+            virtual void on_progress_published(int, int);
+            virtual void on_exception_published(const Core::Exception &);
 
 
         };

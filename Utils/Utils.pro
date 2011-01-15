@@ -16,13 +16,15 @@ SOURCES += \
     usermachinelocks.cpp \
     widgethelpers.cpp \
     qstringhelpers.cpp \
-    universalmutex.cpp
+    universalmutex.cpp \
+    datatransferutils.cpp
 
 HEADERS += \
     pubsubsystem.h \
     usermachinelocks.h \
     widgethelpers.h \
     qstringhelpers.h \
-    universalmutex.h
+    universalmutex.h \
+    datatransferutils.h
 
 INCLUDEPATH += ..
