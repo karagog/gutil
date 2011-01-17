@@ -6,7 +6,9 @@ QT += network
 
 TARGET = GUtilUtils
 
-LIBS += -L../lib -lGUtilCore -lGUtilThirdParty
+LIBS += -L../lib \
+    -lGUtilCore \
+    -lGUtilThirdPartyQt
 
 DESTDIR = ../lib
 TEMPLATE = lib

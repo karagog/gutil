@@ -24,6 +24,9 @@ namespace GUtil{ namespace Core{
 template <class T> const T &Max(const T &one, const T &two){
     return two < one ? one : two;
 }
+template <class T> const T &Min(const T &one, const T &two){
+    return one < two ? one : two;
+}
 
 
 }}

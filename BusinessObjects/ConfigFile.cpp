@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
-#include "ThirdParty/QtLockedFile/qtlockedfile.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileSystemWatcher>

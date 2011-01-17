@@ -1,9 +1,5 @@
-DESTDIR = ../lib
+TEMPLATE = subdirs
 
-TARGET = GUtilThirdParty
+SUBDIRS += CryptoPP Qt
 
-TEMPLATE = lib
-#CONFIG += staticlib
-
-include(QtLockedFile/QtLockedFile.pri)
-include(CryptoPP/CryptoPP.pri)
+CONFIG += ordered

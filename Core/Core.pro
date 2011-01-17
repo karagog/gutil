@@ -7,13 +7,8 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
-CRYPTOPP_PATH = ../ThirdParty/CryptoPP
-
-win32: CRYPTOPP_LIB = cryptopp.dll
-unix:  CRYPTOPP_LIB = cryptopp
-
-INCLUDEPATH += .. $$CRYPTOPP_PATH
-LIBS += -L$$CRYPTOPP_PATH -l$$CRYPTOPP_LIB
+INCLUDEPATH += .. ../ThirdParty/CryptoPP
+LIBS += -L../lib -lcryptopp
 
 #QMAKE_CXXFLAGS += -DGUTIL_DLL_EXPORTS
 #QMAKE_CXXFLAGS += -DGUTIL_COM_EXPORTS
