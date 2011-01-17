@@ -25,7 +25,6 @@ SOURCES += \
     exception.cc \
     math.cpp
 
-include(BusinessObjects/BusinessObjects.pri)
 include(DataAccess/DataAccess.pri)
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
