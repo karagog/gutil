@@ -14,8 +14,7 @@ SUBDIRS += \
     DataAccess \
     Logging \
     BusinessObjects \
-    Controls \
-    lib
+    Controls
 
 CONFIG += ordered
 
