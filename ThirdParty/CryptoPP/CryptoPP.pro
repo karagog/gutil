@@ -4,7 +4,7 @@ DESTDIR = ../../lib
 TARGET = cryptopp
 TEMPLATE = lib
 
-QMAKE_CXXFLAGS += -mthreads -pipe
+QMAKE_CXXFLAGS += -mthreads -pipe -w
 DEFINES += NDEBUG
 DEFINES -= UNICODE
 
