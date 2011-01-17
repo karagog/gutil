@@ -213,9 +213,10 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
             if(ex_hit)
                 _table.AddNewRow(Custom::GVariantList() << s << values[s]);
         }
-        _value_changed();
     }
     _table.Unlock();
+
+    _value_changed();
 }
 
 Custom::GVariant ConfigFile::Value(const QString &key)

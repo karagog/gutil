@@ -248,7 +248,7 @@ void GIODeviceBundleManager::Remove(const QUuid &id)
     delete _iodevices[id];
     _iodevices.remove(id);
 
-    if(_iodevices.count() < _thread_pool.maxThreadCount())
+    if(_iodevices.count() < _thread_pool.activeThreadCount())
     {
         // Cancel a background thead if there's not enough work to go around
         flagsMutex.lock();
