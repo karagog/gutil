@@ -18,13 +18,15 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include <QWaitCondition>
 #include <QMutex>
+#include <QSharedData>
 
 GUTIL_BEGIN_NAMESPACE(Utils);
 
 
 // An object to facilitate communicating an asynchronous response from one
 //  thread to another.  Derive from it to hold more interesting types of responses
-class AsyncResponse
+class AsyncResponse :
+        public QSharedData
 {
 public:
 
