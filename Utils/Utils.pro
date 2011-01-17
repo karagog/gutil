@@ -25,6 +25,7 @@ HEADERS += \
     widgethelpers.h \
     qstringhelpers.h \
     universalmutex.h \
-    datatransferutils.h
+    datatransferutils.h \
+    AsyncResponse.h
 
 INCLUDEPATH += ..
