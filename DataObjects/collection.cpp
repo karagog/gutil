@@ -155,7 +155,9 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected
         throw(Core::IndexOutOfRangeException)
 {
     FailIfReadOnly();
-    _validate_index(index);
+    if(index < 0 || index > this->count_protected())
+        throw Core::IndexOutOfRangeException(QString("Cannot insert at index %1")
+                                             .arg(index).toStdString());
 
     validate_new_item(value);
 
