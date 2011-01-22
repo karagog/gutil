@@ -108,6 +108,7 @@ void GIODeviceBundleManager::WorkerThread::_receive_incoming_data(IODevicePackag
 void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
                                                    const QUuid &device_id)
 {
+    iodevices_lock.lockForRead();
     IODevicePackage *pack(get_package(device_id));
 
     pack->OutQueueMutex.lock();
@@ -133,6 +134,7 @@ void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
         }
     }
     pack->OutQueueMutex.unlock();
+    iodevices_lock.unlock();
 }
 
 GIODeviceBundleManager::IODevicePackage *
@@ -141,10 +143,10 @@ GIODeviceBundleManager::IODevicePackage *
     IODevicePackage *ret(0);
     if(id.isNull())
     {
-        Q_ASSERT(_iodevices.count() > 0);
-        ret = _iodevices.begin().value();
+        if(_iodevices.count() > 0)
+            ret = _iodevices.begin().value();
     }
-    else
+    else if(_iodevices.contains(id))
         ret = _iodevices[id];
     return ret;
 }
@@ -152,6 +154,7 @@ GIODeviceBundleManager::IODevicePackage *
 QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
                                        const QUuid &id)
 {
+    iodevices_lock.lockForRead();
     IODevicePackage *pack(get_package(id));
     QUuid ret(QUuid::createUuid());
 
@@ -162,6 +165,9 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
     }
     pack->OutQueueMutex.unlock();
 
+    bool wait_for_sent = !pack->GetAsyncWrite();
+    iodevices_lock.unlock();
+
     // Wake up our background worker to the fact that there's new
     //  data available.  If they miss the wakeup because they're already
     //  running, then they will see that _new_***_work_queued has
@@ -171,11 +177,11 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
         work_queue.enqueue(WorkItem(id, WorkItem::Outgoing));
     }
     flagsMutex.unlock();
-
     forSomethingToDo.wakeOne();
 
+
     // If we write synchronously, then we wait here until the data is actually written
-    if(!pack->GetAsyncWrite())
+    if(wait_for_sent)
         WaitForMessageSent(ret, id);
 
     return ret;
@@ -183,6 +189,7 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
 
 QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 {
+    iodevices_lock.lockForRead();
     IODevicePackage *pack(get_package(id));
     QByteArray ret;
 
@@ -193,12 +200,14 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
             ret = pack->InQueue.dequeue();
     }
     pack->InQueueMutex.unlock();
+    iodevices_lock.unlock();
 
     return ret;
 }
 
-bool GIODeviceBundleManager::HasData(const QUuid &id) const
+bool GIODeviceBundleManager::HasData(const QUuid &id)
 {
+    iodevices_lock.lockForRead();
     IODevicePackage *pack(get_package(id));
     bool ret;
 
@@ -207,6 +216,7 @@ bool GIODeviceBundleManager::HasData(const QUuid &id) const
         ret = !pack->InQueue.isEmpty();
     }
     pack->InQueueMutex.unlock();
+    iodevices_lock.unlock();
 
     return ret;
 }
@@ -214,23 +224,29 @@ bool GIODeviceBundleManager::HasData(const QUuid &id) const
 void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
 {
     QUuid id(iodevice->GetIdentity());
-    if(_iodevices.contains(id))
-        return;
+    iodevices_lock.lockForWrite();
+    if(!_iodevices.contains(id))
+    {
+        // Allocate a new thread if we still have room for threads
+        if(_iodevices.count() < _thread_pool.maxThreadCount())
+            _thread_pool.start(new WorkerThread(this));
 
-    // Allocate a new thread if we still have room for threads
-    if(_iodevices.count() < _thread_pool.maxThreadCount())
-        _thread_pool.start(new WorkerThread(this));
+        IODevicePackage *pack = new IODevicePackage(iodevice);
+        _iodevices.insert(iodevice->GetIdentity(), pack);
 
-    IODevicePackage *pack = new IODevicePackage(iodevice);
-    _iodevices.insert(iodevice->GetIdentity(), pack);
-
-    connect(iodevice, SIGNAL(ReadyRead(QUuid)),
-            this, SLOT(importData(QUuid)));
+        connect(iodevice, SIGNAL(ReadyRead(QUuid)),
+                this, SLOT(importData(QUuid)));
+    }
+    iodevices_lock.unlock();
 }
 
 void GIODeviceBundleManager::RemoveAll(bool synchronous)
 {
-    foreach(QUuid id, _iodevices.keys())
+    iodevices_lock.lockForRead();
+    QList<QUuid> keys = _iodevices.keys();
+    iodevices_lock.unlock();
+
+    foreach(QUuid id, keys)
         Remove(id);
 
     if(synchronous)
@@ -239,16 +255,18 @@ void GIODeviceBundleManager::RemoveAll(bool synchronous)
 
 void GIODeviceBundleManager::Remove(const QUuid &id)
 {
-    if(!_iodevices.contains(id))
-        return;
+    iodevices_lock.lockForWrite();
+    bool cancel_thread(false);
+    if(_iodevices.contains(id))
+    {
+        delete _iodevices[id];
+        _iodevices.remove(id);
 
-    disconnect(_iodevices[id]->IODevice, SIGNAL(ReadyRead(QUuid)),
-               this, SLOT(importData(QUuid)));
+        cancel_thread = _iodevices.count() < _thread_pool.activeThreadCount();
+    }
+    iodevices_lock.unlock();
 
-    delete _iodevices[id];
-    _iodevices.remove(id);
-
-    if(_iodevices.count() < _thread_pool.activeThreadCount())
+    if(cancel_thread)
     {
         // Cancel a background thead if there's not enough work to go around
         flagsMutex.lock();
@@ -285,20 +303,25 @@ void GIODeviceBundleManager::WorkerThread::run()
 
             if(!_bundle_manager->work_queue.isEmpty())
             {
-                _bundle_manager->flagsMutex.unlock();
-
                 GIODeviceBundleManager::WorkItem item(
                             _bundle_manager->work_queue.dequeue());
 
-                GIODeviceBundleManager::IODevicePackage *pack(
-                            _bundle_manager->get_package(item.Id));
+                _bundle_manager->flagsMutex.unlock();
+                _bundle_manager->iodevices_lock.lockForRead();
+                {
+                    GIODeviceBundleManager::IODevicePackage *pack(
+                                _bundle_manager->get_package(item.Id));
 
-                if(item.Direction == item.Outgoing)
-                    _write_one_packet(pack);
+                    if(pack)
+                    {
+                        if(item.Direction == item.Outgoing)
+                            _write_one_packet(pack);
 
-                else if(item.Direction == item.Incoming)
-                    _receive_incoming_data(pack);
-
+                        else if(item.Direction == item.Incoming)
+                            _receive_incoming_data(pack);
+                    }
+                }
+                _bundle_manager->iodevices_lock.unlock();
                 _bundle_manager->flagsMutex.lock();
             }
         }

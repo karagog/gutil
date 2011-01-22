@@ -16,17 +16,18 @@ limitations under the License.*/
 #define ASYNCRESPONSE_H
 
 #include "gutil_macros.h"
-#include <QWaitCondition>
-#include <QMutex>
-#include <QSharedData>
 
 GUTIL_BEGIN_NAMESPACE(Utils);
 
 
 // An object to facilitate communicating an asynchronous response from one
-//  thread to another.  Derive from it to hold more interesting types of responses
-class AsyncResponse :
-        public QSharedData
+//  thread to another.  Derive from it to hold more interesting types of responses.
+
+// This was conceived of with qt signals in mind. So you open a window, then the
+//  window emits a response object with whatever data you're interested in.  It
+//  doesn't need to be locked in general because typically there is only one
+//  listener.  Otherwise you can implement your own locking mechanism.
+class Response
 {
 public:
 
@@ -37,15 +38,12 @@ public:
         Success
     };
 
-    inline AsyncResponse()
+    inline Response()
         :_p_ResponseType(None)
     {}
-    virtual ~AsyncResponse(){}
+    virtual ~Response(){}
 
     PROPERTY(ResponseType, ResponseTypeEnum);
-
-    QMutex Lock;
-    QWaitCondition ForResponse;
 
 };
 

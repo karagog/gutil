@@ -99,7 +99,10 @@ void ProcessStatusIndicator::SetIsProcessRunning(bool is_running)
                     this, SLOT(_client_message_arrived()));
         }
         else if(_server)
+        {
             delete _server;
+            _server = 0;
+        }
     }
 }
 

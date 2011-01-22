@@ -126,7 +126,7 @@ QByteArray LocalSocketServer::ReceiveMessage(const QUuid &id)
     return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
-bool LocalSocketServer::HasMessage(const QUuid &id) const
+bool LocalSocketServer::HasMessage(const QUuid &id)
 {
    return _socket_manager.HasData(id);
 }

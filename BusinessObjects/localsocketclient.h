@@ -48,7 +48,7 @@ namespace GUtil
             void Reply(const QUuid &message_id, const QByteArray &);
 
             QByteArray ReceiveMessage();
-            bool HasMessage() const;
+            bool HasMessage();
 
             inline int MaxThreads() const{
                 return _socket_manager.MaxThreads();

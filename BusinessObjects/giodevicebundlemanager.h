@@ -74,7 +74,7 @@ namespace GUtil
 
             // Use this to safely remove an item from the in_queue
             QByteArray ReceiveData(const QUuid &id = QUuid());
-            bool HasData(const QUuid &id = QUuid()) const;
+            bool HasData(const QUuid &id = QUuid());
 
             inline bool GetAsyncWrite(const QUuid &id = QUuid()) const{
                 return get_package(id)->GetAsyncWrite();
@@ -162,6 +162,9 @@ namespace GUtil
             QQueue<WorkItem> work_queue;
             bool flagCancelThread;
             QMutex flagsMutex;
+
+            // Protects our bundle of iodevices
+            QReadWriteLock iodevices_lock;
 
 
         private:

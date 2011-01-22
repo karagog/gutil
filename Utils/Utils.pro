@@ -28,6 +28,6 @@ HEADERS += \
     qstringhelpers.h \
     universalmutex.h \
     datatransferutils.h \
-    AsyncResponse.h
+    response.h
 
 INCLUDEPATH += ..

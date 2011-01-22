@@ -90,7 +90,7 @@ QByteArray LocalSocketClient::ReceiveMessage()
     return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
-bool LocalSocketClient::HasMessage() const
+bool LocalSocketClient::HasMessage()
 {
     return _socket_manager.HasData();
 }
