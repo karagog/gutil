@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "Custom/gvariant.h"
 #include "DataAccess/giodevice.h"
+#include "Utils/synchronizationobject.h"
 #include "Logging/globallogger.h"
 #include <QMap>
 #include <QString>
@@ -139,6 +140,9 @@ namespace GUtil
         protected:
 
             IODevicePackage *get_package(const QUuid &) const;
+            void remove_package(const QUuid &);
+            GUtil::Utils::SynchronizationObject *get_package_lock(const QUuid &) const;
+            void remove_package_lock(const QUuid &);
             QWaitCondition forSomethingToDo;
 
             class WorkItem
@@ -217,6 +221,11 @@ namespace GUtil
             };
 
             QMap<QUuid, IODevicePackage *> _iodevices;
+
+            // These locks need to be outside the packages themselves, because
+            //  we need to delete the package while holding the package lock.
+            // This map is also protected by the same lock as the iodevices map
+            QMap<QUuid, GUtil::Utils::SynchronizationObject *> _package_locks;
 
             QThreadPool _thread_pool;
         };

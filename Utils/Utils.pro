@@ -28,6 +28,7 @@ HEADERS += \
     qstringhelpers.h \
     universalmutex.h \
     datatransferutils.h \
-    response.h
+    response.h \
+    synchronizationobject.h
 
 INCLUDEPATH += ..

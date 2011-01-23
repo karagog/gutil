@@ -20,10 +20,10 @@ limitations under the License.*/
 #include <QStringList>
 #include <QtConcurrentRun>
 #include <QThreadPool>
-using namespace GUtil;
-using namespace Core;
-using namespace DataObjects;
-using namespace BusinessObjects;
+GUTIL_USING_NAMESPACE(Utils);
+GUTIL_USING_NAMESPACE(Core);
+GUTIL_USING_NAMESPACE(DataObjects);
+GUTIL_USING_NAMESPACE(BusinessObjects);
 
 #define MIN_THREADS 4
 
@@ -106,10 +106,19 @@ void GIODeviceBundleManager::WorkerThread::_receive_incoming_data(IODevicePackag
 }
 
 void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
-                                                   const QUuid &device_id)
+                                                const QUuid &device_id)
 {
+    IODevicePackage *pack;
+    SynchronizationObject *lock;
     iodevices_lock.lockForRead();
-    IODevicePackage *pack(get_package(device_id));
+    {
+        if((pack = get_package(device_id)))
+            (lock = get_package_lock(device_id))->LockForRead(&iodevices_lock);
+    }
+    iodevices_lock.unlock();
+
+    if(!pack)
+        return;
 
     pack->OutQueueMutex.lock();
     {
@@ -134,7 +143,7 @@ void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
         }
     }
     pack->OutQueueMutex.unlock();
-    iodevices_lock.unlock();
+    lock->Unlock();
 }
 
 GIODeviceBundleManager::IODevicePackage *
@@ -151,11 +160,60 @@ GIODeviceBundleManager::IODevicePackage *
     return ret;
 }
 
+SynchronizationObject *GIODeviceBundleManager::get_package_lock(const QUuid &id) const
+{
+    SynchronizationObject *ret(0);
+    if(id.isNull())
+    {
+        if(_package_locks.count() > 0)
+            ret = _package_locks.begin().value();
+    }
+    else if(_package_locks.contains(id))
+        ret = _package_locks[id];
+    return ret;
+}
+
+void GIODeviceBundleManager::remove_package(const QUuid &id)
+{
+    QUuid real_id(id);
+    if(id.isNull() && _iodevices.count() > 0)
+        real_id = _iodevices.begin().key();
+
+    if(!real_id.isNull() && _iodevices.contains(real_id))
+    {
+        delete _iodevices[real_id];
+        _iodevices.remove(real_id);
+    }
+}
+
+void GIODeviceBundleManager::remove_package_lock(const QUuid &id)
+{
+    QUuid real_id(id);
+    if(id.isNull() && _package_locks.count() > 0)
+        real_id = _package_locks.begin().key();
+
+    if(!real_id.isNull() && _package_locks.contains(real_id))
+    {
+        delete _package_locks[real_id];
+        _package_locks.remove(real_id);
+    }
+}
+
 QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
                                        const QUuid &id)
 {
+    IODevicePackage *pack;
+    SynchronizationObject *lock;
     iodevices_lock.lockForRead();
-    IODevicePackage *pack(get_package(id));
+    {
+        if((pack = get_package(id)))
+            (lock = get_package_lock(id))->LockForRead(&iodevices_lock);
+    }
+    iodevices_lock.unlock();
+
+    if(!pack)
+        return QUuid();
+
     QUuid ret(QUuid::createUuid());
 
     // enqueue the data
@@ -166,7 +224,7 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
     pack->OutQueueMutex.unlock();
 
     bool wait_for_sent = !pack->GetAsyncWrite();
-    iodevices_lock.unlock();
+    lock->Unlock();
 
     // Wake up our background worker to the fact that there's new
     //  data available.  If they miss the wakeup because they're already
@@ -189,9 +247,18 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
 
 QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 {
+    IODevicePackage *pack;
+    SynchronizationObject *lock;
     iodevices_lock.lockForRead();
-    IODevicePackage *pack(get_package(id));
+    {
+        if((pack = get_package(id)))
+            (lock = get_package_lock(id))->LockForRead(&iodevices_lock);
+    }
+    iodevices_lock.unlock();
+
     QByteArray ret;
+    if(!pack)
+        return ret;
 
     // dequeue the data
     pack->InQueueMutex.lock();
@@ -200,15 +267,22 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
             ret = pack->InQueue.dequeue();
     }
     pack->InQueueMutex.unlock();
-    iodevices_lock.unlock();
+    lock->Unlock();
 
     return ret;
 }
 
 bool GIODeviceBundleManager::HasData(const QUuid &id)
 {
+    IODevicePackage *pack;
+    SynchronizationObject *lock;
     iodevices_lock.lockForRead();
-    IODevicePackage *pack(get_package(id));
+    {
+        if((pack = get_package(id)))
+            (lock = get_package_lock(id))->LockForRead(&iodevices_lock);
+    }
+    iodevices_lock.unlock();
+
     bool ret;
 
     pack->InQueueMutex.lock();
@@ -216,7 +290,7 @@ bool GIODeviceBundleManager::HasData(const QUuid &id)
         ret = !pack->InQueue.isEmpty();
     }
     pack->InQueueMutex.unlock();
-    iodevices_lock.unlock();
+    lock->Unlock();
 
     return ret;
 }
@@ -232,7 +306,8 @@ void GIODeviceBundleManager::InsertIntoBundle(DataAccess::GIODevice *iodevice)
             _thread_pool.start(new WorkerThread(this));
 
         IODevicePackage *pack = new IODevicePackage(iodevice);
-        _iodevices.insert(iodevice->GetIdentity(), pack);
+        _iodevices.insert(id, pack);
+        _package_locks.insert(id, new SynchronizationObject);
 
         connect(iodevice, SIGNAL(ReadyRead(QUuid)),
                 this, SLOT(importData(QUuid)));
@@ -255,14 +330,24 @@ void GIODeviceBundleManager::RemoveAll(bool synchronous)
 
 void GIODeviceBundleManager::Remove(const QUuid &id)
 {
-    iodevices_lock.lockForWrite();
     bool cancel_thread(false);
-    if(_iodevices.contains(id))
+    iodevices_lock.lockForWrite();
     {
-        delete _iodevices[id];
-        _iodevices.remove(id);
+        IODevicePackage *pack(get_package(id));
+        if(pack)
+        {
+            SynchronizationObject *lock = get_package_lock(id);
+            lock->LockForWrite(&iodevices_lock);
+            {
+                remove_package(id);
+            }
+            lock->Unlock();
 
-        cancel_thread = _iodevices.count() < _thread_pool.activeThreadCount();
+            remove_package_lock(id);
+
+            cancel_thread = _iodevices.count() < _thread_pool.activeThreadCount();
+        }
+
     }
     iodevices_lock.unlock();
 
@@ -307,21 +392,28 @@ void GIODeviceBundleManager::WorkerThread::run()
                             _bundle_manager->work_queue.dequeue());
 
                 _bundle_manager->flagsMutex.unlock();
+
+                SynchronizationObject *lock;
+                GIODeviceBundleManager::IODevicePackage *pack;
                 _bundle_manager->iodevices_lock.lockForRead();
+                if((pack = _bundle_manager->get_package(item.Id)))
                 {
-                    GIODeviceBundleManager::IODevicePackage *pack(
-                                _bundle_manager->get_package(item.Id));
-
-                    if(pack)
-                    {
-                        if(item.Direction == item.Outgoing)
-                            _write_one_packet(pack);
-
-                        else if(item.Direction == item.Incoming)
-                            _receive_incoming_data(pack);
-                    }
+                    (lock = _bundle_manager->get_package_lock(item.Id))
+                        ->LockForRead(&_bundle_manager->iodevices_lock);
                 }
                 _bundle_manager->iodevices_lock.unlock();
+
+                if(pack)
+                {
+                    if(item.Direction == item.Outgoing)
+                        _write_one_packet(pack);
+
+                    else if(item.Direction == item.Incoming)
+                        _receive_incoming_data(pack);
+
+                    lock->Unlock();
+                }
+
                 _bundle_manager->flagsMutex.lock();
             }
         }
