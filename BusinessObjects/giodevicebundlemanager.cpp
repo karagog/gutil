@@ -248,7 +248,7 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
 QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 {
     IODevicePackage *pack;
-    SynchronizationObject *lock;
+    SynchronizationObject *lock(0);
     iodevices_lock.lockForRead();
     {
         if((pack = get_package(id)))
@@ -257,7 +257,7 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
     iodevices_lock.unlock();
 
     QByteArray ret;
-    if(!pack)
+    if(!pack || !lock)
         return ret;
 
     // dequeue the data
@@ -275,13 +275,16 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
 bool GIODeviceBundleManager::HasData(const QUuid &id)
 {
     IODevicePackage *pack;
-    SynchronizationObject *lock;
+    SynchronizationObject *lock(0);
     iodevices_lock.lockForRead();
     {
         if((pack = get_package(id)))
             (lock = get_package_lock(id))->LockForRead(&iodevices_lock);
     }
     iodevices_lock.unlock();
+
+    if(!pack || !lock)
+        return false;
 
     bool ret;
 
