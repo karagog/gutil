@@ -127,6 +127,7 @@ void ConfigFile::_value_changed()
 
 
 
+#ifdef GUTIL_ENCRYPTION
 
 #define CRYPTOPP_DECOMPRESS( data ) \
         Core::Utils::CryptoHelpers::decompress( \
@@ -135,6 +136,16 @@ void ConfigFile::_value_changed()
 #define CRYPTOPP_COMPRESS( data ) \
         Core::Utils::CryptoHelpers::compress( \
                     std::string(data.constData(), data.length()))
+
+#else
+
+#define CRYPTOPP_DECOMPRESS( data ) \
+                    std::string(data.constData(), data.length())
+
+#define CRYPTOPP_COMPRESS( data ) \
+                    std::string(data.constData(), data.length())
+
+#endif
 
 void ConfigFile::_preprocess_outgoing_data(QByteArray &ba) const
 {

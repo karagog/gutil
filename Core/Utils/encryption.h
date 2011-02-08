@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef GUTIL_ENCRYPTION
+
 #ifndef CRYPTOHELPERS_H
 #define CRYPTOHELPERS_H
 
@@ -62,3 +64,5 @@ public:
 GUTIL_END_CORE_NAMESPACE
 
 #endif // CRYPTOHELPERS_H
+
+#endif // GUTIL_ENCRYPTION

@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef GUTIL_ENCRYPTION
+
 #include "encryption.h"
 #include "Core/exception.h"
 #include "default.h"
@@ -288,4 +290,6 @@ GUTIL_COM_EXPORT char *FromBase64(const char *str, int len, int &out_len)
     return r;
 }
 
-#endif
+#endif // GUTIL_COM_EXPORTS
+
+#endif // GUTIL_ENCRYPTION
