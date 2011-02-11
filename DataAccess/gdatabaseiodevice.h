@@ -73,6 +73,8 @@ namespace GUtil
 
             bool DropTable(const QString &name);
 
+            inline QStringList GetTableList() const{ return _tables.keys(); }
+
 
             // Insert the rows in the provided table into the database table of the same name
             //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
@@ -114,8 +116,10 @@ namespace GUtil
             DataObjects::DataTable GetBlankTable(const QString &table_name);
 
             // The value returned by the last query
-            READONLY_PROPERTY( IsReady, bool );
             READONLY_PROPERTY( ReturnValue, QVariant );
+
+            // Is the io device ready to interact with the database?
+            READONLY_PROPERTY( IsReady, bool );
 
 
             enum ColumnOption
