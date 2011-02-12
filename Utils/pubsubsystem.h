@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef PUBSUBSYSTEM_H
-#define PUBSUBSYSTEM_H
+#ifndef GUTIL_PUBSUBSYSTEM_H
+#define GUTIL_PUBSUBSYSTEM_H
 
 #include <QObject>
 
@@ -26,7 +26,8 @@ namespace GUtil
 
     namespace Utils
     {
-        class PubSubSystem : public QObject
+        class PubSubSystem :
+                public QObject
         {
             Q_OBJECT
         public:
@@ -60,4 +61,4 @@ namespace GUtil
     }
 }
 
-#endif // PUBSUBSYSTEM_H
+#endif // GUTIL_PUBSUBSYSTEM_H
