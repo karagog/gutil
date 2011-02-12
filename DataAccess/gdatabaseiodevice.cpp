@@ -33,22 +33,47 @@ GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
 {
     QSqlDatabase db(QSqlDatabase::database(_connection_id));
     QString driver(db.driverName());
-    if(driver == "QSQLITE")
+
+    if(IsReady())
     {
-        // TODO: Reverse engineer the database schema
+        // Reverse engineer the database schema
+        if(driver == "QSQLITE")
+        {
+            QSqlQuery q("SELECT tbl_name FROM sqlite_master WHERE type = 'table'",
+                        db);
+            if(!q.exec())
+                THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                           q.lastError().text().toStdString());
 
+            while(q.next())
+            {
+                QString table_name( q.value(0).toString() );
 
-    }
-//    else if(driver == "QMYSQL")
-//    {
+                // Get the table's column names
+                QStringList columns;
+                QSqlQuery c(QString("PRAGMA table_info(%1)").arg(table_name),
+                            db);
+                if(!c.exec())
+                    THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                               c.lastError().text().toStdString());
 
-//    }
-    else
-    {
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::NotImplementedException,
-                                   QString("Database driver '%1' not implemented")
-                                   .arg(driver)
-                                   .toStdString());
+                while(c.next())
+                    columns.append(c.value(1).toString());
+
+                _tables.insert(table_name, DataTable(columns));
+            }
+        }
+        //    else if(driver == "QMYSQL")
+        //    {
+
+        //    }
+        else
+        {
+            THROW_NEW_GUTIL_EXCEPTION2(Core::NotImplementedException,
+                                       QString("Database driver '%1' not implemented")
+                                       .arg(driver)
+                                       .toStdString());
+        }
     }
 }
 
