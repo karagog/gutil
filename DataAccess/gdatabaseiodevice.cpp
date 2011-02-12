@@ -173,6 +173,40 @@ bool GDatabaseIODevice::DropTable(const QString &name)
     return ret;
 }
 
+QString GDatabaseIODevice::CreateIndex(const QString &table_name,
+                                    const QStringList &columns)
+{
+    _fail_if_not_ready();
+
+    QString index_name(QString("idx_%1_%2").arg(table_name).arg(columns.join("_")));
+    QSqlQuery q(QSqlDatabase::database(_connection_id));
+    if(!q.exec(
+            QString("CREATE INDEX IF NOT EXISTS %1 ON %2(%3)")
+            .arg(index_name)
+            .arg(table_name)
+            .arg(columns.join(", "))))
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                   q.lastError().text().toStdString());
+    }
+
+    return index_name;
+}
+
+void GDatabaseIODevice::DropIndex(const QString &index_name)
+{
+    _fail_if_not_ready();
+
+    QSqlQuery q(QSqlDatabase::database(_connection_id));
+    if(!q.exec(
+            QString("DROP INDEX IF EXISTS %1")
+            .arg(index_name)))
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                   q.lastError().text().toStdString());
+    }
+}
+
 void GDatabaseIODevice::Insert(const DataTable &t)
 {
     _fail_if_not_ready();

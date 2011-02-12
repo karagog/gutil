@@ -76,6 +76,11 @@ namespace GUtil
 
             inline QStringList GetTableList() const{ return _tables.keys(); }
 
+            // Returns the index name of the created index (throws an exception if error)
+            QString CreateIndex(const QString &table_name,
+                                const QStringList &columns);
+            void DropIndex(const QString &index_name);
+
 
             // Insert the rows in the provided table into the database table of the same name
             //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
