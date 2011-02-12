@@ -471,10 +471,9 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
                                        "No data to send");
 
         QSqlDatabase _database = QSqlDatabase::database(_connection_id);
-        if(!_database.isOpen() && !_database.open())
+        if(!IsReady())
             THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                       QString("Unable to open database: %1")
-                                       .arg(_database.lastError().text()).toStdString());
+                                       "Database not ready");
 
 
         QSqlQuery query(_database);
@@ -650,10 +649,9 @@ QByteArray GDatabaseIODevice::receive_data()
     QByteArray ret;
     QSqlDatabase _database = QSqlDatabase::database(_connection_id);
 
-    if(!_database.isOpen() && !_database.open())
+    if(!IsReady())
         THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
-                                   QString("Unable to open database: %1")
-                                   .arg(_database.lastError().text()).toStdString());
+                                   "Database not ready");
 
     QSqlQuery query(_database);
 
