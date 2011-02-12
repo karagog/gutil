@@ -64,13 +64,10 @@ namespace GUtil
 
             // Here are the various database commands you can issue:
 
-            // You must create a table before using this object for anything
-            //  It returns 0 if successful, 1 if the table already exists and 2
-            //  if it failed to create the table for some reason
-            int CreateTable(const QString &name,
-                            const Custom::GPairList<QString, QString> &column_names_n_types,
-                            int primary_key_column = -1,
-                            bool drop_if_exists = true);
+            void CreateTable(const QString &name,
+                             const Custom::GPairList<QString, QString> &column_names_n_types,
+                             int primary_key_column = -1,
+                             bool drop_if_exists = true);
 
             bool DropTable(const QString &name);
 

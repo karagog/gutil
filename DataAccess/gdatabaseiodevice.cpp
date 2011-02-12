@@ -83,29 +83,29 @@ GDatabaseIODevice::~GDatabaseIODevice()
         delete _selection_parameters;
 }
 
-int GDatabaseIODevice::CreateTable(const QString &name,
+void GDatabaseIODevice::CreateTable(const QString &name,
                                     const Custom::GPairList<QString, QString> &column_names_n_types,
                                     int primary_key_column,
                                     bool drop_if_exists)
 {
     _fail_if_not_ready();
 
-    int ret(0);
+    // First drop the table
+    if(drop_if_exists)
+        DropTable(name);
 
-    try
+    // Then proceed to create the table
+    if(!_tables.contains(name))
     {
-        // First drop the table
-        if(drop_if_exists)
-            DropTable(name);
+        DataTable tbl(name);
 
-        // Then proceed to create the table
-        if(_tables.contains(name))
-            ret = 1;
-        else
+        // Prepare column declaration string
+        QSqlDatabase db(QSqlDatabase::database(_connection_id));
+        QSqlQuery q(db);
+        QString driver(db.driverName());
+
+        if(driver == "QSQLITE")
         {
-            DataTable tbl(name);
-
-            // Prepare column declaration string
             QString cols;
             for(int i = 0; i < column_names_n_types.count(); i++)
             {
@@ -130,65 +130,67 @@ int GDatabaseIODevice::CreateTable(const QString &name,
                             .arg(tbl.ColumnKeys()[primary_key_column]));
             }
 
-            if(QSqlQuery(QSqlDatabase::database(_connection_id)).exec(
-                                        QString("CREATE TABLE IF NOT EXISTS %1 (%2)")
-                                        .arg(name)
-                                        .arg(cols)))
-            {
-                _tables.insert(name, tbl);
-            }
-            else
-            {
-                ret = 2;
-            }
+            q.prepare(QString("CREATE TABLE IF NOT EXISTS %1 (%2);")
+                      .arg(name)
+                      .arg(cols));
         }
-    }
-    catch(Core::Exception &)
-    {
-        ret = 2;
-    }
 
-    return ret;
+        if(q.exec())
+            _tables.insert(name, tbl);
+        else
+            THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                       q.lastError().text().toStdString());
+    }
 }
 
 bool GDatabaseIODevice::DropTable(const QString &name)
 {
     _fail_if_not_ready();
 
-    bool ret(false);
+    bool ret;
 
-    try
-    {
-        if(_tables.contains(name))
-            _tables.remove(name);
+    QSqlDatabase db(QSqlDatabase::database(_connection_id));
+    QSqlQuery q(db);
+    QString driver(db.driverName());
 
-        ret = QSqlQuery(QSqlDatabase(QSqlDatabase::database(_connection_id)))
-              .exec(QString("DROP TABLE IF EXISTS %1").arg(name));
-    }
-    catch(Core::Exception &)
+    if(driver == "QSQLITE")
     {
-        ret = false;
+        ret = q.exec(QString("DROP TABLE IF EXISTS %1;").arg(name));
     }
+
+    if(!ret)
+        THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                   q.lastError().text().toStdString());
+
+    if(_tables.contains(name))
+        _tables.remove(name);
 
     return ret;
 }
 
 QString GDatabaseIODevice::CreateIndex(const QString &table_name,
-                                    const QStringList &columns)
+                                       const QStringList &columns)
 {
     _fail_if_not_ready();
 
+    QSqlDatabase db(QSqlDatabase::database(_connection_id));
+    QSqlQuery q(db);
+    QString driver(db.driverName());
+
     QString index_name(QString("idx_%1_%2").arg(table_name).arg(columns.join("_")));
-    QSqlQuery q(QSqlDatabase::database(_connection_id));
-    if(!q.exec(
-            QString("CREATE INDEX IF NOT EXISTS %1 ON %2(%3)")
-            .arg(index_name)
-            .arg(table_name)
-            .arg(columns.join(", "))))
+
+    bool res;
+    if(driver == "QSQLITE")
     {
+        res = q.exec(QString("CREATE INDEX IF NOT EXISTS %1 ON %2(%3);")
+                     .arg(index_name)
+                     .arg(table_name)
+                     .arg(columns.join(", ")));
+    }
+
+    if(!res)
         THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
                                    q.lastError().text().toStdString());
-    }
 
     return index_name;
 }
@@ -197,13 +199,19 @@ void GDatabaseIODevice::DropIndex(const QString &index_name)
 {
     _fail_if_not_ready();
 
-    QSqlQuery q(QSqlDatabase::database(_connection_id));
-    if(!q.exec(
-            QString("DROP INDEX IF EXISTS %1")
-            .arg(index_name)))
+    QSqlDatabase db(QSqlDatabase::database(_connection_id));
+    QSqlQuery q(db);
+    QString driver(db.driverName());
+
+    if(driver == "QSQLITE")
     {
-        THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
-                                   q.lastError().text().toStdString());
+        if(!q.exec(
+                QString("DROP INDEX IF EXISTS %1;")
+                .arg(index_name)))
+        {
+            THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
+                                       q.lastError().text().toStdString());
+        }
     }
 }
 
