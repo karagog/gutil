@@ -23,6 +23,7 @@ limitations under the License.*/
 #include <QMap>
 #include <QMutex>
 #include <QFlags>
+#include <QSqlDatabase>
 
 class QSqlQuery;
 
@@ -119,7 +120,9 @@ namespace GUtil
             READONLY_PROPERTY( ReturnValue, QVariant );
 
             // Is the io device ready to interact with the database?
-            READONLY_PROPERTY( IsReady, bool );
+            bool IsReady() const{
+                return QSqlDatabase::database(_connection_id).isOpen();
+            }
 
 
             enum ColumnOption
@@ -214,9 +217,6 @@ namespace GUtil
             QString _prepare_where_clause(
                     const QStringList &column_keys,
                     const DatabaseSelectionParameters &) const;
-
-            static QMutex _database_locks_lock;
-            static QMap<QString, Custom::GSemaphore *> _occupied_databases;
 
         };
 

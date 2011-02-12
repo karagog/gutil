@@ -17,7 +17,6 @@ limitations under the License.*/
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlResult>
-#include <QSqlDatabase>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 using namespace GUtil;
@@ -25,59 +24,36 @@ using namespace DataObjects;
 using namespace DataAccess;
 using namespace Custom;
 
-QMutex GDatabaseIODevice::_database_locks_lock;
-QMap<QString, GSemaphore *> GDatabaseIODevice::_occupied_databases;
-
 GDatabaseIODevice::GDatabaseIODevice(const QString &db_connection_id,
                                      QObject *parent)
     :GIODevice(parent),
-    _p_IsReady(false),
     _connection_id(db_connection_id),
     _p_ReadCommand(CommandReadNoop),
     _selection_parameters(0)
 {
-    _database_locks_lock.lock();
+    QSqlDatabase db(QSqlDatabase::database(_connection_id));
+    QString driver(db.driverName());
+    if(driver == "QSQLITE")
     {
-        QSqlDatabase db(QSqlDatabase::database(_connection_id));
+        // TODO: Reverse engineer the database schema
 
-        if(db.isValid())
-        {
-            _p_IsReady = db.isOpen() || db.open();
 
-            if(_p_IsReady)
-            {
-                if(!_occupied_databases.contains(_connection_id))
-                    _occupied_databases.insert(_connection_id, new GSemaphore);
-
-                // Up the semaphore, to say that we're using this database
-                _occupied_databases[_connection_id]->Up();
-            }
-        }
     }
-    _database_locks_lock.unlock();
+//    else if(driver == "QMYSQL")
+//    {
+
+//    }
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::NotImplementedException,
+                                   QString("Database driver '%1' not implemented")
+                                   .arg(driver)
+                                   .toStdString());
+    }
 }
 
 GDatabaseIODevice::~GDatabaseIODevice()
 {
-    _database_locks_lock.lock();
-    {
-        // Down the semaphore, and if we're the last one using it, then cleanup the database
-        _occupied_databases[_connection_id]->Down();
-
-        if(_occupied_databases[_connection_id]->IsEmpty())
-        {
-            // Delete and remove the semaphore
-            delete _occupied_databases[_connection_id];
-            _occupied_databases.remove(_connection_id);
-
-            QSqlDatabase::database(_connection_id).close();
-            QSqlDatabase::removeDatabase(_connection_id);
-        }
-
-        _p_IsReady = false;
-    }
-    _database_locks_lock.unlock();
-
     if(_selection_parameters)
         delete _selection_parameters;
 }
@@ -753,7 +729,7 @@ void GDatabaseIODevice::_execute_query(QSqlQuery &query) const
 
 void GDatabaseIODevice::_fail_if_not_ready() const
 {
-    if(!GetIsReady())
+    if(!IsReady())
         THROW_NEW_GUTIL_EXCEPTION2(Core::Exception,
                                    "Database IO device not read for use");
 }
