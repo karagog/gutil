@@ -14,7 +14,8 @@ SUBDIRS += \
     DataAccess \
     Logging \
     BusinessObjects \
-    Controls
+    Controls \
+    Test 
 
 CONFIG += ordered
 
