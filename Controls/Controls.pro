@@ -11,11 +11,13 @@ HEADERS += \
     progressbarcontrol.h \
     filechooser.h \
     line_edit_with_button.h \
-    faderwidget.h
+    faderwidget.h \
+    expander.h
 SOURCES += \
     progressbarcontrol.cpp \
     filechooser.cpp \
     line_edit_with_button.cpp \
-    faderwidget.cpp
+    faderwidget.cpp \
+    expander.cpp
 
 INCLUDEPATH += ..
