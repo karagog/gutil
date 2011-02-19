@@ -36,6 +36,8 @@ namespace GUtil
             static void AlignWidgets(const QList<QWidget *>&,
                                      bool horizontally = true);
 
+            static QWidget *FindTopMostParent(QWidget *);
+
         };
     }
 }

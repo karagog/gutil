@@ -18,29 +18,35 @@ limitations under the License.*/
 #include <QDesktopWidget>
 #include <QWidget>
 #include <QList>
-using namespace GUtil;
+using namespace GUtil::Utils;
 
-void Utils::WidgetHelpers::CenterOverWidget(QWidget *main, QWidget *child)
+void WidgetHelpers::CenterOverWidget(QWidget *main, QWidget *child)
 {
     QPoint p = main->pos();
 
-    QPoint myCenter(main->rect().width() / 2, main->rect().height() / 2);
-    QPoint hisCenter(child->rect().width() / 2, child->rect().height() / 2);
-
-    child->move(p.x() + (myCenter.x() - hisCenter.x()),
-                 p.y() + (myCenter.y() - hisCenter.y()));
+    child->move(p.x() + ((main->width() - child->width()) / 2),
+                p.y() + ((main->height() - child->height()) / 2));
 }
 
-void Utils::WidgetHelpers::CenterInScreen(QWidget *w)
+void WidgetHelpers::CenterInScreen(QWidget *w)
 {
     QRect r = QApplication::desktop()->availableGeometry();
     w->move(r.width() / 2 - (w->size().width() / 2),
             r.height() / 2 - (w->size().height() / 2));
 }
 
-void Utils::WidgetHelpers::AlignWidgets(
+void WidgetHelpers::AlignWidgets(
         const QList<QWidget *>&wl,
         bool horizontally)
 {
     THROW_NEW_GUTIL_EXCEPTION2( Core::NotImplementedException, "" );
+}
+
+QWidget *WidgetHelpers::FindTopMostParent(QWidget *w)
+{
+    QWidget *p = w->parentWidget();
+    if(!p)
+        return w;
+
+    return FindTopMostParent(p);
 }
