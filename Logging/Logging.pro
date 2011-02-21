@@ -1,4 +1,6 @@
-QT += sql
+# Uncomment these to enable database functionality
+#QT += sql
+#DEFINES += DATABASE_FUNCTIONALITY
 
 DESTDIR = ../lib
 

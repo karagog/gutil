@@ -12,11 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef DATABASE_FUNCTIONALITY
+
+
 #ifndef AbstractDatabaseLogger_H
 #define AbstractDatabaseLogger_H
 
 #include "abstractlogger.h"
-#include <QSqlDatabase>
+
+class QSqlDatabase;
 
 namespace GUtil
 {
@@ -32,8 +36,12 @@ namespace GUtil
             virtual ~AbstractDatabaseLogger();
 
         private:
-            QSqlDatabase _dbase;
+            QSqlDatabase *_dbase;
         };
     }
 }
+
+
 #endif // AbstractDatabaseLogger_H
+
+#endif // DATABASE_FUNCTIONALITY

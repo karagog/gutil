@@ -14,7 +14,7 @@ DESTDIR = ../lib
 TEMPLATE = lib
 #CONFIG += staticlib
 
-# Uncomment these if you need the database functions (requires link with QtSql)
+# Uncomment these if you need the database functions
 #QT += sql
 #DEFINES += DATABASE_FUNCTIONALITY
 

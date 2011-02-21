@@ -12,11 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef DATABASE_FUNCTIONALITY
+
+
 #include "gdatabaseiodevice.h"
 #include "Custom/gsemaphore.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlResult>
+#include <QSqlDatabase>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 using namespace GUtil;
@@ -81,6 +85,11 @@ GDatabaseIODevice::~GDatabaseIODevice()
 {
     if(_selection_parameters)
         delete _selection_parameters;
+}
+
+bool GDatabaseIODevice::IsReady() const
+{
+    return QSqlDatabase::database(_connection_id).isOpen();
 }
 
 void GDatabaseIODevice::CreateTable(const QString &name,
@@ -870,3 +879,6 @@ void DatabaseParametersBase::WriteXml(QXmlStreamWriter &sw) const
     _row.WriteXml(sw);
     col_opts.WriteXml(sw);
 }
+
+
+#endif // DATABASE_FUNCTIONALITY

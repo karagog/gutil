@@ -12,6 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef DATABASE_FUNCTIONALITY
+
+
 #include "BinaryDataStore.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
@@ -23,10 +26,10 @@ limitations under the License.*/
 #include <QVariant>
 #include <QMutex>
 #include <QReadWriteLock>
-#include <QSqlDatabase>
 #include <QMap>
 #include <QMessageBox>
 #include <QByteArray>
+#include <QSqlDatabase>
 GUTIL_USING_NAMESPACE(DataAccess);
 GUTIL_USING_NAMESPACE(DataObjects);
 GUTIL_USING_NAMESPACE(BusinessObjects);
@@ -184,3 +187,6 @@ int BinaryDataStore::GetFreeId()
     }
     return _max_id;
 }
+
+
+#endif // DATABASE_FUNCTIONALITY

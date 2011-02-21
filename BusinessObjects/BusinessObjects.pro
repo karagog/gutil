@@ -1,8 +1,12 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-04-17T23:08:47
 # -------------------------------------------------
-QT += sql network
+QT += network
 DESTDIR = ../lib
+
+# If you want database functionality, uncomment these
+#QT += sql
+#DEFINES += DATABASE_FUNCTIONALITY
 
 TARGET = GUtilBusinessObjects
 LIBS += -L../lib \

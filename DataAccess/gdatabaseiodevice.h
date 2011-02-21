@@ -12,6 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef DATABASE_FUNCTIONALITY
+
+
 #ifndef GDATABASEIODEVICE_H
 #define GDATABASEIODEVICE_H
 
@@ -23,9 +26,9 @@ limitations under the License.*/
 #include <QMap>
 #include <QMutex>
 #include <QFlags>
-#include <QSqlDatabase>
 
 class QSqlQuery;
+class QSqlDatabase;
 
 namespace GUtil
 {
@@ -122,9 +125,7 @@ namespace GUtil
             READONLY_PROPERTY( ReturnValue, QVariant );
 
             // Is the io device ready to interact with the database?
-            bool IsReady() const{
-                return QSqlDatabase::database(_connection_id).isOpen();
-            }
+            bool IsReady() const;
 
 
             enum ColumnOption
@@ -332,3 +333,5 @@ namespace GUtil
 }
 
 #endif // GDATABASEIODEVICE_H
+
+#endif // DATABASE_FUNCTIONALITY

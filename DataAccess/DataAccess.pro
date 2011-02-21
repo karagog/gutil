@@ -28,4 +28,8 @@ SOURCES += \
     gsocketiodevice.cpp
 
 INCLUDEPATH += ..
-QT += sql network
+QT += network
+
+# Uncomment these to enable database functionality
+#QT += sql
+#DEFINES += DATABASE_FUNCTIONALITY
