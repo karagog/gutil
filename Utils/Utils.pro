@@ -13,13 +13,19 @@ LIBS += -L../lib \
 DESTDIR = ../lib
 TEMPLATE = lib
 #CONFIG += staticlib
+
+# Uncomment these if you need the database functions (requires link with QtSql)
+#QT += sql
+#DEFINES += DATABASE_FUNCTIONALITY
+
 SOURCES += \
     pubsubsystem.cpp \
     usermachinelocks.cpp \
     widgethelpers.cpp \
     qstringhelpers.cpp \
     universalmutex.cpp \
-    datatransferutils.cpp
+    datatransferutils.cpp \
+    databaseutils.cpp
 
 HEADERS += \
     pubsubsystem.h \
@@ -29,6 +35,7 @@ HEADERS += \
     universalmutex.h \
     datatransferutils.h \
     response.h \
-    synchronizationobject.h
+    synchronizationobject.h \
+    databaseutils.h
 
 INCLUDEPATH += ..
