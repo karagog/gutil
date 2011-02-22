@@ -16,8 +16,7 @@ HEADERS += \
     gshareddata.h \
     updatablegvariant.h \
     gpairlist.h \
-    gtreeview.h \
-    gtableview.h
+    gtreeview.h
 
 SOURCES += \
     myflattreemodel.cpp \
@@ -26,7 +25,6 @@ SOURCES += \
     gsharedlock.cpp \
     gvariant.cpp \
     updatablegvariant.cpp \
-    gtreeview.cpp \
-    gtableview.cpp
+    gtreeview.cpp
 
 INCLUDEPATH += ..

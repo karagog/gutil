@@ -31,8 +31,6 @@ public:
 
 public slots:
 
-    void ResizeAllColumnsToContents();
-
     // Expands all parents in the tree until this index is visible
     void ExpandToIndex(QModelIndex);
 

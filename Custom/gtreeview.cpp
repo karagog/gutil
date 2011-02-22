@@ -20,15 +20,6 @@ GTreeView::GTreeView(QWidget *parent)
     :QTreeView(parent)
 {}
 
-void GTreeView::ResizeAllColumnsToContents()
-{
-    if(!model())
-        return;
-
-    for(int i = 0; i < model()->columnCount(); i++)
-        resizeColumnToContents(i);
-}
-
 void GTreeView::ExpandToIndex(QModelIndex ind)
 {
     QModelIndex par( ind.parent() );
