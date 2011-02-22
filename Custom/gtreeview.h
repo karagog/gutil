@@ -33,6 +33,13 @@ public slots:
 
     void ResizeAllColumnsToContents();
 
+    // Expands all parents in the tree until this index is visible
+    void ExpandToIndex(QModelIndex);
+
+    // Clears the current selection and selects the row (current index will be
+    //  on the row's first cell
+    void SelectRow(QModelIndex);
+
 };
 
 

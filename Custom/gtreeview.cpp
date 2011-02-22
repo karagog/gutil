@@ -28,3 +28,25 @@ void GTreeView::ResizeAllColumnsToContents()
     for(int i = 0; i < model()->columnCount(); i++)
         resizeColumnToContents(i);
 }
+
+void GTreeView::ExpandToIndex(QModelIndex ind)
+{
+    QModelIndex par( ind.parent() );
+
+    if(par.isValid())
+    {
+        // Expand my parent's parent before expanding my parent
+        ExpandToIndex(par);
+
+        // Then expand my parent
+        expand(par);
+    }
+}
+
+void GTreeView::SelectRow(QModelIndex r)
+{
+    selectionModel()->select(r,
+                             QItemSelectionModel::Rows |
+                             QItemSelectionModel::ClearAndSelect);
+    selectionModel()->setCurrentIndex(r, QItemSelectionModel::Select);
+}
