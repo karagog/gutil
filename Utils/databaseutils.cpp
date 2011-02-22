@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "databaseutils.h"
 #include "Core/exception.h"
+#include <QStringList>
 GUTIL_USING_NAMESPACE(Utils);
 
 
@@ -43,3 +44,32 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 }
 
 #endif // DATABASE_FUNCTIONALITY
+
+
+
+QString DatabaseUtils::ConvertDateToString(const QDateTime &d, DateResolution dr)
+{
+    QString fmt("yyyy_MM_dd_hh_mm");
+
+    if(dr == DR_Seconds)
+        fmt.append("_ss");
+
+    return d.toString(fmt);
+}
+
+QDateTime DatabaseUtils::ConvertStringToDate(const QString &s)
+{
+    QDateTime d;
+    QStringList splitted = s.split('_');
+
+    if(splitted.size() < 5)
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   QString("Invalid date string: %1").arg(s).toStdString());
+
+    d.setDate(QDate(splitted[0].toInt(), splitted[1].toInt(), splitted[2].toInt()));
+
+    d.setTime(QTime(splitted[3].toInt(), splitted[4].toInt(),
+                    splitted.length() > 5 ? splitted[5].toInt() : 0));
+
+    return d;
+}

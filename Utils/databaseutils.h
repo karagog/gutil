@@ -16,7 +16,8 @@ limitations under the License.*/
 #define DATABASEUTILS_H
 
 #include "gutil_macros.h"
-
+#include <QString>
+#include <QDateTime>
 
 class QSqlQuery;
 
@@ -28,6 +29,17 @@ class DatabaseUtils
 public:
 
     static void ThrowQueryException(const QSqlQuery &);
+
+
+    // For string manipulation
+    enum DateResolution
+    {
+        DR_Minutes,
+        DR_Seconds
+    };
+
+    static QString ConvertDateToString(const QDateTime &, DateResolution);
+    static QDateTime ConvertStringToDate(const QString &);
 
 };
 
