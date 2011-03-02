@@ -37,7 +37,8 @@ TimelineView::TimelineView(QWidget *p)
     _scale_factor(1),
     _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
     _range_in_seconds(0),
-    m_rubberBand(0)
+    m_rubberBand(0),
+    m_currentHighlighter(QRubberBand::Rectangle, this)
 {
 
 }
@@ -139,6 +140,9 @@ void TimelineView::paintEvent(QPaintEvent *ev)
                 continue;
             _draw_item(ind, p);
         }
+
+        if(!currentIndex().isValid())
+            m_currentHighlighter.hide();
     }
 }
 
@@ -148,12 +152,18 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
 
     QColor c;
     if(selectionModel()->isSelected(ind))
-        c = QColor("green");
+        c = QColor("yellow");
     else
         c = QColor("pink");
 
     p.fillRect(item_rect, c);
     p.drawRect(item_rect);
+
+    if(ind == currentIndex())
+    {
+        m_currentHighlighter.setGeometry(item_rect.translated(viewport()->pos()));
+        m_currentHighlighter.show();
+    }
 
     p.save();
     p.setFont(ind.data(Qt::FontRole).value<QFont>());
@@ -180,9 +190,26 @@ QRect TimelineView::visualRect(const QModelIndex &index) const
                  rect.width(), rect.height());
 }
 
-void TimelineView::scrollTo(const QModelIndex &index, ScrollHint hint)
+void TimelineView::scrollTo(const QModelIndex &index, ScrollHint)
 {
+    QRect area(viewport()->rect());
+    QRect rect(visualRect(index));
 
+    if (rect.left() < area.left())
+        horizontalScrollBar()->setValue(
+            horizontalScrollBar()->value() + rect.left() - area.left());
+    else if (rect.right() > area.right())
+        horizontalScrollBar()->setValue(
+            horizontalScrollBar()->value() + qMin(
+                rect.right() - area.right(), rect.left() - area.left()));
+
+    if (rect.top() < area.top())
+        verticalScrollBar()->setValue(
+            verticalScrollBar()->value() + rect.top() - area.top());
+    else if (rect.bottom() > area.bottom())
+        verticalScrollBar()->setValue(
+            verticalScrollBar()->value() + qMin(
+                rect.bottom() - area.bottom(), rect.top() - area.top()));
 }
 
 QModelIndex TimelineView::indexAt(const QPoint &point) const
@@ -207,6 +234,16 @@ QModelIndex TimelineView::indexAt(const QPoint &point) const
 QModelIndex TimelineView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
     QModelIndex ret;
+    QModelIndex cur( currentIndex() );
+
+    switch(cursorAction)
+    {
+    case MoveDown:
+
+        break;
+    default:
+        break;
+    }
 
     return ret;
 }

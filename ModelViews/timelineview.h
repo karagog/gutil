@@ -97,6 +97,8 @@ private:
     QPointer<QRubberBand> m_rubberBand;
     QPoint m_mouseFirstClick;
 
+    QRubberBand m_currentHighlighter;
+
 };
 
 
