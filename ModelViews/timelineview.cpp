@@ -112,21 +112,38 @@ void TimelineView::paintEvent(QPaintEvent *ev)
         fmt = "MMM";
     }
 
-    for(int i = 0; i <= time_resolution; i++)
+    // Draw the tick marks
     {
-        int time_til( _start_time.secsTo(tmptime) );
-        int y( _origin_point.y() +
-               (long long)(finish_point.y() - _origin_point.y()) * time_til / _range_in_seconds );
+        int m_y(-1);
+        QDateTime m_time;
+        for(int i = 0; i <= time_resolution; i++)
+        {
+            int time_til( _start_time.secsTo(tmptime) );
+            int y( _origin_point.y() +
+                  (long long)(finish_point.y() - _origin_point.y()) * time_til / _range_in_seconds );
 
-        p.drawLine(_origin_point.x() - 5, y, _origin_point.x(), y);
-        p.drawText(11, y - 10, 60, 20, Qt::AlignLeft | Qt::AlignTop,
-                   tmptime.toString(fmt));
+            p.drawLine(_origin_point.x() - 5, y, _origin_point.x(), y);
+            p.drawText(11, y - 10, 60, 20, Qt::AlignLeft | Qt::AlignTop,
+                       tmptime.toString(fmt));
 
-        // Advance the time
-        if(time_increment_in_seconds == -1)
-            tmptime = tmptime.addMonths(1);
-        else
-            tmptime = tmptime.addSecs(time_increment_in_seconds);
+            // Advance the time
+            if(time_increment_in_seconds == -1)
+                tmptime = tmptime.addMonths(1);
+            else
+                tmptime = tmptime.addSecs(time_increment_in_seconds);
+
+
+            if(m_y != -1)
+            {
+                // Analyze the gap between hash marks and see if there's room to squeeze another
+                //  set of hashes in there
+            }
+
+
+            // Remember some values for the next time through the loop
+            m_y = y;
+            m_time = tmptime;
+        }
     }
 
 
