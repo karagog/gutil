@@ -11,6 +11,7 @@ SUBDIRS += \
     Custom \
     DataObjects \
     DataModels \
+    ModelViews \
     DataAccess \
     Logging \
     BusinessObjects \
