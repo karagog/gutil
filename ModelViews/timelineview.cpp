@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QScrollBar>
 #include <QApplication>
 #include <QItemSelection>
+#include <QRgb>
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -50,7 +51,6 @@ void TimelineView::paintEvent(QPaintEvent *ev)
 
     QPainter p(viewport());
     p.setRenderHint(QPainter::Antialiasing);
-    p.save();
 
     // Translate the painter so it paints in the scroll area
     p.translate(viewport()->rect().x() - horizontalScrollBar()->value(),
@@ -67,7 +67,9 @@ void TimelineView::paintEvent(QPaintEvent *ev)
        _end_time.isNull() ||
        _end_time <= _start_time)
     {
-        p.drawText(100, 400, 400, 50, 0, "Invalid Time Range Selection");
+        p.drawText(QRect(_origin_point.x(), _origin_point.y(), 500, _finish_point().y() - _origin_point.y()),
+                   Qt::AlignVCenter, "Invalid Time Range Selection");
+        p.end();
         return;
     }
 
@@ -129,7 +131,6 @@ void TimelineView::paintEvent(QPaintEvent *ev)
 
 
     // Draw the actual items in the model
-    p.restore();    // The items are already translated by the visualRect function
     if(model())
     {
         for(int i = 0; i < model()->rowCount(); i++)
@@ -146,22 +147,31 @@ void TimelineView::paintEvent(QPaintEvent *ev)
     }
 }
 
+
+// The selected color is yellow
+const QRgb SELECTED_RGB(qRgb(102, 153, 204));
+
 void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
 {
-    QRect item_rect( visualRect(ind) );
+    QRect item_rect( itemRect(ind) );
 
+    QVariant color_variant = ind.data(Qt::BackgroundRole);
     QColor c;
-    if(selectionModel()->isSelected(ind))
-        c = QColor("yellow");
+    if(color_variant.isValid())
+        c = color_variant.value<QColor>();
     else
-        c = QColor("pink");
+        c = QColor(255, 255, 255);  // white
+
+    if(selectionModel()->isSelected(ind))
+        c = QColor(SELECTED_RGB);
 
     p.fillRect(item_rect, c);
     p.drawRect(item_rect);
 
     if(ind == currentIndex())
     {
-        m_currentHighlighter.setGeometry(item_rect.translated(viewport()->pos()));
+        m_currentHighlighter.setGeometry(item_rect.translated(viewport()->pos()).translated(
+                                             -horizontalScrollBar()->value(), -verticalScrollBar()->value()));
         m_currentHighlighter.show();
     }
 
@@ -175,6 +185,16 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
 
 QRect TimelineView::visualRect(const QModelIndex &index) const
 {
+    QRect rect( itemRect(index) );
+    if(rect.isValid())
+        return QRect(rect.left() - horizontalScrollBar()->value(),
+                     rect.top() - verticalScrollBar()->value(),
+                     rect.width(), rect.height());
+    return rect;
+}
+
+QRect TimelineView::itemRect(const QModelIndex &index) const
+{
     QDateTime start( index.data(StartDate).toDateTime() );
     QDateTime end( index.data(EndDate).toDateTime() );
 
@@ -184,10 +204,7 @@ QRect TimelineView::visualRect(const QModelIndex &index) const
     int endy(_origin_point.y() + (finish_point.y() - _origin_point.y()) *
              ( (double)_start_time.secsTo(end) / _range_in_seconds ));
 
-    QRect rect(_origin_point.x(), starty, 400, endy - starty);
-    return QRect(rect.left() - horizontalScrollBar()->value(),
-                 rect.top() - verticalScrollBar()->value(),
-                 rect.width(), rect.height());
+    return QRect(_origin_point.x(), starty, 400, endy - starty);
 }
 
 void TimelineView::scrollTo(const QModelIndex &index, ScrollHint)

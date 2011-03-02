@@ -84,6 +84,10 @@ private:
     void _draw_item(const QModelIndex &, QPainter &);
 
     QRegion itemRegion(const QModelIndex &) const;
+
+    // Returns the un-translated item rect (without taking scrollbars into account
+    QRect itemRect(const QModelIndex &) const;
+
     void _update_scrollbars();
 
     const QPoint _origin_point;
