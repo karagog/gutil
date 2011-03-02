@@ -301,6 +301,7 @@ void TimelineView::keyPressEvent(QKeyEvent *event)
         {
             // Restore the default scale
             _scale_factor = 1;
+            _update_scrollbars();
             viewport()->update();
         }
     }
