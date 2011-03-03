@@ -22,6 +22,7 @@ GUTIL_USING_NAMESPACE(Utils);
 
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlDatabase>
 #include <QVariant>
 
 void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
@@ -41,6 +42,40 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 
         THROW_GUTIL_EXCEPTION(ex);
     }
+}
+
+void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
+{
+    if(!db.transaction())
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::DataTransportException,
+                                   QString("Unable to create a transaction: %1")
+                                   .arg(db.lastError().text()).toStdString());
+    try
+    {
+        QSqlQuery q(db);
+        int index(0);
+        int prev_index(0);
+        while((index = script_sql.indexOf(';', index)) != -1)
+        {
+            index++;
+            q.prepare(script_sql.left(index).right(index - prev_index));
+
+            if(!q.exec())
+                ThrowQueryException(q);
+
+            prev_index = index;
+        }
+    }
+    catch(...)
+    {
+        db.rollback();
+        throw;
+    }
+
+    if(!db.commit())
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::DataTransportException,
+                                   QString("Transaction commit failed: %1")
+                                   .arg(db.lastError().text()).toStdString());
 }
 
 #endif // DATABASE_FUNCTIONALITY

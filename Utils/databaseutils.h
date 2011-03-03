@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QDateTime>
 
 class QSqlQuery;
+class QSqlDatabase;
 
 GUTIL_BEGIN_NAMESPACE(Utils);
 
@@ -29,6 +30,10 @@ class DatabaseUtils
 public:
 
     static void ThrowQueryException(const QSqlQuery &);
+
+    // This will execute a sql script one line at a time,
+    //   where each line is terminated by a semi-colon
+    static void ExecuteScript(QSqlDatabase &, const QString &script_sql);
 
 
     // For string manipulation
