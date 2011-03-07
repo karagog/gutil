@@ -12,12 +12,17 @@ HEADERS += \
     filechooser.h \
     line_edit_with_button.h \
     faderwidget.h \
-    expander.h
+    expander.h \
+    stopwatch.h
 SOURCES += \
     progressbarcontrol.cpp \
     filechooser.cpp \
     line_edit_with_button.cpp \
     faderwidget.cpp \
-    expander.cpp
+    expander.cpp \
+    stopwatch.cpp
 
 INCLUDEPATH += ..
+LIBS += \
+    -L../lib \
+    -lGUtilUtils

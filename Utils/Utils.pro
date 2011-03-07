@@ -25,7 +25,8 @@ SOURCES += \
     qstringhelpers.cpp \
     universalmutex.cpp \
     datatransferutils.cpp \
-    databaseutils.cpp
+    databaseutils.cpp \
+    stopwatchengine.cpp
 
 HEADERS += \
     pubsubsystem.h \
@@ -36,6 +37,7 @@ HEADERS += \
     datatransferutils.h \
     response.h \
     synchronizationobject.h \
-    databaseutils.h
+    databaseutils.h \
+    stopwatchengine.h
 
 INCLUDEPATH += ..
