@@ -35,13 +35,13 @@ GUTIL_USING_NAMESPACE(ModelViews);
 
 TimelineView::TimelineView(QWidget *p)
     :QAbstractItemView(p),
-    _scale_factor(1),
-    _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
-    _range_in_seconds(0),
-    m_rubberBand(0),
-    m_currentHighlighter(QRubberBand::Rectangle, this)
+      _scale_factor(1),
+      _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
+      _range_in_seconds(0),
+      m_rubberBand(0),
+      m_currentHighlighter(QRubberBand::Rectangle, this)
 {
-
+    setMouseTracking(true);
 }
 
 
@@ -212,6 +212,9 @@ QRect TimelineView::visualRect(const QModelIndex &index) const
 
 QRect TimelineView::itemRect(const QModelIndex &index) const
 {
+    if(!index.isValid())
+        return QRect();
+
     QDateTime start( index.data(StartDate).toDateTime() );
     QDateTime end( index.data(EndDate).toDateTime() );
 
@@ -261,7 +264,6 @@ QModelIndex TimelineView::indexAt(const QPoint &point) const
             }
         }
     }
-    visualRect(ret).contains(point);
     return ret;
 }
 
@@ -412,15 +414,40 @@ void TimelineView::scrollContentsBy(int dx, int dy)
     viewport()->scroll(dx, dy);
 }
 
+
+#define ADJUSTMENT_BUFFER 5
+
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
     QAbstractItemView::mousePressEvent(event);
 
-    m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-    m_mouseFirstClick = event->pos();
+    QPoint pos( event->pos() );
+    QModelIndex ind( indexAt(pos) );
+    QRect rect( visualRect(ind) );
+    if(rect.isValid())
+    {
+        if(pos.x() >= rect.left() &&
+                pos.x() <= rect.right())
+        {
+            if(qAbs(pos.y() - rect.top()) <= ADJUSTMENT_BUFFER)
+            {
+                // Drag the top of the item
+                startDrag(model()->supportedDragActions());
+            }
+            else if(qAbs(pos.y() - rect.bottom()) <= ADJUSTMENT_BUFFER)
+            {
+                // Drag the bottom of the item
+            }
+        }
+    }
+    else
+    {
+        m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+        m_mouseFirstClick = event->pos();
 
-    m_rubberBand->setGeometry(QRect(event->pos(), QSize()));
-    m_rubberBand->show();
+        m_rubberBand->setGeometry(QRect(event->pos(), QSize()));
+        m_rubberBand->show();
+    }
 }
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event)
@@ -435,8 +462,35 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
     QAbstractItemView::mouseMoveEvent(event);
 
-    if(!m_rubberBand.isNull())
-        m_rubberBand->setGeometry(QRect(m_mouseFirstClick, event->pos()).normalized());
+    QPoint pos(event->pos());
+    if(m_rubberBand.isNull())
+    {
+        QModelIndex ind( indexAt(pos) );
+        QRect rect( visualRect(ind) );
+
+        if(rect.isValid() &&
+                pos.x() >= rect.left() &&
+                pos.x() <= rect.right())
+        {
+            if((qAbs(pos.y() - rect.top()) <= ADJUSTMENT_BUFFER ||
+                qAbs(pos.y() - rect.bottom()) <= ADJUSTMENT_BUFFER))
+            {
+                setCursor(Qt::SplitVCursor);
+            }
+            else if(pos.y() >= rect.top() && pos.y() <= rect.bottom())
+            {
+                setCursor(Qt::SizeAllCursor);
+            }
+        }
+        else if(cursor().shape() != Qt::ArrowCursor)
+        {
+            setCursor(Qt::ArrowCursor);
+        }
+    }
+    else
+    {
+        m_rubberBand->setGeometry(QRect(m_mouseFirstClick, pos).normalized());
+    }
 }
 
 QPoint TimelineView::_finish_point() const
