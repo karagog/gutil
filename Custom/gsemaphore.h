@@ -16,22 +16,34 @@ limitations under the License.*/
 #define GSEMAPHORE_H
 
 #include <QSemaphore>
+#include <QReadWriteLock>
 
 namespace GUtil
 {
     namespace Custom
     {
+        // A lockable semaphore
         class GSemaphore :
-                public QSemaphore
+                public QSemaphore,
+                public QReadWriteLock
         {
         public:
 
-            explicit GSemaphore(int init_val = 0);
+            inline GSemaphore(int init_val = 0)
+                :QSemaphore(init_val)
+            {}
 
-            void Up(int n = 1);
-            void Down(int n = 1);
+            inline void Up(int n = 1){
+                release(n);
+            }
 
-            bool IsEmpty();
+            inline void Down(int n = 1){
+                acquire(n);
+            }
+
+            inline bool IsEmpty(){
+                return available() == 0;
+            }
 
         };
     }

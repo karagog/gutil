@@ -21,7 +21,6 @@ HEADERS += \
 SOURCES += \
     myflattreemodel.cpp \
     gthread.cpp \
-    gsemaphore.cpp \
     gsharedlock.cpp \
     gvariant.cpp \
     updatablegvariant.cpp \
