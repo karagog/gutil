@@ -118,4 +118,13 @@ protected: \
 #define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
 #define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
 
+
+
+// Here are some useful functions
+
+template <class T> inline T gAbs(const T &v){ return v < 0 ? -v : v; }
+
+
+
+
 #endif // GUTIL_MACROS_H
