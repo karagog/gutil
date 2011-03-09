@@ -55,7 +55,7 @@ public:
     static std::string fromBase16(const std::string &instr);
 
     // Random number generator
-    static int rand();
+    static unsigned int rand();
     static std::string randData(int, int seed = -1);
 
 };

@@ -23,13 +23,13 @@ limitations under the License.*/
 #include "gzip.h"
 #include "osrng.h"
 using namespace std;
-using namespace GUtil::Core;
+GUTIL_USING_CORE_NAMESPACE(Utils);
 
-int Utils::CryptoHelpers::DEFAULT_COMPRESSION_LEVEL = CryptoPP::Gzip::DEFAULT_DEFLATE_LEVEL;
-int Utils::CryptoHelpers::MIN_COMPRESSION_LEVEL = CryptoPP::Gzip::MIN_DEFLATE_LEVEL;
-int Utils::CryptoHelpers::MAX_COMPRESSION_LEVEL = CryptoPP::Gzip::MAX_DEFLATE_LEVEL;
+int CryptoHelpers::DEFAULT_COMPRESSION_LEVEL = CryptoPP::Gzip::DEFAULT_DEFLATE_LEVEL;
+int CryptoHelpers::MIN_COMPRESSION_LEVEL = CryptoPP::Gzip::MIN_DEFLATE_LEVEL;
+int CryptoHelpers::MAX_COMPRESSION_LEVEL = CryptoPP::Gzip::MAX_DEFLATE_LEVEL;
 
-string Utils::CryptoHelpers::encryptString(const string &instr, const string &passPhrase)
+string CryptoHelpers::encryptString(const string &instr, const string &passPhrase)
 {
     string outstr;
 
@@ -49,7 +49,7 @@ string Utils::CryptoHelpers::encryptString(const string &instr, const string &pa
     return outstr;
 }
 
-string Utils::CryptoHelpers::decryptString(const string &instr, const string &passPhrase)
+string CryptoHelpers::decryptString(const string &instr, const string &passPhrase)
 {
     string outstr;
 
@@ -69,7 +69,7 @@ string Utils::CryptoHelpers::decryptString(const string &instr, const string &pa
     return outstr;
 }
 
-void Utils::CryptoHelpers::encryptFile(const char *in, const char *out, const char *passPhrase)
+void CryptoHelpers::encryptFile(const char *in, const char *out, const char *passPhrase)
 {
     try
     {
@@ -81,7 +81,7 @@ void Utils::CryptoHelpers::encryptFile(const char *in, const char *out, const ch
     }
 }
 
-void Utils::CryptoHelpers::decryptFile(const char *in, const char *out, const char *passPhrase)
+void CryptoHelpers::decryptFile(const char *in, const char *out, const char *passPhrase)
 {
     try
     {
@@ -93,7 +93,7 @@ void Utils::CryptoHelpers::decryptFile(const char *in, const char *out, const ch
     }
 }
 
-string Utils::CryptoHelpers::compress(const string &instr, int level)
+string CryptoHelpers::compress(const string &instr, int level)
 {
     string ret;
 
@@ -126,7 +126,7 @@ string Utils::CryptoHelpers::compress(const string &instr, int level)
     return "1" + ret;
 }
 
-string Utils::CryptoHelpers::decompress(const string &instr)
+string CryptoHelpers::decompress(const string &instr)
 {
     string tmp;
 
@@ -164,7 +164,7 @@ string Utils::CryptoHelpers::decompress(const string &instr)
     return tmp;
 }
 
-string Utils::CryptoHelpers::toBase64(const string &instr)
+string CryptoHelpers::toBase64(const string &instr)
 {
     string tmp;
 
@@ -175,7 +175,7 @@ string Utils::CryptoHelpers::toBase64(const string &instr)
     return tmp;
 }
 
-string Utils::CryptoHelpers::fromBase64(const string &instr)
+string CryptoHelpers::fromBase64(const string &instr)
 {
     string tmp;
 
@@ -192,7 +192,7 @@ string Utils::CryptoHelpers::fromBase64(const string &instr)
     return tmp;
 }
 
-string Utils::CryptoHelpers::toBase16(const string &instr)
+string CryptoHelpers::toBase16(const string &instr)
 {
     string tmp;
 
@@ -203,7 +203,7 @@ string Utils::CryptoHelpers::toBase16(const string &instr)
     return tmp;
 }
 
-string Utils::CryptoHelpers::fromBase16(const string &instr)
+string CryptoHelpers::fromBase16(const string &instr)
 {
     string tmp;
 
@@ -220,13 +220,12 @@ string Utils::CryptoHelpers::fromBase16(const string &instr)
     return tmp;
 }
 
-int Utils::CryptoHelpers::rand()
+unsigned int CryptoHelpers::rand()
 {
-    CryptoPP::AutoSeededRandomPool rng;
-    return rng.GenerateWord32();
+    return CryptoPP::AutoSeededRandomPool().GenerateWord32();
 }
 
-string Utils::CryptoHelpers::randData(int size, int seed)
+string CryptoHelpers::randData(int size, int seed)
 {
     CryptoPP::RandomPool *rng;
     if(seed == -1)
@@ -260,21 +259,21 @@ string Utils::CryptoHelpers::randData(int size, int seed)
 
 #ifdef GUTIL_COM_EXPORTS
 
-GUTIL_COM_EXPORT int Rand(){ return GUtil::Core::Utils::CryptoHelpers::rand(); }
+GUTIL_COM_EXPORT int Rand(){ return GUtil::Core::CryptoHelpers::rand(); }
 
 GUTIL_COM_EXPORT std::string EncryptString(const std::string &str, const std::string &password)
 {
-    return GUtil::Core::Utils::CryptoHelpers::encryptString(str, password);
+    return GUtil::Core::CryptoHelpers::encryptString(str, password);
 }
 
 GUTIL_COM_EXPORT std::string DecryptString(const std::string &str, const std::string &password)
 {
-    return GUtil::Core::Utils::CryptoHelpers::decryptString(str, password);
+    return GUtil::Core::CryptoHelpers::decryptString(str, password);
 }
 
 GUTIL_COM_EXPORT char *ToBase64(const char *str, int len, int &out_len)
 {
-    std::string ret = GUtil::Core::Utils::CryptoHelpers::toBase64(std::string(str, len)).c_str();
+    std::string ret = GUtil::Core::CryptoHelpers::toBase64(std::string(str, len)).c_str();
     wchar_t *r = new wchar_t[ret.length()];
     memcpy(r, ret.c_str(), ret.length());
     out_len = ret.length();
@@ -283,7 +282,7 @@ GUTIL_COM_EXPORT char *ToBase64(const char *str, int len, int &out_len)
 
 GUTIL_COM_EXPORT char *FromBase64(const char *str, int len, int &out_len)
 {
-    std::string ret = GUtil::Core::Utils::CryptoHelpers::fromBase64(std::string(str, len)).c_str();
+    std::string ret = GUtil::Core::CryptoHelpers::fromBase64(std::string(str, len)).c_str();
     char *r = new char[ret.length()];
     memcpy(r, ret.c_str(), ret.length());
     out_len = ret.length();
