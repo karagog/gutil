@@ -143,7 +143,10 @@ void GIODeviceBundleManager::WaitForMessageSent(const QUuid &msg_id,
         }
     }
     pack->OutQueueMutex.unlock();
+
+    iodevices_lock.lockForWrite();
     lock->Unlock();
+    iodevices_lock.unlock();
 }
 
 GIODeviceBundleManager::IODevicePackage *
@@ -224,7 +227,10 @@ QUuid GIODeviceBundleManager::SendData(const QByteArray &data,
     pack->OutQueueMutex.unlock();
 
     bool wait_for_sent = !pack->GetAsyncWrite();
+
+    iodevices_lock.lockForWrite();
     lock->Unlock();
+    iodevices_lock.unlock();
 
     // Wake up our background worker to the fact that there's new
     //  data available.  If they miss the wakeup because they're already
@@ -267,7 +273,10 @@ QByteArray GIODeviceBundleManager::ReceiveData(const QUuid &id)
             ret = pack->InQueue.dequeue();
     }
     pack->InQueueMutex.unlock();
+
+    iodevices_lock.lockForWrite();
     lock->Unlock();
+    iodevices_lock.unlock();
 
     return ret;
 }
@@ -293,7 +302,10 @@ bool GIODeviceBundleManager::HasData(const QUuid &id)
         ret = !pack->InQueue.isEmpty();
     }
     pack->InQueueMutex.unlock();
+
+    iodevices_lock.lockForWrite();
     lock->Unlock();
+    iodevices_lock.unlock();
 
     return ret;
 }
@@ -414,7 +426,9 @@ void GIODeviceBundleManager::WorkerThread::run()
                     else if(item.Direction == item.Incoming)
                         _receive_incoming_data(pack);
 
+                    _bundle_manager->iodevices_lock.lockForWrite();
                     lock->Unlock();
+                    _bundle_manager->iodevices_lock.unlock();
                 }
 
                 _bundle_manager->flagsMutex.lock();

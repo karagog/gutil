@@ -40,6 +40,9 @@ public:
             waitcondition.wait(holding_lock);
     }
 
+    // "Unlock" must only be called in a mutually exclusive critical section
+    //  provided by the holding lock (not just a read lock!) because it affects
+    //  the condition that is tested by the locking calls.
     inline void Unlock(){
         lock.unlock();
         waitcondition.wakeAll();

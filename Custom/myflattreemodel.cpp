@@ -64,17 +64,12 @@ void Custom::myFlatTreeModel::setSourceModel(QAbstractItemModel *m)
                 this, SLOT(source_model_data_changed(QModelIndex,QModelIndex)));
     }
 
-    _reset_model();
+    refreshSourceModel();
 }
 
 void Custom::myFlatTreeModel::source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2)
 {
     emit dataChanged(mapFromSource(ind1), mapFromSource(ind2));
-}
-
-void Custom::myFlatTreeModel::source_model_about_to_be_reset()
-{
-    beginResetModel();
 }
 
 void Custom::myFlatTreeModel::source_model_reset()
@@ -95,12 +90,7 @@ void Custom::myFlatTreeModel::source_model_reset()
 
 void Custom::myFlatTreeModel::refreshSourceModel()
 {
-    _reset_model();
-}
-
-void Custom::myFlatTreeModel::_reset_model()
-{
-    beginResetModel();
+    source_model_about_to_be_reset();
     source_model_reset();
 }
 
@@ -164,11 +154,10 @@ int Custom::myFlatTreeModel::_count_child_indexes(const QModelIndex &ind)
     // Start with one to account for 'ind'
     int ret = 1;
 
-    QAbstractItemModel *m = sourceModel();
-    int children = m->rowCount(ind);
+    int children = sourceModel()->rowCount(ind);
     for(int i = 0; i < children; i++)
     {
-        ret += _count_child_indexes(m->index(i, 0, ind));
+        ret += _count_child_indexes(sourceModel()->index(i, 0, ind));
     }
 
     // Remember this result for later

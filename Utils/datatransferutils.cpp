@@ -23,8 +23,13 @@ GUTIL_USING_NAMESPACE(Core);
 void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
                                                 const QByteArray &data,
                                                 GUtil::Utils::PubSubSystem *PubSub,
-                                                int progress_id)
+                                                int progress_id,
+                                                bool *cancel_flag)
 {
+    bool tmp(false);
+    if(!cancel_flag)
+        cancel_flag = &tmp;
+
     QFile f(filename);
     if(!f.open(QFile::WriteOnly | QFile::Truncate))
     {
@@ -34,7 +39,7 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
     }
 
     int bytes_written(0);
-    while(bytes_written < data.length())
+    while(!*cancel_flag && bytes_written < data.length())
     {
         int bytes_remaining = data.length() - bytes_written;
         int this_run = bytes_remaining < CHUNK_SIZE ?
@@ -44,13 +49,14 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
 
         bytes_written += this_run;
 
-        PubSub->PublishProgress((100 * bytes_written) / data.length(),
-                                progress_id);
+        if(PubSub)
+            PubSub->PublishProgress((100 * bytes_written) / data.length(),
+                                    progress_id);
     }
 
     if(bytes_written != data.length())
     {
-        QString err(f.errorString());
+        QString err(*cancel_flag ? "Cancelled" : f.errorString());
         f.close();
         THROW_NEW_GUTIL_EXCEPTION2(Exception,
                                    QString("Write Failed: %1")
@@ -59,10 +65,78 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
     f.close();
 }
 
+void DataTransferUtils::CopyFileInChunks(const QString &source,
+                      const QString &dest,
+                      GUtil::Utils::PubSubSystem *PubSub,
+                      int progress_id,
+                      bool *cancel_flag)
+{
+    bool tmp(false);
+    if(!cancel_flag)
+        cancel_flag = &tmp;
+
+    QFile s(source);
+    QFile d(dest);
+    if(!d.open(QFile::WriteOnly | QFile::Truncate))
+    {
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                   QString("Could not open file for writing: %1")
+                                   .arg(d.errorString()).toStdString());
+    }
+    if(!s.open(QFile::ReadOnly))
+    {
+        d.close();
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                   QString("Could not open file for reading: %1")
+                                   .arg(s.errorString()).toStdString());
+    }
+
+    int data_length(s.size());
+    int bytes_written(0);
+    while(!*cancel_flag && bytes_written < data_length)
+    {
+        int bytes_remaining = data_length - bytes_written;
+        int this_run = bytes_remaining < CHUNK_SIZE ?
+                       bytes_remaining : CHUNK_SIZE;
+
+        QByteArray dat(s.read(this_run));
+        d.write(dat);
+
+        bytes_written += dat.length();
+
+        if(PubSub)
+            PubSub->PublishProgress((100 * bytes_written) / dat.length(),
+                                    progress_id);
+
+        if(this_run != dat.length())
+            break;
+    }
+
+    if(bytes_written != data_length)
+    {
+        QString err(*cancel_flag ?"Cancelled" :
+                    QString("%1 :: %2")
+                    .arg(d.errorString())
+                    .arg(s.errorString()));
+        d.close();
+        s.close();
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                   QString("Write Failed: %1")
+                                   .arg(err).toStdString());
+    }
+    d.close();
+    s.close();
+}
+
 QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
                                                        GUtil::Utils::PubSubSystem *PubSub,
-                                                       int progress_id)
+                                                       int progress_id,
+                                                       bool *cancel_flag)
 {
+    bool tmp(false);
+    if(!cancel_flag)
+        cancel_flag = &tmp;
+
     QFile f(filename);
     if(!f.open(QFile::ReadOnly))
     {
@@ -74,7 +148,7 @@ QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
     QByteArray ret;
     const int bytes_to_read(f.size());
     int bytes_read(0);
-    while(bytes_read < bytes_to_read)
+    while(!*cancel_flag && bytes_read < bytes_to_read)
     {
         int bytes_remaining = bytes_to_read - bytes_read;
         int this_run = bytes_remaining < CHUNK_SIZE ?
@@ -84,13 +158,14 @@ QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
 
         bytes_read += this_run;
 
-        PubSub->PublishProgress((100 * bytes_read) / bytes_to_read,
-                                progress_id);
+        if(PubSub)
+            PubSub->PublishProgress((100 * bytes_read) / bytes_to_read,
+                                    progress_id);
     }
 
     if(bytes_read != bytes_to_read)
     {
-        QString err(f.errorString());
+        QString err(*cancel_flag ? "Cancelled" : f.errorString());
         f.close();
         THROW_NEW_GUTIL_EXCEPTION2(Exception,
                                    QString("Write Failed: %1")

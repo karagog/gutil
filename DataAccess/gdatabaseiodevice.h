@@ -65,6 +65,9 @@ namespace GUtil
             // The database must be properly configured before using this device
             inline QString GetDatabaseConnectionId(){ return _connection_id; }
 
+            void OpenDatabaseConnection();
+            void CloseDatabaseConnection();
+
             // Here are the various database commands you can issue:
 
             void CreateTable(const QString &name,
@@ -204,6 +207,7 @@ namespace GUtil
 
             // A reference to the QSqlDatabase connection
             QString _connection_id;
+            bool _is_connection_open;
 
 
             // Control what commands to issue

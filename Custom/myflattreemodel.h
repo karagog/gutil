@@ -24,35 +24,50 @@ namespace GUtil
     {
         // This class will represent a tree model as a list model, essentially
         //  throwing away the hierarchy and letting you access it like a list
-        class myFlatTreeModel : public QAbstractProxyModel
+        class myFlatTreeModel :
+                public QAbstractProxyModel
         {
             Q_OBJECT
         public:
+
             explicit myFlatTreeModel(QObject *parent = 0);
 
             virtual void setSourceModel(QAbstractItemModel *);
 
+
         public slots:
+
             void refreshSourceModel();
 
-        protected:
-            virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-            virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 
-            virtual QModelIndex parent(const QModelIndex &) const;
-            virtual QModelIndex index(int row, int column, const QModelIndex &par = QModelIndex()) const;
-            virtual int rowCount(const QModelIndex &parent) const;
-            virtual int columnCount(const QModelIndex &parent) const;
-            virtual QVariant data(const QModelIndex &proxyIndex, int role) const;
+        protected:
+
+            // QAbstractProxyModel interface
+            QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+            QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+
+            QModelIndex parent(const QModelIndex &) const;
+            QModelIndex index(int row, int column,
+                              const QModelIndex &par = QModelIndex()) const;
+            int rowCount(const QModelIndex &parent) const;
+            int columnCount(const QModelIndex &parent) const;
+            QVariant data(const QModelIndex &proxyIndex, int role) const;
+
+
+        private slots:
+
+            inline void source_model_about_to_be_reset(){ beginResetModel(); }
+            void source_model_reset();
+            void source_model_data_changed(const QModelIndex &, const QModelIndex &);
+
 
         private:
+
             int _count_preceeding_indexes(const QModelIndex &) const;
             int _count_child_indexes(const QModelIndex &ind = QModelIndex());
             void _refresh_index_mapping(const QModelIndex &ind = QModelIndex());
 
             QModelIndex _map_from_source(const QModelIndex &sourceIndex);
-
-            void _reset_model();
 
             QMap<int, QPersistentModelIndex> _index_map_to_source;
             QMap<int, int> _index_map_from_source;
@@ -61,11 +76,6 @@ namespace GUtil
 
             int _total_rows;
 
-        private slots:
-            void source_model_about_to_be_reset();
-            void source_model_reset();
-
-            void source_model_data_changed(const QModelIndex &, const QModelIndex &);
         };
     }
 }

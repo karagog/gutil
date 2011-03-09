@@ -38,6 +38,13 @@ namespace GUtil
             //  (All of the public functions can be treated atomically,
             //   and can be executed safely from multiple threads)
 
+            // Prepares the binary data store backend for storage
+            void Initialize();
+            void Clear();
+
+            // Remove all files
+            void Reset();
+
             // For manipulating files
             int AddFile(const QByteArray &, int id = -1);
             void RemoveFile(int);
@@ -48,9 +55,6 @@ namespace GUtil
 
             // Get the size of a file
             int GetSize(int id) const;
-
-            // Remove all files
-            void Reset();
 
             inline QSet<int> GetIds() const { return _ids; }
 

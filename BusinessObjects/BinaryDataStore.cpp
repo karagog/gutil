@@ -42,21 +42,7 @@ BinaryDataStore::BinaryDataStore(const QString &id)
     _file_location(_get_file_loc(id)),
     _max_id(0)
 {
-    QString tmp_id(QString("%1_database").arg(id));
-    if(!QSqlDatabase::database(tmp_id).isValid())
-    {
-        if(QFile::exists(_file_location))
-            QFile::remove(_file_location);
-
-        QSqlDatabase::addDatabase(
-                "QSQLITE",
-                tmp_id)
-                .setDatabaseName(_file_location);
-    }
-
-    dbio = new GDatabaseIODevice(tmp_id);
-
-    Reset();
+    dbio = new GDatabaseIODevice(QString("%1_database").arg(id));
 }
 
 BinaryDataStore::~BinaryDataStore()
@@ -149,12 +135,19 @@ int BinaryDataStore::GetSize(int id) const
     return t[0]["size"].toInt();
 }
 
-// Clear all files
-void BinaryDataStore::Reset()
+void BinaryDataStore::Initialize()
 {
     FailIfReadOnly();
 
-    _ids.clear();
+    if(QFile::exists(_file_location))
+        QFile::remove(_file_location);
+
+    QSqlDatabase::addDatabase(
+            "QSQLITE",
+            dbio->GetIdentity())
+            .setDatabaseName(_file_location);
+
+    dbio->OpenDatabaseConnection();
 
     // Create a table with two columns, an integer primary key and blob,
     //  dropping the table if it already exists
@@ -164,6 +157,23 @@ void BinaryDataStore::Reset()
             << QPair<QString, QString>("size", "INTEGER")
             << QPair<QString, QString> ("data", "BLOB");
     dbio->CreateTable(BS_TABLE_NAME, pl, 0, true);
+}
+
+void BinaryDataStore::Clear()
+{
+    FailIfReadOnly();
+
+    _ids.clear();
+    dbio->CloseDatabaseConnection();
+
+    if(QFile::exists(_file_location))
+        QFile::remove(_file_location);
+}
+
+void BinaryDataStore::Reset()
+{
+    Clear();
+    Initialize();
 }
 
 QString BinaryDataStore::_get_file_loc(const QString &id)
