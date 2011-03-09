@@ -34,6 +34,9 @@ public slots:
     // Expands all parents in the tree until this index is visible
     void ExpandToIndex(QModelIndex);
 
+    // Collapses the index and all its parents recursively
+    void CollapseWithParents(QModelIndex);
+
     // Clears the current selection and selects the row (current index will be
     //  on the row's first cell
     void SelectRow(QModelIndex);

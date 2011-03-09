@@ -34,6 +34,15 @@ void GTreeView::ExpandToIndex(QModelIndex ind)
     }
 }
 
+void GTreeView::CollapseWithParents(QModelIndex ind)
+{
+    if(ind.isValid())
+    {
+        collapse(ind);
+        CollapseWithParents(ind.parent());
+    }
+}
+
 void GTreeView::SelectRow(QModelIndex r)
 {
     selectionModel()->select(r,
