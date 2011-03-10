@@ -534,20 +534,32 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
 
             if(dy != 0)
             {
+                QDateTime effective_startDate( m_draggingIndex.data(StartDate).toDateTime() );
+                QDateTime effective_endDate( m_draggingIndex.data(EndDate).toDateTime() );
+
                 if(!m_drag_startDate.isNull())
                 {
                     rect.setTop(rect.top() + dy);
-                    m_drag_startDate = PointToDateTime(
+                    effective_startDate = PointToDateTime(
                                 QPoint( 0, rect.top() - verticalScrollBar()->value() ));
                 }
                 if(!m_drag_endDate.isNull())
                 {
                     rect.setBottom(rect.bottom() + dy);
-                    m_drag_endDate = PointToDateTime(
+                    effective_endDate = PointToDateTime(
                                 QPoint( 0, rect.bottom() - verticalScrollBar()->value() ));
                 }
 
-                viewport()->update();
+                // Only update the drag memory if it satisfies the validation constraints
+                if(effective_endDate >= effective_startDate)
+                {
+                    if(!m_drag_startDate.isNull())
+                        m_drag_startDate = effective_startDate;
+                    if(!m_drag_endDate.isNull())
+                        m_drag_endDate = effective_endDate;
+
+                    viewport()->update();
+                }
             }
         }
         else
