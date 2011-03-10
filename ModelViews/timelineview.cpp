@@ -439,54 +439,59 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 {
     QAbstractItemView::mousePressEvent(event);
 
-    QPoint pos( event->pos() );
-    QModelIndex ind( indexAt(pos) );
-    if(ind.isValid())
+    if(event->button() == Qt::LeftButton)
     {
-        // If they clicked on a valid index, then we let them drag it around the timeline,
-        //  or adjust the start/end date
-        QRect rect( visualRect(ind) );
-        int diffTop( gAbs(pos.y() - rect.top()) );
-        int diffBottom( gAbs(pos.y() - rect.bottom()) );
-
-        m_draggingIndex = ind;
-
-        if(diffTop <= ADJUSTMENT_BUFFER ||
-                diffBottom <= ADJUSTMENT_BUFFER)
+        QPoint pos( event->pos() );
+        QModelIndex ind( indexAt(pos) );
+        if(ind.isValid())
         {
-            // If they clicked near the top/bottom border, then adjust the appropriate boundary
+            // If they clicked on a valid index, then we let them drag it around the timeline,
+            //  or adjust the start/end date
+            QRect rect( visualRect(ind) );
+            int diffTop( gAbs(pos.y() - rect.top()) );
+            int diffBottom( gAbs(pos.y() - rect.bottom()) );
 
-            if(diffTop < diffBottom)
+            m_draggingIndex = ind;
+
+            if(diffTop <= ADJUSTMENT_BUFFER ||
+                    diffBottom <= ADJUSTMENT_BUFFER)
             {
-                // Drag the top of the item
-                m_drag_cursor_offset = diffTop;
-                m_drag_startDate = PointToDateTime(rect.topLeft());
+                // If they clicked near the top/bottom border, then adjust the appropriate boundary
+
+                if(diffTop < diffBottom)
+                {
+                    // Drag the top of the item
+                    m_drag_cursor_offset = diffTop;
+                    m_drag_startDate = PointToDateTime(rect.topLeft());
+                }
+                else
+                {
+                    // Drag the bottom of the item
+                    m_drag_cursor_offset = -diffBottom;
+                    m_drag_endDate = PointToDateTime(rect.bottomRight());
+                }
             }
             else
             {
-                // Drag the bottom of the item
-                m_drag_cursor_offset = -diffBottom;
+                // Let them drag the index around
+                m_drag_cursor_offset = diffTop;
+                m_drag_startDate = PointToDateTime(rect.topLeft());
                 m_drag_endDate = PointToDateTime(rect.bottomRight());
+
+                setCursor(Qt::ClosedHandCursor);
             }
         }
         else
         {
-            // Else let them drag the index around
-            m_drag_cursor_offset = diffTop;
-            m_drag_startDate = PointToDateTime(rect.topLeft());
-            m_drag_endDate = PointToDateTime(rect.bottomRight());
+            // If they didn't click on a valid index, then they can use a rubber
+            //  band to select several indexes
+
+            m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+            m_mouseFirstClick = event->pos();
+
+            m_rubberBand->setGeometry(QRect(event->pos(), QSize()));
+            m_rubberBand->show();
         }
-    }
-    else
-    {
-        // If they didn't click on a valid index, then they can use a rubber
-        //  band to select several indexes
-
-        m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-        m_mouseFirstClick = event->pos();
-
-        m_rubberBand->setGeometry(QRect(event->pos(), QSize()));
-        m_rubberBand->show();
     }
 }
 
@@ -499,10 +504,12 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 
     if(m_draggingIndex.isValid())
     {
-        // Commit the data from the drag/drop session
-        if(!m_drag_startDate.isNull())
+        setCursor(Qt::OpenHandCursor);
+
+        // Commit the data from the drag/drop session (Only if it changed)
+        if(!m_drag_startDate.isNull() && m_drag_startDate != m_draggingIndex.data(StartDate))
             model()->setData(m_draggingIndex, m_drag_startDate, StartDate);
-        if(!m_drag_endDate.isNull())
+        if(!m_drag_endDate.isNull() && m_drag_endDate != m_draggingIndex.data(EndDate))
             model()->setData(m_draggingIndex, m_drag_endDate, EndDate);
 
         // Clear the drag/drop memory when we're done
@@ -577,11 +584,12 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
             if((gAbs(pos.y() - rect.top()) <= ADJUSTMENT_BUFFER ||
                 gAbs(pos.y() - rect.bottom()) <= ADJUSTMENT_BUFFER))
             {
-                setCursor(Qt::SplitVCursor);
+                setCursor(Qt::SizeVerCursor);
             }
             else if(pos.y() >= rect.top() && pos.y() <= rect.bottom())
             {
-                setCursor(Qt::SizeAllCursor);
+                setCursor(m_draggingIndex.isValid() ?
+                              Qt::ClosedHandCursor : Qt::OpenHandCursor);
             }
         }
         else if(cursor().shape() != Qt::ArrowCursor)
