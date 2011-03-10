@@ -65,7 +65,7 @@ Stopwatch::Stopwatch(QWidget *parent)
     layout()->addWidget(tmp);
 
     connect(btn_start, SIGNAL(clicked(bool)), this, SLOT(StartStop(bool)));
-    connect(btn_reset, SIGNAL(clicked()), &_stopwatch, SLOT(Reset()));
+    connect(btn_reset, SIGNAL(clicked()), this, SLOT(Reset()));
 
     connect(&_stopwatch, SIGNAL(NotifyTimeChanged()),
             this, SLOT(_update_label()));
@@ -160,7 +160,9 @@ void Stopwatch::StartStop(bool start)
 
 void Stopwatch::Reset()
 {
-    _stopwatch.Reset();
+    if(btn_start->isChecked())
+        btn_start->setChecked(false);
 
+    _stopwatch.Reset();
     _update_label();
 }
