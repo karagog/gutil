@@ -445,11 +445,10 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
         // If they clicked on a valid index, then we let them drag it around the timeline,
         //  or adjust the start/end date
         QRect rect( visualRect(ind) );
-        int diffTop( qAbs(pos.y() - rect.top()) );
-        int diffBottom( qAbs(pos.y() - rect.bottom()) );
+        int diffTop( gAbs(pos.y() - rect.top()) );
+        int diffBottom( gAbs(pos.y() - rect.bottom()) );
 
         m_draggingIndex = ind;
-        m_drag_cursor_offset = pos.y() - rect.top();
 
         if(diffTop <= ADJUSTMENT_BUFFER ||
                 diffBottom <= ADJUSTMENT_BUFFER)
@@ -459,23 +458,22 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
             if(diffTop < diffBottom)
             {
                 // Drag the top of the item
+                m_drag_cursor_offset = diffTop;
                 m_drag_startDate = PointToDateTime(rect.topLeft());
-
-                startDrag(model()->supportedDragActions());
             }
             else
             {
                 // Drag the bottom of the item
+                m_drag_cursor_offset = -diffBottom;
                 m_drag_endDate = PointToDateTime(rect.bottomRight());
             }
         }
         else
         {
             // Else let them drag the index around
+            m_drag_cursor_offset = diffTop;
             m_drag_startDate = PointToDateTime(rect.topLeft());
             m_drag_endDate = PointToDateTime(rect.bottomRight());
-
-            startDrag(model()->supportedDragActions());
         }
     }
     else
@@ -508,7 +506,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 
         // Clear the drag/drop memory when we're done
         m_draggingIndex = QModelIndex();
-        m_drag_endDate = QDateTime();
+        m_drag_startDate = QDateTime();
         m_drag_endDate = QDateTime();
         m_drag_cursor_offset = -1;
     }
@@ -521,42 +519,45 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     QPoint pos(event->pos());
     if(m_rubberBand.isNull())
     {
-        QRect rect( itemRect(indexAt(pos)) );
-        if(rect.isValid())
+        QRect rect;
+        if(m_draggingIndex.isValid())
         {
-            if(m_draggingIndex.isValid())
+            // In the middle of drag/drop
+            _adjust_rect_for_dragDrop(rect = itemRect(m_draggingIndex));
+
+            int dy( pos.y() + verticalScrollBar()->value() );
+
+            if(m_drag_startDate.isNull())
+                dy = dy - rect.bottom() - m_drag_cursor_offset;
+            else
+                dy = dy - rect.top() - m_drag_cursor_offset;
+
+            if(dy != 0)
             {
-                _adjust_rect_for_dragDrop(rect);
-
-                int dy( pos.y() - rect.top() - m_drag_cursor_offset );
-
-                // If in the middle of drag/drop, adjust the indexes
-                if(!m_drag_startDate.isNull() &&
-                        !m_drag_endDate.isNull())
+                if(!m_drag_startDate.isNull())
                 {
-                    // adjust both the start time and the end time
+                    rect.setTop(rect.top() + dy);
                     m_drag_startDate = PointToDateTime(
-                                QPoint( 0, rect.top() + dy + verticalScrollBar()->value() ));
-                    m_drag_endDate = PointToDateTime(
-                                QPoint( 0, rect.bottom() + dy + verticalScrollBar()->value() ));
+                                QPoint( 0, rect.top() - verticalScrollBar()->value() ));
                 }
-                else if(m_drag_endDate.isNull())
+                if(!m_drag_endDate.isNull())
                 {
-                    // Adjust the start time
-                    m_drag_startDate = PointToDateTime(
-                                QPoint( 0, rect.top() + dy + verticalScrollBar()->value() ));
-                }
-                else
-                {
-                    // Adjust the end time
+                    rect.setBottom(rect.bottom() + dy);
                     m_drag_endDate = PointToDateTime(
-                                QPoint( 0, rect.bottom() + dy + verticalScrollBar()->value() ));
+                                QPoint( 0, rect.bottom() - verticalScrollBar()->value() ));
                 }
 
                 viewport()->update();
             }
+        }
+        else
+        {
+            rect = itemRect(indexAt(pos));
+        }
 
 
+        if(rect.isValid())
+        {
             rect.translate(-horizontalScrollBar()->value(),
                            -verticalScrollBar()->value());
 
@@ -594,7 +595,7 @@ void TimelineView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
 QDateTime TimelineView::PointToDateTime(const QPoint &p) const
 {
     return _start_time.addSecs(_range_in_seconds *
-                               ((double)(p.y() + verticalScrollBar()->value()) /
+                               ((double)(p.y() + verticalScrollBar()->value() - TIMELINE_TOPBOTTOM_MARGIN) /
                                 (_finish_point.y() - _origin_point.y())));
 }
 
