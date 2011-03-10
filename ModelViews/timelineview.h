@@ -41,6 +41,12 @@ public:
     // Returns a point that has NOT been shifted due to the vertical scrollbar
     QPoint DateTimeToPoint(const QDateTime &) const;
 
+    // The amount of time (in seconds) that we'll allow the user to edit
+    inline int GetTimeResolution() const{
+        return _resolution_in_seconds;
+    }
+    void SetTimeResolution(int);
+
     // The view will use these role values to reference data in the model,
     //   using the 'data()' function
     enum DataEnum
@@ -108,6 +114,9 @@ private:
     QDateTime _start_time;
     QDateTime _end_time;
     long long _range_in_seconds;
+
+    // Defines the minimum time resolution we'll allow
+    int _resolution_in_seconds;
 
     // Memory for drawing the rubber band
     QPointer<QRubberBand> m_rubberBand;

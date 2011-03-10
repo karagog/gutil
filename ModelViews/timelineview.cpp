@@ -39,6 +39,7 @@ TimelineView::TimelineView(QWidget *p)
       _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
       _finish_point(_origin_point.x(), _origin_point.y()),
       _range_in_seconds(0),
+      _resolution_in_seconds(1),
       m_rubberBand(0),
       m_currentHighlighter(QRubberBand::Rectangle, this),
       m_drag_cursor_offset(-1)
@@ -606,16 +607,37 @@ void TimelineView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
 
 QDateTime TimelineView::PointToDateTime(const QPoint &p) const
 {
-    return _start_time.addSecs(_range_in_seconds *
-                               ((double)(p.y() + verticalScrollBar()->value() - TIMELINE_TOPBOTTOM_MARGIN) /
-                                (_finish_point.y() - _origin_point.y())));
+    return QDateTime(
+                _start_time.addSecs(
+
+                    // Determine the number of seconds to the point on the timeline
+                    (long long)
+                    (
+                        // Find the percentage of distance the point lies
+                        //  between the start/end points
+                        //      (The '1' is a fudge factor, because there is an off-by-one
+                        //      error between DateTimeToPoint and PointToDateTime)
+                        ((double)(p.y() + 1 + verticalScrollBar()->value() - TIMELINE_TOPBOTTOM_MARGIN) /
+                         (_finish_point.y() - _origin_point.y()))
+
+                        // Multiply the percentage distance by the time duration on the
+                        //  line.  We scale the time duration to account for
+                        //  lower resolutions if the user wants it.
+                        * (_range_in_seconds / _resolution_in_seconds)
+                    )
+
+                    // Scale the results back so it fits on the real timeline
+                    * _resolution_in_seconds)
+                );
 }
 
 QPoint TimelineView::DateTimeToPoint(const QDateTime &dt) const
 {
     return QPoint(_origin_point.x(),
-                  _origin_point.y() + (_finish_point.y() - _origin_point.y()) *
-                                 ( (double)_start_time.secsTo(dt) / _range_in_seconds ));
+                  _origin_point.y() +
+                  ((double)_start_time.secsTo(dt) / _range_in_seconds )
+                  * (_finish_point.y() - _origin_point.y())
+                  );
 }
 
 void TimelineView::_adjust_rect_for_dragDrop(QRect &r) const
@@ -625,4 +647,11 @@ void TimelineView::_adjust_rect_for_dragDrop(QRect &r) const
 
     if(!m_drag_endDate.isNull())
         r.setBottom(DateTimeToPoint(m_drag_endDate).y());
+}
+
+void TimelineView::SetTimeResolution(int t)
+{
+    _resolution_in_seconds = t;
+
+    viewport()->update();
 }
