@@ -35,6 +35,12 @@ public:
     void SetEndTime(const QDateTime &);
     void SetStartAndEndTime(const QDateTime &start, const QDateTime &end);
 
+    // Expects a point that has been shifted due to the vertical scrollbar
+    QDateTime PointToDateTime(const QPoint &) const;
+
+    // Returns a point that has NOT been shifted due to the vertical scrollbar
+    QPoint DateTimeToPoint(const QDateTime &) const;
+
     // The view will use these role values to reference data in the model,
     //   using the 'data()' function
     enum DataEnum
@@ -65,6 +71,8 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent *event);
 
+    bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
+
 
     // QAbstractItemView interface:
     virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
@@ -91,17 +99,30 @@ private:
     void _update_scrollbars();
 
     const QPoint _origin_point;
-    QPoint _finish_point() const;
+    QPoint _finish_point;
+
+    inline void _update_finish_point(){
+        _finish_point.setY(_scale_factor * 500);
+    }
 
     QDateTime _start_time;
     QDateTime _end_time;
-    int _range_in_seconds;
+    long long _range_in_seconds;
 
     // Memory for drawing the rubber band
     QPointer<QRubberBand> m_rubberBand;
     QPoint m_mouseFirstClick;
 
     QRubberBand m_currentHighlighter;
+
+    // For remembering while they drag an activity around
+    QDateTime m_drag_startDate;
+    QDateTime m_drag_endDate;
+    QModelIndex m_draggingIndex;
+    // While dragging, this is the cursor's offset from the top of the item's rect
+    int m_drag_cursor_offset;
+
+    void _adjust_rect_for_dragDrop(QRect &) const;
 
 };
 
