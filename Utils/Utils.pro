@@ -26,7 +26,8 @@ SOURCES += \
     universalmutex.cpp \
     datatransferutils.cpp \
     databaseutils.cpp \
-    stopwatchengine.cpp
+    stopwatchengine.cpp \
+    globalmemorymanager.cpp
 
 HEADERS += \
     pubsubsystem.h \
@@ -38,6 +39,7 @@ HEADERS += \
     response.h \
     synchronizationobject.h \
     databaseutils.h \
-    stopwatchengine.h
+    stopwatchengine.h \
+    globalmemorymanager.h
 
 INCLUDEPATH += ..
