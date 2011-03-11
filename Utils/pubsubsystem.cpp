@@ -25,11 +25,18 @@ PubSubSystem::PubSubSystem(QObject *parent)
     qRegisterMetaType<GUtil::Core::Exception>("GUtil::Core::Exception");
 }
 
-void PubSubSystem::PublishMessage(const QByteArray &msg)
+void PubSubSystem::PublishMessage(const QString &msg)
 {
     on_message_published(msg);
 
     emit NotifyMessage(msg);
+}
+
+void PubSubSystem::PublishError(const QString &msg)
+{
+    on_error_published(msg);
+
+    emit NotifyError(msg);
 }
 
 void PubSubSystem::PublishProgress(int progress, int progress_id)
@@ -46,9 +53,14 @@ void PubSubSystem::PublishException(const GUtil::Core::Exception &ex)
     emit NotifyException(ex);
 }
 
-void PubSubSystem::on_message_published(const QByteArray &)
+void PubSubSystem::on_message_published(const QString &)
 {
     // Subclasses can do something interesting here
+}
+
+void PubSubSystem::on_error_published(const QString &)
+{
+
 }
 
 void PubSubSystem::on_progress_published(int, int)

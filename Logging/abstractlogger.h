@@ -45,17 +45,10 @@ namespace GUtil
                 Error = 2
             };
 
-
-            // These are the logging functions
-            void LogMessage(const QString &message, const QString &title = QString::null);
-            void LogWarning(const QString &message, const QString &title = QString::null);
-            void LogError(const QString &message, const QString &title = QString::null);
-
-            void LogException(const GUtil::Core::Exception &ex);
-                        void LogException(const std::exception &ex);
-
             // Derived classes can customize the log method, but for most people you will want
             virtual void Log(const QString &message, const QString &title, MessageLevelEnum);
+
+            void LogException(const std::exception &ex);
 
             // Clears the log file
             virtual void ClearLog();
@@ -65,6 +58,17 @@ namespace GUtil
             MessageLevelEnum MessageLevel();
 
             virtual ~AbstractLogger();
+
+
+        public slots:
+
+            // These are the logging functions
+            void LogMessage(const QString &message, const QString &title = QString::null);
+            void LogWarning(const QString &message, const QString &title = QString::null);
+            void LogError(const QString &message, const QString &title = QString::null);
+
+            void LogException(const GUtil::Core::Exception &ex);
+
 
         protected:
             explicit AbstractLogger(QObject *parent = 0);

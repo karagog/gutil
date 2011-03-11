@@ -23,6 +23,9 @@ Logging::AbstractLogger::AbstractLogger(QObject *parent)
     :QObject(parent == 0 ? qApp : parent)
 {
     _message_level = Info;
+
+    // So passing exceptions through signals and slots will work
+    qRegisterMetaType<GUtil::Core::Exception>("GUtil::Core::Exception");
 }
 
 Logging::AbstractLogger::~AbstractLogger()

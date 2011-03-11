@@ -37,22 +37,26 @@ namespace GUtil
 
         public slots:
 
-            void PublishMessage(const QByteArray &);
+            void PublishMessage(const QString &);
+            void PublishError(const QString &);
             void PublishProgress(int progress, int progress_id = -1);
-            void PublishException(const Core::Exception &);
+            void PublishException(const GUtil::Core::Exception &);
 
 
         signals:
 
-            void NotifyMessage(const QByteArray &);
+            void NotifyMessage(const QString &);
+            void NotifyError(const QString &);
             void NotifyProgress(int progress, int progress_id = -1);
-            void NotifyException(const Core::Exception &);
+            void NotifyException(const GUtil::Core::Exception &);
+
 
         protected:
 
             // Derived classes can override this function to do other interesting things
             //   with the published message
-            virtual void on_message_published(const QByteArray &);
+            virtual void on_message_published(const QString &);
+            virtual void on_error_published(const QString &);
             virtual void on_progress_published(int, int);
             virtual void on_exception_published(const Core::Exception &);
 
