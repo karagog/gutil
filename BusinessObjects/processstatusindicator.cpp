@@ -79,18 +79,28 @@ void ProcessStatusIndicator::SetIsProcessRunning(bool is_running)
     bool update_status(true);
 
     if(is_running)
-        _status_lock.LockForWriteOnMachine(false);
+    {
+        if(_status_lock.IsLockedOnMachine())
+            update_status = false;
+        else
+        {
+            _status_lock.LockForWriteOnMachine(false);
+            SetStatus(Normal);
+        }
+    }
     else
     {
         if(_status_lock.IsLockedOnMachine())
+        {
+            SetStatus(NotRunning);
             _status_lock.UnlockForMachine();
+        }
         else
             update_status = false;
     }
 
     if(update_status)
     {
-        SetStatus((int)(is_running ? Normal : NotRunning));
         if(is_running)
         {
             _server = new LocalSocketServer(this);
