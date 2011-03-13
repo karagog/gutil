@@ -15,7 +15,7 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../lib -lGUtil
+LIBS += -L../../../lib -lGUtilDataAccess
 
 SOURCES += main.cpp
 
