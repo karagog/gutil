@@ -26,7 +26,8 @@ HEADERS += \
     giodevicebundlemanager.h \
     localsocketserver.h \
     localsocketclient.h \
-    processstatusindicator.h
+    processstatusindicator.h \
+    commandlinemenu.h
 
 SOURCES += \
     BinaryDataStore.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
     giodevicebundlemanager.cpp \
     localsocketserver.cpp \
     localsocketclient.cpp \
-    processstatusindicator.cpp
+    processstatusindicator.cpp \
+    commandlinemenu.cpp
 
 INCLUDEPATH += ..
