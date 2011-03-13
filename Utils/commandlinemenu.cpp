@@ -81,7 +81,7 @@ void CommandLineMenu::Reset()
 #define MENU_WIDTH 45
 void CommandLineMenu::_print_menu_item(const CommandLineMenuItem &mi)
 {
-    cout<<endl<<endl<<endl<<endl<<endl;
+    cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl<<endl<<endl;
 
     cout<<setw(MENU_WIDTH)<<setfill('*')<<""<<endl;
     cout<<"*"<<setfill(' ')<<setiosflags(ios_base::right)<<setw(MENU_WIDTH - 1)<<"*"<<endl;
