@@ -4,11 +4,13 @@ HEADERS += \
     Utils/encryption.h \
     Utils/cl_menu.h \
     Utils/Private/strings_p.h \
-    Utils/commandlineargs.h
+    Utils/commandlineargs.h \
+    Utils/environment.h
 
 SOURCES += \
     Utils/stringhelpers.cc \
     Utils/encryption.cc \
     Utils/cl_menu.cc \
     Utils/Private/strings_p.cc \
-    Utils/commandlineargs.cpp
+    Utils/commandlineargs.cpp \
+    Utils/environment.cpp
