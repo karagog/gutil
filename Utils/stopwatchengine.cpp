@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "stopwatchengine.h"
-#include "gutil_macros.h"
 #include <QTimerEvent>
 GUTIL_USING_NAMESPACE(Utils);
 
@@ -21,6 +20,7 @@ GUTIL_USING_NAMESPACE(Utils);
 
 StopwatchEngine::StopwatchEngine(QObject *parent)
     :QObject(parent),
+      _p_MarkMemoryMaxLength(1),
       m_timer_id(-1),
       m_timer_resolution(DEFAULT_TIMER_RESOLUTION)
 {
@@ -66,7 +66,8 @@ void StopwatchEngine::StartStop(bool start)
             killTimer(m_timer_id);
             m_timer_id = -1;
 
-            m_actual_stopTime = QDateTime::currentDateTime();
+            _mark_time(m_actual_stopTime = QDateTime::currentDateTime());
+
             emit NotifyStartedStopped(false);
         }
     }
@@ -78,18 +79,73 @@ void StopwatchEngine::Reset()
         Stop();
     else
     {
-        m_startTime = m_actual_stopTime = m_time = QDateTime();
-
-        emit NotifyTimeChanged();
+        m_lock.lockForWrite();
+        {
+            m_startTime = m_actual_stopTime = m_time = QDateTime();
+        }
+        m_lock.unlock();
     }
+}
+
+void StopwatchEngine::ResetHot()
+{
+    m_lock.lockForWrite();
+    {
+        m_startTime = m_time = QDateTime::currentDateTime();
+    }
+    m_lock.unlock();
+
+    m_actual_stopTime = QDateTime();
+    m_markTimes.clear();
 }
 
 void StopwatchEngine::timerEvent(QTimerEvent *ev)
 {
     if(ev->timerId() == m_timer_id)
     {
-        m_time = m_time.addMSecs(m_timer_resolution);
-
-        emit NotifyTimeChanged();
+        m_lock.lockForWrite();
+        {
+            m_time = m_time.addMSecs(m_timer_resolution);
+        }
+        m_lock.unlock();
     }
+}
+
+QDateTime StopwatchEngine::TimeCurrent()
+{
+    QDateTime ret;
+    m_lock.lockForRead();
+    {
+       ret = m_time;
+    }
+    m_lock.unlock();
+    return ret;
+}
+
+QDateTime StopwatchEngine::TimeMark(int mark_index)
+{
+    QDateTime ret;
+    if(mark_index >= 0 && mark_index < m_markTimes.length())
+        ret = m_markTimes[mark_index];
+    return ret;
+}
+
+void StopwatchEngine::Mark()
+{
+    QDateTime t;
+    m_lock.lockForRead();
+    {
+        t = m_time;
+    }
+    m_lock.unlock();
+
+    _mark_time(t);
+}
+
+void StopwatchEngine::_mark_time(const QDateTime &dt)
+{
+    while(m_markTimes.length() >= GetMarkMemoryMaxLength())
+        m_markTimes.removeAt(m_markTimes.length() - 1);
+
+    m_markTimes.insert(0, dt);
 }

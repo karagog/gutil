@@ -87,7 +87,7 @@ void Stopwatch::_update_label()
     QString fmt("Elapsed:    %1 : %2 : %3");
     int hours(0), minutes(0), seconds(0), milseconds(0);
 
-    qint64 diff = _stopwatch.TimeStart().msecsTo(_stopwatch.TimeEnd());
+    qint64 diff = TimeStart().msecsTo(TimeEnd());
     hours = diff / (1000 * 60 * 60);
     diff -= hours * (1000 * 60 * 60);
 

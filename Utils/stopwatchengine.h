@@ -17,6 +17,8 @@ limitations under the License.*/
 
 #include <QObject>
 #include <QTime>
+#include <QReadWriteLock>
+#include "gutil_macros.h"
 
 namespace GUtil{ namespace Utils{
 
@@ -33,6 +35,9 @@ public:
         return m_timer_resolution;
     }
 
+    // Controls how many marks to remember.  Default is 1
+    PROPERTY( MarkMemoryMaxLength, int );
+
     inline bool IsRunning() const{
         return m_timer_id != -1;
     }
@@ -40,21 +45,16 @@ public:
     inline QDateTime TimeStart() const{
         return m_startTime;
     }
-
-    // The difference between these two functions is that TimeStop is the actual
-    //  Date/Time when the stopwatch was stopped, and TimeEnd represents the effective
-    //  time passed, which is TimeStop minus the time in which the stopwatch was
-    //  paused.
-    inline QDateTime TimeEnd() const{
-        return m_time;
-    }
     inline QDateTime TimeStop() const{
         return m_actual_stopTime;
     }
 
+    QDateTime TimeCurrent();
+    QDateTime TimeMark(int mark_index = 0);
+
+
 signals:
 
-    void NotifyTimeChanged();
     void NotifyStartedStopped(bool started);
 
 
@@ -64,7 +64,14 @@ public slots:
     void Stop();
     void StartStop(bool start);
 
+    // Records the current datetime and logs it in a list without stopping the timer
+    void Mark();
+
+    // Reset stops the timer if its running, or clears the times to null if not.
     void Reset();
+
+    // ResetHot refreshes the start/cur/stop time to the currentDateTime without
+    void ResetHot();
 
 
 protected:
@@ -80,6 +87,11 @@ private:
     QDateTime m_startTime;
     QDateTime m_time;
     QDateTime m_actual_stopTime;
+    QList<QDateTime> m_markTimes;
+
+    QReadWriteLock m_lock;
+
+    void _mark_time(const QDateTime &);
 
 };
 

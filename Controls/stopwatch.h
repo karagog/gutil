@@ -47,8 +47,8 @@ public:
     inline QDateTime TimeStart() const{
         return _stopwatch.TimeStart();
     }
-    inline QDateTime TimeEnd() const{
-        return _stopwatch.TimeEnd();
+    inline QDateTime TimeEnd(){
+        return _stopwatch.TimeCurrent();
     }
     inline QDateTime TimeStop() const{
         return _stopwatch.TimeStop();
