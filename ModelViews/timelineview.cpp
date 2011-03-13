@@ -610,6 +610,13 @@ bool TimelineView::edit(const QModelIndex &, EditTrigger , QEvent *)
 
 void TimelineView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
+    QAbstractItemView::dataChanged(topLeft, bottomRight);
+    viewport()->update();
+}
+
+void TimelineView::rowsInserted(const QModelIndex &par, int start, int end)
+{
+    QAbstractItemView::rowsInserted(par, start, end);
     viewport()->update();
 }
 
