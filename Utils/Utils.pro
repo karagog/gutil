@@ -27,7 +27,8 @@ SOURCES += \
     datatransferutils.cpp \
     databaseutils.cpp \
     stopwatchengine.cpp \
-    globalmemorymanager.cpp
+    globalmemorymanager.cpp \
+    commandlinemenu.cpp
 
 HEADERS += \
     pubsubsystem.h \
@@ -40,6 +41,7 @@ HEADERS += \
     synchronizationobject.h \
     databaseutils.h \
     stopwatchengine.h \
-    globalmemorymanager.h
+    globalmemorymanager.h \
+    commandlinemenu.h
 
 INCLUDEPATH += ..
