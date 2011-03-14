@@ -55,6 +55,7 @@ void TimelineView::paintEvent(QPaintEvent *ev)
     QAbstractItemView::paintEvent(ev);
 
     QPainter p(viewport());
+    p.setClipRegion(ev->region());
     p.setRenderHint(QPainter::Antialiasing);
 
     // Translate the painter so it paints in the scroll area
@@ -192,6 +193,10 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
     // The painter is being translated already to compensate for scrollbars, so
     //  we can use the real item rect without shifting it
     QRect item_rect( itemRect(ind) );
+
+    // Optimization: No need to draw an item that's outside the clipping region
+    if(!p.clipRegion().intersects(item_rect))
+        return;
 
     // If they're in the middle of a drag/drop then adjust the rect
     if(m_draggingIndex.isValid() &&
