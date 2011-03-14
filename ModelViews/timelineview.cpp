@@ -154,14 +154,27 @@ void TimelineView::paintEvent(QPaintEvent *ev)
     // Draw the actual items in the model
     if(model())
     {
+        QModelIndex *last_index(0);
+
         for(int i = 0; i < model()->rowCount(); i++)
         {
             QModelIndex ind( model()->index(i, 0) );
             if(ind.data(StartDate).toDateTime() >= _end_time ||
                ind.data(EndDate).toDateTime() <= _start_time)
                 continue;
+
+            if(m_draggingIndex.isValid() &&
+                    m_draggingIndex == ind)
+            {
+                last_index = &m_draggingIndex;
+                continue;
+            }
+
             _draw_item(ind, p);
         }
+
+        if(last_index)
+            _draw_item(*last_index, p);
 
         if(!currentIndex().isValid())
             m_currentHighlighter.hide();
