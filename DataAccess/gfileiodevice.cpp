@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "gfileiodevice.h"
 #include "Core/exception.h"
 #include <QFileInfo>
+#include <QDir>
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>
 using namespace GUtil;
@@ -89,8 +90,15 @@ void DataAccess::GFileIODevice::SetFileName(const QString &filename)
         // Create the file if it doesn't exist
         if(!f.exists())
         {
-            f.open(QFile::WriteOnly);
+            QDir d;
+            QFileInfo fi(f);
+            if(!d.exists(fi.path()))
+                d.mkpath(fi.path());
+
+            bool res( f.open(QFile::WriteOnly) );
             f.close();
+
+            Q_ASSERT(res);
         }
 
         _file_watcher->addPath(filename);
