@@ -37,7 +37,7 @@ ConfigFile::ConfigFile(const QString &identifier,
             this, SLOT(new_input_data_arrived()));
 
     _device_manager.InsertIntoBundle(
-            new DataAccess::GFileIODevice(QString("%1.%2")
+            new DataAccess::GFileIODevice(QString("%1.%2.config.xml")
                                           .arg(get_file_location(identifier))
                                           .arg(modifier)));
 
@@ -320,35 +320,17 @@ void ConfigFile::RemoveValues(const QStringList &keys)
 QString ConfigFile::get_file_location(QString id)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-    QString fl = id.toLower() + ".config.xml";
 
     QDir tmpdir(data_path);
-    Q_ASSERT(tmpdir.exists());
-
-    if(!tmpdir.exists(id))
+    if(!tmpdir.exists())
     {
-        if(!tmpdir.mkpath(id))
+        if(!tmpdir.mkpath(data_path))
             return QString::null;
     }
 
-    tmpdir.cd(id);
-
-    QString _config_filename = QString("%1/%2").arg(tmpdir.absolutePath()).arg(fl);
-
-    if(!tmpdir.exists(fl))
-    {
-        QFile f(_config_filename);
-
-        if(!f.open(QFile::WriteOnly))
-            return QString::null;
-
-        // An initially parseable xml tree
-        f.write("<config></config>");
-
-        f.close();
-    }
-
-    return _config_filename;
+    return QString("%1/%2")
+            .arg(tmpdir.absolutePath())
+            .arg(id.toLower());
 }
 
 void ConfigFile::commit_reject_changes(bool commit)
