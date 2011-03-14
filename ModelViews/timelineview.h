@@ -20,6 +20,9 @@ limitations under the License.*/
 #include <QRubberBand>
 #include <QDateTime>
 
+class QDateTimeEdit;
+
+
 namespace GUtil{ namespace ModelViews{
 
 
@@ -61,10 +64,19 @@ public:
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
 
 
+public slots:
+
+    virtual void reset();
+
+
 protected slots:
 
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex &parent, int start, int end);
+    void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+
+    void verticalScrollbarValueChanged(int value);
+    void horizontalScrollbarValueChanged(int value);
 
 
 protected:
@@ -75,8 +87,11 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent *event);
+
+    bool eventFilter(QObject *, QEvent *);
 
     bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
 
@@ -133,6 +148,13 @@ private:
     int m_drag_cursor_offset;
 
     void _adjust_rect_for_dragDrop(QRect &) const;
+
+    QPersistentModelIndex m_editingIndex;
+    DataEnum m_editingData;
+    int m_previousVerticalScrollbarPosition;
+    int m_previousHorizontalScrollbarPosition;
+    QDateTimeEdit *m_dateTimeEdit;
+    void _commit_dateTime_editor();
 
 };
 

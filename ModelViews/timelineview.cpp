@@ -26,6 +26,8 @@ limitations under the License.*/
 #include <QKeyEvent>
 #include <QResizeEvent>
 
+#include <QDateTimeEdit>
+
 #include "gutil_macros.h"
 
 #define MIN_WIDTH 500
@@ -42,7 +44,8 @@ TimelineView::TimelineView(QWidget *p)
       _resolution_in_seconds(1),
       m_rubberBand(0),
       m_currentHighlighter(QRubberBand::Rectangle, this),
-      m_drag_cursor_offset(-1)
+      m_drag_cursor_offset(-1),
+      m_dateTimeEdit(0)
 {
     setMouseTracking(true);
 
@@ -194,10 +197,6 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
     //  we can use the real item rect without shifting it
     QRect item_rect( itemRect(ind) );
 
-    // Optimization: No need to draw an item that's outside the clipping region
-    if(!p.clipRegion().intersects(item_rect))
-        return;
-
     // If they're in the middle of a drag/drop then adjust the rect
     if(m_draggingIndex.isValid() &&
             m_draggingIndex == ind)
@@ -226,6 +225,10 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
                        m_drag_endDate.toString("M/d/yyyy hh:mm:ss ap"));
         }
     }
+
+    // Optimization: No need to draw an item that's outside the clipping region
+    else if(!p.clipRegion().intersects(item_rect))
+        return;
 
     QVariant color_variant = ind.data(Qt::BackgroundRole);
     QColor c;
@@ -414,7 +417,7 @@ void TimelineView::wheelEvent(QWheelEvent *ev)
     else
     {
         verticalScrollBar()->setSliderPosition(
-                verticalScrollBar()->sliderPosition() - ev->delta() / 2);
+                verticalScrollBar()->sliderPosition() - (ev->delta() / 2));
     }
 }
 
@@ -465,7 +468,7 @@ void TimelineView::scrollContentsBy(int dx, int dy)
 }
 
 
-#define ADJUSTMENT_BUFFER 10
+#define DRAG_ADJUSTMENT_MARGIN 10
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
@@ -475,7 +478,11 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
     {
         QPoint pos( event->pos() );
         QModelIndex ind( indexAt(pos) );
-        if(ind.isValid())
+        if(m_dateTimeEdit)
+        {
+            _commit_dateTime_editor();
+        }
+        else if(ind.isValid())
         {
             // If they clicked on a valid index, then we let them drag it around the timeline,
             //  or adjust the start/end date
@@ -485,8 +492,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 
             m_draggingIndex = ind;
 
-            if(diffTop <= ADJUSTMENT_BUFFER ||
-                    diffBottom <= ADJUSTMENT_BUFFER)
+            if(diffTop <= DRAG_ADJUSTMENT_MARGIN ||
+                    diffBottom <= DRAG_ADJUSTMENT_MARGIN)
             {
                 // If they clicked near the top/bottom border, then adjust the appropriate boundary
 
@@ -618,8 +625,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
             rect.translate(-horizontalScrollBar()->value(),
                            -verticalScrollBar()->value());
 
-            if((gAbs(pos.y() - rect.top()) <= ADJUSTMENT_BUFFER ||
-                gAbs(pos.y() - rect.bottom()) <= ADJUSTMENT_BUFFER))
+            if((gAbs(pos.y() - rect.top()) <= DRAG_ADJUSTMENT_MARGIN ||
+                gAbs(pos.y() - rect.bottom()) <= DRAG_ADJUSTMENT_MARGIN))
             {
                 setCursor(Qt::SizeVerCursor);
             }
@@ -640,6 +647,87 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    QPoint pos(event->pos());
+    QModelIndex ind(indexAt(pos));
+    if(ind.isValid())
+    {
+        if(m_editingIndex.isValid())
+            event->ignore();
+        else
+        {
+            QRect rect( visualRect(ind) );
+            if(gAbs(pos.y() - rect.top()) < DRAG_ADJUSTMENT_MARGIN)
+            {
+                // Edit the start time
+                m_editingData = StartDate;
+                m_previousVerticalScrollbarPosition = verticalScrollBar()->value();
+                m_previousHorizontalScrollbarPosition = horizontalScrollBar()->value();
+                m_editingIndex = ind;
+
+                m_dateTimeEdit = new QDateTimeEdit(ind.data(StartDate).toDateTime(), this);
+                m_dateTimeEdit->setMouseTracking(true);
+                m_dateTimeEdit->installEventFilter(this);
+                m_dateTimeEdit->move(QPoint(pos.x(), rect.top() - m_dateTimeEdit->height()));
+                m_dateTimeEdit->show();
+
+                event->ignore();
+            }
+            else if(gAbs(pos.y() - rect.bottom()) < DRAG_ADJUSTMENT_MARGIN)
+            {
+                // Edit the end time
+                m_editingData = EndDate;
+                m_previousVerticalScrollbarPosition = verticalScrollBar()->value();
+                m_previousHorizontalScrollbarPosition = horizontalScrollBar()->value();
+                m_editingIndex = ind;
+
+                m_dateTimeEdit = new QDateTimeEdit(ind.data(EndDate).toDateTime(), this);
+                m_dateTimeEdit->setMouseTracking(true);
+                m_dateTimeEdit->installEventFilter(this);
+                m_dateTimeEdit->move(QPoint(pos.x(), rect.bottom()));
+                m_dateTimeEdit->show();
+
+                event->ignore();
+            }
+        }
+    }
+
+    if(event->isAccepted())
+        QAbstractItemView::mouseDoubleClickEvent(event);
+}
+
+bool TimelineView::eventFilter(QObject *o, QEvent *ev)
+{
+    if(ev->type() == QEvent::KeyPress)
+    {
+        if(((QKeyEvent *)ev)->key() == Qt::Key_Return)
+            _commit_dateTime_editor();
+
+        return false;
+    }
+    else if(ev->type() == QEvent::MouseMove)
+    {
+        if(cursor().shape() != Qt::IBeamCursor && cursor().shape() != Qt::ArrowCursor)
+            setCursor(Qt::ArrowCursor);
+    }
+    return QObject::eventFilter(o, ev);
+}
+
+void TimelineView::_commit_dateTime_editor()
+{
+    DataEnum de(m_editingData);
+    QDateTime new_dateTime(m_dateTimeEdit->dateTime());
+    QPersistentModelIndex ind(m_editingIndex);
+
+    m_dateTimeEdit->hide();
+    m_dateTimeEdit->deleteLater();
+    m_dateTimeEdit = 0;
+    m_editingIndex = QModelIndex();
+
+    model()->setData(ind, new_dateTime, de);
+}
+
 bool TimelineView::edit(const QModelIndex &, EditTrigger , QEvent *)
 {
     return false;
@@ -648,6 +736,27 @@ bool TimelineView::edit(const QModelIndex &, EditTrigger , QEvent *)
 void TimelineView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QAbstractItemView::dataChanged(topLeft, bottomRight);
+
+    if(m_dateTimeEdit)
+    {
+        for(int i = topLeft.row(); i <= bottomRight.row(); i++)
+        {
+            for(int j = topLeft.column(); j <= bottomRight.column(); j++)
+            {
+                // If the model changed the index we were editing, then throw away
+                //  our editor
+                if(model()->index(i, j) == m_editingIndex)
+                {
+                    m_dateTimeEdit->hide();
+                    m_dateTimeEdit->deleteLater();
+                    m_dateTimeEdit = 0;
+                    m_editingIndex = QModelIndex();
+                    break;
+                }
+            }
+        }
+    }
+
     viewport()->update();
 }
 
@@ -655,6 +764,39 @@ void TimelineView::rowsInserted(const QModelIndex &par, int start, int end)
 {
     QAbstractItemView::rowsInserted(par, start, end);
     viewport()->update();
+}
+
+void TimelineView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
+
+    if(m_dateTimeEdit)
+    {
+        for(int i = start; i <= end; i++)
+        {
+            if(model()->index(i, 0, parent) == m_editingIndex)
+            {
+                m_dateTimeEdit->hide();
+                m_dateTimeEdit->deleteLater();
+                m_dateTimeEdit = 0;
+                m_editingIndex = QModelIndex();
+                break;
+            }
+        }
+    }
+}
+
+void TimelineView::reset()
+{
+    QAbstractItemView::reset();
+
+    if(m_dateTimeEdit)
+    {
+        m_dateTimeEdit->hide();
+        m_dateTimeEdit->deleteLater();
+        m_dateTimeEdit = 0;
+        m_editingIndex = QModelIndex();
+    }
 }
 
 QDateTime TimelineView::PointToDateTime(const QPoint &p) const
@@ -706,4 +848,26 @@ void TimelineView::SetTimeResolution(int t)
     _resolution_in_seconds = t;
 
     viewport()->update();
+}
+
+void TimelineView::verticalScrollbarValueChanged(int value)
+{
+    QAbstractItemView::verticalScrollbarValueChanged(value);
+
+    if(m_dateTimeEdit)
+        m_dateTimeEdit->move(QPoint(m_dateTimeEdit->pos().x(),
+                                    m_dateTimeEdit->pos().y() + m_previousVerticalScrollbarPosition - value));
+
+    m_previousVerticalScrollbarPosition = value;
+}
+
+void TimelineView::horizontalScrollbarValueChanged(int value)
+{
+    QAbstractItemView::horizontalScrollbarValueChanged(value);
+
+    if(m_dateTimeEdit)
+        m_dateTimeEdit->move(QPoint(m_dateTimeEdit->pos().x() +  m_previousHorizontalScrollbarPosition - value,
+                                    m_dateTimeEdit->pos().y()));
+
+    m_previousHorizontalScrollbarPosition = value;
 }
