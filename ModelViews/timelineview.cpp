@@ -189,18 +189,22 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
         const int font_height(QFontMetrics(p.font()).height());
         if(!m_drag_startDate.isNull())
         {
-            p.drawText(QRect(QPoint(mapFromGlobal(QCursor::pos()).x() + 5,
-                                    item_rect.top() - font_height - 1),
-                             QSize(DRAG_TIME_DISPLAY_WIDTH, font_height)),
-                       0,
+            QRect textRect(QPoint(mapFromGlobal(QCursor::pos()).x() + 5,
+                                  item_rect.top() - font_height - 1),
+                           QSize(DRAG_TIME_DISPLAY_WIDTH, font_height));
+            p.fillRect(textRect, Qt::white);
+            p.drawRect(textRect);
+            p.drawText(textRect, Qt::AlignHCenter,
                        m_drag_startDate.toString("M/d/yyyy hh:mm:ss ap"));
         }
         if(!m_drag_endDate.isNull())
         {
-            p.drawText(QRect(QPoint(mapFromGlobal(QCursor::pos()).x() + 5,
-                                    item_rect.bottom() + 1),
-                             QSize(DRAG_TIME_DISPLAY_WIDTH, font_height)),
-                       0,
+            QRect textRect(QPoint(mapFromGlobal(QCursor::pos()).x() + 5,
+                                  item_rect.bottom() + 1),
+                           QSize(DRAG_TIME_DISPLAY_WIDTH, font_height));
+            p.fillRect(textRect, Qt::white);
+            p.drawRect(textRect);
+            p.drawText(textRect, Qt::AlignHCenter,
                        m_drag_endDate.toString("M/d/yyyy hh:mm:ss ap"));
         }
     }
