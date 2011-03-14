@@ -704,15 +704,15 @@ bool TimelineView::eventFilter(QObject *o, QEvent *ev)
     {
         if(((QKeyEvent *)ev)->key() == Qt::Key_Return)
             _commit_dateTime_editor();
-
-        return false;
     }
     else if(ev->type() == QEvent::MouseMove)
     {
+        // Make sure the cursor stays an arrow when hovering over a child widget
         if(cursor().shape() != Qt::IBeamCursor && cursor().shape() != Qt::ArrowCursor)
             setCursor(Qt::ArrowCursor);
     }
-    return QObject::eventFilter(o, ev);
+
+    return QAbstractItemView::eventFilter(o, ev);
 }
 
 void TimelineView::_commit_dateTime_editor()

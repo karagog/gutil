@@ -75,29 +75,29 @@ public slots:
 
 protected slots:
 
-    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void rowsInserted(const QModelIndex &parent, int start, int end);
-    void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    virtual void rowsInserted(const QModelIndex &parent, int start, int end);
+    virtual void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
-    void verticalScrollbarValueChanged(int value);
-    void horizontalScrollbarValueChanged(int value);
+    virtual void verticalScrollbarValueChanged(int value);
+    virtual void horizontalScrollbarValueChanged(int value);
 
 
 protected:
 
     virtual void paintEvent(QPaintEvent *);
 
-    void wheelEvent(QWheelEvent *);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void resizeEvent(QResizeEvent *event);
+    virtual void wheelEvent(QWheelEvent *);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
 
-    bool eventFilter(QObject *, QEvent *);
+    virtual bool eventFilter(QObject *, QEvent *);
 
-    bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
+    virtual bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
 
 
     // QAbstractItemView interface:
