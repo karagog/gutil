@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QPointer>
 #include <QRubberBand>
 #include <QDateTime>
+#include "gutil_macros.h"
 
 class QDateTimeEdit;
 
@@ -49,6 +50,9 @@ public:
         return _resolution_in_seconds;
     }
     void SetTimeResolution(int);
+
+    // Controls the format they use to edit the datetimes
+    PROPERTY( DateTimeEditFormat, QString );
 
     // The view will use these role values to reference data in the model,
     //   using the 'data()' function

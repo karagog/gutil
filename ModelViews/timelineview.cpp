@@ -28,8 +28,6 @@ limitations under the License.*/
 
 #include <QDateTimeEdit>
 
-#include "gutil_macros.h"
-
 #define MIN_WIDTH 500
 #define TIMELINE_TOPBOTTOM_MARGIN 11
 GUTIL_USING_NAMESPACE(ModelViews);
@@ -37,6 +35,7 @@ GUTIL_USING_NAMESPACE(ModelViews);
 
 TimelineView::TimelineView(QWidget *p)
     :QAbstractItemView(p),
+      _p_DateTimeEditFormat("M/d/yyyy h:m:ss AP"),
       _scale_factor(1),
       _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
       _finish_point(_origin_point.x(), _origin_point.y()),
@@ -669,6 +668,7 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
                 m_dateTimeEdit = new QDateTimeEdit(ind.data(StartDate).toDateTime(), this);
                 m_dateTimeEdit->setMouseTracking(true);
                 m_dateTimeEdit->installEventFilter(this);
+                m_dateTimeEdit->setDisplayFormat(GetDateTimeEditFormat());
                 m_dateTimeEdit->move(QPoint(pos.x(), rect.top() - m_dateTimeEdit->height()));
                 m_dateTimeEdit->show();
 
@@ -685,6 +685,7 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
                 m_dateTimeEdit = new QDateTimeEdit(ind.data(EndDate).toDateTime(), this);
                 m_dateTimeEdit->setMouseTracking(true);
                 m_dateTimeEdit->installEventFilter(this);
+                m_dateTimeEdit->setDisplayFormat(GetDateTimeEditFormat());
                 m_dateTimeEdit->move(QPoint(pos.x(), rect.bottom()));
                 m_dateTimeEdit->show();
 
