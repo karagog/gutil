@@ -61,6 +61,8 @@ void GTreeView::SelectChildrenOfIndex(QModelIndex ind)
 void GTreeView::SelectChildrenOfIndex(QModelIndex ind, QItemSelectionModel::SelectionFlags fl)
 {
     QItemSelection sel;
+    if(ind.isValid())
+        ind = model()->index(ind.row(), 0, ind.parent());
     _append_children(ind, sel, fl);
     selectionModel()->select(sel, fl);
 }
