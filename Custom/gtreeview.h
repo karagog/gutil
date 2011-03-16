@@ -28,6 +28,9 @@ public:
 
     explicit GTreeView(QWidget *parent = 0);
 
+    // Selects all the children recursively using the provided selection flags
+    void SelectChildrenOfIndex(QModelIndex, QItemSelectionModel::SelectionFlags);
+
 
 public slots:
 
@@ -40,6 +43,13 @@ public slots:
     // Clears the current selection and selects the row (current index will be
     //  on the row's first cell
     void SelectRow(QModelIndex);
+
+    void SelectChildrenOfIndex(QModelIndex);
+
+
+private:
+
+    void _append_children(const QModelIndex &, QItemSelection &, QItemSelectionModel::SelectionFlags);
 
 };
 

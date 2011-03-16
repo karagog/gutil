@@ -50,3 +50,29 @@ void GTreeView::SelectRow(QModelIndex r)
                              QItemSelectionModel::ClearAndSelect);
     selectionModel()->setCurrentIndex(r, QItemSelectionModel::Select);
 }
+
+void GTreeView::SelectChildrenOfIndex(QModelIndex ind)
+{
+    SelectChildrenOfIndex(ind,
+                     QItemSelectionModel::Select |
+                     QItemSelectionModel::Rows);
+}
+
+void GTreeView::SelectChildrenOfIndex(QModelIndex ind, QItemSelectionModel::SelectionFlags fl)
+{
+    QItemSelection sel;
+    _append_children(ind, sel, fl);
+    selectionModel()->select(sel, fl);
+}
+
+void GTreeView::_append_children(const QModelIndex &ind, QItemSelection &sel, QItemSelectionModel::SelectionFlags fl)
+{
+    if(model()->canFetchMore(ind))
+        model()->fetchMore(ind);
+
+    sel.merge(QItemSelection(model()->index(0, 0, ind),
+                             model()->index(model()->rowCount(ind) - 1, 0, ind)), fl);
+
+    for(int i = 0; i < model()->rowCount(ind); i++)
+        _append_children(model()->index(i, 0, ind), sel, fl);
+}
