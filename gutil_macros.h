@@ -127,4 +127,18 @@ template <class T> inline T gAbs(const T &v){ return v < 0 ? -v : v; }
 
 
 
+// Some useful time constants
+#define DAY_IN_SECONDS          60 * 60 * 24
+
+#define MONTH_IN_SECONDS_LB     DAY_IN_SECONDS * 28
+#define MONTH_IN_SECONDS_UB     DAY_IN_SECONDS * 31
+
+#define YEAR_IN_SECONDS_LB      DAY_IN_SECONDS * 365
+#define YEAR_IN_SECONDS         YEAR_IN_SECONDS_LB
+#define YEAR_IN_SECONDS_UB      DAY_IN_SECONDS * 366
+
+
+
+
+
 #endif // GUTIL_MACROS_H
