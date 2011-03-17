@@ -39,6 +39,9 @@ private Q_SLOTS:
 
     void testBasics();
     void testUnions();
+    void testComplement();
+    void testSymmetricDifference();
+    void testIntercept();
 
 };
 
@@ -49,6 +52,7 @@ void RangeTest::testBasics()
     QVERIFY(!reg.IsUniverseSet());
 
     IntegerRange tr1;
+    QVERIFY(tr1.IsNull());
     QVERIFY(tr1.IsUniverseSet());
 }
 
@@ -75,7 +79,7 @@ void RangeTest::testUnions()
     /*  |---|
           |---|     */
     reg = IntegerRegion::Union(IntegerRange(0, 10), IntegerRange(5, 15));
-    QVERIFY(reg.RangeCount() == 1);
+    QVERIFY(reg.Ranges().size() == 1);
     for(int i = 0; i <= 15; i++)
         QVERIFY(reg.Contains(i));
     QVERIFY(!reg.Contains(-INFINITY));
@@ -84,7 +88,7 @@ void RangeTest::testUnions()
     /*  |---|
          |-|       */
     reg = IntegerRegion::Union(IntegerRange(0, 10), IntegerRange(6, 9));
-    QVERIFY(reg.RangeCount() == 1);
+    QVERIFY(reg.Ranges().size() == 1);
     for(int i = 0; i <= 10; i++)
         QVERIFY(reg.Contains(i));
     QVERIFY(!reg.Contains(-INFINITY));
@@ -93,7 +97,7 @@ void RangeTest::testUnions()
     /*  |---|
       |---|       */
     reg = IntegerRegion::Union(IntegerRange(0, 10), IntegerRange(-5, 5));
-    QVERIFY(reg.RangeCount() == 1);
+    QVERIFY(reg.Ranges().size() == 1);
     for(int i = -5; i <= 10; i++)
         QVERIFY(reg.Contains(i));
     QVERIFY(!reg.Contains(-INFINITY));
@@ -101,8 +105,7 @@ void RangeTest::testUnions()
 
     /*       |---|
       |---|       */
-    reg = IntegerRegion::Union(IntegerRange(0, 10),
-                           IntegerRange(-20, -10));
+    reg = IntegerRegion::Union(IntegerRange(0, 10), IntegerRange(-20, -10));
     for(int i = -20; i <= -10; i++)
         QVERIFY(reg.Contains(i));
     for(int i = -9; i <= -1; i++)
@@ -113,7 +116,9 @@ void RangeTest::testUnions()
     QVERIFY(!reg.Contains(INFINITY));
 
 
-    // Then test one bounded range, one unbounded
+    // Then test one bounded range, one unbounded (the implementation of this is
+    //  symmetric, so testing one range as unbounded is the same if you reverse
+    //  the ranges in the argument list)
     /*    |---->
                |---|    */
 
@@ -135,6 +140,23 @@ void RangeTest::testUnions()
 
     // Then test both ranges unbounded
 }
+
+void RangeTest::testComplement()
+{
+
+}
+
+void RangeTest::testSymmetricDifference()
+{
+
+}
+
+void RangeTest::testIntercept()
+{
+
+}
+
+
 
 QTEST_APPLESS_MAIN(RangeTest);
 

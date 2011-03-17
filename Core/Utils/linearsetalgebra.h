@@ -42,10 +42,14 @@ public:
     }
 
     inline bool IsUniverseSet() const{
-        return IsNull() || UpperBound == LowerBound;
+        return IsNull();
     }
     inline bool IsNull() const{
-        return is_value_null(LowerBound) && is_value_null(UpperBound);
+        return (is_value_null(LowerBound) && is_value_null(UpperBound)) ||
+                LowerBound == UpperBound;
+    }
+    inline const T &NullValue() const{
+        return _null_value;
     }
 
     inline bool Contains(const T &t) const{
@@ -60,22 +64,20 @@ public:
                                 (LowerBound < t || LowerBound == t) || (t < UpperBound || t == UpperBound);
     }
 
-
-    Range(const T &lb, const T &ub)
+    // When constructing, you must pass in
+    Range(const T &lb, const T &ub, const T &null_value = T())
         :LowerBound(lb),
-          UpperBound(ub)
-    {}
-    Range()
+          UpperBound(ub),
+          _null_value(null_value)
     {}
     virtual ~Range(){}
 
 
 protected:
 
-    // Override this in a subclass so the range knows the null value.  Without a
-    //  null value you cannot represent a null range.
-    virtual bool is_value_null(const T &) const{
-        return false;
+    T _null_value;
+    bool is_value_null(const T &v) const{
+        return v == _null_value;
     }
 
 };
@@ -103,8 +105,8 @@ public:
     }
 
     // The number of independent ranges it takes to sum into this region
-    inline int RangeCount(){
-        return m_ranges.size();
+    inline const std::vector< Range<T> > &Ranges() const{
+        return m_ranges;
     }
 
     // Here are your set operatorss
@@ -136,9 +138,8 @@ class IntegerRange :
         public Range<int>
 {
 public:
-    inline IntegerRange(int lb = INT_MIN, int ub = INT_MIN) :Range<int>(lb, ub){}
-protected:
-    bool is_value_null(const int &i) const{ return i == INT_MIN; }
+    inline IntegerRange(int lb = INT_MIN, int ub = INT_MIN) :
+        Range<int>(lb, ub, INT_MIN){}
 };
 
 class IntegerRegion :
@@ -196,6 +197,8 @@ template <class T>
 Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 {
     Region<T> ret;
+    Q_ASSERT(r1.NullValue() == r2.NullValue());
+    const T &null_val(r1.NullValue());
 
     // If either is all time, then the result is automatically all-time
     if(r1.IsUniverseSet() || r2.IsUniverseSet())
@@ -256,7 +259,7 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 
         if(range1_unbounded && range2_unbounded)
         {
-            ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper));
+            ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper, null_val));
         }
         // We get to this else block if at least one range is bounded
         else
@@ -270,11 +273,13 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 if( bounded_range->LowerBound < unbounded_range->UpperBound ||
                         bounded_range->LowerBound == unbounded_range->UpperBound)
                     ret.m_ranges.push_back(Range<T>(T(),
-                                                  gMax(unbounded_range->UpperBound, bounded_range->UpperBound)));
+                                                    gMax(unbounded_range->UpperBound, bounded_range->UpperBound),
+                                                    null_val));
                 else if(unbounded_range->LowerBound < bounded_range->UpperBound ||
                         unbounded_range->LowerBound == bounded_range->UpperBound)
                     ret.m_ranges.push_back(Range<T>(gMin(unbounded_range->LowerBound, bounded_range->LowerBound),
-                                                  T()));
+                                                    T(),
+                                                    null_val));
                 else
                 {
                     // Though one range is unbounded, they are still disjoint, so add
@@ -297,7 +302,8 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 else
                 {
                     ret.m_ranges.push_back(Range<T>(gMin(r1.LowerBound, r2.LowerBound),
-                                                  gMax(r1.UpperBound, r2.UpperBound)));
+                                                    gMax(r1.UpperBound, r2.UpperBound),
+                                                    null_val));
                 }
             }
         }
