@@ -113,12 +113,12 @@ public:
         return m_ranges;
     }
 
-    // Here are your set operatorss
-    Region<T> Union(const Region<T> &) const;
-    static inline Region<T> Union(const Region<T> &one, const Region<T> &two){ return one.Union(two); }
+    // Here are your set operators
+    inline Region<T> Union(const Region<T> &r) const{ return Union(*this, r); }
+    static Region<T> Union(const Region<T> &one, const Region<T> &two);
 
-    Region<T> Intersect(const Region<T> &) const;
-    static inline Region<T> Intersect(const Region<T> &one, const Region<T> &two){ return one.Intersect(two); }
+    inline Region<T> Intersect(const Region<T> &r) const{ return Intersect(*this, r); }
+    static Region<T> Intersect(const Region<T> &one, const Region<T> &two);
 
     Region<T> Complement(const Region<T> &r = GetUniverseSet()) const;
 
@@ -186,11 +186,11 @@ public:
 
 
 template <class T>
-Region<T> Region<T>::Union(const Region<T> &reg) const
+Region<T> Region<T>::Union(const Region<T> &reg1, const Region<T> &reg2)
 {
-    Region<T> ret(*this);
-    for(int i = 0; i < (int)reg.m_ranges.size(); i++)
-        ret.m_ranges.push_back(reg.m_ranges[i]);
+    Region<T> ret(reg1);
+    for(int i = 0; i < (int)reg2.m_ranges.size(); i++)
+        ret.m_ranges.push_back(reg2.m_ranges[i]);
     ret._clean();
     return ret;
 }
@@ -343,11 +343,11 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 }
 
 template <class T>
-Region<T> Region<T>::Intersect(const Region<T> &r) const
+Region<T> Region<T>::Intersect(const Region<T> &r1, const Region<T> &r2)
 {
     // We can obtain the intersect by using a combination of unions and complements
     // (A & B) == ~(~A | ~B)
-    return ~(~*this | ~r);
+    return ~(~r1 | ~r2);
 }
 
 template <class T>
