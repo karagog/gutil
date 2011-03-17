@@ -57,15 +57,47 @@ void GDateTimeTest::testUnions()
 
     /*  |---|
           |---|     */
+    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 15)),
+                           GDateTime::TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 20)));
+    QVERIFY(reg.RangeCount() == 1);
+    QVERIFY(reg.Contains(QDate(2000, 1, 10)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 20)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 14)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 9)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 21)));
 
     /*  |---|
          |-|       */
+    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 20)),
+                           GDateTime::TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 15)));
+    QVERIFY(reg.RangeCount() == 1);
+    QVERIFY(reg.Contains(QDate(2000, 1, 10)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 20)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 14)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 9)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 21)));
 
     /*  |---|
       |---|       */
+    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 20)),
+                           GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 15)));
+    QVERIFY(reg.RangeCount() == 1);
+    QVERIFY(reg.Contains(QDate(2000, 1, 10)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 20)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 14)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 9)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 21)));
 
     /*       |---|
       |---|       */
+    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 15), QDate(2000, 1, 20)),
+                           GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 13)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 10)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 13)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 15)));
+    QVERIFY(reg.Contains(QDate(2000, 1, 20)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 9)));
+    QVERIFY(!reg.Contains(QDate(2000, 1, 21)));
 
 
     // Then test one bounded range, one unbounded

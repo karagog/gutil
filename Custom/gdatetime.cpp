@@ -207,3 +207,8 @@ void GDateTime::TimeRegion::Clear()
 {
     m_ranges.clear();
 }
+
+int GDateTime::TimeRegion::RangeCount()
+{
+    return m_ranges.count();
+}

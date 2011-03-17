@@ -85,6 +85,9 @@ public:
         bool IsNull() const;
         bool IsAllTime() const;
 
+        // The number of ranges it takes to sum into this region
+        int RangeCount();
+
         bool Contains(const GDateTime &);
 
         TimeRegion Union(const TimeRegion &) const;
