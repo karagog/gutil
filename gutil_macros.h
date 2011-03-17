@@ -124,6 +124,13 @@ protected: \
 
 template <class T> inline T gAbs(const T &v){ return v < 0 ? -v : v; }
 
+template <class T> inline T gMin(const T &one, const T &two){
+    return one < two ? one : two;
+}
+template <class T> inline T gMax(const T &one, const T &two){
+    return one < two ? two : one;
+}
+
 
 
 
