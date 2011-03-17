@@ -30,24 +30,23 @@ private Q_SLOTS:
 
 void GDateTimeTest::testBasics()
 {
-    GDateTime::TimeRegion reg;
+    TimeRegion reg;
     QVERIFY(reg.IsNull());
-    QVERIFY(!reg.IsAllTime());
+    QVERIFY(!reg.IsUniverseSet());
 
-    GDateTime::TimeRange tr1, tr2;
-    QVERIFY(tr1.IsAllTime());
+    TimeRange tr1;
+    QVERIFY(tr1.IsUniverseSet());
 }
 
 void GDateTimeTest::testUnions()
 {
-    GDateTime::TimeRegion reg;
-    GDateTime::TimeRange tr1, tr2;
+    TimeRegion reg;
 
     // First test bounded unions
     /*  |---|
                 |---|    */
-    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 13)),
-                           GDateTime::TimeRange(QDate(2000, 1, 15), QDate(2000, 1, 20)));
+    reg = TimeRegion::Union(TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 13)),
+                                       TimeRange(QDate(2000, 1, 15), QDate(2000, 1, 20)));
     QVERIFY(reg.Contains(QDate(2000, 1, 10)));
     QVERIFY(reg.Contains(QDate(2000, 1, 13)));
     QVERIFY(reg.Contains(QDate(2000, 1, 15)));
@@ -57,8 +56,8 @@ void GDateTimeTest::testUnions()
 
     /*  |---|
           |---|     */
-    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 15)),
-                           GDateTime::TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 20)));
+    reg = TimeRegion::Union(TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 15)),
+                           TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 20)));
     QVERIFY(reg.RangeCount() == 1);
     QVERIFY(reg.Contains(QDate(2000, 1, 10)));
     QVERIFY(reg.Contains(QDate(2000, 1, 20)));
@@ -68,8 +67,8 @@ void GDateTimeTest::testUnions()
 
     /*  |---|
          |-|       */
-    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 20)),
-                           GDateTime::TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 15)));
+    reg = TimeRegion::Union(TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 20)),
+                           TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 15)));
     QVERIFY(reg.RangeCount() == 1);
     QVERIFY(reg.Contains(QDate(2000, 1, 10)));
     QVERIFY(reg.Contains(QDate(2000, 1, 20)));
@@ -79,8 +78,8 @@ void GDateTimeTest::testUnions()
 
     /*  |---|
       |---|       */
-    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 20)),
-                           GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 15)));
+    reg = TimeRegion::Union(TimeRange(QDate(2000, 1, 13), QDate(2000, 1, 20)),
+                           TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 15)));
     QVERIFY(reg.RangeCount() == 1);
     QVERIFY(reg.Contains(QDate(2000, 1, 10)));
     QVERIFY(reg.Contains(QDate(2000, 1, 20)));
@@ -90,8 +89,8 @@ void GDateTimeTest::testUnions()
 
     /*       |---|
       |---|       */
-    reg = GDateTime::Union(GDateTime::TimeRange(QDate(2000, 1, 15), QDate(2000, 1, 20)),
-                           GDateTime::TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 13)));
+    reg = TimeRegion::Union(TimeRange(QDate(2000, 1, 15), QDate(2000, 1, 20)),
+                           TimeRange(QDate(2000, 1, 10), QDate(2000, 1, 13)));
     QVERIFY(reg.Contains(QDate(2000, 1, 10)));
     QVERIFY(reg.Contains(QDate(2000, 1, 13)));
     QVERIFY(reg.Contains(QDate(2000, 1, 15)));
@@ -101,6 +100,23 @@ void GDateTimeTest::testUnions()
 
 
     // Then test one bounded range, one unbounded
+    /*    |---->
+               |---|    */
+
+    /*        |---->
+       |---|            */
+
+    /*        |---->
+            |---|       */
+
+    /*        <----|
+            |---|       */
+
+    /* <----|
+               |---|    */
+
+    /* <----|
+          |---|         */
 
 
     // Then test both ranges unbounded

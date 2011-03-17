@@ -5,7 +5,8 @@ HEADERS += \
     Utils/cl_menu.h \
     Utils/Private/strings_p.h \
     Utils/commandlineargs.h \
-    Utils/environment.h
+    Utils/environment.h \
+    Utils/linearsetalgebra.h
 
 SOURCES += \
     Utils/stringhelpers.cc \

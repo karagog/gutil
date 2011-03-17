@@ -18,13 +18,12 @@ limitations under the License.*/
 #include <QDateTime>
 #include <QList>
 #include "gutil_macros.h"
+#include "Core/Utils/linearsetalgebra.h"
 
 GUTIL_BEGIN_NAMESPACE(Custom);
 
 
-// GDateTime has static functions to conduct set operations on regions of time.
-//  It allows you to easily find if a time range intersects another one, or
-//  lots of other interesting things while manipulating times ranges as sets.
+class TimeRange;
 
 class GDateTime :
         public QDateTime
@@ -33,83 +32,6 @@ public:
 
     GDateTime(const QDateTime &other = QDateTime());
     GDateTime(const QDate &);
-
-    class TimeRange
-    {
-    public:
-
-        QDateTime LowerBound;
-        QDateTime UpperBound;
-
-        inline bool IsAllTime() const{
-            return IsNull() || UpperBound == LowerBound;
-        }
-        inline bool IsNull() const{
-            return LowerBound.isNull() && UpperBound.isNull();
-        }
-
-        inline bool Contains(const QDateTime &dt) const{
-            return dt.isNull() ?
-                        false :
-                        IsAllTime() ?
-                            true :
-                            LowerBound.isNull() ?
-                                dt <= UpperBound :
-                                UpperBound.isNull() ?
-                                    LowerBound <= dt :
-                                    LowerBound < UpperBound ?
-                                        LowerBound <= dt && dt <= UpperBound :
-                                        LowerBound <= dt || dt <= UpperBound;
-        }
-
-
-        TimeRange(const GDateTime &lb = GDateTime(),
-                  const GDateTime &ub = GDateTime())
-            :LowerBound(lb),
-              UpperBound(ub)
-        {}
-
-    };
-
-
-    // This class builds off the concept of a time range to support a region of
-    //  time, which is a sum of time ranges
-    class TimeRegion
-    {
-    public:
-
-        TimeRegion();
-        TimeRegion(const TimeRange &);
-        void Clear();
-
-        bool IsNull() const;
-        bool IsAllTime() const;
-
-        // The number of ranges it takes to sum into this region
-        int RangeCount();
-
-        bool Contains(const GDateTime &);
-
-        TimeRegion Union(const TimeRegion &) const;
-        TimeRegion Intersect(const TimeRegion &) const;
-        TimeRegion Complement(const TimeRegion &r = TimeRange()) const;
-
-
-    private:
-
-        QList<TimeRange> m_ranges;
-
-        // Get the union of two time ranges
-        static TimeRegion _union(const TimeRange &, const TimeRange &);
-
-        // this removes any overlapping ranges within the region
-        void _clean();
-
-    };
-
-    static TimeRegion Union(const TimeRegion &, const TimeRegion &);
-
-
 
 
     // Another set of classes/functions for breaking down the distance between times
@@ -161,6 +83,33 @@ public:
     TimeBreakdown GetTimeBreakdown(const TimeRange &,
                                    TimeBreakdown::TimeBreakdownEnum tbe = TimeBreakdown::Traditional);
 
+};
+
+
+// These are trivial declarations of the time range objects, built off
+//  the low-level set operator class to support QDateTimes
+class TimeRange :
+        public Utils::Range<GDateTime>
+{
+public:
+    TimeRange(const GDateTime &lb = GDateTime(),
+              const GDateTime &ub = GDateTime())
+        :Utils::Range<GDateTime>(lb, ub)
+    {}
+protected:
+    bool is_value_null(const GDateTime &v) const{
+        return v.isNull();
+    }
+};
+
+class TimeRegion :
+        public Utils::Region<GDateTime>
+{
+public:
+    inline TimeRegion(){}
+    inline TimeRegion(const Utils::Region<GDateTime> &r)
+        :Utils::Region<GDateTime>(r)
+    {}
 };
 
 
