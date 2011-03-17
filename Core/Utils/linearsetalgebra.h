@@ -116,16 +116,21 @@ public:
     // Here are your set operatorss
     Region<T> Union(const Region<T> &) const;
     static inline Region<T> Union(const Region<T> &one, const Region<T> &two){ return one.Union(two); }
+
     Region<T> Intersect(const Region<T> &) const;
     static inline Region<T> Intersect(const Region<T> &one, const Region<T> &two){ return one.Intersect(two); }
+
     Region<T> Complement(const Region<T> &r = GetUniverseSet()) const;
+
+    inline Region<T> SymmetricDifference(const Region<T> &r) const{ return SymmetricDifference(*this, r); }
+    static Region<T> SymmetricDifference(const Region<T> &r1, const Region<T> &r2);
 
     // Some convenient set operators (just facades over the actual functions)
     inline Region<T> operator - (const Region<T> &r) const{
         return r.Complement(*this);
     }
     // In real set notation this is a backslash, but we can't do that in C++
-    inline Region<T> operator / (const Region &r) const{
+    inline Region<T> operator / (const Region<T> &r) const{
         return r.Complement(*this);
     }
     inline Region<T> operator ~() const{
@@ -385,6 +390,12 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
         //  it as (this & ~r) which is equal to ~(~this | r)
         return ~(~*this | r);
     }
+}
+
+template <class T>
+Region<T> Region<T>::SymmetricDifference(const Region<T> &r1, const Region<T> &r2)
+{
+    return (r1 - r2) | (r2 - r1);
 }
 
 template <class T>
