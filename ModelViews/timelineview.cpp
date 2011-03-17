@@ -270,6 +270,10 @@ QRect TimelineView::visualRect(const QModelIndex &index) const
     return rect;
 }
 
+
+#define TIMELINE_ITEM_WIDTH     400
+#define TIMELINE_ITEM_OVERLAP   20
+
 QRect TimelineView::itemRect(const QModelIndex &index) const
 {
     if(!index.isValid())
@@ -278,9 +282,28 @@ QRect TimelineView::itemRect(const QModelIndex &index) const
     QDateTime start( index.data(StartDate).toDateTime() );
     QDateTime end( index.data(EndDate).toDateTime() );
 
-    QPoint item_end( DateTimeToPoint(end) );
-    item_end.setX(400);
-    return QRect(DateTimeToPoint(start), item_end);
+    if(start.isNull() || end.isNull())
+        return QRect();
+
+    QPoint item_start(DateTimeToPoint(start));
+    QPoint item_end(item_start.x() + TIMELINE_ITEM_WIDTH,
+                    DateTimeToPoint(end).y());
+
+    // Adjust the points depending on if there are item conflicts
+    ItemCache c( _item_cache[index] );
+
+    if(c.TotalSections > 1)
+    {
+        // Adjust the left-hand X value
+        item_start.setX(_origin_point.x() + ((double)c.Position / c.TotalSections) *
+                        TIMELINE_ITEM_WIDTH);
+
+        // Adjust the right-hand X value
+        item_end.setX(item_start.x() +
+                      ((double)c.Span / c.TotalSections) *
+                      TIMELINE_ITEM_WIDTH);
+    }
+    return QRect(item_start, item_end);
 }
 
 void TimelineView::scrollTo(const QModelIndex &index, ScrollHint)

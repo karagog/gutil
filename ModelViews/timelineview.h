@@ -168,12 +168,14 @@ private:
     {
     public:
 
-        int ConflictDepth;
+        int TotalSections;
         int Position;
+        int Span;
 
         inline ItemCache()
-            :ConflictDepth(-1),
-              Position(-1)
+            :TotalSections(1),
+              Position(0),
+              Span(1)
         {}
 
     };
