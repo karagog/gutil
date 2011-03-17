@@ -8,16 +8,15 @@ QT       += testlib
 
 QT       -= gui
 
-TARGET = tst_gdatetimetest
+TARGET = tst_rangetest
 CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../../..
-LIBS += -L../../../lib \
-    -lGUtilCustom
+INCLUDEPATH += ../../.. ../..
 
 
-SOURCES += tst_gdatetimetest.cpp
+SOURCES += \
+    range_test.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"

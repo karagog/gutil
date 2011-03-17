@@ -16,9 +16,10 @@ limitations under the License.*/
 #define LINEARSETALGEBRA_H
 
 #include "gutil_macros.h"
+#include <limits.h>
 #include <vector>
 
-GUTIL_BEGIN_NAMESPACE(Utils);
+GUTIL_BEGIN_CORE_NAMESPACE(Utils);
 
 
 // These are classes to facilitate set arithmetic.  You can do things like unions,
@@ -157,8 +158,8 @@ template <class T>
 Region<T> Region<T>::Union(const Region<T> &reg) const
 {
     Region<T> ret(*this);
-    foreach(Range<T> r, reg.m_ranges)
-        ret.m_ranges.push_back(r);
+    for(int i = 0; i < (int)reg.m_ranges.size(); i++)
+        ret.m_ranges.push_back(reg.m_ranges[i]);
     ret._clean();
     return ret;
 }
@@ -319,6 +320,6 @@ bool Region<T>::Contains(const T &dt)
 
 
 
-GUTIL_END_NAMESPACE;
+GUTIL_END_CORE_NAMESPACE;
 
 #endif // LINEARSETALGEBRA_H
