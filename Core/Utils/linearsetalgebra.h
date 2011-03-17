@@ -104,6 +104,10 @@ public:
         return m_ranges.size() > 0 && m_ranges[0].IsUniverseSet();
     }
 
+    inline static Region<T> GetUniverseSet(){
+        return Range<T>(T(), T());
+    }
+
     // The number of independent ranges it takes to sum into this region
     inline const std::vector< Range<T> > &Ranges() const{
         return m_ranges;
@@ -113,8 +117,29 @@ public:
     Region<T> Union(const Region<T> &) const;
     static inline Region<T> Union(const Region<T> &one, const Region<T> &two){ return one.Union(two); }
     Region<T> Intersect(const Region<T> &) const;
-    Region<T> Complement(const Region<T> &r) const;
-    Region<T> Complement() const;
+    static inline Region<T> Intersect(const Region<T> &one, const Region<T> &two){ return one.Intersect(two); }
+    Region<T> Complement(const Region<T> &r = GetUniverseSet()) const;
+
+    // Some convenient set operators (just facades over the actual functions)
+    inline Region<T> operator - (const Region<T> &r) const{
+        return r.Complement(*this);
+    }
+    // In real set notation this is a backslash, but we can't do that in C++
+    inline Region<T> operator / (const Region &r) const{
+        return r.Complement(*this);
+    }
+    inline Region<T> operator ~() const{
+        return this->Complement();
+    }
+    inline Region<T> operator + (const Region<T> &r) const{
+        return this->Union(r);
+    }
+    inline Region<T> operator | (const Region<T> &r) const{
+        return this->Union(r);
+    }
+    inline Region<T> operator & (const Region<T> &r) const{
+        return this->Intersect(r);
+    }
 
     bool Contains(const T &);
 
@@ -313,6 +338,56 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 }
 
 template <class T>
+Region<T> Region<T>::Intersect(const Region<T> &r) const
+{
+    // We can obtain the intersect by using a combination of unions and complements
+    // (A & B) == ~(~A | ~B)
+    return ~(~*this | ~r);
+}
+
+template <class T>
+Region<T> Region<T>::Complement(const Region<T> &r) const
+{
+    // We can get the complement by using Universal complements and Unions alone.
+    //  This is important, because we'll be using complements to determine intersects,
+    //  so we don't want to create a circular dependency.
+
+    if(r.IsUniverseSet())
+    {
+        // In this case, we're taking the 'absolute complement' which is simply
+        //  the inverse of our region.
+
+        // To get a region's complement wrt the Universe, we iterate through each
+        //  range and reverse each of their Lowerbounds and Upperbounds.  Then we
+        //  assess the situation and assemble contiguous ranges and throw out
+        //  the overlapping areas.
+
+        // Swap the lower bound and upper bound for every range
+        for(int i = 0; i < (int)m_ranges.size(); i++)
+        {
+            T mem( m_ranges[i].LowerBound );
+            m_ranges[i].LowerBound = m_ranges[i].UpperBound;
+            m_ranges[i].UpperBound = mem;
+        }
+
+        // Now go through one range at a time, merging/removing indexes as needed
+        //  Append new ranges to the end of the list, remove items directly from
+        //  the list (that's why we iterate backwards through the list)
+        const int cnt(m_ranges.size());
+        for(int i = cnt - 1; i >= 0; i--)
+        {
+
+        }
+    }
+    else
+    {
+        // To get the relative complement of this in 'r' (r - this), we can express
+        //  it as (this & ~r) which is equal to ~(~this | r)
+        return ~(~*this | r);
+    }
+}
+
+template <class T>
 bool Region<T>::Contains(const T &dt)
 {
     for(int i = 0; i < (int)m_ranges.size(); i++)
@@ -323,7 +398,6 @@ bool Region<T>::Contains(const T &dt)
 
     return false;
 }
-
 
 
 GUTIL_END_CORE_NAMESPACE;
