@@ -32,6 +32,7 @@ class GDateTime :
 public:
 
     GDateTime(const QDateTime &other = QDateTime());
+    GDateTime(const QDate &);
 
     class TimeRange
     {
@@ -62,8 +63,8 @@ public:
         }
 
 
-        TimeRange(const QDateTime &lb = QDateTime(),
-                  const QDateTime &ub = QDateTime())
+        TimeRange(const GDateTime &lb = GDateTime(),
+                  const GDateTime &ub = GDateTime())
             :LowerBound(lb),
               UpperBound(ub)
         {}
@@ -79,11 +80,12 @@ public:
 
         TimeRegion();
         TimeRegion(const TimeRange &);
+        void Clear();
 
         bool IsNull() const;
         bool IsAllTime() const;
 
-        bool Contains(const QDateTime &);
+        bool Contains(const GDateTime &);
 
         TimeRegion Union(const TimeRegion &) const;
         TimeRegion Intersect(const TimeRegion &) const;
@@ -101,6 +103,8 @@ public:
         void _clean();
 
     };
+
+    static TimeRegion Union(const TimeRegion &, const TimeRegion &);
 
 
 

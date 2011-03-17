@@ -19,12 +19,21 @@ GDateTime::GDateTime(const QDateTime &other)
     :QDateTime(other)
 {}
 
+GDateTime::GDateTime(const QDate &dt)
+    :QDateTime(dt)
+{}
+
 GDateTime::TimeRegion::TimeRegion()
 {}
 
 GDateTime::TimeRegion::TimeRegion(const TimeRange &r)
 {
     m_ranges.append(r);
+}
+
+bool GDateTime::TimeRegion::IsNull() const
+{
+    return m_ranges.count() == 0;
 }
 
 bool GDateTime::TimeRegion::IsAllTime() const
@@ -38,6 +47,11 @@ GDateTime::TimeRegion GDateTime::TimeRegion::Union(const GDateTime::TimeRegion &
     ret.m_ranges.append(reg.m_ranges);
     ret._clean();
     return ret;
+}
+
+GDateTime::TimeRegion GDateTime::Union(const TimeRegion &one, const TimeRegion &two)
+{
+    return one.Union(two);
 }
 
 GDateTime::TimeRegion GDateTime::TimeRegion::_union(const TimeRange &r1, const TimeRange &r2)
@@ -103,12 +117,12 @@ GDateTime::TimeRegion GDateTime::TimeRegion::_union(const TimeRange &r1, const T
         // We get to this else block if at least one range is bounded
         else
         {
-            const TimeRange *unbounded_range(range1_unbounded ? &r1 : &r2);
-            const TimeRange *bounded_range(range1_unbounded ? &r2 : &r1);
-
             // If one range is bounded and another is unbounded
-            if(unbounded_range)
+            if(range1_unbounded || range2_unbounded)
             {
+                const TimeRange *unbounded_range(range1_unbounded ? &r1 : &r2);
+                const TimeRange *bounded_range(range1_unbounded ? &r2 : &r1);
+
                 if(unbounded_range->UpperBound > bounded_range->UpperBound ||
                         unbounded_range->LowerBound < bounded_range->LowerBound)
                     ret.m_ranges.append(*unbounded_range);
@@ -161,7 +175,7 @@ void GDateTime::TimeRegion::_clean()
         something_changed = false;
         for(int i = 0; !something_changed && i < m_ranges.count(); i++)
         {
-            for(int j = i; !something_changed && j < m_ranges.count(); j++)
+            for(int j = i + 1; !something_changed && j < m_ranges.count(); j++)
             {
                 TimeRegion reg(_union(m_ranges[i], m_ranges[j]));
 
@@ -178,7 +192,7 @@ void GDateTime::TimeRegion::_clean()
     }while(something_changed);
 }
 
-bool GDateTime::TimeRegion::Contains(const QDateTime &dt)
+bool GDateTime::TimeRegion::Contains(const GDateTime &dt)
 {
     for(int i = 0; i < m_ranges.count(); i++)
     {
@@ -187,4 +201,9 @@ bool GDateTime::TimeRegion::Contains(const QDateTime &dt)
     }
 
     return false;
+}
+
+void GDateTime::TimeRegion::Clear()
+{
+    m_ranges.clear();
 }
