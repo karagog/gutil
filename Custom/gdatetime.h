@@ -89,12 +89,12 @@ public:
 // These are trivial declarations of the time range objects, built off
 //  the low-level set operator class to support QDateTimes
 class TimeRange :
-        public Utils::Range<GDateTime>
+        public Core::Utils::Range<GDateTime>
 {
 public:
     TimeRange(const GDateTime &lb = GDateTime(),
               const GDateTime &ub = GDateTime())
-        :Utils::Range<GDateTime>(lb, ub)
+        :Core::Utils::Range<GDateTime>(lb, ub)
     {}
 protected:
     bool is_value_null(const GDateTime &v) const{
@@ -103,12 +103,12 @@ protected:
 };
 
 class TimeRegion :
-        public Utils::Region<GDateTime>
+        public Core::Utils::Region<GDateTime>
 {
 public:
     inline TimeRegion(){}
-    inline TimeRegion(const Utils::Region<GDateTime> &r)
-        :Utils::Region<GDateTime>(r)
+    inline TimeRegion(const Core::Utils::Region<GDateTime> &r)
+        :Core::Utils::Region<GDateTime>(r)
     {}
 };
 
