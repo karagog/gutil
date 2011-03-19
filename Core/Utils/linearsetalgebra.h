@@ -16,7 +16,7 @@ limitations under the License.*/
 #define LINEARSETALGEBRA_H
 
 #include "gutil_macros.h"
-#include <limits.h>
+#include "Core/exception.h"
 #include <vector>
 
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);
@@ -83,23 +83,28 @@ public:
                 (_p_LowerBound == other._p_LowerBound && _p_UpperBound == other._p_UpperBound);
     }
 
-    Range()
+    Range(const T &min_res)
         :lb_modified(false),
           ub_modified(false),
+          m_minres(min_res),
           _universe(false)
     {}
-    Range(const T &lb, const T &ub)
+    Range(const T &lb, const T &ub, const T &min_res)
         :lb_modified(true),
           ub_modified(true),
+          m_minres(min_res),
           _p_LowerBound(lb),
           _p_UpperBound(ub),
           _universe(false)
     {}
     // Constructs a range that represents all possible values
-    inline static Range<T> Universe(){
-        Range<T> ret;
+    inline static Range<T> Universe(const T &min_res){
+        Range<T> ret(min_res);
         ret._universe = true;
         return ret;
+    }
+    inline Range<T> Universe() const{
+        return Universe(m_minres);
     }
     virtual ~Range(){}
 
@@ -108,6 +113,7 @@ protected:
 
     bool lb_modified;
     bool ub_modified;
+    T m_minres;
 
 
 private:
@@ -126,18 +132,27 @@ template <class T> class Region
 {
 public:
 
-    inline Region(){}
-    inline Region(const Range<T> &r) { m_ranges.push_back(r); }
+    inline Region(const T &minimum_resolution):_p_MinimumResolution(minimum_resolution){}
+    inline Region(const Range<T> &r)
+        :_p_MinimumResolution(r.m_minres)
+    { m_ranges.push_back(r); }
     virtual ~Region(){}
+
     inline void Clear(){
         m_ranges.clear();
     }
-
     inline bool IsNull() const{
         return m_ranges.size() == 0;
     }
     inline bool IsUniverseSet() const{
         return m_ranges.size() > 0 && m_ranges.front().IsUniverse();
+    }
+
+    inline Region<T> NullSet() const{
+        return Region<T>(_p_MinimumResolution);
+    }
+    inline Region<T> UniverseSet() const{
+        return Region<T>(Range<T>::UniverseSet(_p_MinimumResolution));
     }
 
     // The number of independent ranges it takes to sum into this region
@@ -156,7 +171,7 @@ public:
         return ~(~one | ~two);
     }
 
-    Region<T> Complement(const Region<T> &r = Range<T>::UniverseSet()) const;
+    Region<T> Complement(const Region<T> &r = UniverseSet()) const;
 
     inline Region<T> SymmetricDifference(const Region<T> &r) const{ return SymmetricDifference(*this, r); }
     inline static Region<T> SymmetricDifference(const Region<T> &r1, const Region<T> &r2){
@@ -192,6 +207,7 @@ public:
 private:
 
     std::vector< Range<T> > m_ranges;
+    T _p_MinimumResolution;
 
     // Get the union of two ranges
     static Region<T> _union(const Range<T> &, const Range<T> &);
@@ -200,29 +216,6 @@ private:
     void _clean();
 
 };
-
-
-
-// Here is an example of a class you might use.  It is a real number scale
-class IntegerRange :
-        public Range<int>
-{
-public:
-    inline IntegerRange(){}
-    inline IntegerRange(int lb, int ub)     :Range<int>(lb, ub){}
-    inline IntegerRange(const Range<int> &r):Range<int>(r){}
-};
-
-class IntegerRegion :
-        public Region<int>
-{
-public:
-    inline IntegerRegion(){}
-    inline IntegerRegion(const Region<int> &other) : Region<int>(other){}
-};
-
-
-
 
 
 
@@ -277,7 +270,11 @@ void Region<T>::_clean()
 template <class T>
 Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 {
-    Region<T> ret;
+    if(r1.m_minres != r2.m_minres)
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "Incompatible ranges.  They have different resolutions");
+
+    Region<T> ret(r1.m_minres);
 
     // If either is all time, then the result is automatically all-time
     if(r1.IsUniverse() || r2.IsUniverse())
@@ -338,7 +335,7 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 
         if(range1_unbounded && range2_unbounded)
         {
-            ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper));
+            ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper, r1.m_minres));
         }
         // We get to this else block if at least one range is bounded
         else
@@ -352,14 +349,14 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 if( bounded_range->_p_LowerBound < unbounded_range->_p_UpperBound ||
                         bounded_range->_p_LowerBound == unbounded_range->_p_UpperBound)
                 {
-                    Range<T> r;
+                    Range<T> r(r1.m_minres);
                     r.SetUpperBound(gMax(unbounded_range->_p_UpperBound, bounded_range->_p_UpperBound));
                     ret.m_ranges.push_back(r);
                 }
                 else if(unbounded_range->_p_LowerBound < bounded_range->_p_UpperBound ||
                         unbounded_range->_p_LowerBound == bounded_range->_p_UpperBound)
                 {
-                    Range<T> r;
+                    Range<T> r(r1.m_minres);
                     r.SetLowerBound(gMin(unbounded_range->_p_LowerBound, bounded_range->_p_LowerBound));
                     ret.m_ranges.push_back(r);
                 }
@@ -385,7 +382,8 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 else
                 {
                     ret.m_ranges.push_back(Range<T>(gMin(r1._p_LowerBound, r2._p_LowerBound),
-                                                    gMax(r1._p_UpperBound, r2._p_UpperBound)));
+                                                    gMax(r1._p_UpperBound, r2._p_UpperBound),
+                                                    r1.m_minres));
                 }
             }
         }
@@ -422,9 +420,18 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                 iter != m_ranges.end();
                 iter++)
             {
+                bool m_modified(iter->lb_modified);
                 T mem( iter->GetLowerBound() );
+
                 iter->SetLowerBound( iter->GetUpperBound());
                 iter->SetUpperBound( mem );
+                iter->lb_modified = iter->ub_modified;
+                iter->ub_modified = m_modified;
+
+                if(iter->lb_modified)
+                    iter->SetLowerBound(iter->GetLowerBound() + _p_MinimumResolution);
+                if(iter->ub_modified)
+                    iter->SetuUpperBound(iter->GetUpperBound() - _p_MinimumResolution);
             }
 
             // Now go through one range at a time, merging/removing indexes as needed
@@ -459,6 +466,28 @@ bool Region<T>::Contains(const T &dt)
 
     return false;
 }
+
+
+
+
+// Here is an example of a class you might use.  It is a real number scale
+class IntegerRange :
+        public Range<int>
+{
+public:
+    inline IntegerRange():Range<int>(1){}
+    inline IntegerRange(int lb, int ub)     :Range<int>(lb, ub, 1){}
+    inline IntegerRange(const Range<int> &r):Range<int>(r){}
+};
+
+class IntegerRegion :
+        public Region<int>
+{
+public:
+    inline IntegerRegion()
+        :Region<int>(1){}
+    inline IntegerRegion(const Region<int> &other) : Region<int>(other){}
+};
 
 
 GUTIL_END_CORE_NAMESPACE;

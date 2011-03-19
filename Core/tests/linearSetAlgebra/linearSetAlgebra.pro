@@ -15,6 +15,8 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 INCLUDEPATH += ../../.. ../..
+LIBS += -L../../../lib \
+    -lGUtilCore
 
 
 SOURCES += \

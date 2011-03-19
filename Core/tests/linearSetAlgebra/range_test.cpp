@@ -56,7 +56,7 @@ void RangeTest::testBasics()
     QVERIFY(!tr1.IsUniverse());
     QVERIFY(tr1.IsBounded());
 
-    tr1 = IntegerRange::Universe();
+    tr1 = tr1.Universe();
     QVERIFY(!tr1.IsNull());
     QVERIFY(tr1.IsUniverse());
     QVERIFY(!tr1.IsBounded());
