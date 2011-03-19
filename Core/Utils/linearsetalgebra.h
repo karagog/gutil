@@ -396,29 +396,36 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
         // In this case, we're taking the 'absolute complement' which is simply
         //  the inverse of our region.
 
-        // To get a region's complement wrt the Universe, we iterate through each
-        //  range and reverse each of their Lowerbounds and Upperbounds.  Then we
-        //  assess the situation and assemble contiguous ranges and throw out
-        //  the overlapping areas.
-
-        // Swap the lower bound and upper bound for every range
-        for(typename std::vector< Range<T> >::iterator iter(m_ranges.begin());
-            iter != m_ranges.end();
-            iter++)
+        if(Region<T>::IsNull())
+            m_ranges.push_back(Range<T>::Universe());   // Opposite of null is the universe
+        else if(Region<T>::IsUniverseSet())
+            m_ranges.clear();   // Opposite of null is universe
+        else
         {
-            T mem( iter->GetLowerBound() );
-            iter->SetLowerBound( iter->GetUpperBound());
-            iter->SetUpperBound( mem );
-        }
+            // To get a region's complement wrt the Universe, we iterate through each
+            //  range and reverse each of their Lowerbounds and Upperbounds.  Then we
+            //  assess the situation and assemble contiguous ranges and throw out
+            //  the overlapping areas.
 
-        // Now go through one range at a time, merging/removing indexes as needed
-        //  Append new ranges to the end of the list, remove items directly from
-        //  the list (that's why we iterate backwards through the list)
-        for(typename std::vector< Range<T> >::iterator iter(m_ranges.end() - 1);
-            m_ranges.begin() <= iter;
-            iter--)
-        {
+            // Swap the lower bound and upper bound for every range
+            for(typename std::vector< Range<T> >::iterator iter(m_ranges.begin());
+                iter != m_ranges.end();
+                iter++)
+            {
+                T mem( iter->GetLowerBound() );
+                iter->SetLowerBound( iter->GetUpperBound());
+                iter->SetUpperBound( mem );
+            }
 
+            // Now go through one range at a time, merging/removing indexes as needed
+            //  Append new ranges to the end of the list, remove items directly from
+            //  the list (that's why we iterate backwards through the list)
+            for(typename std::vector< Range<T> >::iterator iter(m_ranges.end() - 1);
+                m_ranges.begin() <= iter;
+                iter--)
+            {
+
+            }
         }
     }
     else
