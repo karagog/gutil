@@ -182,8 +182,8 @@ public:
         return Region<T>::Intersect(r);
     }
     inline bool operator == (const Region<T> &other) const{
-        // To compare A and B, we can express it as (A & ~B) == NULL
-        return Region<T>::Intersect(~other).IsNull();
+        // To compare A and B, we can express it as (A - B) == NULL
+        return Region<T>::Complement(other).IsNull();
     }
 
     bool Contains(const T &);
