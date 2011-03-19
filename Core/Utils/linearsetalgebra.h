@@ -53,7 +53,7 @@ public:
     }
 
     inline bool Contains(const T &t) const{
-        return this->IsUniverseSet() ?
+        return Range<T>::IsUniverseSet() ?
                     true :
                     is_value_null(LowerBound) ?
                         (t < UpperBound || t == UpperBound) :
@@ -101,7 +101,7 @@ public:
         return m_ranges.size() == 0;
     }
     inline bool IsUniverseSet() const{
-        return m_ranges.size() > 0 && m_ranges[0].IsUniverseSet();
+        return m_ranges.size() > 0 && m_ranges.front().IsUniverseSet();
     }
 
     inline static Region<T> GetUniverseSet(){
@@ -118,32 +118,36 @@ public:
     static Region<T> Union(const Region<T> &one, const Region<T> &two);
 
     inline Region<T> Intersect(const Region<T> &r) const{ return Intersect(*this, r); }
-    static Region<T> Intersect(const Region<T> &one, const Region<T> &two);
+    inline static Region<T> Intersect(const Region<T> &one, const Region<T> &two){
+        // We can obtain the intersect by using a combination of unions and complements
+        // (A & B) == ~(~A | ~B)
+        return ~(~one | ~two);
+    }
 
     Region<T> Complement(const Region<T> &r = GetUniverseSet()) const;
 
     inline Region<T> SymmetricDifference(const Region<T> &r) const{ return SymmetricDifference(*this, r); }
-    static Region<T> SymmetricDifference(const Region<T> &r1, const Region<T> &r2);
+    inline static Region<T> SymmetricDifference(const Region<T> &r1, const Region<T> &r2){
+        // The symmetric difference is (A | B) - (A & B), or (A - B) | (B - A),
+        //  or those that are in A or in B, but not in both
+        return (r1 - r2) | (r2 - r1);
+    }
 
     // Some convenient set operators (just facades over the actual functions)
     inline Region<T> operator - (const Region<T> &r) const{
         return r.Complement(*this);
     }
-    // In real set notation this is a backslash, but we can't do that in C++
-    inline Region<T> operator / (const Region<T> &r) const{
-        return r.Complement(*this);
-    }
     inline Region<T> operator ~() const{
-        return this->Complement();
+        return Region<T>::Complement();
     }
     inline Region<T> operator + (const Region<T> &r) const{
-        return this->Union(r);
+        return Region<T>::Union(r);
     }
     inline Region<T> operator | (const Region<T> &r) const{
-        return this->Union(r);
+        return Region<T>::Union(r);
     }
     inline Region<T> operator & (const Region<T> &r) const{
-        return this->Intersect(r);
+        return Region<T>::Intersect(r);
     }
 
     bool Contains(const T &);
@@ -189,9 +193,15 @@ template <class T>
 Region<T> Region<T>::Union(const Region<T> &reg1, const Region<T> &reg2)
 {
     Region<T> ret(reg1);
-    for(int i = 0; i < (int)reg2.m_ranges.size(); i++)
-        ret.m_ranges.push_back(reg2.m_ranges[i]);
+    std::vector< Range<T> > &v1( ret.m_ranges );
+    const std::vector< Range<T> > &v2( reg2.m_ranges );
+
+    // Merge the lists of ranges
+    v1.insert(v1.end(), v2.begin(), v2.end());
+
+    // Remove range overlaps to minimize the number of ranges we keep track of
     ret._clean();
+
     return ret;
 }
 
@@ -343,14 +353,6 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 }
 
 template <class T>
-Region<T> Region<T>::Intersect(const Region<T> &r1, const Region<T> &r2)
-{
-    // We can obtain the intersect by using a combination of unions and complements
-    // (A & B) == ~(~A | ~B)
-    return ~(~r1 | ~r2);
-}
-
-template <class T>
 Region<T> Region<T>::Complement(const Region<T> &r) const
 {
     // We can get the complement by using Universal complements and Unions alone.
@@ -388,22 +390,18 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
     {
         // To get the relative complement of this in 'r' (r - this), we can express
         //  it as (this & ~r) which is equal to ~(~this | r)
-        return ~(~*this | r);
+        return ~(Region<T>::Complement() | r);
     }
-}
-
-template <class T>
-Region<T> Region<T>::SymmetricDifference(const Region<T> &r1, const Region<T> &r2)
-{
-    return (r1 - r2) | (r2 - r1);
 }
 
 template <class T>
 bool Region<T>::Contains(const T &dt)
 {
-    for(int i = 0; i < (int)m_ranges.size(); i++)
+    for(typename std::vector< Range<T> >::const_iterator it(m_ranges.begin());
+        it != m_ranges.end();
+        it++)
     {
-        if(m_ranges[i].Contains(dt))
+        if(it->Contains(dt))
             return true;
     }
 

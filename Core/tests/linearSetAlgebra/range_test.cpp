@@ -72,7 +72,7 @@ void RangeTest::testUnions()
     for(int i = 11; i <= 14; i++)
         QVERIFY(!reg.Contains(i));
     for(int i = 15; i <= 20; i++)
-        QVERIFY(reg.Contains(i));
+        QVERIFY2(reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
     QVERIFY(!reg.Contains(-INFINITY));
     QVERIFY(!reg.Contains(INFINITY));
 
