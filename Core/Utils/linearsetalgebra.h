@@ -33,52 +33,83 @@ template <class T> class Range
     template <class U> friend class Region;
 public:
 
-    T LowerBound;
-    T UpperBound;
+    inline T LowerBound() const{
+        return _p_LowerBound;
+    }
+    inline T UpperBound() const{
+        return _p_UpperBound;
+    }
+    inline void SetLowerBound(const T &val){
+        _p_LowerBound = val;
+        lb_modified = true;
+        _universe = false;
+    }
+    inline void SetUpperBound(const T &val){
+        _p_UpperBound = val;
+        ub_modified = true;
+        _universe = false;
+    }
 
     inline bool IsBounded() const{
-        return (!is_value_null(LowerBound) && !is_value_null(UpperBound)) &&
-                LowerBound < UpperBound;
+        return _universe ?
+                    false :
+                    (!lb_modified && !ub_modified) ?
+                        true :
+                        (_p_LowerBound < _p_UpperBound);
     }
 
-    inline bool IsUniverseSet() const{
-        return IsNull();
+    inline bool IsUniverse() const{
+        return _universe;
     }
     inline bool IsNull() const{
-        return (is_value_null(LowerBound) && is_value_null(UpperBound)) ||
-                LowerBound == UpperBound;
-    }
-    inline const T &NullValue() const{
-        return _null_value;
+        return (!lb_modified && !ub_modified && !_universe) ||
+                _p_LowerBound == _p_UpperBound;
     }
 
     inline bool Contains(const T &t) const{
-        return Range<T>::IsUniverseSet() ?
+        return _universe ?
                     true :
-                    is_value_null(LowerBound) ?
-                        (t < UpperBound || t == UpperBound) :
-                        is_value_null(UpperBound) ?
-                            (LowerBound < t || LowerBound == t) :
-                            LowerBound < UpperBound ?
-                                (LowerBound < t || LowerBound == t) && (t < UpperBound || t == UpperBound) :
-                                (LowerBound < t || LowerBound == t) || (t < UpperBound || t == UpperBound);
+                    !lb_modified ?
+                        (t < _p_UpperBound || t == _p_UpperBound) :
+                        !ub_modified ?
+                            (_p_LowerBound < t || _p_LowerBound == t) :
+                            _p_LowerBound < _p_UpperBound ?
+                                (_p_LowerBound < t || _p_LowerBound == t) && (t < _p_UpperBound || t == _p_UpperBound) :
+                                (_p_LowerBound < t || _p_LowerBound == t) || (t < _p_UpperBound || t == _p_UpperBound);
     }
 
-    // When constructing, you must pass in
-    Range(const T &lb, const T &ub, const T &null_value = T())
-        :LowerBound(lb),
-          UpperBound(ub),
-          _null_value(null_value)
+    Range()
+        :lb_modified(false),
+          ub_modified(false),
+          _universe(false)
     {}
+    Range(const T &lb, const T &ub)
+        :lb_modified(true),
+          ub_modified(true),
+          _p_LowerBound(lb),
+          _p_UpperBound(ub),
+          _universe(false)
+    {}
+    // Constructs a range that represents all possible values
+    inline static Range<T> Universe(){
+        Range<T> ret;
+        ret._universe = true;
+        return ret;
+    }
     virtual ~Range(){}
 
 
 protected:
 
-    T _null_value;
-    bool is_value_null(const T &v) const{
-        return v == _null_value;
-    }
+    bool lb_modified;
+    bool ub_modified;
+
+
+private:
+
+    T _p_LowerBound;
+    T _p_UpperBound;
+    bool _universe;
 
 };
 
@@ -101,7 +132,7 @@ public:
         return m_ranges.size() == 0;
     }
     inline bool IsUniverseSet() const{
-        return m_ranges.size() > 0 && m_ranges.front().IsUniverseSet();
+        return m_ranges.size() > 0 && m_ranges.front().IsUniverse();
     }
 
     inline static Region<T> GetUniverseSet(){
@@ -172,8 +203,9 @@ class IntegerRange :
         public Range<int>
 {
 public:
-    inline IntegerRange(int lb = INT_MIN, int ub = INT_MIN) :
-        Range<int>(lb, ub, INT_MIN){}
+    inline IntegerRange(){}
+    inline IntegerRange(int lb, int ub)     :Range<int>(lb, ub){}
+    inline IntegerRange(const Range<int> &r):Range<int>(r){}
 };
 
 class IntegerRegion :
@@ -237,11 +269,9 @@ template <class T>
 Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 {
     Region<T> ret;
-    Q_ASSERT(r1.NullValue() == r2.NullValue());
-    const T &null_val(r1.NullValue());
 
     // If either is all time, then the result is automatically all-time
-    if(r1.IsUniverseSet() || r2.IsUniverseSet())
+    if(r1.IsUniverse() || r2.IsUniverse())
         ret.m_ranges.push_back(r1);
     else
     {
@@ -249,57 +279,57 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 range2_unbounded(false);
         T tmpLower, tmpUpper;
         bool tmpLower_set(false), tmpUpper_set(false);
-        if(r1.is_value_null(r1.LowerBound))
+        if(!r1.lb_modified)
         {
-            tmpUpper = r1.UpperBound;
+            tmpUpper = r1._p_UpperBound;
             range1_unbounded = true;
             tmpUpper_set = true;
         }
-        else if(r1.is_value_null(r1.UpperBound))
+        else if(!r1.ub_modified)
         {
-            tmpLower = r1.LowerBound;
+            tmpLower = r1._p_LowerBound;
             range1_unbounded = true;
             tmpLower_set = true;
         }
-        else if(r1.UpperBound < r1.LowerBound)
+        else if(r1._p_UpperBound < r1._p_LowerBound)
         {
-            tmpLower = r1.LowerBound;
-            tmpUpper = r1.UpperBound;
+            tmpLower = r1._p_LowerBound;
+            tmpUpper = r1._p_UpperBound;
             range1_unbounded = true;
             tmpUpper_set = true;
             tmpLower_set = true;
         }
 
 
-        if(r2.is_value_null(r2.LowerBound))
+        if(!r2.lb_modified)
         {
             tmpUpper = tmpUpper_set ?
-                        gMax(tmpUpper, r2.UpperBound) :
-                        r2.UpperBound;
+                        gMax(tmpUpper, r2._p_UpperBound) :
+                        r2._p_UpperBound;
             range2_unbounded = true;
         }
-        else if(r2.is_value_null(r2.UpperBound))
+        else if(!r2.ub_modified)
         {
             tmpLower = tmpLower_set ?
-                        gMin(tmpLower, r2.LowerBound) :
-                        r2.LowerBound;
+                        gMin(tmpLower, r2._p_LowerBound) :
+                        r2._p_LowerBound;
             range2_unbounded = true;
         }
-        else if(r2.UpperBound < r2.LowerBound)
+        else if(r2._p_UpperBound < r2._p_LowerBound)
         {
             tmpLower = tmpLower_set ?
-                        gMin(tmpLower, r2.LowerBound) :
-                        r2.LowerBound;
+                        gMin(tmpLower, r2._p_LowerBound) :
+                        r2._p_LowerBound;
             tmpUpper = tmpUpper_set ?
-                        gMax(tmpUpper, r2.UpperBound) :
-                        r2.UpperBound;
+                        gMax(tmpUpper, r2._p_UpperBound) :
+                        r2._p_UpperBound;
             range2_unbounded = true;
         }
 
 
         if(range1_unbounded && range2_unbounded)
         {
-            ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper, null_val));
+            ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper));
         }
         // We get to this else block if at least one range is bounded
         else
@@ -310,16 +340,20 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 const Range<T> *unbounded_range(range1_unbounded ? &r1 : &r2);
                 const Range<T> *bounded_range(range1_unbounded ? &r2 : &r1);
 
-                if( bounded_range->LowerBound < unbounded_range->UpperBound ||
-                        bounded_range->LowerBound == unbounded_range->UpperBound)
-                    ret.m_ranges.push_back(Range<T>(T(),
-                                                    gMax(unbounded_range->UpperBound, bounded_range->UpperBound),
-                                                    null_val));
-                else if(unbounded_range->LowerBound < bounded_range->UpperBound ||
-                        unbounded_range->LowerBound == bounded_range->UpperBound)
-                    ret.m_ranges.push_back(Range<T>(gMin(unbounded_range->LowerBound, bounded_range->LowerBound),
-                                                    T(),
-                                                    null_val));
+                if( bounded_range->_p_LowerBound < unbounded_range->_p_UpperBound ||
+                        bounded_range->_p_LowerBound == unbounded_range->_p_UpperBound)
+                {
+                    Range<T> r;
+                    r.SetUpperBound(gMax(unbounded_range->_p_UpperBound, bounded_range->_p_UpperBound));
+                    ret.m_ranges.push_back(r);
+                }
+                else if(unbounded_range->_p_LowerBound < bounded_range->_p_UpperBound ||
+                        unbounded_range->_p_LowerBound == bounded_range->_p_UpperBound)
+                {
+                    Range<T> r;
+                    r.SetLowerBound(gMin(unbounded_range->_p_LowerBound, bounded_range->_p_LowerBound));
+                    ret.m_ranges.push_back(r);
+                }
                 else
                 {
                     // Though one range is unbounded, they are still disjoint, so add
@@ -331,8 +365,8 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
             else
             {
                 // If the bounded ranges are disjoint, simply add them
-                if(r1.UpperBound < r2.LowerBound ||
-                        r2.UpperBound < r1.LowerBound)
+                if(r1._p_UpperBound < r2._p_LowerBound ||
+                        r2._p_UpperBound < r1._p_LowerBound)
                 {
                     ret.m_ranges.push_back(r1);
                     ret.m_ranges.push_back(r2);
@@ -341,9 +375,8 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 // If the bounded ranges intersect, their union is easy
                 else
                 {
-                    ret.m_ranges.push_back(Range<T>(gMin(r1.LowerBound, r2.LowerBound),
-                                                    gMax(r1.UpperBound, r2.UpperBound),
-                                                    null_val));
+                    ret.m_ranges.push_back(Range<T>(gMin(r1._p_LowerBound, r2._p_LowerBound),
+                                                    gMax(r1._p_UpperBound, r2._p_UpperBound)));
                 }
             }
         }

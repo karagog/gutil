@@ -53,7 +53,13 @@ void RangeTest::testBasics()
 
     IntegerRange tr1;
     QVERIFY(tr1.IsNull());
-    QVERIFY(tr1.IsUniverseSet());
+    QVERIFY(!tr1.IsUniverse());
+    QVERIFY(tr1.IsBounded());
+
+    tr1 = IntegerRange::Universe();
+    QVERIFY(!tr1.IsNull());
+    QVERIFY(tr1.IsUniverse());
+    QVERIFY(!tr1.IsBounded());
 }
 
 
@@ -62,17 +68,22 @@ void RangeTest::testBasics()
 void RangeTest::testUnions()
 {
     IntegerRegion reg;
+    IntegerRange r1, r2;
 
     // First test bounded unions
     /*  |---|
                 |---|    */
-    reg = IntegerRegion::Union(IntegerRange(0, 10), IntegerRange(15, 20));
+    r1 = IntegerRange(0, 10);
+    r2 = IntegerRange(15, 20);
+    QVERIFY(r1.IsBounded());
+    QVERIFY(r2.IsBounded());
+    reg = IntegerRegion::Union(r1, r2);
     for(int i = 0; i <= 10; i++)
         QVERIFY(reg.Contains(i));
     for(int i = 11; i <= 14; i++)
         QVERIFY(!reg.Contains(i));
     for(int i = 15; i <= 20; i++)
-        QVERIFY2(reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+        QVERIFY(reg.Contains(i));
     QVERIFY(!reg.Contains(-INFINITY));
     QVERIFY(!reg.Contains(INFINITY));
 
