@@ -77,6 +77,12 @@ public:
                                 (_p_LowerBound < t || _p_LowerBound == t) || (t < _p_UpperBound || t == _p_UpperBound);
     }
 
+    inline bool operator == (const Range<T> &other) const{
+        return (_universe && other._universe) ||
+                (IsNull() && other.IsNull()) ||
+                (_p_LowerBound == other._p_LowerBound && _p_UpperBound == other._p_UpperBound);
+    }
+
     Range()
         :lb_modified(false),
           ub_modified(false),
@@ -174,6 +180,10 @@ public:
     }
     inline Region<T> operator & (const Region<T> &r) const{
         return Region<T>::Intersect(r);
+    }
+    inline bool operator == (const Region<T> &other) const{
+        // To compare A and B, we can express it as (A & ~B) == NULL
+        return Region<T>::Intersect(~other).IsNull();
     }
 
     bool Contains(const T &);
