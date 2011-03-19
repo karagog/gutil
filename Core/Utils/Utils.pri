@@ -6,7 +6,8 @@ HEADERS += \
     Utils/Private/strings_p.h \
     Utils/commandlineargs.h \
     Utils/environment.h \
-    Utils/linearsetalgebra.h
+    Utils/linearsetalgebra.h \
+    Utils/symmetricmatrix.h
 
 SOURCES += \
     Utils/stringhelpers.cc \

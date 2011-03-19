@@ -9,7 +9,8 @@ HEADERS += \
     Interfaces/iconvertable.h \
     Interfaces/icomparer.h \
     Interfaces/icomparable.h \
-    Interfaces/iclonable.h
+    Interfaces/iclonable.h \
+    Interfaces/imatrix.h
 
 SOURCES += \
     Interfaces/ireadonlyobject.cpp
