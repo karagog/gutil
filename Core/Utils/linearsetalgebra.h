@@ -62,8 +62,7 @@ public:
         return _universe;
     }
     inline bool IsNull() const{
-        return (!lb_modified && !ub_modified && !_universe) ||
-                _p_LowerBound == _p_UpperBound;
+        return (!lb_modified && !ub_modified && !_universe);
     }
 
     inline bool Contains(const T &t) const{
@@ -135,10 +134,6 @@ public:
         return m_ranges.size() > 0 && m_ranges.front().IsUniverse();
     }
 
-    inline static Region<T> GetUniverseSet(){
-        return Range<T>(T(), T());
-    }
-
     // The number of independent ranges it takes to sum into this region
     inline const std::vector< Range<T> > &Ranges() const{
         return m_ranges;
@@ -155,7 +150,7 @@ public:
         return ~(~one | ~two);
     }
 
-    Region<T> Complement(const Region<T> &r = GetUniverseSet()) const;
+    Region<T> Complement(const Region<T> &r = Range<T>::UniverseSet()) const;
 
     inline Region<T> SymmetricDifference(const Region<T> &r) const{ return SymmetricDifference(*this, r); }
     inline static Region<T> SymmetricDifference(const Region<T> &r1, const Region<T> &r2){
