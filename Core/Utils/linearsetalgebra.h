@@ -246,18 +246,22 @@ void Region<T>::_clean()
     do
     {
         something_changed = false;
-        for(int i = 0; !something_changed && i < (int)m_ranges.size(); i++)
+        for(typename std::vector< Range<T> >::iterator iter1(m_ranges.begin());
+            !something_changed && iter1 != m_ranges.end();
+            iter1++)
         {
-            for(int j = i + 1; !something_changed && j < (int)m_ranges.size(); j++)
+            for(typename std::vector< Range<T> >::iterator iter2(iter1 + 1);
+                !something_changed && iter2 != m_ranges.end();
+                iter2++)
             {
-                Region<T> reg(_union(m_ranges[i], m_ranges[j]));
+                Region<T> reg( _union(*iter1, *iter2) );
 
                 // If there are fewer than 2 ranges needed to represent the union,
                 //  then we accept the merged range and restart our double-loop
                 if(reg.m_ranges.size() == 1)
                 {
-                    m_ranges[i] = reg.m_ranges[0];
-                    m_ranges.erase(m_ranges.begin() + j);
+                    *iter1 = reg.m_ranges.front();
+                    m_ranges.erase(iter2);
                     something_changed = true;
                 }
             }
@@ -403,18 +407,21 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
         //  the overlapping areas.
 
         // Swap the lower bound and upper bound for every range
-        for(int i = 0; i < (int)m_ranges.size(); i++)
+        for(typename std::vector< Range<T> >::iterator iter(m_ranges.begin());
+            iter != m_ranges.end();
+            iter++)
         {
-            T mem( m_ranges[i].LowerBound );
-            m_ranges[i].LowerBound = m_ranges[i].UpperBound;
-            m_ranges[i].UpperBound = mem;
+            T mem( iter->GetLowerBound() );
+            iter->SetLowerBound( iter->GetUpperBound());
+            iter->SetUpperBound( mem );
         }
 
         // Now go through one range at a time, merging/removing indexes as needed
         //  Append new ranges to the end of the list, remove items directly from
         //  the list (that's why we iterate backwards through the list)
-        const int cnt(m_ranges.size());
-        for(int i = cnt - 1; i >= 0; i--)
+        for(typename std::vector< Range<T> >::iterator iter(m_ranges.end() - 1);
+            m_ranges.begin() <= iter;
+            iter--)
         {
 
         }
