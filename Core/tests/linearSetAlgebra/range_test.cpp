@@ -538,9 +538,28 @@ void RangeTest::testSymmetricDifference()
     for(int i = -20; i <= -1; i++)
         QVERIFY(!reg.Contains(i));
     for(int i = 0; i <= 4; i++)
-        QVERIFY2(reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+        QVERIFY(reg.Contains(i));
     for(int i = 5; i <= 20; i++)
         QVERIFY(!reg.Contains(i));
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
+
+
+
+    // Then test symmetric difference (all those in A or B but not in both)
+
+    /*   |----|
+            |----|*/
+    reg = IntegerRegion(IntegerRange(0, 10))
+            .SymmetricDifference(IntegerRange(5, 20));
+    for(int i = -20; i <= -1; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 0; i <= 4; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 5; i <= 10; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 11; i <= 20; i++)
+        QVERIFY(reg.Contains(i));
     QVERIFY(!reg.Contains(-INFINITY));
     QVERIFY(!reg.Contains(INFINITY));
 }
