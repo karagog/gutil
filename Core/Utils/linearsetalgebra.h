@@ -284,6 +284,7 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
     {
         bool range1_unbounded(false),
                 range2_unbounded(false);
+        bool is_universe(false);
         T tmpLower, tmpUpper;
         bool tmpLower_set(false), tmpUpper_set(false);
         if(!r1.lb_modified)
@@ -310,31 +311,67 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 
         if(!r2.lb_modified)
         {
-            tmpUpper = tmpUpper_set ?
-                        gMax(tmpUpper, r2._p_UpperBound) :
-                        r2._p_UpperBound;
-            range2_unbounded = true;
+            if(range1_unbounded && r1.lb_modified &&
+                        (r1._p_LowerBound < r2._p_UpperBound ||
+                         r1._p_LowerBound == r2._p_UpperBound))
+            {
+                is_universe = true;
+            }
+            else
+            {
+                tmpUpper = tmpUpper_set ?
+                            gMax(tmpUpper, r2._p_UpperBound) :
+                            r2._p_UpperBound;
+                range2_unbounded = true;
+            }
         }
         else if(!r2.ub_modified)
         {
-            tmpLower = tmpLower_set ?
-                        gMin(tmpLower, r2._p_LowerBound) :
-                        r2._p_LowerBound;
-            range2_unbounded = true;
+            if(range1_unbounded && r1.ub_modified &&
+                    (r2._p_LowerBound < r1._p_UpperBound ||
+                     r2._p_LowerBound == r1._p_UpperBound))
+            {
+                is_universe = true;
+            }
+            else
+            {
+                tmpLower = tmpLower_set ?
+                            gMin(tmpLower, r2._p_LowerBound) :
+                            r2._p_LowerBound;
+                range2_unbounded = true;
+            }
         }
         else if(r2._p_UpperBound < r2._p_LowerBound)
         {
-            tmpLower = tmpLower_set ?
-                        gMin(tmpLower, r2._p_LowerBound) :
-                        r2._p_LowerBound;
-            tmpUpper = tmpUpper_set ?
-                        gMax(tmpUpper, r2._p_UpperBound) :
-                        r2._p_UpperBound;
-            range2_unbounded = true;
+            if(range1_unbounded &&
+                    ((r1.lb_modified &&
+                      (r1._p_LowerBound < r2._p_UpperBound ||
+                       r1._p_LowerBound == r2._p_UpperBound))
+                     ||
+                     (r1.ub_modified &&
+                      (r2._p_LowerBound < r1._p_UpperBound ||
+                       r2._p_LowerBound == r1._p_UpperBound))))
+            {
+                is_universe = true;
+            }
+            else
+            {
+                tmpLower = tmpLower_set ?
+                            gMin(tmpLower, r2._p_LowerBound) :
+                            r2._p_LowerBound;
+                tmpUpper = tmpUpper_set ?
+                            gMax(tmpUpper, r2._p_UpperBound) :
+                            r2._p_UpperBound;
+                range2_unbounded = true;
+            }
         }
 
 
-        if(range1_unbounded && range2_unbounded)
+        if(is_universe)
+        {
+            ret.m_ranges.push_back(r1.Universe());
+        }
+        else if(range1_unbounded && range2_unbounded)
         {
             ret.m_ranges.push_back(Range<T>(tmpLower, tmpUpper, r1.m_minres));
         }

@@ -354,6 +354,39 @@ void RangeTest::testUnions()
         QVERIFY(reg.Contains(i));
     QVERIFY(reg.Contains(-INFINITY));
     QVERIFY(reg.Contains(INFINITY));
+
+    /* |--->
+             <---|   */
+    r1 = r2 = IntegerRange();
+    r1.SetLowerBound(0);
+    r2.SetUpperBound(1);
+    reg = IntegerRegion::Union(r1, r2);
+    QVERIFY(reg.IsUniverseSet());
+
+    /*             |--->
+          <---|                 */
+    r1 = r2 = IntegerRange();
+    r1.SetLowerBound(5);
+    r2.SetUpperBound(-5);
+    reg = IntegerRegion::Union(r1, r2);
+    for(int i = -20; i <= -5; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = -4; i <= 4; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 5; i <= 20; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
+
+    /* <----|   |---->
+                      <---|    |--->     */
+    reg = IntegerRegion::Union(IntegerRange(5, -5), IntegerRange(25, 15));
+    QVERIFY(reg.IsUniverseSet());
+
+    /*              <----|   |---->
+         <---|    |--->                  */
+    reg = IntegerRegion::Union(IntegerRange(25, 15), IntegerRange(5, -5));
+    QVERIFY(reg.IsUniverseSet());
 }
 
 void RangeTest::testComplement()
@@ -437,12 +470,63 @@ void RangeTest::testComplement()
     QVERIFY(!reg.Contains(INFINITY));
 }
 
-void RangeTest::testSymmetricDifference()
+void RangeTest::testIntercept()
 {
+    IntegerRegion reg;
 
+    /*    |---|
+                    |---|     */
+    reg = IntegerRegion::Intersect(IntegerRange(-10, -5), IntegerRange(5, 10) );
+    QVERIFY(reg.IsNull());
+
+    /*    |---|
+             |---|     */
+    reg = IntegerRegion::Intersect(IntegerRange(-10, 5), IntegerRange(-5, 10));
+    for(int i = -20; i <= -6; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = -5; i <= 5; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 6; i <= 20; i++)
+        QVERIFY(!reg.Contains(i));
+
+
+    /*    |--->
+             <---|     */
+    IntegerRange r1, r2;
+    r1.SetLowerBound(-5);
+    r2.SetUpperBound(5);
+    reg = IntegerRegion::Intersect(r1, r2);
+    for(int i = -20; i <= -6; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = -5; i <= 5; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 6; i <= 20; i++)
+        QVERIFY(!reg.Contains(i));
+
+    /*          |--->
+        <---|               */
+    r1 = r2 = IntegerRange();
+    r1.SetLowerBound(5);
+    r2.SetUpperBound(-5);
+    reg = IntegerRegion::Intersect(r1, r2);
+    QVERIFY(reg.IsNull());
+
+    /*  <----->
+        <----->              */
+    reg = IntegerRegion::Intersect(reg.UniverseSet(), reg.UniverseSet());
+    QVERIFY(reg.IsUniverseSet());
+
+    /*          */
+    reg = IntegerRegion::Intersect(reg.NullSet(), reg.NullSet());
+    QVERIFY(reg.IsNull());
+
+    /*
+                 |---|        */
+    reg = IntegerRegion::Intersect(reg.NullSet(), IntegerRange(10, 20));
+    QVERIFY(reg.IsNull());
 }
 
-void RangeTest::testIntercept()
+void RangeTest::testSymmetricDifference()
 {
 
 }
