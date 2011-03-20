@@ -528,7 +528,21 @@ void RangeTest::testIntercept()
 
 void RangeTest::testSymmetricDifference()
 {
+    IntegerRegion reg;
 
+    // First test regular subtraction
+
+    /*   |----|
+            |----|*/
+    reg = IntegerRegion(IntegerRange(0, 10)) - IntegerRange(5, 20);
+    for(int i = -20; i <= -1; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 0; i <= 4; i++)
+        QVERIFY2(reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+    for(int i = 5; i <= 20; i++)
+        QVERIFY(!reg.Contains(i));
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
 }
 
 

@@ -642,8 +642,8 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
     else
     {
         // To get the relative complement of this in 'r' (r - this), we can express
-        //  it as (this & ~r) which is equal to ~(~this | r)
-        ret = ~(Region<T>::Complement() | r);
+        //  it as (r & ~this) which is equal to ~(~r | this)
+        ret = ~Region<T>::Union(~r);
     }
 
     return ret;
