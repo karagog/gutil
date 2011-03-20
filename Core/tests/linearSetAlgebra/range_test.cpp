@@ -420,6 +420,21 @@ void RangeTest::testComplement()
         QVERIFY(reg.Contains(i));
     QVERIFY(reg.Contains(-INFINITY));
     QVERIFY(reg.Contains(INFINITY));
+
+    /*    |---|   |--->   becomes...   <---|   |----|    */
+    r = IntegerRange();
+    r.SetLowerBound(20);
+    reg = IntegerRegion::Union(IntegerRange(0, 10), r).Complement();
+    for(int i = -20; i <= -1; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 0; i <= 10; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 11; i <= 19; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 20; i <= 30; i++)
+        QVERIFY(!reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
 }
 
 void RangeTest::testSymmetricDifference()
