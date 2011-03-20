@@ -135,6 +135,8 @@ template <class T> inline T gMax(const T &one, const T &two){
 
 
 // Some useful time constants
+#define MINUTE_IN_SECONDS       60
+#define HOUR_IN_SECONDS         60 * 60
 #define DAY_IN_SECONDS          60 * 60 * 24
 
 #define MONTH_IN_SECONDS_LB     DAY_IN_SECONDS * 28

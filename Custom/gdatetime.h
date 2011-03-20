@@ -16,14 +16,11 @@ limitations under the License.*/
 #define GDATETIME_H
 
 #include <QDateTime>
-#include <QList>
+#include <QFlags>
 #include "gutil_macros.h"
-#include "Core/Utils/linearsetalgebra.h"
 
 GUTIL_BEGIN_NAMESPACE(Custom);
 
-
-class TimeRange;
 
 class GDateTime :
         public QDateTime
@@ -52,44 +49,50 @@ public:
         int Minutes;
         int Hours;
         int Days;
-        int Weeks;
-        int Months;
         int Years;
         int Decades;
         int Centuries;
         int Millennia;
 
         TimeBreakdown()
-            :MSeconds(0),
-              Seconds(0),
-              Minutes(0),
-              Hours(0),
-              Days(0),
-              Weeks(0),
-              Months(0),
-              Years(0),
-              Decades(0),
-              Millennia(0)
+            :MSeconds(-1),
+              Seconds(-1),
+              Minutes(-1),
+              Hours(-1),
+              Days(-1),
+              Years(-1),
+              Decades(-1),
+              Centuries(-1),
+              Millennia(-1)
         {}
-
-        enum TimeBreakdownEnum{
-            Traditional,
-            DecadesMax,
-            YearsMax,
-            MonthsMax,
-            WeeksMax,
-            DaysMax,
-            HoursMax,
-            MinutesMax,
-            SecondsMax,
-            MSecondsMax
-        };
 
     };
 
+    enum TimeBreakdownFlag{
+        MSeconds,
+        Seconds,
+        Minutes,
+        Hours,
+        Days,
+        Years,
+        Decades,
+        Centuries,
+        Millennia
+    };
+    Q_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag);
 
-    TimeBreakdown GetTimeBreakdown(const TimeRange &,
-                                   TimeBreakdown::TimeBreakdownEnum tbe = TimeBreakdown::Traditional);
+    inline TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &end_time, int timeBreakdownFlags) const{
+        return GetTimeDistanceBreakdown(*this, end_time, timeBreakdownFlags);
+    }
+    static TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &start_time,
+                                                  const GDateTime &end_time,
+                                                  int timeBreakdownFlags);
+
+
+private:
+
+    // Returns the number of units subtracted
+    static long long _subtract_time_units(long long &msecs, long long how_many_msecs_per_unit);
 
 };
 
