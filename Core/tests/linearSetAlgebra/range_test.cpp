@@ -60,6 +60,31 @@ void RangeTest::testBasics()
     QVERIFY(!tr1.IsNull());
     QVERIFY(tr1.IsUniverse());
     QVERIFY(!tr1.IsBounded());
+
+    // Test the contains functionality
+    reg = IntegerRange(-1, 1);
+    for(int i = -10; i <= -2; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = -1; i <= 1; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 2; i <= 10; i++)
+        QVERIFY(!reg.Contains(i));
+
+    tr1 = IntegerRange();
+    tr1.SetLowerBound(0);
+    reg = tr1;
+    for(int i = -10; i <= -1; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 0; i <= 10; i++)
+        QVERIFY(reg.Contains(i));
+
+    tr1 = IntegerRange();
+    tr1.SetUpperBound(0);
+    reg = tr1;
+    for(int i = -10; i <= 0; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 1; i <= 10; i++)
+        QVERIFY(!reg.Contains(i));
 }
 
 
@@ -333,7 +358,19 @@ void RangeTest::testUnions()
 
 void RangeTest::testComplement()
 {
+    IntegerRegion reg;
 
+    /*    |--|   */
+    reg = IntegerRange(-5, 5);
+    reg = reg.Complement();
+    for(int i = -10; i <= -6; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = -5; i <= 5; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 6; i <= 10; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
 }
 
 void RangeTest::testSymmetricDifference()

@@ -152,7 +152,7 @@ public:
         return Region<T>(_p_MinimumResolution);
     }
     inline Region<T> UniverseSet() const{
-        return Region<T>(Range<T>::UniverseSet(_p_MinimumResolution));
+        return Region<T>(Range<T>::Universe(_p_MinimumResolution));
     }
 
     // The number of independent ranges it takes to sum into this region
@@ -171,7 +171,8 @@ public:
         return ~(~one | ~two);
     }
 
-    Region<T> Complement(const Region<T> &r = UniverseSet()) const;
+    Region<T> Complement(const Region<T> &r) const;
+    inline Region<T> Complement() const{ return Complement(Region<T>::UniverseSet()); }
 
     inline Region<T> SymmetricDifference(const Region<T> &r) const{ return SymmetricDifference(*this, r); }
     inline static Region<T> SymmetricDifference(const Region<T> &r1, const Region<T> &r2){
@@ -417,16 +418,18 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
     // We can get the complement by using Universal complements and Unions alone.
     //  This is important, because we'll be using complements to determine intersects,
     //  so we don't want to create a circular dependency.
+    Region<T> ret(_p_MinimumResolution);
 
     if(r.IsUniverseSet())
     {
         // In this case, we're taking the 'absolute complement' which is simply
         //  the inverse of our region.
+        ret = *this;
 
         if(Region<T>::IsNull())
-            m_ranges.push_back(Range<T>::Universe());   // Opposite of null is the universe
+            ret.m_ranges.push_back(Range<T>::Universe(_p_MinimumResolution));   // Opposite of null is the universe
         else if(Region<T>::IsUniverseSet())
-            m_ranges.clear();   // Opposite of null is universe
+            ret.m_ranges.clear();   // Opposite of null is universe
         else
         {
             // To get a region's complement wrt the Universe, we iterate through each
@@ -435,37 +438,37 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
             //  the overlapping areas.
 
             // Swap the lower bound and upper bound for every range
-            for(typename std::vector< Range<T> >::iterator iter(m_ranges.begin());
-                iter != m_ranges.end();
+            for(typename std::vector< Range<T> >::iterator iter(ret.m_ranges.begin());
+                iter != ret.m_ranges.end();
                 iter++)
             {
                 bool m_modified(iter->lb_modified);
-                T mem( iter->GetLowerBound() );
+                T mem( iter->LowerBound() );
 
-                iter->SetLowerBound( iter->GetUpperBound());
+                iter->SetLowerBound( iter->UpperBound());
                 iter->SetUpperBound( mem );
                 iter->lb_modified = iter->ub_modified;
                 iter->ub_modified = m_modified;
 
                 if(iter->lb_modified)
-                    iter->SetLowerBound(iter->GetLowerBound() + _p_MinimumResolution);
+                    iter->SetLowerBound(iter->LowerBound() + _p_MinimumResolution);
                 if(iter->ub_modified)
-                    iter->SetuUpperBound(iter->GetUpperBound() - _p_MinimumResolution);
+                    iter->SetUpperBound(iter->UpperBound() - _p_MinimumResolution);
             }
 
             // Now go through one range at a time, merging/removing indexes as needed
             //  Append new ranges to the end of the list, remove items directly from
             //  the list (that's why we iterate backwards through the list)
-            for(typename std::vector< Range<T> >::iterator cur(m_ranges.end() - 1);
-                m_ranges.begin() <= cur;
+            for(typename std::vector< Range<T> >::iterator cur(ret.m_ranges.end() - 1);
+                ret.m_ranges.begin() <= cur;
                 /* cur will decrement according to certain conditions in the loop */)
             {
                 bool min_found(false), max_found(false);
                 T min, max;
 
                 // Find the closest neigboring bound to our upper and lower bounds
-                for(typename std::vector< Range<T> >::iterator iter(m_ranges.begin());
-                    iter != m_ranges.end();
+                for(typename std::vector< Range<T> >::iterator iter(ret.m_ranges.begin());
+                    iter != ret.m_ranges.end();
                     iter++)
                 {
                     if(*iter == *cur)
@@ -473,33 +476,33 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                         if(cur->lb_modified && cur->ub_modified)
                         {
                             if(min_found)
-                                min = gMin(min, cur->GetUpperBound());
+                                min = gMin(min, cur->UpperBound());
                             else
                             {
-                                min = cur->GetUpperBound();
+                                min = cur->UpperBound();
                                 min_found = true;
                             }
 
                             if(max_found)
-                                max = gMax(max, cur->GetLowerBound());
+                                max = gMax(max, cur->LowerBound());
                             else
                             {
-                                max = cur->GetLowerBound();
+                                max = cur->LowerBound();
                                 max_found = true;
                             }
                         }
                         if(cur->ub_modified)
                         {
-                            max = gMax(max, cur->GetLowerBound());
+                            max = gMax(max, cur->LowerBound());
                         }
                     }
                     else
                     {
                         if(cur->lb_modified)
                         {
-                            T tmp(gMin(iter->GetLowerBound(), iter->GetUpperBound()));
+                            T tmp(gMin(iter->LowerBound(), iter->UpperBound()));
 
-                            if(cur->GetLowerBound() <= tmp)
+                            if(cur->LowerBound() <= tmp)
                             {
                                 if(min_found)
                                     min = gMin(min, tmp);
@@ -513,9 +516,9 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
 
                         if(cur->ub_modified)
                         {
-                            T tmp(gMax(iter->GetLowerBound(), iter->GetUpperBound()));
+                            T tmp(gMax(iter->LowerBound(), iter->UpperBound()));
 
-                            if(tmp <= cur->GetUpperBound())
+                            if(tmp <= cur->UpperBound())
                             {
                                 if(max_found)
                                     max = gMax(max, tmp);
@@ -533,7 +536,7 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
 
                 if(cur->lb_modified && min_found)
                 {
-                    if(cur->GetLowerBound() == min)
+                    if(cur->LowerBound() == min)
                     {
                         // Null out the lower bound, because it's already
                         // represented by another range
@@ -543,12 +546,12 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                     {
                         if(cur->ub_modified)
                         {
-                            if(cur->GetUpperBound() != min)
+                            if(cur->UpperBound() != min)
                             {
                                 // Our upper bound has already been set, so move
                                 //  our lower bound to another range and append it
                                 //  to the list
-                                m_ranges.push_back(Range<T>(cur->GetLowerBound(), min, _p_MinimumResolution));
+                                ret.m_ranges.push_back(Range<T>(cur->LowerBound(), min, _p_MinimumResolution));
                                 cur->lb_modified = false;
                             }
                         }
@@ -564,7 +567,7 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
 
                 if(cur->ub_modified && max_found)
                 {
-                    if(cur->GetUpperBound() == max)
+                    if(cur->UpperBound() == max)
                     {
                         cur->ub_modified = false;
                     }
@@ -572,9 +575,9 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                     {
                         if(cur->lb_modified)
                         {
-                            if(cur->GetLowerBound() != max)
+                            if(cur->LowerBound() != max)
                             {
-                                m_ranges.push_back(Range<T>(max, cur->GetUpperBound(), _p_MinimumResolution));
+                                ret.m_ranges.push_back(Range<T>(max, cur->UpperBound(), _p_MinimumResolution));
                                 cur->ub_modified = false;
                             }
                         }
@@ -595,7 +598,7 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
 
                     // Decrement the iterator before erasing!
                     cur--;
-                    m_ranges.erase(tmp);
+                    ret.m_ranges.erase(tmp);
                 }
                 else
                     cur--;
@@ -606,8 +609,10 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
     {
         // To get the relative complement of this in 'r' (r - this), we can express
         //  it as (this & ~r) which is equal to ~(~this | r)
-        return ~(Region<T>::Complement() | r);
+        ret = ~(Region<T>::Complement() | r);
     }
+
+    return ret;
 }
 
 template <class T>
@@ -641,9 +646,9 @@ class IntegerRegion :
         public Region<int>
 {
 public:
-    inline IntegerRegion()
-        :Region<int>(1){}
-    inline IntegerRegion(const Region<int> &other) : Region<int>(other){}
+    inline IntegerRegion()  :Region<int>(1){}
+    inline IntegerRegion(const Region<int> &other) :Region<int>(other){}
+    inline IntegerRegion(const IntegerRange &other) :Region<int>(other){}
 };
 
 
