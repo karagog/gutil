@@ -343,29 +343,46 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
             // If one range is bounded and another is unbounded
             if(range1_unbounded || range2_unbounded)
             {
+                bool disjoint(true);
                 const Range<T> *unbounded_range(range1_unbounded ? &r1 : &r2);
                 const Range<T> *bounded_range(range1_unbounded ? &r2 : &r1);
 
-                if(unbounded_range->ub_modified &&
-                        (bounded_range->_p_LowerBound < unbounded_range->_p_UpperBound ||
-                         bounded_range->_p_LowerBound == unbounded_range->_p_UpperBound))
+                ret.m_ranges.push_back(Range<T>(r1.m_minres));
+                Range<T> &range_ref(ret.m_ranges.back());
+
+                if(unbounded_range->ub_modified)
                 {
-                    Range<T> r(r1.m_minres);
-                    r.SetUpperBound(gMax(unbounded_range->_p_UpperBound, bounded_range->_p_UpperBound));
-                    ret.m_ranges.push_back(r);
+                    T val;
+                    if((bounded_range->_p_LowerBound < unbounded_range->_p_UpperBound ||
+                        bounded_range->_p_LowerBound == unbounded_range->_p_UpperBound))
+                    {
+                        val = gMax(unbounded_range->_p_UpperBound,
+                                   bounded_range->_p_UpperBound);
+                        disjoint = false;
+                    }
+                    else
+                        val = unbounded_range->UpperBound();
+                    range_ref.SetUpperBound(val);
                 }
-                else if(unbounded_range->lb_modified &&
-                        (unbounded_range->_p_LowerBound < bounded_range->_p_UpperBound ||
-                         unbounded_range->_p_LowerBound == bounded_range->_p_UpperBound))
+
+                if(unbounded_range->lb_modified)
                 {
-                    Range<T> r(r1.m_minres);
-                    r.SetLowerBound(gMin(unbounded_range->_p_LowerBound, bounded_range->_p_LowerBound));
-                    ret.m_ranges.push_back(r);
+                    T val;
+                    if(unbounded_range->_p_LowerBound < bounded_range->_p_UpperBound ||
+                            unbounded_range->_p_LowerBound == bounded_range->_p_UpperBound)
+                    {
+                        val = gMin(unbounded_range->_p_LowerBound, bounded_range->_p_LowerBound);
+                        disjoint = false;
+                    }
+                    else
+                        val = unbounded_range->LowerBound();
+                    range_ref.SetLowerBound(val);
                 }
-                else
+
+
+                if(disjoint)
                 {
-                    // Though one range is unbounded, they are still disjoint, so add
-                    ret.m_ranges.push_back(r1);
+                    // In the disjoint case, just add the second range
                     ret.m_ranges.push_back(r2);
                 }
             }

@@ -213,7 +213,31 @@ void RangeTest::testUnions()
     QVERIFY(!reg.Contains(INFINITY));
 
 
-    // Then a range with both ranges unbounded
+    // Then a range with both ends unbounded
+    /* <----|         |---->
+      |---|                 */
+    reg = IntegerRegion::Union(IntegerRange(5, -5), IntegerRange(-15, -10));
+    for(int i = -100; i <= -5; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = -4; i <= 4; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 5; i <= 100; i++)
+        QVERIFY2(reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
+
+    /* <----|         |---->
+           |---|            */
+
+    /* <----|         |---->
+               |---|         */
+
+    /* <----|         |---->
+                    |---|    */
+
+
+    /* <----|         |---->
+                       |---| */
 }
 
 void RangeTest::testComplement()
