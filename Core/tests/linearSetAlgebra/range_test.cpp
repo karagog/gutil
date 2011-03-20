@@ -381,6 +381,30 @@ void RangeTest::testComplement()
         QVERIFY(!reg.Contains(i));
     QVERIFY(reg.Contains(-INFINITY));
     QVERIFY(!reg.Contains(INFINITY));
+
+    /*    <---|   */
+    r = IntegerRange();
+    r.SetUpperBound(0);
+    reg = IntegerRegion(r).Complement();
+    for(int i = -10; i <= 0; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 1; i <= 10; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
+
+    /*    <--->   */
+    r = r.Universe();
+    reg = IntegerRegion(r).Complement();
+    QVERIFY(reg.IsNull());
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
+
+    /*       */
+    reg = reg.NullSet().Complement();
+    QVERIFY(reg.IsUniverseSet());
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
 }
 
 void RangeTest::testSymmetricDifference()
