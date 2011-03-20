@@ -405,6 +405,21 @@ void RangeTest::testComplement()
     QVERIFY(reg.IsUniverseSet());
     QVERIFY(reg.Contains(-INFINITY));
     QVERIFY(reg.Contains(INFINITY));
+
+    /*    |---|   |---|  becomes...   <---|   |--|   |--->   */
+    reg = ~IntegerRegion::Union(IntegerRange(-10, -5), IntegerRange(5, 10));
+    for(int i = -20; i <= -11; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = -10; i <= -5; i++)
+        QVERIFY2(!reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+    for(int i = -4; i <= 4; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 5; i <= 10; i++)
+        QVERIFY2(!reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+    for(int i = 11; i <= 20; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
 }
 
 void RangeTest::testSymmetricDifference()

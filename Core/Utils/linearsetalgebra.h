@@ -460,10 +460,11 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
             // Now go through one range at a time, merging/removing indexes as needed
             //  Append new ranges to the end of the list, remove items directly from
             //  the list (that's why we iterate backwards through the list)
-            for(typename std::vector< Range<T> >::iterator cur(ret.m_ranges.end() - 1);
-                ret.m_ranges.begin() <= cur;
-                /* cur will decrement according to certain conditions in the loop */)
+            typename std::vector< Range<T> >::iterator cur(ret.m_ranges.end());
+            for(int i = ret.m_ranges.size() - 1; 0 <= i; i--)
             {
+                Range<T> *cur( &ret.m_ranges.at(i) );
+
                 bool min_found(false), max_found(false);
                 T min, max;
 
@@ -474,7 +475,9 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                 {
                     if(*iter == *cur)
                     {
-                        if(cur->lb_modified && cur->ub_modified)
+                        if(cur->lb_modified && cur->ub_modified &&
+                                (cur->LowerBound() < cur->UpperBound() ||
+                                 cur->LowerBound() == cur->UpperBound()))
                         {
                             if(min_found)
                                 min = gMin(min, cur->UpperBound());
@@ -491,10 +494,6 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                                 max = cur->LowerBound();
                                 max_found = true;
                             }
-                        }
-                        if(cur->ub_modified)
-                        {
-                            max = gMax(max, cur->LowerBound());
                         }
                     }
                     else
@@ -552,8 +551,12 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                                 // Our upper bound has already been set, so move
                                 //  our lower bound to another range and append it
                                 //  to the list
-                                ret.m_ranges.push_back(Range<T>(cur->LowerBound(), min, _p_MinimumResolution));
                                 cur->lb_modified = false;
+                                ret.m_ranges.push_back(Range<T>(cur->LowerBound(), min, _p_MinimumResolution));
+
+                                // Cur gets invalidated by the last push_back,
+                                //  so reset it
+                                cur = &ret.m_ranges.at(i);
                             }
                         }
                         else
@@ -561,7 +564,6 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                             // Our upper bound has not been used yet, so we'll
                             //  set it to the location of the nearest boundary
                             cur->SetUpperBound(min);
-                            cur->ub_modified = true;
                         }
                     }
                 }
@@ -578,14 +580,14 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                         {
                             if(cur->LowerBound() != max)
                             {
-                                ret.m_ranges.push_back(Range<T>(max, cur->UpperBound(), _p_MinimumResolution));
                                 cur->ub_modified = false;
+                                ret.m_ranges.push_back(Range<T>(max, cur->UpperBound(), _p_MinimumResolution));
+                                cur = &ret.m_ranges.at(i);
                             }
                         }
                         else
                         {
                             cur->SetLowerBound(max);
-                            cur->lb_modified = true;
                         }
                     }
                 }
@@ -595,14 +597,8 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                 if(cur->IsNull())
                 {
                     // Erase the null Range
-                    typename std::vector< Range<T> >::iterator tmp(cur);
-
-                    // Decrement the iterator before erasing!
-                    cur--;
-                    ret.m_ranges.erase(tmp);
+                    ret.m_ranges.erase(ret.m_ranges.begin() + i);
                 }
-                else
-                    cur--;
             }
         }
     }
