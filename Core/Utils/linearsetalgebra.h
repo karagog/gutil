@@ -442,13 +442,14 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                 iter != ret.m_ranges.end();
                 iter++)
             {
-                bool m_modified(iter->lb_modified);
+                bool m_lb_modified(iter->lb_modified);
+                bool m_ub_modified(iter->ub_modified);
                 T mem( iter->LowerBound() );
 
                 iter->SetLowerBound( iter->UpperBound());
                 iter->SetUpperBound( mem );
-                iter->lb_modified = iter->ub_modified;
-                iter->ub_modified = m_modified;
+                iter->lb_modified = m_ub_modified;
+                iter->ub_modified = m_lb_modified;
 
                 if(iter->lb_modified)
                     iter->SetLowerBound(iter->LowerBound() + _p_MinimumResolution);

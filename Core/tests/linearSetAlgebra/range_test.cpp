@@ -361,8 +361,7 @@ void RangeTest::testComplement()
     IntegerRegion reg;
 
     /*    |--|   */
-    reg = IntegerRange(-5, 5);
-    reg = reg.Complement();
+    reg = IntegerRegion( IntegerRange(-5, 5) ).Complement();
     for(int i = -10; i <= -6; i++)
         QVERIFY(reg.Contains(i));
     for(int i = -5; i <= 5; i++)
@@ -371,6 +370,17 @@ void RangeTest::testComplement()
         QVERIFY(reg.Contains(i));
     QVERIFY(reg.Contains(-INFINITY));
     QVERIFY(reg.Contains(INFINITY));
+
+    /*    |--->   */
+    IntegerRange r;
+    r.SetLowerBound(0);
+    reg = IntegerRegion(r).Complement();
+    for(int i = -10; i <= -1; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 0; i <= 10; i++)
+        QVERIFY(!reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
 }
 
 void RangeTest::testSymmetricDifference()
