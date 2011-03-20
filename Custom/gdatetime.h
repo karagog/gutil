@@ -33,6 +33,14 @@ public:
     GDateTime(const QDateTime &other = QDateTime());
     GDateTime(const QDate &);
 
+    inline static GDateTime Origin(){
+        return fromMSecsSinceEpoch(0);
+    }
+
+    // Adding/Subtracting date times is done by adding/subtracting the distance
+    //  since the last epoch
+    GDateTime operator + (const GDateTime &) const;
+    GDateTime operator - (const GDateTime &) const;
 
     // Another set of classes/functions for breaking down the distance between times
     class TimeBreakdown
@@ -83,33 +91,6 @@ public:
     TimeBreakdown GetTimeBreakdown(const TimeRange &,
                                    TimeBreakdown::TimeBreakdownEnum tbe = TimeBreakdown::Traditional);
 
-};
-
-
-// These are trivial declarations of the time range objects, built off
-//  the low-level set operator class to support QDateTimes
-class TimeRange :
-        public Core::Utils::Range<GDateTime>
-{
-public:
-    TimeRange(const GDateTime &lb = GDateTime(),
-              const GDateTime &ub = GDateTime())
-        :Core::Utils::Range<GDateTime>(lb, ub)
-    {}
-protected:
-    bool is_value_null(const GDateTime &v) const{
-        return v.isNull();
-    }
-};
-
-class TimeRegion :
-        public Core::Utils::Region<GDateTime>
-{
-public:
-    inline TimeRegion(){}
-    inline TimeRegion(const Core::Utils::Region<GDateTime> &r)
-        :Core::Utils::Region<GDateTime>(r)
-    {}
 };
 
 

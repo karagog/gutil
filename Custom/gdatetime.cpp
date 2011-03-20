@@ -22,3 +22,13 @@ GDateTime::GDateTime(const QDateTime &other)
 GDateTime::GDateTime(const QDate &dt)
     :QDateTime(dt)
 {}
+
+GDateTime GDateTime::operator + (const GDateTime &other) const
+{
+    return addMSecs(Origin().msecsTo(other));
+}
+
+GDateTime GDateTime::operator - (const GDateTime &other) const
+{
+    return addMSecs(-Origin().msecsTo(other));
+}
