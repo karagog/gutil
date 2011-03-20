@@ -148,7 +148,7 @@ void RangeTest::testUnions()
     r1.SetLowerBound(0);
     reg = IntegerRegion::Union(r1, IntegerRange(-25, -20));
     for(int i = -30; i <= -26; i++)
-        QVERIFY2(!reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+        QVERIFY(!reg.Contains(i));
     for(int i = -25; i <= -20; i++)
         QVERIFY(reg.Contains(i));
     for(int i = -19; i <= -1; i++)
@@ -160,15 +160,57 @@ void RangeTest::testUnions()
 
     /*        |---->
             |---|       */
+    r1 = IntegerRange();
+    r1.SetLowerBound(0);
+    reg = IntegerRegion::Union(r1, IntegerRange(-5, 5));
+    for(int i = -30; i <= -6; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = -5; i <= 100; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
+
 
     /*        <----|
             |---|       */
+    r1 = IntegerRange();
+    r1.SetUpperBound(0);
+    reg = IntegerRegion::Union(r1, IntegerRange(-20, -15));
+    for(int i = -100; i <= 0; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 1; i <= 20; i++)
+        QVERIFY(!reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
 
     /* <----|
                |---|    */
+    r1 = IntegerRange();
+    r1.SetUpperBound(0);
+    reg = IntegerRegion::Union(r1, IntegerRange(10, 15));
+    for(int i = -100; i <= 0; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 1; i <= 9; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 10; i <= 15; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 16; i <= 100; i++)
+        QVERIFY(!reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
+
 
     /* <----|
           |---|         */
+    r1 = IntegerRange();
+    r1.SetUpperBound(0);
+    reg = IntegerRegion::Union(r1, IntegerRange(-5, 5));
+    for(int i = -100; i <= 5; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = 6; i <= 100; i++)
+        QVERIFY(!reg.Contains(i));
+    QVERIFY(reg.Contains(-INFINITY));
+    QVERIFY(!reg.Contains(INFINITY));
 
 
     // Then a range with both ranges unbounded
