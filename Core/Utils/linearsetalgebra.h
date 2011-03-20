@@ -55,7 +55,7 @@ public:
                     false :
                     (!lb_modified && !ub_modified) ?
                         true :
-                        (_p_LowerBound < _p_UpperBound);
+                        (_p_LowerBound < _p_UpperBound || _p_LowerBound == _p_UpperBound);
     }
 
     inline bool IsUniverse() const{
@@ -437,11 +437,118 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
             // Now go through one range at a time, merging/removing indexes as needed
             //  Append new ranges to the end of the list, remove items directly from
             //  the list (that's why we iterate backwards through the list)
-            for(typename std::vector< Range<T> >::iterator iter(m_ranges.end() - 1);
-                m_ranges.begin() <= iter;
-                iter--)
+            for(typename std::vector< Range<T> >::iterator cur(m_ranges.end() - 1);
+                m_ranges.begin() <= cur;
+                /* cur will decrement according to certain conditions in the loop */)
             {
+                if(cur->IsBounded())
+                { cur--; continue; }
 
+                bool min_found(false), max_found(false);
+                T min, max;
+
+                // Find the closest neigboring bound to our upper and lower bounds
+                for(typename std::vector< Range<T> >::iterator iter(m_ranges.begin());
+                    iter != m_ranges.end();
+                    iter++)
+                {
+                    if(cur->lb_modified)
+                    {
+                        T tmp(gMin(iter->GetLowerBound(), iter->GetUpperBound()));
+
+                        if(cur->GetLowerBound() <= tmp)
+                        {
+                            if(min_found)
+                                min = gMin(min, tmp);
+                            else
+                            {
+                                min = tmp;
+                                min_found = true;
+                            }
+                        }
+                    }
+
+                    if(cur->ub_modified)
+                    {
+                        T tmp(gMax(iter->GetLowerBound(), iter->GetUpperBound()));
+
+                        if(tmp <= cur->GetUpperBound())
+                        {
+                            if(max_found)
+                                max = gMax(max, tmp);
+                            else
+                            {
+                                max = tmp;
+                                max_found = true;
+                            }
+                        }
+                    }
+                }
+
+
+
+                if(cur->lb_modified && min_found)
+                {
+                    if(cur->GetLowerBound() == min)
+                    {
+                        // Null out the lower bound, because it's already
+                        // represented by another range
+                        cur->lb_modified = false;
+                    }
+                    else
+                    {
+                        if(cur->ub_modified)
+                        {
+                            // Our upper bound has already been set, so move
+                            //  our lower bound to another range and append it
+                            //  to the list
+                            m_ranges.push_back(Range<T>(cur->GetLowerBound(), min, _p_MinimumResolution));
+                            cur->lb_modified = false;
+                        }
+                        else
+                        {
+                            // Our upper bound has not been used yet, so we'll
+                            //  set it to the location of the nearest boundary
+                            cur->SetUpperBound(min);
+                            cur->ub_modified = true;
+                        }
+                    }
+                }
+
+                if(cur->ub_modified && max_found)
+                {
+                    if(cur->GetUpperBound() == max)
+                    {
+                        cur->ub_modified = false;
+                    }
+                    else
+                    {
+                        if(cur->lb_modified)
+                        {
+                            m_ranges.push_back(Range<T>(max, cur->GetUpperBound(), _p_MinimumResolution));
+                            cur->ub_modified = false;
+                        }
+                        else
+                        {
+                            cur->SetLowerBound(max);
+                            cur->lb_modified = true;
+                        }
+                    }
+                }
+
+
+
+                if(cur->IsNull())
+                {
+                    // Erase the null Range
+                    typename std::vector< Range<T> >::iterator tmp(cur);
+
+                    // Decrement the iterator before erasing!
+                    cur--;
+                    m_ranges.erase(tmp);
+                }
+                else
+                    cur--;
             }
         }
     }
