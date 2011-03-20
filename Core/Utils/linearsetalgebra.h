@@ -460,9 +460,6 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                 m_ranges.begin() <= cur;
                 /* cur will decrement according to certain conditions in the loop */)
             {
-                if(cur->IsBounded())
-                { cur--; continue; }
-
                 bool min_found(false), max_found(false);
                 T min, max;
 
@@ -471,34 +468,62 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                     iter != m_ranges.end();
                     iter++)
                 {
-                    if(cur->lb_modified)
+                    if(*iter == *cur)
                     {
-                        T tmp(gMin(iter->GetLowerBound(), iter->GetUpperBound()));
-
-                        if(cur->GetLowerBound() <= tmp)
+                        if(cur->lb_modified && cur->ub_modified)
                         {
                             if(min_found)
-                                min = gMin(min, tmp);
+                                min = gMin(min, cur->GetUpperBound());
                             else
                             {
-                                min = tmp;
+                                min = cur->GetUpperBound();
                                 min_found = true;
                             }
-                        }
-                    }
 
-                    if(cur->ub_modified)
-                    {
-                        T tmp(gMax(iter->GetLowerBound(), iter->GetUpperBound()));
-
-                        if(tmp <= cur->GetUpperBound())
-                        {
                             if(max_found)
-                                max = gMax(max, tmp);
+                                max = gMax(max, cur->GetLowerBound());
                             else
                             {
-                                max = tmp;
+                                max = cur->GetLowerBound();
                                 max_found = true;
+                            }
+                        }
+                        if(cur->ub_modified)
+                        {
+                            max = gMax(max, cur->GetLowerBound());
+                        }
+                    }
+                    else
+                    {
+                        if(cur->lb_modified)
+                        {
+                            T tmp(gMin(iter->GetLowerBound(), iter->GetUpperBound()));
+
+                            if(cur->GetLowerBound() <= tmp)
+                            {
+                                if(min_found)
+                                    min = gMin(min, tmp);
+                                else
+                                {
+                                    min = tmp;
+                                    min_found = true;
+                                }
+                            }
+                        }
+
+                        if(cur->ub_modified)
+                        {
+                            T tmp(gMax(iter->GetLowerBound(), iter->GetUpperBound()));
+
+                            if(tmp <= cur->GetUpperBound())
+                            {
+                                if(max_found)
+                                    max = gMax(max, tmp);
+                                else
+                                {
+                                    max = tmp;
+                                    max_found = true;
+                                }
                             }
                         }
                     }
@@ -518,11 +543,14 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                     {
                         if(cur->ub_modified)
                         {
-                            // Our upper bound has already been set, so move
-                            //  our lower bound to another range and append it
-                            //  to the list
-                            m_ranges.push_back(Range<T>(cur->GetLowerBound(), min, _p_MinimumResolution));
-                            cur->lb_modified = false;
+                            if(cur->GetUpperBound() != min)
+                            {
+                                // Our upper bound has already been set, so move
+                                //  our lower bound to another range and append it
+                                //  to the list
+                                m_ranges.push_back(Range<T>(cur->GetLowerBound(), min, _p_MinimumResolution));
+                                cur->lb_modified = false;
+                            }
                         }
                         else
                         {
@@ -544,8 +572,11 @@ Region<T> Region<T>::Complement(const Region<T> &r) const
                     {
                         if(cur->lb_modified)
                         {
-                            m_ranges.push_back(Range<T>(max, cur->GetUpperBound(), _p_MinimumResolution));
-                            cur->ub_modified = false;
+                            if(cur->GetLowerBound() != max)
+                            {
+                                m_ranges.push_back(Range<T>(max, cur->GetUpperBound(), _p_MinimumResolution));
+                                cur->ub_modified = false;
+                            }
                         }
                         else
                         {
