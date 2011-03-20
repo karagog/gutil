@@ -346,15 +346,17 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
                 const Range<T> *unbounded_range(range1_unbounded ? &r1 : &r2);
                 const Range<T> *bounded_range(range1_unbounded ? &r2 : &r1);
 
-                if( bounded_range->_p_LowerBound < unbounded_range->_p_UpperBound ||
-                        bounded_range->_p_LowerBound == unbounded_range->_p_UpperBound)
+                if(unbounded_range->ub_modified &&
+                        (bounded_range->_p_LowerBound < unbounded_range->_p_UpperBound ||
+                         bounded_range->_p_LowerBound == unbounded_range->_p_UpperBound))
                 {
                     Range<T> r(r1.m_minres);
                     r.SetUpperBound(gMax(unbounded_range->_p_UpperBound, bounded_range->_p_UpperBound));
                     ret.m_ranges.push_back(r);
                 }
-                else if(unbounded_range->_p_LowerBound < bounded_range->_p_UpperBound ||
-                        unbounded_range->_p_LowerBound == bounded_range->_p_UpperBound)
+                else if(unbounded_range->lb_modified &&
+                        (unbounded_range->_p_LowerBound < bounded_range->_p_UpperBound ||
+                         unbounded_range->_p_LowerBound == bounded_range->_p_UpperBound))
                 {
                     Range<T> r(r1.m_minres);
                     r.SetLowerBound(gMin(unbounded_range->_p_LowerBound, bounded_range->_p_LowerBound));

@@ -132,9 +132,31 @@ void RangeTest::testUnions()
     //  the ranges in the argument list)
     /*    |---->
                |---|    */
+    r1 = IntegerRange();
+    r1.SetLowerBound(0);
+    reg = IntegerRegion::Union(r1, IntegerRange(15, 20));
+    for(int i = -20; i <= -1; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 0; i <= 100; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
 
     /*        |---->
        |---|            */
+    r1 = IntegerRange();
+    r1.SetLowerBound(0);
+    reg = IntegerRegion::Union(r1, IntegerRange(-25, -20));
+    for(int i = -30; i <= -26; i++)
+        QVERIFY2(!reg.Contains(i), QString("%1").arg(i).toStdString().c_str());
+    for(int i = -25; i <= -20; i++)
+        QVERIFY(reg.Contains(i));
+    for(int i = -19; i <= -1; i++)
+        QVERIFY(!reg.Contains(i));
+    for(int i = 0; i <= 100; i++)
+        QVERIFY(reg.Contains(i));
+    QVERIFY(!reg.Contains(-INFINITY));
+    QVERIFY(reg.Contains(INFINITY));
 
     /*        |---->
             |---|       */
@@ -149,7 +171,7 @@ void RangeTest::testUnions()
           |---|         */
 
 
-    // Then test both ranges unbounded
+    // Then a range with both ranges unbounded
 }
 
 void RangeTest::testComplement()
