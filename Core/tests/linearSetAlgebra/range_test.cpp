@@ -387,6 +387,18 @@ void RangeTest::testUnions()
          <---|    |--->                  */
     reg = IntegerRegion::Union(IntegerRange(25, 15), IntegerRange(5, -5));
     QVERIFY(reg.IsUniverseSet());
+
+    /*   <----|   |---->
+             <---|    |--->   */
+    // This test is slightly different than the other one that looks like it,
+    //  because the bounds are adjacent to each other
+    reg = IntegerRegion::Union(IntegerRange(5, 0), IntegerRange(10, 4));
+    QVERIFY(reg.IsUniverseSet());
+
+    /*   <----|   |---->
+      <---|    |--->       */
+    reg = IntegerRegion::Union(IntegerRange(5, 0), IntegerRange(1, -5));
+    QVERIFY(reg.IsUniverseSet());
 }
 
 void RangeTest::testComplement()
@@ -477,6 +489,11 @@ void RangeTest::testIntercept()
     /*    |---|
                     |---|     */
     reg = IntegerRegion::Intersect(IntegerRange(-10, -5), IntegerRange(5, 10) );
+    QVERIFY(reg.IsNull());
+
+    /*    |---|
+               |---|     */
+    reg = IntegerRegion::Intersect(IntegerRange(0, 5), IntegerRange(6, 10) );
     QVERIFY(reg.IsNull());
 
     /*    |---|

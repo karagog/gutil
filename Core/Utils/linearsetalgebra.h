@@ -343,14 +343,19 @@ Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
         }
         else if(r2._p_UpperBound < r2._p_LowerBound)
         {
+            // We have to increment one of the bounds to account for the case
+            //  when they're adjacent
+            const T r1_upper_incremented(r1._p_UpperBound + r1.m_minres);
+            const T r2_upper_incremented(r2._p_UpperBound + r2.m_minres);
+
             if(range1_unbounded &&
                     ((r1.lb_modified &&
-                      (r1._p_LowerBound < r2._p_UpperBound ||
-                       r1._p_LowerBound == r2._p_UpperBound))
+                      (r1._p_LowerBound < r2_upper_incremented ||
+                       r1._p_LowerBound == r2_upper_incremented))
                      ||
                      (r1.ub_modified &&
-                      (r2._p_LowerBound < r1._p_UpperBound ||
-                       r2._p_LowerBound == r1._p_UpperBound))))
+                      (r2._p_LowerBound < r1_upper_incremented ||
+                       r2._p_LowerBound == r1_upper_incremented))))
             {
                 is_universe = true;
             }
