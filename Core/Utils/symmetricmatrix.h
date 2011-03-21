@@ -34,6 +34,16 @@ public:
         for(int i = 0; i < size; i++)
             m_matrix.push_back(std::vector<T>(i + 1));
     }
+    SymmetricMatrix(int size, const T &initial_value)
+        :Interfaces::IMatrix<T>(size, size)
+    {
+        for(int i = 0; i < size; i++)
+        {
+            m_matrix.push_back(std::vector<T>(i + 1));
+            for(int j = 0; j < i + 1; j++)
+                m_matrix.back().at(j) = initial_value;
+        }
+    }
 
     T& Value(int row, int col){
         _transform_indeces(row, col);
