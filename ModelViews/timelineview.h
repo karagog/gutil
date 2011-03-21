@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QPointer>
 #include <QRubberBand>
 #include <QDateTime>
+#include <QMap>
 #include "gutil_macros.h"
 
 class QDateTimeEdit;
@@ -158,7 +159,26 @@ private:
     int m_previousVerticalScrollbarPosition;
     int m_previousHorizontalScrollbarPosition;
     QDateTimeEdit *m_dateTimeEdit;
+
     void _commit_dateTime_editor();
+
+
+    // For remembering the positions of the items, like when there are time conflicts
+    class ItemCache
+    {
+    public:
+
+        int ConflictDepth;
+        int Position;
+
+        inline ItemCache()
+            :ConflictDepth(-1),
+              Position(-1)
+        {}
+
+    };
+
+    QMap<QPersistentModelIndex, ItemCache> _item_cache;
 
 };
 

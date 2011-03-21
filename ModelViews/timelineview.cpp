@@ -13,6 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "timelineview.h"
+#include "Core/Utils/symmetricmatrix.h"
+#include "DataObjects/timeregion.h"
 #include <QPaintEvent>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -31,6 +33,8 @@ limitations under the License.*/
 #define MIN_WIDTH 500
 #define TIMELINE_TOPBOTTOM_MARGIN 11
 GUTIL_USING_NAMESPACE(ModelViews);
+GUTIL_USING_CORE_NAMESPACE(Utils);
+GUTIL_USING_NAMESPACE(DataObjects);
 
 
 TimelineView::TimelineView(QWidget *p)
@@ -797,6 +801,41 @@ void TimelineView::reset()
         m_dateTimeEdit->deleteLater();
         m_dateTimeEdit = 0;
         m_editingIndex = QModelIndex();
+    }
+
+    // Refresh our cache of the timeline items
+    _item_cache.clear();
+
+    if(model())
+    {
+        const int rows(model()->rowCount());
+        SymmetricMatrix<int> conflict_depth_matrix( rows, 0 );
+
+        for(int i = 0; i < rows; i++)
+        {
+            QModelIndex ind(model()->index(i, 0));
+
+            // Populate the conflict depth matrix with any indexes that conflict
+            for(int j = i - 1; j >= 0; j--)
+            {
+                QModelIndex cmp(model()->index(j, 0));
+
+                // If the intersection of the time ranges is not null...
+                if(!TimeRegion::Intersect(
+                            TimeRange(ind.data(StartDate).toDateTime(),
+                                      ind.data(EndDate).toDateTime(),
+                                      _resolution_in_seconds * 1000),
+                            TimeRange(cmp.data(StartDate).toDateTime(),
+                                      cmp.data(EndDate).toDateTime(),
+                                      _resolution_in_seconds * 1000))
+                        .IsNull())
+                {
+                    conflict_depth_matrix.Value(i, j) = 1;
+                }
+            }
+
+            _item_cache.insert(ind, ItemCache());
+        }
     }
 }
 
