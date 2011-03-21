@@ -10,7 +10,8 @@ HEADERS += \
     collection.h \
     gvariantcollection.h \
     explicitlysharedobject.h \
-    updatablegvariantcollection.h
+    updatablegvariantcollection.h \
+    timeregion.h
 
 SOURCES += \
     updatablegvariantcollection.cpp
