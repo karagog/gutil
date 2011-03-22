@@ -306,26 +306,67 @@ QRect TimelineView::itemRect(const QModelIndex &index) const
     return QRect(item_start, item_end);
 }
 
-void TimelineView::scrollTo(const QModelIndex &index, ScrollHint)
+void TimelineView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     QRect area(viewport()->rect());
     QRect rect(visualRect(index));
 
-    if (rect.left() < area.left())
-        horizontalScrollBar()->setValue(
-            horizontalScrollBar()->value() + rect.left() - area.left());
-    else if (rect.right() > area.right())
-        horizontalScrollBar()->setValue(
-            horizontalScrollBar()->value() + qMin(
-                rect.right() - area.right(), rect.left() - area.left()));
+    // Adjust the horizontal scrollbar
+    {
+        int hor(-1);
+        if (rect.left() < area.left())
+        {
+            hor = horizontalScrollBar()->value() + rect.left() - area.left();
 
-    if (rect.top() < area.top())
-        verticalScrollBar()->setValue(
-            verticalScrollBar()->value() + rect.top() - area.top());
-    else if (rect.bottom() > area.bottom())
-        verticalScrollBar()->setValue(
-            verticalScrollBar()->value() + qMin(
-                rect.bottom() - area.bottom(), rect.top() - area.top()));
+
+        }
+        else if (rect.right() > area.right())
+        {
+            horizontalScrollBar()->setValue(
+                        horizontalScrollBar()->value() + gMin(
+                            rect.right() - area.right(), rect.left() - area.left()));
+        }
+        if(hor != -1)
+            horizontalScrollBar()->setValue(hor);
+    }
+
+
+    // Adjust the vertical scrollbar
+    if(rect.top() < area.top())
+    {
+        if(hint == EnsureVisible)
+            hint = PositionAtTop;
+    }
+    else if(rect.bottom() > area.bottom())
+    {
+        if(hint == EnsureVisible)
+            hint = PositionAtBottom;
+    }
+    else
+        // The item is visible, so don't bother
+        return;
+
+    {
+        int ver(-1);
+        switch(hint)
+        {
+        case PositionAtTop:
+            ver = verticalScrollBar()->value() + rect.top() - area.top();
+            break;
+        case PositionAtCenter:
+            ver = verticalScrollBar()->value() +
+                    (rect.bottom() + rect.top()) / 2 -
+                    (area.bottom() + area.top()) / 2;
+            break;
+        case PositionAtBottom:
+            ver = verticalScrollBar()->value() + gMin(rect.bottom() - area.bottom(), rect.top() - area.top());
+            break;
+        default:
+            return;
+        }
+        if(ver != -1)
+            verticalScrollBar()->setValue(ver);
+    }
 }
 
 QModelIndex TimelineView::indexAt(const QPoint &point) const
@@ -430,14 +471,15 @@ void TimelineView::wheelEvent(QWheelEvent *ev)
 {
     if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier))
     {
-        double newval = _scale_factor + SCROLL_INCREMENT * ev->delta();
-        if(newval > 0)
+        double diff = SCROLL_INCREMENT * ev->delta();
+        if(_scale_factor + diff > 0)
         {
-            _scale_factor = newval;
+            _scale_factor += diff;
             _update_finish_point();
 
             _update_scrollbars();
             viewport()->update();
+            scrollTo(currentIndex(), EnsureVisible);
         }
     }
     else
