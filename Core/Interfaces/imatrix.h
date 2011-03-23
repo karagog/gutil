@@ -37,13 +37,127 @@ public:
     virtual T &Value(int row, int col) = 0;
     virtual const T &Value(int row, int col) const = 0;
 
+    T FindMaxInRow(int row, int &found_indexex) const;
+    T FindMinInRow(int row, int &found_indexex) const;
+    T FindMaxInCol(int col, int &row_index) const;
+    T FindMinInCol(int col, int &row_index) const;
+
+    virtual T FindMaxValue(int &row, int &col) const;
+
 
 protected:
 
     // Derived classes have direct access to the row/column memory
     int m_rows, m_cols;
 
+
+private:
+
+    T _find_optimum_in_row(int,
+                           int &,
+                           bool search_row,
+                           bool (*compare)(const T &, const T &)) const;
+
+    static bool normal_compare(const T &lhs, const T &rhs){
+        return lhs < rhs;
+    }
+    static bool reverse_compare(const T&lhs, const T &rhs){
+        return rhs < lhs;
+    }
+
 };
+
+
+
+template <class T>
+T IMatrix<T>::FindMaxInRow(int index, int &found_index) const
+{
+    return _find_optimum_in_row(index, found_index, true, &normal_compare);
+}
+template <class T>
+T IMatrix<T>::FindMinInRow(int index, int &found_index) const
+{
+    return _find_optimum_in_row(index, found_index, true, &reverse_compare);
+}
+template <class T>
+T IMatrix<T>::FindMaxInCol(int index, int &found_index) const
+{
+    return _find_optimum_in_row(index, found_index, false, &normal_compare);
+}
+template <class T>
+T IMatrix<T>::FindMinInCol(int index, int &found_index) const
+{
+    return _find_optimum_in_row(index, found_index, false, &reverse_compare);
+}
+template <class T>
+T IMatrix<T>::FindMaxValue(int &row, int &col) const
+{
+    T max;
+    bool max_found(false);
+    row = -1;  col = -1;
+
+    for(int i = 0; i < RowCount(); i++)
+    {
+        int tmpcol(-1);
+        const T tmpval(_find_optimum_in_row(i, tmpcol, true, &normal_compare));
+        if(tmpcol != -1)
+        {
+            if(max_found)
+            {
+                if(normal_compare(max, tmpval))
+                {
+                    max = tmpval;
+                    row = i; col = tmpcol;
+                }
+            }
+            else
+            {
+                max_found = true;
+                max = tmpval;
+                row = i; col = tmpcol;
+            }
+        }
+    }
+    return max;
+}
+
+template <class T>
+T IMatrix<T>::_find_optimum_in_row(int index,
+                                   int &found_index,
+                                   bool search_row,
+                                   bool (*compare)(const T &, const T &)) const
+{
+    T max;
+    bool max_found(false);
+    int max_index(-1);
+
+    const int lim( search_row ? ColumnCount() : RowCount() );
+
+    for(int i = 0; i < lim; i++)
+    {
+        const int rowInd(search_row ? index : i);
+        const int colInd(search_row ? i : index);
+
+        if(max_found)
+        {
+            const T &tmpval( Value(rowInd, colInd) );
+            if(compare(max, tmpval))
+            {
+                max = tmpval;
+                max_index = i;
+            }
+        }
+        else
+        {
+            max = Value(rowInd, colInd);
+            max_index = i;
+            max_found = true;
+        }
+    }
+
+    found_index = max_index;
+    return max;
+}
 
 
 GUTIL_END_CORE_NAMESPACE;

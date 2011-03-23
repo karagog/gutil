@@ -54,6 +54,10 @@ public:
         return m_matrix.at(row).at(col);
     }
 
+    // Override this function to optimize the search for our symmetry
+    T FindMaxValue(int &row, int &col) const;
+
+
 private:
 
     std::vector< std::vector<T> > m_matrix;
@@ -62,13 +66,46 @@ private:
         // Swap row and column if they indexed the wrong side of the diagonal
         if(r < c)
         {
-            int tmp( r );
+            const int tmp( r );
             r = c;
             c = tmp;
         }
     }
 
 };
+
+
+
+template <class T>
+T SymmetricMatrix<T>::FindMaxValue(int &row, int &col) const
+{
+    T max;
+    bool max_found(false);
+    row = -1;  col = -1;
+
+    for(int i = 0; i < SymmetricMatrix<T>::RowCount(); i++)
+    {
+        for(int j = i; j < SymmetricMatrix<T>::ColumnCount(); j++)
+        {
+            const T &tmpval( SymmetricMatrix<T>::Value(i, j) );
+            if(max_found)
+            {
+                if(max < tmpval)
+                {
+                    max = tmpval;
+                    row = i; col = j;
+                }
+            }
+            else
+            {
+                max_found = true;
+                max = tmpval;
+                row = i; col = j;
+            }
+        }
+    }
+    return max;
+}
 
 
 GUTIL_END_CORE_NAMESPACE;
