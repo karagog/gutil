@@ -874,32 +874,105 @@ void TimelineView::reset()
     if(model())
     {
         const int rows(model()->rowCount());
-        SymmetricMatrix<int> conflict_depth_matrix( rows, 0 );
-
-        for(int i = 0; i < rows; i++)
+        if(rows)
         {
-            QModelIndex ind(model()->index(i, 0));
+            SymmetricMatrix<int> conflict_depth_matrix( rows, 0 );
 
-            // Populate the conflict depth matrix with any indexes that conflict
-            for(int j = i - 1; j >= 0; j--)
+            // Populate the first-order conflict depth matrix, and initialize the
+            //  item cache while you're iterating through the rows anyways
+            for(int i = 0; i < rows; i++)
             {
-                QModelIndex cmp(model()->index(j, 0));
+                QModelIndex ind(model()->index(i, 0));
+                _item_cache.insert(ind, ItemCache());
 
-                // If the intersection of the time ranges is not null...
-                if(!TimeRegion::Intersect(
-                            TimeRange(ind.data(StartDate).toDateTime(),
-                                      ind.data(EndDate).toDateTime(),
-                                      _resolution_in_seconds * 1000),
-                            TimeRange(cmp.data(StartDate).toDateTime(),
-                                      cmp.data(EndDate).toDateTime(),
-                                      _resolution_in_seconds * 1000))
-                        .IsNull())
+                // Check all the rows after this one and remember which ones we conflict with
+                for(int j = i - 1; j >= 0; j--)
                 {
-                    conflict_depth_matrix.Value(i, j) = 1;
+                    QModelIndex cmp(model()->index(j, 0));
+
+                    // If the intersection of the time ranges is not null, then
+                    //  the items conflict
+                    if(!TimeRegion::Intersect(
+                                TimeRange(ind.data(StartDate).toDateTime(),
+                                          ind.data(EndDate).toDateTime(),
+                                          _resolution_in_seconds * 1000),
+                                TimeRange(cmp.data(StartDate).toDateTime(),
+                                          cmp.data(EndDate).toDateTime(),
+                                          _resolution_in_seconds * 1000))
+                            .IsNull())
+                    {
+                        ++ conflict_depth_matrix.Value(i, j);
+                    }
                 }
             }
 
-            _item_cache.insert(ind, ItemCache());
+            // Iteratively find the deeper conflicts
+            SymmetricMatrix<int> m_tempmem(conflict_depth_matrix.RowCount(), 0);
+            for(int row = 0; row < conflict_depth_matrix.RowCount(); row++)
+            {
+                for(int col = row + 1; col < conflict_depth_matrix.ColumnCount(); col++)
+                {
+                    int &val( conflict_depth_matrix.Value(row, col) );
+                    if(val > 0)
+                    {
+                        m_tempmem.Value(row, col) = 1;
+
+                        // Found a conflict, so search the conflictee and see if it conflicts
+                        //  with another item that I also conflict with
+                        for(int conflictCol = 0; conflictCol < conflict_depth_matrix.ColumnCount(); conflictCol++)
+                        {
+                            // Skip over indexes that would result in the 'Value()' calls
+                            //  below to reference a cell on the diagonal
+                            if(conflictCol == col ||
+                                    conflictCol == row)
+                                continue;
+
+                            if(conflict_depth_matrix.Value(row, conflictCol) > 0 &&
+                                    conflict_depth_matrix.Value(col, conflictCol) > 0)
+                            {
+                                // The conflict is higher order, so increment it
+                                ++ val;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            forever
+            {
+                // Find the most-conflicted
+                int r(-1), c(-1);
+                int max( conflict_depth_matrix.FindMaxValue(r, c) );
+
+                if(r == -1 || max == 0)
+                    break;
+
+                int &v( m_tempmem.Value(r, c) );
+                if(v)
+                {
+                    _item_cache[model()->index(r, 0)].TotalSections = max + 1;
+
+                    // Flag that we've set the TotalSections value
+                    v = 0;
+                }
+
+                // Mark anyone who conflicts with me as the same total sections,
+                //  and set their positions
+                int posCnt(0);
+                for(int i = 0; i < conflict_depth_matrix.ColumnCount(); i++)
+                {
+                    if(conflict_depth_matrix.Value(r, i) > 0)
+                    {
+                        // And flag that we've set the TotalSections value here too
+                        m_tempmem.Value(r, i) = 0;
+
+                        ItemCache &c( _item_cache[model()->index(i, 0)] );
+                        c.TotalSections = max + 1;
+                        c.Position = ++posCnt;
+                    }
+                }
+            }
         }
     }
 }

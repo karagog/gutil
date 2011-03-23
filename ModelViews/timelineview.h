@@ -25,7 +25,14 @@ limitations under the License.*/
 class QDateTimeEdit;
 
 
-namespace GUtil{ namespace ModelViews{
+namespace GUtil{
+namespace Core{ namespace Utils{
+    template <class T> class SymmetricMatrix;
+}}
+
+
+
+namespace ModelViews{
 
 
 class TimelineView :
