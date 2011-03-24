@@ -123,6 +123,7 @@ private:
 
     double _scale_factor;
 
+    void _draw_items(QModelIndexList &, QPainter &, int iteration);
     void _draw_item(const QModelIndex &, QPainter &);
 
     QRegion itemRegion(const QModelIndex &) const;

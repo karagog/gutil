@@ -161,30 +161,43 @@ void TimelineView::paintEvent(QPaintEvent *ev)
     // Draw the actual items in the model
     if(model())
     {
-        QModelIndex *last_index(0);
-
+        QModelIndexList allItems;
         for(int i = 0; i < model()->rowCount(); i++)
-        {
-            QModelIndex ind( model()->index(i, 0) );
-            if(ind.data(StartDate).toDateTime() >= _end_time ||
-               ind.data(EndDate).toDateTime() <= _start_time)
-                continue;
+            allItems.append(model()->index(i, 0));
 
-            if(m_draggingIndex.isValid() &&
-                    m_draggingIndex == ind)
-            {
-                last_index = &m_draggingIndex;
-                continue;
-            }
-
-            _draw_item(ind, p);
-        }
-
-        if(last_index)
-            _draw_item(*last_index, p);
+        int cnt(0);
+        while(!allItems.isEmpty())
+            _draw_items(allItems, p, cnt++);
 
         if(!currentIndex().isValid())
             m_currentHighlighter.hide();
+    }
+}
+
+void TimelineView::_draw_items(QModelIndexList &items,
+                               QPainter &p,
+                               int iteration)
+{
+    for(int i = items.count() - 1; i >= 0; i--)
+    {
+        QModelIndex ind( items[i] );
+        if(ind.data(StartDate).toDateTime() >= _end_time ||
+           ind.data(EndDate).toDateTime() <= _start_time)
+            continue;
+
+        if(m_draggingIndex == ind)
+        {
+            if(m_draggingIndex.isValid() &&
+                    items.count() > 1)
+                continue;
+        }
+        else if(_item_cache[ind].Position != iteration)
+        {
+            continue;
+        }
+
+        _draw_item(ind, p);
+        items.removeAt(i);
     }
 }
 
@@ -295,13 +308,14 @@ QRect TimelineView::itemRect(const QModelIndex &index) const
     if(c.TotalSections > 1)
     {
         // Adjust the left-hand X value
-        item_start.setX(_origin_point.x() + ((double)c.Position / c.TotalSections) *
-                        TIMELINE_ITEM_WIDTH);
+        item_start.setX(_origin_point.x() +
+                        (((double)c.Position / c.TotalSections) * TIMELINE_ITEM_WIDTH) -
+                        (c.Position == 0 ? 0 : TIMELINE_ITEM_OVERLAP));
 
         // Adjust the right-hand X value
         item_end.setX(item_start.x() +
-                      ((double)c.Span / c.TotalSections) *
-                      TIMELINE_ITEM_WIDTH);
+                      (((double)c.Span / c.TotalSections) * TIMELINE_ITEM_WIDTH) +
+                      (c.Position == 0 ? 0 : TIMELINE_ITEM_OVERLAP));
     }
     return QRect(item_start, item_end);
 }
