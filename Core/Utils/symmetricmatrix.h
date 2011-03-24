@@ -83,24 +83,24 @@ T SymmetricMatrix<T>::FindMaxValue(int &row, int &col) const
     bool max_found(false);
     row = -1;  col = -1;
 
-    for(int i = 0; i < SymmetricMatrix<T>::RowCount(); i++)
+    for(int i = 0; i < SymmetricMatrix<T>::ColumnCount(); i++)
     {
-        for(int j = i; j < SymmetricMatrix<T>::ColumnCount(); j++)
+        for(int j = i; j < SymmetricMatrix<T>::RowCount(); j++)
         {
-            const T &tmpval( SymmetricMatrix<T>::Value(i, j) );
+            const T &tmpval( SymmetricMatrix<T>::Value(j, i) );
             if(max_found)
             {
                 if(max < tmpval)
                 {
                     max = tmpval;
-                    row = i; col = j;
+                    row = j; col = i;
                 }
             }
             else
             {
                 max_found = true;
                 max = tmpval;
-                row = i; col = j;
+                row = j; col = i;
             }
         }
     }
