@@ -631,10 +631,25 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
             setCursor(Qt::OpenHandCursor);
 
         // Commit the data from the drag/drop session (Only if it changed)
+        QDateTime st, en;
         if(!m_drag_startDate.isNull() && m_drag_startDate != m_draggingIndex.data(StartDate))
-            model()->setData(m_draggingIndex, m_drag_startDate, StartDate);
+            st = m_drag_startDate;
         if(!m_drag_endDate.isNull() && m_drag_endDate != m_draggingIndex.data(EndDate))
-            model()->setData(m_draggingIndex, m_drag_endDate, EndDate);
+            en = m_drag_endDate;
+
+        // For optimization we only want to call setdata once when setting the date,
+        //  because redrawing is expensive
+        if(!st.isNull() && !en.isNull())
+        {
+            QVariantList vl;
+            vl.append(st);
+            vl.append(en);
+            model()->setData(m_draggingIndex, vl, StartAndEndDate);
+        }
+        else if(!st.isNull())
+            model()->setData(m_draggingIndex, st, StartDate);
+        else if(!en.isNull())
+            model()->setData(m_draggingIndex, en, EndDate);
 
         // Clear the drag/drop memory when we're done
         m_draggingIndex = QModelIndex();
@@ -923,16 +938,23 @@ void TimelineView::reset()
                 }
             }
 
+
             // Iteratively find the deeper conflicts
             SymmetricMatrix<int> m_tempmem(conflict_depth_matrix.RowCount(), 0);
+            int *m_positionsAvailable(new int[conflict_depth_matrix.RowCount()]);
+
             for(int row = 0; row < conflict_depth_matrix.RowCount(); row++)
             {
+                // Initialize the positions memory to 0
+                m_positionsAvailable[row] = 0;
+
                 for(int col = row + 1; col < conflict_depth_matrix.ColumnCount(); col++)
                 {
                     int &val( conflict_depth_matrix.Value(row, col) );
                     if(val > 0)
                     {
                         m_tempmem.Value(row, col) = 1;
+                        m_positionsAvailable[row]++;
 
                         // Found a conflict, so search the conflictee and see if it conflicts
                         //  with another item that I also conflict with
@@ -949,40 +971,41 @@ void TimelineView::reset()
                             {
                                 // The conflict is higher order, so increment it
                                 ++ val;
+                                m_positionsAvailable[row]++;
                             }
                         }
                     }
                 }
             }
 
-
             forever
             {
-                // Find the most-conflicted
                 int r(-1), c(-1);
-                int max( conflict_depth_matrix.FindMaxValue(r, c) );
+
+                // Find the most-conflicted (note we switch c and r, because of the
+                //  searching algorithm, but since it's a symmetric matrix we can do this)
+                int max( conflict_depth_matrix.FindMaxValue(c, r) );
 
                 if(r == -1 || max == 0)
                     break;
+
+                conflict_depth_matrix.Value(r, c) = 0;
 
                 int &v( m_tempmem.Value(r, c) );
                 if(v)
                 {
                     _item_cache[model()->index(r, 0)].TotalSections = max + 1;
 
-                    ItemCache &affected( _item_cache[model()->index(c, 0)] );
-                    affected.TotalSections = max + 1;
-                    affected.Position = 1;
+                    ItemCache &ic( _item_cache[model()->index(c, 0)] );
+                    ic.TotalSections = max + 1;
+                    ic.Position = m_positionsAvailable[r]--;
 
-                    // Flag that we've set the TotalSections value
+                    // Flag that we've set the cache values
                     v = 0;
                 }
 
-                conflict_depth_matrix.Value(r, c) = 0;
-
                 // Mark anyone who conflicts with me as the same total sections,
                 //  and set their positions
-                int posCnt(0);
                 for(int i = 0; i < conflict_depth_matrix.ColumnCount(); i++)
                 {
                     if(conflict_depth_matrix.Value(r, i) > 0)
@@ -992,10 +1015,12 @@ void TimelineView::reset()
 
                         ItemCache &c( _item_cache[model()->index(i, 0)] );
                         c.TotalSections = max + 1;
-                        c.Position = ++posCnt;
+                        c.Position = m_positionsAvailable[r]--;
                     }
                 }
             }
+
+            delete []m_positionsAvailable;
         }
     }
 }
