@@ -827,13 +827,16 @@ void TimelineView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
         }
     }
 
-    viewport()->update();
+    // We reset, because any item might need a new layout
+    reset();
 }
 
 void TimelineView::rowsInserted(const QModelIndex &par, int start, int end)
 {
     QAbstractItemView::rowsInserted(par, start, end);
-    viewport()->update();
+
+    // We reset, because any item might need a new layout
+    reset();
 }
 
 void TimelineView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
@@ -953,9 +956,15 @@ void TimelineView::reset()
                 {
                     _item_cache[model()->index(r, 0)].TotalSections = max + 1;
 
+                    ItemCache &affected( _item_cache[model()->index(c, 0)] );
+                    affected.TotalSections = max + 1;
+                    affected.Position = 1;
+
                     // Flag that we've set the TotalSections value
                     v = 0;
                 }
+
+                conflict_depth_matrix.Value(r, c) = 0;
 
                 // Mark anyone who conflicts with me as the same total sections,
                 //  and set their positions
