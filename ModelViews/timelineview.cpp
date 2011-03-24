@@ -941,37 +941,31 @@ void TimelineView::reset()
 
             // Iteratively find the deeper conflicts
             SymmetricMatrix<int> m_tempmem(conflict_depth_matrix.RowCount(), 0);
-            int *m_positionsAvailable(new int[conflict_depth_matrix.RowCount()]);
 
-            for(int row = 0; row < conflict_depth_matrix.RowCount(); row++)
+            for(int col = 0; col < conflict_depth_matrix.ColumnCount(); col++)
             {
-                // Initialize the positions memory to 0
-                m_positionsAvailable[row] = 0;
-
-                for(int col = row + 1; col < conflict_depth_matrix.ColumnCount(); col++)
+                for(int row = col + 1; row < conflict_depth_matrix.RowCount(); row++)
                 {
                     int &val( conflict_depth_matrix.Value(row, col) );
                     if(val > 0)
                     {
                         m_tempmem.Value(row, col) = 1;
-                        m_positionsAvailable[row]++;
 
                         // Found a conflict, so search the conflictee and see if it conflicts
                         //  with another item that I also conflict with
-                        for(int conflictCol = 0; conflictCol < conflict_depth_matrix.ColumnCount(); conflictCol++)
+                        for(int conflictRow = 0; conflictRow < conflict_depth_matrix.RowCount(); conflictRow++)
                         {
                             // Skip over indexes that would result in the 'Value()' calls
                             //  below to reference a cell on the diagonal
-                            if(conflictCol == col ||
-                                    conflictCol == row)
+                            if(conflictRow == row ||
+                                    conflictRow == col)
                                 continue;
 
-                            if(conflict_depth_matrix.Value(row, conflictCol) > 0 &&
-                                    conflict_depth_matrix.Value(col, conflictCol) > 0)
+                            if(conflict_depth_matrix.Value(conflictRow, col) > 0 &&
+                                    conflict_depth_matrix.Value(conflictRow, row) > 0)
                             {
                                 // The conflict is higher order, so increment it
                                 ++ val;
-                                m_positionsAvailable[row]++;
                             }
                         }
                     }
@@ -982,9 +976,9 @@ void TimelineView::reset()
             {
                 int r(-1), c(-1);
 
-                // Find the most-conflicted (note we switch c and r, because of the
-                //  searching algorithm, but since it's a symmetric matrix we can do this)
-                int max( conflict_depth_matrix.FindMaxValue(c, r) );
+                // Find the most-conflicted
+                const int max( conflict_depth_matrix.FindMaxValue(r, c) );
+                int max_cnt( max );
 
                 if(r == -1 || max == 0)
                     break;
@@ -998,7 +992,7 @@ void TimelineView::reset()
 
                     ItemCache &ic( _item_cache[model()->index(c, 0)] );
                     ic.TotalSections = max + 1;
-                    ic.Position = m_positionsAvailable[r]--;
+                    ic.Position = max_cnt--;
 
                     // Flag that we've set the cache values
                     v = 0;
@@ -1015,12 +1009,10 @@ void TimelineView::reset()
 
                         ItemCache &c( _item_cache[model()->index(i, 0)] );
                         c.TotalSections = max + 1;
-                        c.Position = m_positionsAvailable[r]--;
+                        c.Position = max_cnt--;
                     }
                 }
             }
-
-            delete []m_positionsAvailable;
         }
     }
 }
