@@ -1002,14 +1002,19 @@ void TimelineView::reset()
                 //  and set their positions
                 for(int i = 0; i < conflict_depth_matrix.ColumnCount(); i++)
                 {
-                    if(conflict_depth_matrix.Value(r, i) > 0)
+                    if(i != c && i != r &&
+                            conflict_depth_matrix.Value(r, i) > 0)
                     {
-                        // And flag that we've set the TotalSections value here too
-                        m_tempmem.Value(r, i) = 0;
+                        int &tmpval( m_tempmem.Value(r, i) );
+                        if(tmpval)
+                        {
+                            // And flag that we've set the TotalSections value here too
+                            tmpval = 0;
 
-                        ItemCache &c( _item_cache[model()->index(i, 0)] );
-                        c.TotalSections = max + 1;
-                        c.Position = max_cnt--;
+                            ItemCache &c( _item_cache[model()->index(i, 0)] );
+                            c.TotalSections = max + 1;
+                            c.Position = max_cnt--;
+                        }
                     }
                 }
             }
