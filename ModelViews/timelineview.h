@@ -67,7 +67,8 @@ public:
     enum DataEnum
     {
         StartDate = Qt::UserRole + 25,
-        EndDate = Qt::UserRole + 26
+        EndDate = Qt::UserRole + 26,
+        StartAndEndDate = Qt::UserRole + 27
     };
 
     // QAbstractItemView interface:
