@@ -63,10 +63,10 @@ string Utils::StringHelpers::baseName(const string &s)
     if(!Utils::Private::strings_p::translate_path(retstring))
         return "";
 
-    int lastSlash;
+    string::size_type lastSlash;
 
     //If there's no slash, basename is s
-    if(static_cast<unsigned int>(lastSlash = retstring.find_last_of("/")) == string::npos)
+    if((lastSlash = retstring.find_last_of("/")) == string::npos)
         return retstring;
 
     return(retstring.substr(lastSlash + 1));
@@ -81,9 +81,9 @@ string Utils::StringHelpers::pathName(const string &s)
     if(!Utils::Private::strings_p::translate_path(retstring))
         return "";
 
-    int lastSlash;
+    string::size_type lastSlash;
 
-    if(static_cast<unsigned int>(lastSlash = retstring.find_last_of("/")) == string::npos)
+    if((lastSlash = retstring.find_last_of("/")) == string::npos)
         return "./";		//If no slash was found, then the pwd is '.'
 
     return(retstring.substr(0, lastSlash + 1));
