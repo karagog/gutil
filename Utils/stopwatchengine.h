@@ -29,6 +29,7 @@ class StopwatchEngine :
     Q_OBJECT
 public:
     explicit StopwatchEngine(QObject *parent = 0);
+    virtual ~StopwatchEngine();
 
     void SetTimerResolution(int milliseconds);
     inline int TimerResolution() const{

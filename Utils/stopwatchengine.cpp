@@ -27,6 +27,11 @@ StopwatchEngine::StopwatchEngine(QObject *parent)
 
 }
 
+StopwatchEngine::~StopwatchEngine()
+{
+    Stop();
+}
+
 void StopwatchEngine::SetTimerResolution(int milliseconds)
 {
     if(IsRunning())
