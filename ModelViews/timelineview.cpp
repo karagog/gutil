@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "timelineview.h"
 #include "Core/Utils/symmetricmatrix.h"
 #include "DataObjects/timeregion.h"
+#include "Custom/gformattedtext.h"
 #include <QPaintEvent>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -35,17 +36,19 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE(ModelViews);
 GUTIL_USING_CORE_NAMESPACE(Utils);
 GUTIL_USING_NAMESPACE(DataObjects);
+GUTIL_USING_NAMESPACE(Custom);
 
 
 TimelineView::TimelineView(QWidget *p)
     :QAbstractItemView(p),
       _p_DateTimeEditFormat("M/d/yyyy h:m:ss AP"),
+      _p_AllowNewItems(true),
       _scale_factor(1),
       _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
       _finish_point(_origin_point.x(), _origin_point.y()),
       _range_in_seconds(0),
       _resolution_in_seconds(1),
-      m_rubberBand(0),
+      m_dragRect(0),
       m_currentHighlighter(QRubberBand::Rectangle, this),
       m_drag_cursor_offset(-1),
       m_dateTimeEdit(0)
@@ -169,6 +172,12 @@ void TimelineView::paintEvent(QPaintEvent *ev)
         while(!allItems.isEmpty())
             _draw_items(allItems, p, cnt++);
 
+        if(m_dragRect)
+        {
+            // Draw a white rectange for their drag rect
+            _draw_rect(m_dragRect->normalized(), 0xFFFFFFFF, QString("(New Item)"), p);
+        }
+
         if(!currentIndex().isValid())
             m_currentHighlighter.hide();
     }
@@ -256,8 +265,10 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
     if(selectionModel()->isSelected(ind))
         c = QColor(SELECTED_RGB);
 
-    p.fillRect(item_rect, c);
-    p.drawRect(item_rect);
+    _draw_rect(item_rect, c,
+               GFormattedText(ind.data(Qt::DisplayRole).toString(),
+                              ind.data(Qt::FontRole).value<QFont>()),
+               p);
 
     if(ind == currentIndex())
     {
@@ -265,12 +276,21 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
                                              -horizontalScrollBar()->value(), -verticalScrollBar()->value()));
         m_currentHighlighter.show();
     }
+}
+
+void TimelineView::_draw_rect(const QRect &r, const QColor &c, const GFormattedText &txt, QPainter &p)
+{
+    p.fillRect(r, c);
+    p.drawRect(r);
 
     p.save();
-    p.setFont(ind.data(Qt::FontRole).value<QFont>());
-    p.drawText(item_rect.left() + 20, item_rect.top(), item_rect.width(), item_rect.height(),
-               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap,
-               ind.data(Qt::DisplayRole).toString());
+    {
+        const int text_offset( 20 );
+        p.setFont(txt.Font);
+        p.drawText(r.left() + text_offset, r.top(), r.width() - text_offset, r.height(),
+                   Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap,
+                   txt.Text);
+    }
     p.restore();
 }
 
@@ -550,6 +570,8 @@ void TimelineView::scrollContentsBy(int dx, int dy)
 }
 
 
+// Controls the distance from the top/bottom edges that you can click in to
+//  start dragging an index
 #define DRAG_ADJUSTMENT_MARGIN 10
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
@@ -604,16 +626,11 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 
             viewport()->update();
         }
-        else
+        else if(GetAllowNewItems())
         {
-            // If they didn't click on a valid index, then they can use a rubber
-            //  band to select several indexes
-
-            m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-            m_mouseFirstClick = event->pos();
-
-            m_rubberBand->setGeometry(QRect(event->pos(), QSize()));
-            m_rubberBand->show();
+            // If they didn't click on a valid index, then they can drag to create
+            //  a new item on the timeline (if this property is enabled)
+            m_dragRect = new QRect(pos, pos);
         }
     }
 }
@@ -622,8 +639,20 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 {
     QAbstractItemView::mouseReleaseEvent(event);
 
-    if(!m_rubberBand.isNull())
-        delete m_rubberBand.data();
+    if(m_dragRect)
+    {
+        const QDateTime
+                st(PointToDateTime(m_dragRect->topLeft())),
+                en(PointToDateTime(m_dragRect->bottomRight()));
+
+        delete m_dragRect;
+        m_dragRect = 0;
+
+        viewport()->update();
+
+        // notify whoever's listening that the user wants to make a new item
+        emit NewItemRequested(st, en);
+    }
 
     if(m_draggingIndex.isValid())
     {
@@ -666,7 +695,12 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     QAbstractItemView::mouseMoveEvent(event);
 
     QPoint pos(event->pos());
-    if(m_rubberBand.isNull())
+    if(m_dragRect)
+    {
+        m_dragRect->setBottomRight(pos);
+        viewport()->update();
+    }
+    else
     {
         QRect rect;
         if(m_draggingIndex.isValid())
@@ -737,10 +771,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
         {
             setCursor(Qt::ArrowCursor);
         }
-    }
-    else
-    {
-        m_rubberBand->setGeometry(QRect(m_mouseFirstClick, pos).normalized());
     }
 }
 

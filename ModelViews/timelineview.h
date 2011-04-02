@@ -30,6 +30,9 @@ namespace Core{ namespace Utils{
     template <class T> class SymmetricMatrix;
 }}
 
+namespace Custom{
+    class GFormattedText;
+}
 
 
 namespace ModelViews{
@@ -62,6 +65,10 @@ public:
     // Controls the format they use to edit the datetimes
     PROPERTY( DateTimeEditFormat, QString );
 
+    // Controls the user's ability to click and drag to create new items on
+    //  the timeline
+    PROPERTY( AllowNewItems, bool );
+
     // The view will use these role values to reference data in the model,
     //   using the 'data()' function
     enum DataEnum
@@ -75,6 +82,13 @@ public:
     virtual QModelIndex indexAt(const QPoint &point) const;
     virtual QRect visualRect(const QModelIndex &index) const;
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
+
+
+signals:
+
+    // This signal is emitted after the user releases the mouse after
+    //  dragging to set the bounds of a new item
+    void NewItemRequested(const QDateTime &start, const QDateTime &end);
 
 
 public slots:
@@ -126,6 +140,8 @@ private:
 
     void _draw_items(QModelIndexList &, QPainter &, int iteration);
     void _draw_item(const QModelIndex &, QPainter &);
+    void _draw_rect(const QRect &, const QColor &,
+                    const Custom::GFormattedText &, QPainter &);
 
     QRegion itemRegion(const QModelIndex &) const;
 
@@ -148,9 +164,8 @@ private:
     // Defines the minimum time resolution we'll allow
     int _resolution_in_seconds;
 
-    // Memory for drawing the rubber band
-    QPointer<QRubberBand> m_rubberBand;
-    QPoint m_mouseFirstClick;
+    // Memory for drawing new indexes
+    QRect *m_dragRect;
 
     QRubberBand m_currentHighlighter;
 
