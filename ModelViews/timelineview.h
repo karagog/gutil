@@ -82,6 +82,7 @@ public:
     virtual QModelIndex indexAt(const QPoint &point) const;
     virtual QRect visualRect(const QModelIndex &index) const;
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
+    virtual void setModel(QAbstractItemModel *);
 
 
 signals:
@@ -132,6 +133,11 @@ protected:
     virtual QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
     virtual void scrollContentsBy(int dx, int dy);
+
+
+private slots:
+
+    void _model_rows_removed();
 
 
 private:

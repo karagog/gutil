@@ -641,20 +641,36 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 
     if(m_dragRect)
     {
-        const QDateTime
-                st(PointToDateTime(m_dragRect->topLeft())),
-                en(PointToDateTime(m_dragRect->bottomRight()));
+        if(m_dragRect->topLeft() != m_dragRect->bottomRight())
+        {
+            QDateTime
+                    st(PointToDateTime(m_dragRect->topLeft())),
+                    en(PointToDateTime(m_dragRect->bottomRight()));
+
+            // Swap start/end time if the rect is backwards
+            if(en < st)
+            {
+                QDateTime tt( st );
+                st = en;
+                en = tt;
+            }
+
+            // We update before notifying about the new item, so that it doesn't
+            //  update twice after the new item is created
+            viewport()->update();
+
+            // notify whoever's listening that the user wants to make a new item
+            emit NewItemRequested(st, en);
+        }
+        else
+            // We still need to update, because it could have drawn a point on
+            //  the view that we need to clear
+            viewport()->update();
 
         delete m_dragRect;
         m_dragRect = 0;
-
-        viewport()->update();
-
-        // notify whoever's listening that the user wants to make a new item
-        emit NewItemRequested(st, en);
     }
-
-    if(m_draggingIndex.isValid())
+    else if(m_draggingIndex.isValid())
     {
         if(!m_drag_startDate.isNull() && !m_drag_endDate.isNull())
             setCursor(Qt::OpenHandCursor);
@@ -1123,4 +1139,23 @@ void TimelineView::horizontalScrollbarValueChanged(int value)
                                     m_dateTimeEdit->pos().y()));
 
     m_previousHorizontalScrollbarPosition = value;
+}
+
+void TimelineView::setModel(QAbstractItemModel *m)
+{
+    if(model())
+        disconnect(model(), SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                   this, SLOT(_model_rows_removed()));
+
+    if(m)
+        connect(m, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                this, SLOT(_model_rows_removed()));
+
+    QAbstractItemView::setModel(m);
+}
+
+void TimelineView::_model_rows_removed()
+{
+    // We have to reset our view, so we can redraw the items
+    reset();
 }
