@@ -18,6 +18,7 @@ Makefile*
 # Qt-specific ignores
 ui_*.h
 moc_*.cpp
+*.moc
 qrc_*.cpp
 *.Debug
 *.Release
