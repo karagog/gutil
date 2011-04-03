@@ -21,15 +21,16 @@ using namespace GUtil;
 DataObjects::SharedRowData::SharedRowData(const DataObjects::DataTable &t,
                                           const Custom::GVariantList &vals)
             :_table(new DataObjects::DataTable(t)),
-            _tuple(t.ColumnCount(), vals)
+              _tuple(t.ColumnCount(), vals)
 {
     _tuple.SetCollectionObserver(this);
 }
 
 DataObjects::SharedRowData::SharedRowData(const DataObjects::SharedRowData &o)
         :GSharedData(o),
-        _table(new DataObjects::DataTable(o.Table())),
-        _tuple(o._tuple)
+          Core::Interfaces::IUpdatable(o),
+          _table(new DataObjects::DataTable(o.Table())),
+          _tuple(o._tuple)
 {
     _tuple.SetCollectionObserver(this);
 }

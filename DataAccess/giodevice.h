@@ -41,6 +41,9 @@ namespace GUtil
         //  and the class implements mutex locking for you.
 
         class GIODevice :
+
+                // This derives from QThread to enable you to use the thread if you want to,
+                //  but the base implementation does not make use of the thread
                 public QThread,
                 public Core::Interfaces::IReadOnlyObject
         {
