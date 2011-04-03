@@ -23,7 +23,8 @@ namespace GUtil
 {
     namespace Logging
     {
-        class FileLogger : public AbstractLogger
+        class FileLogger :
+                public AbstractLogger
         {
             Q_OBJECT
         public:
