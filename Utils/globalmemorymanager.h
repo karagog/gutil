@@ -15,19 +15,13 @@ limitations under the License.*/
 #ifndef GLOBALMEMORYMANAGER_H
 #define GLOBALMEMORYMANAGER_H
 
-#include <QObject>
-
 namespace GUtil{ namespace Utils{
 
 
-// A class to encapsulate global memory.  You should make this a child of the
-//  QApplication before doing anything else in the code, that way everyone will
-//  be able to use it, and it will be deleted as the very last thing before the
-//  QApplication terminates.
-class GlobalMemoryManager :
-        public QObject
+// A class to encapsulate global memory.  You must derive from this class, and
+//  declare global variables specific to your application
+class GlobalMemoryManager
 {
-    Q_OBJECT
 public:
 
     // Subclasses should not forget to declare their destructors virtual, in case
@@ -43,9 +37,7 @@ public:
 protected:
 
     // There is no public constructor, because this class is designed to be subclassed
-    inline GlobalMemoryManager(QObject *parent)
-        :QObject(parent)
-    {}
+    inline GlobalMemoryManager(){}
 
 
 private:
