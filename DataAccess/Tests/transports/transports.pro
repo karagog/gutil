@@ -25,3 +25,7 @@ LIBS += -L../../../lib \
     -lGUtilDataObjects \
     -lGUtilDataAccess \
     -lGUtilLogging
+
+unix: LIBS += -Wl,-rpath,.
+
+DEFINES += DATABASE_FUNCTIONALITY

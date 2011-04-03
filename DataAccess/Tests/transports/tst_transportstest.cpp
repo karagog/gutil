@@ -229,7 +229,7 @@ void TransportsTest::test_database_transport()
         // Create a simple blob table
         Custom::GPairList<QString, QString> pl;
         pl<< QPair<QString, QString>("o", "BLOB");
-        QVERIFY(dbio.CreateTable("blob", pl) == 0);
+        dbio.CreateTable("blob", pl);
 
         tbl = dbio.GetBlankTable("blob");
         values = dbio.GetBlankValueParameters("blob");
