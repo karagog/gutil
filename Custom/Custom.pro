@@ -18,7 +18,8 @@ HEADERS += \
     gpairlist.h \
     gtreeview.h \
     gdatetime.h \
-    gformattedtext.h
+    gformattedtext.h \
+    gapplication.h
 
 SOURCES += \
     myflattreemodel.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
     gvariant.cpp \
     updatablegvariant.cpp \
     gtreeview.cpp \
-    gdatetime.cpp
+    gdatetime.cpp \
+    gapplication.cpp
 
 INCLUDEPATH += ..
