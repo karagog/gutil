@@ -19,6 +19,13 @@ SOURCES += tst_loggertest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../.. ../..
-LIBS += -L../../.. -lGUtil
+LIBS += -L../../../lib \
+    -lGUtilThirdPartyQt \
+    -lGUtilCore \
+    -lGUtilUtils \
+    -lGUtilDataAccess \
+    -lGUtilLogging
+
+unix: LIBS += -Wl,-rpath,.
 
 DEFINES += DEBUG_LOGGING
