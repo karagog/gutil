@@ -14,11 +14,32 @@ limitations under the License.*/
 
 #include "gapplication.h"
 #include "gutil_macros.h"
+#include "Core/exception.h"
 GUTIL_USING_NAMESPACE(Custom);
 
-GApplication::GApplication(int argc, char **argv)
-    :QApplication(m_argc = argc, m_argv = argv)
+GApplication::GApplication(int &argc, char **argv)
+    :QApplication(argc, argv)
 {
     // Register our cleanup handler
     connect(this, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+}
+
+bool GApplication::notify(QObject *o, QEvent *ev)
+{
+    bool ret(false);
+
+    try
+    {
+        ret = QApplication::notify(o, ev);
+    }
+    catch(GUtil::Core::Exception &ex)
+    {
+        handle_exception(ex);
+    }
+    catch(std::exception &ex)
+    {
+        handle_std_exception(ex);
+    }
+
+    return ret;
 }

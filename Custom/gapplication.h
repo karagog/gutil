@@ -18,7 +18,13 @@ limitations under the License.*/
 #include <QApplication>
 #include "Core/Utils/commandlineargs.h"
 
-namespace GUtil{ namespace Custom{
+namespace GUtil{
+namespace Core{
+    class Exception;
+}
+
+
+namespace Custom{
 
 
 class GApplication :
@@ -27,13 +33,15 @@ class GApplication :
     Q_OBJECT
 public:
 
-    explicit GApplication(int argc, char **argv);
+    explicit GApplication(int &argc, char **argv);
     virtual ~GApplication(){}
 
     // Get convenient access to the command line arguments
     inline Core::Utils::CommandLineArgs Args() const{
-        return Core::Utils::CommandLineArgs(m_argc, m_argv);
+        return Core::Utils::CommandLineArgs(argc(), argv());
     }
+
+    virtual bool notify(QObject *, QEvent *);
 
 
 protected slots:
@@ -42,11 +50,10 @@ protected slots:
     //  'aboutToQuit' signal
     virtual void cleanup(){}
 
-
-private:
-
-    int m_argc;
-    char **m_argv;
+    // You can override these methods, which are called in the event of an exception
+    //  during an application event
+    virtual void handle_exception(const Core::Exception &){}
+    virtual void handle_std_exception(const std::exception &){}
 
 };
 
