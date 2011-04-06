@@ -175,7 +175,16 @@ void TimelineView::paintEvent(QPaintEvent *ev)
         if(m_dragRect)
         {
             // Draw a white rectange for their drag rect
-            _draw_rect(m_dragRect->normalized(), 0xFFFFFFFF, QString("(New Item)"), p);
+            const int middle_point( (m_dragRect->right() + m_dragRect->left()) / 2 );
+            _draw_rect(m_dragRect->normalized(), Qt::white, QString("(New Item)"), p);
+
+            const bool b_swap( m_dragRect->bottom() < m_dragRect->top() );
+            _draw_datetime_rect(PointToDateTime(m_dragRect->topLeft()),
+                                QPoint(middle_point, m_dragRect->top()),
+                                !b_swap, p);
+            _draw_datetime_rect(PointToDateTime(m_dragRect->bottomRight()),
+                                QPoint(middle_point, m_dragRect->bottom()),
+                                b_swap, p);
         }
 
         if(!currentIndex().isValid())
@@ -723,6 +732,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     QPoint pos(event->pos());
     if(m_dragRect)
     {
+        // If they're dragging on the empty canvas to create a new item...
         m_dragRect->setBottomRight(pos);
         viewport()->update();
     }
