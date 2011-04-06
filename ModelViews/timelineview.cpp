@@ -214,7 +214,6 @@ void TimelineView::_draw_items(QModelIndexList &items,
 // The selected color
 #define SELECTED_RGB 0xFF6699CC
 
-#define DRAG_TIME_DISPLAY_WIDTH 200
 
 void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
 {
@@ -222,32 +221,27 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
     //  we can use the real item rect without shifting it
     QRect item_rect( itemRect(ind) );
 
-    // If they're in the middle of a drag/drop then adjust the rect
+    // If they're in the middle of a drag/drop
     if(m_draggingIndex.isValid() &&
             m_draggingIndex == ind)
     {
+        // First adjust the rect to the location to which they've dragged it
         _adjust_rect_for_dragDrop(item_rect);
 
-        const int font_height(QFontMetrics(p.font()).height());
+        // Print the helpful datetime boxes
         if(!m_drag_startDate.isNull())
         {
-            QRect textRect(QPoint(mapFromGlobal(QCursor::pos()).x() + 5,
-                                  item_rect.top() - font_height - 1),
-                           QSize(DRAG_TIME_DISPLAY_WIDTH, font_height));
-            p.fillRect(textRect, Qt::white);
-            p.drawRect(textRect);
-            p.drawText(textRect, Qt::AlignHCenter,
-                       m_drag_startDate.toString("M/d/yyyy hh:mm:ss ap"));
+            _draw_datetime_rect(m_drag_startDate,
+                                QPoint(mapFromGlobal(QCursor::pos()).x(), item_rect.top()),
+                                true,
+                                p);
         }
         if(!m_drag_endDate.isNull())
         {
-            QRect textRect(QPoint(mapFromGlobal(QCursor::pos()).x() + 5,
-                                  item_rect.bottom() + 1),
-                           QSize(DRAG_TIME_DISPLAY_WIDTH, font_height));
-            p.fillRect(textRect, Qt::white);
-            p.drawRect(textRect);
-            p.drawText(textRect, Qt::AlignHCenter,
-                       m_drag_endDate.toString("M/d/yyyy hh:mm:ss ap"));
+            _draw_datetime_rect(m_drag_endDate,
+                                QPoint(mapFromGlobal(QCursor::pos()).x(), item_rect.bottom()),
+                                false,
+                                p);
         }
     }
 
@@ -292,6 +286,22 @@ void TimelineView::_draw_rect(const QRect &r, const QColor &c, const GFormattedT
                    txt.Text);
     }
     p.restore();
+}
+
+void TimelineView::_draw_datetime_rect(const QDateTime &dt, const QPoint &point, bool raise, QPainter &p)
+{
+    const int side_margin( 5 );
+
+    QString tmps( dt.toString("M/d/yyyy hh:mm:ss ap") );
+    QRect bounding_rect( QFontMetrics(p.font()).boundingRect(tmps) );
+    bounding_rect.adjust(-side_margin, 0, side_margin, 0);
+
+    QRect textRect(QPoint(point.x() - bounding_rect.width() / 2,
+                          point.y() + (raise ? -(bounding_rect.height() + 1) : 2 )),
+                   bounding_rect.size());
+    p.fillRect(textRect, Qt::white);
+    p.drawRect(textRect);
+    p.drawText(textRect, Qt::AlignHCenter, tmps);
 }
 
 QRect TimelineView::visualRect(const QModelIndex &index) const

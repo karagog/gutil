@@ -148,6 +148,7 @@ private:
     void _draw_item(const QModelIndex &, QPainter &);
     void _draw_rect(const QRect &, const QColor &,
                     const Custom::GFormattedText &, QPainter &);
+    void _draw_datetime_rect(const QDateTime &, const QPoint &center_point, bool raise, QPainter &);
 
     QRegion itemRegion(const QModelIndex &) const;
 
