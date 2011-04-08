@@ -660,7 +660,9 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 
     if(m_dragRect)
     {
-        if(m_dragRect->topLeft() != m_dragRect->bottomRight())
+        // For convenience, we'll check if the top and bottom are too close,
+        //  'cause it's annoying if you accidentally clicked it and it creates an activity
+        if(gAbs(m_dragRect->top() - m_dragRect->bottom()) > 2)
         {
             QDateTime
                     st(PointToDateTime(m_dragRect->topLeft())),
@@ -674,17 +676,9 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
                 en = tt;
             }
 
-            // We update before notifying about the new item, so that it doesn't
-            //  update twice after the new item is created
-            viewport()->update();
-
             // notify whoever's listening that the user wants to make a new item
             emit NewItemRequested(st, en);
         }
-        else
-            // We still need to update, because it could have drawn a point on
-            //  the view that we need to clear
-            viewport()->update();
 
         delete m_dragRect;
         m_dragRect = 0;
@@ -720,9 +714,9 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
         m_drag_startDate = QDateTime();
         m_drag_endDate = QDateTime();
         m_drag_cursor_offset = -1;
-
-        viewport()->update();
     }
+
+    viewport()->update();
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
