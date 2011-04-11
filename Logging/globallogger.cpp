@@ -14,9 +14,9 @@ limitations under the License.*/
 
 #include "globallogger.h"
 #include "Logging/abstractlogger.h"
+#include "Custom/gapplication.h"
 #include <QReadWriteLock>
 #include <QVariant>
-#include <QApplication>
 using namespace GUtil;
 
 // Global variables
@@ -54,6 +54,8 @@ int Logging::GlobalLogger::_setup_logger(Logging::AbstractLogger *logger, int lo
 {
     _takedown_logger(logger_id);
     _logger_list.insert(logger_id, logger);
+    if(gApp)
+        gApp->AddCleanupObject(logger);
     return logger_id;
 }
 
@@ -63,13 +65,13 @@ void Logging::GlobalLogger::TakeDownLogger(int logger_id)
     try
     {
         _translate_logger_id(logger_id, false);
-        _takedown_logger(logger_id);
     }
     catch(...)
     {
         _logger_list_lock.unlock();
         throw;
     }
+    _takedown_logger(logger_id);
     _logger_list_lock.unlock();
 }
 
@@ -77,7 +79,10 @@ void Logging::GlobalLogger::_takedown_logger(int logger_id)
 {
     if(_logger_list.contains(logger_id))
     {
-        _logger_list.value(logger_id)->deleteLater();
+        AbstractLogger *al(_logger_list.value(logger_id));
+        if(gApp)
+            gApp->RemoveCleanupObject(al);
+        al->deleteLater();
         _logger_list.remove(logger_id);
     }
 }

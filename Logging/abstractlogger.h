@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <QDateTime>
 #include <QString>
 #include <QObject>
+#include "Custom/gapplication.h"
 
 namespace GUtil
 {
@@ -34,7 +35,10 @@ namespace GUtil
     namespace Logging
     {
         class AbstractLogger :
-                public QObject
+                public QObject,
+
+                // This allows us to be cleaned up by the GApplication
+                public Custom::GApplication::CleanupObject
         {
             Q_OBJECT
         public:

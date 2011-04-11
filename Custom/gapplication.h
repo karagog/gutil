@@ -23,7 +23,6 @@ namespace Core{
     class Exception;
 }
 
-
 namespace Custom{
 
 
@@ -34,7 +33,7 @@ class GApplication :
 public:
 
     explicit GApplication(int &argc, char **argv);
-    virtual ~GApplication(){}
+    virtual ~GApplication();
 
     // Get convenient access to the command line arguments
     inline Core::Utils::CommandLineArgs Args() const{
@@ -43,21 +42,40 @@ public:
 
     virtual bool notify(QObject *, QEvent *);
 
+    // You can have the GApplication cleanup objects in the cleanup handler
+    //  rather than the destructor by using this interface.  Classes that
+    //  want to be cleaned up must derive from CleanupObject
+    class CleanupObject{
+    public:
+        virtual ~CleanupObject(){}
+    };
+    void AddCleanupObject(CleanupObject *o);
+    void RemoveCleanupObject(CleanupObject *o);
+    inline QList<CleanupObject*> CleanupObjects() const{ return _cleanup_objects; }
+
 
 protected slots:
 
     // You must put cleanup code in here, or connect your own handler to the
     //  'aboutToQuit' signal
-    virtual void cleanup(){}
+    virtual void cleanup();
 
     // You can override these methods, which are called in the event of an exception
     //  during an application event
     virtual void handle_exception(const Core::Exception &){}
     virtual void handle_std_exception(const std::exception &){}
 
+
+private:
+
+    QList<CleanupObject*> _cleanup_objects;
+
 };
 
 
 }}
+
+
+extern GUtil::Custom::GApplication *gApp;
 
 #endif // GAPPLICATION_H
