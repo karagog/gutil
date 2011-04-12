@@ -19,6 +19,9 @@ TEMPLATE = lib
 QT -= gui
 #DEFINES += GUI_FUNCTIONALITY
 
+#QT += network
+#DEFINES += NETWORK_FUNCTIONALITY
+
 SOURCES += \
     pubsubsystem.cpp \
     usermachinelocks.cpp \

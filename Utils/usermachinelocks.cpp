@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef GUI_FUNCTIONALITY
+#if defined(GUI_FUNCTIONALITY) && defined(NETWORK_FUNCTIONALITY)
 
 #include "usermachinelocks.h"
 #include "ThirdParty/Qt/QtLockedFile/qtlockedfile.h"
@@ -263,4 +263,4 @@ void Utils::UserMachineMutex::LockMutexOnMachine(bool block)
     lock(false, block);
 }
 
-#endif // GUI_FUNCTIONALITY
+#endif // GUI_FUNCTIONALITY && NETWORK_FUNCTIONALITY
