@@ -95,4 +95,10 @@ private:
 
 }}
 
+
+// A reference to the global instance of either GApplication or GCoreApplication,
+//  whichever one you happen to be using
+extern GUtil::Custom::GApplicationBase *gApp;
+
+
 #endif // GAPPLICATIONBASE_H

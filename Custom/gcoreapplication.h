@@ -29,13 +29,14 @@ class GCoreApplication :
 public:
 
     explicit GCoreApplication(int &argc, char **argv);
-    virtual ~GCoreApplication();
+    virtual ~GCoreApplication(){}
+
+    virtual bool notify(QObject *, QEvent *);
 
 };
 
 
 }}
 
-extern GUtil::Custom::GCoreApplication *gCoreApp;
 
 #endif // GCOREAPPLICATION_H

@@ -16,25 +16,12 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "Core/exception.h"
 GUTIL_USING_NAMESPACE(GUICustom);
-
-GApplication *gApp(0);
+GUTIL_USING_NAMESPACE(Custom);
 
 GApplication::GApplication(int &argc, char **argv)
     :QApplication(argc, argv),
       GApplicationBase(this)
-{
-    if(gApp)
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "GApplication already initialized!");
-
-    gApp = this;
-}
-
-GApplication::~GApplication()
-{
-    if(gApp == this)
-        gApp = 0;
-}
+{}
 
 bool GApplication::notify(QObject *o, QEvent *ev)
 {

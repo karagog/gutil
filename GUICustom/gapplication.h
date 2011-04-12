@@ -29,7 +29,7 @@ class GApplication :
 public:
 
     explicit GApplication(int &argc, char **argv);
-    virtual ~GApplication();
+    virtual ~GApplication(){}
 
     virtual bool notify(QObject *, QEvent *);
 
@@ -37,8 +37,5 @@ public:
 
 
 }}
-
-
-extern GUtil::GUICustom::GApplication *gApp;
 
 #endif // GAPPLICATION_H

@@ -17,18 +17,30 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE(Custom);
 
 GApplicationCleanerUpper *cleaner(0);
+GApplicationBase *gApp(0);
 
 GApplicationBase::GApplicationBase(QCoreApplication *a)
     :m_app(a)
 {
+    if(gApp)
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "GApplicationBase already initialized!");
+
+    gApp = this;
+
     cleaner = new GApplicationCleanerUpper(this);
     cleaner->connect(a, SIGNAL(aboutToQuit()), SLOT(cleanup()));
 }
 
 GApplicationBase::~GApplicationBase()
 {
-    delete cleaner;
-    cleaner = 0;
+    if(gApp == this)
+    {
+        delete cleaner;
+        cleaner = 0;
+
+        gApp = 0;
+    }
 }
 
 void GApplicationBase::AddCleanupObject(GApplicationBase::CleanupObject *o)

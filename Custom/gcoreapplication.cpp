@@ -16,21 +16,27 @@ limitations under the License.*/
 #include "gutil_macros.h"
 GUTIL_USING_NAMESPACE(Custom);
 
-GCoreApplication *gCoreApp(0);
-
 GCoreApplication::GCoreApplication(int &argc, char **argv)
     :QCoreApplication(argc, argv),
       GApplicationBase(this)
-{
-    if(gCoreApp)
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "GCoreApplication already initialized!");
+{}
 
-    gCoreApp = this;
-}
-
-GCoreApplication::~GCoreApplication()
+bool GCoreApplication::notify(QObject *o, QEvent *ev)
 {
-    if(gCoreApp == this)
-        gCoreApp = 0;
+    bool ret(false);
+
+    try
+    {
+        ret = QCoreApplication::notify(o, ev);
+    }
+    catch(GUtil::Core::Exception &ex)
+    {
+        handle_exception(ex);
+    }
+    catch(std::exception &ex)
+    {
+        handle_std_exception(ex);
+    }
+
+    return ret;
 }
