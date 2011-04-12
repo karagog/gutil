@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include <QCoreApplication>
 
-GUTIL_BEGIN_NAMESPACE(Custom);
+namespace GUtil{ namespace Custom{
 
 
 // Used as a base class for the common functionality of GApplication
@@ -74,6 +74,25 @@ private:
 };
 
 
-GUTIL_END_NAMESPACE;
+// This class is just a facade; it is here because GApplicationBase cannot be
+//  a QObject itself, because it is expected that it will be derived by other
+//  derivitives of QObject
+class GApplicationCleanerUpper :
+        public QObject
+{
+    Q_OBJECT
+public:
+    explicit GApplicationCleanerUpper(GApplicationBase *ga)
+        :m_gapp(ga) {}
+public slots:
+    void cleanup(){
+        m_gapp->Cleanup();
+    }
+private:
+    GApplicationBase *m_gapp;
+};
+
+
+}}
 
 #endif // GAPPLICATIONBASE_H

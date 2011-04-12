@@ -16,30 +16,12 @@ limitations under the License.*/
 #include <QObject>
 GUTIL_USING_NAMESPACE(Custom);
 
-// This class is just a facade; it is here because GApplicationBase cannot be
-//  a QObject itself, because it is expected that it will be derived by other
-//  derivitives of QObject
-class CleanerUpper :
-        public QObject
-{
-    Q_OBJECT
-public:
-    explicit CleanerUpper(GApplicationBase *ga)
-        :m_gapp(ga) {}
-public slots:
-    void cleanup(){
-        m_gapp->Cleanup();
-    }
-private:
-    GApplicationBase *m_gapp;
-};
-
-CleanerUpper *cleaner(0);
+GApplicationCleanerUpper *cleaner(0);
 
 GApplicationBase::GApplicationBase(QCoreApplication *a)
     :m_app(a)
 {
-    cleaner = new CleanerUpper(this);
+    cleaner = new GApplicationCleanerUpper(this);
     cleaner->connect(a, SIGNAL(aboutToQuit()), SLOT(cleanup()));
 }
 
