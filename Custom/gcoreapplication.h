@@ -12,30 +12,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GCOREAPPLICATION_H
+#define GCOREAPPLICATION_H
 
-#ifndef MESSAGEBOXLOGGER_H
-#define MESSAGEBOXLOGGER_H
+#include <QCoreApplication>
+#include "gapplicationbase.h"
 
-#include "abstractlogger.h"
+namespace GUtil{ namespace Custom {
 
-namespace GUtil
+
+class GCoreApplication :
+        public QCoreApplication,
+        public GApplicationBase
 {
-    namespace Logging
-    {
-        class MessageBoxLogger : public AbstractLogger
-        {
-            Q_OBJECT
-        public:
-            explicit MessageBoxLogger(QObject *parent = 0);
-            virtual ~MessageBoxLogger();
+    Q_OBJECT
+public:
 
-        protected:
-            virtual void Log_protected(const QByteArray &, MessageLevelEnum);
-        };
-    }
-}
+    explicit GCoreApplication(int &argc, char **argv);
+    virtual ~GCoreApplication();
 
-#endif // MESSAGEBOXLOGGER_H
+};
 
-#endif // GUI_FUNCTIONALITY
+
+}}
+
+extern GUtil::Custom::GCoreApplication *gCoreApp;
+
+#endif // GCOREAPPLICATION_H

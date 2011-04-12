@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef GUI_FUNCTIONALITY
+
 #include "processstatusindicator.h"
 #include "localsocketclient.h"
 #include "localsocketserver.h"
@@ -19,9 +21,9 @@ GUTIL_USING_NAMESPACE(BusinessObjects);
 
 #define IDENTITY_FORMAT "%1_PROCESS_STATUS"
 
-ProcessStatusIndicator::ProcessStatusIndicator(const QString &process_id, QObject *parent)
+ProcessStatusIndicator::ProcessStatusIndicator(const QString &directory, const QString &process_id, QObject *parent)
     :QObject(parent),
-    _status_data(QString(IDENTITY_FORMAT).arg(process_id)),
+    _status_data(directory, QString(IDENTITY_FORMAT).arg(process_id)),
     _status_lock(QString(IDENTITY_FORMAT).arg(process_id), ""),
     _server(0)
 {
@@ -140,3 +142,5 @@ void ProcessStatusIndicator::_client_message_arrived()
         emit NewMessageReceived(_server->ReceiveMessage());
     }
 }
+
+#endif // GUI_FUNCTIONALITY

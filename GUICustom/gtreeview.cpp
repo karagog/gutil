@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "gtreeview.h"
 #include "gutil_macros.h"
-GUTIL_USING_NAMESPACE(Custom);
+GUTIL_USING_NAMESPACE(GUICustom);
 
 GTreeView::GTreeView(QWidget *parent)
     :QTreeView(parent)

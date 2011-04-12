@@ -9,6 +9,7 @@ SUBDIRS += \
     Interfaces \
     Utils \
     Custom \
+    GUICustom \
     DataObjects \
     DataModels \
     ModelViews \

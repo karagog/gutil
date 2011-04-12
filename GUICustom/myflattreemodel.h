@@ -20,7 +20,7 @@ limitations under the License.*/
 
 namespace GUtil
 {
-    namespace Custom
+    namespace GUICustom
     {
         // This class will represent a tree model as a list model, essentially
         //  throwing away the hierarchy and letting you access it like a list

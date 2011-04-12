@@ -2,10 +2,17 @@
 #QT += sql
 #DEFINES += DATABASE_FUNCTIONALITY
 
+# Un/Comment these if you need GUI functionality
+QT -= gui
+#DEFINES += GUI_FUNCTIONALITY
+
 DESTDIR = ../lib
 
 TARGET = GUtilLogging
-LIBS += -L../lib -lGUtilCore -lGUtilUtils -lGUtilDataAccess
+LIBS += -L../lib \
+    -lGUtilCore \
+    -lGUtilUtils \
+    -lGUtilDataAccess
 
 TEMPLATE = lib
 #CONFIG += staticlib

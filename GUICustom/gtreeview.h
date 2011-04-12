@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QTreeView>
 
-namespace GUtil{ namespace Custom{
+namespace GUtil{ namespace GUICustom{
 
 
 class GTreeView :

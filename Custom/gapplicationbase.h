@@ -12,37 +12,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GAPPLICATION_H
-#define GAPPLICATION_H
+#ifndef GAPPLICATIONBASE_H
+#define GAPPLICATIONBASE_H
 
-#include <QApplication>
+#include "gutil_macros.h"
 #include "Core/Utils/commandlineargs.h"
+#include "Core/exception.h"
+#include <QCoreApplication>
 
-namespace GUtil{
-namespace Core{
-    class Exception;
-}
-
-namespace Custom{
+GUTIL_BEGIN_NAMESPACE(Custom);
 
 
-class GApplication :
-        public QApplication
+// Used as a base class for the common functionality of GApplication
+//  and GCoreApplication.
+class GApplicationBase
 {
-    Q_OBJECT
 public:
-
-    explicit GApplication(int &argc, char **argv);
-    virtual ~GApplication();
 
     // Get convenient access to the command line arguments
     inline Core::Utils::CommandLineArgs Args() const{
-        return Core::Utils::CommandLineArgs(argc(), argv());
+        return Core::Utils::CommandLineArgs(m_app->argc(), m_app->argv());
     }
 
-    virtual bool notify(QObject *, QEvent *);
-
-    // You can have the GApplication cleanup objects in the cleanup handler
+    // You can have the application object cleanup objects in the cleanup handler
     //  rather than the destructor by using this interface.  Classes that
     //  want to be cleaned up must derive from CleanupObject
     class CleanupObject{
@@ -53,12 +45,20 @@ public:
     void RemoveCleanupObject(CleanupObject *o);
     inline QList<CleanupObject*> CleanupObjects() const{ return _cleanup_objects; }
 
+    // Tells the GApplication to cleanup (called automatically when the application
+    //  is about to quit)
+    void Cleanup();
 
-protected slots:
+    ~GApplicationBase();
 
-    // You must put cleanup code in here, or connect your own handler to the
-    //  'aboutToQuit' signal
-    virtual void cleanup();
+protected:
+
+    // This is an abstract class; it expects to be derived by a derivative of QCoreApplication
+    explicit GApplicationBase(QCoreApplication *);
+
+    // Subclasses can override this to make their own cleanup code, which is in
+    //  addition to this class' cleanup code
+    virtual void cleanup_protected(){}
 
     // You can override these methods, which are called in the event of an exception
     //  during an application event
@@ -68,14 +68,12 @@ protected slots:
 
 private:
 
-    QList<CleanupObject*> _cleanup_objects;
+    QList<CleanupObject *> _cleanup_objects;
+    QCoreApplication *m_app;
 
 };
 
 
-}}
+GUTIL_END_NAMESPACE;
 
-
-extern GUtil::Custom::GApplication *gApp;
-
-#endif // GAPPLICATION_H
+#endif // GAPPLICATIONBASE_H

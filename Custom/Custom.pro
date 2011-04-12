@@ -1,14 +1,17 @@
 DESTDIR = ../lib
+QT -= gui
 
 TARGET = GUtilCustom
 
-LIBS += -L../lib -lGUtilCore -lGUtilInterfaces -lGUtilUtils
+LIBS += -L../lib \
+    -lGUtilCore \
+    -lGUtilInterfaces \
+    -lGUtilUtils
 
 TEMPLATE = lib
 #CONFIG += staticlib
 
 HEADERS += \
-    myflattreemodel.h \
     gthread.h \
     gsemaphore.h \
     gsharedlock.h \
@@ -16,19 +19,18 @@ HEADERS += \
     gshareddata.h \
     updatablegvariant.h \
     gpairlist.h \
-    gtreeview.h \
     gdatetime.h \
     gformattedtext.h \
-    gapplication.h
+    gcoreapplication.h \
+    gapplicationbase.h
 
 SOURCES += \
-    myflattreemodel.cpp \
     gthread.cpp \
     gsharedlock.cpp \
     gvariant.cpp \
     updatablegvariant.cpp \
-    gtreeview.cpp \
     gdatetime.cpp \
-    gapplication.cpp
+    gcoreapplication.cpp \
+    gapplicationbase.cpp
 
 INCLUDEPATH += ..

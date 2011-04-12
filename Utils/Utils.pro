@@ -2,8 +2,6 @@
 # Project created by QtCreator 2010-03-27T16:39:45
 # -------------------------------------------------
 
-QT += network
-
 TARGET = GUtilUtils
 
 LIBS += -L../lib \
@@ -17,6 +15,9 @@ TEMPLATE = lib
 # Uncomment these if you need the database functions
 #QT += sql
 #DEFINES += DATABASE_FUNCTIONALITY
+
+QT -= gui
+#DEFINES += GUI_FUNCTIONALITY
 
 SOURCES += \
     pubsubsystem.cpp \

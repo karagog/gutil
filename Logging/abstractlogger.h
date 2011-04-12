@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QDateTime>
 #include <QString>
 #include <QObject>
-#include "Custom/gapplication.h"
+#include "Custom/gcoreapplication.h"
 
 namespace GUtil
 {
@@ -38,7 +38,7 @@ namespace GUtil
                 public QObject,
 
                 // This allows us to be cleaned up by the GApplication
-                public Custom::GApplication::CleanupObject
+                public Custom::GCoreApplication::CleanupObject
         {
             Q_OBJECT
         public:

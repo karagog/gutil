@@ -1,4 +1,5 @@
 DESTDIR = ../lib
+QT -= gui
 
 TARGET = GUtilInterfaces
 

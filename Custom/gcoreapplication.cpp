@@ -12,30 +12,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef GUI_FUNCTIONALITY
+#include "gcoreapplication.h"
+#include "gutil_macros.h"
+GUTIL_USING_NAMESPACE(Custom);
 
-#ifndef MESSAGEBOXLOGGER_H
-#define MESSAGEBOXLOGGER_H
+GCoreApplication *gCoreApp(0);
 
-#include "abstractlogger.h"
-
-namespace GUtil
+GCoreApplication::GCoreApplication(int &argc, char **argv)
+    :QCoreApplication(argc, argv),
+      GApplicationBase(this)
 {
-    namespace Logging
-    {
-        class MessageBoxLogger : public AbstractLogger
-        {
-            Q_OBJECT
-        public:
-            explicit MessageBoxLogger(QObject *parent = 0);
-            virtual ~MessageBoxLogger();
+    if(gCoreApp)
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "GCoreApplication already initialized!");
 
-        protected:
-            virtual void Log_protected(const QByteArray &, MessageLevelEnum);
-        };
-    }
+    gCoreApp = this;
 }
 
-#endif // MESSAGEBOXLOGGER_H
-
-#endif // GUI_FUNCTIONALITY
+GCoreApplication::~GCoreApplication()
+{
+    if(gCoreApp == this)
+        gCoreApp = 0;
+}

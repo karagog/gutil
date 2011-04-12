@@ -15,16 +15,14 @@ limitations under the License.*/
 #include "gapplication.h"
 #include "gutil_macros.h"
 #include "Core/exception.h"
-GUTIL_USING_NAMESPACE(Custom);
+GUTIL_USING_NAMESPACE(GUICustom);
 
 GApplication *gApp(0);
 
 GApplication::GApplication(int &argc, char **argv)
-    :QApplication(argc, argv)
+    :QApplication(argc, argv),
+      GApplicationBase(this)
 {
-    // Register our cleanup handler
-    connect(this, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
-
     if(gApp)
         THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
                                    "GApplication already initialized!");
@@ -56,29 +54,4 @@ bool GApplication::notify(QObject *o, QEvent *ev)
     }
 
     return ret;
-}
-
-void GApplication::AddCleanupObject(GApplication::CleanupObject *o)
-{
-    if(_cleanup_objects.contains(o))
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Already going to cleanup that object");
-    else
-        _cleanup_objects.append(o);
-}
-
-void GApplication::RemoveCleanupObject(CleanupObject *o)
-{
-    if(_cleanup_objects.contains(o))
-        _cleanup_objects.removeOne(o);
-    else
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Not tracking that object");
-}
-
-void GApplication::cleanup()
-{
-    foreach(CleanupObject *o, _cleanup_objects)
-        delete o;
-    _cleanup_objects.clear();
 }

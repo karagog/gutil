@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifdef GUI_FUNCTIONALITY
+
 #ifndef PROCESSSTATUSINDICATOR_H
 #define PROCESSSTATUSINDICATOR_H
 
@@ -30,7 +32,8 @@ class ProcessStatusIndicator :
     Q_OBJECT
 public:
 
-    explicit ProcessStatusIndicator(const QString &process_id, QObject *parent = 0);
+    explicit ProcessStatusIndicator(const QString &directory,
+                                    const QString &process_id, QObject *parent = 0);
     ~ProcessStatusIndicator();
 
     enum StatusTypeEnum
@@ -78,3 +81,5 @@ private slots:
 }}
 
 #endif // PROCESSSTATUSINDICATOR_H
+
+#endif // GUI_FUNCTIONALITY
