@@ -127,7 +127,7 @@ QDateTime StopwatchEngine::TimeCurrent()
     return ret;
 }
 
-QDateTime StopwatchEngine::TimeMark(int mark_index)
+QDateTime StopwatchEngine::TimeMark(int mark_index) const
 {
     QDateTime ret;
     if(mark_index >= 0 && mark_index < m_markTimes.length())

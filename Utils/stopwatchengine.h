@@ -51,7 +51,7 @@ public:
     }
 
     QDateTime TimeCurrent();
-    QDateTime TimeMark(int mark_index = 0);
+    QDateTime TimeMark(int mark_index = 0) const;
 
 
 signals:
