@@ -12,7 +12,8 @@ TARGET = GUtilLogging
 LIBS += -L../lib \
     -lGUtilCore \
     -lGUtilUtils \
-    -lGUtilDataAccess
+    -lGUtilDataAccess \
+    -lGUtilCustom
 
 TEMPLATE = lib
 #CONFIG += staticlib
