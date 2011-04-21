@@ -53,6 +53,11 @@ protected:
 
     GIODeviceBundleManager iodevice_manager;
 
+
+private slots:
+
+    void new_data(const QUuid &, const QByteArray &data);
+
 };
 
 

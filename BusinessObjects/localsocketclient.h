@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef LOCALSOCKETCLIENT_H
 #define LOCALSOCKETCLIENT_H
 
-#include "connectionmanager.h"
+#include "clientbase.h"
 #include <QObject>
 
 namespace GUtil
@@ -25,7 +25,7 @@ namespace GUtil
     namespace BusinessObjects
     {
         class LocalSocketClient :
-                public ConnectionManager
+                public ClientBase
         {
             Q_OBJECT
         public:
@@ -36,21 +36,6 @@ namespace GUtil
                                  const QString &modifier = QString::null);
 
             void DisconnectFromServer();
-
-            inline bool IsConnected() const{
-                return iodevice_manager.GetIds().count() > 0;
-            }
-
-
-        signals:
-
-            void Disconnected();
-
-
-        private slots:
-
-            void _socket_new_data(const QUuid &, const QByteArray &);
-            void _disconnected_from_server();
 
         };
     }

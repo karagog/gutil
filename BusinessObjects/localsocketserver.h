@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef LOCALSOCKETSERVER_H
 #define LOCALSOCKETSERVER_H
 
-#include "connectionmanager.h"
+#include "serverbase.h"
 #include <QObject>
 #include <QString>
 #include <QUuid>
@@ -33,12 +33,13 @@ namespace GUtil
     namespace BusinessObjects
     {
         class LocalSocketServer :
-                public ConnectionManager
+                public ServerBase
         {
             Q_OBJECT
         public:
 
             explicit LocalSocketServer(QObject *parent = 0);
+            ~LocalSocketServer();
 
             // Throws an exception if listen fails
             void ListenForConnections(const QString &identifier,
@@ -48,18 +49,9 @@ namespace GUtil
             void ShutDownServer();
 
 
-        signals:
-
-            void NewConnection(const QUuid &conn_id = QUuid());
-            void ClientDisconnected(const QUuid &conn_id = QUuid());
-
-
         private slots:
 
             void new_connection();
-            void new_data(const QUuid &, const QByteArray &data);
-
-            void socket_disconnected(const QUuid &);
 
 
         private:

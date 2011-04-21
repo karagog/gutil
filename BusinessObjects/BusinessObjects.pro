@@ -32,7 +32,9 @@ HEADERS += \
     localsocketserver.h \
     localsocketclient.h \
     processstatusindicator.h \
-    connectionmanager.h
+    connectionmanager.h \
+    serverbase.h \
+    clientbase.h
 
 SOURCES += \
     BinaryDataStore.cpp \
@@ -41,6 +43,8 @@ SOURCES += \
     localsocketserver.cpp \
     localsocketclient.cpp \
     processstatusindicator.cpp \
-    connectionmanager.cpp
+    connectionmanager.cpp \
+    serverbase.cpp \
+    clientbase.cpp
 
 INCLUDEPATH += ..

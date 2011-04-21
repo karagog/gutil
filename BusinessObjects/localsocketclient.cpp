@@ -21,11 +21,8 @@ using namespace DataAccess;
 using namespace BusinessObjects;
 
 LocalSocketClient::LocalSocketClient(QObject *parent)
-    :ConnectionManager(parent)
-{
-    connect(this, SIGNAL(NewDataArrived(QUuid, QByteArray)),
-            this, SLOT(_socket_new_data(QUuid, QByteArray)));
-}
+    :ClientBase(parent)
+{}
 
 void LocalSocketClient::ConnectToServer(const QString &identifier,
                                         const QString &modifier)
@@ -37,7 +34,7 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
     if(sock->Socket().waitForConnected(5000))
     {
         connect(&sock->Socket(), SIGNAL(disconnected()),
-                this, SLOT(_disconnected_from_server()));
+                this, SLOT(disconnected_from_server()));
         iodevice_manager.AddToBundle(sock);
     }
     else
@@ -53,17 +50,6 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
 void LocalSocketClient::DisconnectFromServer()
 {
     ((GSocketIODevice &)iodevice_manager.Transport()).Socket().disconnectFromServer();
-}
-
-void LocalSocketClient::_disconnected_from_server()
-{
-    emit Disconnected();
-    iodevice_manager.RemoveAll();
-}
-
-void LocalSocketClient::_socket_new_data(const QUuid &, const QByteArray &data)
-{
-    emit NewMessageArrived(QUuid(data.left(data.indexOf(":")).constData()));
 }
 
 

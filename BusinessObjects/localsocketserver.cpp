@@ -21,11 +21,14 @@ using namespace BusinessObjects;
 using namespace DataAccess;
 
 LocalSocketServer::LocalSocketServer(QObject *parent)
-    :ConnectionManager(parent)
+    :ServerBase(parent)
 {
     connect(&_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
-    connect(this, SIGNAL(NewDataArrived(QUuid, QByteArray)),
-            this, SLOT(new_data(QUuid, QByteArray)));
+}
+
+LocalSocketServer::~LocalSocketServer()
+{
+   ShutDownServer();
 }
 
 void LocalSocketServer::new_connection()
@@ -36,23 +39,12 @@ void LocalSocketServer::new_connection()
                 _server.nextPendingConnection(), this));
 
         connect(sock, SIGNAL(Disconnected(QUuid)),
-                this, SLOT(socket_disconnected(QUuid)));
+                this, SLOT(client_disconnected(QUuid)));
 
         iodevice_manager.AddToBundle(sock);
 
         emit NewConnection(sock->GetIdentity());
     }
-}
-
-void LocalSocketServer::new_data(const QUuid &id, const QByteArray &data)
-{
-    emit NewMessageArrived(id, data.left(data.indexOf(":")).constData());
-}
-
-void LocalSocketServer::socket_disconnected(const QUuid &id)
-{
-    emit ClientDisconnected(id);
-    iodevice_manager.Remove(id);
 }
 
 void LocalSocketServer::ListenForConnections(const QString &identifier,
@@ -70,10 +62,13 @@ void LocalSocketServer::ListenForConnections(const QString &identifier,
 
 void LocalSocketServer::ShutDownServer()
 {
-    foreach(QUuid id, iodevice_manager.GetIds())
-        _socket_device(id).Socket().disconnect();
+    if(_server.isListening())
+    {
+        foreach(QUuid id, iodevice_manager.GetIds())
+            _socket_device(id).Socket().disconnect();
 
-    _server.close();
+        _server.close();
+    }
 }
 
 

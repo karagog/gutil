@@ -19,7 +19,10 @@ GUTIL_USING_NAMESPACE( BusinessObjects );
 
 ConnectionManager::ConnectionManager(QObject *parent)
     :QObject(parent)
-{}
+{
+    connect(&iodevice_manager, SIGNAL(NewDataArrived(QUuid, QByteArray)),
+            this, SLOT(new_data(QUuid, QByteArray)));
+}
 
 void ConnectionManager::SendMessage(const QByteArray &message, const QUuid &id)
 {
@@ -55,6 +58,11 @@ QByteArray ConnectionManager::ReceiveMessage(const QUuid &id)
 {
     QByteArray ret(iodevice_manager.ReceiveData(id));
     return ret.right(ret.length() - (ret.indexOf(":") + 1));
+}
+
+void ConnectionManager::new_data(const QUuid &id, const QByteArray &data)
+{
+    emit NewMessageArrived(id, data.left(data.indexOf(":")).constData());
 }
 
 
