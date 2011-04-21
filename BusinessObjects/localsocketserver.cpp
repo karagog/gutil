@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef NETWORK_FUNCTIONALITY
 
 #include "localsocketserver.h"
-#include "DataAccess/gsocketiodevice.h"
+#include "DataAccess/glocalsocketiodevice.h"
 using namespace GUtil;
 using namespace BusinessObjects;
 using namespace DataAccess;
@@ -35,7 +35,7 @@ void LocalSocketServer::new_connection()
 {
     while(_server.hasPendingConnections())
     {
-        GSocketIODevice *sock(new GSocketIODevice(
+        GLocalSocketIODevice *sock(new GLocalSocketIODevice(
                 _server.nextPendingConnection(), this));
 
         connect(sock, SIGNAL(Disconnected(QUuid)),

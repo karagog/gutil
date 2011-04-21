@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef NETWORK_FUNCTIONALITY
 
 #include "localsocketclient.h"
-#include "DataAccess/gsocketiodevice.h"
+#include "DataAccess/glocalsocketiodevice.h"
 using namespace GUtil;
 using namespace DataAccess;
 using namespace BusinessObjects;
@@ -27,7 +27,7 @@ LocalSocketClient::LocalSocketClient(QObject *parent)
 void LocalSocketClient::ConnectToServer(const QString &identifier,
                                         const QString &modifier)
 {
-    GSocketIODevice *sock(new GSocketIODevice(new QLocalSocket, this));
+    GLocalSocketIODevice *sock(new GLocalSocketIODevice(new QLocalSocket, this));
 
     QString id(QString("%1.%2").arg(identifier).arg(modifier));
     sock->Socket().connectToServer(id);
@@ -49,7 +49,7 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
 
 void LocalSocketClient::DisconnectFromServer()
 {
-    ((GSocketIODevice &)iodevice_manager.Transport()).Socket().disconnectFromServer();
+    ((GLocalSocketIODevice &)iodevice_manager.Transport()).Socket().disconnectFromServer();
 }
 
 

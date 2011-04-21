@@ -27,7 +27,7 @@ namespace GUtil
 {
     namespace DataAccess
     {
-        class GSocketIODevice;
+        class GLocalSocketIODevice;
     }
 
     namespace BusinessObjects
@@ -58,11 +58,11 @@ namespace GUtil
 
             QLocalServer _server;
 
-            inline DataAccess::GSocketIODevice &_socket_device(const QUuid &id){
-                return (DataAccess::GSocketIODevice &)iodevice_manager.Transport(id);
+            inline DataAccess::GLocalSocketIODevice &_socket_device(const QUuid &id){
+                return (DataAccess::GLocalSocketIODevice &)iodevice_manager.Transport(id);
             }
-            const DataAccess::GSocketIODevice &_socket_device(const QUuid &id) const{
-                return (const DataAccess::GSocketIODevice &)iodevice_manager.Transport(id);
+            const DataAccess::GLocalSocketIODevice &_socket_device(const QUuid &id) const{
+                return (const DataAccess::GLocalSocketIODevice &)iodevice_manager.Transport(id);
             }
 
         };

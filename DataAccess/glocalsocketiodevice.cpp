@@ -14,11 +14,11 @@ limitations under the License.*/
 
 #ifdef NETWORK_FUNCTIONALITY
 
-#include "gsocketiodevice.h"
+#include "glocalsocketiodevice.h"
 using namespace GUtil;
 using namespace DataAccess;
 
-GSocketIODevice::GSocketIODevice(QLocalSocket *s, QObject *parent)
+GLocalSocketIODevice::GLocalSocketIODevice(QLocalSocket *s, QObject *parent)
     :GQIODevice(s, parent)
 {
     connect(s, SIGNAL(connected()), this, SLOT(_localsocket_disconnected()));
@@ -29,27 +29,22 @@ GSocketIODevice::GSocketIODevice(QLocalSocket *s, QObject *parent)
             this, SLOT(_localsocket_state_changed(QLocalSocket::LocalSocketState)));
 }
 
-bool GSocketIODevice::IsConnected() const
-{
-    return Socket().state() == QLocalSocket::ConnectedState;
-}
-
-void GSocketIODevice::_localsocket_disconnected()
+void GLocalSocketIODevice::_localsocket_disconnected()
 {
     emit Disconnected(GetIdentity());
 }
 
-void GSocketIODevice::_localsocket_error(QLocalSocket::LocalSocketError err)
+void GLocalSocketIODevice::_localsocket_error(QLocalSocket::LocalSocketError err)
 {
     emit Error(GetIdentity(), err);
 }
 
-void GSocketIODevice::_localsocket_connected()
+void GLocalSocketIODevice::_localsocket_connected()
 {
     emit Connected(GetIdentity());
 }
 
-void GSocketIODevice::_localsocket_state_changed(QLocalSocket::LocalSocketState s)
+void GLocalSocketIODevice::_localsocket_state_changed(QLocalSocket::LocalSocketState s)
 {
     emit StateChanged(GetIdentity(), s);
 }
