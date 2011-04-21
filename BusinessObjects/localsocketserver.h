@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef LOCALSOCKETSERVER_H
 #define LOCALSOCKETSERVER_H
 
-#include "BusinessObjects/giodevicebundlemanager.h"
+#include "connectionmanager.h"
 #include <QObject>
 #include <QString>
 #include <QUuid>
@@ -33,7 +33,7 @@ namespace GUtil
     namespace BusinessObjects
     {
         class LocalSocketServer :
-                public QObject
+                public ConnectionManager
         {
             Q_OBJECT
         public:
@@ -47,31 +47,10 @@ namespace GUtil
             // Close all connections and stop listening for new ones
             void ShutDownServer();
 
-            // If you leave 'id' blank, it will broadcast to all connections
-            void SendMessage(const QByteArray &message,
-                             const QUuid &id = QUuid());
-
-            // Reply to a specific message you received
-            void Reply(const QUuid &message_id, const QByteArray &,
-                       const QUuid &connection_id = QUuid());
-
-            // Returns a null byte array if nothing to read
-            QByteArray ReceiveMessage(const QUuid &conn_id = QUuid());
-
-            inline bool HasMessage(const QUuid &conn_id = QUuid()){
-                return _socket_manager.HasData(conn_id);
-            }
-
-            inline int MaxThreads() const{
-                return _socket_manager.MaxThreads();
-            }
-
 
         signals:
 
             void NewConnection(const QUuid &conn_id = QUuid());
-            void NewMessageArrived(const QUuid &conn_id = QUuid(),
-                                   const QUuid &message_id = QUuid());
             void ClientDisconnected(const QUuid &conn_id = QUuid());
 
 
@@ -85,14 +64,13 @@ namespace GUtil
 
         private:
 
-            GIODeviceBundleManager _socket_manager;
             QLocalServer _server;
 
             inline DataAccess::GSocketIODevice &_socket_device(const QUuid &id){
-                return (DataAccess::GSocketIODevice &)_socket_manager.Transport(id);
+                return (DataAccess::GSocketIODevice &)iodevice_manager.Transport(id);
             }
             const DataAccess::GSocketIODevice &_socket_device(const QUuid &id) const{
-                return (const DataAccess::GSocketIODevice &)_socket_manager.Transport(id);
+                return (const DataAccess::GSocketIODevice &)iodevice_manager.Transport(id);
             }
 
         };

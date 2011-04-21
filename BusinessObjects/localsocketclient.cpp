@@ -21,9 +21,9 @@ using namespace DataAccess;
 using namespace BusinessObjects;
 
 LocalSocketClient::LocalSocketClient(QObject *parent)
-    :QObject(parent)
+    :ConnectionManager(parent)
 {
-    connect(&_socket_manager, SIGNAL(NewDataArrived(QUuid, QByteArray)),
+    connect(this, SIGNAL(NewDataArrived(QUuid, QByteArray)),
             this, SLOT(_socket_new_data(QUuid, QByteArray)));
 }
 
@@ -38,7 +38,7 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
     {
         connect(&sock->Socket(), SIGNAL(disconnected()),
                 this, SLOT(_disconnected_from_server()));
-        _socket_manager.AddToBundle(sock);
+        iodevice_manager.AddToBundle(sock);
     }
     else
     {
@@ -52,37 +52,18 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
 
 void LocalSocketClient::DisconnectFromServer()
 {
-    ((GSocketIODevice &)_socket_manager.Transport())
-            .Socket().disconnectFromServer();
+    ((GSocketIODevice &)iodevice_manager.Transport()).Socket().disconnectFromServer();
 }
 
 void LocalSocketClient::_disconnected_from_server()
 {
     emit Disconnected();
-    _socket_manager.RemoveAll();
+    iodevice_manager.RemoveAll();
 }
 
 void LocalSocketClient::_socket_new_data(const QUuid &, const QByteArray &data)
 {
     emit NewMessageArrived(QUuid(data.left(data.indexOf(":")).constData()));
-}
-
-void LocalSocketClient::SendMessage(const QByteArray &msg)
-{
-    _socket_manager.SendData(QByteArray(msg).prepend(":"));
-}
-
-void LocalSocketClient::Reply(const QUuid &message_id, const QByteArray &data)
-{
-    _socket_manager.SendData(QByteArray(data).prepend(
-                                 QString("%1:")
-                                 .arg(message_id.toString()).toAscii()));
-}
-
-QByteArray LocalSocketClient::ReceiveMessage()
-{
-    QByteArray ret(_socket_manager.ReceiveData());
-    return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
 
