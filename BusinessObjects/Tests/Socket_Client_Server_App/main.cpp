@@ -12,17 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
-    bool server(argc == 1);
-
-    MainWindow w(server, argv[0]);
-    w.show();
-
+    (new MainWindow(argc == 1, argv[0]))
+            ->show();
     return a.exec();
 }

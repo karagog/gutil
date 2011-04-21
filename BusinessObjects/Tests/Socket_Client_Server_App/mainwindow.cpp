@@ -44,7 +44,7 @@ MainWindow::MainWindow(bool server,
 
             connect(_server, SIGNAL(NewConnection(QUuid)),
                     this, SLOT(new_connection(QUuid)));
-            connect(_server, SIGNAL(Disconnected(QUuid)),
+            connect(_server, SIGNAL(ClientDisconnected(QUuid)),
                     this, SLOT(client_disconnected(QUuid)));
 
             connect(_server, SIGNAL(NewMessageArrived(QUuid)),
@@ -58,7 +58,7 @@ MainWindow::MainWindow(bool server,
             ui->lstClients->setVisible(false);
 
             _client = new LocalSocketClient(this);
-            connect(_client, SIGNAL(NewMessageArrived()),
+            connect(_client, SIGNAL(NewMessageArrived(QUuid)),
                     this, SLOT(receive_message()));
             connect(_client, SIGNAL(Disconnected()),
                     this, SLOT(close()));
@@ -70,13 +70,6 @@ MainWindow::MainWindow(bool server,
     {
         ui->lblServer->setText(QString("FAILED TO INITIALIZE: %1")
                                .arg(ex.GetMessage().c_str()));
-    }
-
-    {
-        int max = _server ? _server->MaxThreads() :
-                            _client->MaxThreads();
-        ui->lblThreads->setText(QString("Max Threads: %1 with an ideal of %2")
-                                .arg(max).arg(QThread::idealThreadCount()));
     }
 }
 
@@ -151,7 +144,7 @@ void MainWindow::receive_message(const QUuid &id)
         // We're the client
         msg = _client->ReceiveMessage();
 
-        ui->lstEvents->addItem(QString("From Server %1")
+        ui->lstEvents->addItem(QString("From Server: %1")
                                .arg(msg.constData()));
     }
     else
