@@ -37,7 +37,7 @@ void LocalSocketClient::ConnectToServer(const QString &identifier,
     if(sock->Socket().waitForConnected(5000))
     {
         connect(&sock->Socket(), SIGNAL(disconnected()),
-                this, SLOT(_socket_disconnected()));
+                this, SLOT(_disconnected_from_server()));
         _socket_manager.AddToBundle(sock);
     }
     else
@@ -54,18 +54,12 @@ void LocalSocketClient::DisconnectFromServer()
 {
     ((GSocketIODevice &)_socket_manager.Transport())
             .Socket().disconnectFromServer();
-
-    _socket_manager.RemoveAll();
 }
 
-bool LocalSocketClient::IsConnected() const
-{
-    return _socket_manager.GetIds().count() > 0;
-}
-
-void LocalSocketClient::_socket_disconnected()
+void LocalSocketClient::_disconnected_from_server()
 {
     emit Disconnected();
+    _socket_manager.RemoveAll();
 }
 
 void LocalSocketClient::_socket_new_data(const QUuid &, const QByteArray &data)
@@ -75,15 +69,14 @@ void LocalSocketClient::_socket_new_data(const QUuid &, const QByteArray &data)
 
 void LocalSocketClient::SendMessage(const QByteArray &msg)
 {
-    QByteArray cpy(msg);
-    _socket_manager.SendData(cpy.prepend(":"));
+    _socket_manager.SendData(QByteArray(msg).prepend(":"));
 }
 
 void LocalSocketClient::Reply(const QUuid &message_id, const QByteArray &data)
 {
-    QByteArray cpy(data);
-    _socket_manager.SendData(cpy.prepend(QString("%1:")
-                                         .arg(message_id.toString()).toAscii()));
+    _socket_manager.SendData(QByteArray(data).prepend(
+                                 QString("%1:")
+                                 .arg(message_id.toString()).toAscii()));
 }
 
 QByteArray LocalSocketClient::ReceiveMessage()
@@ -92,9 +85,5 @@ QByteArray LocalSocketClient::ReceiveMessage()
     return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
-bool LocalSocketClient::HasMessage()
-{
-    return _socket_manager.HasData();
-}
 
 #endif // NETWORK_FUNCTIONALITY

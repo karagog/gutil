@@ -19,7 +19,6 @@ limitations under the License.*/
 
 #include "BusinessObjects/giodevicebundlemanager.h"
 #include <QObject>
-#include <QUuid>
 
 namespace GUtil
 {
@@ -29,20 +28,18 @@ namespace GUtil
                 public QObject
         {
             Q_OBJECT
-        signals:
-
-            void NewMessageArrived(const QUuid &message_id = QUuid());
-            void Disconnected();
-
-
         public:
 
             explicit LocalSocketClient(QObject *parent = 0);
 
             void ConnectToServer(const QString &identifier,
                                  const QString &modifier = QString::null);
+
             void DisconnectFromServer();
-            bool IsConnected() const;
+
+            inline bool IsConnected() const{
+                return _socket_manager.GetIds().count() > 0;
+            }
 
             // You can send a generic message, or reply specifically to a
             //  message you received
@@ -50,17 +47,21 @@ namespace GUtil
             void Reply(const QUuid &message_id, const QByteArray &);
 
             QByteArray ReceiveMessage();
-            bool HasMessage();
-
-            inline int MaxThreads() const{
-                return _socket_manager.MaxThreads();
+            inline bool HasMessage(){
+                return _socket_manager.HasData();
             }
+
+
+        signals:
+
+            void NewMessageArrived(const QUuid &message_id = QUuid());
+            void Disconnected();
 
 
         private slots:
 
-            void _socket_disconnected();
             void _socket_new_data(const QUuid &, const QByteArray &);
+            void _disconnected_from_server();
 
 
         private:

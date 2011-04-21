@@ -39,7 +39,6 @@ namespace GUtil
         public:
 
             explicit LocalSocketServer(QObject *parent = 0);
-            ~LocalSocketServer();
 
             // Throws an exception if listen fails
             void ListenForConnections(const QString &identifier,
@@ -58,7 +57,10 @@ namespace GUtil
 
             // Returns a null byte array if nothing to read
             QByteArray ReceiveMessage(const QUuid &conn_id = QUuid());
-            bool HasMessage(const QUuid &conn_id = QUuid());
+
+            inline bool HasMessage(const QUuid &conn_id = QUuid()){
+                return _socket_manager.HasData(conn_id);
+            }
 
             inline int MaxThreads() const{
                 return _socket_manager.MaxThreads();
@@ -73,16 +75,6 @@ namespace GUtil
             void ClientDisconnected(const QUuid &conn_id = QUuid());
 
 
-        protected:
-
-            // Derived classes take advantage of these functions to react to
-            //  the various events
-            virtual void on_new_connection(const QUuid &conn_id){}
-            virtual void on_new_message_arrived(const QUuid &conn_id,
-                                                const QUuid &message_id){}
-            virtual void on_disconnected(const QUuid &conn_id){}
-
-
         private slots:
 
             void new_connection();
@@ -94,10 +86,14 @@ namespace GUtil
         private:
 
             GIODeviceBundleManager _socket_manager;
-            QLocalServer *_server;
+            QLocalServer _server;
 
-            DataAccess::GSocketIODevice &socket_device(const QUuid &);
-            const DataAccess::GSocketIODevice &socket_device(const QUuid &) const;
+            inline DataAccess::GSocketIODevice &_socket_device(const QUuid &id){
+                return (DataAccess::GSocketIODevice &)_socket_manager.Transport(id);
+            }
+            const DataAccess::GSocketIODevice &_socket_device(const QUuid &id) const{
+                return (const DataAccess::GSocketIODevice &)_socket_manager.Transport(id);
+            }
 
         };
     }

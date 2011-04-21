@@ -23,47 +23,35 @@ using namespace DataAccess;
 LocalSocketServer::LocalSocketServer(QObject *parent)
     :QObject(parent)
 {
-    _server = new QLocalServer(this);
-
-    connect(_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
+    connect(&_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
     connect(&_socket_manager, SIGNAL(NewDataArrived(QUuid, QByteArray)),
             this, SLOT(new_data(QUuid, QByteArray)));
 }
 
-LocalSocketServer::~LocalSocketServer()
-{
-    delete _server;
-}
-
 void LocalSocketServer::new_connection()
 {
-    while(_server->hasPendingConnections())
+    while(_server.hasPendingConnections())
     {
         GSocketIODevice *sock(new GSocketIODevice(
-                _server->nextPendingConnection(), this));
+                _server.nextPendingConnection(), this));
 
         connect(sock, SIGNAL(Disconnected(QUuid)),
                 this, SLOT(socket_disconnected(QUuid)));
 
         _socket_manager.AddToBundle(sock);
 
-        on_new_connection(sock->GetIdentity());
         emit NewConnection(sock->GetIdentity());
     }
 }
 
 void LocalSocketServer::new_data(const QUuid &id, const QByteArray &data)
 {
-    QUuid msg_id(data.left(data.indexOf(":")).constData());
-    on_new_message_arrived(id, msg_id);
-    emit NewMessageArrived(id, msg_id);
+    emit NewMessageArrived(id, data.left(data.indexOf(":")).constData());
 }
 
 void LocalSocketServer::socket_disconnected(const QUuid &id)
 {
-    on_disconnected(id);
     emit ClientDisconnected(id);
-
     _socket_manager.Remove(id);
 }
 
@@ -71,11 +59,11 @@ void LocalSocketServer::ListenForConnections(const QString &identifier,
                                              const QString &modifier)
 {
     QString id(QString("%1.%2").arg(identifier).arg(modifier));
-    if(!_server->listen(id))
+    if(!_server.listen(id))
     {
         Core::Exception ex(QString("Cannot listen for connections with id %1")
                            .arg(id).toStdString());
-        ex.SetData("error", _server->errorString().toStdString());
+        ex.SetData("error", _server.errorString().toStdString());
         THROW_GUTIL_EXCEPTION(ex);
     }
 }
@@ -83,10 +71,9 @@ void LocalSocketServer::ListenForConnections(const QString &identifier,
 void LocalSocketServer::ShutDownServer()
 {
     foreach(QUuid id, _socket_manager.GetIds())
-    {
-        socket_device(id).Socket().disconnect();
-        _socket_manager.Remove(id);
-    }
+        _socket_device(id).Socket().disconnect();
+
+    _server.close();
 }
 
 void LocalSocketServer::SendMessage(const QByteArray &message,
@@ -128,19 +115,5 @@ QByteArray LocalSocketServer::ReceiveMessage(const QUuid &id)
     return ret.right(ret.length() - (ret.indexOf(":") + 1));
 }
 
-bool LocalSocketServer::HasMessage(const QUuid &id)
-{
-   return _socket_manager.HasData(id);
-}
-
-GSocketIODevice &LocalSocketServer::socket_device(const QUuid &id)
-{
-    return (GSocketIODevice &)_socket_manager.Transport(id);
-}
-
-const GSocketIODevice &LocalSocketServer::socket_device(const QUuid &id) const
-{
-    return (const GSocketIODevice &)_socket_manager.Transport(id);
-}
 
 #endif // NETWORK_FUNCTIONALITY
