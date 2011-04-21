@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,26 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_MATH_H
-#define GUTIL_MATH_H
+#include <QApplication>
+#include "mainwindow.h"
 
-
-#include "gutil_macros.h"
-
-namespace GUtil{ namespace Core{
-
-
-template <class T> const T &Max(const T &one, const T &two){
-    return two < one ? one : two;
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    (new MainWindow(argc == 1))
+            ->show();
+    return a.exec();
 }
-template <class T> const T &Min(const T &one, const T &two){
-    return one < two ? one : two;
-}
-
-
-}}
-
-
-
-
-#endif // GUTIL_MATH_H

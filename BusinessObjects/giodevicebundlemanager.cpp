@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/exception.h"
-#include "Core/math.h"
 #include <QStringList>
 #include <QtConcurrentRun>
 #include <QThreadPool>
@@ -32,7 +31,7 @@ GIODeviceBundleManager::GIODeviceBundleManager(QObject *parent)
               flagCancelThread(false)
 {
     _thread_pool.setExpiryTimeout(-1);
-    _thread_pool.setMaxThreadCount( Max(MIN_THREADS, QThread::idealThreadCount()) );
+    _thread_pool.setMaxThreadCount( gMax(MIN_THREADS, QThread::idealThreadCount()) );
 }
 
 GIODeviceBundleManager::~GIODeviceBundleManager()

@@ -46,6 +46,14 @@ public:
     // Close all connections and stop listening for new ones
     void ShutDownServer();
 
+    // The host address/port we're listening on
+    inline QHostAddress Address() const{
+        return _server.serverAddress();
+    }
+    inline quint16 Port() const{
+        return _server.serverPort();
+    }
+
 
 private slots:
 
@@ -55,13 +63,6 @@ private slots:
 private:
 
     QTcpServer _server;
-
-    inline DataAccess::GTcpSocketIODevice &_socket_device(const QUuid &id){
-        return (DataAccess::GTcpSocketIODevice &)iodevice_manager.Transport(id);
-    }
-    const DataAccess::GTcpSocketIODevice &_socket_device(const QUuid &id) const{
-        return (const DataAccess::GTcpSocketIODevice &)iodevice_manager.Transport(id);
-    }
 
 };
 

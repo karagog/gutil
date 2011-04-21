@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,37 +12,42 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef NETWORK_FUNCTIONALITY
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#ifndef TCPSOCKETCLIENT_H
-#define TCPSOCKETCLIENT_H
+#include "DataAccess/gtcpsocketiodevice.h"
+#include <QMainWindow>
 
-#include "clientbase.h"
-#include <QHostAddress>
+class QTcpServer;
 
+namespace Ui {
+    class MainWindow;
+}
 
-namespace GUtil{ namespace BusinessObjects{
-
-
-class TcpSocketClient :
-        public ClientBase
+class MainWindow :
+        public QMainWindow
 {
     Q_OBJECT
+
 public:
+    explicit MainWindow(bool server, QWidget *parent = 0);
+    ~MainWindow();
 
-    explicit TcpSocketClient(QObject *parent = 0);
 
-    void ConnectToServer(const QHostAddress &, quint16 port);
-    void DisconnectFromServer();
+private slots:
 
-    QHostAddress Address() const;
-    quint16 Port() const;
+    void read_sock();
+    void new_connection();
+
+    void send_data();
+
+
+private:
+    Ui::MainWindow *ui;
+
+    GUtil::DataAccess::GTcpSocketIODevice *sock;
+    QTcpServer *srv;
 
 };
 
-
-}}
-
-#endif // TCPSOCKETCLIENT_H
-
-#endif // NETWORK_FUNCTIONALITY
+#endif // MAINWINDOW_H

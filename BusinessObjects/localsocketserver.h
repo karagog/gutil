@@ -58,13 +58,6 @@ namespace GUtil
 
             QLocalServer _server;
 
-            inline DataAccess::GLocalSocketIODevice &_socket_device(const QUuid &id){
-                return (DataAccess::GLocalSocketIODevice &)iodevice_manager.Transport(id);
-            }
-            const DataAccess::GLocalSocketIODevice &_socket_device(const QUuid &id) const{
-                return (const DataAccess::GLocalSocketIODevice &)iodevice_manager.Transport(id);
-            }
-
         };
     }
 }

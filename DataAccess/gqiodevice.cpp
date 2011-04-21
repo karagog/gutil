@@ -40,7 +40,7 @@ void DataAccess::GQIODevice::send_data(const QByteArray &data)
     emit WriteProgressUpdated(_p_WriteProgress = 0);
 
     int bytes_written(0);
-    int byte_resolution( GetWriteProgressResolution() == -1 ?
+    int byte_resolution( GetWriteProgressResolution() == DEFAULT_WRITE_PROGRESS_RESOLUTION ?
                          data.length() :
                          GetWriteProgressResolution() );
     while(bytes_written < data.length())
@@ -91,7 +91,7 @@ QByteArray DataAccess::GQIODevice::receive_data()
     QByteArray ret;
     int bytes_available(IODevice().bytesAvailable());
     int bytes_read(0);
-    int resolution(GetReadProgressResolution() == -1 ?
+    int resolution(GetReadProgressResolution() == DEFAULT_READ_PROGRESS_RESOLUTION ?
                    bytes_available : GetReadProgressResolution());
 
     while(bytes_read < bytes_available)

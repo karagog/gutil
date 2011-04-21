@@ -22,10 +22,10 @@ GTcpSocketIODevice::GTcpSocketIODevice(QTcpSocket *tcp, QObject *parent)
 {
     connect(tcp, SIGNAL(connected()), this, SLOT(_tcpsocket_disconnected()));
     connect(tcp, SIGNAL(disconnected()), this, SLOT(_tcpsocket_disconnected()));
-    connect(tcp, SIGNAL(error(QTcpSocket::SocketError)),
-            this, SLOT(_tcpsocket_error(QTcpSocket::SocketError)));
-    connect(tcp, SIGNAL(stateChanged(QTcpSocket::SocketState)),
-            this, SLOT(_tcpsocket_state_changed(QTcpSocket::SocketState)));
+    connect(tcp, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(_tcpsocket_error(QAbstractSocket::SocketError)));
+    connect(tcp, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+            this, SLOT(_tcpsocket_state_changed(QAbstractSocket::SocketState)));
 }
 
 void GTcpSocketIODevice::_tcpsocket_connected()

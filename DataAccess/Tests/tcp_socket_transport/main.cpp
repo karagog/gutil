@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,5 +12,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "math.h"
-using namespace GUtil::Core;
+
+#include <QtGui/QApplication>
+#include "mainwindow.h"
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    bool server(true);
+
+    if(argc > 1)
+        server = false;
+
+    (new MainWindow(server))->show();
+
+    return a.exec();
+}

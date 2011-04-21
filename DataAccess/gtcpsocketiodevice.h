@@ -47,16 +47,16 @@ signals:
 
     void Connected(const QUuid &id = QUuid());
     void Disconnected(const QUuid &id = QUuid());
-    void Error(const QUuid &id, QTcpSocket::SocketError);
-    void StateChanged(const QUuid &id, QTcpSocket::SocketState);
+    void Error(const QUuid &id, QAbstractSocket::SocketError);
+    void StateChanged(const QUuid &id, QAbstractSocket::SocketState);
 
 
 private slots:
 
     void _tcpsocket_connected();
     void _tcpsocket_disconnected();
-    void _tcpsocket_error(QTcpSocket::SocketError);
-    void _tcpsocket_state_changed(QTcpSocket::SocketState);
+    void _tcpsocket_error(QAbstractSocket::SocketError);
+    void _tcpsocket_state_changed(QAbstractSocket::SocketState);
 
 };
 

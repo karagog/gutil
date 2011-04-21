@@ -65,7 +65,7 @@ void LocalSocketServer::ShutDownServer()
     if(_server.isListening())
     {
         foreach(QUuid id, iodevice_manager.GetIds())
-            _socket_device(id).Socket().disconnect();
+            ((DataAccess::GLocalSocketIODevice &)iodevice_manager.Transport(id)).Socket().disconnect();
 
         _server.close();
     }
