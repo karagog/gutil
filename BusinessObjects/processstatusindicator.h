@@ -19,11 +19,16 @@ limitations under the License.*/
 
 #include "BusinessObjects/ConfigFile.h"
 #include "Utils/usermachinelocks.h"
-#include <QObject>
+#include <QLocalServer>
+#include <QRunnable>
+#include <QThreadPool>
+
+class QLocalSocket;
 
 namespace GUtil{ namespace BusinessObjects{
 
-class LocalSocketServer;
+
+class ProcessServer;
 
 
 class ProcessStatusIndicator :
@@ -33,7 +38,8 @@ class ProcessStatusIndicator :
 public:
 
     explicit ProcessStatusIndicator(const QString &directory,
-                                    const QString &process_id, QObject *parent = 0);
+                                    const QString &process_id,
+                                    QObject *parent = 0);
     ~ProcessStatusIndicator();
 
     enum StatusTypeEnum
@@ -60,21 +66,65 @@ public:
 signals:
 
     void StatusChanged(int new_status);
-    void NewMessageReceived(const QString &);
+    void NewMessageReceived(QByteArray);
 
 
 private:
 
+    ProcessServer *_server;
     ConfigFile _status_data;
     Utils::UserMachineReadWriteLock _status_lock;
 
-    LocalSocketServer *_server;
 
 private slots:
 
     void _status_data_changed();
-    void _client_message_arrived();
 
+};
+
+
+
+
+
+// This implementation is supposed to be private.  Only use
+//  the class above.
+class ProcessThread :
+        public QRunnable
+{
+public:
+    inline ProcessThread(ProcessServer *server, quintptr socket_descriptor)
+        :_sd(socket_descriptor),
+          _server(server)
+    {}
+private:
+    void run();
+    quintptr _sd;
+    ProcessServer *_server;
+};
+
+
+class ProcessServer :
+        public QLocalServer
+{
+    Q_OBJECT
+    friend class ProcessThread;
+public:
+    explicit ProcessServer(QObject *p = 0)
+        :QLocalServer(p)
+    {}
+    inline ~ProcessServer(){
+        thread_pool.waitForDone();
+    }
+
+signals:
+    void NewMessage(QByteArray);
+
+protected:
+    void notify_new_message(const QByteArray &);
+
+private:
+    void incomingConnection(quintptr socketDescriptor);
+    QThreadPool thread_pool;
 };
 
 

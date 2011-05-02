@@ -17,8 +17,7 @@ HEADERS += \
     gconsoleiodevice.h \
     gqiodevice.h \
     gdatabaseiodevice.h \
-    glocalsocketiodevice.h \
-    gtcpsocketiodevice.h
+    glocalsocketiodevice.h
 
 SOURCES += \
     gfileiodevice.cpp \
@@ -26,8 +25,7 @@ SOURCES += \
     gconsoleiodevice.cpp \
     gqiodevice.cpp \
     gdatabaseiodevice.cpp \
-    glocalsocketiodevice.cpp \
-    gtcpsocketiodevice.cpp
+    glocalsocketiodevice.cpp
 
 INCLUDEPATH += ..
 

@@ -15,17 +15,16 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "processstatusindicator.h"
-#include "localsocketclient.h"
-#include "localsocketserver.h"
+#include <QLocalSocket>
 GUTIL_USING_NAMESPACE(BusinessObjects);
 
 #define IDENTITY_FORMAT "%1_PROCESS_STATUS"
 
 ProcessStatusIndicator::ProcessStatusIndicator(const QString &directory, const QString &process_id, QObject *parent)
     :QObject(parent),
-    _status_data(directory, QString(IDENTITY_FORMAT).arg(process_id)),
-    _status_lock(QString(IDENTITY_FORMAT).arg(process_id), ""),
-    _server(0)
+      _server(0),
+      _status_data(directory, QString(IDENTITY_FORMAT).arg(process_id)),
+      _status_lock(QString(IDENTITY_FORMAT).arg(process_id), "")
 {
     connect(&_status_data, SIGNAL(NotifyConfigurationUpdate()),
             this, SLOT(_status_data_changed()));
@@ -66,12 +65,15 @@ bool ProcessStatusIndicator::IsProcessRunning()
     try
     {
         _status_lock.LockForReadOnMachine(false);
-        _status_lock.UnlockForMachine();
     }
     catch(Core::LockException &)
     {
         ret = true;
     }
+
+    if(!ret)
+        _status_lock.UnlockForMachine();
+
     return ret;
 }
 
@@ -105,13 +107,14 @@ void ProcessStatusIndicator::SetIsProcessRunning(bool is_running)
     {
         if(is_running)
         {
-            _server = new LocalSocketServer(this);
-            _server->ListenForConnections(GetProcessIdentityString());
-            connect(_server, SIGNAL(NewMessageArrived()),
-                    this, SLOT(_client_message_arrived()));
+            _server = new ProcessServer;     // no need for explicit parent; we control memory
+            connect(_server, SIGNAL(NewMessage(QByteArray)),
+                    this, SIGNAL(NewMessageReceived(QByteArray)));
+            _server->listen(GetProcessIdentityString());
         }
         else if(_server)
         {
+            _server->close();
             delete _server;
             _server = 0;
         }
@@ -122,9 +125,13 @@ void ProcessStatusIndicator::SendMessageToControllingProcess(const QString &mess
 {
     if(IsProcessRunning())
     {
-        LocalSocketClient sock;
-        sock.ConnectToServer(GetProcessIdentityString());
-        sock.SendMessage(message.toAscii());
+        QLocalSocket sock;
+        sock.connectToServer(GetProcessIdentityString());
+        if(sock.waitForConnected())
+            sock.write(message.toAscii());
+        else
+            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                       sock.errorString().toStdString());
     }
 }
 
@@ -135,12 +142,30 @@ QString ProcessStatusIndicator::GetProcessIdentityString() const
     return id;
 }
 
-void ProcessStatusIndicator::_client_message_arrived()
+
+
+void ProcessServer::incomingConnection(quintptr socketDescriptor)
 {
-    while(_server->HasMessage())
-    {
-        emit NewMessageReceived(_server->ReceiveMessage());
-    }
+    thread_pool.start(new ProcessThread(this, socketDescriptor));
+}
+
+void ProcessServer::notify_new_message(const QByteArray &ba)
+{
+    emit NewMessage(ba);
+}
+
+
+// The server thread simply accepts one message.  It will stop waiting
+//  for this message after a predetermined amount of time
+#define SERVER_WAIT_TIME 5000
+
+void ProcessThread::run()
+{
+    QLocalSocket sock;
+    sock.setSocketDescriptor(_sd);
+
+    if(sock.waitForReadyRead(SERVER_WAIT_TIME))
+        _server->notify_new_message(sock.readAll());
 }
 
 #endif // GUI_FUNCTIONALITY

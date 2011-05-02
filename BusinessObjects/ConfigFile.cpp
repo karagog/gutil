@@ -32,20 +32,8 @@ ConfigFile::ConfigFile(const QString &identifier,
                                    QObject *parent)
     :QObject(parent),
     _p_IsHumanReadable(true),
-    _p_AutoCommitChanges(true),
-    _device_manager(this)
+    _p_AutoCommitChanges(true)
 {
-    connect(&_device_manager, SIGNAL(NewDataArrived()),
-            this, SLOT(new_input_data_arrived()));
-
-    _device_manager.InsertIntoBundle(
-            new DataAccess::GFileIODevice(QString("%1.%2.config.xml")
-                                          .arg(get_file_location(identifier))
-                                          .arg(modifier)));
-
-    // Set the file transport to overwrite the config file rather than append
-    FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
-
     _init(identifier, modifier);
 }
 
@@ -54,19 +42,21 @@ ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
     :QObject(parent),
     Core::Interfaces::IUpdatable(),
     _p_IsHumanReadable(other._p_IsHumanReadable),
-    _p_AutoCommitChanges(other._p_AutoCommitChanges),
-    _device_manager(this)
+    _p_AutoCommitChanges(other._p_AutoCommitChanges)
 {
-    _device_manager.InsertIntoBundle(
-            new DataAccess::GFileIODevice(other.FileName()));
-
     _init(other._identity, other._modifier);
 }
 
 void ConfigFile::_init(const QString &identity, const QString &modifier)
 {
-    _identity = identity;
-    _modifier = modifier;
+    _iodevice = new DataAccess::GFileIODevice(QString("%1.%2.config.xml")
+                                              .arg(get_file_location(_identity = identity))
+                                              .arg(_modifier = modifier));
+    connect(_iodevice, SIGNAL(ReadyRead()),
+            this, SLOT(new_input_data_arrived()));
+
+    // Set the file transport to overwrite the config file rather than append
+    FileTransport().SetWriteMode(DataAccess::GFileIODevice::WriteOver);
 
     if(!Reload())
         _init_new_table(_table);
@@ -177,7 +167,7 @@ void ConfigFile::new_input_data_arrived()
     try
     {
         DataObjects::DataTable tbl;
-        QByteArray data(_device_manager.ReceiveData());
+        QByteArray data(_iodevice->ReceiveData());
 
         _preprocess_incoming_data(data);
 
@@ -346,7 +336,7 @@ void ConfigFile::commit_reject_changes(bool commit)
 
         // Export the changed data to the config file
         //  (don't clear the current data in it)
-        _device_manager.SendData(data);
+        _iodevice->SendData(data);
 
         // Notify immediately; the signal is suppressed when the file is loaded
         //  and found to be the same data, so it is only emitted once.

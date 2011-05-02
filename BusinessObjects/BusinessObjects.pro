@@ -28,27 +28,11 @@ TEMPLATE = lib
 HEADERS += \
     BinaryDataStore.h \
     ConfigFile.h \
-    giodevicebundlemanager.h \
-    localsocketserver.h \
-    localsocketclient.h \
-    processstatusindicator.h \
-    connectionmanager.h \
-    serverbase.h \
-    clientbase.h \
-    tcpsocketserver.h \
-    tcpsocketclient.h
+    processstatusindicator.h
 
 SOURCES += \
     BinaryDataStore.cpp \
     ConfigFile.cpp \
-    giodevicebundlemanager.cpp \
-    localsocketserver.cpp \
-    localsocketclient.cpp \
-    processstatusindicator.cpp \
-    connectionmanager.cpp \
-    serverbase.cpp \
-    clientbase.cpp \
-    tcpsocketserver.cpp \
-    tcpsocketclient.cpp
+    processstatusindicator.cpp
 
 INCLUDEPATH += ..

@@ -17,7 +17,6 @@ limitations under the License.*/
 #ifndef DA_CONFIGFILE_H
 #define DA_CONFIGFILE_H
 
-#include "giodevicebundlemanager.h"
 #include "DataAccess/gfileiodevice.h"
 #include "DataObjects/DataSet/datatable.h"
 #include <QObject>
@@ -96,13 +95,6 @@ namespace GUtil
 
             PROPERTY(AutoCommitChanges, bool);
 
-            inline bool GetAsyncWrite() const{
-                return _device_manager.GetAsyncWrite();
-            }
-            inline void SetAsyncWrite(bool b){
-                _device_manager.SetAsyncWrite(b);
-            }
-
 
         signals:
 
@@ -111,11 +103,11 @@ namespace GUtil
 
         protected:
 
-            inline DataAccess::GFileIODevice &FileTransport() {
-                return (DataAccess::GFileIODevice &)_device_manager.Transport();
+            inline DataAccess::GFileIODevice &FileTransport(){
+                return *_iodevice;
             }
-            inline const DataAccess::GFileIODevice &FileTransport() const {
-                return (const DataAccess::GFileIODevice &)_device_manager.Transport();
+            inline const DataAccess::GFileIODevice &FileTransport() const{
+                return *_iodevice;
             }
 
             // IUpdatable interface:
@@ -134,7 +126,7 @@ namespace GUtil
 
             DataObjects::DataTable _table;
 
-            QWaitCondition _condition_config_update;
+            DataAccess::GFileIODevice *_iodevice;
 
             static QString get_file_location(QString id);
             void _init(const QString &, const QString &);
@@ -146,8 +138,6 @@ namespace GUtil
             void _init_new_table(DataObjects::DataTable &) const;
 
             void _value_changed();
-
-            GIODeviceBundleManager _device_manager;
 
         };
     }
