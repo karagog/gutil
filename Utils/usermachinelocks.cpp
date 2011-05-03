@@ -12,13 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#if defined(GUI_FUNCTIONALITY) && defined(NETWORK_FUNCTIONALITY)
+#ifdef GUI_FUNCTIONALITY
 
 #include "usermachinelocks.h"
 #include "ThirdParty/Qt/QtLockedFile/qtlockedfile.h"
 #include <QFileInfo>
 #include <QDesktopServices>
-#include <QHostInfo>
 using namespace GUtil;
 
 QMap<QString, QReadWriteLock *> Utils::MachineLockBase::process_locks;
@@ -87,13 +86,12 @@ void Utils::MachineLockBase::SetUserMachineLockIdentifier(
     if(identifier.length() == 0)
         return;
 
-    SetUserMachineLockFileName(QString("%1/%2%3.%4.%5")
+    SetUserMachineLockFileName(QString("%1/%2%3.%4")
                                .arg(QDesktopServices::storageLocation(QDesktopServices::DataLocation))
                                .arg(identifier)
                                .arg(modifier.length() != 0 ?
                                     QString(".%1").arg(modifier) :
                                     QString::null)
-                               .arg(QHostInfo::localHostName())
                                .arg(GetStringModifier()));
 }
 
@@ -263,4 +261,4 @@ void Utils::UserMachineMutex::LockMutexOnMachine(bool block)
     lock(false, block);
 }
 
-#endif // GUI_FUNCTIONALITY && NETWORK_FUNCTIONALITY
+#endif // GUI_FUNCTIONALITY
