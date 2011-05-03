@@ -9,6 +9,7 @@ QT       += core gui network
 TARGET = Config_Test_App
 TEMPLATE = app
 
+DEFINES += GUI_FUNCTIONALITY
 
 SOURCES += main.cpp\
         mainwindow.cpp
@@ -18,4 +19,8 @@ HEADERS  += mainwindow.h
 FORMS    += mainwindow.ui
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../lib -lGUtil
+LIBS += -L../../../lib \
+    -lGUtilBusinessObjects \
+    -lGUtilCustom \
+    -lGUtilDataObjects \
+    -lGUtilInterfaces

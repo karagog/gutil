@@ -23,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    cfile.SetAsyncWrite(false);
-
     connect(&cfile, SIGNAL(NotifyConfigurationUpdate()),
             this, SLOT(config_updated()));
 }
