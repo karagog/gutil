@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef GUI_FUNCTIONALITY
+#if defined(GUI_FUNCTIONALITY) && defined(NETWORK_FUNCTIONALITY)
 
 #include "processstatusindicator.h"
 #include <QLocalSocket>
@@ -168,4 +168,4 @@ void ProcessThread::run()
         _server->notify_new_message(sock.readAll());
 }
 
-#endif // GUI_FUNCTIONALITY
+#endif // GUI_FUNCTIONALITY && NETWORK_FUNCTIONALITY
