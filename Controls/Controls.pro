@@ -13,16 +13,19 @@ HEADERS += \
     line_edit_with_button.h \
     faderwidget.h \
     expander.h \
-    stopwatch.h
+    stopwatch.h \
+    timerangepicker.h
 SOURCES += \
     progressbarcontrol.cpp \
     filechooser.cpp \
     line_edit_with_button.cpp \
     faderwidget.cpp \
     expander.cpp \
-    stopwatch.cpp
+    stopwatch.cpp \
+    timerangepicker.cpp
 
 INCLUDEPATH += ..
 LIBS += \
     -L../lib \
-    -lGUtilUtils
+    -lGUtilUtils \
+    -lGUtilCustom
