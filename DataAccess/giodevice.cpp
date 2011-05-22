@@ -53,15 +53,9 @@ void DataAccess::GIODevice::SendData(const QByteArray &data)
     _this_lock.unlock();
 }
 
-QByteArray DataAccess::GIODevice::ReceiveData(bool block)
+QByteArray DataAccess::GIODevice::ReceiveData()
         throw(Core::DataTransportException)
 {
-    _this_lock.lock();
-
-    while(block && !has_data_available())
-        // Wait for new data to become available
-        condition_new_data_available.wait(&_this_lock);
-
     QByteArray ret;
     try
     {
@@ -72,7 +66,6 @@ QByteArray DataAccess::GIODevice::ReceiveData(bool block)
         _this_lock.unlock();
         throw;
     }
-
     _this_lock.unlock();
 
     return ret;
@@ -118,7 +111,6 @@ void DataAccess::GIODevice::operator >> (std::string &dt)
 
 void DataAccess::GIODevice::raiseReadyRead()
 {
-    condition_new_data_available.wakeAll();
     emit ReadyRead(GetIdentity());
 }
 

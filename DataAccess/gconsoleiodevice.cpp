@@ -108,9 +108,9 @@ void DataAccess::GConsoleIODevice::WriteLine(const QString &data)
     Write(data_copy.toAscii());
 }
 
-QString DataAccess::GConsoleIODevice::ReadLine(bool block)
+QString DataAccess::GConsoleIODevice::ReadLine()
 {
-    return ReceiveData(block);
+    return ReceiveData();
 }
 
 void DataAccess::GConsoleIODevice::send_data(const QByteArray &d)

@@ -114,7 +114,7 @@ namespace GUtil
             void commit_reject_changes(bool commit);
 
 
-        protected slots:
+        private slots:
 
             void new_input_data_arrived();
 

@@ -41,7 +41,7 @@ namespace GUtil
         public slots:
 
             void WriteLine(const QString &);
-            QString ReadLine(bool block = true);
+            QString ReadLine();
 
             // stops/starts the object from listening to cin/cout
             void SetEngaged(bool);

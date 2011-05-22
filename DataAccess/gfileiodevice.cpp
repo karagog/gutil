@@ -109,7 +109,7 @@ void DataAccess::GFileIODevice::SetFileName(const QString &filename)
 
 QByteArray DataAccess::GFileIODevice::FileData()
 {
-    return ReceiveData(false);
+    return ReceiveData();
 }
 
 void DataAccess::GFileIODevice::TruncateFile()

@@ -67,7 +67,7 @@ namespace GUtil
             bool HasDataAvailable();
 
             // ReadyRead() will tell you when you can get new data
-            QByteArray ReceiveData(bool block = true)
+            QByteArray ReceiveData()
                     throw(Core::DataTransportException);
 
             READONLY_PROPERTY( Identity, QUuid );
@@ -97,10 +97,6 @@ namespace GUtil
 
             // IReadonly interface
             virtual std::string ReadonlyMessageIdentifier() const;
-
-            // Derived classes can wait on this condition to block until
-            //   new data is available
-            QWaitCondition condition_new_data_available;
 
 
         protected slots:
