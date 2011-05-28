@@ -24,6 +24,7 @@ limitations under the License.*/
 #include <QApplication>
 #include <QItemSelection>
 #include <QRgb>
+#include <QItemDelegate>
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -33,6 +34,9 @@ limitations under the License.*/
 
 #define MIN_WIDTH 500
 #define TIMELINE_TOPBOTTOM_MARGIN 11
+#define TIMELINE_LEFT_MARGIN_12HOURS 85
+#define TIMELINE_LEFT_MARGIN_24HOURS 70
+
 GUTIL_USING_NAMESPACE(ModelViews);
 GUTIL_USING_CORE_NAMESPACE(Utils);
 GUTIL_USING_NAMESPACE(DataObjects);
@@ -44,13 +48,14 @@ TimelineView::TimelineView(QWidget *p)
       _p_DateTimeEditFormat("M/d/yyyy h:m:ss AP"),
       _p_AllowNewItems(true),
       _scale_factor(1),
-      _origin_point(70, TIMELINE_TOPBOTTOM_MARGIN),
+      _origin_point(TIMELINE_LEFT_MARGIN_12HOURS, TIMELINE_TOPBOTTOM_MARGIN),
       _finish_point(_origin_point.x(), _origin_point.y()),
       _range_in_seconds(0),
       _resolution_in_seconds(1),
       m_dragRect(0),
       m_currentHighlighter(QRubberBand::Rectangle, this),
       m_drag_cursor_offset(-1),
+      m_timeFormat(Fmt12Hours),
       m_dateTimeEdit(0)
 {
     setMouseTracking(true);
@@ -99,7 +104,8 @@ void TimelineView::paintEvent(QPaintEvent *ev)
         time_resolution = 24;
         time_increment_in_seconds = 60 * 60;
 
-        fmt = "h:mm";
+        fmt = QString("h:mm%1")
+                .arg(GetTimeFormat() == Fmt12Hours ? " ap" : "");
     }
     else if(days == 7)
     {
@@ -300,9 +306,10 @@ void TimelineView::_draw_rect(const QRect &r, const QColor &c, const GFormattedT
 void TimelineView::_draw_datetime_rect(const QDateTime &dt, const QPoint &point, bool raise, QPainter &p)
 {
     const int side_margin( 5 );
+    QString fmt_string( dt.toString(QString("M/d/yyyy hh:mm:ss%1")
+                                    .arg(GetTimeFormat() == Fmt12Hours ? " ap" : "")) );
 
-    QString tmps( dt.toString("M/d/yyyy hh:mm:ss ap") );
-    QRect bounding_rect( QFontMetrics(p.font()).boundingRect(tmps) );
+    QRect bounding_rect( QFontMetrics(p.font()).boundingRect(fmt_string) );
     bounding_rect.adjust(-side_margin, 0, side_margin, 0);
 
     QRect textRect(QPoint(point.x() - bounding_rect.width() / 2,
@@ -310,7 +317,7 @@ void TimelineView::_draw_datetime_rect(const QDateTime &dt, const QPoint &point,
                    bounding_rect.size());
     p.fillRect(textRect, Qt::white);
     p.drawRect(textRect);
-    p.drawText(textRect, Qt::AlignHCenter, tmps);
+    p.drawText(textRect, Qt::AlignHCenter, fmt_string);
 }
 
 QRect TimelineView::visualRect(const QModelIndex &index) const
@@ -440,7 +447,7 @@ QModelIndex TimelineView::indexAt(const QPoint &point) const
     return ret;
 }
 
-QModelIndex TimelineView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+QModelIndex TimelineView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers)
 {
     QModelIndex ret;
     QModelIndex cur( currentIndex() );
@@ -467,7 +474,7 @@ int TimelineView::verticalOffset() const
     return verticalScrollBar()->value();
 }
 
-bool TimelineView::isIndexHidden(const QModelIndex &index) const
+bool TimelineView::isIndexHidden(const QModelIndex &) const
 {
     return false;
 }
@@ -1172,4 +1179,17 @@ void TimelineView::_model_rows_removed()
 {
     // We have to reset our view, so we can redraw the items
     reset();
+}
+
+void TimelineView::SetTimeFormat(TimeFormatEnum t)
+{
+    m_timeFormat = t;
+
+    const int newx(t == Fmt12Hours ?
+                       TIMELINE_LEFT_MARGIN_12HOURS :
+                       TIMELINE_LEFT_MARGIN_24HOURS);
+    _origin_point.setX(newx);
+    _finish_point.setX(newx);
+
+    repaint();
 }

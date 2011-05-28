@@ -84,6 +84,16 @@ public:
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
     virtual void setModel(QAbstractItemModel *);
 
+    enum TimeFormatEnum
+    {
+        Fmt12Hours = 0,
+        Fmt24Hours = 1
+    };
+    inline TimeFormatEnum GetTimeFormat() const{
+        return m_timeFormat;
+    }
+    void SetTimeFormat(TimeFormatEnum t);
+
 
 signals:
 
@@ -157,7 +167,7 @@ private:
 
     void _update_scrollbars();
 
-    const QPoint _origin_point;
+    QPoint _origin_point;
     QPoint _finish_point;
 
     inline void _update_finish_point(){
@@ -187,6 +197,7 @@ private:
 
     QPersistentModelIndex m_editingIndex;
     DataEnum m_editingData;
+    TimeFormatEnum m_timeFormat;
     int m_previousVerticalScrollbarPosition;
     int m_previousHorizontalScrollbarPosition;
     QDateTimeEdit *m_dateTimeEdit;
