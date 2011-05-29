@@ -185,10 +185,10 @@ void TimelineView::paintEvent(QPaintEvent *ev)
             _draw_rect(m_dragRect->normalized(), Qt::white, QString("(New Item)"), p);
 
             const bool b_swap( m_dragRect->bottom() < m_dragRect->top() );
-            _draw_datetime_rect(PointToDateTime(m_dragRect->topLeft()),
+            _draw_datetime_rect(PointToDateTime(QPoint(0, m_dragRect->top() - verticalScrollBar()->value())),
                                 QPoint(middle_point, m_dragRect->top()),
                                 !b_swap, p);
-            _draw_datetime_rect(PointToDateTime(m_dragRect->bottomRight()),
+            _draw_datetime_rect(PointToDateTime(QPoint(0, m_dragRect->bottom() - verticalScrollBar()->value())),
                                 QPoint(middle_point, m_dragRect->bottom()),
                                 b_swap, p);
         }
@@ -656,7 +656,9 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
         {
             // If they didn't click on a valid index, then they can drag to create
             //  a new item on the timeline (if this property is enabled)
-            m_dragRect = new QRect(pos, pos);
+            QPoint translated_pos(pos.x() + horizontalScrollBar()->value(),
+                                  pos.y() + verticalScrollBar()->value());
+            m_dragRect = new QRect(translated_pos, translated_pos);
         }
     }
 }
@@ -672,8 +674,8 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
         if(gAbs(m_dragRect->top() - m_dragRect->bottom()) > 2)
         {
             QDateTime
-                    st(PointToDateTime(m_dragRect->topLeft())),
-                    en(PointToDateTime(m_dragRect->bottomRight()));
+                    st(PointToDateTime(QPoint(0, m_dragRect->top() - verticalScrollBar()->value()))),
+                    en(PointToDateTime(QPoint(0, m_dragRect->bottom() - verticalScrollBar()->value())));
 
             // Swap start/end time if the rect is backwards
             if(en < st)
@@ -734,7 +736,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     if(m_dragRect)
     {
         // If they're dragging on the empty canvas to create a new item...
-        m_dragRect->setBottomRight(pos);
+        m_dragRect->setBottomRight(QPoint(pos.x() + horizontalScrollBar()->value(),
+                                          pos.y() + verticalScrollBar()->value()));
         viewport()->update();
     }
     else
