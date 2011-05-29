@@ -21,4 +21,6 @@ SUBDIRS += \
 
 CONFIG += ordered
 
-HEADERS += gutil_macros.h
+HEADERS += \
+    gutil_macros.h \
+    gutil_globals.h

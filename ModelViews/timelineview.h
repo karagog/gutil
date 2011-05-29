@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QRubberBand>
 #include <QDateTime>
 #include <QMap>
-#include "gutil_macros.h"
+#include "gutil_globals.h"
 
 class QDateTimeEdit;
 
@@ -84,15 +84,10 @@ public:
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
     virtual void setModel(QAbstractItemModel *);
 
-    enum TimeFormatEnum
-    {
-        Fmt12Hours = 0,
-        Fmt24Hours = 1
-    };
-    inline TimeFormatEnum GetTimeFormat() const{
+    inline GUtilTimeFormatEnum GetTimeFormat() const{
         return m_timeFormat;
     }
-    void SetTimeFormat(TimeFormatEnum t);
+    void SetTimeFormat(GUtilTimeFormatEnum t);
 
 
 signals:
@@ -197,7 +192,7 @@ private:
 
     QPersistentModelIndex m_editingIndex;
     DataEnum m_editingData;
-    TimeFormatEnum m_timeFormat;
+    GUtilTimeFormatEnum m_timeFormat;
     int m_previousVerticalScrollbarPosition;
     int m_previousHorizontalScrollbarPosition;
     QDateTimeEdit *m_dateTimeEdit;

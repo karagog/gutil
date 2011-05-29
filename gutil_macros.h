@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -118,33 +118,6 @@ protected: \
 #define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
 #define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
 
-
-
-// Here are some useful functions
-
-template <class T> inline T gAbs(const T &v){ return v < 0 ? -v : v; }
-
-template <class T> inline T gMin(const T &one, const T &two){
-    return one < two ? one : two;
-}
-template <class T> inline T gMax(const T &one, const T &two){
-    return one < two ? two : one;
-}
-
-
-
-
-// Some useful time constants
-#define MINUTE_IN_SECONDS       60
-#define HOUR_IN_SECONDS         60 * 60
-#define DAY_IN_SECONDS          60 * 60 * 24
-
-#define MONTH_IN_SECONDS_LB     DAY_IN_SECONDS * 28
-#define MONTH_IN_SECONDS_UB     DAY_IN_SECONDS * 31
-
-#define YEAR_IN_SECONDS_LB      DAY_IN_SECONDS * 365
-#define YEAR_IN_SECONDS         YEAR_IN_SECONDS_LB
-#define YEAR_IN_SECONDS_UB      DAY_IN_SECONDS * 366
 
 
 

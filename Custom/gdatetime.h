@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QDateTime>
 #include <QFlags>
-#include "gutil_macros.h"
+#include "gutil_globals.h"
 
 GUTIL_BEGIN_NAMESPACE(Custom);
 
