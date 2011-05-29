@@ -17,7 +17,8 @@ SUBDIRS += \
     Logging \
     BusinessObjects \
     Controls \
-    Test 
+    Ui \
+    Test
 
 CONFIG += ordered
 
