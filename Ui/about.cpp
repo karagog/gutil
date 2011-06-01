@@ -24,7 +24,7 @@ About::About(QWidget *parent)
     :QDialog(parent)
 {
     // Prepare the dialog layout
-    resize(400, 200);
+    resize(400, 250);
 
     AboutTitle.setAlignment(Qt::AlignHCenter);
     {
@@ -56,6 +56,10 @@ About::About(QWidget *parent)
         connect(aboutQt, SIGNAL(clicked()), qApp, SLOT(aboutQt()));
 
         vbl->addWidget(buttons_widget);
+
+        ok->setFocus();
     }
     setLayout(vbl);
+
+    AboutText.setReadOnly(true);
 }
