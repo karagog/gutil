@@ -12,7 +12,6 @@ HEADERS += \
     filechooser.h \
     line_edit_with_button.h \
     faderwidget.h \
-    expander.h \
     stopwatch.h \
     timerangepicker.h
 SOURCES += \
@@ -20,7 +19,6 @@ SOURCES += \
     filechooser.cpp \
     line_edit_with_button.cpp \
     faderwidget.cpp \
-    expander.cpp \
     stopwatch.cpp \
     timerangepicker.cpp
 
