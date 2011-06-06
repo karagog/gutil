@@ -32,8 +32,17 @@ public:
     explicit About(QWidget *parent = 0);
 
     // You can manipulate these members directly to set the title and about text
-    QLabel AboutTitle;
-    QPlainTextEdit AboutText;
+    QLabel Title;
+    QPlainTextEdit Text;
+
+    // The image will appear next to the title, and as the window icon.  It can be
+    //  a regular filename or a resource name (:/resource.bmp for example)
+    void SetImage(const QString &filename);
+
+
+private:
+
+    QWidget _image_widget;
 
 };
 

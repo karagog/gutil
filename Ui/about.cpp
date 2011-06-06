@@ -20,23 +20,32 @@ limitations under the License.*/
 
 GUTIL_USING_NAMESPACE(UI);
 
+#define TITLE_HEIGHT 40
+
 About::About(QWidget *parent)
     :QDialog(parent)
 {
     // Prepare the dialog layout
-    resize(400, 250);
+    resize(400, 300);
 
-    AboutTitle.setAlignment(Qt::AlignHCenter);
+    Title.setAlignment(Qt::AlignHCenter);
     {
         QFont f;
         f.setBold(true);
         f.setPixelSize(20);
-        AboutTitle.setFont(f);
+        Title.setFont(f);
+        Title.setFixedHeight(TITLE_HEIGHT);
     }
 
+    QHBoxLayout *top_level_layout(new QHBoxLayout);
+    _image_widget.setFixedSize(0, 0);
+    top_level_layout->addWidget(&_image_widget);
+    top_level_layout->setAlignment(&_image_widget, Qt::AlignTop);
+
     QVBoxLayout *vbl( new QVBoxLayout );
-    vbl->addWidget(&AboutTitle);
-    vbl->addWidget(&AboutText);
+    top_level_layout->addLayout(vbl);
+    vbl->addWidget(&Title);
+    vbl->addWidget(&Text);
     {
         // Set up the buttons at the bottom of the widget
         QWidget *buttons_widget( new QWidget(this) );
@@ -59,7 +68,22 @@ About::About(QWidget *parent)
 
         ok->setFocus();
     }
-    setLayout(vbl);
+    setLayout(top_level_layout);
 
-    AboutText.setReadOnly(true);
+    Text.setReadOnly(true);
+}
+
+void About::SetImage(const QString &filename)
+{
+    if(filename.isNull())
+    {
+        _image_widget.setFixedSize(0, 0);
+        setWindowIcon(QIcon());
+    }
+    else
+    {
+        _image_widget.setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
+        _image_widget.setStyleSheet(QString("image: url(%1)").arg(filename));
+        setWindowIcon(QIcon(filename));
+    }
 }
