@@ -418,27 +418,27 @@ bool DataObjects::DataTable::_key_violations() const
 
 void DataObjects::DataTable::LockForRead()
 {
-    table_data().SharedLock().lockForRead();
+    table_data().SharedLock.lockForRead();
 }
 
 void DataObjects::DataTable::LockForWrite()
 {
-    table_data().SharedLock().lockForWrite();
+    table_data().SharedLock.lockForWrite();
 }
 
 bool DataObjects::DataTable::TryLockForRead()
 {
-    return table_data().SharedLock().tryLockForRead();
+    return table_data().SharedLock.tryLockForRead();
 }
 
 bool DataObjects::DataTable::TryLockForWrite()
 {
-    return table_data().SharedLock().tryLockForWrite();
+    return table_data().SharedLock.tryLockForWrite();
 }
 
 void DataObjects::DataTable::Unlock()
 {
-    table_data().SharedLock().unlock();
+    table_data().SharedLock.unlock();
 }
 
 DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolumn_value_mapping)

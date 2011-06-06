@@ -41,45 +41,11 @@ public:
     //   to use locks carefully; the class provides a convenient lock that
     //   any objects sharing the data can use, but you have to verify your
     //   own locking mechanism.
-    inline QReadWriteLock &SharedLock(){ return _shared_lock; }
-    inline const QReadWriteLock &SharedLock() const{ return _shared_lock; }
+    QReadWriteLock SharedLock;
 
+    // This is so we can test if a template object is actually derived from GSharedData
     enum DerivedFromGSharedData{ IsDerivedFromGSharedData };
 
-
-private:
-
-    QReadWriteLock _shared_lock;
-
-};
-
-
-
-
-// Like a normal shared data pointer, but guarantees that the pointed-to object is of
-//  type GSharedData
-
-template <typename T> class GSharedDataPointer :
-        public QExplicitlySharedDataPointer<T>
-{
-public:
-
-    GSharedDataPointer() :
-            QExplicitlySharedDataPointer<T>(){}
-
-    inline GSharedDataPointer(T *sharedData) :
-            QExplicitlySharedDataPointer<T>(sharedData){}
-
-    inline GSharedDataPointer(const GSharedDataPointer<T> &o) :
-            QExplicitlySharedDataPointer<T>(o){}
-
-    template <typename X> inline GSharedDataPointer(const GSharedDataPointer<X> &o) :
-            QExplicitlySharedDataPointer<T>(o){}
-
-    inline ~GSharedDataPointer(){
-        // Make sure T is derived from GSharedData
-        if(T::IsDerivedFromGSharedData){}
-    }
 };
 
 

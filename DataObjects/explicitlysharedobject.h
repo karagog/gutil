@@ -79,7 +79,7 @@ protected:
 
 private:
 
-    Custom::GSharedDataPointer<T> _explicitly_shared_data;
+    QExplicitlySharedDataPointer<T> _explicitly_shared_data;
 
 };
 
