@@ -32,8 +32,8 @@ class SharedRowData :
 {
 public:
 
-    SharedRowData(const DataTable &t,
-                  const Custom::GVariantList &vals);
+    explicit SharedRowData(const DataTable &t,
+                           const Custom::GVariantList &vals);
 
     SharedRowData(const SharedRowData &o);
     SharedRowData();

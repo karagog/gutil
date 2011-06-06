@@ -28,7 +28,8 @@ DataObjects::DataColumnCollection::~DataColumnCollection()
 }
 
 DataObjects::DataColumnCollection::DataColumnCollection(const DataColumnCollection &o)
-    :ResizableCollection<DataColumn>(o)
+    :ResizableCollection<DataColumn>(o),
+      _table(new DataTable(*o._table))
 {}
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
