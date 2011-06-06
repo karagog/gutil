@@ -51,6 +51,8 @@ namespace GUtil
 
         protected:
 
+            // This object does not delete the QIODevice.  It is up to you to delete it
+            //  on your own (or make it a child QObject of this one)
             explicit GQIODevice(QIODevice *, QObject *parent = 0);
 
             inline QIODevice &IODevice(){ return *_io_device; }

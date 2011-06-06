@@ -37,6 +37,7 @@ public:
     SharedTableData();
     SharedTableData(const DataSet &ds);
     SharedTableData(const SharedTableData &d);
+    ~SharedTableData();
 
     inline DataSet &GetDataSet(){
         return *_dataset;

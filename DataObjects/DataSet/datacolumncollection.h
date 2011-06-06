@@ -30,7 +30,7 @@ class DataColumnCollection :
     friend class SharedTableData;
 public:
 
-    DataColumnCollection(const DataColumnCollection &);
+    explicit DataColumnCollection(const DataColumnCollection &);
     ~DataColumnCollection();
 
     QStringList Keys() const;
@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    DataColumnCollection(SharedTableData *, int size = 0);
+    explicit DataColumnCollection(SharedTableData *, int size = 0);
 
     void on_add(int);
     void on_remove(int);

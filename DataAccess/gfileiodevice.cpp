@@ -25,8 +25,11 @@ using namespace std;
 
 DataAccess::GFileIODevice::GFileIODevice(const QString &filename, QObject *parent)
     :GQIODevice(new QFile, parent),
-    _machine_lock(filename)
+      _machine_lock(filename)
 {
+    // We will assume ownership of the io device
+    IODevice().setParent(this);
+
     _file_watcher = new QFileSystemWatcher(this);
     connect(_file_watcher, SIGNAL(fileChanged(QString)),
             this, SLOT(raiseReadyRead()));

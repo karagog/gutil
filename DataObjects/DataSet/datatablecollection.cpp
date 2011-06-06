@@ -19,12 +19,12 @@ using namespace GUtil;
 
 DataObjects::DataTableCollection::DataTableCollection(DataObjects::SharedSetData *d, int size)
     :ResizableCollection<DataTable>(size),
-    _dataset(new DataSet(d))
+      _dataset(new DataSet(d))
 {}
 
 DataObjects::DataTableCollection::DataTableCollection(const DataTableCollection &o)
     :ResizableCollection<DataTable>(),
-    Core::Interfaces::IClonable<DataTableCollection>()
+      Core::Interfaces::IClonable<DataTableCollection>()
 {
     o.CloneTo(*this);
 }
@@ -69,6 +69,8 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
 
     for(int i = 0; i < Collection<DataTable>::Size(); i++)
         o.Add(Collection<DataTable>::At(i).Clone());
+
+    o._dataset = new DataSet(*this->_dataset);
 
     return o;
 }

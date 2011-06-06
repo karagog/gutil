@@ -27,8 +27,8 @@ DataObjects::DataSet::DataSet(int num_tables)
 
 DataObjects::DataSet::DataSet(const DataObjects::DataSet &o)
     :ExplicitlySharedObject<SharedSetData>(o),
-    Core::Interfaces::IReadOnlyObject(),
-    Core::Interfaces::IUpdatable()
+      Core::Interfaces::IReadOnlyObject(),
+      Core::Interfaces::IUpdatable()
 {}
 
 DataObjects::DataSet::DataSet(SharedSetData *sd)

@@ -75,9 +75,9 @@ public:
     // This declares all the accessors for the data row type
     DECLARE_DATATABLE_ROW_TYPE( DataRow );
 
-    DataTable(const QStringList &column_keys = QStringList(),
-              const QStringList &column_labels = QStringList());
-    DataTable(const QString &table_name, int num_cols = 0);
+    explicit DataTable(const QStringList &column_keys = QStringList(),
+                       const QStringList &column_labels = QStringList());
+    explicit DataTable(const QString &table_name, int num_cols = 0);
     DataTable(const DataTable &);
     virtual ~DataTable();
 
@@ -176,13 +176,13 @@ public:
 
 protected:
 
-    DataTable(const DataSet &,
-                  const QString &name = QString::null,
-                  int num_cols = 0);
+    explicit DataTable(const DataSet &,
+                       const QString &name = QString::null,
+                       int num_cols = 0);
 
     // Derived classes can call this constructor with their own derived
     //  version of the shared data object
-    DataTable(SharedTableData *);
+    explicit DataTable(SharedTableData *);
 
     void column_inserted(int);
     void column_removed(int);

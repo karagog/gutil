@@ -31,13 +31,18 @@ SharedTableData::SharedTableData(const DataSet &ds)
 
 SharedTableData::SharedTableData(const SharedTableData &d)
     :GSharedData(d),
-    IUpdatable(),
-    _dataset(d._dataset),
-    _columns(d.Columns()),
-    _name(d._name),
-    _key_columns(d._key_columns),
-    _rows(this, d.Rows())
+      IUpdatable(),
+      _dataset(new DataSet(*d._dataset)),
+      _columns(d.Columns()),
+      _name(d._name),
+      _key_columns(d._key_columns),
+      _rows(this, d.Rows())
 {}
+
+SharedTableData::~SharedTableData()
+{
+    delete _dataset;
+}
 
 void SharedTableData::SetDataSet(const DataSet &ds)
 {

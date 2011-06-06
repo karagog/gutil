@@ -50,12 +50,14 @@ protected:
 
     // Derived classes initialize this base with their own custom shared data object.
     //  This class will delete it on destruction
-    inline ExplicitlySharedObject(T *d)
-        :_explicitly_shared_data(d){}
+    inline explicit ExplicitlySharedObject(T *d)
+        :_explicitly_shared_data(d)
+    {}
 
     // You must call this copy constructor in your derived class'
-    inline ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
-        :_explicitly_shared_data(o._explicitly_shared_data){}
+    inline explicit ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
+        :_explicitly_shared_data(o._explicitly_shared_data)
+    {}
 
     virtual ~ExplicitlySharedObject(){
         // This is a template constraint; T must be a type derived from GSharedData

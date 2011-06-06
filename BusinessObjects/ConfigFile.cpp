@@ -31,8 +31,8 @@ ConfigFile::ConfigFile(const QString &identifier,
                                    const QString &modifier,
                                    QObject *parent)
     :QObject(parent),
-    _p_IsHumanReadable(true),
-    _p_AutoCommitChanges(true)
+      _p_IsHumanReadable(true),
+      _p_AutoCommitChanges(true)
 {
     _init(identifier, modifier);
 }
@@ -40,9 +40,9 @@ ConfigFile::ConfigFile(const QString &identifier,
 ConfigFile::ConfigFile(const BusinessObjects::ConfigFile &other,
                        QObject *parent)
     :QObject(parent),
-    Core::Interfaces::IUpdatable(),
-    _p_IsHumanReadable(other._p_IsHumanReadable),
-    _p_AutoCommitChanges(other._p_AutoCommitChanges)
+      Core::Interfaces::IUpdatable(),
+      _p_IsHumanReadable(other._p_IsHumanReadable),
+      _p_AutoCommitChanges(other._p_AutoCommitChanges)
 {
     _init(other._identity, other._modifier);
 }
@@ -51,7 +51,8 @@ void ConfigFile::_init(const QString &identity, const QString &modifier)
 {
     _iodevice = new DataAccess::GFileIODevice(QString("%1.%2.config.xml")
                                               .arg(get_file_location(_identity = identity))
-                                              .arg(_modifier = modifier));
+                                              .arg(_modifier = modifier),
+                                              this);
     connect(_iodevice, SIGNAL(ReadyRead()),
             this, SLOT(new_input_data_arrived()));
 

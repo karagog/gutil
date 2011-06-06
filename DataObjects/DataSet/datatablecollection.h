@@ -42,8 +42,8 @@ public:
 
 protected:
 
-    DataTableCollection(SharedSetData *d, int size = 0);
-    DataTableCollection(const DataTableCollection &o);
+    explicit DataTableCollection(SharedSetData *d, int size = 0);
+    explicit DataTableCollection(const DataTableCollection &o);
 
 
     // Protect our clonable interface
