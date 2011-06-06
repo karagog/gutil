@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,90 +15,18 @@ limitations under the License.*/
 #ifndef SHAREDTABLEDATA_H
 #define SHAREDTABLEDATA_H
 
-#include "DataObjects/DataSet/datacolumncollection.h"
-#include "DataObjects/DataSet/datarowcollection.h"
-#include "Custom/gshareddata.h"
-#include "Core/Interfaces/iupdatable.h"
-#include <QSet>
+#include "tabledata.h"
+#include "gutil_macros.h"
+#include <QSharedData>
+GUTIL_BEGIN_NAMESPACE(DataObjects);
 
-GUTIL_BEGIN_NAMESPACE( DataObjects );
-
-
-class DataSet;
 
 class SharedTableData :
-        public Custom::GSharedData,
-        public Core::Interfaces::IUpdatable
-{
-    friend class DataTable;
-
-public:
-
-    SharedTableData();
-    SharedTableData(const DataSet &ds);
-    SharedTableData(const SharedTableData &d);
-    ~SharedTableData();
-
-    inline DataSet &GetDataSet(){
-        return *_dataset;
-    }
-
-    inline const DataSet &GetDataSet() const{
-        return *_dataset;
-    }
-
-    void SetDataSet(const DataSet &ds);
-
-    inline const DataRowCollection &Rows() const{
-        return _rows;
-    }
-
-    inline DataRowCollection &Rows(){
-        return _rows;
-    }
-
-    inline DataColumnCollection &Columns(){
-        return _columns;
-    }
-
-    inline const DataColumnCollection &Columns() const{
-        return _columns;
-    }
+        public TableData,
+        public QSharedData
+{};
 
 
-    inline QString GetName() const{
-        return _name;
-    }
-
-    inline void SetName(const QString &v){
-        _name = v;
-    }
-
-    inline QSet<int> &KeyColumns(){
-        return _key_columns;
-    }
-
-    inline const QSet<int> &KeyColumns() const{
-        return _key_columns;
-    }
-
-
-protected:
-
-    void commit_reject_changes(bool commit);
-
-
-private:
-
-    DataSet *_dataset;
-    DataColumnCollection _columns;
-    QString _name;
-    QSet<int> _key_columns;
-    DataRowCollection _rows;
-
-};
-
-
-GUTIL_END_NAMESPACE
+GUTIL_END_NAMESPACE;
 
 #endif // SHAREDTABLEDATA_H

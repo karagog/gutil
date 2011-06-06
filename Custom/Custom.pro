@@ -16,7 +16,6 @@ HEADERS += \
     gsemaphore.h \
     gsharedlock.h \
     gvariant.h \
-    gshareddata.h \
     updatablegvariant.h \
     gpairlist.h \
     gdatetime.h \

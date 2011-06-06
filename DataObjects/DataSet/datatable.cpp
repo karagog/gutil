@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -51,35 +51,23 @@ DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
       Core::Interfaces::IEquatable<DataTable>()
 {}
 
-DataObjects::DataTable::
-        DataTable(const DataObjects::DataSet &ds_parent,
-                      const QString &name,
-                      int num_cols)
-    :ExplicitlySharedObject< SharedTableData >(new SharedTableData(ds_parent))
-{
-    _init(name, num_cols);
-}
-
 DataObjects::DataTable::DataTable(DataObjects::SharedTableData *td)
-    :ExplicitlySharedObject< SharedTableData >(td){}
-
-DataObjects::DataTable::~DataTable(){}
+    :ExplicitlySharedObject< SharedTableData >(td)
+{}
 
 void DataObjects::DataTable::_init(const QString &name, int num_cols)
 {
-    table_data().SetName(name);
+    table_data().Name = name;
 
     Columns().Resize(num_cols);
 }
 
-DataObjects::SharedTableData &
-        DataObjects::DataTable::table_data()
+DataObjects::TableData &DataObjects::DataTable::table_data()
 {
     return *ExplicitlySharedObject<SharedTableData>::GetExplicitlySharedData();
 }
 
-const SharedTableData &
-        DataObjects::DataTable::table_data() const
+const TableData &DataObjects::DataTable::table_data() const
 {
     return *ExplicitlySharedObject< SharedTableData >::GetExplicitlySharedData();
 }
@@ -100,8 +88,8 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
         {
             for(int i = 0; ret && i < ColumnCount(); i++)
             {
-                ret = (table_data().Columns()[i].GetKey() == t.table_data().Columns()[i].GetKey()) &&
-                      (table_data().Columns()[i].GetLabel() == t.table_data().Columns()[i].GetLabel());
+                ret = (table_data().Columns[i].GetKey() == t.table_data().Columns[i].GetKey()) &&
+                      (table_data().Columns[i].GetLabel() == t.table_data().Columns[i].GetLabel());
             }
 
             if(ret)
@@ -110,8 +98,8 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
                 {
                     for(int i = 0; ret && i < RowCount(); i++)
                     {
-                        ret = table_data().Rows().At(i).Equals(
-                                t.table_data().Rows()[i]);
+                        ret = table_data().Rows.At(i).Equals(
+                                t.table_data().Rows[i]);
                     }
                 }
                 else
@@ -147,7 +135,7 @@ DataRow &DataTable::add_row(const DataRow &r)
 
 DataRow DataTable::create_row(const Custom::GVariantList &values)
 {
-    DataRow dr(*this, values);
+    DataRow dr(&table_data(), values);
     init_new_row(dr);
     return dr;
 }
@@ -156,7 +144,7 @@ DataObjects::DataRow &DataObjects::DataTable::import_row(const DataObjects::Data
 {
     DataRow tmpr(r);
     r.CloneTo(tmpr);
-    tmpr.row_data().Table() = *this;
+    tmpr.row_data().Table = &table_data();
     return AddRow(tmpr);
 }
 
@@ -177,18 +165,6 @@ void DataObjects::DataTable::Clear()
     Columns().Clear();
 }
 
-void DataObjects::DataTable::column_inserted(int c)
-{
-    for(int i = 0; i < RowCount(); i++)
-        Rows()[i].column_inserted(c);
-}
-
-void DataObjects::DataTable::column_removed(int c)
-{
-    for(int i = 0; i < RowCount(); i++)
-        Rows()[i].column_removed(c);
-}
-
 void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QStringList &labels)
 {
     Columns().Clear();
@@ -198,47 +174,24 @@ void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QSt
                                  i < labels.count() ? labels[i] : ""));
 }
 
-int DataObjects::DataTable::GetColumnIndex(const QString &key) const
-{
-    int ret = -1;
-    for(int i = 0; i < ColumnCount(); i++)
-        if(ColumnKeys()[i] == key)
-        {
-            ret = i;
-            break;
-        }
-
-    if(ret == -1)
-        THROW_NEW_GUTIL_EXCEPTION2(Core::IndexOutOfRangeException,
-                                  QString("The column key '%1' does not exist in the %2 table")
-                                  .arg(key).arg(table_data().GetName()).toStdString());
-
-    return ret;
-}
-
-DataObjects::DataSet DataObjects::DataTable::Set() const
-{
-    return DataSet(table_data().GetDataSet());
-}
-
 QStringList DataObjects::DataTable::ColumnKeys() const
 {
-    return table_data().Columns().Keys();
+    return table_data().Columns.Keys();
 }
 
 QStringList DataObjects::DataTable::ColumnLabels() const
 {
-    return table_data().Columns().Labels();
+    return table_data().Columns.Labels();
 }
 
 QString DataObjects::DataTable::Name() const
 {
-    return table_data().GetName();
+    return table_data().Name;
 }
 
 void DataObjects::DataTable::SetTableName(const QString &n)
 {
-    table_data().SetName(n);
+    table_data().Name = n;
 }
 
 
@@ -261,7 +214,7 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
     Custom::GVariant(ColumnLabels()).WriteXml(sw);
 
     for(int i = 0; i < RowCount(); i++)
-        table_data().Rows()[i].WriteXml(sw);
+        table_data().Rows[i].WriteXml(sw);
 
     sw.writeEndElement();
 }
@@ -285,8 +238,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 
-        table_data().SetName(Utils::QStringHelpers::fromBase64(
-                sr.attributes().at(1).value().toString()));
+        table_data().Name = Utils::QStringHelpers::fromBase64(
+                    sr.attributes().at(1).value().toString());
 
         {
             QStringList new_keys = GVariant::FromXml(sr).toStringList();
@@ -331,18 +284,18 @@ void DataObjects::DataTable::commit_reject_changes(bool commit)
 
 QSet<int> DataObjects::DataTable::KeyColumns() const
 {
-    return table_data().KeyColumns();
+    return table_data().KeyColumns;
 }
 
 void DataObjects::DataTable::AddKeyColumn(int k)
 {
     if(0 <= k && k < ColumnCount())
     {
-        table_data().KeyColumns().insert(k);
+        table_data().KeyColumns.insert(k);
 
         if(_key_violations())
         {
-            table_data().KeyColumns().remove(k);
+            table_data().KeyColumns.remove(k);
 
             THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                       "The table's primary key would be violated");
@@ -359,11 +312,11 @@ void DataObjects::DataTable::RemoveKeyColumn(int k)
 {
     if(0 <= k && k < ColumnCount())
     {
-        table_data().KeyColumns().remove(k);
+        table_data().KeyColumns.remove(k);
 
         if(_key_violations())
         {
-            table_data().KeyColumns().insert(k);
+            table_data().KeyColumns.insert(k);
 
             THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                       "The table's primary key would be violated");
@@ -374,12 +327,6 @@ void DataObjects::DataTable::RemoveKeyColumn(int k)
 void DataObjects::DataTable::RemoveKeyColumn(const QString &k)
 {
     RemoveKeyColumn(GetColumnIndex(k));
-}
-
-void DataObjects::DataTable::validate_new_row(const DataRow &)
-        throw(Core::ValidationException)
-{
-
 }
 
 void DataObjects::DataTable::on_make_dirty()
@@ -418,27 +365,27 @@ bool DataObjects::DataTable::_key_violations() const
 
 void DataObjects::DataTable::LockForRead()
 {
-    table_data().SharedLock.lockForRead();
+    table_data().Lock.lockForRead();
 }
 
 void DataObjects::DataTable::LockForWrite()
 {
-    table_data().SharedLock.lockForWrite();
+    table_data().Lock.lockForWrite();
 }
 
 bool DataObjects::DataTable::TryLockForRead()
 {
-    return table_data().SharedLock.tryLockForRead();
+    return table_data().Lock.tryLockForRead();
 }
 
 bool DataObjects::DataTable::TryLockForWrite()
 {
-    return table_data().SharedLock.tryLockForWrite();
+    return table_data().Lock.tryLockForWrite();
 }
 
 void DataObjects::DataTable::Unlock()
 {
-    table_data().SharedLock.unlock();
+    table_data().Lock.unlock();
 }
 
 DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolumn_value_mapping)

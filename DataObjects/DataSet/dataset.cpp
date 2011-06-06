@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@ DataObjects::DataSet::DataSet(SharedSetData *sd)
     :ExplicitlySharedObject<SharedSetData>(sd)
 {}
 
-DataObjects::DataSet::~DataSet(){}
-
 DataObjects::DataSet &DataObjects::DataSet::operator =(const DataObjects::DataSet &o)
 {
     SetExplicitlySharedData(o.GetExplicitlySharedData());
@@ -45,12 +43,12 @@ DataObjects::DataSet &DataObjects::DataSet::operator =(const DataObjects::DataSe
 
 const DataObjects::DataTableCollection &DataObjects::DataSet::Tables() const
 {
-    return set_data().Tables();
+    return set_data().Tables;
 }
 
 DataObjects::DataTableCollection &DataObjects::DataSet::Tables()
 {
-    return set_data().Tables();
+    return set_data().Tables;
 }
 
 int DataObjects::DataSet::TableCount() const
@@ -65,17 +63,17 @@ DataObjects::DataTable &DataObjects::DataSet::AddTable(const DataTable &t)
 
 void DataObjects::DataSet::Clear()
 {
-    set_data().Tables().Clear();
+    set_data().Tables.Clear();
 }
 
 DataObjects::DataTable &DataObjects::DataSet::operator [](int i)
 {
-    return set_data().Tables()[i];
+    return set_data().Tables[i];
 }
 
 const DataObjects::DataTable &DataObjects::DataSet::operator [](int i) const
 {
-    return set_data().Tables()[i];
+    return set_data().Tables[i];
 }
 
 DataObjects::DataTable &DataObjects::DataSet::operator [](const QString &name)
@@ -98,7 +96,7 @@ bool DataObjects::DataSet::Equals(const DataObjects::DataSet &d) const
         for(int i = 0; i < TableCount(); i++)
         {
             if(!(ret =
-                 set_data().Tables().At(i).Equals(d.set_data().Tables().At(i))))
+                 set_data().Tables.At(i).Equals(d.set_data().Tables.At(i))))
                 break;
         }
     }
@@ -115,7 +113,7 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
     int ret = -1;
     for(int i = 0; i < TableCount(); i++)
     {
-        if(set_data().Tables().At(i).Name() == table_name)
+        if(set_data().Tables.At(i).Name() == table_name)
         {
             ret = i;
             break;
@@ -124,21 +122,14 @@ int DataObjects::DataSet::GetTableIndex(const QString &table_name) const
     return ret;
 }
 
-const DataObjects::SharedSetData &DataObjects::DataSet::set_data() const
+const DataObjects::SetData &DataObjects::DataSet::set_data() const
 {
     return *ExplicitlySharedObject<SharedSetData>::GetExplicitlySharedData();
 }
 
-DataObjects::SharedSetData &DataObjects::DataSet::set_data()
+DataObjects::SetData &DataObjects::DataSet::set_data()
 {
     return *ExplicitlySharedObject<SharedSetData>::GetExplicitlySharedData();
-}
-
-void DataObjects::DataSet::validate_new_table(const DataTable &dt)
-{
-    if(Tables().Contains(dt))
-        THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
-                                  "Table already exists in data set");
 }
 
 
@@ -178,7 +169,7 @@ void DataObjects::DataSet::WriteXml(QXmlStreamWriter &sw) const
     sw.writeAttribute("s", QString("%1").arg(TableCount()));
 
     for(int i = 0; i < TableCount(); i++)
-        set_data().Tables().At(i).WriteXml(sw);
+        set_data().Tables.At(i).WriteXml(sw);
 
     write_xml_protected(sw);
 
@@ -200,7 +191,7 @@ void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
         int len = sr.attributes().at(0).value().toString().toInt();
         for(int i = 0; i < len; i++)
         {
-            DataTable t(*this);
+            DataTable t;
             t.ReadXml(sr);
             Tables().Add(t);
         }

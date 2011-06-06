@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,30 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef SHAREDSETDATA_H
-#define SHAREDSETDATA_H
-
 #include "setdata.h"
-#include "gutil_macros.h"
-#include <QSharedData>
-GUTIL_BEGIN_NAMESPACE(DataObjects);
+using namespace GUtil;
 
+DataObjects::SetData::SetData(int numTables)
+    :Tables(numTables)
+{}
 
-class SharedSetData :
-        public SetData,
-        public QSharedData
-{
-public:
-    inline explicit SharedSetData(int numTables = 0)
-        :SetData(numTables)
-    {}
-    inline SharedSetData(const SharedSetData &o)
-        :SetData(o),
-          QSharedData()
-    {}
-};
-
-
-GUTIL_END_NAMESPACE;
-
-#endif // SHAREDSETDATA_H
+DataObjects::SetData::SetData(const DataObjects::SetData &o)
+    :Tables(o.Tables)
+{}

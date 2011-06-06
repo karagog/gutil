@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef DATASET_H
 #define DATASET_H
 
+#include "sharedsetdata.h"
 #include "DataObjects/DataSet/datatable.h"
 #include "DataObjects/explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
@@ -31,7 +32,6 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-class SharedSetData;
 class DataTableCollection;
 
 class DataSet :
@@ -42,15 +42,10 @@ class DataSet :
         public Core::Interfaces::IEquatable<DataSet>,
         public Core::Interfaces::IClonable<DataSet>
 {
-    friend class DataTable;
-    friend class SharedTableData;
-    friend class DataTableCollection;
-
 public:
 
     DataSet(int num_tables = 0);
     DataSet(const DataSet &);
-    virtual ~DataSet();
 
     const DataTableCollection &Tables() const;
     DataTableCollection &Tables();
@@ -86,10 +81,8 @@ protected:
 
     DataSet(SharedSetData *);
 
-    const SharedSetData &set_data() const;
-    SharedSetData &set_data();
-
-    void validate_new_table(const DataTable &);
+    const SetData &set_data() const;
+    SetData &set_data();
 
     // IUpdatable interface:
     virtual void commit_reject_changes(bool commit);

@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
 class DataSet;
-class SharedTableData;
+class TableData;
 
 // A Data Table class used to hold data and serialize
 //   the values to xml or access them conveniently with string keys
@@ -62,14 +62,7 @@ class DataTable :
         public Core::Interfaces::IClonable< DataTable >,
         public Core::Interfaces::IEquatable< DataTable >
 {
-    friend class DataSet;
-    friend class DataTableCollection;
-    friend class DataRow;
-    friend class SharedRowData;
-    friend class DataRowCollection;
-    friend class SharedTableData;
     friend class DataColumnCollection;
-
 public:
 
     // This declares all the accessors for the data row type
@@ -79,7 +72,7 @@ public:
                        const QStringList &column_labels = QStringList());
     explicit DataTable(const QString &table_name, int num_cols = 0);
     DataTable(const DataTable &);
-    virtual ~DataTable();
+    virtual ~DataTable(){}
 
     void RemoveRow(int row_index);
     void RemoveRow(const DataRow &);
@@ -102,18 +95,19 @@ public:
         return Columns().Count();
     }
 
-    int GetColumnIndex(const QString &key) const;
+    inline int GetColumnIndex(const QString &key) const{
+        return table_data().GetColumnIndex(key);
+    }
 
 
-    inline DataRowCollection &Rows(){ return table_data().Rows(); }
-    inline const DataRowCollection &Rows() const{ return table_data().Rows(); }
+    inline DataRowCollection &Rows(){ return table_data().Rows; }
+    inline const DataRowCollection &Rows() const{ return table_data().Rows; }
 
-    inline DataColumnCollection &Columns(){ return table_data().Columns(); }
-    inline const DataColumnCollection &Columns() const{ return table_data().Columns(); }
+    inline DataColumnCollection &Columns(){ return table_data().Columns; }
+    inline const DataColumnCollection &Columns() const{ return table_data().Columns; }
 
 
     DataTable &operator =(const DataTable &);
-    DataSet Set() const;
 
     QStringList ColumnKeys() const;
     QStringList ColumnLabels() const;
@@ -176,33 +170,22 @@ public:
 
 protected:
 
-    explicit DataTable(const DataSet &,
-                       const QString &name = QString::null,
-                       int num_cols = 0);
-
     // Derived classes can call this constructor with their own derived
     //  version of the shared data object
     explicit DataTable(SharedTableData *);
-
-    void column_inserted(int);
-    void column_removed(int);
 
     // Derived tables can implement their own row initializations, like incrementing
     //  an id or initializing a GUID
     virtual void init_new_row(DataRow &){}
 
     // Friend classes can access our data through this method:
-    SharedTableData &table_data();
-    const SharedTableData &table_data() const;
+    TableData &table_data();
+    const TableData &table_data() const;
 
     DataRow &add_new_row(const Custom::GVariantList &);
     DataRow &add_row(const DataRow &);
     DataRow create_row(const Custom::GVariantList &);
     DataRow &import_row(const DataRow &);
-
-    // This is called any time you add a new row to the table
-    void validate_new_row(const DataRow &r)
-            throw(Core::ValidationException);
 
     // IClonable Interface:
     virtual DataTable &CloneTo(DataTable &) const;

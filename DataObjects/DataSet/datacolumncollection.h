@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,17 +21,15 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 
 
-class SharedTableData;
-class DataTable;
+class TableData;
 
 class DataColumnCollection :
         public ResizableCollection<DataColumn>
 {
-    friend class SharedTableData;
 public:
 
+    explicit DataColumnCollection(TableData *, int size = 0);
     explicit DataColumnCollection(const DataColumnCollection &);
-    ~DataColumnCollection();
 
     QStringList Keys() const;
     QStringList Labels() const;
@@ -41,15 +39,16 @@ public:
 
 protected:
 
-    explicit DataColumnCollection(SharedTableData *, int size = 0);
-
     void on_add(int);
     void on_remove(int);
 
     virtual void validate_new_item(const DataColumn &) const
             throw(Core::ValidationException);
 
-    DataTable *_table;
+
+private:
+
+    TableData *_table;
 
 };
 

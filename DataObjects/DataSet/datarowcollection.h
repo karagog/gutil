@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,43 +15,31 @@ limitations under the License.*/
 #ifndef DATAROWCOLLECTION_H
 #define DATAROWCOLLECTION_H
 
+#include "datarow.h"
 #include "DataObjects/collection.h"
 #include "Core/Interfaces/iclonable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
-class DataRow;
-class DataTable;
+
 class SharedTableData;
 
 class DataRowCollection :
         public Collection<DataRow>
 {
-    friend class DataTable;
-    friend class SharedTableData;
-
 public:
+
+    explicit DataRowCollection(TableData *);
 
     // This deep copy constructor clones the entire table
     DataRowCollection(const DataRowCollection &);
-    ~DataRowCollection();
 
-    inline DataTable &Table(){
-        return *_table;
-    }
-    inline const DataTable &Table() const{
-        return *_table;
-    }
+    // This is a deep-copy constructor; but you need to provide it with a new
+    //  data table
+    explicit DataRowCollection(TableData *, const DataRowCollection &o);
 
 
 protected:
-
-    DataRowCollection(SharedTableData *);
-
-    // This is the deep-copy constructor; but you need to provide it with a new
-    //  data table
-    DataRowCollection(SharedTableData *, const DataRowCollection &o);
-
 
     virtual void validate_new_item(const DataRow &i)
             throw(Core::ValidationException);
@@ -59,7 +47,7 @@ protected:
 
 private:
 
-    DataTable *_table;
+    TableData *_table;
 
     void _init_cloned_rows(const DataRowCollection &);
 

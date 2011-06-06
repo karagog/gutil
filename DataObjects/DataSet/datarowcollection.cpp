@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,34 +16,29 @@ limitations under the License.*/
 #include "datatable.h"
 GUTIL_USING_NAMESPACE( DataObjects );
 
-DataRowCollection::DataRowCollection(SharedTableData *td)
-    :_table(new DataTable(td)){}
+DataRowCollection::DataRowCollection(TableData *td)
+    :_table(td)
+{}
 
-DataRowCollection::DataRowCollection(SharedTableData *td, const DataRowCollection &o)
-    :_table(new DataTable(td))
+DataRowCollection::DataRowCollection(TableData *td, const DataRowCollection &o)
+    :_table(td)
 {
     _init_cloned_rows(o);
 }
 
 DataRowCollection::DataRowCollection(const DataRowCollection &o)
     :Collection<DataRow>(),
-    _table(new DataTable(o.Table()))
+      _table(o._table)
 {
     _init_cloned_rows(o);
 
     SetReadOnly(true);
 }
 
-DataRowCollection::~DataRowCollection(){
-    delete _table;
-}
-
 void DataRowCollection::validate_new_item(const DataRow &i)
         throw(Core::ValidationException)
 {
-    Table().validate_new_row(i);
-
-    if(Table() != i.Table())
+    if(_table != i.row_data().Table)
         THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   "The row does not belong to this table.  "
                                   "If you still want to add it, then call 'ImportRow' "
@@ -64,6 +59,6 @@ void DataRowCollection::_init_cloned_rows(const DataRowCollection &o)
         for(int j = 0; j < r.ColumnCount(); j++)
             vals.append(r[j]);
 
-        Add(DataRow(Table(), vals));
+        Add(DataRow(_table, vals));
     }
 }

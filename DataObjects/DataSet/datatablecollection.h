@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,47 +16,25 @@ limitations under the License.*/
 #define DATATABLECOLLECTIONBASE_H
 
 #include "DataObjects/collection.h"
+#include "DataObjects/DataSet/datatable.h"
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
-
-class DataTable;
-class DataSet;
-class SharedSetData;
 
 class DataTableCollection :
         public ResizableCollection<DataTable>,
         public Core::Interfaces::IClonable<DataTableCollection>
 {
-    friend class DataSet;
-    friend class TableData;
-    friend class SharedSetData;
-
 public:
 
-    DataSet &Set();
-    const DataSet &Set() const;
-
-    ~DataTableCollection();
+    explicit DataTableCollection(int size = 0);
+    explicit DataTableCollection(const DataTableCollection &o);
 
 
 protected:
 
-    explicit DataTableCollection(SharedSetData *d, int size = 0);
-    explicit DataTableCollection(const DataTableCollection &o);
-
-
     // Protect our clonable interface
-    virtual DataTableCollection &CloneTo(DataTableCollection &o) const;
-
-    virtual void on_add(DataTable *t);
-
-    virtual void validate_new_item(const DataTable &t)
-            throw(Core::ValidationException);
-
-private:
-
-    DataSet *_dataset;
+    DataTableCollection &CloneTo(DataTableCollection &o) const;
 
 };
 

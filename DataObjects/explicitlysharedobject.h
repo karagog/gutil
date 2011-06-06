@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ limitations under the License.*/
 #define EXPLICITLYSHAREDOBJECT_H
 
 #include "gutil_macros.h"
-#include "Custom/gshareddata.h"
 #include <QExplicitlySharedDataPointer>
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
@@ -58,11 +57,6 @@ protected:
     inline explicit ExplicitlySharedObject(const ExplicitlySharedObject<T> &o)
         :_explicitly_shared_data(o._explicitly_shared_data)
     {}
-
-    virtual ~ExplicitlySharedObject(){
-        // This is a template constraint; T must be a type derived from GSharedData
-        if(T::IsDerivedFromGSharedData){}
-    }
 
     inline T *GetExplicitlySharedData() const{
         return _explicitly_shared_data.data();

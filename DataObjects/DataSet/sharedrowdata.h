@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,53 +15,30 @@ limitations under the License.*/
 #ifndef SHAREDROWDATA_H
 #define SHAREDROWDATA_H
 
-#include "DataObjects/updatablegvariantcollection.h"
-#include "Custom/gshareddata.h"
-#include "Core/Interfaces/iupdatable.h"
-#include "Core/Interfaces/iupdatable.h"
-
-GUTIL_BEGIN_NAMESPACE( DataObjects );
+#include "gutil_macros.h"
+#include "rowdata.h"
 
 
-class DataTable;
+GUTIL_BEGIN_NAMESPACE(DataObjects);
 
+
+// Simply a row data object that can be used in an explicitly shared pointer
 class SharedRowData :
-        public Custom::GSharedData,
-        public UpdatableGVariantCollection::Observer,
-        public Core::Interfaces::IUpdatable
+        public RowData,
+        public QSharedData
 {
 public:
-
-    explicit SharedRowData(const DataTable &t,
-                           const Custom::GVariantList &vals);
-
-    SharedRowData(const SharedRowData &o);
-    SharedRowData();
-
-    virtual ~SharedRowData();
-
-
-    inline DataTable &Table(){ return *_table; }
-    inline const DataTable &Table() const{ return *_table; }
-
-    inline UpdatableGVariantCollection &Tuple(){ return _tuple; }
-    inline const UpdatableGVariantCollection &Tuple() const{ return _tuple; }
-
-
-private:
-
-    DataTable *_table;
-    UpdatableGVariantCollection _tuple;
-
-
-    // UpdatableGVariantCollection::Observer interface:
-    void value_about_to_change(int index, const Custom::GVariant &newvalue);
-
-    void on_make_dirty();
-
+    inline explicit SharedRowData(TableData *td,
+                                  const Custom::GVariantList &vals = Custom::GVariantList())
+        :RowData(td, vals)
+    {}
+    inline SharedRowData(const SharedRowData &o)
+        :RowData(o),
+          QSharedData()
+    {}
 };
 
 
-GUTIL_END_NAMESPACE
+GUTIL_END_NAMESPACE;
 
 #endif // SHAREDROWDATA_H

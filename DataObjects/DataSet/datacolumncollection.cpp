@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,19 +17,14 @@ limitations under the License.*/
 #include <QStringList>
 using namespace GUtil;
 
-DataObjects::DataColumnCollection::DataColumnCollection(SharedTableData *t, int size)
+DataObjects::DataColumnCollection::DataColumnCollection(TableData *t, int size)
     :ResizableCollection<DataColumn>(size),
-      _table(new DataTable(t))
+      _table(t)
 {}
-
-DataObjects::DataColumnCollection::~DataColumnCollection()
-{
-    delete _table;
-}
 
 DataObjects::DataColumnCollection::DataColumnCollection(const DataColumnCollection &o)
     :ResizableCollection<DataColumn>(o),
-      _table(new DataTable(*o._table))
+      _table(o._table)
 {}
 
 bool DataObjects::DataColumnCollection::ContainsKey(const QString &k) const
@@ -66,12 +61,16 @@ void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::Dat
                                   .arg(c.GetKey()).toStdString());
 }
 
-void DataObjects::DataColumnCollection::on_add(int i)
+void DataObjects::DataColumnCollection::on_add(int ind)
 {
-    _table->column_inserted(i);
+    // Insert a new cell for every row
+    for(int i = 0; i < _table->Rows.Count(); i++)
+        _table->Rows[i].column_inserted(ind);
 }
 
-void DataObjects::DataColumnCollection::on_remove(int i)
+void DataObjects::DataColumnCollection::on_remove(int ind)
 {
-    _table->column_removed(i);
+    // Remove a cell for every row
+    for(int i = 0; i < _table->Rows.Count(); i++)
+        _table->Rows[i].column_removed(ind);
 }

@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright Copyright 2011 George Karagoulis
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -9,7 +9,6 @@ limitations under the License.*/
 #define DATAROW_H
 
 #include "DataObjects/DataSet/sharedrowdata.h"
-#include "DataObjects/DataSet/datarowcollection.h"
 #include "DataObjects/explicitlysharedobject.h"
 #include "Interfaces/iqxmlserializable.h"
 #include "Custom/updatablegvariant.h"
@@ -30,19 +29,14 @@ limitations under the License.*/
     type Get##name() const{ return (*this)[index].value<type>(); } \
             enum{}
 
-// Derived classes override the table accessors to refer to their
-//   type of table to which they belong
-#define DECLARE_PARENT_TABLE_TYPE( table_type ) \
-    inline table_type &Table(){ return (table_type &)row_data().Table(); } \
-    inline const table_type &Table() const{ return (const table_type &)row_data().Table(); } \
-    enum{}
-
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );
 
 
-// Defines a row in a data table
+class TableData;
+class DataRowCollection;
 
+// Defines a row in a data table
 class DataRow :
         public ExplicitlySharedObject<SharedRowData>,
         public Interfaces::IQXmlSerializable,
@@ -50,26 +44,25 @@ class DataRow :
         public Core::Interfaces::IClonable<DataRow>,
         public Core::Interfaces::IReadOnlyObject
 {
-    friend class DataTable;
-    friend class SharedTableData;
     friend class DataRowCollection;
-    friend class SharedRowData;
-
+    friend class DataColumnCollection;
+    friend class RowData;
+    friend class DataTable;
+    friend class TableData;
 public:
 
-    DataRow();
     DataRow(const DataRow &, bool clone = false);
-    virtual ~DataRow();
+    virtual ~DataRow(){}
 
-    virtual DataRow &operator =(const DataRow &);
+    DataRow &operator =(const DataRow &);
 
-    Custom::UpdatableGVariant &operator [](int index);
-    const Custom::UpdatableGVariant &operator [](int index) const;
-    Custom::UpdatableGVariant &operator [](const QString &column_header);
-    const Custom::UpdatableGVariant &operator [](const QString &column_header) const;
+    Custom::GVariant &operator [](int index);
+    const Custom::GVariant &operator [](int index) const;
+    Custom::GVariant &operator [](const QString &column_header);
+    const Custom::GVariant &operator [](const QString &column_header) const;
 
-    Custom::UpdatableGVariant &At(int index);
-    const Custom::UpdatableGVariant &At(int index) const;
+    Custom::GVariant &At(int index);
+    const Custom::GVariant &At(int index) const;
 
     int Index() const;
     int ColumnCount() const;
@@ -78,9 +71,6 @@ public:
         return row_data().IsDirty();
     }
 
-    // Derived classes can follow this example when specifying
-    //  their parent table type
-    DECLARE_PARENT_TABLE_TYPE( DataTable );
 
     // IEquatable interface:
     virtual bool Equals(const DataRow &) const;
@@ -96,31 +86,20 @@ public:
 
 protected:
 
-    DataRow(const DataTable &dt,
+    DataRow(TableData *,
             const Custom::GVariantList &values = Custom::GVariantList());
+    DataRow(SharedRowData *);
 
     //void set_number_of_columns(int);
     void column_inserted(int);
     void column_removed(int);
 
 
-
-    // If you are subclassing DataRow, then you will have to make use of
-    //   the following methods
-
-    // Derived classes can call this constructor with their own derived
-    //  version of the shared data object (you don't necessarily have to
-    //  derive your own version...)
-    DataRow(SharedRowData *shared_row_data);
-
     // Friend classes can access our data via these methods
     //   Note that derived classes should override these methods to provide
-    //   access to their own version of the sharedRowData
+    //   access to their own version of the RowData
     SharedRowData &row_data();
     const SharedRowData &row_data() const;
-
-    // This is where we check for primary key violations
-    void row_value_about_to_change(int, const Custom::GVariant &);
 
     virtual void commit_reject_changes(bool commit);
 
@@ -128,9 +107,6 @@ protected:
 
 
 GUTIL_END_NAMESPACE
-
-
-#include "datatable.h"
 
 
 #endif // DATAROW_H
