@@ -166,8 +166,8 @@ void DataSetTest::test_row_errors()
         QVERIFY(r.ColumnCount() == 0);
 
         // But you should be able to initialize it with less data than it has columns
-        t.AddColumn("one");
-        t.AddColumn("two");
+        t.Columns().Add("one");
+        t.Columns().Add("two");
 
         QVERIFY(t.ColumnCount() == 2);
         QVERIFY(r.ColumnCount() == 2);
@@ -265,7 +265,7 @@ void DataSetTest::test_dataTable()
         // The column resize shouldn't affect the data in the first column
         QVERIFY(dr[0].Equals("HI"));
 
-        dt.AddColumn("second", "two");
+        dt.Columns().Add(DataColumn("second", "two"));
         QVERIFY(dt.ColumnCount() == 2);
         QVERIFY(dr.ColumnCount() == 2);
 
@@ -322,7 +322,7 @@ void DataSetTest::test_dataTable()
         DataRowCollection rc = dt.FindRows(0, "blah");
         QVERIFY2(rc.Count() == 2, QString("%1").arg(rc.Count()).toStdString().c_str());
         QVERIFY(dt.RowCount() > 2);
-        QVERIFY(rc.Table() == dt);
+        //QVERIFY(rc.Table() == dt);
         QVERIFY(rc.IndexOf(tmpr1) == 0);
         QVERIFY(rc.IndexOf(tmpr2) == 1);
 

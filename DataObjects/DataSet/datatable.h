@@ -71,6 +71,7 @@ public:
     explicit DataTable(const QStringList &column_keys = QStringList(),
                        const QStringList &column_labels = QStringList());
     explicit DataTable(const QString &table_name, int num_cols = 0);
+    explicit DataTable(int num_cols);
     DataTable(const DataTable &);
     virtual ~DataTable(){}
 

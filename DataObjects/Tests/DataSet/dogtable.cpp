@@ -25,12 +25,6 @@ DogTable::DogTable(const DogTable &o)
     :GUtil::DataObjects::DataTable(o)
 {}
 
-DogTable::DogTable(const DataSet &o)
-    :GUtil::DataObjects::DataTable(o)
-{
-    _init_dog_table();
-}
-
 void DogTable::_init_dog_table()
 {
     SetTableName("Dogs");

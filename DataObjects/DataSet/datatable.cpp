@@ -42,6 +42,12 @@ DataObjects::DataTable::DataTable(const QString &nm, int num_cols)
     _init(nm, num_cols);
 }
 
+DataObjects::DataTable::DataTable(int num_cols)
+    :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
+{
+    _init(QString::null, num_cols);
+}
+
 DataObjects::DataTable::DataTable(const DataObjects::DataTable &o)
     :ExplicitlySharedObject< SharedTableData >(o),
       Interfaces::IQXmlSerializable(),

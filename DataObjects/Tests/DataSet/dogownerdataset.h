@@ -42,11 +42,11 @@ public:
 private:
 
     void _init(){
-        set_data().Tables().Add(PeopleTable(*this));
-        set_data().Tables().Add(DogTable(*this));
+        set_data().Tables.Add(PeopleTable());
+        set_data().Tables.Add(DogTable());
 
         // Can't add any more tables
-        set_data().Tables().SetReadOnly(true);
+        set_data().Tables.SetReadOnly(true);
     }
 };
 

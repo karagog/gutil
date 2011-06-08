@@ -36,8 +36,6 @@ public:
 
 protected:
 
-    PeopleTable(const GUtil::DataObjects::DataSet &s);
-
     virtual void init_new_row(GUtil::DataObjects::DataRow &r);
 
 

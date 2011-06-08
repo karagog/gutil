@@ -31,11 +31,6 @@ public:
     DogTable(const DogTable &o);
 
 
-protected:
-
-    DogTable(const GUtil::DataObjects::DataSet &o);
-
-
 private:
 
     void _init_dog_table();

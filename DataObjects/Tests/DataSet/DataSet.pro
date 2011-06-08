@@ -14,7 +14,6 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-
 SOURCES += tst_datasettest.cpp \
     dogtable.cpp \
     peopletable.cpp
@@ -23,11 +22,17 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 INCLUDEPATH += ../../..
 LIBS += -L../../../lib \
     -lGUtilCore \
+    -lGUtilUtils \
+    -lGUtilThirdPartyQt \
     -lGUtilInterfaces \
     -lGUtilDataObjects \
     -lGUtilCustom
 
-#DEFINES += DEBUG_LOGGING
+unix: LIBS += -Wl,-rpath,../../../lib
+
+DEFINES += \
+    #DEBUG_LOGGING \
+    GUI_FUNCTIONALITY
 
 HEADERS += \
     persondatarow.h \

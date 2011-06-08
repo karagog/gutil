@@ -25,12 +25,6 @@ PeopleTable::PeopleTable(const PeopleTable &o)
     :GUtil::DataObjects::DataTable(o)
 {}
 
-PeopleTable::PeopleTable(const DataSet &s)
-    :GUtil::DataObjects::DataTable(s)
-{
-    _init();
-}
-
 void PeopleTable::init_new_row(GUtil::DataObjects::DataRow &r)
 {
     r.At(2) = QUuid::createUuid();
