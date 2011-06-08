@@ -26,6 +26,7 @@ class TableData;
 class DataColumnCollection :
         public ResizableCollection<DataColumn>
 {
+    friend class DataTable;
 public:
 
     explicit DataColumnCollection(TableData *, int size = 0);

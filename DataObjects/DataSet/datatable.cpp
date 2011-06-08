@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "Custom/gvariant.h"
 #include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
+#include "gutil_globals.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QCoreApplication>
@@ -173,11 +174,16 @@ void DataObjects::DataTable::Clear()
 
 void DataObjects::DataTable::SetColumnHeaders(const QStringList &keys, const QStringList &labels)
 {
-    Columns().Clear();
+    int new_col_count( gMax(keys.count(), labels.count()) );
+    Columns().Resize(new_col_count);
 
-    for(int i = 0; i < keys.count() || i < labels.count(); i++)
-        Columns().Add(DataColumn(i < keys.count() ? keys[i] : "",
-                                 i < labels.count() ? labels[i] : ""));
+    for(int i = 0; i < new_col_count; i++)
+    {
+        DataColumn newcol(i < keys.count() ? keys[i] : QUuid::createUuid().toString(),
+                          i < labels.count() ? labels[i] : "");
+        Columns().validate_new_item(newcol);
+        Columns()[i] = newcol;
+    }
 }
 
 QStringList DataObjects::DataTable::ColumnKeys() const

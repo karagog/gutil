@@ -47,6 +47,12 @@ public:
         return GetKey() != o.GetKey();
     }
 
+    inline DataColumn &operator = (const DataColumn &o){
+        SetKey(o.GetKey());
+        SetLabel(o.GetLabel());
+        return *this;
+    }
+
 };
 
 
