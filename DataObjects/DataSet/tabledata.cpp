@@ -16,14 +16,14 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE( DataObjects );
 
 TableData::TableData()
-    :Rows(this),
-      Columns(this)
+    :Columns(this),
+      Rows(this)
 {}
 
 TableData::TableData(const TableData &d)
     :IUpdatable(),
-      Rows(this, d.Rows),
       Columns(d.Columns),
+      Rows(this, d.Rows),
       Name(d.Name),
       KeyColumns(d.KeyColumns)
 {}

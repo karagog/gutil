@@ -34,8 +34,8 @@ public:
 
     int GetColumnIndex(const QString &key) const;
 
-    DataRowCollection Rows;
     DataColumnCollection Columns;
+    DataRowCollection Rows;
     QString Name;
     QSet<int> KeyColumns;
 
