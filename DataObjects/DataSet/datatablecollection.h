@@ -36,6 +36,11 @@ protected:
     // Protect our clonable interface
     DataTableCollection &CloneTo(DataTableCollection &o) const;
 
+
+private:
+
+    void on_add(int);
+
 };
 
 

@@ -46,7 +46,8 @@ public:
 
 protected:
 
-    // Derived classes can do things to the added/removed object by overriding
+    // Derived classes can do things to the added/removed object by overriding.
+    //  If you want to prevent an add/remove then throw an exception
     virtual void on_add(int){}
     virtual void on_remove(int){}
 

@@ -471,10 +471,10 @@ void DataSetTest::test_table_errors()
         QVERIFY(!ds2.Contains(tmp));
         QVERIFY(ds.Contains(tmp));
 
-        // Switch the table from ds to ds2
+        // Add the table to ds2
         ds2.AddTable(tmp);
         QVERIFY(ds2.Contains(tmp));
-        QVERIFY(!ds.Contains(tmp));
+        QVERIFY(ds.Contains(tmp));
     }
     catch(Core::Exception &ex)
     {

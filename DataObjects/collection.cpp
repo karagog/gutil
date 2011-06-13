@@ -146,7 +146,15 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::add_protected(co
     int index = _collection.size();
     _collection.append(value);
 
-    on_add(index);
+    try
+    {
+        on_add(index);
+    }
+    catch(...)
+    {
+        _collection.removeLast();
+        throw;
+    }
 
     return _collection[index];
 }
@@ -163,7 +171,15 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected
 
     _collection.insert(index, value);
 
-    on_add(index);
+    try
+    {
+        on_add(index);
+    }
+    catch(...)
+    {
+        _collection.removeAt(index);
+        throw;
+    }
 
     return _collection[index];
 }

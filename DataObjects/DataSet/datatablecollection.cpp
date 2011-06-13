@@ -38,3 +38,18 @@ DataObjects::DataTableCollection &DataObjects::DataTableCollection::CloneTo(
 
     return o;
 }
+
+void DataObjects::DataTableCollection::on_add(int ind)
+{
+    DataObjects::DataTable &ref( At(ind) );
+
+    for(int i = 0; i < Collection<DataTable>::Size(); i++)
+    {
+        if(i == ind)
+            continue;
+
+        if(At(i) == ref)
+            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::ValidationException,
+                                       "Table already exists in collection");
+    }
+}
