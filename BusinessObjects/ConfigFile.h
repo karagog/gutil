@@ -27,6 +27,7 @@ limitations under the License.*/
 #define CONFIGFILE_PROPERTY( name, type ) \
     inline type Get##name(){ return Value(#name).value<type>(); } \
     inline void Set##name(const type &value){ SetValue( #name, value ); } \
+    inline bool Has##name(){ return Contains(#name); } \
     enum{}
 
 
