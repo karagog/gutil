@@ -57,6 +57,7 @@ QByteArray DataAccess::GIODevice::ReceiveData()
         throw(Core::DataTransportException)
 {
     QByteArray ret;
+    _this_lock.lock();
     try
     {
         ret = receive_data();
