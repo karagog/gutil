@@ -33,6 +33,7 @@ public:
 
     // You can manipulate these members directly to set the title and about text
     QLabel Title;
+    QLabel BuildInfo;
     QPlainTextEdit Text;
 
     // The image will appear next to the title, and as the window icon.  It can be

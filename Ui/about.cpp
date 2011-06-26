@@ -29,6 +29,7 @@ About::About(QWidget *parent)
     resize(400, 300);
 
     Title.setAlignment(Qt::AlignHCenter);
+    BuildInfo.setAlignment(Qt::AlignHCenter);
     {
         QFont f;
         f.setBold(true);
@@ -45,6 +46,7 @@ About::About(QWidget *parent)
     QVBoxLayout *vbl( new QVBoxLayout );
     top_level_layout->addLayout(vbl);
     vbl->addWidget(&Title);
+    vbl->addWidget(&BuildInfo);
     vbl->addWidget(&Text);
     {
         // Set up the buttons at the bottom of the widget
