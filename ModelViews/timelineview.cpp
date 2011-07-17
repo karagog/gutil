@@ -551,6 +551,8 @@ void TimelineView::wheelEvent(QWheelEvent *ev)
 
 void TimelineView::keyPressEvent(QKeyEvent *event)
 {
+    event->ignore();
+
     if(event->modifiers().testFlag(Qt::ControlModifier))
     {
         if(event->key() == Qt::Key_0)
@@ -561,8 +563,13 @@ void TimelineView::keyPressEvent(QKeyEvent *event)
 
             _update_scrollbars();
             viewport()->update();
+
+            event->accept();
         }
     }
+
+    if(!event->isAccepted())
+        QAbstractItemView::keyPressEvent(event);
 }
 
 void TimelineView::SetStartTime(const QDateTime &dt)
