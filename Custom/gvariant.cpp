@@ -103,14 +103,14 @@ Custom::GVariant::GVariant(const QSize &s)
     :QVariant(s){}
 
 Custom::GVariant::GVariant(const QUuid &i)
-    :QVariant(QUuidType, new QUuid(i)){}
+    :QVariant(TypeQUuid, new QUuid(i)){}
 
 QUuid Custom::GVariant::toUuid() const
 {
     QUuid ret;
     if(type() == String || type() == ByteArray)
         ret = toString();
-    else if(type() == UserType && userType() == QUuidType)
+    else if(type() == UserType && userType() == TypeQUuid)
         ret = value<QUuid>();
     return ret;
 }
@@ -129,8 +129,8 @@ Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
 
 
 
-int Custom::GVariant::QUuidType = qMetaTypeId<QUuid>();
-int Custom::GVariant::FloatType = qMetaTypeId<float>();
+int Custom::GVariant::TypeQUuid = qMetaTypeId<QUuid>();
+int Custom::GVariant::TypeFloat = qMetaTypeId<float>();
 
 void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 {
@@ -250,9 +250,9 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     default:
 
         // These are our custom types, that have to be handled separately
-        if(type == QUuidType)
+        if(type == TypeQUuid)
             sw.writeAttribute("d", value<QUuid>().toString());
-        else if(type == FloatType)
+        else if(type == TypeFloat)
             sw.writeAttribute("d", QString("%1").arg(value<float>()));
 
         break;
@@ -409,9 +409,9 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         default:
 
             // These are our custom types, that have to be handled separately
-            if(type == QUuidType)
+            if(type == TypeQUuid)
                 setValue(QUuid(d));
-            else if(type == FloatType)
+            else if(type == TypeFloat)
                 setValue(d.toFloat());
 
             break;
@@ -444,9 +444,9 @@ bool Custom::GVariant::Equals(const Custom::GVariant &o) const
     {
         // QVariant doesn't compare custom types for us, it only compares pointers,
         //  so we implement our own compare for the custom types
-        if(type == QUuidType)
+        if(type == TypeQUuid)
             ret = value<QUuid>() == o.value<QUuid>();
-        else if(type == FloatType)
+        else if(type == TypeFloat)
             ret = value<float>() == o.value<float>();
         else
             ret = false;

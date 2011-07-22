@@ -105,15 +105,16 @@ public:
 
 
     // These are types that I define, because for some reason Qt doesn't already
-    static int QUuidType;
-    static int FloatType;
+    static int TypeQUuid;
+    static int TypeFloat;
 
 };
 
 
 GUTIL_END_NAMESPACE;
 
-// Register these types with the Qt meta-type system
+
+// Register these types with the Qt meta-type system so we can use them with QVariants
 Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
 Q_DECLARE_METATYPE(QUuid);
 

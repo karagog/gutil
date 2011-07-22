@@ -205,6 +205,6 @@ private:
 };
 
 
-GUTIL_END_NAMESPACE
+GUTIL_END_NAMESPACE;
 
 #endif // DATATABLE_H
