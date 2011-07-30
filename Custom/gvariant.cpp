@@ -264,161 +264,165 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         throw(GUtil::Core::XmlException)
 {
-    if(sr.readNextStartElement())
+    try
     {
-        if(sr.name() != GVARIANT_XML_ID)
-            throw Core::XmlException();
-
-        int type = sr.attributes().at(0).value().toString().toInt();
-
         clear();
 
-        QString d;
-        if(sr.attributes().count() > 1)
-            d = sr.attributes().at(1).value().toString();
-
-        int tmpint;
-        QString tmps;
-        QStringList sltemp1;
-        QStringList sltemp2;
-        QStringList sltemp3;
-        QBitArray baBitArray;
-        QVariantList vl;
-        QVariantMap vm;
-        switch(type)
+        if(sr.readNextStartElement())
         {
-        case String:
-            setValue(Utils::QStringHelpers::fromBase64(d));
-            break;
-        case ByteArray:
-            tmps = Utils::QStringHelpers::fromBase64(d);
-            setValue(QByteArray(tmps.toStdString().c_str(), tmps.length()));
-            break;
-        case Char:
-            setValue(Utils::QStringHelpers::fromBase64(d).at(0));
-            break;
-        case Int:
-            setValue(d.toInt());
-            break;
-        case UInt:
-            setValue(d.toUInt());
-            break;
-        case LongLong:
-            setValue(d.toLongLong());
-            break;
-        case ULongLong:
-            setValue(d.toULongLong());
-            break;
-        case Bool:
-            setValue(d == "1" ? true : false);
-            break;
-        case Double:
-            setValue(d.toDouble());
-            break;
-        case Date:
-            sltemp1 = d.split(",");
-            setValue(QDate(sltemp1.at(0).toInt(),
-                           sltemp1.at(1).toInt(),
-                           sltemp1.at(2).toInt()));
-            break;
-        case Time:
-            sltemp1 = d.split(",");
-            setValue(QTime(sltemp1.at(0).toInt(),
-                           sltemp1.at(1).toInt(),
-                           sltemp1.at(2).toInt(),
-                           sltemp1.at(3).toInt()));
-            break;
-        case DateTime:
-            sltemp1 = d.split(";");
-            sltemp2 = sltemp1.at(0).split(",");
-            sltemp3 = sltemp1.at(1).split(",");
-            setValue(QDateTime(QDate(sltemp2.at(0).toInt(),
-                                      sltemp2.at(1).toInt(),
-                                      sltemp2.at(2).toInt()),
-                               QTime(sltemp3.at(0).toInt(),
-                                     sltemp3.at(1).toInt(),
-                                     sltemp3.at(2).toInt(),
-                                     sltemp3.at(3).toInt()),
-                               (Qt::TimeSpec)sltemp1.at(2).toInt()));
-            break;
-        case BitArray:
-            baBitArray.resize(d.length());
-            for(int i = 0; i < d.length(); i++)
-                baBitArray.setBit(d.length() - i - 1, d.at(i) == '1' ? true : false);
-            setValue(baBitArray);
-            break;
-        case StringList:
-            tmpint = d.toInt();
-            for(int i = 0; i < tmpint; i++)
+            if(sr.name() != GVARIANT_XML_ID)
+                throw Core::XmlException();
+
+            int type = sr.attributes().at(0).value().toString().toInt();
+
+            QString d;
+            if(sr.attributes().count() > 1)
+                d = sr.attributes().at(1).value().toString();
+
+            int tmpint;
+            QString tmps;
+            QStringList sltemp1;
+            QStringList sltemp2;
+            QStringList sltemp3;
+            QBitArray baBitArray;
+            QVariantList vl;
+            QVariantMap vm;
+            switch(type)
             {
-                if(!sr.readNextStartElement())
-                    throw Core::XmlException();
+            case String:
+                setValue(Utils::QStringHelpers::fromBase64(d));
+                break;
+            case ByteArray:
+                tmps = Utils::QStringHelpers::fromBase64(d);
+                setValue(QByteArray(tmps.toStdString().c_str(), tmps.length()));
+                break;
+            case Char:
+                setValue(Utils::QStringHelpers::fromBase64(d).at(0));
+                break;
+            case Int:
+                setValue(d.toInt());
+                break;
+            case UInt:
+                setValue(d.toUInt());
+                break;
+            case LongLong:
+                setValue(d.toLongLong());
+                break;
+            case ULongLong:
+                setValue(d.toULongLong());
+                break;
+            case Bool:
+                setValue(d == "1" ? true : false);
+                break;
+            case Double:
+                setValue(d.toDouble());
+                break;
+            case Date:
+                sltemp1 = d.split(",");
+                setValue(QDate(sltemp1.at(0).toInt(),
+                               sltemp1.at(1).toInt(),
+                               sltemp1.at(2).toInt()));
+                break;
+            case Time:
+                sltemp1 = d.split(",");
+                setValue(QTime(sltemp1.at(0).toInt(),
+                               sltemp1.at(1).toInt(),
+                               sltemp1.at(2).toInt(),
+                               sltemp1.at(3).toInt()));
+                break;
+            case DateTime:
+                sltemp1 = d.split(";");
+                sltemp2 = sltemp1.at(0).split(",");
+                sltemp3 = sltemp1.at(1).split(",");
+                setValue(QDateTime(QDate(sltemp2.at(0).toInt(),
+                                         sltemp2.at(1).toInt(),
+                                         sltemp2.at(2).toInt()),
+                                   QTime(sltemp3.at(0).toInt(),
+                                         sltemp3.at(1).toInt(),
+                                         sltemp3.at(2).toInt(),
+                                         sltemp3.at(3).toInt()),
+                                   (Qt::TimeSpec)sltemp1.at(2).toInt()));
+                break;
+            case BitArray:
+                baBitArray.resize(d.length());
+                for(int i = 0; i < d.length(); i++)
+                    baBitArray.setBit(d.length() - i - 1, d.at(i) == '1' ? true : false);
+                setValue(baBitArray);
+                break;
+            case StringList:
+                tmpint = d.toInt();
+                for(int i = 0; i < tmpint; i++)
+                {
+                    if(!sr.readNextStartElement())
+                        throw Core::XmlException();
 
-                sltemp1.append(Utils::QStringHelpers::fromBase64(
-                        sr.attributes().at(0).value().toString()));
-                while(sr.readNext() != QXmlStreamReader::EndElement);
+                    sltemp1.append(Utils::QStringHelpers::fromBase64(
+                                       sr.attributes().at(0).value().toString()));
+                    while(sr.readNext() != QXmlStreamReader::EndElement);
+                }
+                setValue(sltemp1);
+                break;
+            case RegExp:
+                sltemp1 = sr.attributes().at(2).value().toString().split(",");
+                setValue(QRegExp(d, (Qt::CaseSensitivity)sltemp1.at(0).toInt(),
+                                 (QRegExp::PatternSyntax)sltemp1.at(1).toInt()));
+                break;
+            case Url:
+                setValue(QUrl(d));
+                break;
+            case List:
+                tmpint = d.toInt();
+                for(int i = 0; i < tmpint; i++)
+                {
+                    Custom::GVariant gv;
+                    gv.ReadXml(sr);
+                    vl.append(gv);
+                }
+                setValue(vl);
+                break;
+            case Map:
+                tmpint = d.toInt();
+                for(int i = 0; i < tmpint; i++)
+                {
+                    if(!sr.readNextStartElement())
+                        throw Core::XmlException();
+
+                    QString key = Utils::QStringHelpers::fromBase64(
+                                sr.attributes().at(0).value().toString());
+                    GVariant gv;
+                    gv.ReadXml(sr);
+                    vm.insert(key, gv);
+
+                    while(sr.readNext() != QXmlStreamReader::EndElement);
+                }
+                setValue(vm);
+                break;
+            case Size:
+                sltemp1 = d.split(",");
+                setValue(QSize(sltemp1.at(0).toInt(), sltemp1.at(1).toInt()));
+                break;
+            case Rect:
+                sltemp1 = d.split(",");
+                setValue(QRect(sltemp1.at(0).toInt(),
+                               sltemp1.at(1).toInt(),
+                               sltemp1.at(2).toInt(),
+                               sltemp1.at(3).toInt()));
+                break;
+            default:
+
+                // These are our custom types, that have to be handled separately
+                if(type == TypeQUuid)
+                    setValue(QUuid(d));
+                else if(type == TypeFloat)
+                    setValue(d.toFloat());
+
+                break;
             }
-            setValue(sltemp1);
-            break;
-        case RegExp:
-            sltemp1 = sr.attributes().at(2).value().toString().split(",");
-            setValue(QRegExp(d, (Qt::CaseSensitivity)sltemp1.at(0).toInt(),
-                             (QRegExp::PatternSyntax)sltemp1.at(1).toInt()));
-            break;
-        case Url:
-            setValue(QUrl(d));
-            break;
-        case List:
-            tmpint = d.toInt();
-            for(int i = 0; i < tmpint; i++)
-            {
-                Custom::GVariant gv;
-                gv.ReadXml(sr);
-                vl.append(gv);
-            }
-            setValue(vl);
-            break;
-        case Map:
-            tmpint = d.toInt();
-            for(int i = 0; i < tmpint; i++)
-            {
-                if(!sr.readNextStartElement())
-                    throw Core::XmlException();
 
-                QString key = Utils::QStringHelpers::fromBase64(
-                        sr.attributes().at(0).value().toString());
-                GVariant gv;
-                gv.ReadXml(sr);
-                vm.insert(key, gv);
-
-                while(sr.readNext() != QXmlStreamReader::EndElement);
-            }
-            setValue(vm);
-            break;
-        case Size:
-            sltemp1 = d.split(",");
-            setValue(QSize(sltemp1.at(0).toInt(), sltemp1.at(1).toInt()));
-            break;
-        case Rect:
-            sltemp1 = d.split(",");
-            setValue(QRect(sltemp1.at(0).toInt(),
-                           sltemp1.at(1).toInt(),
-                           sltemp1.at(2).toInt(),
-                           sltemp1.at(3).toInt()));
-            break;
-        default:
-
-            // These are our custom types, that have to be handled separately
-            if(type == TypeQUuid)
-                setValue(QUuid(d));
-            else if(type == TypeFloat)
-                setValue(d.toFloat());
-
-            break;
+            while(sr.readNext() != QXmlStreamReader::EndElement);
         }
-
-        while(sr.readNext() != QXmlStreamReader::EndElement);
     }
+    catch(...){}
 }
 
 void Custom::GVariant::ToXml(const Custom::GVariant &g, QXmlStreamWriter &sw)
