@@ -23,10 +23,12 @@ using namespace Utils;
 
 UniversalMutex::UniversalMutex(const QString &file_path,
                                const QUuid &id,
+                               const QUuid &alt,
                                QObject *parent)
     :QThread(parent),
       _machine_mutex(file_path),
       _id(id),
+      m_alternativeId(alt),
       _is_locked(false)
 {
     if(_id.isNull())
@@ -166,7 +168,7 @@ void UniversalMutex::_lock()
         {
             QUuid tmp(f.readAll().constData());
             if(!tmp.isNull())
-                unrecognized_guid = tmp != _id;
+                unrecognized_guid = (tmp != _id && tmp != m_alternativeId);
         }
 
         if(unrecognized_guid)

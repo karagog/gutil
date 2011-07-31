@@ -40,8 +40,11 @@ namespace GUtil
             Q_OBJECT
         public:
 
+            // In case of an application crash before cleanup, we will also accept the lock
+            //   if the id matches the alternative id
             UniversalMutex(const QString &file_path = QString::null,
                            const QUuid &id = QUuid(),
+                           const QUuid &alternative_id = QUuid(),
                            QObject *parent = 0);
             ~UniversalMutex();
 
@@ -76,6 +79,7 @@ namespace GUtil
 
             UserMachineMutex _machine_mutex;
             QUuid _id;
+            QUuid m_alternativeId;
             QString _lock_file_path;
             QDateTime _last_read_date;
 
