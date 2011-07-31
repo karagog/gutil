@@ -25,15 +25,15 @@ UniversalMutex::UniversalMutex(const QString &file_path,
                                const QUuid &id,
                                QObject *parent)
     :QThread(parent),
-    _machine_mutex(file_path),
-    _id(id),
-    _lock_file_path(file_path),
-    _is_locked(false)
+      _machine_mutex(file_path),
+      _id(id),
+      _is_locked(false)
 {
     if(_id.isNull())
         _id = QUuid::createUuid();
 
-    SetFilePath(file_path);
+    if(!file_path.isNull())
+        SetFilePath(file_path);
 
     connect(&_fsw, SIGNAL(fileChanged(QString)), this, SLOT(lock_file_updated()));
 }
@@ -152,6 +152,9 @@ QString UniversalMutex::GetFilepath() const
 
 void UniversalMutex::_lock()
 {
+    if(_lock_file_path.isNull())
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "You must first set the lockfile path");
     QFile f(_lock_file_path);
 
     f.open(QFile::ReadWrite);
@@ -192,6 +195,7 @@ void UniversalMutex::_unlock()
         f.resize(0);
     }
     f.close();
+    f.remove();
 
     _machine_mutex.UnlockForMachine();
     _is_locked = false;
@@ -225,9 +229,9 @@ bool UniversalMutex::_has_lock(bool from_cache) const
 
 void UniversalMutex::_fail_if_locked() const
 {
-    if(!_lock_file_set())
-        THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,
-                                   "No file path set!" );
+//    if(!_lock_file_set())
+//        THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,
+//                                   "No file path set!" );
 
     if(_is_locked)
         THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,

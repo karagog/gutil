@@ -40,7 +40,7 @@ namespace GUtil
             Q_OBJECT
         public:
 
-            UniversalMutex(const QString &file_path,
+            UniversalMutex(const QString &file_path = QString::null,
                            const QUuid &id = QUuid(),
                            QObject *parent = 0);
             ~UniversalMutex();
