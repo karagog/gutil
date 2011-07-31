@@ -28,6 +28,7 @@ limitations under the License.*/
     inline type Get##name(){ return Value(#name).value<type>(); } \
     inline void Set##name(const type &value){ SetValue( #name, value ); } \
     inline bool Has##name(){ return Contains(#name); } \
+    inline void Remove##name(){ RemoveValue(#name); } \
     enum{}
 
 
