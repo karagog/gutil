@@ -12,43 +12,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_ABOUT_H
-#define GUTIL_ABOUT_H
+#ifndef IMAGEFRAME_H
+#define IMAGEFRAME_H
 
-#include <QDialog>
-#include <QLabel>
-#include <QPlainTextEdit>
-#include "imageframe.h"
+#include <QWidget>
 
 namespace GUtil{ namespace UI{
 
 
-// A generic about window
-class About :
-        public QDialog
+// This class simply displays an image from a resource or file path
+class ImageFrame :
+        public QWidget
 {
     Q_OBJECT
 public:
 
-    explicit About(QWidget *parent = 0);
+    explicit ImageFrame(QWidget *parent = 0);
+    explicit ImageFrame(const QString &path, QWidget *parent = 0);
 
-    // You can manipulate these members directly to set the title and about text
-    QLabel Title;
-    QLabel BuildInfo;
-    QPlainTextEdit Text;
+    inline QString ImagePath() const{ return m_imagePath; }
 
-    // The image will appear next to the title, and as the window icon.  It can be
-    //  a regular filename or a resource name (:/resource.bmp for example)
-    void SetImage(const QString &filename);
+
+public slots:
+
+    void SetImagePath(const QString &);
 
 
 private:
 
-    ImageFrame _imageFrame;
+    QString m_imagePath;
 
 };
 
 
 }}
-
-#endif // GUTIL_ABOUT_H
+#endif // IMAGEFRAME_H

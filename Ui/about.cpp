@@ -39,9 +39,9 @@ About::About(QWidget *parent)
     }
 
     QHBoxLayout *top_level_layout(new QHBoxLayout);
-    _image_widget.setFixedSize(0, 0);
-    top_level_layout->addWidget(&_image_widget);
-    top_level_layout->setAlignment(&_image_widget, Qt::AlignTop);
+    _imageFrame.hide();
+    top_level_layout->addWidget(&_imageFrame);
+    top_level_layout->setAlignment(&_imageFrame, Qt::AlignTop);
 
     QVBoxLayout *vbl( new QVBoxLayout );
     top_level_layout->addLayout(vbl);
@@ -79,13 +79,13 @@ void About::SetImage(const QString &filename)
 {
     if(filename.isNull())
     {
-        _image_widget.setFixedSize(0, 0);
+        _imageFrame.hide();
         setWindowIcon(QIcon());
     }
     else
     {
-        _image_widget.setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
-        _image_widget.setStyleSheet(QString("image: url(%1)").arg(filename));
+        _imageFrame.SetImagePath(filename);
+        _imageFrame.setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
         setWindowIcon(QIcon(filename));
     }
 }

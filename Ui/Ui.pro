@@ -7,7 +7,11 @@ TEMPLATE = lib
 INCLUDEPATH += ..
 
 HEADERS += \
-    about.h
+    about.h \
+    imageframe.h
 
 SOURCES += \
-    about.cpp
+    about.cpp \
+    imageframe.cpp
+
+RESOURCES +=
