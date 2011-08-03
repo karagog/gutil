@@ -24,6 +24,7 @@ limitations under the License.*/
 #include <QWaitCondition>
 #include <QReadWriteLock>
 #include <QThread>
+#include <QStringList>
 
 
 namespace GUtil
@@ -41,10 +42,10 @@ namespace GUtil
         public:
 
             // In case of an application crash before cleanup, we will also accept the lock
-            //   if the id matches the alternative id
+            //   if the id matches one in the list of ids
             UniversalMutex(const QString &file_path = QString::null,
                            const QUuid &id = QUuid(),
-                           const QUuid &alternative_id = QUuid(),
+                           const QStringList &ids = QStringList(),
                            QObject *parent = 0);
             ~UniversalMutex();
 
@@ -78,8 +79,8 @@ namespace GUtil
         private:
 
             UserMachineMutex _machine_mutex;
-            QUuid _id;
-            QUuid m_alternativeId;
+            QUuid m_id;
+            QStringList m_Ids;
             QString _lock_file_path;
             QDateTime _last_read_date;
 

@@ -23,16 +23,16 @@ using namespace Utils;
 
 UniversalMutex::UniversalMutex(const QString &file_path,
                                const QUuid &id,
-                               const QUuid &alt,
+                               const QStringList &ids,
                                QObject *parent)
     :QThread(parent),
       _machine_mutex(file_path),
-      _id(id),
-      m_alternativeId(alt),
+      m_id(id),
+      m_Ids(ids),
       _is_locked(false)
 {
-    if(_id.isNull())
-        _id = QUuid::createUuid();
+    if(!m_id.isNull())
+        m_Ids.append(m_id);
 
     if(!file_path.isNull())
         SetFilePath(file_path);
@@ -168,7 +168,7 @@ void UniversalMutex::_lock()
         {
             QUuid tmp(f.readAll().constData());
             if(!tmp.isNull())
-                unrecognized_guid = (tmp != _id && tmp != m_alternativeId);
+                unrecognized_guid = !m_Ids.contains(tmp);
         }
 
         if(unrecognized_guid)
@@ -180,7 +180,7 @@ void UniversalMutex::_lock()
         }
 
         f.resize(0);
-        f.write(_id.toString().toAscii());
+        f.write(m_id.toString().toAscii());
     }
     f.close();
 }
@@ -226,7 +226,7 @@ bool UniversalMutex::_has_lock(bool from_cache) const
     tmp_id = f.readAll().constData();
     f.close();
 
-    return tmp_id == _id;
+    return tmp_id == m_id;
 }
 
 void UniversalMutex::_fail_if_locked() const
