@@ -14,9 +14,11 @@ TEMPLATE = lib
 HEADERS += \
     gtreeview.h \
     gapplication.h \
-    myflattreemodel.h
+    myflattreemodel.h \
+    gundostack.h
 
 SOURCES += \
     gtreeview.cpp \
     gapplication.cpp \
-    myflattreemodel.cpp
+    myflattreemodel.cpp \
+    gundostack.cpp
