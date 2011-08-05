@@ -35,9 +35,8 @@ GDateTime GDateTime::operator - (const GDateTime &other) const
 
 GDateTime::TimeBreakdown GDateTime::GetTimeDistanceBreakdown(const GDateTime &start_time,
                                                              const GDateTime &end_time,
-                                                             int timeBreakdownFlags)
+                                                             TimeBreakdownFlags f)
 {
-    TimeBreakdownFlags f(timeBreakdownFlags);
     TimeBreakdown ret;
     long long msecs( start_time.msecsTo(end_time) );
 

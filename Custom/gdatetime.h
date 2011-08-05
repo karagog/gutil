@@ -79,14 +79,14 @@ public:
         Centuries,
         Millennia
     };
-    Q_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag);
+    Q_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag)
 
-    inline TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &end_time, int timeBreakdownFlags) const{
-        return GetTimeDistanceBreakdown(*this, end_time, timeBreakdownFlags);
+    inline TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &end_time, TimeBreakdownFlags f) const{
+        return GetTimeDistanceBreakdown(*this, end_time, f);
     }
     static TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &start_time,
                                                   const GDateTime &end_time,
-                                                  int timeBreakdownFlags);
+                                                  TimeBreakdownFlags);
 
 
 private:
@@ -95,6 +95,9 @@ private:
     static long long _subtract_time_units(long long &msecs, long long how_many_msecs_per_unit);
 
 };
+
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(GDateTime::TimeBreakdownFlags)
 
 
 GUTIL_END_NAMESPACE;
