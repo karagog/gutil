@@ -16,18 +16,46 @@ limitations under the License.*/
 #include "Core/exception.h"
 GUTIL_USING_NAMESPACE(Utils);
 
-GlobalMemoryManager *GlobalMemoryManager::m_GlobalInstance(0);
+QHash<QString, void*> GlobalMemoryManager::m_GlobalInstances;
+QReadWriteLock GlobalMemoryManager::m_GlobalInstancesLock;
 
-void GlobalMemoryManager::SetGlobalInstance(GlobalMemoryManager *mm)
+void GlobalMemoryManager::set_global_instance(const QString &k, void *v)
 {
-    if(m_GlobalInstance)
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Global instance already set");
-
-    m_GlobalInstance = mm;
+    m_GlobalInstancesLock.lockForWrite();
+    try
+    {
+        if(m_GlobalInstances.contains(k))
+            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                       QString("Global instance '%1' already set")
+                                       .arg(k).toStdString());
+        m_GlobalInstances.insert(k, v);
+    }
+    catch(...)
+    {
+        m_GlobalInstancesLock.unlock();
+        throw;
+    }
+    m_GlobalInstancesLock.unlock();
 }
 
-GlobalMemoryManager *GlobalMemoryManager::GlobalInstance()
+void *GlobalMemoryManager::get_global_instance(const QString &k)
 {
-    return m_GlobalInstance;
+    void *ret;
+    m_GlobalInstancesLock.lockForRead();
+    try
+    {
+        if(m_GlobalInstances.contains(k))
+            ret = m_GlobalInstances.value(k);
+        else
+            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                       QString("Global instance '%1' not set")
+                                       .arg(k).toStdString());
+    }
+    catch(...)
+    {
+        m_GlobalInstancesLock.unlock();
+        throw;
+    }
+    m_GlobalInstancesLock.unlock();
+    return ret;
 }

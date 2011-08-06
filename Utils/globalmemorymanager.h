@@ -15,6 +15,9 @@ limitations under the License.*/
 #ifndef GLOBALMEMORYMANAGER_H
 #define GLOBALMEMORYMANAGER_H
 
+#include <QHash>
+#include <QReadWriteLock>
+
 namespace GUtil{ namespace Utils{
 
 
@@ -28,10 +31,12 @@ public:
     //  they are subclassed
     virtual ~GlobalMemoryManager(){}
 
-
-    // For keeping track of the global memory instance.  You can only set it once.
-    static GlobalMemoryManager *GlobalInstance();
-    static void SetGlobalInstance(GlobalMemoryManager *mm);
+    // Use this macro when you subclass to create a globals class.  It will define the
+    //  static getters and setters for the global instance.
+#define DEFINE_GLOBAL_INSTANCE( NAME, CLASS ) \
+    static inline CLASS *NAME##Instance(){ return (CLASS *)get_global_instance(#NAME); } \
+    static inline void Set##NAME##Instance(CLASS *mm){ set_global_instance(#NAME, mm); } \
+    enum{}
 
 
 protected:
@@ -39,10 +44,16 @@ protected:
     // There is no public constructor, because this class is designed to be subclassed
     inline GlobalMemoryManager(){}
 
+    // These functions are referenced in the public macros above, which you should use
+    //  in your subclass to define the
+    static void* get_global_instance(const QString &);
+    static void  set_global_instance(const QString &, void *);
+
 
 private:
 
-    static GlobalMemoryManager *m_GlobalInstance;
+    static QHash<QString, void*> m_GlobalInstances;
+    static QReadWriteLock m_GlobalInstancesLock;
 
 };
 
