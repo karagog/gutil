@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "stopwatchengine.h"
 #include <QTimerEvent>
+#include <QTimer>
 GUTIL_USING_NAMESPACE(Utils);
 
 #define DEFAULT_TIMER_RESOLUTION 100
@@ -21,23 +22,40 @@ GUTIL_USING_NAMESPACE(Utils);
 StopwatchEngine::StopwatchEngine(QObject *parent)
     :QObject(parent),
       _p_MarkMemoryMaxLength(1),
+      _p_AutoRefreshTime(0),
       m_timer_id(-1),
-      m_timer_resolution(DEFAULT_TIMER_RESOLUTION)
-{
-
-}
+      m_isRunning(false),
+      m_timeAccumulated(0),
+      m_timeAccumulatedSinceLastStart(0)
+{}
 
 StopwatchEngine::~StopwatchEngine()
 {
     Stop();
 }
 
-void StopwatchEngine::SetTimerResolution(int milliseconds)
+bool StopwatchEngine::IsRunning()
 {
-    if(IsRunning())
-        Stop();
+    bool ret;
+    m_lock.lockForRead();
+    ret = m_isRunning;
+    m_lock.unlock();
+    return ret;
+}
 
-    m_timer_resolution = milliseconds;
+bool StopwatchEngine::WasStarted()
+{
+    bool ret;
+    m_lock.lockForRead();
+    ret = _wasStarted();
+    m_lock.unlock();
+    return ret;
+}
+
+bool StopwatchEngine::_wasStarted()
+{
+    _refresh();
+    return m_timeAccumulated + m_timeAccumulatedSinceLastStart > 0;
 }
 
 void StopwatchEngine::Start()
@@ -52,99 +70,94 @@ void StopwatchEngine::Stop()
 
 void StopwatchEngine::StartStop(bool start)
 {
+    m_lock.lockForWrite();
     if(start)
     {
-        if(!IsRunning())
+        if(!m_isRunning)
         {
+            m_timeAccumulated += m_timeAccumulatedSinceLastStart;
+            m_timeAccumulatedSinceLastStart = 0;
+
+            m_time = QDateTime::currentDateTime();
             if(m_startTime.isNull())
-                m_startTime = m_time = QDateTime::currentDateTime();
+                m_startTime = m_time;
 
-            m_timer_id = startTimer(m_timer_resolution);
+            if(GetAutoRefreshTime() > 0)
+                m_timer_id = startTimer(GetAutoRefreshTime());
 
-            emit NotifyStartedStopped(true);
+            m_isRunning = true;
         }
     }
     else
     {
-        if(IsRunning())
+        if(m_isRunning)
         {
-            killTimer(m_timer_id);
-            m_timer_id = -1;
 
-            _mark_time(m_actual_stopTime = QDateTime::currentDateTime());
+            if(m_timer_id != -1)
+            {
+                killTimer(m_timer_id);
+                m_timer_id = -1;
+            }
 
-            emit NotifyStartedStopped(false);
+            _refresh();
+            m_isRunning = false;
+
+            m_stopTime = QDateTime::currentDateTime();
         }
     }
+    m_lock.unlock();
+
+    emit NotifyStartedStopped(m_isRunning);
 }
 
 void StopwatchEngine::Reset()
 {
-    if(IsRunning())
-        Stop();
-    else
-    {
-        m_lock.lockForWrite();
-        {
-            m_startTime = m_actual_stopTime = m_time = QDateTime();
-        }
-        m_lock.unlock();
-    }
-}
-
-void StopwatchEngine::ResetHot()
-{
     m_lock.lockForWrite();
     {
+        m_stopTime = QDateTime();
         m_startTime = m_time = QDateTime::currentDateTime();
+        m_timeAccumulated = m_timeAccumulatedSinceLastStart = 0;
+        m_markTimes.clear();
     }
     m_lock.unlock();
-
-    m_actual_stopTime = QDateTime();
-    m_markTimes.clear();
 }
 
 void StopwatchEngine::timerEvent(QTimerEvent *ev)
 {
     if(ev->timerId() == m_timer_id)
-    {
-        m_lock.lockForWrite();
-        {
-            m_time = m_time.addMSecs(m_timer_resolution);
-        }
-        m_lock.unlock();
-    }
+        Refresh();
 }
 
 QDateTime StopwatchEngine::TimeCurrent()
 {
     QDateTime ret;
     m_lock.lockForRead();
-    {
-       ret = m_time;
-    }
+    ret = _timeCurrent();
     m_lock.unlock();
     return ret;
 }
 
-QDateTime StopwatchEngine::TimeMark(int mark_index) const
+QDateTime StopwatchEngine::_timeCurrent()
+{
+    _refresh();
+    return m_startTime.addMSecs(m_timeAccumulated + m_timeAccumulatedSinceLastStart);
+}
+
+QDateTime StopwatchEngine::TimeMark(int mark_index)
 {
     QDateTime ret;
+    m_lock.lockForRead();
     if(mark_index >= 0 && mark_index < m_markTimes.length())
         ret = m_markTimes[mark_index];
+    m_lock.unlock();
     return ret;
 }
 
 void StopwatchEngine::Mark()
 {
-    QDateTime t;
-    m_lock.lockForRead();
-    {
-        t = m_time;
-    }
+    m_lock.lockForWrite();
+    _mark_time(_timeCurrent());
     m_lock.unlock();
-
-    _mark_time(t);
 }
 
 void StopwatchEngine::_mark_time(const QDateTime &dt)
@@ -153,4 +166,46 @@ void StopwatchEngine::_mark_time(const QDateTime &dt)
         m_markTimes.removeAt(m_markTimes.length() - 1);
 
     m_markTimes.insert(0, dt);
+}
+
+void StopwatchEngine::Refresh()
+{
+    QDateTime ret;
+    m_lock.lockForWrite();
+    ret = _timeCurrent();
+    m_lock.unlock();
+
+    emit NotifyRefreshed(ret);
+}
+
+void StopwatchEngine::_refresh()
+{
+    if(m_isRunning)
+        m_timeAccumulatedSinceLastStart = m_time.msecsTo(QDateTime::currentDateTime());
+}
+
+QDateTime StopwatchEngine::TimeStart()
+{
+    QDateTime ret;
+    m_lock.lockForRead();
+    {
+        // There has only been a valid start time if the timer was started
+        if(_wasStarted())
+            ret = m_startTime;
+    }
+    m_lock.unlock();
+    return ret;
+}
+
+QDateTime StopwatchEngine::TimeStopped()
+{
+    QDateTime ret;
+    m_lock.lockForRead();
+    {
+        // There is only a valid stop time if the timer was started and is not currently running (was stopped)
+        if(!m_isRunning && _wasStarted())
+            ret = m_stopTime;
+    }
+    m_lock.unlock();
+    return ret;
 }

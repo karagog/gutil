@@ -41,17 +41,17 @@ public:
 
     void SetResolution(ResolutionEnum);
 
-    inline bool IsRunning() const{
+    inline bool IsRunning(){
         return _stopwatch.IsRunning();
     }
-    inline QDateTime TimeStart() const{
+    inline QDateTime TimeStart(){
         return _stopwatch.TimeStart();
     }
-    inline QDateTime TimeEnd(){
+    inline QDateTime TimeCurrent(){
         return _stopwatch.TimeCurrent();
     }
-    inline QDateTime TimeStop() const{
-        return _stopwatch.TimeStop();
+    inline QDateTime TimeStopped(){
+        return _stopwatch.TimeStopped();
     }
 
 
@@ -66,7 +66,7 @@ public slots:
 
 private slots:
 
-    void _update_label();
+    void _update_label(const QDateTime &t = QDateTime());
 
 
 private:

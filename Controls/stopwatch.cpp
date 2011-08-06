@@ -26,8 +26,7 @@ GUTIL_USING_NAMESPACE(Controls);
 
 
 Stopwatch::Stopwatch(QWidget *parent)
-    :QWidget(parent),
-      m_resolution(HundredMilliseconds)
+    :QWidget(parent)
 {
     setLayout(new QVBoxLayout(this));
 
@@ -67,50 +66,46 @@ Stopwatch::Stopwatch(QWidget *parent)
     connect(btn_start, SIGNAL(clicked(bool)), this, SLOT(StartStop(bool)));
     connect(btn_reset, SIGNAL(clicked()), this, SLOT(Reset()));
 
-    connect(&_stopwatch, SIGNAL(NotifyTimeChanged()),
-            this, SLOT(_update_label()));
+    connect(&_stopwatch, SIGNAL(NotifyRefreshed(QDateTime)),
+            this, SLOT(_update_label(QDateTime)));
 
+    SetResolution(HundredMilliseconds);
     _update_label();
 }
 
 #define DATETIME_FORMAT "MMM d, yyyy h:mm:ss ap"
 
-void Stopwatch::_update_label()
+void Stopwatch::_update_label(const QDateTime &time)
 {
-    lbl_startTime->setText(TimeStart().isNull() ?
+    QDateTime start(TimeStart()), stop(TimeStopped());
+    lbl_startTime->setText(start.isNull() ?
                                QString::null :
-                               TimeStart().toString(DATETIME_FORMAT));
-    lbl_endTime->setText(TimeStop().isNull() ?
+                               start.toString(DATETIME_FORMAT));
+    lbl_endTime->setText(stop.isNull() ?
                              QString::null :
-                             TimeStop().toString(DATETIME_FORMAT));
+                             stop.toString(DATETIME_FORMAT));
 
-    QString fmt("Elapsed:    %1 : %2 : %3");
-    int hours(0), minutes(0), seconds(0), milseconds(0);
+    int hour(0), minute(0), second(0), msecond (0);
+    if(time.isValid())
+    {
+        hour = time.time().hour();
+        minute = time.time().minute();
+        second = time.time().second();
+        msecond = time.time().msec();
+    }
 
-    qint64 diff = TimeStart().msecsTo(TimeEnd());
-    hours = diff / (1000 * 60 * 60);
-    diff -= hours * (1000 * 60 * 60);
-
-    minutes = diff / (1000 * 60);
-    diff -= minutes * (1000 * 60);
-
-    seconds = diff / 1000;
-    diff -= seconds * 1000;
-
-    milseconds = diff;
-
-    fmt = fmt
-            .arg(hours)
-            .arg(minutes, 2, 10, QChar('0'))
-            .arg(seconds, 2, 10, QChar('0'));
+    QString fmt( QString("Elapsed:    %1 : %2 : %3")
+                 .arg(hour)
+                 .arg(minute, 2, 10, QChar('0'))
+                 .arg(second, 2, 10, QChar('0')));
 
     switch(m_resolution)
     {
     case Milliseconds:
-        fmt += QString(" : %1").arg(milseconds, 3, 10, QChar('0'));
+        fmt += QString(" : %1").arg(msecond, 3, 10, QChar('0'));
         break;
     case HundredMilliseconds:
-        fmt += QString(" : %1").arg(milseconds / 100);
+        fmt += QString(" : %1").arg(msecond / 100);
         break;
     default:
         break;
@@ -138,7 +133,7 @@ void Stopwatch::SetResolution(ResolutionEnum r)
     }
 
     m_resolution = r;
-    _stopwatch.SetTimerResolution(res);
+    _stopwatch.SetAutoRefreshTime(res);
 }
 
 void Stopwatch::Start()

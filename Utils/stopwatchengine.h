@@ -23,6 +23,7 @@ limitations under the License.*/
 namespace GUtil{ namespace Utils{
 
 
+// This class behaves like a stopwatch.  It is thread safe.
 class StopwatchEngine :
         public QObject
 {
@@ -31,35 +32,38 @@ public:
     explicit StopwatchEngine(QObject *parent = 0);
     virtual ~StopwatchEngine();
 
-    void SetTimerResolution(int milliseconds);
-    inline int TimerResolution() const{
-        return m_timer_resolution;
-    }
-
     // Controls how many marks to remember.  Default is 1
     PROPERTY( MarkMemoryMaxLength, int );
 
-    inline bool IsRunning() const{
-        return m_timer_id != -1;
-    }
+    // If you want the stopwatch to automatically refresh, set this time value
+    //  (in milliseconds) to how often you want it to refresh.  Default is 0
+    // This property will take effect the next time you call Start()
+    PROPERTY( AutoRefreshTime, int );
 
-    inline QDateTime TimeStart() const{
-        return m_startTime;
-    }
-    inline QDateTime TimeStop() const{
-        return m_actual_stopTime;
-    }
+    bool IsRunning();
+    bool WasStarted();
 
+    QDateTime TimeStart();
+    QDateTime TimeStopped();
+
+    // Returns the time index's current value
     QDateTime TimeCurrent();
-    QDateTime TimeMark(int mark_index = 0) const;
+
+    QDateTime TimeMark(int mark_index = 0);
 
 
 signals:
 
     void NotifyStartedStopped(bool started);
 
+    // Called every time the internal state was updated
+    void NotifyRefreshed(QDateTime current = QDateTime());
+
 
 public slots:
+
+    // Refresh the internal state of the stopwatch; i.e. Update the current date
+    void Refresh();
 
     void Start();
     void Stop();
@@ -71,9 +75,6 @@ public slots:
     // Reset stops the timer if its running, or clears the times to null if not.
     void Reset();
 
-    // ResetHot refreshes the start/cur/stop time to the currentDateTime without
-    void ResetHot();
-
 
 protected:
 
@@ -83,16 +84,24 @@ protected:
 private:
 
     int m_timer_id;
-    int m_timer_resolution;
+
+    bool m_isRunning;
+    quint64 m_timeAccumulated;
+    quint64 m_timeAccumulatedSinceLastStart;
 
     QDateTime m_startTime;
+    QDateTime m_stopTime;
     QDateTime m_time;
-    QDateTime m_actual_stopTime;
     QList<QDateTime> m_markTimes;
+
+
 
     QReadWriteLock m_lock;
 
     void _mark_time(const QDateTime &);
+    void _refresh();
+    QDateTime _timeCurrent();
+    bool _wasStarted();
 
 };
 
