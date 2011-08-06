@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "Core/Utils/commandlineargs.h"
 #include "Core/exception.h"
 #include <QCoreApplication>
+#include <QStack>
 
 namespace GUtil{ namespace Custom{
 
@@ -41,9 +42,11 @@ public:
     public:
         virtual ~CleanupObject(){}
     };
+
     void AddCleanupObject(CleanupObject *o);
     void RemoveCleanupObject(CleanupObject *o);
-    inline QList<CleanupObject*> CleanupObjects() const{ return _cleanup_objects; }
+
+    inline QStack<CleanupObject *> CleanupObjects() const{ return _cleanup_objects; }
 
     // Tells the GApplication to cleanup (called automatically when the application
     //  is about to quit)
@@ -68,7 +71,7 @@ protected:
 
 private:
 
-    QList<CleanupObject *> _cleanup_objects;
+    QStack<CleanupObject *> _cleanup_objects;
     QCoreApplication *m_app;
 
 };

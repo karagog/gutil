@@ -49,23 +49,20 @@ void GApplicationBase::AddCleanupObject(GApplicationBase::CleanupObject *o)
         THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
                                    "Already going to cleanup that object");
     else
-        _cleanup_objects.append(o);
+        _cleanup_objects.push(o);
 }
 
-void GApplicationBase::RemoveCleanupObject(CleanupObject *o)
+void GApplicationBase::RemoveCleanupObject(GApplicationBase::CleanupObject *o)
 {
-    if(_cleanup_objects.contains(o))
-        _cleanup_objects.removeOne(o);
-    else
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Not tracking that object");
+    const int index(_cleanup_objects.indexOf(o));
+    if(index != -1)
+        _cleanup_objects.remove(index);
 }
 
 void GApplicationBase::Cleanup()
 {
     cleanup_protected();
 
-    foreach(CleanupObject *o, _cleanup_objects)
-        delete o;
-    _cleanup_objects.clear();
+    while(_cleanup_objects.count() > 0)
+        delete _cleanup_objects.pop();
 }
