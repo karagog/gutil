@@ -17,6 +17,7 @@ SUBDIRS += \
     Logging \
     BusinessObjects \
     Controls \
+    Images \
     Ui \
     Test
 
