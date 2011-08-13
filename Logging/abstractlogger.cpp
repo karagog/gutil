@@ -17,10 +17,11 @@ limitations under the License.*/
 #include "DataAccess/giodevice.h"
 #include <QDateTime>
 #include <QCoreApplication>
-using namespace GUtil;
+GUTIL_USING_NAMESPACE(Logging);
 
-Logging::AbstractLogger::AbstractLogger(QObject *parent)
-    :QObject(parent == 0 ? qApp : parent)
+AbstractLogger::AbstractLogger(QObject *parent)
+    :QObject(parent == 0 ? qApp : parent),
+      m_logExceptionDetails(true)
 {
     _message_level = Info;
 
@@ -28,60 +29,67 @@ Logging::AbstractLogger::AbstractLogger(QObject *parent)
     qRegisterMetaType<GUtil::Core::Exception>("GUtil::Core::Exception");
 }
 
-Logging::AbstractLogger::~AbstractLogger()
+AbstractLogger::~AbstractLogger()
+{}
+
+void AbstractLogger::LogExceptionDetails(bool l)
 {
+    m_logExceptionDetails = l;
 }
 
-void Logging::AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
+void AbstractLogger::SetMessageLevel(MessageLevelEnum message_level)
 {
     _message_level = message_level;
 }
 
-Logging::AbstractLogger::MessageLevelEnum Logging::AbstractLogger::MessageLevel()
+AbstractLogger::MessageLevelEnum AbstractLogger::MessageLevel()
 {
     return _message_level;
 }
 
-void Logging::AbstractLogger::ClearLog()
+void AbstractLogger::ClearLog()
 {
     // Do nothing by default; subclasses define how to clear the log
 }
 
-void Logging::AbstractLogger::LogMessage(const QString &msg, const QString &title)
+void AbstractLogger::LogMessage(const QString &msg, const QString &title)
 {
     Log(msg, title, Info);
 }
 
-void Logging::AbstractLogger::LogWarning(const QString &msg, const QString &title)
+void AbstractLogger::LogWarning(const QString &msg, const QString &title)
 {
     Log(msg, title, Warning);
 }
 
-void Logging::AbstractLogger::LogError(const QString &msg, const QString &title)
+void AbstractLogger::LogError(const QString &msg, const QString &title)
 {
     Log(msg, title, Error);
 }
 
-void Logging::AbstractLogger::LogException(const Core::Exception &ex)
+void AbstractLogger::LogException(const Core::Exception &ex)
 {
     QString data_string;
 
-    std::vector<std::string> keys = ex.GetDataKeys(true);
-    if(keys.size() > 0)
+    if(m_logExceptionDetails)
     {
-        data_string = "\n\nException Data:";
-
-        for(std::vector<std::string>::const_iterator it = keys.begin();
-        it != keys.end();
-        it++)
+        std::vector<std::string> keys = ex.GetDataKeys(true);
+        if(keys.size() > 0)
         {
-            std::string tmps(ex.GetData(*it));
-            if(tmps.length() > 1000)
-                tmps = tmps.substr(0, 1000) + "<--- TRUNCATED";
+            data_string = "\n\nException Data:";
 
-            data_string.append(QString("\n\tKey: %1   Value: %2")
-                               .arg(QString::fromStdString(*it))
-                               .arg(QString::fromStdString(tmps)));
+            for(std::vector<std::string>::const_iterator it = keys.begin();
+                it != keys.end();
+                it++)
+            {
+                std::string tmps(ex.GetData(*it));
+                if(tmps.length() > 1000)
+                    tmps = tmps.substr(0, 1000) + "<--- TRUNCATED";
+
+                data_string.append(QString("\n\tKey: %1   Value: %2")
+                                   .arg(QString::fromStdString(*it))
+                                   .arg(QString::fromStdString(tmps)));
+            }
         }
     }
 
@@ -99,12 +107,12 @@ void Logging::AbstractLogger::LogException(const Core::Exception &ex)
         LogException(*ex.GetInnerException());
 }
 
-void Logging::AbstractLogger::LogException(const std::exception &)
+void AbstractLogger::LogException(const std::exception &)
 {
     Log(QString::null, "Exception Caught: std::exception", Error);
 }
 
-void Logging::AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
+void AbstractLogger::Log(const QString &msg, const QString &title, MessageLevelEnum message_level)
 {
     if(message_level < MessageLevel())
         return;
@@ -121,7 +129,7 @@ void Logging::AbstractLogger::Log(const QString &msg, const QString &title, Mess
     }
 }
 
-QString Logging::AbstractLogger::prepare_log_message(
+QString AbstractLogger::prepare_log_message(
         const QString &msg,
         const QString &title,
         Logging::AbstractLogger::MessageLevelEnum message_type,

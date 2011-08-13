@@ -54,6 +54,9 @@ namespace GUtil
 
             void LogException(const std::exception &ex);
 
+            // Controls whether or not to log the internal data of an exception
+            void LogExceptionDetails(bool);
+
             // Clears the log file
             virtual void ClearLog();
 
@@ -87,6 +90,7 @@ namespace GUtil
 
         private:
             MessageLevelEnum _message_level;
+            bool m_logExceptionDetails;
 
         };
     }
