@@ -70,7 +70,7 @@ protected: \
 private: \
     type _p_##name; \
 public: \
-    inline type Get##name() const{ return _p_##name; } \
+    inline const type &Get##name() const{ return _p_##name; } \
     enum{}
 
 #define READONLY_PROPERTY_POINTER( name, type ) \
