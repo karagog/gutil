@@ -12,10 +12,12 @@ HEADERS += \
     gvariantcollection.h \
     explicitlysharedobject.h \
     updatablegvariantcollection.h \
-    timeregion.h
+    timeregion.h \
+    version.h
 
 SOURCES += \
-    updatablegvariantcollection.cpp
+    updatablegvariantcollection.cpp \
+    version.cpp
 
 INCLUDEPATH += .. ../..
 
