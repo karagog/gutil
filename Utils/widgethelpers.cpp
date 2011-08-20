@@ -33,8 +33,15 @@ void WidgetHelpers::CenterOverWidget(QWidget *main, QWidget *child)
 void WidgetHelpers::CenterInScreen(QWidget *w)
 {
     QRect r = QApplication::desktop()->availableGeometry();
-    w->move(r.width() / 2 - (w->size().width() / 2),
-            r.height() / 2 - (w->size().height() / 2));
+    int x( r.width() / 2 - (w->size().width() / 2) );
+    int y( r.height() / 2 - (w->size().height() / 2) );
+
+    // In case the window is bigger than the screen, align the top of the window
+    //  with the top of the screen, to allow the user access to the title bar.
+    if(r.height() < w->height())
+        y = r.top();
+
+    w->move(x, y);
 }
 
 void WidgetHelpers::AlignWidgets(
