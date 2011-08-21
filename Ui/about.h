@@ -30,7 +30,7 @@ class About :
     Q_OBJECT
 public:
 
-    explicit About(QWidget *parent = 0);
+    explicit About(QWidget *parent = 0, bool show_about_gutil = true);
 
     // You can manipulate these members directly to set the title and about text
     QLabel Title;
@@ -43,6 +43,11 @@ public:
 
     // Add another about pushbutton
     void AddPushButton(QPushButton *);
+
+
+private slots:
+
+    void _about_gutil();
 
 
 private:

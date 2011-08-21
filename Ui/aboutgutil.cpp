@@ -17,7 +17,7 @@ limitations under the License.*/
 using namespace GUtil::UI;
 
 AboutGUtil::AboutGUtil(QWidget *p)
-    :GUtil::UI::About(p)
+    :GUtil::UI::About(p, false)
 {
     Title.setText(QString("GUtil Utility Library - %1")
                        .arg(GUTIL_VERSION));

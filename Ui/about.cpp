@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "about.h"
 #include "gutil_macros.h"
+#include "aboutgutil.h"
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
@@ -24,7 +25,7 @@ GUTIL_USING_NAMESPACE(UI);
 
 #define PUSH_BUTTON_WIDTH 100
 
-About::About(QWidget *parent)
+About::About(QWidget *parent, bool show_about_gutil)
     :QDialog(parent)
 {
     // Prepare the dialog layout
@@ -56,23 +57,35 @@ About::About(QWidget *parent)
         QHBoxLayout *hbl( new QHBoxLayout );
         hbl->setContentsMargins(0,0,0,0);
         QPushButton *aboutQt( new QPushButton("About Qt", this) );
+        m_buttonList.append(aboutQt);
         aboutQt->setMinimumWidth(PUSH_BUTTON_WIDTH);
+        QPushButton *aboutGUtil( 0 );
+        if(show_about_gutil)
+        {
+            aboutGUtil = new QPushButton("About GUtil", this);
+            m_buttonList.append(aboutGUtil);
+            aboutGUtil->setMinimumWidth(PUSH_BUTTON_WIDTH);
+            connect(aboutGUtil, SIGNAL(clicked()), this, SLOT(_about_gutil()));
+        }
         QPushButton *ok( new QPushButton("Ok", this) );
+        m_buttonList.append(ok);
 
         hbl->addWidget(aboutQt);
         hbl->addStretch(1);
+        if(aboutGUtil)
+        {
+            hbl->addWidget(aboutGUtil);
+            hbl->addStretch(1);
+        }
         hbl->addWidget(ok);
         m_buttonWidget->setLayout(hbl);
 
-        connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
         connect(aboutQt, SIGNAL(clicked()), qApp, SLOT(aboutQt()));
+        connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
 
         vbl->addWidget(m_buttonWidget);
 
         ok->setFocus();
-
-        m_buttonList.append(aboutQt);
-        m_buttonList.append(ok);
     }
     setLayout(top_level_layout);
 
@@ -110,4 +123,9 @@ void About::AddPushButton(QPushButton *pb)
         if(i < (m_buttonList.count() - 1))
             hbl->addStretch(1);
     }
+}
+
+void About::_about_gutil()
+{
+    AboutGUtil(this).exec();
 }
