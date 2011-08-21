@@ -41,10 +41,16 @@ public:
     //  a regular filename or a resource name (:/resource.bmp for example)
     void SetImage(const QString &filename);
 
+    // Add another about pushbutton
+    void AddPushButton(QPushButton *);
+
 
 private:
 
     ImageFrame _imageFrame;
+
+    QWidget *m_buttonWidget;
+    QWidgetList m_buttonList;
 
 };
 

@@ -13,8 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gapplication.h"
-#include "gutil_macros.h"
+#include "gutil_globals.h"
 #include "Core/exception.h"
+#include "Ui/aboutgutil.h"
 GUTIL_USING_NAMESPACE(GUICustom);
 GUTIL_USING_NAMESPACE(Custom);
 
@@ -41,4 +42,9 @@ bool GApplication::notify(QObject *o, QEvent *ev)
     }
 
     return ret;
+}
+
+void GApplication::AboutGUtil()
+{
+    GUtil::UI::AboutGUtil().exec();
 }

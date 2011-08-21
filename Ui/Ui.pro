@@ -8,10 +8,12 @@ INCLUDEPATH += ..
 
 HEADERS += \
     about.h \
-    imageframe.h
+    imageframe.h \
+    aboutgutil.h
 
 SOURCES += \
     about.cpp \
-    imageframe.cpp
+    imageframe.cpp \
+    aboutgutil.cpp
 
 RESOURCES +=

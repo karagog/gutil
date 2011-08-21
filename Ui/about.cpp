@@ -22,6 +22,8 @@ GUTIL_USING_NAMESPACE(UI);
 
 #define TITLE_HEIGHT 40
 
+#define PUSH_BUTTON_WIDTH 100
+
 About::About(QWidget *parent)
     :QDialog(parent)
 {
@@ -50,25 +52,27 @@ About::About(QWidget *parent)
     vbl->addWidget(&Text);
     {
         // Set up the buttons at the bottom of the widget
-        QWidget *buttons_widget( new QWidget(this) );
+        m_buttonWidget = new QWidget(this);
         QHBoxLayout *hbl( new QHBoxLayout );
         hbl->setContentsMargins(0,0,0,0);
-        QPushButton *aboutQt( new QPushButton(this) );
-        aboutQt->setMinimumWidth(150);
-        aboutQt->setText("About Qt");
-        QPushButton *ok( new QPushButton(this) );
-        ok->setText("Ok");
+        QPushButton *aboutQt( new QPushButton("About Qt", this) );
+        aboutQt->setMinimumWidth(PUSH_BUTTON_WIDTH);
+        QPushButton *ok( new QPushButton("Ok", this) );
+
         hbl->addWidget(aboutQt);
-        hbl->insertStretch(1);
+        hbl->addStretch(1);
         hbl->addWidget(ok);
-        buttons_widget->setLayout(hbl);
+        m_buttonWidget->setLayout(hbl);
 
         connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
         connect(aboutQt, SIGNAL(clicked()), qApp, SLOT(aboutQt()));
 
-        vbl->addWidget(buttons_widget);
+        vbl->addWidget(m_buttonWidget);
 
         ok->setFocus();
+
+        m_buttonList.append(aboutQt);
+        m_buttonList.append(ok);
     }
     setLayout(top_level_layout);
 
@@ -87,5 +91,23 @@ void About::SetImage(const QString &filename)
         _imageFrame.SetImagePath(filename);
         _imageFrame.setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
         setWindowIcon(QIcon(filename));
+    }
+}
+
+void About::AddPushButton(QPushButton *pb)
+{
+    delete m_buttonWidget->layout();
+    QHBoxLayout *hbl(new QHBoxLayout(m_buttonWidget));
+
+    // Insert the new button before the ok
+    m_buttonList.insert(m_buttonList.count() - 1, pb);
+    pb->setMinimumWidth(PUSH_BUTTON_WIDTH);
+
+    for(int i(0); i < m_buttonList.count(); i++)
+    {
+        hbl->addWidget(m_buttonList[i]);
+
+        if(i < (m_buttonList.count() - 1))
+            hbl->addStretch(1);
     }
 }

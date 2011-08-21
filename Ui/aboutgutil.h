@@ -12,36 +12,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GAPPLICATION_H
-#define GAPPLICATION_H
+#ifndef ABOUTGUTIL_H
+#define ABOUTGUTIL_H
 
-#include <QApplication>
-#include "Custom/gapplicationbase.h"
+#include "about.h"
 
-namespace GUtil{ namespace GUICustom{
+namespace GUtil{ namespace UI{
 
 
-class GApplication :
-        public QApplication,
-        public Custom::GApplicationBase
+class AboutGUtil :
+        public GUtil::UI::About
 {
     Q_OBJECT
 public:
 
-    explicit GApplication(int &argc, char **argv);
-    virtual ~GApplication(){}
-
-    virtual bool notify(QObject *, QEvent *);
-
-
-public slots:
-
-    // Show an about window for GUtil
-    static void AboutGUtil();
+    AboutGUtil(QWidget *p = 0);
 
 };
 
 
 }}
 
-#endif // GAPPLICATION_H
+#endif // ABOUTGUTIL_H

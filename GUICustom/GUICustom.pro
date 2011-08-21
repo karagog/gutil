@@ -7,7 +7,8 @@ LIBS += -L../lib \
     -lGUtilCore \
     -lGUtilInterfaces \
     -lGUtilUtils \
-    -lGUtilCustom
+    -lGUtilCustom \
+    -lGUtilUI
 
 TEMPLATE = lib
 
