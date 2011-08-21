@@ -19,6 +19,10 @@ limitations under the License.*/
 #include "gutil_macros.h"
 
 
+// Here you can find the GUtil version; see DataObjects/version.h
+#define GUTIL_VERSION       "0.0.0"
+
+
 // Here are some useful functions
 
 template <class T> inline T gAbs(const T &v){ return v < 0 ? -v : v; }
