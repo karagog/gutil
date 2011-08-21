@@ -18,7 +18,6 @@ limitations under the License.*/
 #include <QDialog>
 #include <QLabel>
 #include <QPlainTextEdit>
-#include "imageframe.h"
 
 namespace GUtil{ namespace UI{
 
@@ -52,7 +51,7 @@ private slots:
 
 private:
 
-    ImageFrame _imageFrame;
+    QWidget _imageFrame;
 
     QWidget *m_buttonWidget;
     QWidgetList m_buttonList;

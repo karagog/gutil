@@ -101,8 +101,9 @@ void About::SetImage(const QString &filename)
     }
     else
     {
-        _imageFrame.SetImagePath(filename);
         _imageFrame.setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
+        _imageFrame.setStyleSheet(QString("image: url(%1);").arg(filename));
+        _imageFrame.show();
         setWindowIcon(QIcon(filename));
     }
 }

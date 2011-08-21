@@ -31,7 +31,7 @@ void ImageFrame::SetImagePath(const QString &p)
 {
     m_imagePath = p;
 
-    setStyleSheet(QString("image: url(%1);")
+    setStyleSheet(QString("image: url(%1)")
                   .arg(p));
     show();
 }
