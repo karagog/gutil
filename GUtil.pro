@@ -10,7 +10,6 @@ SUBDIRS += \
     Utils \
     Custom \
     Ui \
-    GUICustom \
     DataObjects \
     DataModels \
     ModelViews \
@@ -19,6 +18,7 @@ SUBDIRS += \
     BusinessObjects \
     Controls \
     Images \
+    GUICustom \
     Test
 
 CONFIG += ordered
