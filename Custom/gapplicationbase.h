@@ -25,14 +25,19 @@ namespace GUtil{ namespace Custom{
 
 
 // Used as a base class for the common functionality of GApplication
-//  and GCoreApplication.
+//  and GCoreApplication.  Provides a memory management stack, onto which
+//  you can push any kind of memory, and it will be deleted in FILO order
 class GApplicationBase
 {
 public:
 
+    // Use this function to quit the application, instead of QApplication::quit.
+    //  This will call 'application_exiting()', which you can override to put cleanup code in
+    static void Exit();
+
     // Get convenient access to the command line arguments
     inline Core::Utils::CommandLineArgs Args() const{
-        return Core::Utils::CommandLineArgs(m_app->argc(), m_app->argv());
+        return Core::Utils::CommandLineArgs(qApp->argc(), qApp->argv());
     }
 
     // You can have the application object cleanup objects in the cleanup handler
@@ -40,7 +45,7 @@ public:
     //  want to be cleaned up must derive from CleanupObject
     class CleanupObject{
     public:
-        virtual ~CleanupObject(){}
+        virtual ~CleanupObject();
     };
 
     void AddCleanupObject(CleanupObject *o);
@@ -48,60 +53,31 @@ public:
 
     inline QStack<CleanupObject *> CleanupObjects() const{ return _cleanup_objects; }
 
-    // Tells the GApplication to cleanup (called automatically when the application
-    //  is about to quit)
-    void Cleanup();
-
-    ~GApplicationBase();
 
 protected:
 
-    // This is an abstract class; it expects to be derived by a derivative of QCoreApplication
-    explicit GApplicationBase(QCoreApplication *);
-
-    // Subclasses can override this to make their own cleanup code, which is in
-    //  addition to this class' cleanup code
-    virtual void cleanup_protected(){}
+    // Subclasses can override this to make their own cleanup code
+    virtual void application_exiting();
 
     // You can override these methods, which are called in the event of an exception
-    //  during an application event
-    virtual void handle_exception(const Core::Exception &){}
-    virtual void handle_std_exception(const std::exception &){}
+    //  during an application event.  Don't call the base implementation, as it will
+    //  only throw the exception again.
+    virtual void handle_exception(const Core::Exception &);
+    virtual void handle_std_exception(const std::exception &);
 
 
 private:
 
     QStack<CleanupObject *> _cleanup_objects;
-    QCoreApplication *m_app;
 
-};
-
-
-// This class is just a facade; it is here because GApplicationBase cannot be
-//  a QObject itself, because it is expected that it will be derived by other
-//  derivitives of QObject
-class GApplicationCleanerUpper :
-        public QObject
-{
-    Q_OBJECT
-public:
-    explicit GApplicationCleanerUpper(GApplicationBase *ga)
-        :m_gapp(ga) {}
-public slots:
-    void cleanup(){
-        m_gapp->Cleanup();
-    }
-private:
-    GApplicationBase *m_gapp;
 };
 
 
 }}
 
 
-// A reference to the global instance of either GApplication or GCoreApplication,
-//  whichever one you happen to be using
-extern GUtil::Custom::GApplicationBase *gApp;
+// A reference to the global instance of GApplicationBase
+#define gApp ((GUtil::Custom::GApplicationBase *)qApp)
 
 
 #endif // GAPPLICATIONBASE_H

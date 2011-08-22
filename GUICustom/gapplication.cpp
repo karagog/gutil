@@ -20,9 +20,13 @@ GUTIL_USING_NAMESPACE(GUICustom);
 GUTIL_USING_NAMESPACE(Custom);
 
 GApplication::GApplication(int &argc, char **argv)
-    :QApplication(argc, argv),
-      GApplicationBase(this)
+    :QApplication(argc, argv)
 {}
+
+GApplication::~GApplication()
+{
+
+}
 
 bool GApplication::notify(QObject *o, QEvent *ev)
 {
@@ -47,4 +51,9 @@ bool GApplication::notify(QObject *o, QEvent *ev)
 void GApplication::AboutGUtil()
 {
     GUtil::UI::AboutGUtil().exec();
+}
+
+void GApplication::Quit()
+{
+    gApp->Exit();
 }

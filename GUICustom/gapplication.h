@@ -29,12 +29,14 @@ class GApplication :
 public:
 
     explicit GApplication(int &argc, char **argv);
-    virtual ~GApplication(){}
+    virtual ~GApplication();
 
     virtual bool notify(QObject *, QEvent *);
 
 
 public slots:
+
+    static void Quit();
 
     // Show an about window for GUtil
     static void AboutGUtil();

@@ -17,8 +17,7 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE(Custom);
 
 GCoreApplication::GCoreApplication(int &argc, char **argv)
-    :QCoreApplication(argc, argv),
-      GApplicationBase(this)
+    :QCoreApplication(argc, argv)
 {}
 
 bool GCoreApplication::notify(QObject *o, QEvent *ev)
@@ -39,4 +38,9 @@ bool GCoreApplication::notify(QObject *o, QEvent *ev)
     }
 
     return ret;
+}
+
+void GCoreApplication::Quit()
+{
+    gApp->Exit();
 }

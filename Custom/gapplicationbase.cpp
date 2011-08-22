@@ -13,35 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gapplicationbase.h"
-#include <QObject>
 GUTIL_USING_NAMESPACE(Custom);
-
-GApplicationCleanerUpper *cleaner(0);
-GApplicationBase *gApp(0);
-
-GApplicationBase::GApplicationBase(QCoreApplication *a)
-    :m_app(a)
-{
-    if(gApp)
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "GApplicationBase already initialized!");
-
-    gApp = this;
-
-    cleaner = new GApplicationCleanerUpper(this);
-    cleaner->connect(a, SIGNAL(aboutToQuit()), SLOT(cleanup()));
-}
-
-GApplicationBase::~GApplicationBase()
-{
-    if(gApp == this)
-    {
-        delete cleaner;
-        cleaner = 0;
-
-        gApp = 0;
-    }
-}
 
 void GApplicationBase::AddCleanupObject(GApplicationBase::CleanupObject *o)
 {
@@ -59,10 +31,33 @@ void GApplicationBase::RemoveCleanupObject(GApplicationBase::CleanupObject *o)
         _cleanup_objects.remove(index);
 }
 
-void GApplicationBase::Cleanup()
+void GApplicationBase::Exit()
 {
-    cleanup_protected();
+    // Derived classes will execute their own cleanup code when the application exits
+    gApp->application_exiting();
 
-    while(_cleanup_objects.count() > 0)
-        delete _cleanup_objects.pop();
+    while(gApp->_cleanup_objects.count() > 0)
+        delete gApp->_cleanup_objects.pop();
+
+    QCoreApplication::quit();
+}
+
+void GApplicationBase::application_exiting()
+{
+
+}
+
+void GApplicationBase::handle_exception(const GUtil::Core::Exception &ex)
+{
+    throw ex;
+}
+
+void GApplicationBase::handle_std_exception(const std::exception &ex)
+{
+    throw ex;
+}
+
+GApplicationBase::CleanupObject::~CleanupObject()
+{
+
 }

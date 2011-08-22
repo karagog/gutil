@@ -39,6 +39,7 @@ namespace GUtil
                 NewId = -1
             };
 
+            // You are responsible for managing your own logger memory
             static int SetupLogger(AbstractLogger *, int logger_id = NewId);
             static int SetupDefaultLogger(AbstractLogger *);
 

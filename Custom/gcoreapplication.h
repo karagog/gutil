@@ -33,6 +33,11 @@ public:
 
     virtual bool notify(QObject *, QEvent *);
 
+
+public slots:
+
+    static void Quit();
+
 };
 
 
