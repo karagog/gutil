@@ -13,14 +13,14 @@ TEMPLATE = lib
 #CONFIG += staticlib
 
 # Uncomment these if you need the database functions
-#QT += sql
-#DEFINES += DATABASE_FUNCTIONALITY
+QT += sql
+DEFINES += DATABASE_FUNCTIONALITY
 
-QT -= gui
-#DEFINES += GUI_FUNCTIONALITY
+#QT -= gui
+DEFINES += GUI_FUNCTIONALITY
 
-#QT += network
-#DEFINES += NETWORK_FUNCTIONALITY
+QT += network
+DEFINES += NETWORK_FUNCTIONALITY
 
 SOURCES += \
     pubsubsystem.cpp \

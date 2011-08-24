@@ -1,10 +1,10 @@
 # Uncomment these to enable database functionality
-#QT += sql
-#DEFINES += DATABASE_FUNCTIONALITY
+QT += sql
+DEFINES += DATABASE_FUNCTIONALITY
 
 # Un/Comment these if you need GUI functionality
-QT -= gui
-#DEFINES += GUI_FUNCTIONALITY
+#QT -= gui
+DEFINES += GUI_FUNCTIONALITY
 
 DESTDIR = ../lib
 
