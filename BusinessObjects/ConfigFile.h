@@ -47,9 +47,11 @@ namespace GUtil
 
     namespace BusinessObjects
     {
-        // This class provices a persistent storage of variables.  You can store
-        //   binary data as well as normal string data, because it translates strings
-        //   into base64 before writing them to disk.
+        /** \brief A class to manage the persistent storage of and access to application data.
+
+           This class provices a persistent storage of variables.  You can store
+           binary data as well as normal string data, because it translates strings
+           into base64 before writing them to disk. */
 
         class ConfigFile :
                 public QObject,
