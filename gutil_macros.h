@@ -15,15 +15,157 @@ limitations under the License.*/
 #ifndef GUTIL_MACROS_H
 #define GUTIL_MACROS_H
 
-// Here are some useful macros for you to use:
+/** \file
 
+    Here are some useful macros for you to use.
+
+    They are for creating property accessors, using GUtil namespaces and
+    whatever else might be useful from a macro standpoint.
+*/
+
+
+
+/** Use this to succinctly declare property accessors.
+
+   It declares a Get and Set method for an object of the provided variable type and name,
+   and also a private variable to hold the value.
+*/
+#define PROPERTY( name, type ) \
+private: \
+    type _p_##name; \
+public: \
+    inline type &Get##name(){ return _p_##name; } \
+    inline const type &Get##name() const{ return _p_##name; } \
+    inline void Set##name(const type &value){ _p_##name = value; }
+
+
+/** Use this to succinctly declare property accessors to a pointer.
+
+    It declares a Get and Set method for a pointer to an object of
+    the provided variable type and name, and also a private variable
+    to hold the value.
+*/
+#define PROPERTY_POINTER( name, ptr_type ) \
+private: \
+    ptr_type *_p_##name; \
+public: \
+    inline ptr_type *Get##name() const{ return _p_##name; } \
+    inline void Set##name(ptr_type *value){ _p_##name = value; }
+
+
+/** Use this to succinctly declare protected property accessors.
+
+   It declares a Get and Set method for an object of the provided variable type and name,
+   and also a private variable to hold the value.
+*/
+#define PROTECTED_PROPERTY( name, type ) \
+private: \
+    type _p_##name; \
+protected: \
+    inline type Get##name() const{ return _p_##name; } \
+    inline void Set##name(const type &value){ _p_##name = value; }
+
+
+/** Use this to succinctly declare a readonly property accessor.
+
+   It declares a Get method for an object of the provided variable type and name,
+   but does not give a Set method with which to change the value.
+*/
+#define READONLY_PROPERTY( name, type ) \
+private: \
+    type _p_##name; \
+public: \
+    inline const type &Get##name() const{ return _p_##name; }
+
+
+/** Use this to succinctly declare a readonly property accessor to a pointer.
+
+    It declares a Get method for a pointer to an object of
+    the provided variable type and name, and also a private variable
+    to hold the value.
+*/
+#define READONLY_PROPERTY_POINTER( name, type ) \
+private: \
+    type *_p_##name; \
+public: \
+    inline type *Get##name() const{ return _p_##name; }
+
+
+/** Use this to succinctly declare a readonly protected property accessor.
+
+   It declares a Get method for an object of the provided variable type and name,
+   and also a private variable to hold the value.
+*/
+#define PROTECTED_READONLY_PROPERTY( name, type ) \
+private: \
+    type _p_##name; \
+protected: \
+    inline type Get##name() const{ return _p_##name; }
+
+
+
+
+/** A macro to begin a GUtil namespace.
+
+    IMPORTANT!  QMake does not evaluate preprocessor definitions
+    when creating meta-object files, so you cannot use these
+    to put any object derived from QObject in a namespace.
+*/
+#define GUTIL_BEGIN_NAMESPACE( n ) \
+        namespace GUtil \
+        { \
+          namespace n \
+          {
+
+
+/** A macro to begin a GUtil::Core namespace. */
+#define GUTIL_BEGIN_CORE_NAMESPACE( n ) \
+        namespace GUtil \
+        { \
+          namespace Core \
+          { \
+            namespace n \
+            {
+
+
+/** Ends a GUtil namespace. */
+#define GUTIL_END_NAMESPACE }}
+/** Ends a GUtil::Core namespace. */
+#define GUTIL_END_CORE_NAMESPACE }}}
+
+/** Begins a generic namespace declaration.
+
+    This could be useful if you wanted to be able to switch on/off the use of namespaces
+*/
+#define BEGIN_NAMESPACE( ns ) namespace ns{
+/** Ends a generic namespace declaration. */
+#define END_NAMESPACE }
+
+
+/** Use the provided GUtil namespace */
+#define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
+/** Use the provided GUtil::Core namespace */
+#define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
+
+
+
+
+// These macros only relevant for windows COM functionality
 #ifdef __WIN32__
+
+    /** Preps a function to be exported in a COM interface
+            (no member functions; it is strictly C style).
+
+        It is declared extern "C" to avoid name-mangling of the function name, so you
+        can call functions directly by their name.  You can even call the native functions in managed (C#) code.
+    */
     #ifdef GUTIL_COM_EXPORTS
         #define GUTIL_COM_EXPORT extern "C" __declspec(dllexport)
     #else
         #define GUTIL_COM_EXPORT
     #endif
 
+    /** Declares a function as a dll export (name mangling still applies). */
     #ifdef GUTIL_DLL_EXPORTS
         #define GUTIL_DLL_EXPORT __declspec(dllexport)
     #else
@@ -33,94 +175,6 @@ limitations under the License.*/
     #define GUTIL_DLL_EXPORT
     #define GUTIL_COM_EXPORT
 #endif
-
-
-// Use this to succinctly declare property accessors
-//   It declares a Get and Set method for the provided variable type and name,
-//   and also a unique private variable to hold the value
-#define PROPERTY( name, type ) \
-private: \
-    type _p_##name; \
-public: \
-    inline type &Get##name(){ return _p_##name; } \
-    inline const type &Get##name() const{ return _p_##name; } \
-    inline void Set##name(const type &value){ _p_##name = value; } \
-    enum{}
-
-#define PROPERTY_POINTER( name, ptr_type ) \
-private: \
-    ptr_type *_p_##name; \
-public: \
-    inline ptr_type *Get##name() const{ return _p_##name; } \
-    inline void Set##name(ptr_type *value){ _p_##name = value; } \
-    enum{}
-
-
-#define PROTECTED_PROPERTY( name, type ) \
-private: \
-    type _p_##name; \
-protected: \
-    inline type Get##name() const{ return _p_##name; } \
-    inline void Set##name(const type &value){ _p_##name = value; } \
-    enum{}
-
-
-// Only declares a Getter for the hidden property
-#define READONLY_PROPERTY( name, type ) \
-private: \
-    type _p_##name; \
-public: \
-    inline const type &Get##name() const{ return _p_##name; } \
-    enum{}
-
-#define READONLY_PROPERTY_POINTER( name, type ) \
-private: \
-    type *_p_##name; \
-public: \
-    inline type *Get##name() const{ return _p_##name; } \
-    enum{}
-
-
-#define PROTECTED_READONLY_PROPERTY( name, type ) \
-private: \
-    type _p_##name; \
-protected: \
-    inline type Get##name() const{ return _p_##name; } \
-    enum{}
-
-
-// Macros to begin and end namespaces
-        // IMPORTANT!  QMake does not evaluate preprocessor definitions
-        //  when creating meta-object files, so you cannot use these
-        //  to put any object derived from QObject in a namespace
-
-// Also note that you must terminate these with a semi-colon
-#define GUTIL_BEGIN_NAMESPACE( n ) \
-        namespace GUtil \
-        { \
-          namespace n \
-          {
-
-#define GUTIL_BEGIN_CORE_NAMESPACE( n ) \
-        namespace GUtil \
-        { \
-          namespace Core \
-          { \
-            namespace n \
-            {
-
-#define GUTIL_END_NAMESPACE }}
-#define GUTIL_END_CORE_NAMESPACE }}}
-
-#define BEGIN_NAMESPACE( ns ) namespace ns{
-#define END_NAMESPACE }
-
-
-#define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
-#define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
-
-
-
 
 
 
