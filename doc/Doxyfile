@@ -710,7 +710,9 @@ EXCLUDE                = ../ThirdParty/CryptoPP \
                          ../DataObjects/Tests \
                          ../Logging/Tests \
                          ../Test \
-                         ../Utils/Tests
+                         ../Utils/Tests \
+                         moc_*.cpp \
+                         ui_*.h
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix file system feature) are excluded 
@@ -1016,14 +1018,14 @@ DOCSET_PUBLISHER_NAME  = Publisher
 # Microsoft HTML help workshop to generate a compiled HTML help file (.chm) 
 # of the generated HTML documentation.
 
-GENERATE_HTMLHELP      = NO
+GENERATE_HTMLHELP      = YES
 
 # If the GENERATE_HTMLHELP tag is set to YES, the CHM_FILE tag can 
 # be used to specify the file name of the resulting .chm file. You 
 # can add a path in front of the file if the result should not be 
 # written to the html output directory.
 
-CHM_FILE               = 
+CHM_FILE               = GUtil.chm
 
 # If the GENERATE_HTMLHELP tag is set to YES, the HHC_LOCATION tag can 
 # be used to specify the location (absolute path including file name) of 
@@ -1060,13 +1062,13 @@ TOC_EXPAND             = NO
 # that can be used as input for Qt's qhelpgenerator to generate a 
 # Qt Compressed Help (.qch) of the generated HTML documentation.
 
-GENERATE_QHP           = NO
+GENERATE_QHP           = YES
 
 # If the QHG_LOCATION tag is specified, the QCH_FILE tag can 
 # be used to specify the file name of the resulting .qch file. 
 # The path specified is relative to the HTML output folder.
 
-QCH_FILE               = 
+QCH_FILE               = GUtil.qch
 
 # The QHP_NAMESPACE tag specifies the namespace to use when generating 
 # Qt Help Project output. For more information please see 
