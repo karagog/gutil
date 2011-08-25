@@ -726,7 +726,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories 
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = 
+EXCLUDE_PATTERNS       = .git*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names 
 # (namespaces, classes, functions, etc.) that should be excluded from the 
@@ -1018,7 +1018,7 @@ DOCSET_PUBLISHER_NAME  = Publisher
 # Microsoft HTML help workshop to generate a compiled HTML help file (.chm) 
 # of the generated HTML documentation.
 
-GENERATE_HTMLHELP      = YES
+GENERATE_HTMLHELP      = NO
 
 # If the GENERATE_HTMLHELP tag is set to YES, the CHM_FILE tag can 
 # be used to specify the file name of the resulting .chm file. You 
