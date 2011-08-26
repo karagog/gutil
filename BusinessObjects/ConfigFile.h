@@ -90,13 +90,20 @@ namespace GUtil
                 modifier = _modifier;
             }
 
-            // If the configuration is supposed to be interfaced with humans,
-            //  then set this to true.  It not, then the configuration will be
-            //  in a compressed file that only the application can read.
-            // Note: You must define "CRYPTOPP_COMPRESSION" in the preprocessor
-            //  and link with libcryptopp.a to benefit from compression.
+            /** Controls whether to format the configxml in a human-readable way.
+
+                If the configuration is supposed to be interfaced with humans,
+                then set this to true.  It not, then the configuration will be
+                in a compressed and unformatted xml file that only the application can read.
+
+                \note You must define GUTIL_ENCRYPTION in the preprocessor
+                and link with libcryptopp.a to benefit from compression.
+            */
             PROPERTY(IsHumanReadable, bool);
 
+            /** Controls whether to commit changes right away, or wait until a manual
+                call of CommitChanges().
+            */
             PROPERTY(AutoCommitChanges, bool);
 
 

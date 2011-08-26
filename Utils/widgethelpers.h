@@ -24,20 +24,24 @@ namespace GUtil
 {
     namespace Utils
     {
+        /** A static class with functions to manipulate QWidgets. */
         class WidgetHelpers
         {
         public:
 
-            // Center the second widget over the first one
+            /** Center the second widget over the first one */
             static void CenterOverWidget(QWidget *, QWidget *);
 
-            // Put the widget in the center of the screen
+            /** Put the widget in the center of the screen */
             static void CenterInScreen(QWidget *);
 
-            // Lines up the widgets and spaces them evenly
+            /** Lines up the widgets and spaces them evenly across the screen.
+
+                \todo Implement this function when you actually want to use it. */
             static void AlignWidgets(const QList<QWidget *>&,
                                      bool horizontally = true);
 
+            /** Returns the parent at the top of the QWidget hierarchy. */
             static QWidget *FindTopMostParent(QWidget *);
 
         };
