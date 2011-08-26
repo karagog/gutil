@@ -15,9 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_GLOBALS_H
 #define GUTIL_GLOBALS_H
 
-/** \file
-    Global definitions that anyone can use.
-*/
+/** \file Global definitions that anyone can use. */
 
 /** For convenience, we'll also include gutil macros */
 #include "gutil_macros.h"
@@ -121,7 +119,8 @@ enum GUtilTimeFormatEnum
 
     \namespace GUtil::Utils Utility functions and classes.
 
-    A whole array of different useful functions and classes.
+    A whole array of different useful functions and classes.  You can use build switches
+    in the .pro file to adjust Qt dependencies.
 
 
     \namespace GUtil::Custom Classes that are derived from non-GUI Qt classes.
