@@ -124,9 +124,11 @@ enum GUtilTimeFormatEnum
     A whole array of different useful functions and classes.
 
 
-    \namespace GUtil::Custom Classes that are derived from Qt classes.
+    \namespace GUtil::Custom Classes that are derived from non-GUI Qt classes.
 
-    They provide extra functionality that I want and the Qt team won't implement/haven't yet implemented.
+    They provide extra functionality that I want and the Qt team won't implement/haven't
+    yet implemented.  It should only require the QtCore library, otherwise it belongs in
+    GUICustom.
 
 
     \namespace GUtil::UI User Interface widgets
