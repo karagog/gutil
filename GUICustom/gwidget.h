@@ -37,11 +37,15 @@ public:
     /** Center the second widget over the first one
         \param keep_stationary Keep this widget where it is and center the other one over it.
         \param move_this_one Center this widget over the other one
+        \sa CenterInScreen()
     */
     static void CenterOverWidget(QWidget *keep_stationary, QWidget *move_this_one);
 
 
-    /** Put the widget in the center of the screen */
+    /** Put the widget in the center of the screen
+
+        \sa CenterOverWidget()
+    */
     static void CenterInScreen(QWidget *);
 
 
