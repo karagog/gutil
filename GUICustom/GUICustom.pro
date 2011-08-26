@@ -16,10 +16,12 @@ HEADERS += \
     gtreeview.h \
     gapplication.h \
     myflattreemodel.h \
-    gundostack.h
+    gundostack.h \
+    gwidget.h
 
 SOURCES += \
     gtreeview.cpp \
     gapplication.cpp \
     myflattreemodel.cpp \
-    gundostack.cpp
+    gundostack.cpp \
+    gwidget.cpp

@@ -12,17 +12,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef GUI_FUNCTIONALITY
-
-#include "widgethelpers.h"
+#include "gwidget.h"
+#include "gutil_macros.h"
 #include "Core/exception.h"
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QWidget>
-#include <QList>
-using namespace GUtil::Utils;
+GUTIL_USING_NAMESPACE(GUICustom);
 
-void WidgetHelpers::CenterOverWidget(QWidget *main, QWidget *child)
+GWidget::GWidget(QWidget *parent)
+    :QWidget(parent)
+{}
+
+void GWidget::CenterOverWidget(QWidget *main, QWidget *child)
 {
     QPoint p = main->pos();
 
@@ -30,7 +31,7 @@ void WidgetHelpers::CenterOverWidget(QWidget *main, QWidget *child)
                 p.y() + ((main->height() - child->height()) / 2));
 }
 
-void WidgetHelpers::CenterInScreen(QWidget *w)
+void GWidget::CenterInScreen(QWidget *w)
 {
     QRect r = QApplication::desktop()->availableGeometry();
     int x( r.width() / 2 - (w->size().width() / 2) );
@@ -44,14 +45,14 @@ void WidgetHelpers::CenterInScreen(QWidget *w)
     w->move(x, y);
 }
 
-void WidgetHelpers::AlignWidgets(
+void GWidget::AlignWidgets(
         const QList<QWidget *>&wl,
         bool horizontally)
 {
-    THROW_NEW_GUTIL_EXCEPTION2( Core::NotImplementedException, "" );
+    THROW_NEW_GUTIL_EXCEPTION( GUtil::Core::NotImplementedException );
 }
 
-QWidget *WidgetHelpers::FindTopMostParent(QWidget *w)
+QWidget *GWidget::FindTopMostParent(QWidget *w)
 {
     QWidget *p = w->parentWidget();
     if(!p)
@@ -59,5 +60,3 @@ QWidget *WidgetHelpers::FindTopMostParent(QWidget *w)
 
     return FindTopMostParent(p);
 }
-
-#endif // GUI_FUNCTIONALITY
