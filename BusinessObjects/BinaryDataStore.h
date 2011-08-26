@@ -20,56 +20,95 @@ limitations under the License.*/
 #include <QString>
 #include <QSet>
 
-// Use this class to manage binary data.  This is useful for storing and accessing
-//  lots of files without consuming lots of memory
-
 namespace GUtil
 {
     namespace BusinessObjects
     {
+        /** Use this class to manage binary data without consuming lots of memory.
+
+            It implements an on-disk cache of the data, so it doesn't sit wastefully
+            in memory.  This is useful for storing and accessing lots of files without
+            consuming lots of memory.
+        */
         class BinaryDataStore :
                 public Core::Interfaces::IReadOnlyObject
         {
         public:
 
-            explicit BinaryDataStore(const QString &);
+            /** Constructs a BinaryDataStore.
+
+                \param identifier A unique identifier for the cache file.  If you have several
+                instances in an application you will have to give them different identifiers.
+            */
+            explicit BinaryDataStore(const QString &identifier);
             ~BinaryDataStore();
 
-            //  (All of the public functions can be treated atomically,
-            //   and can be executed safely from multiple threads)
 
-            // Prepares the binary data store backend for storage
+            /** Prepares the binary data store backend for storage. */
             void Initialize();
+
+
+            /** Removes all values from the database and deletes the cache.
+
+                You must call Initialize again if you want to continue using the instance.
+                \sa Reset()
+            */
             void Clear();
 
-            // Remove all files
+
+            /** Clear away all files and re-initialize the cache.
+                \sa Clear()
+            */
             void Reset();
 
-            // For manipulating files
-            int AddFile(const QByteArray &, int id = -1);
-            void RemoveFile(int);
+
+            /** Add a file to storage.  Adds the byte array to the on-disk cache.
+                \param data The data you want to store.
+                \param id The id you want to assign the data (will be automatically assigned otherwise)
+                \returns The id that the data actually got.  You can use this as a handle to retrieve the data via GetFile().
+                \sa HasFile(), GetFile(), RemoveFile(), GetFreeId()
+            */
+            int AddFile(const QByteArray &data, int id = -1);
+
+
+            /** Remove a file from storage. The size of the cache file will shrink about the size of the file.
+                \param id The id of the data you want to remove.
+                \sa AddFile()
+            */
+            void RemoveFile(int id);
+
+
+            /** Retrieve data from the cache.
+                \param id The id of the data you want to retrieve.
+            */
             QByteArray GetFile(int) const;
+
+
+            /** Returns whether the cache contains data with that id.  */
             bool HasFile(int id) const;
 
+
+            /** Returns an id that can be passed to AddFile() and not overwrite an existing piece of data. */
             int GetFreeId();
 
-            // Get the size of a file
+
+            /** Get the size (number of bytes) of a file. */
             int GetSize(int id) const;
 
+
+            /** Returns the list of ids contained by this instance. */
             inline QSet<int> GetIds() const { return _ids; }
 
+
+            /** Returns the absolute file location of the data cache. */
             inline QString FileName() const{
                 return _file_location;
             }
 
 
-        protected:
-
-            DataAccess::GDatabaseIODevice *dbio;
-
-
         private:
 
+            DataAccess::GDatabaseIODevice *dbio;
             QString _file_location;
 
             QSet<int> _ids;
