@@ -2,7 +2,6 @@
 #include <string>
 #include <cstdlib>
 #include <cassert>
-#include <iostream>
 using namespace std;
 
 #ifndef H_BST_T
@@ -226,7 +225,8 @@ template<class T>void node_t<T>::export_df(vector<T> & result){
 		return;
 	l_child->export_df(result);
 
-	result.push_back(temp);
+	result.push_back(temp);
+
 	r_child->export_df(result);
 }
 

@@ -19,5 +19,6 @@ SOURCES += \
     exception.cc
 
 include(DataAccess/DataAccess.pri)
+include(DataObjects/DataObjects.pri)
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
