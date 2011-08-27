@@ -96,7 +96,9 @@ public slots:
 
 private:
 
+    #ifdef NETWORK_FUNCTIONALITY
     GUtil::BusinessObjects::ProcessStatusIndicator *m_psi;
+    #endif // NETWORK_FUNCTIONALITY
 
 };
 
