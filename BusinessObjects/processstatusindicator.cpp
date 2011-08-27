@@ -18,7 +18,6 @@ limitations under the License.*/
 #include "processstatusserver.h"
 #include <QLocalSocket>
 #include <QLocalServer>
-#include <QDesktopServices>
 #include <QCoreApplication>
 GUTIL_USING_NAMESPACE(BusinessObjects);
 
@@ -27,7 +26,7 @@ GUTIL_USING_NAMESPACE(BusinessObjects);
 ProcessStatusIndicator::ProcessStatusIndicator(QObject *parent)
     :QObject(parent),
       _server(0),
-      _status_data(QDesktopServices::storageLocation(QDesktopServices::TempLocation), IDENTITY_FORMAT),
+      _status_data(IDENTITY_FORMAT),
       _status_lock(IDENTITY_FORMAT, "")
 {
     connect(&_status_data, SIGNAL(NotifyConfigurationUpdate()),
