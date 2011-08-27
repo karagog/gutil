@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "Ui/aboutgutil.h"
 GUTIL_USING_NAMESPACE(GUICustom);
 GUTIL_USING_NAMESPACE(Custom);
+GUTIL_USING_NAMESPACE(BusinessObjects);
 
 GApplication::GApplication(int &argc, char **argv, const QString &app_name, const QString &app_version)
     :QApplication(argc, argv)
@@ -26,6 +27,9 @@ GApplication::GApplication(int &argc, char **argv, const QString &app_name, cons
         setApplicationName(app_name);
     if(!app_version.isNull())
         setApplicationVersion(app_version);
+
+    // Initialize this after setting the application name and version
+    m_psi = new ProcessStatusIndicator(this);
 }
 
 GApplication::~GApplication()

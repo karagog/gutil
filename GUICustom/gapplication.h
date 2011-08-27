@@ -61,7 +61,9 @@ public:
         \note You must define NETWORK_FUNCTIONALITY to use this feature, which creates
         a link dependency on QtNetwork
     */
-    GUtil::BusinessObjects::ProcessStatusIndicator ProcessStatusIndicator;
+    inline GUtil::BusinessObjects::ProcessStatusIndicator &GlobalApplicationStatusIndicator(){
+        return *m_psi;
+    }
 
     #endif
 
@@ -90,6 +92,11 @@ public slots:
         C'mon give a guy some credit, I made it super easy for you ;)
     */
     static void AboutGUtil();
+
+
+private:
+
+    GUtil::BusinessObjects::ProcessStatusIndicator *m_psi;
 
 };
 
