@@ -323,7 +323,7 @@ QString ConfigFile::get_file_location(QString id)
 
     return QString("%1/%2")
             .arg(tmpdir.absolutePath())
-            .arg(id.toLower());
+            .arg(id);
 }
 
 void ConfigFile::commit_reject_changes(bool commit)
