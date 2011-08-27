@@ -6,7 +6,6 @@ TARGET = GUtilGUICustom
 DEFINES += GUI_FUNCTIONALITY
 
 # Switches on the use of ipc in gapplication
-QT += network
 DEFINES += NETWORK_FUNCTIONALITY
 
 INCLUDEPATH += ..
