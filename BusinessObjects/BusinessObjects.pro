@@ -28,11 +28,15 @@ TEMPLATE = lib
 HEADERS += \
     BinaryDataStore.h \
     ConfigFile.h \
-    processstatusindicator.h
+    processstatusindicator.h \
+    processstatusserver.h
 
 SOURCES += \
     BinaryDataStore.cpp \
     ConfigFile.cpp \
-    processstatusindicator.cpp
+    processstatusindicator.cpp \
+    processstatusserver.cpp
 
 INCLUDEPATH += ..
+
+

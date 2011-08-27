@@ -19,16 +19,16 @@ limitations under the License.*/
 
 #include "BusinessObjects/ConfigFile.h"
 #include "Utils/usermachinelocks.h"
-#include <QLocalServer>
 #include <QRunnable>
 #include <QThreadPool>
 
 class QLocalSocket;
+class QLocalServer;
 
 namespace GUtil{ namespace BusinessObjects{
 
 
-class ProcessServer;
+class ProcessStatusServer;
 
 
 class ProcessStatusIndicator :
@@ -69,7 +69,7 @@ signals:
 
 private:
 
-    ProcessServer *_server;
+    ProcessStatusServer *_server;
     ConfigFile _status_data;
     Utils::UserMachineReadWriteLock _status_lock;
 
@@ -78,51 +78,6 @@ private slots:
 
     void _status_data_changed();
 
-};
-
-
-
-
-
-// This implementation is supposed to be private.  Only use
-//  the class above.
-class ProcessThread :
-        public QRunnable
-{
-public:
-    inline ProcessThread(ProcessServer *server, quintptr socket_descriptor)
-        :_sd(socket_descriptor),
-          _server(server)
-    {}
-private:
-    void run();
-    quintptr _sd;
-    ProcessServer *_server;
-};
-
-
-class ProcessServer :
-        public QLocalServer
-{
-    Q_OBJECT
-    friend class ProcessThread;
-public:
-    explicit ProcessServer(QObject *p = 0)
-        :QLocalServer(p)
-    {}
-    inline ~ProcessServer(){
-        thread_pool.waitForDone();
-    }
-
-signals:
-    void NewMessage(QByteArray);
-
-protected:
-    void notify_new_message(const QByteArray &);
-
-private:
-    void incomingConnection(quintptr socketDescriptor);
-    QThreadPool thread_pool;
 };
 
 

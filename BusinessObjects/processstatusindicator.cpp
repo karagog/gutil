@@ -15,7 +15,9 @@ limitations under the License.*/
 #if defined(GUI_FUNCTIONALITY) && defined(NETWORK_FUNCTIONALITY)
 
 #include "processstatusindicator.h"
+#include "processstatusserver.h"
 #include <QLocalSocket>
+#include <QLocalServer>
 #include <QDesktopServices>
 #include <QCoreApplication>
 GUTIL_USING_NAMESPACE(BusinessObjects);
@@ -109,7 +111,7 @@ void ProcessStatusIndicator::SetIsProcessRunning(bool is_running)
     {
         if(is_running)
         {
-            _server = new ProcessServer;     // no need for explicit parent; we control memory
+            _server = new ProcessStatusServer;     // no need for explicit parent; we control memory
             connect(_server, SIGNAL(NewMessage(QByteArray)),
                     this, SIGNAL(NewMessageReceived(QByteArray)));
             _server->listen(GetProcessIdentityString());
@@ -144,30 +146,5 @@ QString ProcessStatusIndicator::GetProcessIdentityString() const
     return id;
 }
 
-
-
-void ProcessServer::incomingConnection(quintptr socketDescriptor)
-{
-    thread_pool.start(new ProcessThread(this, socketDescriptor));
-}
-
-void ProcessServer::notify_new_message(const QByteArray &ba)
-{
-    emit NewMessage(ba);
-}
-
-
-// The server thread simply accepts one message.  It will stop waiting
-//  for this message after a predetermined amount of time
-#define SERVER_WAIT_TIME 5000
-
-void ProcessThread::run()
-{
-    QLocalSocket sock;
-    sock.setSocketDescriptor(_sd);
-
-    if(sock.waitForReadyRead(SERVER_WAIT_TIME))
-        _server->notify_new_message(sock.readAll());
-}
 
 #endif // GUI_FUNCTIONALITY && NETWORK_FUNCTIONALITY
