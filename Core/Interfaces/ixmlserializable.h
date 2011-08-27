@@ -28,8 +28,6 @@ public:
     virtual std::string ToXmlString(bool human_readable) const = 0;
     virtual void FromXmlString(const std::string &)
             throw(GUtil::Core::XmlException) = 0;
-
-    virtual ~IXmlSerializable(){}
 };
 
 

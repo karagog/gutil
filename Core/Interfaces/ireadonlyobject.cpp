@@ -13,56 +13,64 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ireadonlyobject.h"
-using namespace GUtil::Core;
+GUTIL_USING_CORE_NAMESPACE(Interfaces);
 
-Interfaces::IReadOnlyObject::IReadOnlyObject(bool readonly)
+IReadOnlyObject::IReadOnlyObject(bool readonly)
 {
     _init_readonly_interface(readonly);
 }
 
-Interfaces::IReadOnlyObject::~IReadOnlyObject(){}
-
-Interfaces::IReadOnlyObject::IReadOnlyObject(const Interfaces::IReadOnlyObject &other)
+IReadOnlyObject::IReadOnlyObject(const Interfaces::IReadOnlyObject &other)
 {
     _init_readonly_interface(other._my_readonly_bool);
 }
 
-void Interfaces::IReadOnlyObject::_init_readonly_interface(bool readonly)
+void IReadOnlyObject::_init_readonly_interface(bool readonly)
 {
     _my_readonly_bool = readonly;
     SetReadonlyBooleanReference(_my_readonly_bool);
 }
 
-std::string Interfaces::IReadOnlyObject::ReadonlyMessageIdentifier() const
+std::string IReadOnlyObject::ReadonlyMessageIdentifier() const
 {
     // This string is not too useful.  Derived classes should override to give more information
     return "Core::Interfaces::IReadonlyObject";
 }
 
-void Interfaces::IReadOnlyObject::SetReadonlyBooleanReference(bool &readonlybool)
+void IReadOnlyObject::SetReadonlyBooleanReference(bool &readonlybool)
 {
     _readonly_bool_reference = &readonlybool;
 }
 
-void Interfaces::IReadOnlyObject::ClearReadonlyBooleanReference()
+void IReadOnlyObject::ClearReadonlyBooleanReference()
 {
     SetReadonlyBooleanReference(_my_readonly_bool);
 }
 
-void Interfaces::IReadOnlyObject::TrackReadonlyObject(const Interfaces::IReadOnlyObject &other)
+void IReadOnlyObject::TrackReadonlyObject(const Interfaces::IReadOnlyObject &other)
 {
     SetReadonlyBooleanReference(*other._readonly_bool_reference);
 }
 
-void Interfaces::IReadOnlyObject::SetReadOnly(bool readonly)
+void IReadOnlyObject::SetReadOnly(bool readonly)
 {
     on_set_readonly(readonly);
     *_readonly_bool_reference = readonly;
 }
 
-void Interfaces::IReadOnlyObject::FailIfReadOnly() const
+void IReadOnlyObject::on_set_readonly(bool)
+{
+
+}
+
+void IReadOnlyObject::FailIfReadOnly() const
         throw(ReadOnlyException)
 {
     if(IsReadOnly())
         THROW_NEW_GUTIL_EXCEPTION2( ReadOnlyException, ReadonlyMessageIdentifier() );
+}
+
+bool IReadOnlyObject::IsReadOnly() const
+{
+    return *_readonly_bool_reference;
 }

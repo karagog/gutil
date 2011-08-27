@@ -13,4 +13,5 @@ HEADERS += \
     Interfaces/imatrix.h
 
 SOURCES += \
-    Interfaces/ireadonlyobject.cpp
+    Interfaces/ireadonlyobject.cpp \
+    Interfaces/iupdatable.cpp
