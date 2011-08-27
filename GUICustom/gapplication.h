@@ -17,10 +17,17 @@ limitations under the License.*/
 
 #include <QApplication>
 #include "Custom/gapplicationbase.h"
+#include "BusinessObjects/processstatusindicator.h"
 
 namespace GUtil{ namespace GUICustom{
 
 
+/** My derived version of QApplication.
+
+    It derives from QApplication, so you can use it instead of one when
+    running your Qt application.  It provides several benefits, including
+    ipc functionality right out of the box.
+*/
 class GApplication :
         public QApplication,
         public Custom::GApplicationBase
@@ -28,17 +35,60 @@ class GApplication :
     Q_OBJECT
 public:
 
-    explicit GApplication(int &argc, char **argv);
+    /** Constructs an instance of GApplication.
+        \param application_name The name of the application, which determines, among other things,
+        the directory paths to the various storage locations.
+        \param application_version The current version of the application
+        \sa QDesktopServices::storageLocation()
+    */
+    explicit GApplication(int &argc, char **argv,
+                          const QString &application_name = QString::null,
+                          const QString &application_version = QString::null);
+
+
+    /** Virtual destructor, just in case. */
     virtual ~GApplication();
 
+
+    #ifdef NETWORK_FUNCTIONALITY
+
+    /** To facilitate Inter-process communication between application instances.
+
+        This is useful when the application is already running when the user tries
+        to run another instance.  You can have the newly-started process hail the
+        the already-running process and send control signals to it.
+
+        \note You must define NETWORK_FUNCTIONALITY to use this feature, which creates
+        a link dependency on QtNetwork
+    */
+    GUtil::BusinessObjects::ProcessStatusIndicator ProcessStatusIndicator;
+
+    #endif
+
+
+    /** Overridden from QApplication::notify(), in order to catch exceptions incurred
+        during QApplication events, mainly execution of slots.
+
+        You can handle the exception by overriding GApplicationBase::handle_exception()
+        \sa GApplicationBase::handle_exception()
+    */
     virtual bool notify(QObject *, QEvent *);
 
 
 public slots:
 
+    /** A slot to quit the application and execute custom application cleanup code.
+      \sa GApplicationBase::Exit()
+    */
     static void Quit();
 
-    // Show an about window for GUtil
+
+    /** Show an about window for GUtil.
+
+        Just connect a QPushButton to the gApp instance's slot to show the about.
+
+        C'mon give a guy some credit, I made it super easy for you ;)
+    */
     static void AboutGUtil();
 
 };

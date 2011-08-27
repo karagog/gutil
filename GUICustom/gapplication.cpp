@@ -19,9 +19,14 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE(GUICustom);
 GUTIL_USING_NAMESPACE(Custom);
 
-GApplication::GApplication(int &argc, char **argv)
+GApplication::GApplication(int &argc, char **argv, const QString &app_name, const QString &app_version)
     :QApplication(argc, argv)
-{}
+{
+    if(!app_name.isNull())
+        setApplicationName(app_name);
+    if(!app_version.isNull())
+        setApplicationVersion(app_version);
+}
 
 GApplication::~GApplication()
 {

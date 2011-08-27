@@ -16,15 +16,17 @@ limitations under the License.*/
 
 #include "processstatusindicator.h"
 #include <QLocalSocket>
+#include <QDesktopServices>
+#include <QCoreApplication>
 GUTIL_USING_NAMESPACE(BusinessObjects);
 
-#define IDENTITY_FORMAT "%1_PROCESS_STATUS"
+#define IDENTITY_FORMAT "PROCESS_STATUS"
 
-ProcessStatusIndicator::ProcessStatusIndicator(const QString &directory, const QString &process_id, QObject *parent)
+ProcessStatusIndicator::ProcessStatusIndicator(QObject *parent)
     :QObject(parent),
       _server(0),
-      _status_data(directory, QString(IDENTITY_FORMAT).arg(process_id)),
-      _status_lock(QString(IDENTITY_FORMAT).arg(process_id), "")
+      _status_data(QDesktopServices::storageLocation(QDesktopServices::TempLocation), IDENTITY_FORMAT),
+      _status_lock(IDENTITY_FORMAT, "")
 {
     connect(&_status_data, SIGNAL(NotifyConfigurationUpdate()),
             this, SLOT(_status_data_changed()));

@@ -2,13 +2,22 @@ DESTDIR = ../lib
 
 TARGET = GUtilGUICustom
 
+# We need this to make use of GUI functionality of other GUtil libraries on which we are dependent
+DEFINES += GUI_FUNCTIONALITY
+
+# Switches on the use of ipc in gapplication
+QT += network
+DEFINES += NETWORK_FUNCTIONALITY
+
 INCLUDEPATH += ..
 LIBS += -L../lib \
     -lGUtilCore \
     -lGUtilInterfaces \
     -lGUtilUtils \
     -lGUtilCustom \
-    -lGUtilUI
+    -lGUtilUI \
+    -lGUtilDataObjects \
+    -lGUtilBusinessObjects
 
 TEMPLATE = lib
 

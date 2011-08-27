@@ -28,7 +28,9 @@ class GCoreApplication :
     Q_OBJECT
 public:
 
-    explicit GCoreApplication(int &argc, char **argv);
+    explicit GCoreApplication(int &argc, char **argv,
+                              const QString &application_name = QString::null,
+                              const QString &application_version = QString::null);
     virtual ~GCoreApplication(){}
 
     virtual bool notify(QObject *, QEvent *);

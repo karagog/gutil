@@ -16,9 +16,16 @@ limitations under the License.*/
 #include "gutil_macros.h"
 GUTIL_USING_NAMESPACE(Custom);
 
-GCoreApplication::GCoreApplication(int &argc, char **argv)
+GCoreApplication::GCoreApplication(int &argc, char **argv,
+                                   const QString &application_name,
+                                   const QString &application_version)
     :QCoreApplication(argc, argv)
-{}
+{
+    if(!application_name.isNull())
+        setApplicationName(application_name);
+    if(!application_version.isNull())
+        setApplicationVersion(application_version);
+}
 
 bool GCoreApplication::notify(QObject *o, QEvent *ev)
 {

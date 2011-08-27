@@ -61,3 +61,8 @@ GApplicationBase::CleanupObject::~CleanupObject()
 {
 
 }
+
+GUtil::Core::Utils::CommandLineArgs GApplicationBase::Args() const
+{
+    return Core::Utils::CommandLineArgs(qApp->argc(), qApp->argv());
+}

@@ -37,9 +37,7 @@ class ProcessStatusIndicator :
     Q_OBJECT
 public:
 
-    explicit ProcessStatusIndicator(const QString &directory,
-                                    const QString &process_id,
-                                    QObject *parent = 0);
+    explicit ProcessStatusIndicator(QObject *parent = 0);
     ~ProcessStatusIndicator();
 
     enum StatusTypeEnum
