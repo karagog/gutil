@@ -17,6 +17,8 @@ TEMPLATE = app
 INCLUDEPATH += ../.. ../../../.. ../../..
 LIBS += -L../../../../lib -lGUtilCore
 
+unix: LIBS += -Wl,-rpath,../../../../lib
+
 
 SOURCES += tst_bst_testtest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
