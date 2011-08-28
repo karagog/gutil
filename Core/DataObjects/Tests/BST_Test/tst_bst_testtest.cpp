@@ -30,15 +30,21 @@ public:
 private Q_SLOTS:
     void test_basic_function();
 
+    void test_compare();
+
+
 private:
     static void show_depth_first_tree(const BinarySearchTree<int> &);
 
     static void show_breadth_first_tree(const BinarySearchTree<int> &);
     static void show_btf(BST_NodeIterator<int> &iter);
+
+    static int backwards_compare(const int &, const int &);
 };
 
 BST_TestTest::BST_TestTest()
 {
+    qsrand(QDateTime::currentDateTime().time().msec());
 }
 
 void BST_TestTest::test_basic_function()
@@ -53,12 +59,61 @@ void BST_TestTest::test_basic_function()
     show_depth_first_tree(bst);
     show_breadth_first_tree(bst);
 
+    // Verify that the numbers are sorted
+    vector<int> df( bst.ExportDepthFirst() );
+    QVERIFY(df.size() == 9);
+    for(int i(0); i < df.size(); i++)
+        QVERIFY(df.at(i) == i + 1);
+
     bst.Clear();
 
     for(int i(9); i >= 1; i--)
         bst.Add(i);
     show_depth_first_tree(bst);
     show_breadth_first_tree(bst);
+
+    // Verify that the numbers are sorted
+    df = bst.ExportDepthFirst();
+    QVERIFY(df.size() == 9);
+    for(int i(0); i < df.size(); i++)
+        QVERIFY(df.at(i) == i + 1);
+
+    bst.Clear();
+
+    // Add random numbers
+    for(int i(0); i < 20; i++)
+    {
+        int new_num(qrand() % 1000);
+        while(bst.HasItem(new_num)) new_num = qrand() % 100;
+        bst.Add(new_num);
+    }
+
+    show_depth_first_tree(bst);
+}
+
+int BST_TestTest::backwards_compare(const int &lhs, const int &rhs)
+{
+    if(lhs < rhs)
+        return 1;
+    else if(rhs < lhs)
+        return -1;
+    return 0;
+}
+
+void BST_TestTest::test_compare()
+{
+    BinarySearchTree<int> backwards_tree(&BST_TestTest::backwards_compare);
+    for(int i(1); i < 10; i++)
+        backwards_tree.Add(i);
+
+    show_depth_first_tree(backwards_tree);
+    show_breadth_first_tree(backwards_tree);
+
+    // Verify that it sorted the numbers backwards
+    vector<int> df( backwards_tree.ExportDepthFirst() );
+    QVERIFY(df.size() == 9);
+    for(int i(0); i < df.size(); i++)
+        QVERIFY(df.at(i) == 9 - i);
 }
 
 void BST_TestTest::show_depth_first_tree(const BinarySearchTree<int> &t)
@@ -66,7 +121,7 @@ void BST_TestTest::show_depth_first_tree(const BinarySearchTree<int> &t)
     cout<<"DF: ";
     vector<int> sorted_values(t.ExportDepthFirst());
     for(int i(0); i < (int)sorted_values.size(); i++)
-        cout<<sorted_values[i];
+        cout<<sorted_values[i]<<" ";
     cout<<endl;
 }
 

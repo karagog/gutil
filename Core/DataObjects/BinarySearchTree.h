@@ -127,6 +127,9 @@ public:
     /** Removes all values from the BST. */
     void Clear();
 
+    /** Returns whether the item is in the BST. */
+    bool HasItem(const T &);
+
     /** Does a lookup on the given object and returns a const reference to its version of it.
         Throws an exception if not found.
     */
@@ -210,6 +213,23 @@ template<class T>void BinarySearchTree<T>::Add(const T &object)
 
     bst_node::Insert(cur, new_node, insertion_side);
     _update_root_node();
+}
+
+template<class T>bool BinarySearchTree<T>::HasItem(const T &object)
+{
+    bst_node *cur( root );
+    while(cur)
+    {
+        int cmp_res( cmp(object, *((T*)cur->Data)) );
+
+        if(cmp_res < 0)
+            cur = cur->LChild;
+        else if(cmp_res > 0)
+            cur = cur->RChild;
+        else
+            return true;
+    }
+    return false;
 }
 
 template<class T>const T &BinarySearchTree<T>::Search(const T & object)
