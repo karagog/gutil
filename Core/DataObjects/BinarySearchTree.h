@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "bst_node.h"
+#include "private/bst_node.h"
 #include "Core/exception.h"
 #include <vector>
 #include <string>
@@ -57,7 +57,7 @@ public:
 
         If already exists in the tree an exception is thrown.
     */
-    int Add(const T &);
+    void Add(const T &);
 
     /** Removes the object from the tree.  Does nothing if object not in the tree. */
     void Remove(const T &);
@@ -234,7 +234,7 @@ template<class T>void BinarySearchTree<T>::Remove(const T &object)
                 root = 0;
         }
 
-        delete ((T *)cur.Data);
+        delete ((T *)cur->Data);
         bst_node::Delete(cur, tmp_node);
 
         _update_root_node();
@@ -263,7 +263,7 @@ template<class T>BinarySearchTree<T>::BinarySearchTree()
     cmp = &BinarySearchTree<T>::default_compare;
 }
 
-template<class T>BinarySearchTree<T>::BinarySearchTree(bool (*compare)(const T &,const T &))
+template<class T>BinarySearchTree<T>::BinarySearchTree(int (*compare)(const T &,const T &))
     :root(0)
 {
     cmp = compare;
