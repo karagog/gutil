@@ -69,7 +69,7 @@ void bst_node::rebalance(bst_node *n)
         // The node is right-heavy
 
         // Check if it's RL imbalance so we can resolve that first.
-        if(n->LChild->HeightDifference() > 0)
+        if(n->RChild->HeightDifference() > 0)
             rotate_right(n->RChild);
 
         // Now that the RL imbalance is fixed, do the RR rebalance.
@@ -79,8 +79,7 @@ void bst_node::rebalance(bst_node *n)
         // Node already balanced
         return;
 
-    // Update the node's height
-    n->Height = gMax(n->LChild->Height, n->RChild->Height) + 1;
+    update_height(n);
 }
 
 void bst_node::rotate_right(bst_node *n)
@@ -99,26 +98,28 @@ void bst_node::rotate_right(bst_node *n)
     n->Parent = n->LChild;
     n->LChild->RChild = n;
     n->LChild = tmp;
-    tmp->Parent = n;
+    if(tmp)
+        tmp->Parent = n;
 }
 
-void bst_node::rotate_left(bst_node *parent)
+void bst_node::rotate_left(bst_node *n)
 {
-    bst_node *parent_parent(parent->Parent);
-    if(parent_parent)
+    bst_node *parent(n->Parent);
+    if(parent)
     {
-        if(parent_parent->LChild == parent)
-            parent_parent->LChild = parent->RChild;
+        if(parent->LChild == n)
+            parent->LChild = n->RChild;
         else
-            parent_parent->RChild = parent->RChild;
+            parent->RChild = n->RChild;
     }
-    parent->RChild->Parent = parent_parent;
+    n->RChild->Parent = parent;
 
-    bst_node *tmp(parent->RChild->LChild);
-    parent->Parent = parent->RChild;
-    parent->RChild->LChild = parent;
-    parent->RChild = tmp;
-    tmp->Parent = parent;
+    bst_node *tmp(n->RChild->LChild);
+    n->Parent = n->RChild;
+    n->RChild->LChild = n;
+    n->RChild = tmp;
+    if(tmp)
+        tmp->Parent = n;
 }
 
 void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum side)
@@ -144,7 +145,7 @@ void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum s
     new_node->Parent = parent;
 
     // Now we need to ascend the tree to the root and update the heights
-    update_height(parent);
+    walk_parents_update_heights_rebalance(parent);
 }
 
 void bst_node::Delete(bst_node *node, bst_node *replacement)
@@ -217,7 +218,7 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
     }
 
     // Walk up the tree and update the height variables.
-    update_height(start_height_adjustment);
+    walk_parents_update_heights_rebalance(start_height_adjustment);
 
     // Delete the node
     node->RChild = 0;
@@ -240,22 +241,27 @@ bst_node::SideEnum bst_node::SideOfParent() const
 
 void bst_node::update_height(bst_node *n)
 {
+    if(!n->LChild && !n->RChild)
+        n->Height = 0;
+    else
+    {
+        const int lheight(n->LChild ? n->LChild->Height : 0);
+        const int rheight(n->RChild ? n->RChild->Height : 0);
+        n->Height = gMax(lheight, rheight) + 1;
+    }
+}
+
+void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
+{
     if(n)
     {
-        if(!n->LChild && !n->RChild)
-            n->Height = 0;
-        else
-        {
-            const int lheight(n->LChild ? n->LChild->Height : 0);
-            const int rheight(n->RChild ? n->RChild->Height : 0);
-            n->Height = gMax(lheight, rheight) + 1;
-        }
+        update_height(n);
 
         // Rebalance the node if it's unbalanced
         if(!n->Balanced())
             rebalance(n);
 
         if(n->Parent)
-            update_height(n->Parent);
+            walk_parents_update_heights_rebalance(n->Parent);
     }
 }

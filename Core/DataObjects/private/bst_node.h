@@ -110,6 +110,7 @@ private:
     static void rotate_left(bst_node *parent);
 
     static void update_height(bst_node *);
+    static void walk_parents_update_heights_rebalance(bst_node *);
 
 };
 
