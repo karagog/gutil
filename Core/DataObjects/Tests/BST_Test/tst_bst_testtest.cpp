@@ -32,12 +32,19 @@ private Q_SLOTS:
 
     void test_compare();
 
+    void test_insertions();
+    void test_deletions();
+
 
 private:
     static void show_depth_first_tree(const BinarySearchTree<int> &);
 
     static void show_breadth_first_tree(const BinarySearchTree<int> &);
-    static void show_btf(BST_NodeIterator<int> &iter);
+    static QString get_btf_string(const BST_NodeIterator<int> &iter);
+
+    // You can feed in your own manual breadth-first description to test if
+    //  the tree looks like you expect
+    static bool tree_matches(const BinarySearchTree<int> &, const QString &);
 
     static int backwards_compare(const int &, const int &);
 };
@@ -128,28 +135,80 @@ void BST_TestTest::show_depth_first_tree(const BinarySearchTree<int> &t)
 void BST_TestTest::show_breadth_first_tree(const BinarySearchTree<int> &t)
 {
     cout<<"BF: ";
-    BST_NodeIterator<int> iter(t.Root());
-    show_btf(iter);
+    cout<<get_btf_string(t.Root()).toStdString();
     cout<<endl;
 }
 
-void BST_TestTest::show_btf(BST_NodeIterator<int> &iter)
+QString BST_TestTest::get_btf_string(const BST_NodeIterator<int> &i)
 {
-    cout<<"("<<iter.Value()<<", ";
+    QString ret;
+    BST_NodeIterator<int> iter(i);
+
+    ret.append(QString("(%1, ").arg(iter.Value()));
     if(iter.CanDescendLeft())
     {
         iter.DescendLeft();
-        show_btf(iter);
+        ret.append(get_btf_string(iter));
         iter.Ascend();
     }
-    cout<<", ";
+    ret.append(", ");
     if(iter.CanDescendRight())
     {
         iter.DescendRight();
-        show_btf(iter);
+        ret.append(get_btf_string(iter));
         iter.Ascend();
     }
-    cout<<")";
+    ret.append(")");
+
+    return ret;
+}
+
+bool BST_TestTest::tree_matches(const BinarySearchTree<int> &t, const QString &s)
+{
+    bool ret = get_btf_string(t.Root()) == s;
+    if(!ret)
+    {
+        cout<< get_btf_string(t.Root()).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
+    }
+    return ret;
+}
+
+void BST_TestTest::test_insertions()
+{
+    // Test the 4 cases of rebalancing:  LL, RR, LR, RL
+    BinarySearchTree<int> bst;
+
+    // This tests the RR condition twice (Rotate left)
+    bst.Add(5);
+    bst.Add(10);
+    bst.Add(15);
+    bst.Add(20);
+    bst.Add(25);
+    QVERIFY(tree_matches(bst, "(10, (5, , ), (20, (15, , ), (25, , )))"));
+
+    // Then LL (Rotate Right)
+    bst.Add(2);
+    bst.Add(1);
+    QVERIFY(tree_matches(bst, "(10, (2, (1, , ), (5, , )), (20, (15, , ), (25, , )))"));
+
+    // Then RL
+    bst.Clear();
+    bst.Add(5);
+    bst.Add(10);
+    bst.Add(9);
+    QVERIFY(tree_matches(bst, "(9, (5, , ), (10, , ))"));
+
+    // Then LR
+    bst.Clear();
+    bst.Add(5);
+    bst.Add(3);
+    bst.Add(4);
+    QVERIFY(tree_matches(bst, "(4, (3, , ), (5, , ))"));
+}
+
+void BST_TestTest::test_deletions()
+{
+
 }
 
 QTEST_APPLESS_MAIN(BST_TestTest);
