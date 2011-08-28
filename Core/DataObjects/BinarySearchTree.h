@@ -248,13 +248,18 @@ template<class T> vector<T> BinarySearchTree<T>::ExportDepthFirst() const
 
 template<class T> vector<T> BinarySearchTree<T>::export_depth_first(bst_node *p)
 {
-    vector<T> ret( export_depth_first(p->LChild) );
-    ret.push_back(*((T *)p->Data));
+    vector<T> ret;
+    if(p)
+    {
+        ret = export_depth_first(p->LChild);
+        ret.push_back(*((T *)p->Data));
 
-    vector<T> rchildren( export_depth_first(p->RChild) );
-    ret.reserve(ret.size() + rchildren.size());
-    for(unsigned int i = 0; i < rchildren.size(); i++)
-        ret.push_back(rchildren[i]);
+        vector<T> rchildren( export_depth_first(p->RChild) );
+        ret.reserve(ret.size() + rchildren.size());
+        for(unsigned int i = 0; i < rchildren.size(); i++)
+            ret.push_back(rchildren[i]);
+    }
+    return ret;
 }
 
 template<class T>BinarySearchTree<T>::BinarySearchTree()

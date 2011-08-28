@@ -15,7 +15,9 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "BinarySearchTree.h"
+#include <iostream>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
+using namespace std;
 
 class BST_TestTest :
         public QObject
@@ -46,7 +48,10 @@ void BST_TestTest::test_basic_function()
 
 void BST_TestTest::show_tree(const BinarySearchTree<int> &t)
 {
-
+    vector<int> sorted_values(t.ExportDepthFirst());
+    for(int i(0); i < (int)sorted_values.size(); i++)
+        cout<<sorted_values[i];
+    cout<<endl;
 }
 
 QTEST_APPLESS_MAIN(BST_TestTest);
