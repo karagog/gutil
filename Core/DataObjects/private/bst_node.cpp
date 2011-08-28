@@ -242,7 +242,14 @@ void bst_node::update_height(bst_node *n)
 {
     if(n)
     {
-        n->Height = gMax(n->LChild->Height, n->RChild->Height) + 1;
+        if(!n->LChild && !n->RChild)
+            n->Height = 0;
+        else
+        {
+            const int lheight(n->LChild ? n->LChild->Height : 0);
+            const int rheight(n->RChild ? n->RChild->Height : 0);
+            n->Height = gMax(lheight, rheight) + 1;
+        }
 
         // Rebalance the node if it's unbalanced
         if(!n->Balanced())
