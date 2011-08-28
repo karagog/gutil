@@ -26,6 +26,68 @@ using namespace std;
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
+/** A class for iterating manually through the binary search tree.
+
+    It's useful for debugging, but not much else.  You shouldn't normally
+    have to use this class.  Because it's a template, if you don't use it
+    it won't build into your application.
+*/
+template<class T> class BST_NodeIterator
+{
+public:
+    BST_NodeIterator(bst_node *n)
+        :m_node(n)
+    {}
+
+    /** The data held in this node. */
+    const T &Value() const{
+        return *((T*)m_node->Data);
+    }
+
+    /** Returns whether a left child exists. */
+    bool CanDescendLeft() const{
+        return m_node && m_node->LChild;
+    }
+    /** Returns whether a right child exists. */
+    bool CanDescendRight() const{
+        return m_node && m_node->RChild;
+    }
+    /** Returns whether you can move the iterator to the current's parent. */
+    bool CanAscend() const{
+        return m_node && m_node->Parent;
+    }
+
+    /** Advances the iterator into the left child. */
+    bool DescendLeft(){
+        if(CanDescendLeft()){
+            m_node = m_node->LChild;
+            return true;
+        }
+        return false;
+    }
+    /** Advances the iterator into the right child. */
+    bool DescendRight(){
+        if(CanDescendRight()){
+            m_node = m_node->RChild;
+            return true;
+        }
+        return false;
+    }
+    /** Advances the iterator to the current's parent */
+    bool Ascend(){
+        if(CanAscend()){
+            m_node = m_node->Parent;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    bst_node *m_node;
+};
+
+
+
 /** Implements an AVL-balanced binary search tree.
 
     BST's have the advantage of storing the data so it is always sorted,
@@ -38,7 +100,7 @@ template<class T>class BinarySearchTree
 {
 public:
 
-    /** Creates an empty BST. */
+    /** Creates an empty BST with the default compare function (less-than operator). */
     BinarySearchTree();
 
     /** Creates an empty BST which uses your own custom compare function.
@@ -62,11 +124,18 @@ public:
     /** Removes the object from the tree.  Does nothing if object not in the tree. */
     void Remove(const T &);
 
+    /** Removes all values from the BST. */
+    void Clear();
+
     /** Does a lookup on the given object and returns a const reference to its version of it.
         Throws an exception if not found.
     */
     const T &Search(const T &obj);
 
+
+    BST_NodeIterator<T> Root() const{
+        return BST_NodeIterator<T>(root);
+    }
 
     /** Exports a depth-first (sorted) version of the contents of the tree */
     vector<T> ExportDepthFirst() const;
@@ -276,11 +345,19 @@ template<class T>BinarySearchTree<T>::BinarySearchTree(int (*compare)(const T &,
 
 template<class T>BinarySearchTree<T>::~BinarySearchTree()
 {
-    // Need to iterate through the nodes and delete all the memory!  The bst_node
-    //  can't do it because it stores the data as void *
-    cleanup_memory(root);
+    Clear();
+}
+
+template<class T>void BinarySearchTree<T>::Clear()
+{
     if(root)
+    {
+        // Need to iterate through the nodes and delete all the memory!  The bst_node
+        //  can't do it because it stores the data as void *
+        cleanup_memory(root);
         delete root;
+        root = 0;
+    }
 }
 
 template<class T>void BinarySearchTree<T>::cleanup_memory(bst_node *n)

@@ -39,9 +39,9 @@ int bst_node::HeightDifference() const
 {
     int sum(0);
     if(LChild)
-        sum += LChild->Height;
+        sum += (1 + LChild->Height);
     if(RChild)
-        sum -= RChild->Height;
+        sum -= (1 + RChild->Height);
     return sum;
 }
 
