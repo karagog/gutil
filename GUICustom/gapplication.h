@@ -94,6 +94,14 @@ public slots:
     static void AboutGUtil();
 
 
+protected:
+
+    #ifdef NETWORK_FUNCTIONALITY
+    /** We have to delete the status indicator in the cleanup handler. */
+    virtual void application_exiting();
+    #endif // NETWORK_FUNCTIONALITY
+
+
 private:
 
     #ifdef NETWORK_FUNCTIONALITY

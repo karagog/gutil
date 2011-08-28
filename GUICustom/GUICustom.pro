@@ -14,7 +14,7 @@ LIBS += -L../lib \
     -lGUtilInterfaces \
     -lGUtilUtils \
     -lGUtilCustom \
-    -lGUtilUI \
+    -lGUtilUi \
     -lGUtilDataObjects \
     -lGUtilBusinessObjects
 

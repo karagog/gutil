@@ -29,13 +29,20 @@ GApplication::GApplication(int &argc, char **argv, const QString &app_name, cons
         setApplicationVersion(app_version);
 
     // Initialize this after setting the application name and version
-    m_psi = new ProcessStatusIndicator(this);
+    m_psi = new ProcessStatusIndicator;
 }
 
 GApplication::~GApplication()
 {
 
 }
+
+#ifdef NETWORK_FUNCTIONALITY
+void GApplication::application_exiting()
+{
+    delete m_psi;
+}
+#endif // NETWORK_FUNCTIONALITY
 
 bool GApplication::notify(QObject *o, QEvent *ev)
 {
