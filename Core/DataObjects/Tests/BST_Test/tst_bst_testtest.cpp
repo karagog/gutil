@@ -35,18 +35,26 @@ private Q_SLOTS:
     void test_insertions();
     void test_deletions();
 
+    void test_pointers();
+
 
 private:
     static void show_depth_first_tree(const BinarySearchTree<int> &);
 
     static void show_breadth_first_tree(const BinarySearchTree<int> &);
-    static QString get_btf_string(const BST_NodeIterator<int> &iter);
+    static void show_breadth_first_pointerTree(const BinarySearchTree<int *> &);
+
+    static QString get_bft_string(const BST_NodeIterator<int> &iter);
+    static QString get_bft_pointer_string(const BST_NodeIterator<int *> &);
 
     // You can feed in your own manual breadth-first description to test if
     //  the tree looks like you expect
     static bool tree_matches(const BinarySearchTree<int> &, const QString &);
+    static bool tree_matches(const BinarySearchTree<int *> &, const QString &);
 
     static int backwards_compare(const int &, const int &);
+
+    static int pointer_compare(int* const &, int* const &);
 };
 
 BST_TestTest::BST_TestTest()
@@ -135,11 +143,18 @@ void BST_TestTest::show_depth_first_tree(const BinarySearchTree<int> &t)
 void BST_TestTest::show_breadth_first_tree(const BinarySearchTree<int> &t)
 {
     cout<<"BF: ";
-    cout<<get_btf_string(t.Root()).toStdString();
+    cout<<get_bft_string(t.Root()).toStdString();
     cout<<endl;
 }
 
-QString BST_TestTest::get_btf_string(const BST_NodeIterator<int> &i)
+void BST_TestTest::show_breadth_first_pointerTree(const BinarySearchTree<int *> &t)
+{
+    cout<<"BF: ";
+    cout<<get_bft_pointer_string(t.Root()).toStdString();
+    cout<<endl;
+}
+
+QString BST_TestTest::get_bft_string(const BST_NodeIterator<int> &i)
 {
     QString ret;
     BST_NodeIterator<int> iter(i);
@@ -148,14 +163,14 @@ QString BST_TestTest::get_btf_string(const BST_NodeIterator<int> &i)
     if(iter.CanDescendLeft())
     {
         iter.DescendLeft();
-        ret.append(get_btf_string(iter));
+        ret.append(get_bft_string(iter));
         iter.Ascend();
     }
     ret.append(", ");
     if(iter.CanDescendRight())
     {
         iter.DescendRight();
-        ret.append(get_btf_string(iter));
+        ret.append(get_bft_string(iter));
         iter.Ascend();
     }
     ret.append(")");
@@ -163,12 +178,46 @@ QString BST_TestTest::get_btf_string(const BST_NodeIterator<int> &i)
     return ret;
 }
 
-bool BST_TestTest::tree_matches(const BinarySearchTree<int> &t, const QString &s)
+QString BST_TestTest::get_bft_pointer_string(const BST_NodeIterator<int *> &i)
 {
-    bool ret = get_btf_string(t.Root()) == s;
+    QString ret;
+    BST_NodeIterator<int *> iter(i);
+
+    ret.append(QString("(%1, ").arg(*iter.Value()));
+    if(iter.CanDescendLeft())
+    {
+        iter.DescendLeft();
+        ret.append(get_bft_pointer_string(iter));
+        iter.Ascend();
+    }
+    ret.append(", ");
+    if(iter.CanDescendRight())
+    {
+        iter.DescendRight();
+        ret.append(get_bft_pointer_string(iter));
+        iter.Ascend();
+    }
+    ret.append(")");
+
+    return ret;
+}
+
+bool BST_TestTest::tree_matches(const BinarySearchTree<int *> &t, const QString &s)
+{
+    bool ret = get_bft_pointer_string(t.Root()) == s;
     if(!ret)
     {
-        cout<< get_btf_string(t.Root()).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
+        cout<< get_bft_pointer_string(t.Root()).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
+    }
+    return ret;
+}
+
+bool BST_TestTest::tree_matches(const BinarySearchTree<int> &t, const QString &s)
+{
+    bool ret = get_bft_string(t.Root()) == s;
+    if(!ret)
+    {
+        cout<< get_bft_string(t.Root()).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
     }
     return ret;
 }
@@ -209,6 +258,32 @@ void BST_TestTest::test_insertions()
 void BST_TestTest::test_deletions()
 {
 
+}
+
+int BST_TestTest::pointer_compare(int* const &lhs, int* const &rhs)
+{
+    if(*lhs < *rhs)
+        return -1;
+    else if(*rhs < *lhs)
+        return 1;
+    return 0;
+}
+
+void BST_TestTest::test_pointers()
+{
+    BinarySearchTree<int *> pointer_tree(&BST_TestTest::pointer_compare);
+    int a(1), b(2), c(3);
+    pointer_tree.Add(&a);
+    pointer_tree.Add(&b);
+    pointer_tree.Add(&c);
+
+    show_breadth_first_pointerTree(pointer_tree);
+    QVERIFY(tree_matches(pointer_tree, "(2, (1, , ), (3, , ))"));
+
+    // Update the data pointed to and see if the tree data was also updated.
+    a = 500;
+    QVERIFY(tree_matches(pointer_tree, "(2, (500, , ), (3, , ))"));
+    show_breadth_first_pointerTree(pointer_tree);
 }
 
 QTEST_APPLESS_MAIN(BST_TestTest);
