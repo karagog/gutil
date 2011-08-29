@@ -40,6 +40,15 @@ public:
     */
     static void Exit();
 
+    GApplicationBase();
+    ~GApplicationBase();
+
+    static GApplicationBase *GlobalInstance;
+
+    // Use this function to quit the application, instead of QApplication::quit.
+    //  This will call 'application_exiting()', which you can override to put cleanup code in
+    static void Exit();
+
 
     /** Get convenient access to the command line arguments. */
     Core::Utils::CommandLineArgs Args() const;
@@ -119,7 +128,7 @@ private:
 
 
 // A reference to the global instance of GApplicationBase
-#define gApp ((GUtil::Custom::GApplicationBase *)qApp)
+#define gApp   GUtil::Custom::GApplicationBase::GlobalInstance
 
 
 #endif // GAPPLICATIONBASE_H
