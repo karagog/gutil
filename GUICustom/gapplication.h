@@ -46,10 +46,6 @@ public:
                           const QString &application_version = QString::null);
 
 
-    /** Virtual destructor, just in case. */
-    virtual ~GApplication();
-
-
     #ifdef NETWORK_FUNCTIONALITY
 
     /** To facilitate Inter-process communication between application instances.

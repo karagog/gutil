@@ -40,13 +40,29 @@ public:
     */
     static void Exit();
 
+    /** Constructs a GApplication base and sets the global instance.
+
+        Constructing two of these simultaneously in an application would be an error, and it will
+        throw an exception if you do it accidentally.
+    */
     GApplicationBase();
+
+
+    /** Cleans up the GApplicationBase and sets the global instance pointer to 0. */
     ~GApplicationBase();
 
+
+    /** A global pointer to the GApplicationBase instance.
+        \sa gApp
+    */
     static GApplicationBase *GlobalInstance;
 
-    // Use this function to quit the application, instead of QApplication::quit.
-    //  This will call 'application_exiting()', which you can override to put cleanup code in
+
+    /** Use this function to quit the application, instead of QApplication::quit()
+.
+        This will call the virtual function application_exiting()' which you can
+        override to put cleanup code in.
+    */
     static void Exit();
 
 
@@ -92,11 +108,8 @@ protected:
         which is especially apparent in Linux.  By executing cleanup code in this handler,
         you do so while the application is still fully functional, from a Qt events standpoint.
 
-        \note You don't need to cleanup the CleanupObjects() memory yourself in this handler, that is done
-        automatically behind the scenes.  Use this function to execute application take-down code,
-        just prior to the global application memory being deleted.
-
-        \sa Exit()
+        \note You must call the base implementation, which does the actual cleanup of the CleanupObjects.
+        \sa Exit() QCoreApplication::exit()
     */
     virtual void application_exiting();
 
@@ -127,7 +140,12 @@ private:
 }}
 
 
-// A reference to the global instance of GApplicationBase
+/** A reference to the global instance of GApplicationBase.
+
+    This is similar to qApp, but GApplicationBase is not a subclass of
+    QCoreApplication, so we can't just cast the qApp pointer as GApplicationBase.
+    \sa qApp
+*/
 #define gApp   GUtil::Custom::GApplicationBase::GlobalInstance
 
 

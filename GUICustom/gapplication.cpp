@@ -32,15 +32,12 @@ GApplication::GApplication(int &argc, char **argv, const QString &app_name, cons
     m_psi = new ProcessStatusIndicator;
 }
 
-GApplication::~GApplication()
-{
-
-}
-
 #ifdef NETWORK_FUNCTIONALITY
 void GApplication::application_exiting()
 {
     delete m_psi;
+    m_psi = 0;
+    GApplicationBase::application_exiting();
 }
 #endif // NETWORK_FUNCTIONALITY
 
@@ -71,5 +68,5 @@ void GApplication::AboutGUtil()
 
 void GApplication::Quit()
 {
-    gApp->Exit();
+    GCoreApplication::Exit();
 }
