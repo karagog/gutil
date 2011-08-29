@@ -48,23 +48,23 @@ void GApplicationBase::RemoveCleanupObject(GApplicationBase::CleanupObject *o)
         _cleanup_objects.remove(index);
 }
 
-void GApplicationBase::Exit()
+void GApplicationBase::Exit(int return_code)
 {
     // Derived classes will execute their own cleanup code when the application exits
     gApp->application_exiting();
+
+    QCoreApplication::exit(return_code);
 }
 
 void GApplicationBase::application_exiting()
 {
-    while(_cleanup_objects.count() > 0)
-        delete _cleanup_objects.pop();
-
     // We put this here, rather than in Exit(), because we force the use to call the base
     //  implementation of this function, which is necessary to conduct the cleanup of the
     //  cleanup objects.  We want every level of subclassing of this class to have the
     //  opportunity to cleanup their own memory, so for correctness of the implementation
     //  everybody must call the base implementation.
-    QCoreApplication::exit(0);
+    while(_cleanup_objects.count() > 0)
+        delete _cleanup_objects.pop();
 }
 
 void GApplicationBase::handle_exception(const GUtil::Core::Exception &ex)

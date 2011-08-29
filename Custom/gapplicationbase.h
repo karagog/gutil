@@ -63,7 +63,7 @@ public:
         This will call the virtual function application_exiting()' which you can
         override to put cleanup code in.
     */
-    static void Exit();
+    static void Exit(int return_code = 0);
 
 
     /** Get convenient access to the command line arguments. */
