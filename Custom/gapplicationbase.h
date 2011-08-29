@@ -34,12 +34,6 @@ class GApplicationBase
 {
 public:
 
-    /** Use this function to quit the application, instead of QApplication::quit().
-      This will call application_exiting(), which you can override to put cleanup code in.
-      \sa application_exiting(), QApplication::exit()
-    */
-    static void Exit();
-
     /** Constructs a GApplication base and sets the global instance.
 
         Constructing two of these simultaneously in an application would be an error, and it will

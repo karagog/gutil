@@ -68,5 +68,5 @@ void GApplication::AboutGUtil()
 
 void GApplication::Quit()
 {
-    GCoreApplication::Exit();
+    Exit();
 }

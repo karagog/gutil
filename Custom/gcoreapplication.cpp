@@ -49,5 +49,5 @@ bool GCoreApplication::notify(QObject *o, QEvent *ev)
 
 void GCoreApplication::Quit()
 {
-    GCoreApplication::Exit();
+    Exit();
 }
