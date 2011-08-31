@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "bst_node.h"
 #include "gutil_globals.h"
+#include "Core/exception.h"
 #include <cassert>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
@@ -264,4 +265,89 @@ void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
         if(n->Parent)
             walk_parents_update_heights_rebalance(n->Parent);
     }
+}
+
+
+
+bst_node_df_iterator::bst_node_df_iterator(bst_node *n)
+    :current(n),
+      mem_begin(0),
+      mem_end(0)
+{}
+
+bst_node_df_iterator::bst_node_df_iterator(const bst_node_df_iterator &o)
+    :current(o.current),
+      mem_begin(o.mem_begin),
+      mem_end(o.mem_end)
+{}
+
+bool bst_node_df_iterator::operator == (const bst_node_df_iterator &o) const
+{
+    return current == o.current &&
+            (current != 0 || (mem_begin == o.mem_begin && mem_end == o.mem_end));
+}
+
+bool bst_node_df_iterator::operator != (const bst_node_df_iterator &o) const
+{
+    return !(*this == o);
+}
+
+void bst_node_df_iterator::advance()
+{
+    if(current)
+    {
+        bst_node *mem( current );
+
+        if(current->RChild)
+        {
+            current = current->RChild;
+            while(current->LChild)
+                current = current->LChild;
+        }
+        else
+        {
+            current = current->Parent;
+        }
+
+        if(!current)
+            mem_end = mem;
+    }
+    else if(mem_begin)
+    {
+        current = mem_begin;
+        mem_begin = 0;
+    }
+    else
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "Can't move iterator past the end of the container.");
+}
+
+void bst_node_df_iterator::retreat()
+{
+    if(current)
+    {
+        bst_node *mem( current );
+
+        if(current->LChild)
+        {
+            current = current->LChild;
+            while(current->RChild)
+                current = current->RChild;
+        }
+        else
+        {
+            current = current->Parent;
+        }
+
+        if(!current)
+            mem_begin = mem;
+    }
+    else if(mem_end)
+    {
+        current = mem_end;
+        mem_end = 0;
+    }
+    else
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "Can't move iterator before the beginning of the container.");
 }

@@ -16,6 +16,7 @@ limitations under the License.*/
 #define BST_NODE_H
 
 #include "gutil_macros.h"
+#include <iterator>
 
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -113,6 +114,43 @@ private:
     static void walk_parents_update_heights_rebalance(bst_node *);
 
 };
+
+
+
+/** A depth-first bidirectional iterator conforming to the STL interface.
+
+    This is a base class for the similar functionality between iterator and const_iterator.
+
+    Iterating from begin() to end() will traverse the values in ascending order, determined
+    by the compare function in BinarySearchTree.
+
+    At this level of abstraction you cannot access the node value.  See the BinarySearchTree
+    iterators for this, they are derived from this iterator but have access to the typed value.
+    \sa BinarySearchTree
+*/
+class bst_node_df_iterator
+{
+public:
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+    /** Constructs an invalid iterator (equal to end()). */
+    explicit bst_node_df_iterator(bst_node *n = 0);
+    bst_node_df_iterator(const bst_node_df_iterator &);
+
+    bool operator == (const bst_node_df_iterator &) const;
+    bool operator != (const bst_node_df_iterator &) const;
+
+protected:
+    /** Advance the iterator.  Throws an exception if you can't advance. */
+    void advance();
+    /** Advance the iterator in reverse order.  Throws an exception if you can't advance. */
+    void retreat();
+
+    bst_node *current;
+    bst_node *mem_begin;
+    bst_node *mem_end;
+};
+
 
 
 GUTIL_END_CORE_NAMESPACE

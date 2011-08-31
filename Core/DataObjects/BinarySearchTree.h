@@ -144,6 +144,58 @@ public:
     vector<T> ExportDepthFirst() const;
 
 
+    /** A class for iterating through the BinarySearchTree.
+
+        Because it's a BST, the elements will always be sorted when you traverse it depth-first.
+
+        There is no non-const iterator, because you are not allowed to modify the elements of the BST
+        (it would destroy the tree's index).  To do this you have to add or remove items from the tree.
+    */
+    class const_iterator :
+            public bst_node_df_iterator
+    {
+    public:
+        typedef T value_type;
+        typedef const T *pointer;
+        typedef const T &reference;
+
+        inline const_iterator(){}
+        inline const_iterator(bst_node *n)
+            :bst_node_df_iterator(n){}
+        inline const_iterator(const const_iterator &o)
+            :bst_node_df_iterator(o){}
+
+        /** Dereference the iterator and return a reference to the data. */
+        inline const T &operator*() const { return *(reinterpret_cast<T *>(current->Data)); }
+        /** Dereference the iterator and return a pointer to the data. */
+        inline const T *operator->() const { return reinterpret_cast<T *>(current->Data); }
+
+        /** Prefix ++.  Throws an exception if you can't advance. */
+        inline const_iterator &operator ++(){
+            advance();
+            return *this;
+        }
+        /** Postfix ++.  Throws an exception if you can't advance. */
+        const_iterator operator ++(int){
+            const_iterator ret(*this);
+            advance();
+            return ret;
+        }
+        /** Prefix --.  Throws an exception if you can't advance. */
+        const_iterator &operator --(){
+            retreat();
+            return *this;
+        }
+        /** Postfix --.  Throws an exception if you can't advance. */
+        const_iterator operator --(int){
+            const_iterator ret(*this);
+            retreat();
+            return ret;
+        }
+    };
+
+
+
 private:
     bst_node *root;
     int (*cmp)(const T &lhs, const T &rhs);
