@@ -304,20 +304,18 @@ void bst_node_df_iterator::advance()
     {
         if(current->RChild)
             current = current->RChild->LeftmostChild;
-        else if(current->SideOfParent() == bst_node::LeftSide)
-            current = current->Parent;
         else
         {
             // Ascend current's parents to find the next greater element
             bst_node *cur(current);
-            while((cur = cur->Parent))
+            do
             {
                 if(cur->SideOfParent() == bst_node::LeftSide)
                 {
                     current = cur->Parent;
                     break;
                 }
-            }
+            }while((cur = cur->Parent));
 
             if(!cur)
             {
@@ -343,20 +341,18 @@ void bst_node_df_iterator::retreat()
     {
         if(current->LChild)
             current = current->LChild->RightmostChild;
-        else if(current->SideOfParent() == bst_node::RightSide)
-            current = current->Parent;
         else
         {
             // Ascend current's parents to find the next lesser element
             bst_node *cur(current);
-            while((cur = cur->Parent))
+            do
             {
                 if(cur->SideOfParent() == bst_node::RightSide)
                 {
                     current = cur->Parent;
                     break;
                 }
-            }
+            }while((cur = cur->Parent));
 
             if(!cur)
             {
