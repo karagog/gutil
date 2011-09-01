@@ -99,8 +99,9 @@ void bst_node::rotate_right(bst_node *n)
     if(tmp)
         tmp->Parent = n;
 
-    // This must be done on every rotation
-    walk_parents_update_heights(n);
+    // Only two nodes are affected by the rotation
+    update_height(n);
+    update_height(n->Parent);
 }
 
 void bst_node::rotate_left(bst_node *n)
@@ -122,8 +123,9 @@ void bst_node::rotate_left(bst_node *n)
     if(tmp)
         tmp->Parent = n;
 
-    // This must be done on every rotation
-    walk_parents_update_heights(n);
+    // Only two nodes are affected by the rotation
+    update_height(n);
+    update_height(n->Parent);
 }
 
 void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum side)
@@ -257,15 +259,6 @@ void bst_node::update_height(bst_node *n)
     // Update the left-most and right-most child records
     n->LeftmostChild = n->LChild ? n->LChild->LeftmostChild : n;
     n->RightmostChild = n->RChild ? n->RChild->RightmostChild : n;
-}
-
-void bst_node::walk_parents_update_heights(bst_node *n)
-{
-    if(n)
-    {
-        update_height(n);
-        walk_parents_update_heights(n->Parent);
-    }
 }
 
 void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
