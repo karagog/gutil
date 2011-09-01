@@ -181,8 +181,12 @@ public:
     const_iterator end() const{
         const_iterator ret;
         if(root)
-            ret = ++const_iterator(root->RightmostChild, cmp);
+            ret = ++const_iterator(root ? root->RightmostChild : 0, cmp);
         return ret;
+    }
+    /** Returns an iterator starting before the first element in the tree. */
+    inline const_iterator preBegin() const{
+        return --const_iterator(root ? root->LeftmostChild : 0, cmp);
     }
 
     /** Returns how many items are in the BST */
