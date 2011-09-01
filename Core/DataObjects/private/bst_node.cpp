@@ -100,8 +100,8 @@ void bst_node::rotate_right(bst_node *n)
         tmp->Parent = n;
 
     // Only two nodes are affected by the rotation
-    update_height(n);
-    update_height(n->Parent);
+    refresh_node_state(n);
+    refresh_node_state(n->Parent);
 }
 
 void bst_node::rotate_left(bst_node *n)
@@ -124,8 +124,8 @@ void bst_node::rotate_left(bst_node *n)
         tmp->Parent = n;
 
     // Only two nodes are affected by the rotation
-    update_height(n);
-    update_height(n->Parent);
+    refresh_node_state(n);
+    refresh_node_state(n->Parent);
 }
 
 void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum side)
@@ -245,8 +245,9 @@ bst_node::SideEnum bst_node::SideOfParent() const
     return ret;
 }
 
-void bst_node::update_height(bst_node *n)
+void bst_node::refresh_node_state(bst_node *n)
 {
+    // Update the node's height cache
     if(!n->LChild && !n->RChild)
         n->Height = 0;
     else
@@ -256,7 +257,7 @@ void bst_node::update_height(bst_node *n)
         n->Height = gMax(lheight, rheight) + 1;
     }
 
-    // Update the left-most and right-most child records
+    // Update the left-most and right-most child caches
     n->LeftmostChild = n->LChild ? n->LChild->LeftmostChild : n;
     n->RightmostChild = n->RChild ? n->RChild->RightmostChild : n;
 }
@@ -265,7 +266,7 @@ void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
 {
     if(n)
     {
-        update_height(n);
+        refresh_node_state(n);
 
         // Rebalance the node if it's unbalanced
         if(!n->Balanced())

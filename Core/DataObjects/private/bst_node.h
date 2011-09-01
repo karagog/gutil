@@ -46,13 +46,19 @@ public:
     /** A reference to the right child of this node. */
     bst_node *RChild;
 
-    /** A reference to my most leftist child (min of my children) */
+    /** A reference to my most leftist child (min of my children).
+        This makes it possible to get to the begin() and end() of the tree
+        in constant time, and also makes iteration much faster
+    */
     bst_node *LeftmostChild;
 
-    /** A reference to my most rightist child (max of my children) */
+    /** A reference to my most rightist child (max of my children).
+        This makes it possible to get to the begin() and end() of the tree
+        in constant time, and also makes iteration much faster
+    */
     bst_node *RightmostChild;
 
-    /** The height of this ndoe, which is 1 + the max height of my two children */
+    /** The height of this node, which is 1 + the max of the heights of my two children */
     int Height;
 
     /** The difference in height of my two children (left - right) */
@@ -116,7 +122,7 @@ private:
     static void rotate_right(bst_node *parent);
     static void rotate_left(bst_node *parent);
 
-    static void update_height(bst_node *);
+    static void refresh_node_state(bst_node *);
 
     static void walk_parents_update_heights_rebalance(bst_node *);
 
