@@ -78,11 +78,6 @@ void bst_node::rebalance(bst_node *n)
         // Now that the RL imbalance is fixed, do the RR rebalance.
         rotate_left(n);
     }
-    else
-        // Node already balanced
-        return;
-
-    update_height(n);
 }
 
 void bst_node::rotate_right(bst_node *n)
@@ -103,6 +98,9 @@ void bst_node::rotate_right(bst_node *n)
     n->LChild = tmp;
     if(tmp)
         tmp->Parent = n;
+
+    // This must be done on every rotation
+    walk_parents_update_heights(n);
 }
 
 void bst_node::rotate_left(bst_node *n)
@@ -123,6 +121,9 @@ void bst_node::rotate_left(bst_node *n)
     n->RChild = tmp;
     if(tmp)
         tmp->Parent = n;
+
+    // This must be done on every rotation
+    walk_parents_update_heights(n);
 }
 
 void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum side)
@@ -258,6 +259,15 @@ void bst_node::update_height(bst_node *n)
     n->RightmostChild = n->RChild ? n->RChild->RightmostChild : n;
 }
 
+void bst_node::walk_parents_update_heights(bst_node *n)
+{
+    if(n)
+    {
+        update_height(n);
+        walk_parents_update_heights(n->Parent);
+    }
+}
+
 void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
 {
     if(n)
@@ -268,8 +278,7 @@ void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
         if(!n->Balanced())
             rebalance(n);
 
-        if(n->Parent)
-            walk_parents_update_heights_rebalance(n->Parent);
+        walk_parents_update_heights_rebalance(n->Parent);
     }
 }
 
