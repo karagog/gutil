@@ -29,6 +29,8 @@ public:
     BST_TestTest();
 
 private Q_SLOTS:
+
+    void test_iterators();
     void test_basic_function();
 
     void test_compare();
@@ -63,6 +65,41 @@ private:
 BST_TestTest::BST_TestTest()
 {
     qsrand(QDateTime::currentDateTime().time().msec());
+}
+
+void BST_TestTest::test_iterators()
+{
+    BinarySearchTree<int> bst;
+    bst.Add(3);
+    bst.Add(5);
+    bst.Add(1);
+    QVERIFY(bst.size() == 3);
+    QVERIFY(bst.min() == 1);
+    QVERIFY(bst.max() == 5);
+
+    int mycnt(0);
+    int mem(-1);
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin());
+        iter != bst.end();
+        iter++, mycnt++)
+    {
+        // Make sure all items are in order
+        QVERIFY(mem < *iter);
+        mem = *iter;
+    }
+    QVERIFY(mycnt == bst.size());
+
+
+    // Try iterating backwards
+    mem = INT_MAX;
+    for(BinarySearchTree<int>::const_iterator iter(--bst.end());
+        iter >= bst.begin();
+        iter--, mycnt++)
+    {
+        // Make sure all items are in order
+        QVERIFY(mem > *iter);
+        mem = *iter;
+    }
 }
 
 void BST_TestTest::test_basic_function()

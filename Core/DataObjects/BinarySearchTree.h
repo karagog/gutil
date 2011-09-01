@@ -89,11 +89,18 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
-        inline const_iterator(){}
-        inline const_iterator(bst_node *n)
-            :bst_node_df_iterator(n){}
+        /** Constructs an invalid iterator. */
+        inline const_iterator()
+            :cmp(0)
+        {}
+        inline const_iterator(bst_node *n, GUtil::Core::Interfaces::IComparer<T> *compare)
+            :bst_node_df_iterator(n),
+              cmp(compare)
+        {}
         inline const_iterator(const const_iterator &o)
-            :bst_node_df_iterator(o){}
+            :bst_node_df_iterator(o),
+              cmp(o.cmp)
+        {}
 
         /** Dereference the iterator and return a reference to the data. */
         inline const T &operator*() const { return *(reinterpret_cast<T *>(current->Data)); }
@@ -122,13 +129,51 @@ public:
             retreat();
             return ret;
         }
+
+        /** Comparison operator */
+        bool operator < (const const_iterator &o) const{
+            if(current && o.current)
+            {
+                return cmp->Compare(*reinterpret_cast<T*>(current->Data),
+                                    *reinterpret_cast<T*>(o.current->Data)) < 0;
+            }
+            else
+            {
+                if(current == 0 && o.current == 0){
+                    // I am at the beginning, o is at the end
+                    if(mem_begin && o.mem_end)
+                        return true;
+                    return false;
+                }
+                else if(current == 0)
+                {
+                    // I am at the beginning, so I come before o
+                    return mem_begin;
+                }
+                else
+                {
+                    // o is at the end, so I come before it
+                    return o.mem_end;
+                }
+            }
+
+        }
+        /** Comparison operator. */
+        bool operator > (const const_iterator &o) const{ return !(*this <= o); }
+        /** Comparison operator. */
+        bool operator <= (const const_iterator &o) const{ return *this == 0 || *this < o; }
+        /** Comparison operator. */
+        bool operator >= (const const_iterator &o) const{ return !(*this < o); }
+
+    private:
+        GUtil::Core::Interfaces::IComparer<T> *cmp;
     };
     friend class const_iterator;
 
 
     /** Returns an iterator starting at the first element in the tree. */
     inline const_iterator begin() const{
-        return const_iterator(root ? root->LeftmostChild : 0);
+        return const_iterator(root ? root->LeftmostChild : 0, cmp);
     }
     /** Returns an iterator starting at the end of the tree.  You must decrement it before
         it points to a valid entry.
@@ -136,13 +181,33 @@ public:
     const_iterator end() const{
         const_iterator ret;
         if(root)
-            ret = ++const_iterator(root->RightmostChild);
+            ret = ++const_iterator(root->RightmostChild, cmp);
         return ret;
     }
 
     /** Returns how many items are in the BST */
     inline long size() const{
         return m_size;
+    }
+
+    /** Returns the least element in the tree.  Throws an exception
+        if there are no items in the tree
+    */
+    inline const T &min() const{
+        if(root)
+            return *reinterpret_cast<T *>(root->LeftmostChild->Data);
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "There are no elements in the BST");
+    }
+
+    /** Returns the greatest element in the tree.  Throws an exception
+        if there are no items in the tree.
+    */
+    inline const T &max() const{
+        if(root)
+            return *reinterpret_cast<T *>(root->RightmostChild->Data);
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                   "There are no elements in the BST");
     }
 
 
