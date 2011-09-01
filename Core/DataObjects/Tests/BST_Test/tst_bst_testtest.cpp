@@ -16,6 +16,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "BinarySearchTree.h"
 #include <iostream>
+#include <vector>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 using namespace std;
 
@@ -55,6 +56,8 @@ private:
     static int backwards_compare(const int &, const int &);
 
     static int pointer_compare(int* const &, int* const &);
+
+    static vector<int> export_df_tree(const BinarySearchTree<int> &);
 };
 
 BST_TestTest::BST_TestTest()
@@ -75,9 +78,9 @@ void BST_TestTest::test_basic_function()
     show_breadth_first_tree(bst);
 
     // Verify that the numbers are sorted
-    vector<int> df( bst.ExportDepthFirst() );
+    vector<int> df( export_df_tree(bst) );
     QVERIFY(df.size() == 9);
-    for(int i(0); i < df.size(); i++)
+    for(int i(0); i < (int)df.size(); i++)
         QVERIFY(df.at(i) == i + 1);
 
     bst.Clear();
@@ -88,9 +91,9 @@ void BST_TestTest::test_basic_function()
     show_breadth_first_tree(bst);
 
     // Verify that the numbers are sorted
-    df = bst.ExportDepthFirst();
+    df = export_df_tree(bst);
     QVERIFY(df.size() == 9);
-    for(int i(0); i < df.size(); i++)
+    for(int i(0); i < (int)df.size(); i++)
         QVERIFY(df.at(i) == i + 1);
 
     bst.Clear();
@@ -106,18 +109,20 @@ void BST_TestTest::test_basic_function()
     show_depth_first_tree(bst);
 }
 
-int BST_TestTest::backwards_compare(const int &lhs, const int &rhs)
+class backwards_comparer : public GUtil::Core::Interfaces::IComparer<int>
 {
-    if(lhs < rhs)
-        return 1;
-    else if(rhs < lhs)
-        return -1;
-    return 0;
-}
+    int Compare(const int &lhs, const int &rhs) const{
+        if(lhs < rhs)
+            return 1;
+        else if(rhs < lhs)
+            return -1;
+        return 0;
+    }
+};
 
 void BST_TestTest::test_compare()
 {
-    BinarySearchTree<int> backwards_tree(&BST_TestTest::backwards_compare);
+    BinarySearchTree<int> backwards_tree(new backwards_comparer);
     for(int i(1); i < 10; i++)
         backwards_tree.Add(i);
 
@@ -125,16 +130,16 @@ void BST_TestTest::test_compare()
     show_breadth_first_tree(backwards_tree);
 
     // Verify that it sorted the numbers backwards
-    vector<int> df( backwards_tree.ExportDepthFirst() );
+    vector<int> df( export_df_tree(backwards_tree) );
     QVERIFY(df.size() == 9);
-    for(int i(0); i < df.size(); i++)
+    for(int i(0); i < (int)df.size(); i++)
         QVERIFY(df.at(i) == 9 - i);
 }
 
 void BST_TestTest::show_depth_first_tree(const BinarySearchTree<int> &t)
 {
     cout<<"DF: ";
-    vector<int> sorted_values(t.ExportDepthFirst());
+    vector<int> sorted_values(export_df_tree(t));
     for(int i(0); i < (int)sorted_values.size(); i++)
         cout<<sorted_values[i]<<" ";
     cout<<endl;
@@ -143,14 +148,14 @@ void BST_TestTest::show_depth_first_tree(const BinarySearchTree<int> &t)
 void BST_TestTest::show_breadth_first_tree(const BinarySearchTree<int> &t)
 {
     cout<<"BF: ";
-    cout<<get_bft_string(t.Root()).toStdString();
+    cout<<get_bft_string(BST_NodeIterator<int>(t)).toStdString();
     cout<<endl;
 }
 
 void BST_TestTest::show_breadth_first_pointerTree(const BinarySearchTree<int *> &t)
 {
     cout<<"BF: ";
-    cout<<get_bft_pointer_string(t.Root()).toStdString();
+    cout<<get_bft_pointer_string(BST_NodeIterator<int *>(t)).toStdString();
     cout<<endl;
 }
 
@@ -204,20 +209,20 @@ QString BST_TestTest::get_bft_pointer_string(const BST_NodeIterator<int *> &i)
 
 bool BST_TestTest::tree_matches(const BinarySearchTree<int *> &t, const QString &s)
 {
-    bool ret = get_bft_pointer_string(t.Root()) == s;
+    bool ret = get_bft_pointer_string(BST_NodeIterator<int *>(t)) == s;
     if(!ret)
     {
-        cout<< get_bft_pointer_string(t.Root()).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
+        cout<< get_bft_pointer_string(BST_NodeIterator<int *>(t)).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
     }
     return ret;
 }
 
 bool BST_TestTest::tree_matches(const BinarySearchTree<int> &t, const QString &s)
 {
-    bool ret = get_bft_string(t.Root()) == s;
+    bool ret = get_bft_string(BST_NodeIterator<int>(t)) == s;
     if(!ret)
     {
-        cout<< get_bft_string(t.Root()).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
+        cout<< get_bft_string(BST_NodeIterator<int>(t)).toStdString() <<"\tNot equal to:"<<endl<<s.toStdString()<<endl;
     }
     return ret;
 }
@@ -260,18 +265,20 @@ void BST_TestTest::test_deletions()
 
 }
 
-int BST_TestTest::pointer_compare(int* const &lhs, int* const &rhs)
+class pointer_comparer : public GUtil::Core::Interfaces::IComparer<int *>
 {
-    if(*lhs < *rhs)
-        return -1;
-    else if(*rhs < *lhs)
-        return 1;
-    return 0;
-}
+    int Compare(int *const&lhs, int *const&rhs) const{
+        if(*lhs < *rhs)
+            return -1;
+        else if(*rhs < *lhs)
+            return 1;
+        return 0;
+    }
+};
 
 void BST_TestTest::test_pointers()
 {
-    BinarySearchTree<int *> pointer_tree(&BST_TestTest::pointer_compare);
+    BinarySearchTree<int *> pointer_tree(new pointer_comparer);
     int a(1), b(2), c(3);
     pointer_tree.Add(&a);
     pointer_tree.Add(&b);
@@ -285,6 +292,17 @@ void BST_TestTest::test_pointers()
     QVERIFY(tree_matches(pointer_tree, "(2, (500, , ), (3, , ))"));
     show_breadth_first_pointerTree(pointer_tree);
 }
+
+
+
+vector<int> BST_TestTest::export_df_tree(const BinarySearchTree<int> &t)
+{
+    vector<int> ret;
+    for(BinarySearchTree<int>::const_iterator iter(t.begin()); iter != t.end(); iter++)
+        ret.push_back(*iter);
+    return ret;
+}
+
 
 QTEST_APPLESS_MAIN(BST_TestTest);
 

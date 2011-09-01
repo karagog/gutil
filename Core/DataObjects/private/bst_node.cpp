@@ -22,6 +22,8 @@ bst_node::bst_node()
     :Parent(0),
       LChild(0),
       RChild(0),
+      LeftmostChild(this),
+      RightmostChild(this),
       Height(0),
       Data(0)
 {
@@ -250,6 +252,10 @@ void bst_node::update_height(bst_node *n)
         const int rheight(n->RChild ? n->RChild->Height : 0);
         n->Height = gMax(lheight, rheight) + 1;
     }
+
+    // Update the left-most and right-most child records
+    n->LeftmostChild = n->LChild ? n->LChild->LeftmostChild : n;
+    n->RightmostChild = n->RChild ? n->RChild->RightmostChild : n;
 }
 
 void bst_node::walk_parents_update_heights_rebalance(bst_node *n)
@@ -296,21 +302,30 @@ void bst_node_df_iterator::advance()
 {
     if(current)
     {
-        bst_node *mem( current );
-
         if(current->RChild)
-        {
-            current = current->RChild;
-            while(current->LChild)
-                current = current->LChild;
-        }
+            current = current->RChild->LeftmostChild;
+        else if(current->SideOfParent() == bst_node::LeftSide)
+            current = current->Parent;
         else
         {
-            current = current->Parent;
-        }
+            // Ascend current's parents to find the next greater element
+            bst_node *cur(current);
+            while((cur = cur->Parent))
+            {
+                if(cur->SideOfParent() == bst_node::LeftSide)
+                {
+                    current = cur->Parent;
+                    break;
+                }
+            }
 
-        if(!current)
-            mem_end = mem;
+            if(!cur)
+            {
+                // We've hit the end of the BST
+                mem_end = current;
+                current = 0;
+            }
+        }
     }
     else if(mem_begin)
     {
@@ -326,21 +341,30 @@ void bst_node_df_iterator::retreat()
 {
     if(current)
     {
-        bst_node *mem( current );
-
         if(current->LChild)
-        {
-            current = current->LChild;
-            while(current->RChild)
-                current = current->RChild;
-        }
+            current = current->LChild->RightmostChild;
+        else if(current->SideOfParent() == bst_node::RightSide)
+            current = current->Parent;
         else
         {
-            current = current->Parent;
-        }
+            // Ascend current's parents to find the next lesser element
+            bst_node *cur(current);
+            while((cur = cur->Parent))
+            {
+                if(cur->SideOfParent() == bst_node::RightSide)
+                {
+                    current = cur->Parent;
+                    break;
+                }
+            }
 
-        if(!current)
-            mem_begin = mem;
+            if(!cur)
+            {
+                // We've hit the beginning of the BST
+                mem_begin = current;
+                current = 0;
+            }
+        }
     }
     else if(mem_end)
     {

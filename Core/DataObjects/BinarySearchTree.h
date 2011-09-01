@@ -14,9 +14,7 @@ limitations under the License.*/
 
 #include "private/bst_node.h"
 #include "Core/exception.h"
-#include <vector>
-#include <string>
-#include <cstdlib>
+#include "Core/Interfaces/icomparer.h"
 #include <cassert>
 using namespace std;
 
@@ -24,68 +22,6 @@ using namespace std;
 #define GUTIL_BST_H
 
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
-
-
-/** A class for iterating manually through the binary search tree.
-
-    It's useful for debugging, but not much else.  You shouldn't normally
-    have to use this class.  Because it's a template, if you don't use it
-    it won't build into your application.
-*/
-template<class T> class BST_NodeIterator
-{
-public:
-    BST_NodeIterator(bst_node *n)
-        :m_node(n)
-    {}
-
-    /** The data held in this node. */
-    const T &Value() const{
-        return *((T*)m_node->Data);
-    }
-
-    /** Returns whether a left child exists. */
-    bool CanDescendLeft() const{
-        return m_node && m_node->LChild;
-    }
-    /** Returns whether a right child exists. */
-    bool CanDescendRight() const{
-        return m_node && m_node->RChild;
-    }
-    /** Returns whether you can move the iterator to the current's parent. */
-    bool CanAscend() const{
-        return m_node && m_node->Parent;
-    }
-
-    /** Advances the iterator into the left child. */
-    bool DescendLeft(){
-        if(CanDescendLeft()){
-            m_node = m_node->LChild;
-            return true;
-        }
-        return false;
-    }
-    /** Advances the iterator into the right child. */
-    bool DescendRight(){
-        if(CanDescendRight()){
-            m_node = m_node->RChild;
-            return true;
-        }
-        return false;
-    }
-    /** Advances the iterator to the current's parent */
-    bool Ascend(){
-        if(CanAscend()){
-            m_node = m_node->Parent;
-            return true;
-        }
-        return false;
-    }
-
-private:
-    bst_node *m_node;
-};
-
 
 
 /** Implements an AVL-balanced binary search tree.
@@ -98,18 +34,16 @@ private:
 */
 template<class T>class BinarySearchTree
 {
+    template<class> friend class BST_NodeIterator;
 public:
 
-    /** Creates an empty BST with the default compare function (less-than operator). */
-    BinarySearchTree();
-
-    /** Creates an empty BST which uses your own custom compare function.
-
-        \param compare A function to compare two instances of the specified type.
-        It should return -1 if one is less than two, 1 if one is greater than 2,
-        and 0 if they are equal.
+    /** Creates an empty BST with the compare function.
+        \param cmp A comparison object to determine the sort order of the tree.
+        If left 0 it will use the default compare function, the less-than operator.
+        The tree will take ownership of this pointer and delete it when finished.
     */
-    BinarySearchTree(int (*compare)(const T &one,const T &two));
+    BinarySearchTree(GUtil::Core::Interfaces::IComparer<T> *cmp = 0);
+
 
     /** Deletes the BST and cleans up all memory. */
     ~BinarySearchTree();
@@ -121,27 +55,23 @@ public:
     */
     void Add(const T &);
 
+
     /** Removes the object from the tree.  Does nothing if object not in the tree. */
     void Remove(const T &);
+
 
     /** Removes all values from the BST. */
     void Clear();
 
+
     /** Returns whether the item is in the BST. */
     bool HasItem(const T &);
+
 
     /** Does a lookup on the given object and returns a const reference to its version of it.
         Throws an exception if not found.
     */
     const T &Search(const T &obj);
-
-
-    BST_NodeIterator<T> Root() const{
-        return BST_NodeIterator<T>(root);
-    }
-
-    /** Exports a depth-first (sorted) version of the contents of the tree */
-    vector<T> ExportDepthFirst() const;
 
 
     /** A class for iterating through the BinarySearchTree.
@@ -193,78 +123,97 @@ public:
             return ret;
         }
     };
+    friend class const_iterator;
 
+
+    /** Returns an iterator starting at the first element in the tree. */
+    inline const_iterator begin() const{
+        return const_iterator(root ? root->LeftmostChild : 0);
+    }
+    /** Returns an iterator starting at the end of the tree.  You must decrement it before
+        it points to a valid entry.
+    */
+    const_iterator end() const{
+        const_iterator ret;
+        if(root)
+            ret = ++const_iterator(root->RightmostChild);
+        return ret;
+    }
+
+    /** Returns how many items are in the BST */
+    inline long size() const{
+        return m_size;
+    }
+
+
+protected:
+
+    bst_node *root;
+    GUtil::Core::Interfaces::IComparer<T> *cmp;
 
 
 private:
-    bst_node *root;
-    int (*cmp)(const T &lhs, const T &rhs);
 
-    /** The default compare function is the less-than operator. */
-    static int default_compare(const T&, const T&);
-
-    static vector<T> export_depth_first(bst_node *);
     static void cleanup_memory(bst_node *);
 
     // After the root node potentially moved, use this function to find the new root.
     void _update_root_node();
 
+    long m_size;
+
+    /** You cannot copy a BST.  You must clone it, which is a N*log(N) process. */
+    BinarySearchTree(const BinarySearchTree<T> &){}
+    /** You cannot copy a BST.  You must clone it, which is a N*log(N) process. */
+    BinarySearchTree<T> &operator =(const BinarySearchTree<T> &){}
+
 };
-
-
-template<class T>int BinarySearchTree<T>::default_compare(const T &lhs, const T &rhs)
-{
-    if(lhs < rhs)
-        return -1;
-    else if(rhs < lhs)
-        return 1;
-    else
-        return 0;
-}
 
 
 template<class T>void BinarySearchTree<T>::Add(const T &object)
 {
-    if(!root)
+    if(root)
+    {
+        // Find the place to insert, has to be a leaf node
+        bst_node *cur( root );
+        bst_node *next_cur( root );
+        bst_node::SideEnum insertion_side(bst_node::LeftSide);
+        while(next_cur)
+        {
+            cur = next_cur;
+            int cmp_res( cmp->Compare(object, *((T*)cur->Data)) );
+
+            if(cmp_res < 0)
+            {
+                next_cur = cur->LChild;
+                insertion_side = bst_node::LeftSide;
+            }
+            else if(cmp_res > 0)
+            {
+                next_cur = cur->RChild;
+                insertion_side = bst_node::RightSide;
+            }
+            else
+            {
+                // There's an insertion collision
+                THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                           "Object already exists in BST.");
+            }
+        }
+
+        bst_node *new_node( new bst_node );
+        new_node->Data = reinterpret_cast<void *>(new T(object));
+
+        bst_node::Insert(cur, new_node, insertion_side);
+        _update_root_node();
+    }
+    else
     {
         // If the root is null, then this is the first item in the tree (easy case)
         root = new bst_node;
-        root->Data = (void *)new T(object);
-        return;
+        root->Data = reinterpret_cast<void *>(new T(object));
     }
 
-    // Find the place to insert, has to be a leaf node
-    bst_node *cur( root );
-    bst_node *next_cur( root );
-    bst_node::SideEnum insertion_side(bst_node::LeftSide);
-    while(next_cur)
-    {
-        cur = next_cur;
-        int cmp_res( cmp(object, *((T*)cur->Data)) );
-
-        if(cmp_res < 0)
-        {
-            next_cur = cur->LChild;
-            insertion_side = bst_node::LeftSide;
-        }
-        else if(cmp_res > 0)
-        {
-            next_cur = cur->RChild;
-            insertion_side = bst_node::RightSide;
-        }
-        else
-        {
-            // There's an insertion collision
-            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                       "Object already exists in BST.");
-        }
-    }
-
-    bst_node *new_node( new bst_node );
-    new_node->Data = (void *)new T(object);
-
-    bst_node::Insert(cur, new_node, insertion_side);
-    _update_root_node();
+    m_size++;
 }
 
 template<class T>bool BinarySearchTree<T>::HasItem(const T &object)
@@ -272,7 +221,7 @@ template<class T>bool BinarySearchTree<T>::HasItem(const T &object)
     bst_node *cur( root );
     while(cur)
     {
-        int cmp_res( cmp(object, *((T*)cur->Data)) );
+        int cmp_res( cmp->Compare(object, *((T*)cur->Data)) );
 
         if(cmp_res < 0)
             cur = cur->LChild;
@@ -291,7 +240,7 @@ template<class T>const T &BinarySearchTree<T>::Search(const T & object)
 
     while(!found && cur)
     {
-        int cmp_res( cmp(object, *((T*)cur->Data)) );
+        int cmp_res( cmp->Compare(object, *((T*)cur->Data)) );
 
         if(cmp_res < 0)
             cur = cur->LChild;
@@ -379,45 +328,37 @@ template<class T>void BinarySearchTree<T>::Remove(const T &object)
         bst_node::Delete(cur, tmp_node);
 
         _update_root_node();
+
+        m_size--;
     }
 }
 
-template<class T> vector<T> BinarySearchTree<T>::ExportDepthFirst() const
-{
-    return export_depth_first(root);
-}
 
-template<class T> vector<T> BinarySearchTree<T>::export_depth_first(bst_node *p)
-{
-    vector<T> ret;
-    if(p)
-    {
-        ret = export_depth_first(p->LChild);
-        ret.push_back(*((T *)p->Data));
 
-        vector<T> rchildren( export_depth_first(p->RChild) );
-        ret.reserve(ret.size() + rchildren.size());
-        for(unsigned int i = 0; i < rchildren.size(); i++)
-            ret.push_back(rchildren[i]);
+/** The default compare is the less-than operator. */
+template<class T>class Default_BST_Comparer :
+        public GUtil::Core::Interfaces::IComparer<T>
+{
+public:
+    int Compare(const T &lhs, const T &rhs) const{
+        if(lhs < rhs)
+            return -1;
+        else if(rhs < lhs)
+            return 1;
+        return 0;
     }
-    return ret;
-}
+};
 
-template<class T>BinarySearchTree<T>::BinarySearchTree()
-    :root(0)
-{
-    cmp = &BinarySearchTree<T>::default_compare;
-}
-
-template<class T>BinarySearchTree<T>::BinarySearchTree(int (*compare)(const T &,const T &))
-    :root(0)
-{
-    cmp = compare;
-}
+template<class T>BinarySearchTree<T>::BinarySearchTree(GUtil::Core::Interfaces::IComparer<T> *ic)
+    :root(0),
+      cmp(ic ? ic : new Default_BST_Comparer<T>),
+      m_size(0)
+{}
 
 template<class T>BinarySearchTree<T>::~BinarySearchTree()
 {
     Clear();
+    delete cmp;
 }
 
 template<class T>void BinarySearchTree<T>::Clear()
@@ -426,9 +367,10 @@ template<class T>void BinarySearchTree<T>::Clear()
     {
         // Need to iterate through the nodes and delete all the memory!  The bst_node
         //  can't do it because it stores the data as void *
-        cleanup_memory(root);
-        delete root;
+        //cleanup_memory(root);
         root = 0;
+
+        m_size = 0;
     }
 }
 
@@ -438,7 +380,7 @@ template<class T>void BinarySearchTree<T>::cleanup_memory(bst_node *n)
     {
         cleanup_memory(n->LChild);
         cleanup_memory(n->RChild);
-        delete ((T *)n->Data);
+        delete reinterpret_cast<T *>(n->Data);
     }
 }
 
@@ -448,6 +390,78 @@ template<class T>void BinarySearchTree<T>::_update_root_node()
     while((n = n->Parent))
         root = n;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/** A class for iterating manually through the binary search tree.
+
+    This iterator is not STL compliant, because there is no STL compliant way
+    to do this.  It's useful for debugging, but not much else.  You shouldn't normally
+    have to use this class.  Because it's a template, if you don't use it
+    it won't build into your application.
+*/
+template<class T> class BST_NodeIterator
+{
+public:
+    BST_NodeIterator(const BinarySearchTree<T> &t)
+        :m_node(t.root)
+    {}
+
+    /** The data held in this node. */
+    const T &Value() const{
+        return *reinterpret_cast<T *>(m_node->Data);
+    }
+
+    /** Returns whether a left child exists. */
+    bool CanDescendLeft() const{
+        return m_node && m_node->LChild;
+    }
+    /** Returns whether a right child exists. */
+    bool CanDescendRight() const{
+        return m_node && m_node->RChild;
+    }
+    /** Returns whether you can move the iterator to the current's parent. */
+    bool CanAscend() const{
+        return m_node && m_node->Parent;
+    }
+
+    /** Advances the iterator into the left child. */
+    bool DescendLeft(){
+        if(CanDescendLeft()){
+            m_node = m_node->LChild;
+            return true;
+        }
+        return false;
+    }
+    /** Advances the iterator into the right child. */
+    bool DescendRight(){
+        if(CanDescendRight()){
+            m_node = m_node->RChild;
+            return true;
+        }
+        return false;
+    }
+    /** Advances the iterator to the current's parent */
+    bool Ascend(){
+        if(CanAscend()){
+            m_node = m_node->Parent;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    bst_node *m_node;
+};
 
 
 GUTIL_END_CORE_NAMESPACE

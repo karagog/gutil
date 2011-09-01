@@ -46,6 +46,12 @@ public:
     /** A reference to the right child of this node. */
     bst_node *RChild;
 
+    /** A reference to my most leftist child (min of my children) */
+    bst_node *LeftmostChild;
+
+    /** A reference to my most rightist child (max of my children) */
+    bst_node *RightmostChild;
+
     /** The height of this ndoe, which is 1 + the max height of my two children */
     int Height;
 
@@ -149,6 +155,7 @@ protected:
     bst_node *current;
     bst_node *mem_begin;
     bst_node *mem_end;
+
 };
 
 
