@@ -21,6 +21,12 @@ limitations under the License.*/
 #include "gutil_macros.h"
 
 
+#if defined(QT_DEBUG) && !defined(GUTIL_DEBUG)
+    /** Switch on debug features when building in debug mode. */
+    #define GUTIL_DEBUG
+#endif
+
+
 /** The GUtil version.  This is always updated after every release.
 
     See DataObjects/version.h for a useful class for manipulating version strings,

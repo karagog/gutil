@@ -15,7 +15,6 @@ limitations under the License.*/
 #include "private/bst_node.h"
 #include "Core/exception.h"
 #include "Core/Interfaces/icomparer.h"
-#include <cassert>
 using namespace std;
 
 #ifndef GUTIL_BST_H
