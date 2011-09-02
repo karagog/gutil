@@ -21,7 +21,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 
 
-#if defined(QT_DEBUG) && !defined(GUTIL_DEBUG)
+#if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
     #define GUTIL_DEBUG
 #endif
