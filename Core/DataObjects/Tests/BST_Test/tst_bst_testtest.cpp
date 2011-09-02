@@ -322,6 +322,62 @@ void BST_TestTest::test_deletions()
     verify_tree(bst);
     QVERIFY(bst.size() == 2);
 
+    // Delete LChild of root
+    bst.Clear();
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(3);
+    bst.Remove(1);
+    verify_tree(bst);
+    QVERIFY(bst.size() == 2);
+
+    // Delete RChild of root
+    bst.Clear();
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(3);
+    bst.Remove(3);
+    verify_tree(bst);
+    QVERIFY(bst.size() == 2);
+
+    // Delete root, replacement has no child
+    bst.Clear();
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(4);
+    bst.Add(3);
+    bst.Remove(2);
+    show_breadth_first_tree(bst);
+    verify_tree(bst);
+
+    // Delete root, replacement has child
+    bst.Clear();
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(3);
+    bst.Add(4);
+    bst.Remove(2);
+    verify_tree(bst);
+
+    // Delete root, replacement (left) has no child
+    bst.Clear();
+    bst.Add(0);
+    bst.Add(2);
+    bst.Add(3);
+    bst.Add(1);
+    bst.Remove(2);
+    verify_tree(bst);
+
+    // Delete root, replacement (left) has child
+    bst.Clear();
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(3);
+    bst.Add(0);
+    bst.Remove(2);
+    verify_tree(bst);
+
+
     bst.Clear();
     const int cnt(50);
     const int max(5000);
