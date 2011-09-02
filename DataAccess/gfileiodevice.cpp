@@ -16,6 +16,7 @@ limitations under the License.*/
 
 #include "gfileiodevice.h"
 #include "Core/exception.h"
+#include "gassert.h"
 #include <QFileInfo>
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -103,7 +104,7 @@ void DataAccess::GFileIODevice::SetFileName(const QString &filename)
             bool res( f.open(QFile::WriteOnly) );
             f.close();
 
-            Q_ASSERT(res);
+            GASSERT(res);
         }
 
         _file_watcher->addPath(filename);

@@ -332,8 +332,8 @@ long GDatabaseIODevice::Count(const DatabaseSelectionParameters &params)
     }
 
     long ret(0);
-    Q_ASSERT(t->ColumnCount() == 1);
-    Q_ASSERT(t->RowCount() == 1);
+    GASSERT(t->ColumnCount() == 1);
+    GASSERT(t->RowCount() == 1);
 
     ret = t->Rows()[0][0].value<long>();
     delete t;
@@ -462,7 +462,7 @@ void GDatabaseIODevice::send_data(const QByteArray &d)
 
             write_cmd = (WriteCommandsEnum)
                         sr.attributes().at(0).value().toString().toInt(&ok);
-            Q_ASSERT(ok);
+            GASSERT(ok);
 
             sp.ReadXml(sr);
             vp.ReadXml(sr);
@@ -687,7 +687,7 @@ QByteArray GDatabaseIODevice::receive_data()
                             _selection_parameters->Table().ColumnKeys()[i]));
                 }
             }
-            Q_ASSERT(values.length() > 0);
+            GASSERT(values.length() > 0);
 
             values.remove(values.length() - 1, 1);
 

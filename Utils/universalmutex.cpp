@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "universalmutex.h"
+#include "gassert.h"
 #include <QFile>
 using namespace GUtil;
 using namespace Utils;
@@ -94,7 +95,7 @@ void UniversalMutex::Lock()
         throw;
     }
 
-    Q_ASSERT(_is_locked);
+    GASSERT(_is_locked);
 
     _lockfile_lock.unlock();
 }

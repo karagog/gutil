@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "updatablegvariantcollection.h"
 #include "gvariantcollection.h"
+#include "gassert.h"
 GUTIL_USING_NAMESPACE( DataObjects );
 GUTIL_USING_NAMESPACE( Custom );
 
@@ -91,5 +92,5 @@ void UpdatableGVariantCollection::_find_changed_index(const Custom::GVariant &v)
         if(&At(i) == &v)
             _index_mem = i;
 
-    Q_ASSERT(_index_mem != -1);
+    GASSERT(_index_mem != -1);
 }
