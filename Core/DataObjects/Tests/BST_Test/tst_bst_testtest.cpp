@@ -148,7 +148,7 @@ void BST_TestTest::test_basic_function()
     for(int i(0); i < 20; i++)
     {
         int new_num(qrand() % 1000);
-        while(bst.HasItem(new_num)) new_num = qrand() % 100;
+        while(bst.Contains(new_num)) new_num = qrand() % 100;
         bst.Add(new_num);
     }
 
@@ -285,11 +285,13 @@ void BST_TestTest::test_insertions()
     bst.Add(20);
     bst.Add(25);
     QVERIFY(tree_matches(bst, "(10, (5, , ), (20, (15, , ), (25, , )))"));
+    verify_tree(bst);
 
     // Then LL (Rotate Right)
     bst.Add(2);
     bst.Add(1);
     QVERIFY(tree_matches(bst, "(10, (2, (1, , ), (5, , )), (20, (15, , ), (25, , )))"));
+    verify_tree(bst);
 
     // Then RL
     bst.Clear();
@@ -297,6 +299,7 @@ void BST_TestTest::test_insertions()
     bst.Add(10);
     bst.Add(9);
     QVERIFY(tree_matches(bst, "(9, (5, , ), (10, , ))"));
+    verify_tree(bst);
 
     // Then LR
     bst.Clear();
@@ -304,11 +307,42 @@ void BST_TestTest::test_insertions()
     bst.Add(3);
     bst.Add(4);
     QVERIFY(tree_matches(bst, "(4, (3, , ), (5, , ))"));
+    verify_tree(bst);
 }
 
 void BST_TestTest::test_deletions()
 {
+    BinarySearchTree<int> bst;
 
+    // Test root node deletion first
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(3);
+    bst.Remove(2);
+    verify_tree(bst);
+    QVERIFY(bst.size() == 2);
+
+    bst.Clear();
+    const int cnt(50);
+    const int max(5000);
+    QList<int> record;
+    for(int i = 0; i < cnt; i++)
+    {
+        int tmp(qrand() % max);
+        while(bst.Contains(tmp))
+            tmp = qrand() % max;
+        record.append(tmp);
+        bst.Add(tmp);
+    }
+    verify_tree(bst);
+
+    for(int i = 0; i < cnt; i++)
+    {
+        show_breadth_first_tree(bst);
+        bst.Remove(record[i]);
+        verify_tree(bst);
+        QVERIFY(bst.size() == cnt - i - 1);
+    }
 }
 
 class pointer_comparer : public GUtil::Core::Interfaces::IComparer<int *>

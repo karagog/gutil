@@ -64,7 +64,7 @@ public:
 
 
     /** Returns whether the item is in the BST. */
-    bool HasItem(const T &);
+    bool Contains(const T &);
 
 
     /** Does a lookup on the given object and returns a const reference to its version of it.
@@ -284,7 +284,7 @@ template<class T>void BinarySearchTree<T>::Add(const T &object)
     m_size++;
 }
 
-template<class T>bool BinarySearchTree<T>::HasItem(const T &object)
+template<class T>bool BinarySearchTree<T>::Contains(const T &object)
 {
     bst_node *cur( root );
     while(cur)
@@ -332,7 +332,7 @@ template<class T>void BinarySearchTree<T>::Remove(const T &object)
 
     while(!found && cur)
     {
-        int cmp_res( cmp(object, *((T*)cur->Data)) );
+        int cmp_res( cmp->Compare(object, *reinterpret_cast<T*>(cur->Data)) );
 
         if(cmp_res < 0)
             cur = cur->LChild;
@@ -351,31 +351,19 @@ template<class T>void BinarySearchTree<T>::Remove(const T &object)
         //  I will find a replacement as the left-most item on my right side, or my
         //  right-most item on my left side, whichever one is taller.
 
-        bst_node::SideEnum side;
-        bst_node *tmp_node(0);
-        if(cur->HeightDifference() > 0)
+        // Find a replacement node
+        bst_node *replacement(0);
+        if(cur->Height > 0)
         {
-            tmp_node = cur->LChild;
-            side = bst_node::LeftSide;
-        }
-        else
-        {
-            tmp_node = cur->RChild;
-            side = bst_node::RightSide;
-        }
-
-        bst_node *tmp(tmp_node);
-        while(tmp)
-        {
-            tmp_node = tmp;
-            switch(side)
+            if(cur->HeightDifference() > 0)
             {
-            case bst_node::RightSide:
-                tmp = tmp_node->LChild;
-                break;
-            case bst_node::LeftSide:
-                tmp = tmp_node->RChild;
-                break;
+                // Left-heavy
+                replacement = cur->LChild->RightmostChild;
+            }
+            else
+            {
+                // Right-heavy
+                replacement = cur->RChild->LeftmostChild;
             }
         }
 
@@ -392,8 +380,8 @@ template<class T>void BinarySearchTree<T>::Remove(const T &object)
                 root = 0;
         }
 
-        delete ((T *)cur->Data);
-        bst_node::Delete(cur, tmp_node);
+        delete reinterpret_cast<T *>(cur->Data);
+        bst_node::Delete(cur, replacement);
 
         _update_root_node();
 

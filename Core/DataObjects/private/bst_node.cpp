@@ -156,6 +156,9 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
 
     if(replacement)
     {
+        if(node != replacement->Parent)
+            start_height_adjustment = replacement->Parent;
+
         // If the replacement has a child (at most 1) then we move it into the replacement's place
         bst_node *replacement_child(0);
         if(replacement->RChild)
@@ -182,7 +185,6 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
                 break;
             }
             replacement_child->Parent = replacement->Parent;
-            start_height_adjustment = replacement->Parent;
         }
 
         replacement->Parent = node->Parent;
@@ -197,9 +199,9 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
     }
 
 
-    if(node->RChild)
+    if(node->RChild && node->RChild != replacement)
         node->RChild->Parent = replacement;
-    if(node->LChild)
+    if(node->LChild && node->LChild != replacement)
         node->LChild->Parent = replacement;
     if(node->Parent)
     {
@@ -216,13 +218,13 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
         }
     }
 
+    // Delete the node (set children to 0 so to not delete them)
+    node->LChild = 0;
+    node->RChild = 0;
+    delete node;
+
     // Walk up the tree and update the height variables.
     walk_parents_update_heights_rebalance(start_height_adjustment);
-
-    // Delete the node
-    node->RChild = 0;
-    node->LChild = 0;
-    delete node;
 }
 
 bst_node::SideEnum bst_node::SideOfParent() const
