@@ -40,6 +40,8 @@ private Q_SLOTS:
 
     void test_pointers();
 
+    void test_load();
+
 
 private:
     static void show_depth_first_tree(const BinarySearchTree<int> &);
@@ -59,8 +61,25 @@ private:
 
     static int pointer_compare(int* const &, int* const &);
 
+    static void verify_tree(const BinarySearchTree<int> &);
+
     static vector<int> export_df_tree(const BinarySearchTree<int> &);
 };
+
+void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst)
+{
+    int mycnt(0);
+    int mem(-1);
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin());
+        iter != bst.end();
+        iter++, mycnt++)
+    {
+        // Make sure all items are in order
+        QVERIFY(mem < *iter);
+        mem = *iter;
+    }
+    QVERIFY(mycnt == bst.size());
+}
 
 BST_TestTest::BST_TestTest()
 {
@@ -77,24 +96,14 @@ void BST_TestTest::test_iterators()
     QVERIFY(bst.min() == 1);
     QVERIFY(bst.max() == 5);
 
-    int mycnt(0);
-    int mem(-1);
-    for(BinarySearchTree<int>::const_iterator iter(bst.begin());
-        iter != bst.end();
-        iter++, mycnt++)
-    {
-        // Make sure all items are in order
-        QVERIFY(mem < *iter);
-        mem = *iter;
-    }
-    QVERIFY(mycnt == bst.size());
+    verify_tree(bst);
 
 
     // Try iterating backwards
-    mem = INT_MAX;
+    int mem = INT_MAX;
     for(BinarySearchTree<int>::const_iterator iter(--bst.end());
         iter >= bst.begin();
-        iter--, mycnt++)
+        iter--)
     {
         // Make sure all items are in order
         QVERIFY(mem > *iter);
@@ -328,6 +337,21 @@ void BST_TestTest::test_pointers()
     a = 500;
     QVERIFY(tree_matches(pointer_tree, "(2, (500, , ), (3, , ))"));
     show_breadth_first_pointerTree(pointer_tree);
+}
+
+void BST_TestTest::test_load()
+{
+    BinarySearchTree<int> bst;
+    const int num_items(1000000);
+
+    cout<<QString("Inserting %1 items...").arg(num_items).toStdString()<<endl;
+    for(int i(0); i < num_items; i++)
+        bst.Add(i);
+    cout<<"Finished inserting"<<endl;
+
+    cout<<"Iterating through all values and checking that they're in sequence..."<<endl;
+    verify_tree(bst);
+    cout<<"Finished iterating"<<endl;
 }
 
 

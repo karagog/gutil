@@ -15,7 +15,6 @@ limitations under the License.*/
 #include "bst_node.h"
 #include "gutil_globals.h"
 #include "Core/exception.h"
-#include <cassert>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 bst_node::bst_node()
@@ -99,9 +98,9 @@ void bst_node::rotate_right(bst_node *n)
     if(tmp)
         tmp->Parent = n;
 
-    // Only two nodes are affected by the rotation
-    refresh_node_state(n);
-    refresh_node_state(n->Parent);
+    // Have to refresh the node we just rotated, the other one will be refreshed
+    //  automatically when we walk up the tree
+    refresh_node_state(n);    
 }
 
 void bst_node::rotate_left(bst_node *n)
@@ -123,9 +122,9 @@ void bst_node::rotate_left(bst_node *n)
     if(tmp)
         tmp->Parent = n;
 
-    // Only two nodes are affected by the rotation
+    // Have to refresh the node we just rotated, the other one will be refreshed
+    //  automatically when we walk up the tree
     refresh_node_state(n);
-    refresh_node_state(n->Parent);
 }
 
 void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum side)
@@ -142,10 +141,6 @@ void bst_node::Insert(bst_node *parent, bst_node *new_node, bst_node::SideEnum s
     default:
         return;
     }
-
-    // We are only allowed to insert on the leafs of nodes, so if we were told to
-    //  insert on a non-leaf that is an error.
-    assert(*node_ref == 0);
 
     *node_ref = new_node;
     new_node->Parent = parent;
@@ -184,7 +179,6 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
                 replacement->Parent->LChild = replacement_child;
                 break;
             default:
-                assert(false);
                 break;
             }
             replacement_child->Parent = replacement->Parent;
@@ -218,7 +212,6 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
             node->Parent->LChild = replacement;
             break;
         default:
-            assert(false);
             break;
         }
     }
