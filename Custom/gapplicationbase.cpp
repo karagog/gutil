@@ -37,15 +37,17 @@ void GApplicationBase::RemoveCleanupObject(GApplicationBase::CleanupObject *o)
 
 void GApplicationBase::Exit(int return_code)
 {
+    GApplicationBase *g( gApp );
+
     // We're allowing exactly one call to this function.  Multiple calls would technically
     //  point to an error in the application code, but the end result is the same (the app exits)
     //  and it will save the programmer some headaches hopefully.  For convenience it is
     //  an int, so you can at least see how many times it was called.
-    if(m_exiting++)
+    if(g && g->m_exiting++)
         return;
 
     // Derived classes will execute their own cleanup code when the application exits
-    gApp->application_exiting();
+    g->application_exiting();
 
     QCoreApplication::exit(return_code);
 }
