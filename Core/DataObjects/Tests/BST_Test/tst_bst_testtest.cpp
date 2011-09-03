@@ -120,27 +120,17 @@ void BST_TestTest::test_basic_function()
         //cout<<"Step "<<i<<": ";
         //show_breadth_first_tree(bst);
     }
-    show_depth_first_tree(bst);
-    show_breadth_first_tree(bst);
+    //show_depth_first_tree(bst);
+    //show_breadth_first_tree(bst);
 
     // Verify that the numbers are sorted
-    vector<int> df( export_df_tree(bst) );
-    QVERIFY(df.size() == 9);
-    for(int i(0); i < (int)df.size(); i++)
-        QVERIFY(df.at(i) == i + 1);
+    verify_tree(bst);
 
     bst.Clear();
 
     for(int i(9); i >= 1; i--)
         bst.Add(i);
-    show_depth_first_tree(bst);
-    show_breadth_first_tree(bst);
-
-    // Verify that the numbers are sorted
-    df = export_df_tree(bst);
-    QVERIFY(df.size() == 9);
-    for(int i(0); i < (int)df.size(); i++)
-        QVERIFY(df.at(i) == i + 1);
+    verify_tree(bst);
 
     bst.Clear();
 
@@ -151,8 +141,9 @@ void BST_TestTest::test_basic_function()
         while(bst.Contains(new_num)) new_num = qrand() % 100;
         bst.Add(new_num);
     }
+    verify_tree(bst);
 
-    show_depth_first_tree(bst);
+    //show_depth_first_tree(bst);
 }
 
 class backwards_comparer : public GUtil::Core::Interfaces::IComparer<int>
@@ -172,8 +163,8 @@ void BST_TestTest::test_compare()
     for(int i(1); i < 10; i++)
         backwards_tree.Add(i);
 
-    show_depth_first_tree(backwards_tree);
-    show_breadth_first_tree(backwards_tree);
+    //show_depth_first_tree(backwards_tree);
+    //show_breadth_first_tree(backwards_tree);
 
     // Verify that it sorted the numbers backwards
     vector<int> df( export_df_tree(backwards_tree) );
@@ -347,16 +338,30 @@ void BST_TestTest::test_deletions()
     bst.Add(4);
     bst.Add(3);
     bst.Remove(2);
-    show_breadth_first_tree(bst);
+    //show_breadth_first_tree(bst);
     verify_tree(bst);
 
-    // Delete root, replacement has child
+    // Delete root, replacement has child, and replacement is child of root
     bst.Clear();
     bst.Add(1);
     bst.Add(2);
     bst.Add(3);
     bst.Add(4);
     bst.Remove(2);
+    verify_tree(bst);
+
+    // Delete root, replacement has child, and replacement is not child of root
+    bst.Clear();
+    bst.Add(1);
+    bst.Add(2);
+    bst.Add(10);
+    bst.Add(11);
+    bst.Add(0);
+    bst.Add(8);
+    bst.Add(9);
+    //show_breadth_first_tree(bst);
+    bst.Remove(2);
+    //show_breadth_first_tree(bst);
     verify_tree(bst);
 
     // Delete root, replacement (left) has no child
@@ -368,13 +373,27 @@ void BST_TestTest::test_deletions()
     bst.Remove(2);
     verify_tree(bst);
 
-    // Delete root, replacement (left) has child
+    // Delete root, replacement (left) has child, and replacement is child of root
     bst.Clear();
     bst.Add(1);
     bst.Add(2);
     bst.Add(3);
     bst.Add(0);
     bst.Remove(2);
+    verify_tree(bst);
+
+    // Delete root, replacement has child, and replacement is not child of root
+    bst.Clear();
+    bst.Add(2);
+    bst.Add(6);
+    bst.Add(7);
+    bst.Add(8);
+    bst.Add(0);
+    bst.Add(5);
+    bst.Add(4);
+    //show_breadth_first_tree(bst);
+    bst.Remove(6);
+    //show_breadth_first_tree(bst);
     verify_tree(bst);
 
 
@@ -394,7 +413,7 @@ void BST_TestTest::test_deletions()
 
     for(int i = 0; i < cnt; i++)
     {
-        show_breadth_first_tree(bst);
+        //show_breadth_first_tree(bst);
         bst.Remove(record[i]);
         verify_tree(bst);
         QVERIFY(bst.size() == cnt - i - 1);
@@ -420,13 +439,13 @@ void BST_TestTest::test_pointers()
     pointer_tree.Add(&b);
     pointer_tree.Add(&c);
 
-    show_breadth_first_pointerTree(pointer_tree);
+    //show_breadth_first_pointerTree(pointer_tree);
     QVERIFY(tree_matches(pointer_tree, "(2, (1, , ), (3, , ))"));
 
     // Update the data pointed to and see if the tree data was also updated.
     a = 500;
     QVERIFY(tree_matches(pointer_tree, "(2, (500, , ), (3, , ))"));
-    show_breadth_first_pointerTree(pointer_tree);
+    //show_breadth_first_pointerTree(pointer_tree);
 }
 
 void BST_TestTest::test_load()
@@ -442,6 +461,11 @@ void BST_TestTest::test_load()
     cout<<"Iterating through all values and checking that they're in sequence..."<<endl;
     verify_tree(bst);
     cout<<"Finished iterating"<<endl;
+
+    cout<<"Removing each value one by one..."<<endl;
+    for(int i(0); i < num_items; i++)
+        bst.Remove(i);
+    cout<<"Finished removing"<<endl;
 }
 
 
