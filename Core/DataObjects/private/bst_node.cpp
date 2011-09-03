@@ -159,15 +159,9 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
         // If the replacement has a child (at most 1) then we move it into the replacement's place
         bst_node *replacement_child(0);
         if(replacement->RChild)
-        {
             replacement_child = replacement->RChild;
-            replacement->RChild = 0;
-        }
         else if(replacement->LChild)
-        {
             replacement_child = replacement->LChild;
-            replacement->LChild = 0;
-        }
 
         if(node == replacement->Parent)
             start_height_adjustment = replacement;
@@ -184,10 +178,10 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
             default:
                 break;
             }
-        }
 
-        if(replacement_child)
-            replacement_child->Parent = replacement->Parent;
+            if(replacement_child)
+                replacement_child->Parent = replacement->Parent;
+        }
 
         replacement->Parent = node->Parent;
         if(replacement != node->RChild)

@@ -409,7 +409,7 @@ template<class T>void BinarySearchTree<T>::cleanup_memory(bst_node *n)
 template<class T>void BinarySearchTree<T>::_update_root_node()
 {
     bst_node *n(root);
-    while((n = n->Parent))
+    while(n && (n = n->Parent))
         root = n;
 }
 
