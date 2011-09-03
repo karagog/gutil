@@ -34,6 +34,8 @@ class GApplicationBase
 {
 public:
 
+    GApplicationBase();
+
     /** Use this function to quit the application, instead of QApplication::quit()
 .
         This will call the virtual function application_exiting()' which you can
@@ -109,6 +111,7 @@ protected:
 private:
 
     QStack<CleanupObject *> _cleanup_objects;
+    int m_exiting;
 
 };
 

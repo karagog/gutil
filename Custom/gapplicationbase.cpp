@@ -15,6 +15,10 @@ limitations under the License.*/
 #include "gapplicationbase.h"
 GUTIL_USING_NAMESPACE(Custom);
 
+GApplicationBase::GApplicationBase()
+    :m_exiting(0)
+{}
+
 void GApplicationBase::AddCleanupObject(GApplicationBase::CleanupObject *o)
 {
     if(_cleanup_objects.contains(o))
@@ -33,6 +37,13 @@ void GApplicationBase::RemoveCleanupObject(GApplicationBase::CleanupObject *o)
 
 void GApplicationBase::Exit(int return_code)
 {
+    // We're allowing exactly one call to this function.  Multiple calls would technically
+    //  point to an error in the application code, but the end result is the same (the app exits)
+    //  and it will save the programmer some headaches hopefully.  For convenience it is
+    //  an int, so you can at least see how many times it was called.
+    if(m_exiting++)
+        return;
+
     // Derived classes will execute their own cleanup code when the application exits
     gApp->application_exiting();
 
