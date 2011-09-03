@@ -135,7 +135,9 @@ public:
         return const_iterator(search(reinterpret_cast<const void *const>(&object)), *this);
     }
 
-    /** A convenience function which returns if the object exists in the tree. */
+    /** A convenience function which returns if the object exists in the tree.
+        \note O(log(N))
+    */
     inline bool Contains(const T &object) const{
         return Search(object) != const_iterator();
     }
@@ -143,17 +145,22 @@ public:
 
 
 
-    /** Returns an iterator starting at the first element in the tree. */
+    /** Returns an iterator starting at the first element in the tree.
+        \note O(1)
+    */
     inline const_iterator begin() const{
         return const_iterator(first(), *this);
     }
     /** Returns an iterator starting at the end of the tree.  You must decrement it before
         it points to a valid entry.
+        \note O(1)
     */
     inline const_iterator end() const{
         return Size() > 0 ? ++const_iterator(last(), *this) : const_iterator();
     }
-    /** Returns an iterator starting before the first element in the tree. */
+    /** Returns an iterator starting before the first element in the tree.
+        \note O(1)
+    */
     inline const_iterator preBegin() const{
         return Size() > 0 ? --const_iterator(first(), *this) : const_iterator();
     }

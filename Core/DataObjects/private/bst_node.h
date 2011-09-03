@@ -16,9 +16,24 @@ limitations under the License.*/
 #define BST_NODE_H
 
 #include "gutil_macros.h"
-#include <iterator>
 
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+
+
+
+/** Gives the BST a way to specify the side of a node. */
+enum SideEnum
+{
+    /** Represents a null value */
+    NoSide,
+
+    /** The left child of a node. */
+    LeftSide,
+
+    /** The right child of a node. */
+    RightSide
+};
+
 
 
 /** Represents a single node of the binary search tree.
@@ -67,43 +82,6 @@ public:
     /** A pointer to the data held by this node. */
     void *Data;
 
-
-    /** Gives the BST a way to specify the side of a node. */
-    enum SideEnum
-    {
-        /** Represents a null value */
-        NoSide,
-
-        /** The left child of a node. */
-        LeftSide,
-
-        /** The right child of a node. */
-        RightSide
-    };
-
-
-    /** Inserts a new node under the parent.
-
-        On our level of abstraction, we are unable to know if the new node
-        is greater/less than the parent, so we are guided by the SideEnum.
-
-        \param parent The node to be the new node's parent
-        \param new_node The new node to insert
-        \param side The side of the parent on which to insert the new node.
-    */
-    static void Insert(bst_node *parent, bst_node *new_node, SideEnum side);
-
-
-    /** Deletes a node from the tree.
-
-        It expects you to have already found the replacement node.
-
-        \param node The node to delete
-        \param replacement The node that will replace the deleted node.
-    */
-    static void Delete(bst_node *node, bst_node *replacement);
-
-
     /** Returns whether the node is balanced, or in other words whether its children are not
         more than 1 node different in height.
     */
@@ -112,19 +90,6 @@ public:
 
     /** Returns which side of my parent I'm on. */
     SideEnum SideOfParent() const;
-
-
-private:
-
-    /** Rebalances a node.  Does nothing if the node is already balanced. */
-    static void rebalance(bst_node *);
-
-    static void rotate_right(bst_node *parent);
-    static void rotate_left(bst_node *parent);
-
-    static void refresh_node_state(bst_node *);
-
-    static void walk_parents_update_heights_rebalance(bst_node *);
 
 };
 

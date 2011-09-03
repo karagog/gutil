@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "Core/Interfaces/ivoidwrappers.h"
 #include "bst_node.h"
+#include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -144,6 +145,15 @@ private:
     // After the root node potentially moved, use this function to find the new root.
     void _update_root_node();
     void _cleanup_memory(bst_node *n);
+
+    static void walk_parents_update_heights_rebalance(bst_node *);
+    static void refresh_node_state(bst_node *);
+
+    static void rotate_right(bst_node *parent);
+    static void rotate_left(bst_node *parent);
+
+    /** Rebalances a node.  Does nothing if the node is already balanced. */
+    static void rebalance(bst_node *);
 
     long m_size;
 

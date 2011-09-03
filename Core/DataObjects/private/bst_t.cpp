@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "bst_t.h"
 #include "Core/exception.h"
+#include "gassert.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 GUTIL_USING_CORE_NAMESPACE(Interfaces);
 
@@ -48,7 +49,7 @@ bst_node *bst_t::add(const void *const v)
         // Find the place to insert, has to be a leaf node
         bst_node *cur( root );
         bst_node *next_cur( root );
-        bst_node::SideEnum insertion_side(bst_node::LeftSide);
+        SideEnum insertion_side(LeftSide);
         while(next_cur)
         {
             cur = next_cur;
@@ -57,12 +58,12 @@ bst_node *bst_t::add(const void *const v)
             if(cmp_res < 0)
             {
                 next_cur = cur->LChild;
-                insertion_side = bst_node::LeftSide;
+                insertion_side = LeftSide;
             }
             else if(cmp_res > 0)
             {
                 next_cur = cur->RChild;
-                insertion_side = bst_node::RightSide;
+                insertion_side = RightSide;
             }
             else
             {
@@ -73,8 +74,22 @@ bst_node *bst_t::add(const void *const v)
         }
 
         new_node = new bst_node;
+        switch(insertion_side)
+        {
+        case LeftSide:
+            cur->LChild = new_node;
+            break;
+        case RightSide:
+            cur->RChild = new_node;
+            break;
+        default:
+            GASSERT(false);
+        }
+        new_node->Parent = cur;
 
-        bst_node::Insert(cur, new_node, insertion_side);
+        // Now we need to ascend the tree to the root and update the heights
+        walk_parents_update_heights_rebalance(cur);
+
         _update_root_node();
     }
     else
@@ -130,7 +145,80 @@ bool bst_t::remove(const void *const v)
         }
 
         data_access_wrapper->DeleteVoid(cur->Data);
-        bst_node::Delete(cur, replacement);
+
+        // This variable determines where to start adjusting the node height after deletion.
+        {
+            bst_node *start_height_adjustment(0);
+
+            if(replacement)
+            {
+                // If the replacement has a child (at most 1) then we move it into the replacement's place
+                bst_node *replacement_child(0);
+                if(replacement->RChild)
+                    replacement_child = replacement->RChild;
+                else if(replacement->LChild)
+                    replacement_child = replacement->LChild;
+
+                if(cur == replacement->Parent)
+                    start_height_adjustment = replacement;
+                else
+                {
+                    start_height_adjustment = replacement->Parent;
+                    switch(replacement->SideOfParent())
+                    {
+                    case RightSide:
+                        replacement->Parent->RChild = replacement_child;
+                        break;
+                    case LeftSide:
+                        replacement->Parent->LChild = replacement_child;
+                        break;
+                    default:
+                        break;
+                    }
+
+                    if(replacement_child)
+                        replacement_child->Parent = replacement->Parent;
+                }
+
+                replacement->Parent = cur->Parent;
+                if(replacement != cur->RChild)
+                    replacement->RChild = cur->RChild;
+                if(replacement != cur->LChild)
+                    replacement->LChild = cur->LChild;
+            }
+            else
+            {
+                start_height_adjustment = cur->Parent;
+            }
+
+
+            if(cur->RChild && cur->RChild != replacement)
+                cur->RChild->Parent = replacement;
+            if(cur->LChild && cur->LChild != replacement)
+                cur->LChild->Parent = replacement;
+            if(cur->Parent)
+            {
+                switch(cur->SideOfParent())
+                {
+                case RightSide:
+                    cur->Parent->RChild = replacement;
+                    break;
+                case LeftSide:
+                    cur->Parent->LChild = replacement;
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            // Delete the node (set children to 0 so to not delete them)
+            cur->LChild = 0;
+            cur->RChild = 0;
+            delete cur;
+
+            // Walk up the tree and update the height variables.
+            walk_parents_update_heights_rebalance(start_height_adjustment);
+        }
 
         _update_root_node();
 
@@ -251,7 +339,7 @@ void bst_t::const_iterator::advance()
             bst_node *cur(current);
             do
             {
-                if(cur->SideOfParent() == bst_node::LeftSide)
+                if(cur->SideOfParent() == LeftSide)
                 {
                     current = cur->Parent;
                     break;
@@ -288,7 +376,7 @@ void bst_t::const_iterator::retreat()
             bst_node *cur(current);
             do
             {
-                if(cur->SideOfParent() == bst_node::RightSide)
+                if(cur->SideOfParent() == RightSide)
                 {
                     current = cur->Parent;
                     break;
@@ -379,4 +467,112 @@ bool bst_t::const_iterator::operator <= (const const_iterator &o) const
 bool bst_t::const_iterator::operator >= (const const_iterator &o) const
 {
     return !(*this < o);
+}
+
+
+
+void bst_t::walk_parents_update_heights_rebalance(bst_node *n)
+{
+    if(n)
+    {
+        refresh_node_state(n);
+
+        // Rebalance the node if it's unbalanced
+        if(!n->Balanced())
+            rebalance(n);
+
+        walk_parents_update_heights_rebalance(n->Parent);
+    }
+}
+
+void bst_t::refresh_node_state(bst_node *n)
+{
+    // Update the node's height cache
+    if(!n->LChild && !n->RChild)
+        n->Height = 0;
+    else
+    {
+        const int lheight(n->LChild ? n->LChild->Height : 0);
+        const int rheight(n->RChild ? n->RChild->Height : 0);
+        n->Height = gMax(lheight, rheight) + 1;
+    }
+
+    // Update the left-most and right-most child caches
+    n->LeftmostChild = n->LChild ? n->LChild->LeftmostChild : n;
+    n->RightmostChild = n->RChild ? n->RChild->RightmostChild : n;
+}
+
+void bst_t::rotate_right(bst_node *n)
+{
+    bst_node *parent(n->Parent);
+    if(parent)
+    {
+        if(parent->LChild == n)
+            parent->LChild = n->LChild;
+        else
+            parent->RChild = n->LChild;
+    }
+    n->LChild->Parent = parent;
+
+    bst_node *tmp(n->LChild->RChild);
+    n->Parent = n->LChild;
+    n->LChild->RChild = n;
+    n->LChild = tmp;
+    if(tmp)
+        tmp->Parent = n;
+
+    // Have to refresh the node we just rotated, the other one will be refreshed
+    //  automatically when we walk up the tree
+    refresh_node_state(n);
+}
+
+void bst_t::rotate_left(bst_node *n)
+{
+    bst_node *parent(n->Parent);
+    if(parent)
+    {
+        if(parent->LChild == n)
+            parent->LChild = n->RChild;
+        else
+            parent->RChild = n->RChild;
+    }
+    n->RChild->Parent = parent;
+
+    bst_node *tmp(n->RChild->LChild);
+    n->Parent = n->RChild;
+    n->RChild->LChild = n;
+    n->RChild = tmp;
+    if(tmp)
+        tmp->Parent = n;
+
+    // Have to refresh the node we just rotated, the other one will be refreshed
+    //  automatically when we walk up the tree
+    refresh_node_state(n);
+}
+
+void bst_t::rebalance(bst_node *n)
+{
+    int height_difference = n->HeightDifference();
+    if(height_difference > 1)
+    {
+        // The node is left-heavy
+
+        // Check if it's LR imbalance so we can resolve that first.
+        if(n->LChild->HeightDifference() < 0)
+            rotate_left(n->LChild);
+
+        // Now that the LR imbalance is fixed, do the LL rebalance.
+        rotate_right(n);
+    }
+    else if(height_difference < -1)
+    {
+        // The node is right-heavy
+
+        // Check if it's RL imbalance so we can resolve that first.
+        if(n->RChild->HeightDifference() > 0)
+            rotate_right(n->RChild);
+
+        // Now that the RL imbalance is fixed, do the RR rebalance.
+        rotate_left(n);
+    }
 }
