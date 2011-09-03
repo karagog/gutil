@@ -290,7 +290,9 @@ bst_node_df_iterator::bst_node_df_iterator(const bst_node_df_iterator &o)
 bool bst_node_df_iterator::operator == (const bst_node_df_iterator &o) const
 {
     return current == o.current &&
-            (current != 0 || (mem_begin == o.mem_begin && mem_end == o.mem_end));
+            (current != 0 ||
+             ((mem_begin == 0 && mem_end == 0) || (o.mem_begin == 0 && o.mem_end == 0) ||
+                 (mem_begin == o.mem_begin && mem_end == o.mem_end)));
 }
 
 bool bst_node_df_iterator::operator != (const bst_node_df_iterator &o) const

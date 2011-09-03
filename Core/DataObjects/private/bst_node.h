@@ -153,15 +153,16 @@ public:
     bool operator == (const bst_node_df_iterator &) const;
     bool operator != (const bst_node_df_iterator &) const;
 
+    bst_node *current;
+    bst_node *mem_begin;
+    bst_node *mem_end;
+
+
 protected:
     /** Advance the iterator.  Throws an exception if you can't advance. */
     void advance();
     /** Advance the iterator in reverse order.  Throws an exception if you can't advance. */
     void retreat();
-
-    bst_node *current;
-    bst_node *mem_begin;
-    bst_node *mem_end;
 
 };
 

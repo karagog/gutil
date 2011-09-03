@@ -27,7 +27,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     BST's have the advantage of storing the data so it is always sorted,
     and can be looked up in O(log(n)) time.  Insertions, removals and lookups
-    all are O(log).  Use this class to maintain a fast index of any kind of data.
+    all are O(log(n)).  Use this class to maintain a fast index of any kind of data.
 
     Implement your own compare function to control how the data is indexed.
 */
@@ -48,31 +48,6 @@ public:
     ~BinarySearchTree();
 
 
-    /** Makes a copy of object and puts in the tree.
-
-        If already exists in the tree an exception is thrown.
-    */
-    void Add(const T &);
-
-
-    /** Removes the object from the tree.  Does nothing if object not in the tree. */
-    void Remove(const T &);
-
-
-    /** Removes all values from the BST. */
-    void Clear();
-
-
-    /** Returns whether the item is in the BST. */
-    bool Contains(const T &);
-
-
-    /** Does a lookup on the given object and returns a const reference to its version of it.
-        Throws an exception if not found.
-    */
-    const T &Search(const T &obj);
-
-
     /** A class for iterating through the BinarySearchTree.
 
         Because it's a BST, the elements will always be sorted when you traverse it depth-first.
@@ -88,11 +63,11 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
-        /** Constructs an invalid iterator. */
-        inline const_iterator()
+        /** Constructs an invalid iterator, which also happens to be equal to end. */
+        inline explicit const_iterator()
             :cmp(0)
         {}
-        inline const_iterator(bst_node *n, GUtil::Core::Interfaces::IComparer<T> *compare)
+        inline explicit const_iterator(bst_node *n, GUtil::Core::Interfaces::IComparer<T> *compare)
             :bst_node_df_iterator(n),
               cmp(compare)
         {}
@@ -170,6 +145,98 @@ public:
     friend class const_iterator;
 
 
+    /** Makes a copy of object and puts in the tree.
+        If already exists in the tree an exception is thrown.
+        \note O(log(N))
+    */
+    const_iterator Add(const T &object){
+        bst_node *new_node;
+        if(root)
+        {
+            // Find the place to insert, has to be a leaf node
+            bst_node *cur( root );
+            bst_node *next_cur( root );
+            bst_node::SideEnum insertion_side(bst_node::LeftSide);
+            while(next_cur)
+            {
+                cur = next_cur;
+                int cmp_res( cmp->Compare(object, *reinterpret_cast<T*>(cur->Data)) );
+
+                if(cmp_res < 0)
+                {
+                    next_cur = cur->LChild;
+                    insertion_side = bst_node::LeftSide;
+                }
+                else if(cmp_res > 0)
+                {
+                    next_cur = cur->RChild;
+                    insertion_side = bst_node::RightSide;
+                }
+                else
+                {
+                    // There's an insertion collision
+                    THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                               "Object already exists in BST.");
+                }
+            }
+
+            new_node = new bst_node;
+
+            bst_node::Insert(cur, new_node, insertion_side);
+            _update_root_node();
+        }
+        else
+        {
+            // If the root is null, then this is the first item in the tree (easy case)
+            root = new_node = new bst_node;
+        }
+
+        m_size++;
+
+        new_node->Data = reinterpret_cast<void *>(new T(object));
+        return const_iterator(new_node, cmp);
+    }
+
+
+    /** Removes the object from the tree.  Does nothing if object not in the tree.
+        \returns True if item removed
+        \note O(log(N))
+    */
+    bool Remove(const T &);
+
+
+    /** Removes all values from the BST.
+        \note O(N)
+    */
+    void Clear();
+
+
+    /** Does a lookup on the given object and returns an iterator to it.
+        Returns an invalid iterator equal to end() if not found.
+        \note O(log(N))
+    */
+    const_iterator Search(const T &object) const{
+        bst_node *cur( root );
+        while(cur)
+        {
+            int cmp_res( cmp->Compare(object, *reinterpret_cast<T*>(cur->Data)) );
+
+            if(cmp_res < 0)
+                cur = cur->LChild;
+            else if(cmp_res > 0)
+                cur = cur->RChild;
+            else
+                return const_iterator(cur, cmp);
+        }
+        return const_iterator();
+    }
+
+    /** A convenience function which returns if the object exists in the tree. */
+    inline bool Contains(const T &object) const{
+        return Search(object) != const_iterator();
+    }
+
+
     /** Returns an iterator starting at the first element in the tree. */
     inline const_iterator begin() const{
         return const_iterator(root ? root->LeftmostChild : 0, cmp);
@@ -195,6 +262,7 @@ public:
 
     /** Returns the least element in the tree.  Throws an exception
         if there are no items in the tree
+        \note O(1)
     */
     inline const T &min() const{
         if(root)
@@ -205,6 +273,7 @@ public:
 
     /** Returns the greatest element in the tree.  Throws an exception
         if there are no items in the tree.
+        \note O(1)
     */
     inline const T &max() const{
         if(root)
@@ -236,114 +305,10 @@ private:
 
 };
 
-
-template<class T>void BinarySearchTree<T>::Add(const T &object)
+template<class T>bool BinarySearchTree<T>::Remove(const T &object)
 {
-    if(root)
-    {
-        // Find the place to insert, has to be a leaf node
-        bst_node *cur( root );
-        bst_node *next_cur( root );
-        bst_node::SideEnum insertion_side(bst_node::LeftSide);
-        while(next_cur)
-        {
-            cur = next_cur;
-            int cmp_res( cmp->Compare(object, *((T*)cur->Data)) );
-
-            if(cmp_res < 0)
-            {
-                next_cur = cur->LChild;
-                insertion_side = bst_node::LeftSide;
-            }
-            else if(cmp_res > 0)
-            {
-                next_cur = cur->RChild;
-                insertion_side = bst_node::RightSide;
-            }
-            else
-            {
-                // There's an insertion collision
-                THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                           "Object already exists in BST.");
-            }
-        }
-
-        bst_node *new_node( new bst_node );
-        new_node->Data = reinterpret_cast<void *>(new T(object));
-
-        bst_node::Insert(cur, new_node, insertion_side);
-        _update_root_node();
-    }
-    else
-    {
-        // If the root is null, then this is the first item in the tree (easy case)
-        root = new bst_node;
-        root->Data = reinterpret_cast<void *>(new T(object));
-    }
-
-    m_size++;
-}
-
-template<class T>bool BinarySearchTree<T>::Contains(const T &object)
-{
-    bst_node *cur( root );
-    while(cur)
-    {
-        int cmp_res( cmp->Compare(object, *((T*)cur->Data)) );
-
-        if(cmp_res < 0)
-            cur = cur->LChild;
-        else if(cmp_res > 0)
-            cur = cur->RChild;
-        else
-            return true;
-    }
-    return false;
-}
-
-template<class T>const T &BinarySearchTree<T>::Search(const T & object)
-{
-    bst_node *cur( root );
-    bool found(false);
-
-    while(!found && cur)
-    {
-        int cmp_res( cmp->Compare(object, *((T*)cur->Data)) );
-
-        if(cmp_res < 0)
-            cur = cur->LChild;
-        else if(cmp_res > 0)
-            cur = cur->RChild;
-        else
-            found = true;
-    }
-
-    if(found)
-        return *((T*)cur->Data);
-    else
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Object not found in BST.");
-}
-
-template<class T>void BinarySearchTree<T>::Remove(const T &object)
-{
-    bst_node *cur( root );
-    bool found(false);
-
-    while(!found && cur)
-    {
-        int cmp_res( cmp->Compare(object, *reinterpret_cast<T*>(cur->Data)) );
-
-        if(cmp_res < 0)
-            cur = cur->LChild;
-        else if(cmp_res > 0)
-            cur = cur->RChild;
-        else
-            found = true;
-    }
-
-
-    if(found)
+    bst_node *cur( Search(object).current );
+    if(cur)
     {
         // Remove it.  The deletion algorithm goes as follows:
         //  I need to find a replacement from the leaves of the tree to
@@ -387,6 +352,7 @@ template<class T>void BinarySearchTree<T>::Remove(const T &object)
 
         m_size--;
     }
+    return cur;
 }
 
 
