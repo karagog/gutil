@@ -15,23 +15,6 @@ limitations under the License.*/
 #include "gapplicationbase.h"
 GUTIL_USING_NAMESPACE(Custom);
 
-GApplicationBase *GApplicationBase::GlobalInstance(0);
-
-GApplicationBase::GApplicationBase()
-{
-    if(GlobalInstance)
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "A GApplicationBase has already been initialized.");
-
-    GlobalInstance = this;
-}
-
-GApplicationBase::~GApplicationBase()
-{
-    if(this == GlobalInstance)
-        GlobalInstance = 0;
-}
-
 void GApplicationBase::AddCleanupObject(GApplicationBase::CleanupObject *o)
 {
     if(_cleanup_objects.contains(o))

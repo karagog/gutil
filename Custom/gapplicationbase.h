@@ -34,24 +34,6 @@ class GApplicationBase
 {
 public:
 
-    /** Constructs a GApplication base and sets the global instance.
-
-        Constructing two of these simultaneously in an application would be an error, and it will
-        throw an exception if you do it accidentally.
-    */
-    GApplicationBase();
-
-
-    /** Cleans up the GApplicationBase and sets the global instance pointer to 0. */
-    ~GApplicationBase();
-
-
-    /** A global pointer to the GApplicationBase instance.
-        \sa gApp
-    */
-    static GApplicationBase *GlobalInstance;
-
-
     /** Use this function to quit the application, instead of QApplication::quit()
 .
         This will call the virtual function application_exiting()' which you can
@@ -140,7 +122,7 @@ private:
     QCoreApplication, so we can't just cast the qApp pointer as GApplicationBase.
     \sa qApp
 */
-#define gApp   GUtil::Custom::GApplicationBase::GlobalInstance
+#define gApp   dynamic_cast<GApplicationBase *>(qApp)
 
 
 #endif // GAPPLICATIONBASE_H
