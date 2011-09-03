@@ -172,6 +172,7 @@ void bst_node::Delete(bst_node *node, bst_node *replacement)
             {
             case RightSide:
                 replacement->Parent->RChild = replacement_child;
+                break;
             case LeftSide:
                 replacement->Parent->LChild = replacement_child;
                 break;
