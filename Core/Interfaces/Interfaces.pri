@@ -10,8 +10,10 @@ HEADERS += \
     Interfaces/icomparer.h \
     Interfaces/icomparable.h \
     Interfaces/iclonable.h \
-    Interfaces/imatrix.h
+    Interfaces/imatrix.h \
+    Interfaces/ivoidwrappers.h
 
 SOURCES += \
     Interfaces/ireadonlyobject.cpp \
-    Interfaces/iupdatable.cpp
+    Interfaces/iupdatable.cpp \
+    Interfaces/ivoidwrappers.cpp

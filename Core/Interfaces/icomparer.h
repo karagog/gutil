@@ -12,48 +12,55 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ICOMPARER_H
-#define ICOMPARER_H
+#ifndef GUTIL_ICOMPARER_H
+#define GUTIL_ICOMPARER_H
 
 #include "gutil_macros.h"
 
 GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
 
 
-// A class to compare two objects of different types
+/** An abstract interface class to compare two objects of different types */
 template <class T, class U> class IComparerDifferent
 {
 public:
 
-    // Return negative if LHS is less than RHS, 0 if equal
+    /** Return -1 if lhs is less than rhs, 0 if equal, or 1 if lhs greater than rhs */
     virtual int Compare(const T &lhs, const U &rhs) const = 0;
 
-    // A convenient pointer compare
-    virtual inline int Compare(const T* const lhs, const T* const rhs) const
-    {
-        return Compare(*lhs, *rhs);
-    }
-
+    /** So you can be deleted by this interface. */
     virtual ~IComparerDifferent(){}
 };
 
 
 
-// A class to compare two objects of like types
-template <class T> class IComparer : public IComparerDifferent<T, T>
+/** A class to compare two objects of like types.
+    Use to implement custom comparators for classes.
+    In general, it is easiest to implement the less-than operator and take advantage of
+    the DefaultComparer.
+    \sa DefaultComparer
+*/
+template <class T> class IComparer :
+        public IComparerDifferent<T, T>
 {
 public:
-
+    /** So you can be deleted by this interface. */
     virtual ~IComparer(){}
 };
 
 
 
-// The default comparer only requires a less-than operator
-template <class T> class DefaultComparer : public IComparer<T>
+/** The default comparer implements IComparer using the less-than operator to
+    conduct comparisons.
+*/
+template <class T> class DefaultComparer :
+        public IComparer<T>
 {
 public:
-
+    /** The default compare function uses the less-than operator.
+        It is easiest to implement the less-than operator and take advantage of
+        the DefaultComparer.
+    */
     virtual int Compare(const T&lhs, const T& rhs) const
     {
         int ret = 0;
@@ -66,10 +73,11 @@ public:
         return ret;
     }
 
+    /** So you can be deleted by this interface */
     virtual ~DefaultComparer(){}
 };
 
 
 GUTIL_END_CORE_NAMESPACE
 
-#endif // ICOMPARER_H
+#endif // GUTIL_ICOMPARER_H

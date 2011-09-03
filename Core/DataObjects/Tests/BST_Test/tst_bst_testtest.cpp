@@ -78,7 +78,7 @@ void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst)
         QVERIFY(mem < *iter);
         mem = *iter;
     }
-    QVERIFY(mycnt == bst.size());
+    QVERIFY(mycnt == bst.Size());
 }
 
 BST_TestTest::BST_TestTest()
@@ -92,7 +92,7 @@ void BST_TestTest::test_iterators()
     bst.Add(3);
     bst.Add(5);
     bst.Add(1);
-    QVERIFY(bst.size() == 3);
+    QVERIFY(bst.Size() == 3);
     QVERIFY(bst.min() == 1);
     QVERIFY(bst.max() == 5);
 
@@ -146,7 +146,7 @@ void BST_TestTest::test_basic_function()
     //show_depth_first_tree(bst);
 }
 
-class backwards_comparer : public GUtil::Core::Interfaces::IComparer<int>
+class backwards_comparer : public BinarySearchTree<int>::TypeWrapper
 {
     int Compare(const int &lhs, const int &rhs) const{
         if(lhs < rhs)
@@ -311,7 +311,7 @@ void BST_TestTest::test_deletions()
     bst.Add(3);
     bst.Remove(2);
     verify_tree(bst);
-    QVERIFY(bst.size() == 2);
+    QVERIFY(bst.Size() == 2);
 
     // Delete LChild of root
     bst.Clear();
@@ -320,7 +320,7 @@ void BST_TestTest::test_deletions()
     bst.Add(3);
     bst.Remove(1);
     verify_tree(bst);
-    QVERIFY(bst.size() == 2);
+    QVERIFY(bst.Size() == 2);
 
     // Delete RChild of root
     bst.Clear();
@@ -329,7 +329,7 @@ void BST_TestTest::test_deletions()
     bst.Add(3);
     bst.Remove(3);
     verify_tree(bst);
-    QVERIFY(bst.size() == 2);
+    QVERIFY(bst.Size() == 2);
 
     // Delete root, replacement has no child
     bst.Clear();
@@ -416,11 +416,11 @@ void BST_TestTest::test_deletions()
         //show_breadth_first_tree(bst);
         bst.Remove(record[i]);
         verify_tree(bst);
-        QVERIFY(bst.size() == cnt - i - 1);
+        QVERIFY(bst.Size() == cnt - i - 1);
     }
 }
 
-class pointer_comparer : public GUtil::Core::Interfaces::IComparer<int *>
+class pointer_comparer : public BinarySearchTree<int *>::TypeWrapper
 {
     int Compare(int *const&lhs, int *const&rhs) const{
         if(*lhs < *rhs)
