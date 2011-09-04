@@ -24,8 +24,6 @@ stack_t::stack_type_wrapper::~stack_type_wrapper(){}
 
 void stack_t::push(const void *const v)
 {
-    on_push(v);
-
     node_t *new_node( new node_t );
     new_node->NextNode = NextNode;
     NextNode = new_node;
@@ -47,8 +45,6 @@ void stack_t::Pop()
 {
     if(NextNode)
     {
-        on_pop(NextNode->Data);
-
         node_t *t( NextNode );
         NextNode = NextNode->NextNode;
 
@@ -58,16 +54,6 @@ void stack_t::Pop()
 
         m_count--;
     }
-}
-
-void stack_t::on_push(const void *const)
-{
-
-}
-
-void stack_t::on_pop(const void *const)
-{
-
 }
 
 void stack_t::remove(forward_node_iterator &iter)
@@ -102,4 +88,9 @@ void stack_t::remove(forward_node_iterator &iter)
 
     iter.current = parent_link->NextNode;
     m_count--;
+}
+
+stack_t &stack_t::CloneTo(stack_t &o) const
+{
+
 }

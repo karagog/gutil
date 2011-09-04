@@ -147,6 +147,19 @@ protected: \
 #define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
 
 
+/** Makes the copy constructor and assignment operators private.
+
+    If a class takes a lot of work to copy, or for whatever other reason
+    the designer of the class doesn't want you to use the copy constructor,
+    this is a quick and easily readable way of declaring so.
+*/
+#define GUTIL_DISABLE_COPY(cls) \
+    private: \
+        cls(const cls &){} \
+        cls &operator =(const cls &){return *this;}
+
+
+
 
 
 // These macros only relevant for windows COM functionality

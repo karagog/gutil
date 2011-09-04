@@ -28,6 +28,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
 class node_t;
+class bidirectional_node_t;
 
 class node_link
 {
@@ -39,14 +40,14 @@ public:
 };
 
 
-class bidirectional_node_link :
-        public node_link
+class bidirectional_node_link
 {
 public:
     bidirectional_node_link();
     ~bidirectional_node_link();
 
-    node_t *PreviousNode;
+    bidirectional_node_t *NextNode;
+    bidirectional_node_t *PreviousNode;
 };
 
 
@@ -104,6 +105,52 @@ public:
 private:
     void advance();
 };
+
+
+/** A base class that knows how to iterate node chains. */
+class bidirectional_node_iterator
+{
+public:
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+    bidirectional_node_iterator(bidirectional_node_t *n = 0);
+
+    /** Advances the iterator */
+    bidirectional_node_iterator &operator++();
+
+    /** Advances the iterator */
+    bidirectional_node_iterator operator++(int);
+
+    /** Advances the iterator the specified number of items */
+    bidirectional_node_iterator &operator+=(int);
+
+    /** Returns a copy of the iterator advanced the specified number of times. */
+    bidirectional_node_iterator operator+(int);
+
+    /** Retreats the iterator */
+    bidirectional_node_iterator &operator--();
+
+    /** Retreats the iterator */
+    bidirectional_node_iterator operator--(int);
+
+    /** Retreats the iterator the specified number of items */
+    bidirectional_node_iterator &operator-=(int);
+
+    /** Returns a copy of the iterator retreated the specified number of times. */
+    bidirectional_node_iterator operator-(int);
+
+    bool operator == (const bidirectional_node_iterator &) const;
+    bool operator != (const bidirectional_node_iterator &) const;
+
+    /** Be careful when using this. */
+    bidirectional_node_t *current;
+
+
+private:
+    void advance();
+    void retreat();
+};
+
 
 
 

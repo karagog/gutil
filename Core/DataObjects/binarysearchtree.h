@@ -34,6 +34,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 template<class T>class BinarySearchTree :
         public bst_t
 {
+    GUTIL_DISABLE_COPY(BinarySearchTree<T>);
     template<class> friend class BST_NodeIterator;
 public:
 
@@ -187,14 +188,6 @@ public:
                                        "There are no elements in the BST");
         return *reinterpret_cast<T *>(last()->Data);
     }
-
-
-private:
-
-    /** You cannot copy a BST.  You must clone it, which is a N*log(N) process. */
-    BinarySearchTree(const BinarySearchTree<T> &){}
-    /** You cannot copy a BST.  You must clone it, which is a N*log(N) process. */
-    BinarySearchTree<T> &operator =(const BinarySearchTree<T> &){ return *this; }
 
 };
 

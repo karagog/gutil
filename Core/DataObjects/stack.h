@@ -56,6 +56,7 @@ public:
         \note O(1)
     */
     inline void Push(const T &item){
+        on_push(item);
         push(reinterpret_cast<const void* const>(&item));
     }
 
@@ -139,6 +140,16 @@ public:
     void Remove(iterator &iter){
         remove(iter);
     }
+
+
+protected:
+
+    /** Subclasses can take advantage of this to optionally do something when an
+        object is pushed onto the stack.  If you throw an exception the operation
+        will be safely prevented without memory implications.
+        \param The data about to be pushed
+    */
+    virtual void on_push(const T &){}
 
 };
 

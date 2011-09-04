@@ -27,6 +27,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 */
 class bst_t
 {
+    GUTIL_DISABLE_COPY(bst_t);
 public:
 
     /** A class for iterating through the bst_t.
@@ -156,9 +157,6 @@ private:
     static void rebalance(bst_node *);
 
     long m_size;
-
-    bst_t(const bst_t &);
-    bst_t &operator = (const bst_t &);
 
 };
 

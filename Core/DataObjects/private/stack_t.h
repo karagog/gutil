@@ -17,14 +17,17 @@ limitations under the License.*/
 
 #include "nodechain.h"
 #include "Core/Interfaces/ivoidwrappers.h"
+#include "Core/Interfaces/iclonable.h"
 #include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
 /** My own implementation of a stack. */
 class stack_t :
-        protected node_link
+        protected node_link,
+        public Interfaces::IClonable<stack_t>
 {
+    GUTIL_DISABLE_COPY(stack_t);
 public:
 
     /** Pop an item from the stack.
@@ -38,6 +41,9 @@ public:
     inline long Count(){
         return m_count;
     }
+
+    /** Conducts a deep copy of the stack and its contents. */
+    stack_t &CloneTo(stack_t &) const;
 
 
 protected:
@@ -61,20 +67,6 @@ protected:
         \note O(N)
     */
     void remove(forward_node_iterator &);
-
-    /** Subclasses can take advantage of this to optionally do something when an
-        object is pushed onto the stack.  If you throw an exception the operation
-        will be safely prevented without memory implications.
-        \param The data about to be pushed
-    */
-    virtual void on_push(const void *const);
-
-    /** Subclasses can take advantage of this to optionally do something when an
-        object is popped off the stack.  If you throw an exception the operation
-        will be safely prevented without memory implications.
-        \param The data about to be popped
-    */
-    virtual void on_pop(const void *const);
 
 
 private:

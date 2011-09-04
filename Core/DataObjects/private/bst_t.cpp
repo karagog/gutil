@@ -33,14 +33,6 @@ bst_t::~bst_t()
     delete cmp;
 }
 
-bst_t::bst_t(const bst_t &)
-{}
-
-bst_t &bst_t::operator =(const bst_t &)
-{
-    return *this;
-}
-
 bst_node *bst_t::add(const void *const v)
 {
     bst_node *new_node;

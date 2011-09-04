@@ -26,13 +26,14 @@ node_link::~node_link()
 }
 
 bidirectional_node_link::bidirectional_node_link()
-    :PreviousNode(0)
+    :NextNode(0),
+      PreviousNode(0)
 {}
 
 bidirectional_node_link::~bidirectional_node_link()
 {
-    if(PreviousNode)
-        delete PreviousNode;
+    if(NextNode)
+        delete NextNode;
 }
 
 
@@ -99,5 +100,98 @@ forward_node_iterator forward_node_iterator::operator+(int num)
     forward_node_iterator ret(*this);
     while(num-- > 0)
         ret.advance();
+    return ret;
+}
+
+
+bidirectional_node_iterator::bidirectional_node_iterator(bidirectional_node_t *n)
+    :current(n)
+{}
+
+bidirectional_node_iterator &bidirectional_node_iterator::operator++()
+{
+    advance();
+    return *this;
+}
+
+bidirectional_node_iterator bidirectional_node_iterator::operator++(int)
+{
+    bidirectional_node_iterator ret(*this);
+    advance();
+    return ret;
+}
+
+void bidirectional_node_iterator::advance()
+{
+    if(current)
+    {
+        if(current->NextNode)
+            current = current->NextNode;
+        else
+            current = 0;
+    }
+}
+
+void bidirectional_node_iterator::retreat()
+{
+    if(current)
+    {
+        if(current->PreviousNode)
+            current = current->PreviousNode;
+        else
+            current = 0;
+    }
+}
+
+bool bidirectional_node_iterator::operator == (const bidirectional_node_iterator &o) const
+{
+    return current == o.current;
+}
+
+bool bidirectional_node_iterator::operator != (const bidirectional_node_iterator &o) const
+{
+    return current != o.current;
+}
+
+bidirectional_node_iterator &bidirectional_node_iterator::operator+=(int num)
+{
+    while(num-- > 0)
+        advance();
+    return *this;
+}
+
+bidirectional_node_iterator bidirectional_node_iterator::operator+(int num)
+{
+    bidirectional_node_iterator ret(*this);
+    while(num-- > 0)
+        ret.advance();
+    return ret;
+}
+
+bidirectional_node_iterator &bidirectional_node_iterator::operator-=(int num)
+{
+    while(num-- > 0)
+        retreat();
+    return *this;
+}
+
+bidirectional_node_iterator bidirectional_node_iterator::operator-(int num)
+{
+    bidirectional_node_iterator ret(*this);
+    while(num-- > 0)
+        ret.retreat();
+    return ret;
+}
+
+bidirectional_node_iterator &bidirectional_node_iterator::operator--()
+{
+    retreat();
+    return *this;
+}
+
+bidirectional_node_iterator bidirectional_node_iterator::operator--(int)
+{
+    bidirectional_node_iterator ret(*this);
+    retreat();
     return ret;
 }
