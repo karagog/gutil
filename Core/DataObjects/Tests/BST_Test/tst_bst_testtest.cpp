@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "BinarySearchTree.h"
+#include "binarysearchtree.h"
 #include <iostream>
 #include <vector>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
