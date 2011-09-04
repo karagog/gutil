@@ -7,11 +7,14 @@ HEADERS += \
     DataObjects/stack.h \
     DataObjects/map.h \
     DataObjects/list.h \
-    DataObjects/private/list_p.h
+    DataObjects/private/list_p.h \
+    DataObjects/private/queue_p.h \
+    DataObjects/queue.h
 
 SOURCES += \
     DataObjects/private/bst_node.cpp \
     DataObjects/private/bst_t.cpp \
     DataObjects/private/nodechain.cpp \
     DataObjects/private/stack_t.cpp \
-    DataObjects/private/list_p.cpp
+    DataObjects/private/list_p.cpp \
+    DataObjects/private/queue_p.cpp

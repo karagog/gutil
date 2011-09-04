@@ -12,4 +12,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "list_p.h"
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#include "Core/DataObjects/private/queue_p.h"
+GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+
+
+template<class T>class Queue :
+        public queue_p
+{
+
+};
+
+
+GUTIL_END_CORE_NAMESPACE;
+
+#endif // QUEUE_H
