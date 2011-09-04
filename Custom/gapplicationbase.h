@@ -125,7 +125,7 @@ private:
     QCoreApplication, so we can't just cast the qApp pointer as GApplicationBase.
     \sa qApp
 */
-#define gApp   dynamic_cast<GApplicationBase *>(qApp)
+#define gApp   dynamic_cast<GUtil::Custom::GApplicationBase *>(qApp)
 
 
 #endif // GAPPLICATIONBASE_H

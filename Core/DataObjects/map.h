@@ -16,6 +16,7 @@ limitations under the License.*/
 #define MAP_H
 
 #include "Core/DataObjects/stack.h"
+#include "binarysearchtree.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -27,32 +28,71 @@ template<class K, class V>class Map
 {
 public:
 
+    Map();
+
+    void Insert(const K &key, const V &value){
+        BinarySearchTree<Page *>::const_iterator iter(_index.Search(key));
+        if(iter)
+        {
+            iter->Values.Clear();
+            iter->Values.Push(value);
+        }
+        else
+        {
+            _index.Add(new Page(key, value));
+        }
+    }
+
+    void InsertMulti(const K &key, const V &value){
+        BinarySearchTree<Page *>::const_iterator iter(_index.Search(key));
+        if(iter)
+            iter->Values.Push(value);
+        else
+            _index.Add(new Page(key, value));
+    }
+
 
 private:
 
     class Page
     {
+        GUTIL_DISABLE_COPY(Page);
     public:
-        Page(const K &k, const V &v)
+        explicit Page(const K &k, const V &v)
             :Key(k)
         {
             Values.Push(v);
-        }
-        Page(const Page &p)
-            :Key(p.Key)
-        {
-            // List<V> lst;
-            for(Stack<V>::const_iterator iter(p.Values.begin()); iter != p.Values.end(); iter++)
-                lst.PushFront(*iter);
-            for(List<V>::const_iterator iter(lst.begin()); iter != lst.end(); iter++)
-                Values.Push(*iter);
         }
 
         K Key;
         Stack<V> Values;
     };
 
+    /** A wrapper class to conduct comparisons and memory allocation/deallocation */
+    class TypeWrapper :
+            public BinarySearchTree<Page *>::TypeWrapper
+    {
+    public:
+        int Compare(Page *const&lhs, Page *const&rhs) const{
+            const K &key1(lhs->Key);
+            const K &key2(rhs->Key);
+            if(key1 < key2)
+                return -1;
+            else if(key2 < key1)
+                return 1;
+            return 0;
+        }
+    };
+
+    BinarySearchTree<Page *> _index;
+
 };
+
+
+template<class K, class V>Map::Map()
+    :_index(new TypeWrapper)
+{}
+
 
 
 GUTIL_END_CORE_NAMESPACE;

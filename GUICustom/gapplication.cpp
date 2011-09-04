@@ -32,14 +32,15 @@ GApplication::GApplication(int &argc, char **argv, const QString &app_name, cons
     m_psi = new ProcessStatusIndicator;
 }
 
-#ifdef NETWORK_FUNCTIONALITY
 void GApplication::application_exiting()
 {
+    #ifdef NETWORK_FUNCTIONALITY
     delete m_psi;
     m_psi = 0;
+    #endif // NETWORK_FUNCTIONALITY
+
     GApplicationBase::application_exiting();
 }
-#endif // NETWORK_FUNCTIONALITY
 
 bool GApplication::notify(QObject *o, QEvent *ev)
 {
