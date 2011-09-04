@@ -31,11 +31,6 @@ void stack_t::push(const void *const v)
     m_count++;
 }
 
-const void *const stack_t::top() const
-{
-    return NextNode ? NextNode->Data : 0;
-}
-
 void *stack_t::top()
 {
     return NextNode ? NextNode->Data : 0;
@@ -88,9 +83,4 @@ void stack_t::remove(forward_node_iterator &iter)
 
     iter.current = parent_link->NextNode;
     m_count--;
-}
-
-stack_t &stack_t::CloneTo(stack_t &o) const
-{
-
 }
