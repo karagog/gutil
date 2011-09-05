@@ -126,6 +126,9 @@ public:
     inline bool Remove(const T &object){
         return remove(reinterpret_cast<const void *const>(&object));
     }
+    inline bool Remove(const const_iterator &iter){
+        return remove(iter);
+    }
 
 
     /** Does a lookup on the given object and returns an iterator to it.
@@ -142,7 +145,7 @@ public:
         Returns an invalid iterator equal to end() if not found.
         \note O(log(N))
     */
-    template<class K>inline const_iterator Search(const K &object, TypeWrapper *tw) const{
+    template<class K>inline const_iterator Search(const K &object, const TypeWrapper *tw) const{
         return const_iterator(search(reinterpret_cast<const void *const>(&object), tw), *this);
     }
 

@@ -36,6 +36,11 @@ void *stack_t::top()
     return NextNode ? NextNode->Data : 0;
 }
 
+const void *stack_t::top() const
+{
+    return NextNode ? NextNode->Data : 0;
+}
+
 void stack_t::Pop()
 {
     if(NextNode)
@@ -54,10 +59,7 @@ void stack_t::Pop()
 void stack_t::Clear()
 {
     while(top())
-    {
-        data_wrapper->DeleteVoid(top());
         Pop();
-    }
 }
 
 void stack_t::remove(forward_node_iterator &iter)

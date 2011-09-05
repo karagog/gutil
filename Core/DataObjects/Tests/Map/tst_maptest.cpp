@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
+#include <string>
 #include "Core/DataObjects/map.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
@@ -28,6 +29,8 @@ private Q_SLOTS:
     void test_basic_function();
 
     void test_iterators();
+
+    void test_load();
 };
 
 MapTest::MapTest()
@@ -43,9 +46,96 @@ void MapTest::test_basic_function()
     QVERIFY(map.At(1) == "One");
     QVERIFY(map.At(2) == "Two");
     QVERIFY(map.At(3) == "Hello World!");
+    QVERIFY(map.Contains(1));
+    QVERIFY(map.Contains(2));
+    QVERIFY(map.Contains(3));
+    QVERIFY(!map.Contains(100));
+    QVERIFY(map.Size() == 3);
+
+    map[1] = "Fun";
+    QVERIFY(map[1] == "Fun");
+
+    map.Insert(1, "One");
+    QVERIFY(map[1] == "One");
+
+    map.Remove(3);
+    QVERIFY(!map.Contains(3));
+    QVERIFY(map[1] == "One");
+    QVERIFY(map[2] == "Two");
+    bool exception_caught(false);
+    try
+    {
+        if(map[3] == "")
+            ;
+    }
+    catch(const GUtil::Core::IndexOutOfRangeException &)
+    {
+        exception_caught = true;
+    }
+    QVERIFY(exception_caught);
 }
 
 void MapTest::test_iterators()
+{
+    Map<int, QString> map;
+    map.Insert(1, "One");
+    map.Insert(2, "Two");
+    map.Insert(3, "Three");
+    map.Insert(4, "Four");
+
+    int cnt(0);
+    for(Map<int, QString>::const_iterator iter(map.begin());
+        iter;
+        iter++, cnt++)
+    {
+        switch(iter->Key)
+        {
+        case 1:
+            QVERIFY(iter->Values.Top() == "One");
+            break;
+        case 2:
+            QVERIFY(iter->Values.Top() == "Two");
+            break;
+        case 3:
+            QVERIFY(iter->Values.Top() == "Three");
+            break;
+        case 4:
+            QVERIFY(iter->Values.Top() == "Four");
+            break;
+        default:
+            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
+            break;
+        }
+    }
+
+    // Iterate in reverse order
+    for(Map<int, QString>::const_iterator iter(--map.end());
+        iter;
+        iter--)
+    {
+        switch(iter->Key)
+        {
+        case 1:
+            QVERIFY(iter->Values.Top() == "One");
+            break;
+        case 2:
+            QVERIFY(iter->Values.Top() == "Two");
+            break;
+        case 3:
+            QVERIFY(iter->Values.Top() == "Three");
+            break;
+        case 4:
+            QVERIFY(iter->Values.Top() == "Four");
+            break;
+        default:
+            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
+            break;
+        }
+    }
+    QVERIFY(cnt == map.Size());
+}
+
+void MapTest::test_load()
 {
 
 }

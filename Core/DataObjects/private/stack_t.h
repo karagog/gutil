@@ -56,6 +56,7 @@ protected:
 
     void push(const void *const);
     void *top();
+    const void *top() const;
 
     /** The iterator is still valid after removal; it equals the next item on the stack.
         \note O(N)

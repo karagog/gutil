@@ -96,9 +96,9 @@ bst_node *bst_t::add(const void *const v)
     return new_node;
 }
 
-bool bst_t::remove(const void *const v)
+bool bst_t::remove(const const_iterator &iter)
 {
-    bst_node *cur( search(v) );
+    bst_node *cur(iter.current);
     if(cur)
     {
         // Remove it.  The deletion algorithm goes as follows:
@@ -139,78 +139,76 @@ bool bst_t::remove(const void *const v)
         data_access_wrapper->DeleteVoid(cur->Data);
 
         // This variable determines where to start adjusting the node height after deletion.
+        bst_node *start_height_adjustment(0);
+
+        if(replacement)
         {
-            bst_node *start_height_adjustment(0);
+            // If the replacement has a child (at most 1) then we move it into the replacement's place
+            bst_node *replacement_child(0);
+            if(replacement->RChild)
+                replacement_child = replacement->RChild;
+            else if(replacement->LChild)
+                replacement_child = replacement->LChild;
 
-            if(replacement)
-            {
-                // If the replacement has a child (at most 1) then we move it into the replacement's place
-                bst_node *replacement_child(0);
-                if(replacement->RChild)
-                    replacement_child = replacement->RChild;
-                else if(replacement->LChild)
-                    replacement_child = replacement->LChild;
-
-                if(cur == replacement->Parent)
-                    start_height_adjustment = replacement;
-                else
-                {
-                    start_height_adjustment = replacement->Parent;
-                    switch(replacement->SideOfParent())
-                    {
-                    case RightSide:
-                        replacement->Parent->RChild = replacement_child;
-                        break;
-                    case LeftSide:
-                        replacement->Parent->LChild = replacement_child;
-                        break;
-                    default:
-                        break;
-                    }
-
-                    if(replacement_child)
-                        replacement_child->Parent = replacement->Parent;
-                }
-
-                replacement->Parent = cur->Parent;
-                if(replacement != cur->RChild)
-                    replacement->RChild = cur->RChild;
-                if(replacement != cur->LChild)
-                    replacement->LChild = cur->LChild;
-            }
+            if(cur == replacement->Parent)
+                start_height_adjustment = replacement;
             else
             {
-                start_height_adjustment = cur->Parent;
-            }
-
-
-            if(cur->RChild && cur->RChild != replacement)
-                cur->RChild->Parent = replacement;
-            if(cur->LChild && cur->LChild != replacement)
-                cur->LChild->Parent = replacement;
-            if(cur->Parent)
-            {
-                switch(cur->SideOfParent())
+                start_height_adjustment = replacement->Parent;
+                switch(replacement->SideOfParent())
                 {
                 case RightSide:
-                    cur->Parent->RChild = replacement;
+                    replacement->Parent->RChild = replacement_child;
                     break;
                 case LeftSide:
-                    cur->Parent->LChild = replacement;
+                    replacement->Parent->LChild = replacement_child;
                     break;
                 default:
                     break;
                 }
+
+                if(replacement_child)
+                    replacement_child->Parent = replacement->Parent;
             }
 
-            // Delete the node (set children to 0 so to not delete them)
-            cur->LChild = 0;
-            cur->RChild = 0;
-            delete cur;
-
-            // Walk up the tree and update the height variables.
-            walk_parents_update_heights_rebalance(start_height_adjustment);
+            replacement->Parent = cur->Parent;
+            if(replacement != cur->RChild)
+                replacement->RChild = cur->RChild;
+            if(replacement != cur->LChild)
+                replacement->LChild = cur->LChild;
         }
+        else
+        {
+            start_height_adjustment = cur->Parent;
+        }
+
+
+        if(cur->RChild && cur->RChild != replacement)
+            cur->RChild->Parent = replacement;
+        if(cur->LChild && cur->LChild != replacement)
+            cur->LChild->Parent = replacement;
+        if(cur->Parent)
+        {
+            switch(cur->SideOfParent())
+            {
+            case RightSide:
+                cur->Parent->RChild = replacement;
+                break;
+            case LeftSide:
+                cur->Parent->LChild = replacement;
+                break;
+            default:
+                break;
+            }
+        }
+
+        // Delete the node (set children to 0 so to not delete them)
+        cur->LChild = 0;
+        cur->RChild = 0;
+        delete cur;
+
+        // Walk up the tree and update the height variables.
+        walk_parents_update_heights_rebalance(start_height_adjustment);
 
         _update_root_node();
 
@@ -219,12 +217,17 @@ bool bst_t::remove(const void *const v)
     return cur;
 }
 
+bool bst_t::remove(const void *const v)
+{
+    return remove(const_iterator(search(v), *this));
+}
+
 bst_node *bst_t::search(const void *const v) const
 {
     return search(v, data_access_wrapper);
 }
 
-bst_node *bst_t::search(const void *const v, void_wrapper *vw) const
+bst_node *bst_t::search(const void *const v, const void_wrapper *vw) const
 {
     bst_node *cur( root );
     while(cur)
@@ -577,4 +580,22 @@ void bst_t::rebalance(bst_node *n)
         // Now that the RL imbalance is fixed, do the RR rebalance.
         rotate_left(n);
     }
+}
+
+bst_node *bst_t::const_iterator::operator->()
+{
+    return current;
+}
+
+const bst_node *bst_t::const_iterator::operator->() const
+{
+    return current;
+}
+const bst_node &bst_t::const_iterator::operator *() const
+{
+    return *current;
+}
+bst_node &bst_t::const_iterator::operator *()
+{
+    return *current;
 }

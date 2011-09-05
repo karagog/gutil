@@ -42,6 +42,7 @@ public:
     */
     class const_iterator
     {
+        friend class bst_t;
     public:
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -76,6 +77,11 @@ public:
 
         bool operator == (const const_iterator &) const;
         bool operator != (const const_iterator &) const;
+
+        bst_node *operator->();
+        const bst_node *operator->() const;
+        const bst_node &operator *() const;
+        bst_node &operator *();
 
         /** Returns true if the iterator points to a valid element. */
         operator bool() const;
@@ -134,9 +140,10 @@ protected:
         the void * in the void wrapper.
         \note In this case the void_wrapper is not owned by the BST, so you must delete it yourself.
     */
-    bst_node *search(const void *const, void_wrapper *) const;
+    bst_node *search(const void *const, const void_wrapper *) const;
 
     bool remove(const void *const);
+    bool remove(const const_iterator &);
 
     /** Returns the least element of the tree. */
     bst_node *first() const;

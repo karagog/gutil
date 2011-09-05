@@ -63,14 +63,14 @@ public:
     /** Returns the top item on the stack, or 0 if no items in the stack.
         \note O(1)
     */
-    inline const T *Top() const{
-        return reinterpret_cast<const T* const>(top());
+    inline const T &Top() const{
+        return *reinterpret_cast<const T* const>(top());
     }
     /** Returns the top item on the stack, or 0 if no items in the stack.
         \note O(1)
     */
-    inline T *Top(){
-        return reinterpret_cast<T*>(top());
+    inline T &Top(){
+        return *reinterpret_cast<T*>(top());
     }
 
 

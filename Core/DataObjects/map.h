@@ -44,7 +44,10 @@ template<class K, class V>class Map
 
 public:
 
+    /** Constructs an empty map. */
     Map();
+    /** Reclaims all memory. */
+    ~Map();
 
     class iterator :
             public BinarySearchTree<Page *>::const_iterator
@@ -55,17 +58,76 @@ public:
             :BinarySearchTree<Page *>::const_iterator(o)
         {}
 
-        Page &operator*(){ return **(reinterpret_cast<Page **>(this->current->Data)); }
-        Page *operator ->(){ return *reinterpret_cast<Page **>(this->current->Data); }
+        Page &operator*(){ return **(reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data)); }
+        Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
+    class const_iterator :
+            public BinarySearchTree<Page *>::const_iterator
+    {
+    public:
+        const_iterator(){}
+        const_iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
+            :BinarySearchTree<Page *>::const_iterator(o)
+        {}
+
+        const Page &operator*() const{ return **(reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data)); }
+        const Page *operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+    };
+
+    iterator begin(){ return _index.begin(); }
+    const_iterator begin() const{ return _index.begin(); }
+    iterator end(){ return _index.end(); }
+    const_iterator end() const{ return _index.end(); }
+    iterator preBegin(){ return _index.preBegin(); }
+    const_iterator preBegin() const{ return _index.preBegin(); }
+
+
+    /** Returns whether the map contains this key. */
+    bool Contains(const K &) const;
+
+    /** How many unique keys are in the map. */
+    inline long Size() const{ return _index.Size(); }
+
+    /** Returns the value corresponding to the key.
+        If more than one value exist then you get the last one which was inserted.
+    */
     const V &At(const K &) const;
+    /** Returns the value corresponding to the key.
+        If more than one value exist then you get the last one which was inserted.
+    */
     V &At(const K &);
 
+    /** Returns the value corresponding to the key.
+        \sa At()
+    */
+    inline const V &operator [](const K &k) const{ return At(k); }
+    /** Returns the value corresponding to the key.
+        \sa At()
+    */
+    V &operator [](const K &k){ return At(k); }
+
+    /** Returns the stack of values corresponding to the key.
+        Iterating through the stack will go through the values in the opposite
+        order in which you inserted them.
+    */
     const Stack<V> &Values(const K &) const;
 
+    /** Inserts an item into the map.
+
+        If a value (or values) already exists for that key then they will be overwritten.
+    */
     void Insert(const K &key, const V &value);
+
+    /** Inserts an item into the map.
+
+        If a value already exists for that key then the new value will be added to the
+        collection of values corresponding to that key.
+    */
     void InsertMulti(const K &key, const V &value);
+
+    /** Removes all values corresponding to the key. */
+    void Remove(const K &);
 
 
 private:
@@ -120,13 +182,25 @@ template<class K, class V>Map<K, V>::Map()
     :_index(new PageWrapper)
 {}
 
+template<class K, class V>Map<K, V>::~Map()
+{
+    // Have to delete all the pages in the index
+    for(iterator iter(_index.begin()); iter; iter++)
+        delete &(*iter);
+}
+
+
+template<class K, class V>bool Map<K, V>::Contains(const K &k) const
+{
+    return _index.Search(k, &_key_searcher);
+}
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
     typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return *iter->Values.Top();
+    return iter->Values.Top();
 }
 
 template<class K, class V>V &Map<K, V>::At(const K &k)
@@ -134,7 +208,7 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return *(iter->Values.Top());
+    return iter->Values.Top();
 }
 
 template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
@@ -166,6 +240,16 @@ template<class K, class V>void Map<K, V>::InsertMulti(const K &key, const V &val
         iter->Values.Push(value);
     else
         _index.Add(new Page(key, value));
+}
+
+template<class K, class V>void Map<K, V>::Remove(const K &k)
+{
+    iterator iter(_index.Search(k, &_key_searcher));
+    if(iter)
+    {
+        delete &(*iter);
+        _index.Remove(iter);
+    }
 }
 
 
