@@ -62,14 +62,14 @@ public:
         }
 
     private:
-        int CompareVoid(const void *const lhs, const void *const rhs) const{
+        virtual int CompareVoid(const void *const lhs, const void *const rhs) const{
             return Compare(*reinterpret_cast<const T* const>(lhs),
                            *reinterpret_cast<const T* const>(rhs));
         }
-        void *CopyVoid(const void *const v) const{
+        virtual void *CopyVoid(const void *const v) const{
             return reinterpret_cast<void *>(Copy(*reinterpret_cast<const T *const>(v)));
         }
-        void DeleteVoid(void *v) const{
+        virtual void DeleteVoid(void *v) const{
             Delete(reinterpret_cast<T*>(v));
         }
     };
@@ -104,9 +104,9 @@ public:
         {}
 
         /** Dereference the iterator and return a reference to the data. */
-        inline const T &operator*() const { return *(reinterpret_cast<T *>(current->Data)); }
+        inline const T &operator*() const { return *(reinterpret_cast<const T *const>(current->Data)); }
         /** Dereference the iterator and return a pointer to the data. */
-        inline const T *operator->() const { return reinterpret_cast<T *>(current->Data); }
+        inline const T *operator->() const { return reinterpret_cast<const T *const>(current->Data); }
     };
 
 
@@ -134,6 +134,16 @@ public:
     */
     inline const_iterator Search(const T &object) const{
         return const_iterator(search(reinterpret_cast<const void *const>(&object)), *this);
+    }
+    /** Does a lookup with the provided key, which can be a different type than T,
+        and returns an iterator to it.  You must provide your own TypeWrapper which knows
+        how to interpret the new type and compare it with type T.
+
+        Returns an invalid iterator equal to end() if not found.
+        \note O(log(N))
+    */
+    template<class K>inline const_iterator Search(const K &object, TypeWrapper *tw) const{
+        return const_iterator(search(reinterpret_cast<const void *const>(&object), tw), *this);
     }
 
     /** A convenience function which returns if the object exists in the tree.

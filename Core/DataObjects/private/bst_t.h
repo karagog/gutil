@@ -77,6 +77,9 @@ public:
         bool operator == (const const_iterator &) const;
         bool operator != (const const_iterator &) const;
 
+        /** Returns true if the iterator points to a valid element. */
+        operator bool() const;
+
     protected:
 
         bst_node *current;
@@ -125,6 +128,14 @@ protected:
 
     bst_node *add(const void *const);
     bst_node *search(const void *const) const;
+
+    /** Enables you to conduct a search by something other than the normal type held by the
+        BST.  So you could search with a string to find an int, for example if you reinterpret
+        the void * in the void wrapper.
+        \note In this case the void_wrapper is not owned by the BST, so you must delete it yourself.
+    */
+    bst_node *search(const void *const, void_wrapper *) const;
+
     bool remove(const void *const);
 
     /** Returns the least element of the tree. */

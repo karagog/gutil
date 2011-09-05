@@ -51,6 +51,15 @@ void stack_t::Pop()
     }
 }
 
+void stack_t::Clear()
+{
+    while(top())
+    {
+        data_wrapper->DeleteVoid(top());
+        Pop();
+    }
+}
+
 void stack_t::remove(forward_node_iterator &iter)
 {
     if(!iter.current)

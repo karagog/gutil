@@ -221,15 +221,20 @@ bool bst_t::remove(const void *const v)
 
 bst_node *bst_t::search(const void *const v) const
 {
+    return search(v, data_access_wrapper);
+}
+
+bst_node *bst_t::search(const void *const v, void_wrapper *vw) const
+{
     bst_node *cur( root );
     while(cur)
     {
-        int cmp_res( data_access_wrapper->CompareVoid(v, cur->Data) );
+        int cmp_res( vw->CompareVoid(cur->Data, v) );
 
         if(cmp_res < 0)
-            cur = cur->LChild;
-        else if(cmp_res > 0)
             cur = cur->RChild;
+        else if(cmp_res > 0)
+            cur = cur->LChild;
         else
             break;
     }
@@ -317,6 +322,11 @@ bool bst_t::const_iterator::operator == (const bst_t::const_iterator &o) const
 bool bst_t::const_iterator::operator != (const bst_t::const_iterator &o) const
 {
     return !(*this == o);
+}
+
+bst_t::const_iterator::operator bool() const
+{
+    return current;
 }
 
 void bst_t::const_iterator::advance()

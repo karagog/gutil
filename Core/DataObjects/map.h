@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "Core/DataObjects/stack.h"
 #include "binarysearchtree.h"
+#include "Core/Interfaces/icomparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -26,34 +27,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 */
 template<class K, class V>class Map
 {
-public:
-
-    Map();
-
-    void Insert(const K &key, const V &value){
-        BinarySearchTree<Page *>::const_iterator iter(_index.Search(key));
-        if(iter)
-        {
-            iter->Values.Clear();
-            iter->Values.Push(value);
-        }
-        else
-        {
-            _index.Add(new Page(key, value));
-        }
-    }
-
-    void InsertMulti(const K &key, const V &value){
-        BinarySearchTree<Page *>::const_iterator iter(_index.Search(key));
-        if(iter)
-            iter->Values.Push(value);
-        else
-            _index.Add(new Page(key, value));
-    }
-
-
-private:
-
+    /** Describes one mapping of a key to a stack of values. */
     class Page
     {
         GUTIL_DISABLE_COPY(Page);
@@ -68,31 +42,131 @@ private:
         Stack<V> Values;
     };
 
-    /** A wrapper class to conduct comparisons and memory allocation/deallocation */
-    class TypeWrapper :
-            public BinarySearchTree<Page *>::TypeWrapper
+public:
+
+    Map();
+
+    class iterator :
+            public BinarySearchTree<Page *>::const_iterator
     {
     public:
-        int Compare(Page *const&lhs, Page *const&rhs) const{
-            const K &key1(lhs->Key);
-            const K &key2(rhs->Key);
-            if(key1 < key2)
+        iterator(){}
+        iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
+            :BinarySearchTree<Page *>::const_iterator(o)
+        {}
+
+        Page &operator*(){ return **(reinterpret_cast<Page **>(this->current->Data)); }
+        Page *operator ->(){ return *reinterpret_cast<Page **>(this->current->Data); }
+    };
+
+    const V &At(const K &) const;
+    V &At(const K &);
+
+    const Stack<V> &Values(const K &) const;
+
+    void Insert(const K &key, const V &value);
+    void InsertMulti(const K &key, const V &value);
+
+
+private:
+
+    /** A base class to provide a common comparison function between Keys. */
+    class KeyComparer
+    {
+    public:
+        int CompareKeys(const K &lhs, const K &rhs) const{
+            if(lhs < rhs)
                 return -1;
-            else if(key2 < key1)
+            else if(rhs < lhs)
                 return 1;
             return 0;
         }
     };
 
+    /** A wrapper class to conduct comparisons and memory allocation/deallocation */
+    class PageWrapper :
+            public BinarySearchTree<Page *>::TypeWrapper,
+            public KeyComparer
+    {
+    public:
+        int Compare(Page *const&lhs, Page *const&rhs) const{
+            return CompareKeys(lhs->Key, rhs->Key);
+        }
+    };
+
+    /** A type wrapper which compares a page and a key (so we don't have to search
+        with a page).
+    */
+    class KeyWrapper :
+            public BinarySearchTree<Page *>::TypeWrapper,
+            public KeyComparer
+    {
+    private:
+        int CompareVoid(const void *const lhs, const void *const rhs) const{
+            return CompareKeys((*reinterpret_cast<const Page *const *>(lhs))->Key,
+                               *reinterpret_cast<const K *const>(rhs));
+        }
+    };
+
+
+
     BinarySearchTree<Page *> _index;
+    KeyWrapper _key_searcher;
 
 };
 
 
-template<class K, class V>Map::Map()
-    :_index(new TypeWrapper)
+template<class K, class V>Map<K, V>::Map()
+    :_index(new PageWrapper)
 {}
 
+
+template<class K, class V>const V &Map<K, V>::At(const K &k) const
+{
+    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
+    if(!iter)
+        THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    return *iter->Values.Top();
+}
+
+template<class K, class V>V &Map<K, V>::At(const K &k)
+{
+    iterator iter(_index.Search(k, &_key_searcher));
+    if(!iter)
+        THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    return *(iter->Values.Top());
+}
+
+template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
+{
+    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
+    if(!iter)
+        THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    return iter->Values;
+}
+
+template<class K, class V>void Map<K, V>::Insert(const K &key, const V &value)
+{
+    iterator iter(_index.Search(key, &_key_searcher));
+    if(iter)
+    {
+        iter->Values.Clear();
+        iter->Values.Push(value);
+    }
+    else
+    {
+        _index.Add(new Page(key, value));
+    }
+}
+
+template<class K, class V>void Map<K, V>::InsertMulti(const K &key, const V &value)
+{
+    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(key));
+    if(iter)
+        iter->Values.Push(value);
+    else
+        _index.Add(new Page(key, value));
+}
 
 
 GUTIL_END_CORE_NAMESPACE;
