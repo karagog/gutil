@@ -8,10 +8,12 @@ INCLUDEPATH += ..
 
 HEADERS += \
     about.h \
-    aboutgutil.h
+    aboutgutil.h \
+    enterstringdialog.h
 
 SOURCES += \
     about.cpp \
-    aboutgutil.cpp
+    aboutgutil.cpp \
+    enterstringdialog.cpp
 
 RESOURCES +=
