@@ -114,7 +114,7 @@ public:
         /** Dereference the iterator and return a reference to the data. */
         inline const T &operator*() const { return *(reinterpret_cast<const T *const>(current->Data)); }
         /** Dereference the iterator and return a pointer to the data. */
-        inline const T *const operator->() const { return reinterpret_cast<const T *const>(current->Data); }
+        inline const T *operator->() const { return reinterpret_cast<const T *const>(current->Data); }
 
     };
 

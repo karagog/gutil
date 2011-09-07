@@ -66,7 +66,7 @@ void MapTest::test_basic_function()
     try
     {
         if(map[3] == "")
-            ;
+        {}
     }
     catch(const GUtil::Core::IndexOutOfRangeException &)
     {

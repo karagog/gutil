@@ -20,6 +20,11 @@ stack_t::stack_t(stack_type_wrapper *stw)
       m_count(0)
 {}
 
+stack_t::~stack_t()
+{
+    Clear();
+}
+
 stack_t::stack_type_wrapper::~stack_type_wrapper(){}
 
 void stack_t::push(const void *const v)

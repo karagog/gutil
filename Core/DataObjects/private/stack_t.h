@@ -53,6 +53,7 @@ protected:
     };
 
     stack_t(stack_type_wrapper *);
+    ~stack_t();
 
     void push(const void *const);
     void *top();
