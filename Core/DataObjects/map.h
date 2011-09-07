@@ -156,11 +156,11 @@ private:
         }
     };
 
-    /** A type wrapper which compares a page and a key (so we don't have to search
+    /** A void wrapper which compares a page and a key (so we don't have to search
         with a page).
     */
     class KeyWrapper :
-            public BinarySearchTree<Page *>::TypeWrapper,
+            public Interfaces::IVoidComparer,
             public KeyComparer
     {
     private:
@@ -169,8 +169,6 @@ private:
                                *reinterpret_cast<const K *const>(rhs));
         }
     };
-
-
 
     BinarySearchTree<Page *> _index;
     KeyWrapper _key_searcher;

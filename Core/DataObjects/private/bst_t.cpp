@@ -19,8 +19,7 @@ GUTIL_USING_CORE_NAMESPACE(DataObjects);
 GUTIL_USING_CORE_NAMESPACE(Interfaces);
 
 bst_t::bst_t(bst_t::void_wrapper *vw)
-    :cmp(static_cast<IVoidComparer*>(vw)),
-      root(0),
+    :root(0),
       data_access_wrapper(vw),
       m_size(0)
 {}
@@ -30,8 +29,10 @@ bst_t::~bst_t()
     // Note: We delete the compare interface because it has a virtual destructor
     //  so the rest of the object will get deleted too.
     Clear();
-    delete cmp;
+    delete data_access_wrapper;
 }
+
+bst_t::void_wrapper::~void_wrapper(){}
 
 bst_node *bst_t::add(const void *const v)
 {
@@ -45,7 +46,7 @@ bst_node *bst_t::add(const void *const v)
         while(next_cur)
         {
             cur = next_cur;
-            int cmp_res( cmp->CompareVoid(v, cur->Data) );
+            int cmp_res( data_access_wrapper->CompareVoid(v, cur->Data) );
 
             if(cmp_res < 0)
             {
@@ -219,7 +220,7 @@ bool bst_t::remove(const const_iterator &iter)
 
 bool bst_t::remove(const void *const v)
 {
-    return remove(const_iterator(search(v), *this));
+    return remove(const_iterator(search(v), data_access_wrapper));
 }
 
 bst_node *bst_t::search(const void *const v) const
@@ -227,7 +228,7 @@ bst_node *bst_t::search(const void *const v) const
     return search(v, data_access_wrapper);
 }
 
-bst_node *bst_t::search(const void *const v, const void_wrapper *vw) const
+bst_node *bst_t::search(const void *const v, const IVoidComparer *vw) const
 {
     bst_node *cur( root );
     while(cur)
@@ -298,9 +299,9 @@ bst_t::const_iterator::const_iterator()
       mem_end(0)
 {}
 
-bst_t::const_iterator::const_iterator(bst_node *n, const bst_t &t)
+bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc)
     :current(n),
-      cmp(t.cmp),
+      cmp(vc),
       mem_begin(0),
       mem_end(0)
 {}

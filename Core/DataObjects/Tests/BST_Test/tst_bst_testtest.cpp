@@ -70,15 +70,22 @@ void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst)
 {
     int mycnt(0);
     int mem(-1);
-    for(BinarySearchTree<int>::const_iterator iter(bst.begin());
-        iter != bst.end();
-        iter++, mycnt++)
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin()); iter; iter++, mycnt++)
     {
         // Make sure all items are in order
         QVERIFY(mem < *iter);
         mem = *iter;
     }
     QVERIFY(mycnt == bst.Size());
+
+    // Iterate backwards to make sure it works that way too
+    mem = INT_MAX;
+    for(BinarySearchTree<int>::const_iterator iter(--bst.end()); iter; iter--)
+    {
+        // Make sure all items are in order
+        QVERIFY(mem > *iter);
+        mem = *iter;
+    }
 }
 
 BST_TestTest::BST_TestTest()

@@ -48,7 +48,7 @@ public:
 
         /** Constructs an invalid iterator, which also happens to be equal to end. */
         const_iterator();
-        explicit const_iterator(bst_node *, const bst_t &);
+        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const);
         const_iterator(const const_iterator &o);
 
         /** Prefix ++.  Throws an exception if you can't advance. */
@@ -92,7 +92,7 @@ public:
 
 
     private:
-        GUtil::Core::Interfaces::IVoidComparer *cmp;
+        const Interfaces::IVoidComparer *const cmp;
 
         /** Advance the iterator.  Throws an exception if you can't advance. */
         void advance();
@@ -126,7 +126,11 @@ protected:
             public Interfaces::IVoidComparer,
             public Interfaces::IVoidCopyer,
             public Interfaces::IVoidDeleter
-    {};
+    {
+    public:
+        /** So you can be deleted by this interface. */
+        virtual ~void_wrapper();
+    };
 
     /** This class is desiged to be inherited by BinarySearchTree, so no public constructor */
     bst_t(void_wrapper *);
@@ -138,9 +142,9 @@ protected:
     /** Enables you to conduct a search by something other than the normal type held by the
         BST.  So you could search with a string to find an int, for example if you reinterpret
         the void * in the void wrapper.
-        \note In this case the void_wrapper is not owned by the BST, so you must delete it yourself.
+        \note In this case the void comparer is not owned by the BST, so you must delete it yourself.
     */
-    bst_node *search(const void *const, const void_wrapper *) const;
+    bst_node *search(const void *const, const Interfaces::IVoidComparer *) const;
 
     bool remove(const void *const);
     bool remove(const const_iterator &);
@@ -150,16 +154,13 @@ protected:
     /** Returns the most element of the tree */
     bst_node *last() const;
 
-    /** Our friends have access to our compare function. */
-    Interfaces::IVoidComparer *cmp;
-
     /** Our friends have access to our root. */
     bst_node *root;
 
+    /** Derived classes may need to access our type wrapper. */
+    void_wrapper *data_access_wrapper;
 
 private:
-
-    void_wrapper *data_access_wrapper;
 
     // After the root node potentially moved, use this function to find the new root.
     void _update_root_node();
