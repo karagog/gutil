@@ -109,4 +109,18 @@ private:
 
 }}
 
+
+#ifdef gApp
+    #undef gApp
+#endif
+
+/** A reference to the global instance of GApplication.
+
+    This is similar to qApp, but returns GApplication instead.  It is done as a dynamic
+    cast, so in case you didn't actually instantiate a GApplication it will return NULL.
+    \sa qApp
+*/
+#define gApp   dynamic_cast<GUtil::Custom::GApplication *>(qApp)
+
+
 #endif // GAPPLICATION_H

@@ -119,10 +119,16 @@ private:
 }}
 
 
+#ifdef gApp
+    #undef gApp
+#endif
+
 /** A reference to the global instance of GApplicationBase.
 
-    This is similar to qApp, but GApplicationBase is not a subclass of
-    QCoreApplication, so we can't just cast the qApp pointer as GApplicationBase.
+    This is similar to qApp, but returns GApplicationBase instead.  It is done as a dynamic
+    cast, because GApplicationBase is not derived from QApplication, but since GApplication is
+    derived from both we can cross-cast if we do a dynamic cast.  It will return NULL if you
+    did not instantiate a GApplication or GCoreApplication
     \sa qApp
 */
 #define gApp   dynamic_cast<GUtil::Custom::GApplicationBase *>(qApp)
