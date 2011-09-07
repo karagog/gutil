@@ -23,6 +23,7 @@ stack_t::stack_t(stack_type_wrapper *stw)
 stack_t::~stack_t()
 {
     Clear();
+    delete data_wrapper;
 }
 
 stack_t::stack_type_wrapper::~stack_type_wrapper(){}

@@ -21,7 +21,10 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-/** My own implementation of a stack. */
+/** My own implementation of a stack.  It uses an injected type wrapper which knows how to
+    allocate/deallocate memory for a typed object, so we only manage void *'s.  That way almost
+    all of the stack implementation is baked into the library.
+*/
 class stack_t :
         protected node_link
 {
@@ -40,23 +43,40 @@ public:
         return m_count;
     }
 
+    /** Empties the stack and clears all memory.
+        \note O(N)
+    */
     void Clear();
 
 protected:
 
+    /** The type-specific functions that we require. */
     class stack_type_wrapper :
             public Interfaces::IVoidCopyer,
             public Interfaces::IVoidDeleter
     {
     public:
+        /** You will be deleted by this interface. */
         virtual ~stack_type_wrapper();
     };
 
+    /** The type wrapper will be owned and deleted by the stack. */
     stack_t(stack_type_wrapper *);
     ~stack_t();
 
+    /** Push an item on the stack
+        \note O(1)
+    */
     void push(const void *const);
+
+    /** The item on top of the stack.
+        \note O(1)
+    */
     void *top();
+
+    /** The item on top of the stack.
+        \note O(1)
+    */
     const void *top() const;
 
     /** The iterator is still valid after removal; it equals the next item on the stack.

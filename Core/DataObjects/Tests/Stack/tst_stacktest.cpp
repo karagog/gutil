@@ -45,7 +45,7 @@ void StackTest::test_basic_function()
 
     for(int i = 9; i >= 0; i--)
     {
-        QVERIFY(*(tmpstack.Top()) == i);
+        QVERIFY(tmpstack.Top() == i);
         QVERIFY(tmpstack.Count() == i + 1);
         tmpstack.Pop();
     }
