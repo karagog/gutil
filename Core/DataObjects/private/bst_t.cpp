@@ -365,9 +365,6 @@ void bst_t::const_iterator::advance()
         current = mem_begin;
         mem_begin = 0;
     }
-    else
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Can't move iterator past the end of the container.");
 }
 
 void bst_t::const_iterator::retreat()
@@ -402,9 +399,6 @@ void bst_t::const_iterator::retreat()
         current = mem_end;
         mem_end = 0;
     }
-    else
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   "Can't move iterator before the beginning of the container.");
 }
 
 bst_t::const_iterator &bst_t::const_iterator::operator ++()
