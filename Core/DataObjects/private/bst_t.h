@@ -92,7 +92,7 @@ public:
 
 
     private:
-        const Interfaces::IVoidComparer *const cmp;
+        Interfaces::IVoidComparer const* cmp;
 
         /** Advance the iterator.  Throws an exception if you can't advance. */
         void advance();

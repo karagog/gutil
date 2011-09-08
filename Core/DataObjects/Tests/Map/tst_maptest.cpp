@@ -73,6 +73,29 @@ void MapTest::test_basic_function()
         exception_caught = true;
     }
     QVERIFY(exception_caught);
+
+    // Test the iterator that Insert returns
+    QVERIFY(map.Insert(100, "one")->Key == 100);
+
+    // Try InsertMulti
+    Map<int, QString>::iterator iter;
+    QVERIFY((iter = map.InsertMulti(100, "two"))->Value() == "two");
+    QVERIFY(iter->Values().Count() == 2);
+
+    // Test our auto-remove key when the last value is popped
+    iter->Values().Pop();
+    iter->Values().Pop();
+    exception_caught = false;
+    try
+    {
+        if(map[100] == "")
+        {}
+    }
+    catch(const GUtil::Core::IndexOutOfRangeException &)
+    {
+        exception_caught = true;
+    }
+    QVERIFY(exception_caught);
 }
 
 void MapTest::test_iterators()
@@ -91,22 +114,23 @@ void MapTest::test_iterators()
         switch(iter->Key)
         {
         case 1:
-            QVERIFY(iter->Values.Top() == "One");
+            QVERIFY(iter->Values().Top() == "One");
             break;
         case 2:
-            QVERIFY(iter->Values.Top() == "Two");
+            QVERIFY(iter->Values().Top() == "Two");
             break;
         case 3:
-            QVERIFY(iter->Values.Top() == "Three");
+            QVERIFY(iter->Values().Top() == "Three");
             break;
         case 4:
-            QVERIFY(iter->Values.Top() == "Four");
+            QVERIFY(iter->Values().Top() == "Four");
             break;
         default:
             QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
             break;
         }
     }
+    QVERIFY(cnt == map.Size());
 
     // Iterate in reverse order
     for(Map<int, QString>::const_iterator iter(--map.end());
@@ -116,23 +140,35 @@ void MapTest::test_iterators()
         switch(iter->Key)
         {
         case 1:
-            QVERIFY(iter->Values.Top() == "One");
+            QVERIFY(iter->Values().Top() == "One");
             break;
         case 2:
-            QVERIFY(iter->Values.Top() == "Two");
+            QVERIFY(iter->Values().Top() == "Two");
             break;
         case 3:
-            QVERIFY(iter->Values.Top() == "Three");
+            QVERIFY(iter->Values().Top() == "Three");
             break;
         case 4:
-            QVERIFY(iter->Values.Top() == "Four");
+            QVERIFY(iter->Values().Top() == "Four");
             break;
         default:
             QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
             break;
         }
     }
-    QVERIFY(cnt == map.Size());
+
+    // Now insert the numbers in reverse order; we should still iterate 1 then 2
+    map.Clear();
+    map.Insert(2, "");
+    map.Insert(1, "");
+    map.Insert(0, "");
+    cnt = 0;
+    for(Map<int, QString>::const_iterator iter(map.begin());
+        iter;
+        iter++, cnt++)
+    {
+        QVERIFY(iter->Key == cnt);
+    }
 }
 
 void MapTest::test_load()

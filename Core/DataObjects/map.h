@@ -31,15 +31,48 @@ template<class K, class V>class Map
     class Page
     {
         GUTIL_DISABLE_COPY(Page);
+        friend class Map;
     public:
-        explicit Page(const K &k, const V &v)
-            :Key(k)
+        inline explicit Page(const K &k, const V &v, Map *m)
+            :Key(k),
+              values(m, &Key)
         {
-            Values.Push(v);
+            values.Push(v);
         }
 
         K Key;
-        Stack<V> Values;
+
+        /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
+        inline V &Value(){ return values.Top(); }
+        /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
+        inline const V &Value() const{ return values.Top(); }
+
+        inline Stack<V> &Values(){ return values; }
+        inline const Stack<V> &Values() const{ return values; }
+
+    private:
+
+        class value_stack :
+                public Stack<V>
+        {
+        public:
+            inline value_stack(Map *m, K *key)
+                :m_map(m),
+                  m_key(key)
+            {}
+        private:
+            void on_popped(){
+                // Remove the key if the last item was popped
+                if(Stack<V>::Count() == 0)
+                {
+                    m_map->Remove(*m_key);
+                }
+            }
+            Map *m_map;
+            K *m_key;
+        };
+
+        value_stack values;
     };
 
 public:
@@ -64,7 +97,6 @@ public:
             :BinarySearchTree<Page *>::const_iterator(o)
         {}
 
-        Page &operator*(){ return **(reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data)); }
         Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
@@ -77,8 +109,7 @@ public:
             :BinarySearchTree<Page *>::const_iterator(o)
         {}
 
-        const Page &operator*() const{ return **(reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data)); }
-        const Page *operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+        Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
     iterator begin(){ return _index.begin(); }
@@ -90,7 +121,7 @@ public:
 
 
     /** Returns whether the map contains this key. */
-    bool Contains(const K &) const;
+    inline bool Contains(const K &k) const{ return _index.Search(k, &_key_searcher); }
 
     /** How many unique keys are in the map. */
     inline long Size() const{ return _index.Size(); }
@@ -111,7 +142,7 @@ public:
     /** Returns the value corresponding to the key.
         \sa At()
     */
-    V &operator [](const K &k){ return At(k); }
+    inline V &operator [](const K &k){ return At(k); }
 
     /** Returns the stack of values corresponding to the key.
         Iterating through the stack will go through the values in the opposite
@@ -122,18 +153,25 @@ public:
     /** Inserts an item into the map.
 
         If a value (or values) already exists for that key then they will be overwritten.
+        \returns An iterator pointing to the inserted item
     */
-    void Insert(const K &key, const V &value);
+    inline iterator Insert(const K &key, const V &value){ return _insert(key, value, true); }
 
     /** Inserts an item into the map.
 
         If a value already exists for that key then the new value will be added to the
         collection of values corresponding to that key.
+        \returns An iterator pointing to the inserted item
     */
-    void InsertMulti(const K &key, const V &value);
+    inline iterator InsertMulti(const K &key, const V &value){ return _insert(key, value, false); }
 
     /** Removes all values corresponding to the key. */
     void Remove(const K &);
+
+    /** Removes all values in the map and cleans up memory.
+        \note O(N)
+    */
+    inline void Clear(){ _index.Clear(); }
 
 
 private:
@@ -184,6 +222,8 @@ private:
         return 0;
     }
 
+    iterator _insert(const K &, const V &, bool);
+
     BinarySearchTree<Page *> _index;
     KeyWrapper _key_searcher;
 
@@ -208,11 +248,6 @@ template<class K, class V>Map<K, V>::~Map()
 }
 
 
-template<class K, class V>bool Map<K, V>::Contains(const K &k) const
-{
-    return _index.Search(k, &_key_searcher);
-}
-
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
     typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
@@ -226,38 +261,32 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->Values.Top();
+    return iter->values.Top();
 }
 
 template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
 {
-    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
+    iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->Values;
+    return iter->values;
 }
 
-template<class K, class V>void Map<K, V>::Insert(const K &key, const V &value)
+template<class K, class V>typename Map<K, V>::iterator Map<K, V>::_insert(const K &key, const V &value, bool overwrite)
 {
     iterator iter(_index.Search(key, &_key_searcher));
     if(iter)
     {
-        iter->Values.Clear();
-        iter->Values.Push(value);
+        if(overwrite)
+            iter->values.Clear();
+        iter->values.Push(value);
     }
     else
     {
-        _index.Add(new Page(key, value));
+        iter = _index.Add(new Page(key, value, this));
     }
-}
 
-template<class K, class V>void Map<K, V>::InsertMulti(const K &key, const V &value)
-{
-    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(key));
-    if(iter)
-        iter->Values.Push(value);
-    else
-        _index.Add(new Page(key, value));
+    return iter;
 }
 
 template<class K, class V>void Map<K, V>::Remove(const K &k)

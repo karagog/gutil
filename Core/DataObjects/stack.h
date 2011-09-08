@@ -55,10 +55,17 @@ public:
         \sa Pop()
         \note O(1)
     */
-    inline void Push(const T &item){
+    void Push(const T &item){
         on_push(item);
         push(reinterpret_cast<const void* const>(&item));
+        on_pushed(Top());
     }
+
+    /** Pops the top item from the stack.
+        \sa Push()
+        \note O(1)
+    */
+    inline void Pop(){ Remove(begin()); }
 
     /** Returns the top item on the stack, or 0 if no items in the stack.
         \note O(1)
@@ -137,8 +144,10 @@ public:
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
     */
-    void Remove(iterator &iter){
+    void Remove(iterator iter){
+        on_pop(*iter);
         remove(iter);
+        on_popped();
     }
 
 
@@ -150,6 +159,19 @@ protected:
         \param The data about to be pushed
     */
     virtual void on_push(const T &){}
+
+    /** Called after an item was pushed onto the stack.
+        \param The item that was pushed
+    */
+    virtual void on_pushed(T &){}
+
+    /** Called before an item is removed.
+        \param The data about to be removed
+    */
+    virtual void on_pop(T &){}
+
+    /** Called after an item is removed. */
+    virtual void on_popped(){}
 
 };
 
