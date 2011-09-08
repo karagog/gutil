@@ -46,6 +46,12 @@ public:
 
     /** Constructs an empty map. */
     Map();
+    /** Constructs an empty map with the specified key compare function.
+        \param compare_keys A compare function to use when comparing keys.  Return -1
+        if lhs < rhs, return 1 if rhs < lhs and 0 if they're equal.
+    */
+    Map(int (*compare_keys)(const K &lhs, const K &rhs));
+
     /** Reclaims all memory. */
     ~Map();
 
@@ -136,13 +142,10 @@ private:
     class KeyComparer
     {
     public:
-        int CompareKeys(const K &lhs, const K &rhs) const{
-            if(lhs < rhs)
-                return -1;
-            else if(rhs < lhs)
-                return 1;
-            return 0;
-        }
+        KeyComparer(int (*compare_function)(const K &, const K &)){ cmp = compare_function; }
+        inline int CompareKeys(const K &lhs, const K &rhs) const{ return cmp(lhs, rhs); }
+    private:
+        int (*cmp)(const K &, const K &);
     };
 
     /** A wrapper class to conduct comparisons and memory allocation/deallocation */
@@ -151,6 +154,7 @@ private:
             public KeyComparer
     {
     public:
+        PageWrapper(int (*compare_function)(const K &, const K &)) :KeyComparer(compare_function){}
         int Compare(Page *const&lhs, Page *const&rhs) const{
             return CompareKeys(lhs->Key, rhs->Key);
         }
@@ -163,12 +167,21 @@ private:
             public Interfaces::IVoidComparer,
             public KeyComparer
     {
-    private:
+    public:
+        KeyWrapper(int (*compare_function)(const K &, const K &)) :KeyComparer(compare_function){}
         int CompareVoid(const void *const lhs, const void *const rhs) const{
             return CompareKeys((*reinterpret_cast<const Page *const *>(lhs))->Key,
                                *reinterpret_cast<const K *const>(rhs));
         }
     };
+
+    static int default_key_compare(const K &lhs, const K &rhs){
+        if(lhs < rhs)
+            return -1;
+        else if(rhs < lhs)
+            return 1;
+        return 0;
+    }
 
     BinarySearchTree<Page *> _index;
     KeyWrapper _key_searcher;
@@ -177,7 +190,13 @@ private:
 
 
 template<class K, class V>Map<K, V>::Map()
-    :_index(new PageWrapper)
+    :_index(new PageWrapper(&default_key_compare)),
+      _key_searcher(&default_key_compare)
+{}
+
+template<class K, class V>Map<K, V>::Map(int (*cmp)(const K &, const K &))
+    :_index(new PageWrapper(cmp)),
+      _key_searcher(cmp)
 {}
 
 template<class K, class V>Map<K, V>::~Map()
