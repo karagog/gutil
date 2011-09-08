@@ -155,8 +155,9 @@ private:
     {
     public:
         PageWrapper(int (*compare_function)(const K &, const K &)) :KeyComparer(compare_function){}
-        int Compare(Page *const&lhs, Page *const&rhs) const{
-            return CompareKeys(lhs->Key, rhs->Key);
+        int CompareVoid(const void *const lhs, const void *const rhs) const{
+            return CompareKeys((*reinterpret_cast<const Page *const *>(lhs))->Key,
+                               (*reinterpret_cast<const Page *const *>(rhs))->Key);
         }
     };
 
