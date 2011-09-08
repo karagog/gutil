@@ -40,6 +40,7 @@ template<class K, class V>class Map
             values.Push(v);
         }
 
+        /** The key of this mapping. */
         K Key;
 
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
@@ -47,7 +48,15 @@ template<class K, class V>class Map
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
         inline const V &Value() const{ return values.Top(); }
 
+        /** Returns the stack of values associated with Key.
+            \note This returns a non-const reference to the stack, thus allowing you to
+            push/pop or do whatever to it.  The map is implemented such that you can
+            safely pop the stack, and when the last item is popped the key will be
+            removed from the map.  That operation will invalidate any iterator you
+            had pointing to this page.
+        */
         inline Stack<V> &Values(){ return values; }
+        /** Returns the stack of values associated with Key */
         inline const Stack<V> &Values() const{ return values; }
 
     private:
@@ -70,9 +79,8 @@ template<class K, class V>class Map
             }
             Map *m_map;
             K *m_key;
-        };
+        } values;
 
-        value_stack values;
     };
 
 public:
