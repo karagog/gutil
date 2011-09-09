@@ -42,30 +42,15 @@ void *stack_t::top()
     return NextNode ? NextNode->Data : 0;
 }
 
-const void *stack_t::top() const
+void const*stack_t::top() const
 {
     return NextNode ? NextNode->Data : 0;
-}
-
-void stack_t::Pop()
-{
-    if(NextNode)
-    {
-        node_t *t( NextNode );
-        NextNode = NextNode->NextNode;
-
-        data_wrapper->DeleteVoid(t->Data);
-        t->NextNode = 0;
-        delete t;
-
-        m_count--;
-    }
 }
 
 void stack_t::Clear()
 {
     while(top())
-        Pop();
+        pop();
 }
 
 void stack_t::remove(forward_node_iterator &iter)
@@ -73,31 +58,12 @@ void stack_t::remove(forward_node_iterator &iter)
     if(!iter.current)
         return;
 
-    node_link *parent_link(0);
-    if(NextNode == iter.current)
-    {
-        parent_link = static_cast<node_link *>(this);
-    }
-    else
-    {
-        // Need to find the parent of the iterator, which is why it takes O(N)
-        node_t *cur(NextNode);
-        while(cur)
-        {
-            if(cur->NextNode == iter.current)
-            {
-                parent_link = static_cast<node_link *>(cur);
-                break;
-            }
-            cur = cur->NextNode;
-        }
-    }
-
-    parent_link->NextNode = iter.current->NextNode;
     data_wrapper->DeleteVoid(iter.current->Data);
+    node_t *n( iter.current->NextNode );
     iter.current->NextNode = 0;
     delete iter.current;
 
-    iter.current = parent_link->NextNode;
+    iter.current = n;
+    iter.parent->NextNode = n;
     m_count--;
 }

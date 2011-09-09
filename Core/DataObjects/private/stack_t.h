@@ -31,11 +31,6 @@ class stack_t :
     GUTIL_DISABLE_COPY(stack_t);
 public:
 
-    /** Pop an item from the stack.
-        \note O(1)
-    */
-    void Pop();
-
     /** How many items are on the stack.
         \note O(1)
     */
@@ -69,6 +64,14 @@ protected:
     */
     void push(const void *const);
 
+    /** Pops an item from the stack.
+        \note O(1)
+    */
+    inline void pop(){
+        forward_node_iterator iter(NextNode, this);
+        remove(iter);
+    }
+
     /** The item on top of the stack.
         \note O(1)
     */
@@ -77,10 +80,10 @@ protected:
     /** The item on top of the stack.
         \note O(1)
     */
-    const void *top() const;
+    void const*top() const;
 
     /** The iterator is still valid after removal; it equals the next item on the stack.
-        \note O(N)
+        \note O(1)
     */
     void remove(forward_node_iterator &);
 

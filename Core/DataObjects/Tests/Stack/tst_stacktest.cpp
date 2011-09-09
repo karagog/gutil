@@ -78,7 +78,7 @@ void StackTest::test_removal()
     stack.Remove(iter);
 
     QVERIFY(stack.Count() == 9);
-    QVERIFY(*iter == 8);
+    QVERIFY2(*iter == 8, QString("%1").arg(*iter).toAscii());
 
 
     // Test from the middle of the stack

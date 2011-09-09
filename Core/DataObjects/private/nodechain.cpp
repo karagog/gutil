@@ -50,8 +50,9 @@ bidirectional_node_t::bidirectional_node_t()
 
 
 
-forward_node_iterator::forward_node_iterator(node_t *n)
-    :current(n)
+forward_node_iterator::forward_node_iterator(node_t *n, node_link *p)
+    :current(n),
+      parent(p)
 {}
 
 forward_node_iterator &forward_node_iterator::operator++()

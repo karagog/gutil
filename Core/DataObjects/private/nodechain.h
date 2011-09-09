@@ -81,7 +81,7 @@ class forward_node_iterator
 public:
     typedef std::forward_iterator_tag iterator_category;
 
-    forward_node_iterator(node_t *n = 0);
+    forward_node_iterator(node_t *n = 0, node_link *parent = 0);
 
     /** Advances the iterator */
     forward_node_iterator &operator++();
@@ -98,12 +98,16 @@ public:
     bool operator == (const forward_node_iterator &) const;
     bool operator != (const forward_node_iterator &) const;
 
-    /** Be careful when using this. */
+    /** The current node to which the iterator is pointing.  Be careful when using this. */
     node_t *current;
+
+    /** The parent of the current node.  Be careful when using this. */
+    node_link *parent;
 
 
 private:
     void advance();
+
 };
 
 

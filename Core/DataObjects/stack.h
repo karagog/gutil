@@ -89,11 +89,11 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
-        inline iterator(node_t *n = 0)
-            :forward_node_iterator(n)
+        inline iterator(node_t *n = 0, node_link *parent = 0)
+            :forward_node_iterator(n, parent)
         {}
         inline iterator(const forward_node_iterator &o)
-            :forward_node_iterator(o)
+            :forward_node_iterator(o, o.parent)
         {}
 
         /** Dereference the iterator and return a reference to the data. */
@@ -111,11 +111,11 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
-        inline const_iterator(const node_t *const n = 0)
+        inline const_iterator(const node_t *const n = 0, node_link *parent = 0)
             // Alert: Yes I am casting away the constness, but I am stricly allowing only const
             //  access to it, so I say that's ok, 'cause it means I can still use the forward_node_iterator
             //  for a const_iterator
-            :forward_node_iterator(const_cast<node_t *>(n))
+            :forward_node_iterator(const_cast<node_t *>(n), parent)
         {}
 
         /** Dereference the iterator and return a reference to the data. */
@@ -127,11 +127,11 @@ public:
 
     /** Returns an iterator starting at the top of the stack. */
     iterator begin(){
-        return iterator(NextNode);
+        return iterator(NextNode, this);
     }
     /** Returns an iterator starting at the top of the stack. */
     const_iterator begin() const{
-        return const_iterator(NextNode);
+        return const_iterator(NextNode, this);
     }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
@@ -140,6 +140,10 @@ public:
     }
 
     /** Removes the item pointed to by the iterator.
+
+        The virtual functions on_pop() and on_popped() are called, before and after the
+        removal.  This is called whenever an item is removed, regardless if it's at the top
+        of the stack.
         \note O(N) in the worst case.  It's O(1) if you remove the begin() iterator
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
