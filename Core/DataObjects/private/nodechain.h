@@ -83,20 +83,11 @@ public:
 
     forward_node_iterator(node_t *n = 0, node_link *parent = 0);
 
-    /** Advances the iterator */
-    forward_node_iterator &operator++();
-
-    /** Advances the iterator */
-    forward_node_iterator operator++(int);
-
-    /** Advances the iterator the specified number of items */
-    forward_node_iterator &operator+=(int);
-
-    /** Returns a copy of the iterator advanced the specified number of times. */
-    forward_node_iterator operator+(int);
-
     bool operator == (const forward_node_iterator &) const;
     bool operator != (const forward_node_iterator &) const;
+
+    /** Returns if the iterator is valid. */
+    inline operator bool() const{ return current; }
 
     /** The current node to which the iterator is pointing.  Be careful when using this. */
     node_t *current;
@@ -105,7 +96,9 @@ public:
     node_link *parent;
 
 
-private:
+protected:
+
+    /** Derived classes use this to advance the iterator. */
     void advance();
 
 };
@@ -119,40 +112,22 @@ public:
 
     bidirectional_node_iterator(bidirectional_node_t *n = 0);
 
-    /** Advances the iterator */
-    bidirectional_node_iterator &operator++();
-
-    /** Advances the iterator */
-    bidirectional_node_iterator operator++(int);
-
-    /** Advances the iterator the specified number of items */
-    bidirectional_node_iterator &operator+=(int);
-
-    /** Returns a copy of the iterator advanced the specified number of times. */
-    bidirectional_node_iterator operator+(int);
-
-    /** Retreats the iterator */
-    bidirectional_node_iterator &operator--();
-
-    /** Retreats the iterator */
-    bidirectional_node_iterator operator--(int);
-
-    /** Retreats the iterator the specified number of items */
-    bidirectional_node_iterator &operator-=(int);
-
-    /** Returns a copy of the iterator retreated the specified number of times. */
-    bidirectional_node_iterator operator-(int);
-
     bool operator == (const bidirectional_node_iterator &) const;
     bool operator != (const bidirectional_node_iterator &) const;
+
+    /** Returns if the iterator is valid. */
+    inline operator bool() const{ return current; }
 
     /** Be careful when using this. */
     bidirectional_node_t *current;
 
 
-private:
+protected:
+    /** Derived classes use this to advance the iterator. */
     void advance();
+    /** Derived classes use this to move the iterator backwards. */
     void retreat();
+
 };
 
 

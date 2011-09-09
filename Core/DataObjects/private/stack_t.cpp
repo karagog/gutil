@@ -49,8 +49,9 @@ void const*stack_t::top() const
 
 void stack_t::Clear()
 {
-    while(top())
-        pop();
+    forward_node_iterator top_of_stack(NextNode, this);
+    while(top_of_stack)
+        remove(top_of_stack);
 }
 
 void stack_t::remove(forward_node_iterator &iter)

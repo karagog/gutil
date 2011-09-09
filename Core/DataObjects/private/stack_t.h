@@ -64,14 +64,6 @@ protected:
     */
     void push(const void *const);
 
-    /** Pops an item from the stack.
-        \note O(1)
-    */
-    inline void pop(){
-        forward_node_iterator iter(NextNode, this);
-        remove(iter);
-    }
-
     /** The item on top of the stack.
         \note O(1)
     */
@@ -83,7 +75,9 @@ protected:
     void const*top() const;
 
     /** The iterator is still valid after removal; it equals the next item on the stack.
-        \note O(1)
+        \note O(1), despite the fact that it's implemented as a singly-linked list.
+        The iterator keeps track of the current's parent as you iterate through the stack,
+        so that eliminates the need to find the parent (which is why the STL slist class takes O(N))
     */
     void remove(forward_node_iterator &);
 

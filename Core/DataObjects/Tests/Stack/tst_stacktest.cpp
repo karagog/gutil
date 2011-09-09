@@ -81,10 +81,17 @@ void StackTest::test_removal()
     QVERIFY2(*iter == 8, QString("%1").arg(*iter).toAscii());
 
 
-    // Test from the middle of the stack
+    // Test removal from the middle of the stack
     iter++; iter++; iter++; iter++; iter++;
     stack.Remove(iter);
     QVERIFY(stack.Count() == 8);
+
+    // Test removal from the end of the stack
+    Stack<int>::iterator tmp;
+    while(++iter != stack.end())
+        tmp = iter;
+    stack.Remove(tmp);
+    QVERIFY(stack.Count() == 7);
 }
 
 QTEST_APPLESS_MAIN(StackTest);

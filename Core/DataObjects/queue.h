@@ -22,7 +22,35 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 template<class T>class Queue :
         public queue_p
 {
+public:
+    class iterator :
+            public bidirectional_node_iterator
+    {
+    public:
+        /** Advances the iterator */
+        iterator &operator++();
 
+        /** Advances the iterator */
+        iterator operator++(int);
+
+        /** Advances the iterator the specified number of items */
+        iterator &operator+=(int);
+
+        /** Returns a copy of the iterator advanced the specified number of times. */
+        iterator operator+(int);
+
+        /** Retreats the iterator */
+        iterator &operator--();
+
+        /** Retreats the iterator */
+        iterator operator--(int);
+
+        /** Retreats the iterator the specified number of items */
+        iterator &operator-=(int);
+
+        /** Returns a copy of the iterator retreated the specified number of times. */
+        iterator operator-(int);
+    };
 };
 
 
