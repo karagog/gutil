@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "private/bst_node.h"
+#include "private/binary_tree_node.h"
 #include "Core/exception.h"
 #include "private/bst_t.h"
 using namespace std;
@@ -96,7 +96,7 @@ public:
         typedef const T &reference;
 
         inline const_iterator(){}
-        inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc)
+        inline const_iterator(binary_tree_node *n, const Interfaces::IVoidComparer *const vc)
             :bst_t::const_iterator(n, vc)
         {}
         inline const_iterator(const bst_t::const_iterator &o)
@@ -273,7 +273,7 @@ public:
     }
 
 private:
-    bst_node *m_node;
+    binary_tree_node *m_node;
 };
 
 

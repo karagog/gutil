@@ -16,7 +16,7 @@ limitations under the License.*/
 #define BST_T_H
 
 #include "Core/Interfaces/ivoidwrappers.h"
-#include "bst_node.h"
+#include "binary_tree_node.h"
 #include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -48,7 +48,7 @@ public:
 
         /** Constructs an invalid iterator, which also happens to be equal to end. */
         const_iterator();
-        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const);
+        explicit const_iterator(binary_tree_node *, const Interfaces::IVoidComparer *const);
         const_iterator(const const_iterator &o);
 
         /** Prefix ++.  Throws an exception if you can't advance. */
@@ -78,17 +78,17 @@ public:
         bool operator == (const const_iterator &) const;
         bool operator != (const const_iterator &) const;
 
-        bst_node *operator->();
-        const bst_node *operator->() const;
-        const bst_node &operator *() const;
-        bst_node &operator *();
+        binary_tree_node *operator->();
+        const binary_tree_node *operator->() const;
+        const binary_tree_node &operator *() const;
+        binary_tree_node &operator *();
 
         /** Returns true if the iterator points to a valid element. */
         operator bool() const;
 
     protected:
 
-        bst_node *current;
+        binary_tree_node *current;
 
 
     private:
@@ -99,8 +99,8 @@ public:
         /** Advance the iterator in reverse order.  Throws an exception if you can't advance. */
         void retreat();
 
-        bst_node *mem_begin;
-        bst_node *mem_end;
+        binary_tree_node *mem_begin;
+        binary_tree_node *mem_end;
     };
     friend class const_iterator;
 
@@ -136,26 +136,26 @@ protected:
     bst_t(void_wrapper *);
     ~bst_t();
 
-    bst_node *add(const void *const);
-    bst_node *search(const void *const) const;
+    binary_tree_node *add(const void *const);
+    binary_tree_node *search(const void *const) const;
 
     /** Enables you to conduct a search by something other than the normal type held by the
         BST.  So you could search with a string to find an int, for example if you reinterpret
         the void * in the void wrapper.
         \note In this case the void comparer is not owned by the BST, so you must delete it yourself.
     */
-    bst_node *search(const void *const, const Interfaces::IVoidComparer *) const;
+    binary_tree_node *search(const void *const, const Interfaces::IVoidComparer *) const;
 
     bool remove(const void *const);
     bool remove(const const_iterator &);
 
     /** Returns the least element of the tree. */
-    bst_node *first() const;
+    binary_tree_node *first() const;
     /** Returns the most element of the tree */
-    bst_node *last() const;
+    binary_tree_node *last() const;
 
     /** Our friends have access to our root. */
-    bst_node *root;
+    binary_tree_node *root;
 
     /** Derived classes may need to access our type wrapper. */
     void_wrapper *data_access_wrapper;
@@ -164,16 +164,16 @@ private:
 
     // After the root node potentially moved, use this function to find the new root.
     void _update_root_node();
-    void _cleanup_memory(bst_node *n);
+    void _cleanup_memory(binary_tree_node *n);
 
-    static void walk_parents_update_heights_rebalance(bst_node *);
-    static void refresh_node_state(bst_node *);
+    static void walk_parents_update_heights_rebalance(binary_tree_node *);
+    static void refresh_node_state(binary_tree_node *);
 
-    static void rotate_right(bst_node *parent);
-    static void rotate_left(bst_node *parent);
+    static void rotate_right(binary_tree_node *parent);
+    static void rotate_left(binary_tree_node *parent);
 
     /** Rebalances a node.  Does nothing if the node is already balanced. */
-    static void rebalance(bst_node *);
+    static void rebalance(binary_tree_node *);
 
     long m_size;
 

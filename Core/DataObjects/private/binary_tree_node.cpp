@@ -12,12 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "bst_node.h"
+#include "binary_tree_node.h"
 #include "gutil_globals.h"
 #include "Core/exception.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-bst_node::bst_node()
+binary_tree_node::binary_tree_node()
     :Parent(0),
       LChild(0),
       RChild(0),
@@ -29,7 +29,7 @@ bst_node::bst_node()
 
 }
 
-bst_node::~bst_node()
+binary_tree_node::~binary_tree_node()
 {
     if(LChild)
         delete LChild;
@@ -37,7 +37,7 @@ bst_node::~bst_node()
         delete RChild;
 }
 
-int bst_node::HeightDifference() const
+int binary_tree_node::HeightDifference() const
 {
     int sum(0);
     if(LChild)
@@ -47,12 +47,12 @@ int bst_node::HeightDifference() const
     return sum;
 }
 
-bool bst_node::Balanced() const
+bool binary_tree_node::Balanced() const
 {
     return gAbs(HeightDifference()) <= 1;
 }
 
-SideEnum bst_node::SideOfParent() const
+SideEnum binary_tree_node::SideOfParent() const
 {
     SideEnum ret(NoSide);
     if(Parent)

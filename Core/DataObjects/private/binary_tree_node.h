@@ -43,35 +43,35 @@ enum SideEnum
 
     \sa BinarySearchTree
 */
-class bst_node
+class binary_tree_node
 {
 public:
     /** Constructs a default node with all pointers set to 0. */
-    bst_node();
+    binary_tree_node();
 
     /** Deletes a bst_node and all its children. */
-    ~bst_node();
+    ~binary_tree_node();
 
     /** A reference to the parent of this node. */
-    bst_node *Parent;
+    binary_tree_node *Parent;
 
     /** A reference to the left child of this node. */
-    bst_node *LChild;
+    binary_tree_node *LChild;
 
     /** A reference to the right child of this node. */
-    bst_node *RChild;
+    binary_tree_node *RChild;
 
     /** A reference to my most leftist child (min of my children).
         This makes it possible to get to the begin() and end() of the tree
         in constant time, and also makes iteration much faster
     */
-    bst_node *LeftmostChild;
+    binary_tree_node *LeftmostChild;
 
     /** A reference to my most rightist child (max of my children).
         This makes it possible to get to the begin() and end() of the tree
         in constant time, and also makes iteration much faster
     */
-    bst_node *RightmostChild;
+    binary_tree_node *RightmostChild;
 
     /** The height of this node, which is 1 + the max of the heights of my two children */
     int Height;
