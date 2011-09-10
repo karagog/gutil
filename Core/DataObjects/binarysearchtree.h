@@ -90,15 +90,13 @@ public:
     class const_iterator :
             public bst_t::const_iterator
     {
+        friend class BinarySearchTree;
     public:
         typedef T value_type;
         typedef const T *pointer;
         typedef const T &reference;
 
         inline const_iterator(){}
-        inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc)
-            :bst_t::const_iterator(n, vc)
-        {}
         inline const_iterator(const bst_t::const_iterator &o)
             :bst_t::const_iterator(o)
         {}
@@ -107,6 +105,11 @@ public:
         inline const T &operator*() const { return *(reinterpret_cast<const T *const>(current->Data)); }
         /** Dereference the iterator and return a pointer to the data. */
         inline const T *operator->() const { return reinterpret_cast<const T *const>(current->Data); }
+
+    protected:
+        inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc, bool initialize_parent_cache)
+            :bst_t::const_iterator(n, vc, initialize_parent_cache)
+        {}
     };
 
 
@@ -114,8 +117,8 @@ public:
         If already exists in the tree an exception is thrown.
         \note O(log(N))
     */
-    inline const_iterator Add(const T &object){
-        return const_iterator(add(reinterpret_cast<const void *const>(&object)), data_access_wrapper);
+    inline void Add(const T &object){
+        add(reinterpret_cast<const void *const>(&object));
     }
 
 
@@ -133,10 +136,14 @@ public:
 
     /** Does a lookup on the given object and returns an iterator to it.
         Returns an invalid iterator equal to end() if not found.
+
+        A little bit of extra time is taken to populate the iterator's cache, but the gain is that
+        we can iterate in constant O(1) time with the generated cache.  The time taken to populate the
+        cache does not increase the complexity of the function, which remains O(log(N))
         \note O(log(N))
     */
     inline const_iterator Search(const T &object) const{
-        return const_iterator(search(reinterpret_cast<const void *const>(&object)), data_access_wrapper);
+        return const_iterator(search(reinterpret_cast<const void *const>(&object)), data_access_wrapper, true);
     }
     /** Does a lookup with the provided key, which can be a different type than T,
         and returns an iterator to it.  You must provide your own void comparer which knows
@@ -146,7 +153,7 @@ public:
         \note O(log(N))
     */
     template<class K>inline const_iterator Search(const K &object, const Interfaces::IVoidComparer *const vc) const{
-        return const_iterator(search(reinterpret_cast<const void *const>(&object), vc), data_access_wrapper);
+        return const_iterator(search(reinterpret_cast<const void *const>(&object), vc), data_access_wrapper, true);
     }
 
     /** A convenience function which returns if the object exists in the tree.
@@ -163,20 +170,20 @@ public:
         \note O(1)
     */
     inline const_iterator begin() const{
-        return const_iterator(first(), data_access_wrapper);
+        return const_iterator(first(), data_access_wrapper, false);
     }
     /** Returns an iterator starting at the end of the tree.  You must decrement it before
         it points to a valid entry.
         \note O(1)
     */
     inline const_iterator end() const{
-        return Size() > 0 ? ++const_iterator(last(), data_access_wrapper) : const_iterator();
+        return Size() > 0 ? ++const_iterator(last(), data_access_wrapper, false) : const_iterator();
     }
     /** Returns an iterator starting before the first element in the tree.
         \note O(1)
     */
     inline const_iterator preBegin() const{
-        return Size() > 0 ? --const_iterator(first(), data_access_wrapper) : const_iterator();
+        return Size() > 0 ? --const_iterator(first(), data_access_wrapper, false) : const_iterator();
     }
 
 

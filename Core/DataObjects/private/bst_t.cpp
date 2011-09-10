@@ -220,7 +220,7 @@ bool bst_t::remove(const const_iterator &iter)
 
 bool bst_t::remove(const void *const v)
 {
-    return remove(const_iterator(search(v), data_access_wrapper));
+    return remove(const_iterator(search(v), data_access_wrapper, false));
 }
 
 bst_t::bst_node *bst_t::search(const void *const v) const
@@ -299,12 +299,15 @@ bst_t::const_iterator::const_iterator()
       mem_end(0)
 {}
 
-bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc)
+bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc, bool ipc)
     :current(n),
       cmp(vc),
       mem_begin(0),
       mem_end(0)
-{}
+{
+    if(ipc)
+        _add_parent_to_cache(n);
+}
 
 bst_t::const_iterator::const_iterator(const bst_t::const_iterator &o)
     :current(o.current),
@@ -313,6 +316,27 @@ bst_t::const_iterator::const_iterator(const bst_t::const_iterator &o)
       mem_end(o.mem_end)
 {}
 
+
+void bst_t::const_iterator::_add_parent_to_cache(binary_tree_node *n)
+{
+    if(n)
+    {
+        // Add my parent before adding myself, 'cause we're pushing onto a LIFO stack.
+        _add_parent_to_cache(n);
+
+        switch(n->SideOfParent())
+        {
+        case binary_tree_node::LeftSide:
+            m_LChildParents.Push(n);
+            break;
+        case binary_tree_node::RightSide:
+            m_RChildParents.Push(n);
+            break;
+        default:
+            GASSERT(false);
+        }
+    }
+}
 
 
 bool bst_t::const_iterator::operator == (const bst_t::const_iterator &o) const
@@ -338,25 +362,47 @@ void bst_t::const_iterator::advance()
     if(current)
     {
         if(current->RChild)
+        {
+            m_RChildParents.Push(current->RChild);
+            if(current->SideOfParent() == binary_tree_node::LeftSide)
+                m_LChildParents.Push(current);
             current = static_cast<bst_node *>(current->RChild)->LeftmostChild;
+        }
         else
         {
-            // Ascend current's parents to find the next greater element
-            bst_node *cur(current);
-            do
+            if(current->SideOfParent() == binary_tree_node::LeftSide)
             {
-                if(cur->SideOfParent() == binary_tree_node::LeftSide)
+                current = static_cast<bst_node *>(current->Parent);
+            }
+            else if(m_LChildParents.Count())
+            {
+                // This is how the iterator advancement is constant time.  The stack keeps track
+                //  of the parent we should jump to
+                if(m_LChildParents.Top())
                 {
-                    current = static_cast<bst_node *>(cur->Parent);
-                    break;
-                }
-            }while((cur = static_cast<bst_node *>(cur->Parent)));
+                    current = static_cast<bst_node *>(m_LChildParents.Top()->Parent);
+                    m_LChildParents.Pop();
 
-            if(!cur)
+                    m_RChildParents.Pop();
+                }
+                else
+                {
+                    // We've hit the end of the BST
+                    mem_end = current;
+                    current = 0;
+
+                    //GASSERT(m_LChildParents.IsEmpty());
+                    //GASSERT(m_RChildParents.IsEmpty());
+                }
+            }
+            else
             {
                 // We've hit the end of the BST
                 mem_end = current;
                 current = 0;
+
+                //GASSERT(m_LChildParents.IsEmpty());
+                //GASSERT(m_RChildParents.IsEmpty());
             }
         }
     }
@@ -372,25 +418,45 @@ void bst_t::const_iterator::retreat()
     if(current)
     {
         if(current->LChild)
+        {
+            m_LChildParents.Push(current->LChild);
+            if(current->SideOfParent() == binary_tree_node::RightSide)
+                m_RChildParents.Push(current);
             current = static_cast<bst_node *>(current->LChild)->RightmostChild;
+        }
         else
         {
-            // Ascend current's parents to find the next lesser element
-            binary_tree_node *cur(current);
-            do
+            if(current->SideOfParent() == binary_tree_node::RightSide)
             {
-                if(cur->SideOfParent() == binary_tree_node::RightSide)
+                current = static_cast<bst_node *>(current->Parent);
+            }
+            else if(m_RChildParents.Count())
+            {
+                if(m_RChildParents.Top())
                 {
-                    current = static_cast<bst_node *>(cur->Parent);
-                    break;
-                }
-            }while((cur = cur->Parent));
+                    current = static_cast<bst_node *>(m_RChildParents.Top()->Parent);
+                    m_RChildParents.Pop();
 
-            if(!cur)
+                    m_LChildParents.Pop();
+                }
+                else
+                {
+                    // We've hit the beginning of the BST
+                    mem_begin = current;
+                    current = 0;
+
+                    //GASSERT(m_LChildParents.IsEmpty());
+                    //GASSERT(m_RChildParents.IsEmpty());
+                }
+            }
+            else
             {
                 // We've hit the beginning of the BST
                 mem_begin = current;
                 current = 0;
+
+                //GASSERT(m_LChildParents.IsEmpty());
+                //GASSERT(m_RChildParents.IsEmpty());
             }
         }
     }

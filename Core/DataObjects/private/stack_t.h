@@ -34,8 +34,13 @@ public:
     /** How many items are on the stack.
         \note O(1)
     */
-    inline long Count(){
+    inline long Count() const{
         return m_count;
+    }
+
+    /** Is the stack empty? */
+    inline bool IsEmpty() const{
+        return !Count();
     }
 
     /** Empties the stack and clears all memory.

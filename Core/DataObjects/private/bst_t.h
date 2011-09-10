@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "Core/Interfaces/ivoidwrappers.h"
 #include "binary_tree_node.h"
 #include "gutil_globals.h"
+#include "../stack.h"
 #include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -64,8 +65,8 @@ public:
         /** The difference in height of my two children (left - right) */
         inline int HeightDifference() const{
             int sum(0);
-            if(LChild) sum += (1 + dynamic_cast<bst_node *>(LChild)->Height);
-            if(RChild) sum -= (1 + dynamic_cast<bst_node *>(RChild)->Height);
+            if(LChild) sum += (1 + static_cast<bst_node *>(LChild)->Height);
+            if(RChild) sum -= (1 + static_cast<bst_node *>(RChild)->Height);
             return sum;
         }
 
@@ -97,7 +98,7 @@ public:
 
         /** Constructs an invalid iterator, which also happens to be equal to end. */
         const_iterator();
-        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const);
+        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const, bool initialize_parent_cache);
         const_iterator(const const_iterator &o);
 
         /** Prefix ++.  Throws an exception if you can't advance. */
@@ -143,13 +144,17 @@ public:
     private:
         Interfaces::IVoidComparer const* cmp;
 
-        /** Advance the iterator.  Throws an exception if you can't advance. */
+        /** Advance the iterator.  Does nothing if you can't advance. */
         void advance();
-        /** Advance the iterator in reverse order.  Throws an exception if you can't advance. */
+        /** Advance the iterator in reverse order.  Does nothing if you can't advance. */
         void retreat();
+
+        void _add_parent_to_cache(binary_tree_node *);
 
         bst_node *mem_begin;
         bst_node *mem_end;
+        Stack<binary_tree_node *> m_LChildParents;
+        Stack<binary_tree_node *> m_RChildParents;
     };
     friend class const_iterator;
 

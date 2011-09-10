@@ -61,12 +61,12 @@ private:
 
     static int pointer_compare(int* const &, int* const &);
 
-    static void verify_tree(const BinarySearchTree<int> &);
+    static void verify_tree(const BinarySearchTree<int> &, bool diagnostics = false);
 
     static vector<int> export_df_tree(const BinarySearchTree<int> &);
 };
 
-void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst)
+void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst, bool diagnostics)
 {
     int mycnt(0);
     int mem(-1);
@@ -75,17 +75,22 @@ void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst)
         // Make sure all items are in order
         QVERIFY(mem < *iter);
         mem = *iter;
+        if(diagnostics)
+            qDebug() << mem;
     }
-    QVERIFY(mycnt == bst.Size());
+    QVERIFY2(mycnt == bst.Size(), QString("%1 != %2").arg(mycnt).arg(bst.Size()).toAscii());
 
     // Iterate backwards to make sure it works that way too
     mem = INT_MAX;
-    for(BinarySearchTree<int>::const_iterator iter(--bst.end()); iter; iter--)
+    mycnt = 0;
+    for(BinarySearchTree<int>::const_iterator iter(--bst.end()); iter; iter--, mycnt++)
     {
+        int tmp( *iter );
         // Make sure all items are in order
-        QVERIFY(mem > *iter);
-        mem = *iter;
+        QVERIFY(mem > tmp);
+        mem = tmp;
     }
+    QVERIFY2(mycnt == bst.Size(), QString("%1 != %2").arg(mycnt).arg(bst.Size()).toAscii());
 }
 
 BST_TestTest::BST_TestTest()
@@ -109,7 +114,7 @@ void BST_TestTest::test_iterators()
     // Try iterating backwards
     int mem = INT_MAX;
     for(BinarySearchTree<int>::const_iterator iter(--bst.end());
-        iter >= bst.begin();
+        iter;
         iter--)
     {
         // Make sure all items are in order
@@ -147,6 +152,7 @@ void BST_TestTest::test_basic_function()
         int new_num(qrand() % 1000);
         while(bst.Contains(new_num)) new_num = qrand() % 100;
         bst.Add(new_num);
+        //show_breadth_first_tree(bst);
     }
     verify_tree(bst);
 
