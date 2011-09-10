@@ -96,7 +96,7 @@ public:
         typedef const T &reference;
 
         inline const_iterator(){}
-        inline const_iterator(binary_tree_node *n, const Interfaces::IVoidComparer *const vc)
+        inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc)
             :bst_t::const_iterator(n, vc)
         {}
         inline const_iterator(const bst_t::const_iterator &o)

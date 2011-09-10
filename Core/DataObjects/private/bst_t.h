@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "Core/Interfaces/ivoidwrappers.h"
 #include "binary_tree_node.h"
+#include "gutil_globals.h"
 #include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -29,6 +30,54 @@ class bst_t
 {
     GUTIL_DISABLE_COPY(bst_t);
 public:
+
+    /** Represents a single node of the binary search tree.
+
+        \sa BinarySearchTree
+    */
+    class bst_node :
+            public binary_tree_node
+    {
+    public:
+        /** Constructs a default node and points the leftmost and rightmost children to itself. */
+        inline bst_node()
+            :LeftmostChild(this),
+              RightmostChild(this),
+              Height(0)
+        {}
+
+        /** A reference to my most leftist child (min of my children).
+            This makes it possible to get to the begin() and end() of the tree
+            in constant time, and also makes iteration much faster
+        */
+        bst_node *LeftmostChild;
+
+        /** A reference to my most rightist child (max of my children).
+            This makes it possible to get to the begin() and end() of the tree
+            in constant time, and also makes iteration much faster
+        */
+        bst_node *RightmostChild;
+
+        /** The height of this node, which is 1 + the max of the heights of my two children */
+        int Height;
+
+        /** The difference in height of my two children (left - right) */
+        inline int HeightDifference() const{
+            int sum(0);
+            if(LChild) sum += (1 + dynamic_cast<bst_node *>(LChild)->Height);
+            if(RChild) sum -= (1 + dynamic_cast<bst_node *>(RChild)->Height);
+            return sum;
+        }
+
+        /** Returns whether the node is balanced, or in other words whether its children are not
+            more than 1 node different in height.
+        */
+        inline bool Balanced() const{
+            return gAbs(HeightDifference()) <= 1;
+        }
+
+    };
+
 
     /** A class for iterating through the bst_t.
 
@@ -48,7 +97,7 @@ public:
 
         /** Constructs an invalid iterator, which also happens to be equal to end. */
         const_iterator();
-        explicit const_iterator(binary_tree_node *, const Interfaces::IVoidComparer *const);
+        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const);
         const_iterator(const const_iterator &o);
 
         /** Prefix ++.  Throws an exception if you can't advance. */
@@ -78,17 +127,17 @@ public:
         bool operator == (const const_iterator &) const;
         bool operator != (const const_iterator &) const;
 
-        binary_tree_node *operator->();
-        const binary_tree_node *operator->() const;
-        const binary_tree_node &operator *() const;
-        binary_tree_node &operator *();
+        bst_node *operator->();
+        const bst_node *operator->() const;
+        const bst_node &operator *() const;
+        bst_node &operator *();
 
         /** Returns true if the iterator points to a valid element. */
         operator bool() const;
 
     protected:
 
-        binary_tree_node *current;
+        bst_node *current;
 
 
     private:
@@ -99,8 +148,8 @@ public:
         /** Advance the iterator in reverse order.  Throws an exception if you can't advance. */
         void retreat();
 
-        binary_tree_node *mem_begin;
-        binary_tree_node *mem_end;
+        bst_node *mem_begin;
+        bst_node *mem_end;
     };
     friend class const_iterator;
 
@@ -134,28 +183,31 @@ protected:
 
     /** This class is desiged to be inherited by BinarySearchTree, so no public constructor */
     bst_t(void_wrapper *);
+    /** Deallocates all memory.
+        \note O(N)
+    */
     ~bst_t();
 
-    binary_tree_node *add(const void *const);
-    binary_tree_node *search(const void *const) const;
+    bst_node *add(const void *const);
+    bst_node *search(const void *const) const;
 
     /** Enables you to conduct a search by something other than the normal type held by the
         BST.  So you could search with a string to find an int, for example if you reinterpret
         the void * in the void wrapper.
         \note In this case the void comparer is not owned by the BST, so you must delete it yourself.
     */
-    binary_tree_node *search(const void *const, const Interfaces::IVoidComparer *) const;
+    bst_node *search(const void *const, const Interfaces::IVoidComparer *) const;
 
     bool remove(const void *const);
     bool remove(const const_iterator &);
 
     /** Returns the least element of the tree. */
-    binary_tree_node *first() const;
+    bst_node *first() const;
     /** Returns the most element of the tree */
-    binary_tree_node *last() const;
+    bst_node *last() const;
 
     /** Our friends have access to our root. */
-    binary_tree_node *root;
+    bst_node *root;
 
     /** Derived classes may need to access our type wrapper. */
     void_wrapper *data_access_wrapper;
@@ -166,8 +218,8 @@ private:
     void _update_root_node();
     void _cleanup_memory(binary_tree_node *n);
 
-    static void walk_parents_update_heights_rebalance(binary_tree_node *);
-    static void refresh_node_state(binary_tree_node *);
+    static void walk_parents_update_heights_rebalance(bst_node *);
+    static void refresh_node_state(bst_node *);
 
     static void rotate_right(binary_tree_node *parent);
     static void rotate_left(binary_tree_node *parent);

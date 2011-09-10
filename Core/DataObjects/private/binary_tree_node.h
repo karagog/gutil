@@ -20,38 +20,13 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-
-/** Gives the BST a way to specify the side of a node. */
-enum SideEnum
-{
-    /** Represents a null value */
-    NoSide,
-
-    /** The left child of a node. */
-    LeftSide,
-
-    /** The right child of a node. */
-    RightSide
-};
-
-
-
-/** Represents a single node of the binary search tree.
-
-    This class is supposed to be private.  You should not need to use this class
-    directly.
-
-    \sa BinarySearchTree
+/** Represents a generic binary tree node.
+    It can be used to represent any binary tree structure, in which each node has two children,
+    and it also keeps track of its parent node.
 */
 class binary_tree_node
 {
 public:
-    /** Constructs a default node with all pointers set to 0. */
-    binary_tree_node();
-
-    /** Deletes a bst_node and all its children. */
-    ~binary_tree_node();
-
     /** A reference to the parent of this node. */
     binary_tree_node *Parent;
 
@@ -61,37 +36,39 @@ public:
     /** A reference to the right child of this node. */
     binary_tree_node *RChild;
 
-    /** A reference to my most leftist child (min of my children).
-        This makes it possible to get to the begin() and end() of the tree
-        in constant time, and also makes iteration much faster
+    /** A pointer to the data held by this node.
+        You can reinterpret it as whatever the hell you want, I'm just going to keep track of it.
     */
-    binary_tree_node *LeftmostChild;
-
-    /** A reference to my most rightist child (max of my children).
-        This makes it possible to get to the begin() and end() of the tree
-        in constant time, and also makes iteration much faster
-    */
-    binary_tree_node *RightmostChild;
-
-    /** The height of this node, which is 1 + the max of the heights of my two children */
-    int Height;
-
-    /** The difference in height of my two children (left - right) */
-    int HeightDifference() const;
-
-    /** A pointer to the data held by this node. */
     void *Data;
 
-    /** Returns whether the node is balanced, or in other words whether its children are not
-        more than 1 node different in height.
-    */
-    bool Balanced() const;
+    /** Constructs a null node with all pointers zeroed. */
+    inline binary_tree_node()
+        :Parent(0),
+          LChild(0),
+          RChild(0),
+          Data(0)
+    {}
+
+    /** We have to be able to delete our children which may be subclassed. */
+    virtual ~binary_tree_node();
 
 
-    /** Returns which side of my parent I'm on. */
+    /** Gives a way to specify the side of a node. */
+    enum SideEnum
+    {
+        /** Represents a null value */
+        NoSide,
+        /** The left child of a node. */
+        LeftSide,
+        /** The right child of a node. */
+        RightSide
+    };
+
+    /** Returns which side of my parent I'm on.  Merely a convenience function. */
     SideEnum SideOfParent() const;
 
 };
+
 
 
 GUTIL_END_CORE_NAMESPACE

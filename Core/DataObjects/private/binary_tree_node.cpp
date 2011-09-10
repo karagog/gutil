@@ -17,42 +17,13 @@ limitations under the License.*/
 #include "Core/exception.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-binary_tree_node::binary_tree_node()
-    :Parent(0),
-      LChild(0),
-      RChild(0),
-      LeftmostChild(this),
-      RightmostChild(this),
-      Height(0),
-      Data(0)
-{
-
-}
-
 binary_tree_node::~binary_tree_node()
 {
-    if(LChild)
-        delete LChild;
-    if(RChild)
-        delete RChild;
+    if(LChild) delete LChild;
+    if(RChild) delete RChild;
 }
 
-int binary_tree_node::HeightDifference() const
-{
-    int sum(0);
-    if(LChild)
-        sum += (1 + LChild->Height);
-    if(RChild)
-        sum -= (1 + RChild->Height);
-    return sum;
-}
-
-bool binary_tree_node::Balanced() const
-{
-    return gAbs(HeightDifference()) <= 1;
-}
-
-SideEnum binary_tree_node::SideOfParent() const
+binary_tree_node::SideEnum binary_tree_node::SideOfParent() const
 {
     SideEnum ret(NoSide);
     if(Parent)

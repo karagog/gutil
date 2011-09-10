@@ -34,15 +34,15 @@ bst_t::~bst_t()
 
 bst_t::void_wrapper::~void_wrapper(){}
 
-binary_tree_node *bst_t::add(const void *const v)
+bst_t::bst_node *bst_t::add(const void *const v)
 {
-    binary_tree_node *new_node;
+    bst_node *new_node;
     if(root)
     {
         // Find the place to insert, has to be a leaf node
-        binary_tree_node *cur( root );
-        binary_tree_node *next_cur( root );
-        SideEnum insertion_side(LeftSide);
+        bst_node *cur( root );
+        bst_node *next_cur( root );
+        binary_tree_node::SideEnum insertion_side(binary_tree_node::LeftSide);
         while(next_cur)
         {
             cur = next_cur;
@@ -50,13 +50,13 @@ binary_tree_node *bst_t::add(const void *const v)
 
             if(cmp_res < 0)
             {
-                next_cur = cur->LChild;
-                insertion_side = LeftSide;
+                next_cur = static_cast<bst_node *>(cur->LChild);
+                insertion_side = binary_tree_node::LeftSide;
             }
             else if(cmp_res > 0)
             {
-                next_cur = cur->RChild;
-                insertion_side = RightSide;
+                next_cur = static_cast<bst_node *>(cur->RChild);
+                insertion_side = binary_tree_node::RightSide;
             }
             else
             {
@@ -66,13 +66,13 @@ binary_tree_node *bst_t::add(const void *const v)
             }
         }
 
-        new_node = new binary_tree_node;
+        new_node = new bst_node;
         switch(insertion_side)
         {
-        case LeftSide:
+        case binary_tree_node::LeftSide:
             cur->LChild = new_node;
             break;
-        case RightSide:
+        case binary_tree_node::RightSide:
             cur->RChild = new_node;
             break;
         default:
@@ -88,7 +88,7 @@ binary_tree_node *bst_t::add(const void *const v)
     else
     {
         // If the root is null, then this is the first item in the tree (easy case)
-        root = new_node = new binary_tree_node;
+        root = new_node = new bst_node;
     }
 
     m_size++;
@@ -99,7 +99,7 @@ binary_tree_node *bst_t::add(const void *const v)
 
 bool bst_t::remove(const const_iterator &iter)
 {
-    binary_tree_node *cur(iter.current);
+    bst_node *cur(iter.current);
     if(cur)
     {
         // Remove it.  The deletion algorithm goes as follows:
@@ -109,18 +109,18 @@ bool bst_t::remove(const const_iterator &iter)
         //  right-most item on my left side, whichever one is taller.
 
         // Find a replacement node
-        binary_tree_node *replacement(0);
+        bst_node *replacement(0);
         if(cur->Height > 0)
         {
             if(cur->HeightDifference() > 0)
             {
                 // Left-heavy
-                replacement = cur->LChild->RightmostChild;
+                replacement = static_cast<bst_node *>(cur->LChild)->RightmostChild;
             }
             else
             {
                 // Right-heavy
-                replacement = cur->RChild->LeftmostChild;
+                replacement = static_cast<bst_node *>(cur->RChild)->LeftmostChild;
             }
         }
 
@@ -130,9 +130,9 @@ bool bst_t::remove(const const_iterator &iter)
             // We have to pre-emptively adjust our root node, because we will be unable to
             //  find the new root once it's deleted.
             if(root->RChild)
-                root = root->RChild;
+                root = static_cast<bst_node *>(root->RChild);
             else if(root->LChild)
-                root = root->LChild;
+                root = static_cast<bst_node *>(root->LChild);
             else
                 root = 0;
         }
@@ -140,28 +140,28 @@ bool bst_t::remove(const const_iterator &iter)
         data_access_wrapper->DeleteVoid(cur->Data);
 
         // This variable determines where to start adjusting the node height after deletion.
-        binary_tree_node *start_height_adjustment(0);
+        bst_node *start_height_adjustment(0);
 
         if(replacement)
         {
             // If the replacement has a child (at most 1) then we move it into the replacement's place
-            binary_tree_node *replacement_child(0);
+            bst_node *replacement_child(0);
             if(replacement->RChild)
-                replacement_child = replacement->RChild;
+                replacement_child = static_cast<bst_node *>(replacement->RChild);
             else if(replacement->LChild)
-                replacement_child = replacement->LChild;
+                replacement_child = static_cast<bst_node *>(replacement->LChild);
 
             if(cur == replacement->Parent)
                 start_height_adjustment = replacement;
             else
             {
-                start_height_adjustment = replacement->Parent;
+                start_height_adjustment = static_cast<bst_node *>(replacement->Parent);
                 switch(replacement->SideOfParent())
                 {
-                case RightSide:
+                case binary_tree_node::RightSide:
                     replacement->Parent->RChild = replacement_child;
                     break;
-                case LeftSide:
+                case binary_tree_node::LeftSide:
                     replacement->Parent->LChild = replacement_child;
                     break;
                 default:
@@ -180,7 +180,7 @@ bool bst_t::remove(const const_iterator &iter)
         }
         else
         {
-            start_height_adjustment = cur->Parent;
+            start_height_adjustment = static_cast<bst_node *>(cur->Parent);
         }
 
 
@@ -192,10 +192,10 @@ bool bst_t::remove(const const_iterator &iter)
         {
             switch(cur->SideOfParent())
             {
-            case RightSide:
+            case binary_tree_node::RightSide:
                 cur->Parent->RChild = replacement;
                 break;
-            case LeftSide:
+            case binary_tree_node::LeftSide:
                 cur->Parent->LChild = replacement;
                 break;
             default:
@@ -223,22 +223,22 @@ bool bst_t::remove(const void *const v)
     return remove(const_iterator(search(v), data_access_wrapper));
 }
 
-binary_tree_node *bst_t::search(const void *const v) const
+bst_t::bst_node *bst_t::search(const void *const v) const
 {
     return search(v, data_access_wrapper);
 }
 
-binary_tree_node *bst_t::search(const void *const v, const IVoidComparer *vw) const
+bst_t::bst_node *bst_t::search(const void *const v, const IVoidComparer *vw) const
 {
-    binary_tree_node *cur( root );
+    bst_node *cur( root );
     while(cur)
     {
         int cmp_res( vw->CompareVoid(cur->Data, v) );
 
         if(cmp_res < 0)
-            cur = cur->RChild;
+            cur = static_cast<bst_node *>(cur->RChild);
         else if(cmp_res > 0)
-            cur = cur->LChild;
+            cur = static_cast<bst_node *>(cur->LChild);
         else
             break;
     }
@@ -271,12 +271,12 @@ void bst_t::_cleanup_memory(binary_tree_node *n)
     delete n;
 }
 
-binary_tree_node *bst_t::first() const
+bst_t::bst_node *bst_t::first() const
 {
     return root ? root->LeftmostChild : 0;
 }
 
-binary_tree_node *bst_t::last() const
+bst_t::bst_node *bst_t::last() const
 {
     return root ? root->RightmostChild : 0;
 }
@@ -285,7 +285,7 @@ void bst_t::_update_root_node()
 {
     binary_tree_node *n(root);
     while(n && (n = n->Parent))
-        root = n;
+        root = static_cast<bst_node *>(n);
 }
 
 
@@ -299,7 +299,7 @@ bst_t::const_iterator::const_iterator()
       mem_end(0)
 {}
 
-bst_t::const_iterator::const_iterator(binary_tree_node *n, const IVoidComparer *const vc)
+bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc)
     :current(n),
       cmp(vc),
       mem_begin(0),
@@ -338,19 +338,19 @@ void bst_t::const_iterator::advance()
     if(current)
     {
         if(current->RChild)
-            current = current->RChild->LeftmostChild;
+            current = static_cast<bst_node *>(current->RChild)->LeftmostChild;
         else
         {
             // Ascend current's parents to find the next greater element
-            binary_tree_node *cur(current);
+            bst_node *cur(current);
             do
             {
-                if(cur->SideOfParent() == LeftSide)
+                if(cur->SideOfParent() == binary_tree_node::LeftSide)
                 {
-                    current = cur->Parent;
+                    current = static_cast<bst_node *>(cur->Parent);
                     break;
                 }
-            }while((cur = cur->Parent));
+            }while((cur = static_cast<bst_node *>(cur->Parent)));
 
             if(!cur)
             {
@@ -372,16 +372,16 @@ void bst_t::const_iterator::retreat()
     if(current)
     {
         if(current->LChild)
-            current = current->LChild->RightmostChild;
+            current = static_cast<bst_node *>(current->LChild)->RightmostChild;
         else
         {
             // Ascend current's parents to find the next lesser element
             binary_tree_node *cur(current);
             do
             {
-                if(cur->SideOfParent() == RightSide)
+                if(cur->SideOfParent() == binary_tree_node::RightSide)
                 {
-                    current = cur->Parent;
+                    current = static_cast<bst_node *>(cur->Parent);
                     break;
                 }
             }while((cur = cur->Parent));
@@ -471,7 +471,7 @@ bool bst_t::const_iterator::operator >= (const const_iterator &o) const
 
 
 
-void bst_t::walk_parents_update_heights_rebalance(binary_tree_node *n)
+void bst_t::walk_parents_update_heights_rebalance(bst_node *n)
 {
     if(n)
     {
@@ -481,25 +481,25 @@ void bst_t::walk_parents_update_heights_rebalance(binary_tree_node *n)
         if(!n->Balanced())
             rebalance(n);
 
-        walk_parents_update_heights_rebalance(n->Parent);
+        walk_parents_update_heights_rebalance(static_cast<bst_node *>(n->Parent));
     }
 }
 
-void bst_t::refresh_node_state(binary_tree_node *n)
+void bst_t::refresh_node_state(bst_node *n)
 {
     // Update the node's height cache
     if(!n->LChild && !n->RChild)
         n->Height = 0;
     else
     {
-        const int lheight(n->LChild ? n->LChild->Height : 0);
-        const int rheight(n->RChild ? n->RChild->Height : 0);
+        const int lheight(n->LChild ? static_cast<bst_node *>(n->LChild)->Height : 0);
+        const int rheight(n->RChild ? static_cast<bst_node *>(n->RChild)->Height : 0);
         n->Height = gMax(lheight, rheight) + 1;
     }
 
     // Update the left-most and right-most child caches
-    n->LeftmostChild = n->LChild ? n->LChild->LeftmostChild : n;
-    n->RightmostChild = n->RChild ? n->RChild->RightmostChild : n;
+    n->LeftmostChild = n->LChild ? static_cast<bst_node *>(n->LChild)->LeftmostChild : n;
+    n->RightmostChild = n->RChild ? static_cast<bst_node *>(n->RChild)->RightmostChild : n;
 }
 
 void bst_t::rotate_right(binary_tree_node *n)
@@ -523,7 +523,7 @@ void bst_t::rotate_right(binary_tree_node *n)
 
     // Have to refresh the node we just rotated, the other one will be refreshed
     //  automatically when we walk up the tree
-    refresh_node_state(n);
+    refresh_node_state(static_cast<bst_node *>(n));
 }
 
 void bst_t::rotate_left(binary_tree_node *n)
@@ -547,19 +547,19 @@ void bst_t::rotate_left(binary_tree_node *n)
 
     // Have to refresh the node we just rotated, the other one will be refreshed
     //  automatically when we walk up the tree
-    refresh_node_state(n);
+    refresh_node_state(static_cast<bst_node *>(n));
 }
 
 void bst_t::rebalance(binary_tree_node *n)
 {
-    int height_difference = n->HeightDifference();
+    int height_difference = static_cast<bst_node *>(n)->HeightDifference();
     if(height_difference > 1)
     {
         // The node is left-heavy
 
         // Check if it's LR imbalance so we can resolve that first.
-        if(n->LChild->HeightDifference() < 0)
-            rotate_left(n->LChild);
+        if(static_cast<bst_node *>(n->LChild)->HeightDifference() < 0)
+            rotate_left(static_cast<bst_node *>(n->LChild));
 
         // Now that the LR imbalance is fixed, do the LL rebalance.
         rotate_right(n);
@@ -569,7 +569,7 @@ void bst_t::rebalance(binary_tree_node *n)
         // The node is right-heavy
 
         // Check if it's RL imbalance so we can resolve that first.
-        if(n->RChild->HeightDifference() > 0)
+        if(static_cast<bst_node *>(n->RChild)->HeightDifference() > 0)
             rotate_right(n->RChild);
 
         // Now that the RL imbalance is fixed, do the RR rebalance.
@@ -577,20 +577,20 @@ void bst_t::rebalance(binary_tree_node *n)
     }
 }
 
-binary_tree_node *bst_t::const_iterator::operator->()
+bst_t::bst_node *bst_t::const_iterator::operator->()
 {
     return current;
 }
 
-const binary_tree_node *bst_t::const_iterator::operator->() const
+const bst_t::bst_node *bst_t::const_iterator::operator->() const
 {
     return current;
 }
-const binary_tree_node &bst_t::const_iterator::operator *() const
+const bst_t::bst_node &bst_t::const_iterator::operator *() const
 {
     return *current;
 }
-binary_tree_node &bst_t::const_iterator::operator *()
+bst_t::bst_node &bst_t::const_iterator::operator *()
 {
     return *current;
 }
