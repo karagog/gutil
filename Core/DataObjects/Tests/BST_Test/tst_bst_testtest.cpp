@@ -70,7 +70,7 @@ void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst, bool diagnostic
 {
     int mycnt(0);
     int mem(-1);
-    for(BinarySearchTree<int>::const_iterator iter(bst.begin()); iter; iter++, mycnt++)
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin()); iter; ++iter, mycnt++)
     {
         // Make sure all items are in order
         QVERIFY(mem < *iter);
@@ -83,7 +83,7 @@ void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst, bool diagnostic
     // Iterate backwards to make sure it works that way too
     mem = INT_MAX;
     mycnt = 0;
-    for(BinarySearchTree<int>::const_iterator iter(--bst.end()); iter; iter--, mycnt++)
+    for(BinarySearchTree<int>::const_iterator iter(--bst.end()); iter; --iter, mycnt++)
     {
         int tmp( *iter );
         // Make sure all items are in order
