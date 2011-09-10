@@ -314,7 +314,21 @@ bst_t::const_iterator::const_iterator(const bst_t::const_iterator &o)
       cmp(o.cmp),
       mem_begin(o.mem_begin),
       mem_end(o.mem_end)
-{}
+{
+    o.m_LChildParents.CloneTo(m_LChildParents);
+    o.m_RChildParents.CloneTo(m_RChildParents);
+}
+
+bst_t::const_iterator &bst_t::const_iterator::operator = (const const_iterator &o)
+{
+    current = o.current;
+    cmp = o.cmp;
+    mem_begin = o.mem_begin;
+    mem_end = o.mem_end;
+    o.m_LChildParents.CloneTo(m_LChildParents);
+    o.m_RChildParents.CloneTo(m_RChildParents);
+    return *this;
+}
 
 
 void bst_t::const_iterator::_add_parent_to_cache(binary_tree_node *n)
@@ -322,7 +336,7 @@ void bst_t::const_iterator::_add_parent_to_cache(binary_tree_node *n)
     if(n)
     {
         // Add my parent before adding myself, 'cause we're pushing onto a LIFO stack.
-        _add_parent_to_cache(n);
+        _add_parent_to_cache(n->Parent);
 
         switch(n->SideOfParent())
         {

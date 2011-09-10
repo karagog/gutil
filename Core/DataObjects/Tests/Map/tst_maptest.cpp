@@ -74,12 +74,11 @@ void MapTest::test_basic_function()
     }
     QVERIFY(exception_caught);
 
-    // Test the iterator that Insert returns
-    QVERIFY(map.Insert(100, "one")->Key == 100);
-
     // Try InsertMulti
     Map<int, QString>::iterator iter;
-    QVERIFY((iter = map.InsertMulti(100, "two"))->Value() == "two");
+    map.Insert(100, "one");
+    map.InsertMulti(100, "two");
+    QVERIFY((iter = map.Search(100))->Value() == "two");
     QVERIFY(iter->Values().Count() == 2);
 
     // Test our auto-remove key when the last value is popped

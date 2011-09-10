@@ -101,6 +101,8 @@ public:
         explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const, bool initialize_parent_cache);
         const_iterator(const const_iterator &o);
 
+        const_iterator &operator = (const const_iterator &);
+
         /** Prefix ++.  Throws an exception if you can't advance. */
         const_iterator &operator ++();
 

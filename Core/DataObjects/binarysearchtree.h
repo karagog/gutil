@@ -101,6 +101,10 @@ public:
             :bst_t::const_iterator(o)
         {}
 
+        inline const_iterator &operator =(const bst_t::const_iterator &o){
+            *static_cast<bst_t::const_iterator *>(this) = o;
+        }
+
         /** Dereference the iterator and return a reference to the data. */
         inline const T &operator*() const { return *(reinterpret_cast<const T *const>(current->Data)); }
         /** Dereference the iterator and return a pointer to the data. */

@@ -17,13 +17,16 @@ limitations under the License.*/
 
 #include "Core/DataObjects/private/stack_t.h"
 #include "Core/exception.h"
+#include "Core/Interfaces/iclonable.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
 /** Implements a FILO stack. */
 template<class T>class Stack :
-        public stack_t
+        public stack_t,
+        public Interfaces::IClonable< Stack<T> >
 {
+    GUTIL_DISABLE_COPY(Stack<T>);
 public:
 
     /** The default memory allocator for the stack.  Normally you don't deal with this class*/
@@ -181,6 +184,15 @@ public:
         on_popped();
     }
 
+    /** Conducts a deep copy of the stack.  Overridden from IClonable.
+        \note O(N)
+    */
+    virtual Stack<T> &CloneTo(Stack<T> &s) const{
+        s.Clear();
+        _clone_helper(s, NextNode);
+        return s;
+    }
+
 
 protected:
 
@@ -203,6 +215,17 @@ protected:
 
     /** Called after an item is removed. */
     virtual void on_popped(){}
+
+
+private:
+
+    static void _clone_helper(Stack<T> &s, node_t *n){
+        if(n)
+        {
+            _clone_helper(s, n->NextNode);
+            s.Push(*reinterpret_cast<const T *const>(n->Data));
+        }
+    }
 
 };
 

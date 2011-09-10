@@ -120,12 +120,15 @@ public:
         Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
-    iterator begin(){ return _index.begin(); }
-    const_iterator begin() const{ return _index.begin(); }
-    iterator end(){ return _index.end(); }
-    const_iterator end() const{ return _index.end(); }
-    iterator preBegin(){ return _index.preBegin(); }
-    const_iterator preBegin() const{ return _index.preBegin(); }
+    inline iterator begin(){ return _index.begin(); }
+    inline const_iterator begin() const{ return _index.begin(); }
+    inline iterator end(){ return _index.end(); }
+    inline const_iterator end() const{ return _index.end(); }
+    inline iterator preBegin(){ return _index.preBegin(); }
+    inline const_iterator preBegin() const{ return _index.preBegin(); }
+
+    inline iterator Search(const K &k){ return _index.Search(k, &_key_searcher); }
+    inline const_iterator Search(const K &k) const{ return _index.Search(k, &_key_searcher); }
 
 
     /** Returns whether the map contains this key. */
@@ -163,7 +166,7 @@ public:
         If a value (or values) already exists for that key then they will be overwritten.
         \returns An iterator pointing to the inserted item
     */
-    inline iterator Insert(const K &key, const V &value){ return _insert(key, value, true); }
+    inline void Insert(const K &key, const V &value){ _insert(key, value, true); }
 
     /** Inserts an item into the map.
 
@@ -171,7 +174,7 @@ public:
         collection of values corresponding to that key.
         \returns An iterator pointing to the inserted item
     */
-    inline iterator InsertMulti(const K &key, const V &value){ return _insert(key, value, false); }
+    inline void InsertMulti(const K &key, const V &value){ _insert(key, value, false); }
 
     /** Removes all values corresponding to the key. */
     void Remove(const K &);
@@ -230,7 +233,7 @@ private:
         return 0;
     }
 
-    iterator _insert(const K &, const V &, bool);
+    void _insert(const K &, const V &, bool);
 
     BinarySearchTree<Page *> _index;
     KeyWrapper _key_searcher;
@@ -280,7 +283,7 @@ template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
     return iter->values;
 }
 
-template<class K, class V>typename Map<K, V>::iterator Map<K, V>::_insert(const K &key, const V &value, bool overwrite)
+template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, bool overwrite)
 {
     iterator iter(_index.Search(key, &_key_searcher));
     if(iter)
@@ -291,10 +294,8 @@ template<class K, class V>typename Map<K, V>::iterator Map<K, V>::_insert(const 
     }
     else
     {
-        iter = _index.Add(new Page(key, value, this));
+        _index.Add(new Page(key, value, this));
     }
-
-    return iter;
 }
 
 template<class K, class V>void Map<K, V>::Remove(const K &k)

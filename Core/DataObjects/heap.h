@@ -16,13 +16,45 @@ limitations under the License.*/
 #define HEAP_H
 
 #include "Core/DataObjects/private/binary_tree_node.h"
+#include "private/heap_p.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-class Heap
+template<class T>class Heap :
+        public heap_p
 {
 public:
+
+    /** An abstract type wrapper around the type.  It is abstract because you must implement
+        the compare function.
+    */
+    class TypeWrapper :
+            public heap_p::type_wrapper
+    {
+    public:
+        virtual int Compare(const T &, const T &) = 0;
+        virtual T *Copy(const T &o){
+            return new T(o);
+        }
+        virtual void Delete(T *o){
+            delete o;
+        }
+
+    private:
+        virtual int CompareVoid(const void *const lhs, const void *const rhs) const{
+            return Compare(*reinterpret_cast<const T *const>(lhs),
+                           *reinterpret_cast<const T *const>(rhs));
+        }
+        virtual void *CopyVoid(const void *const v) const{
+            return Copy(reinterpret_cast<const T *const>(v));
+        }
+        virtual void DeleteVoid(void *v) const{
+            Delete(reinterpret_cast<T *>(v));
+        }
+    };
+
     Heap();
+
 };
 
 

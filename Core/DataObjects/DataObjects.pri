@@ -10,7 +10,8 @@ HEADERS += \
     DataObjects/private/list_p.h \
     DataObjects/private/queue_p.h \
     DataObjects/queue.h \
-    DataObjects/heap.h
+    DataObjects/heap.h \
+    DataObjects/private/heap_p.h
 
 SOURCES += \
     DataObjects/private/binary_tree_node.cpp \
@@ -19,6 +20,9 @@ SOURCES += \
     DataObjects/private/stack_t.cpp \
     DataObjects/private/list_p.cpp \
     DataObjects/private/queue_p.cpp \
-    DataObjects/heap.cpp
+    DataObjects/private/heap_p.cpp
+
+
+
 
 
