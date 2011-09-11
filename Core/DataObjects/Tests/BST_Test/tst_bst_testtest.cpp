@@ -64,6 +64,8 @@ private:
     static void verify_tree(const BinarySearchTree<int> &, bool diagnostics = false);
 
     static vector<int> export_df_tree(const BinarySearchTree<int> &);
+
+    static void test_number_of_items(int);
 };
 
 void BST_TestTest::verify_tree(const BinarySearchTree<int> &bst, bool diagnostics)
@@ -493,22 +495,50 @@ void BST_TestTest::test_pointers()
 
 void BST_TestTest::test_load()
 {
-    BinarySearchTree<int> bst;
-    const int num_items(1000000);
+    test_number_of_items(100000);
 
-    cout<<QString("Inserting %1 items...").arg(num_items).toStdString()<<endl;
+    cout<<"======================================================"<<endl;
+
+    test_number_of_items(500000);
+
+    cout<<"======================================================"<<endl;
+
+    test_number_of_items(1000000);
+
+    cout<<"======================================================"<<endl;
+
+    //test_number_of_items(5000000);
+}
+
+void BST_TestTest::test_number_of_items(int num_items)
+{
+    BinarySearchTree<int> bst;
+    QTime total;
+    QTime insert;
+    QTime iterate;
+    QTime remove;
+
+    cout<<QString("Testing with %1 items...").arg(num_items).toStdString()<<endl;
+    total.start();
+    insert.start();
     for(int i(0); i < num_items; i++)
         bst.Add(i);
-    cout<<"Finished inserting"<<endl;
+    int insert_msecs = insert.elapsed();
 
-    cout<<"Iterating forwards and backwards through all values and checking that they're in sequence..."<<endl;
-    verify_tree(bst);
-    cout<<"Finished iterating"<<endl;
+    iterate.start();
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin()); iter; ++iter) ;
+    int iterate_msecs = iterate.elapsed();
 
-    cout<<"Removing each value one by one..."<<endl;
-    for(int i(0); i < num_items; i++)
-        bst.Remove(i);
-    cout<<"Finished removing"<<endl;
+    remove.start();
+    for(int i(0); i < num_items; i++) bst.Remove(i);
+    int remove_msecs = remove.elapsed();
+    int total_msecs = total.elapsed();
+
+    cout<<"Finished testing "<<num_items<<" items."<<endl;
+    cout<<"Insertion:  "<<insert_msecs<<" milliseconds"<<endl;
+    cout<<"Iteration:  "<<iterate_msecs<<" milliseconds"<<endl;
+    cout<<"Removal:  "<<remove_msecs<<" milliseconds"<<endl;
+    cout<<"Total:  "<<total_msecs<<" milliseconds"<<endl;
 }
 
 
