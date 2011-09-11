@@ -225,7 +225,7 @@ private:
     void _update_root_node();
     void _cleanup_memory(binary_tree_node *n);
 
-    static void walk_parents_update_heights_rebalance(bst_node *);
+    static void walk_parents_update_heights_rebalance(bst_node *, bool already_rebalanced = false);
     static void refresh_node_state(bst_node *);
 
     static void rotate_right(binary_tree_node *parent);

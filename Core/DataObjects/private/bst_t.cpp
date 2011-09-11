@@ -551,17 +551,20 @@ bool bst_t::const_iterator::operator >= (const const_iterator &o) const
 
 
 
-void bst_t::walk_parents_update_heights_rebalance(bst_node *n)
+void bst_t::walk_parents_update_heights_rebalance(bst_node *n, bool already_balanced)
 {
     if(n)
     {
         refresh_node_state(n);
 
         // Rebalance the node if it's unbalanced
-        if(!n->Balanced())
+        if(!already_balanced && !n->Balanced())
+        {
             rebalance(n);
+            already_balanced = true;
+        }
 
-        walk_parents_update_heights_rebalance(static_cast<bst_node *>(n->Parent));
+        walk_parents_update_heights_rebalance(static_cast<bst_node *>(n->Parent), already_balanced);
     }
 }
 
