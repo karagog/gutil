@@ -363,11 +363,6 @@ bool bst_t::const_iterator::operator == (const bst_t::const_iterator &o) const
                  (mem_begin == o.mem_begin && mem_end == o.mem_end)));
 }
 
-bool bst_t::const_iterator::operator != (const bst_t::const_iterator &o) const
-{
-    return !(*this == o);
-}
-
 bst_t::const_iterator::operator bool() const
 {
     return current;

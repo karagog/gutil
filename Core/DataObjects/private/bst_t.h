@@ -87,8 +87,11 @@ public:
         There is no non-const iterator, because you are not allowed to modify the elements of the BST
         (it would destroy the tree's index).  To do this you have to add or remove items from the tree.
 
-        \note I'm convinced iteration can be done in constant time, but my algorithm is O(log(n))
-        in the worst case and O(1) in the best case, but I am trying to improve it.
+        \note Iteration is done in constant time O(1).  Normally, traversing the tree depth-first would
+        take O(N log(N)), but because of intelligent use of caches we can traverse it in O(N).  The penalty
+        is a slightly larger memory overhead, but only while the iterator is instantiated.  The amount
+        of memory required for the cache is not large, but grows with O(log(N)).  The speed benefit it
+        brings far outweighs this memory overhead, especially for large data sets.
     */
     class const_iterator
     {
@@ -103,16 +106,16 @@ public:
 
         const_iterator &operator = (const const_iterator &);
 
-        /** Prefix ++.  Throws an exception if you can't advance. */
+        /** Prefix ++.  \note O(1) */
         const_iterator &operator ++();
 
-        /** Postfix ++.  Throws an exception if you can't advance. */
+        /** Postfix ++.  \note O(1) */
         const_iterator operator ++(int);
 
-        /** Prefix --.  Throws an exception if you can't advance. */
+        /** Prefix --.  \note O(1) */
         const_iterator &operator --();
 
-        /** Postfix --.  Throws an exception if you can't advance. */
+        /** Postfix --.  \note O(1) */
         const_iterator operator --(int);
 
         /** Comparison operator */
@@ -128,7 +131,7 @@ public:
         bool operator >= (const const_iterator &o) const;
 
         bool operator == (const const_iterator &) const;
-        bool operator != (const const_iterator &) const;
+        inline bool operator != (const const_iterator &o) const{ return !(*this == o); }
 
         bst_node *operator->();
         const bst_node *operator->() const;

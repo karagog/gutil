@@ -501,7 +501,7 @@ void BST_TestTest::test_load()
         bst.Add(i);
     cout<<"Finished inserting"<<endl;
 
-    cout<<"Iterating through all values and checking that they're in sequence..."<<endl;
+    cout<<"Iterating forwards and backwards through all values and checking that they're in sequence..."<<endl;
     verify_tree(bst);
     cout<<"Finished iterating"<<endl;
 
