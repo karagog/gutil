@@ -111,8 +111,8 @@ public:
         inline const T *operator->() const { return reinterpret_cast<const T *const>(current->Data); }
 
     protected:
-        inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc, bool initialize_parent_cache)
-            :bst_t::const_iterator(n, vc, initialize_parent_cache)
+        inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc)
+            :bst_t::const_iterator(n, vc)
         {}
     };
 
@@ -147,7 +147,7 @@ public:
         \note O(log(N))
     */
     inline const_iterator Search(const T &object) const{
-        return const_iterator(search(reinterpret_cast<const void *const>(&object)), data_access_wrapper, true);
+        return const_iterator(search(reinterpret_cast<const void *const>(&object)), data_access_wrapper);
     }
     /** Does a lookup with the provided key, which can be a different type than T,
         and returns an iterator to it.  You must provide your own void comparer which knows
@@ -157,7 +157,7 @@ public:
         \note O(log(N))
     */
     template<class K>inline const_iterator Search(const K &object, const Interfaces::IVoidComparer *const vc) const{
-        return const_iterator(search(reinterpret_cast<const void *const>(&object), vc), data_access_wrapper, true);
+        return const_iterator(search(reinterpret_cast<const void *const>(&object), vc), data_access_wrapper);
     }
 
     /** A convenience function which returns if the object exists in the tree.
@@ -174,20 +174,20 @@ public:
         \note O(1)
     */
     inline const_iterator begin() const{
-        return const_iterator(first(), data_access_wrapper, false);
+        return const_iterator(first(), data_access_wrapper);
     }
     /** Returns an iterator starting at the end of the tree.  You must decrement it before
         it points to a valid entry.
         \note O(1)
     */
     inline const_iterator end() const{
-        return Size() > 0 ? ++const_iterator(last(), data_access_wrapper, false) : const_iterator();
+        return Size() > 0 ? ++const_iterator(last(), data_access_wrapper) : const_iterator();
     }
     /** Returns an iterator starting before the first element in the tree.
         \note O(1)
     */
     inline const_iterator preBegin() const{
-        return Size() > 0 ? --const_iterator(first(), data_access_wrapper, false) : const_iterator();
+        return Size() > 0 ? --const_iterator(first(), data_access_wrapper) : const_iterator();
     }
 
 

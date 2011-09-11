@@ -129,7 +129,7 @@ void BST_TestTest::test_iterators()
     for(int i(0); i < 100; i++)
         bst.Add(i);
 
-    //show_breadth_first_tree(bst);
+    show_breadth_first_tree(bst);
 
     // Pick a point somewhere in the middle and iterate to the end
     mem = -1;
@@ -507,7 +507,15 @@ void BST_TestTest::test_load()
 
     cout<<"======================================================"<<endl;
 
-    //test_number_of_items(5000000);
+    test_number_of_items(5000000);
+
+    cout<<"======================================================"<<endl;
+
+    test_number_of_items(10000000);
+
+    cout<<"======================================================"<<endl;
+
+    test_number_of_items(20000000);
 }
 
 void BST_TestTest::test_number_of_items(int num_items)

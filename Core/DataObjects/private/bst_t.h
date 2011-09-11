@@ -18,7 +18,6 @@ limitations under the License.*/
 #include "Core/Interfaces/ivoidwrappers.h"
 #include "binary_tree_node.h"
 #include "gutil_globals.h"
-#include "../stack.h"
 #include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -87,11 +86,7 @@ public:
         There is no non-const iterator, because you are not allowed to modify the elements of the BST
         (it would destroy the tree's index).  To do this you have to add or remove items from the tree.
 
-        \note Iteration is done in constant time O(1).  Normally, traversing the tree depth-first would
-        take O(N log(N)), but because of intelligent use of caches we can traverse it in O(N).  The penalty
-        is a slightly larger memory overhead, but only while the iterator is instantiated.  The amount
-        of memory required for the cache is not large, but grows with O(log(N)).  The speed benefit it
-        brings far outweighs this memory overhead, especially for large data sets.
+        \note Iteration is done in amortized constant time O(1).
     */
     class const_iterator
     {
@@ -101,10 +96,7 @@ public:
 
         /** Constructs an invalid iterator, which also happens to be equal to end. */
         const_iterator();
-        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const, bool initialize_parent_cache);
-        const_iterator(const const_iterator &o);
-
-        const_iterator &operator = (const const_iterator &);
+        explicit const_iterator(bst_node *, const Interfaces::IVoidComparer *const);
 
         /** Prefix ++.  \note O(1) */
         const_iterator &operator ++();
@@ -154,12 +146,8 @@ public:
         /** Advance the iterator in reverse order.  Does nothing if you can't advance. */
         void retreat();
 
-        void _add_parents_to_cache(binary_tree_node *);
-
         bst_node *mem_begin;
         bst_node *mem_end;
-        Stack<binary_tree_node *> m_LChildParents;
-        Stack<binary_tree_node *> m_RChildParents;
     };
     friend class const_iterator;
 

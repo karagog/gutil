@@ -7,6 +7,8 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
+#DEFINES += DEBUG
+
 INCLUDEPATH += .. ../ThirdParty/CryptoPP
 LIBS += -L../lib -lcryptopp
 

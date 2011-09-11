@@ -220,7 +220,7 @@ bool bst_t::remove(const const_iterator &iter)
 
 bool bst_t::remove(const void *const v)
 {
-    return remove(const_iterator(search(v), data_access_wrapper, false));
+    return remove(const_iterator(search(v), data_access_wrapper));
 }
 
 bst_t::bst_node *bst_t::search(const void *const v) const
@@ -299,60 +299,12 @@ bst_t::const_iterator::const_iterator()
       mem_end(0)
 {}
 
-bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc, bool ipc)
+bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc)
     :current(n),
       cmp(vc),
       mem_begin(0),
       mem_end(0)
-{
-    if(ipc)
-        _add_parents_to_cache(n);
-}
-
-bst_t::const_iterator::const_iterator(const bst_t::const_iterator &o)
-    :current(o.current),
-      cmp(o.cmp),
-      mem_begin(o.mem_begin),
-      mem_end(o.mem_end)
-{
-    o.m_LChildParents.CloneTo(m_LChildParents);
-    o.m_RChildParents.CloneTo(m_RChildParents);
-}
-
-bst_t::const_iterator &bst_t::const_iterator::operator = (const const_iterator &o)
-{
-    current = o.current;
-    cmp = o.cmp;
-    mem_begin = o.mem_begin;
-    mem_end = o.mem_end;
-    o.m_LChildParents.CloneTo(m_LChildParents);
-    o.m_RChildParents.CloneTo(m_RChildParents);
-    return *this;
-}
-
-
-void bst_t::const_iterator::_add_parents_to_cache(binary_tree_node *n)
-{
-    if(!n)
-        return;
-
-    binary_tree_node *last_parent(n);
-    while((n = n->Parent))
-    {
-        if(last_parent->SideOfParent() == binary_tree_node::RightSide &&
-                n->SideOfParent() == binary_tree_node::LeftSide)
-        {
-            m_LChildParents.Push(n);
-        }
-        else if(last_parent->SideOfParent() == binary_tree_node::LeftSide &&
-                n->SideOfParent() == binary_tree_node::RightSide)
-        {
-            m_RChildParents.Push(n);
-        }
-
-        last_parent = n;
-    }
-}
+{}
 
 
 bool bst_t::const_iterator::operator == (const bst_t::const_iterator &o) const
@@ -373,37 +325,20 @@ void bst_t::const_iterator::advance()
     if(current)
     {
         if(current->RChild)
-        {
-            bst_node *jump_to( static_cast<bst_node *>(current->RChild)->LeftmostChild );
-            if(current->RChild != jump_to)
-                m_RChildParents.Push(current->RChild);
-            if(current->SideOfParent() == binary_tree_node::LeftSide)
-                m_LChildParents.Push(current);
-            current = jump_to;
-        }
+            current = static_cast<bst_node *>(current->RChild)->LeftmostChild;
         else
         {
-            if(current->SideOfParent() == binary_tree_node::LeftSide)
-            {
-                current = static_cast<bst_node *>(current->Parent);
-            }
-            else if(m_LChildParents.Count())
-            {
-                // Look, Ma, no loops!  The cache lets us iterate in O(1) time
-                current = static_cast<bst_node *>(m_LChildParents.Top()->Parent);
+            binary_tree_node *jump_to(current);
+            while(jump_to && jump_to->SideOfParent() != binary_tree_node::LeftSide)
+                jump_to = jump_to->Parent;
 
-                m_LChildParents.Pop();
-                m_RChildParents.Pop();
-            }
+            if(jump_to)
+                current = static_cast<bst_node *>(jump_to->Parent);
             else
             {
                 // We've hit the end of the BST
                 mem_end = current;
                 current = 0;
-
-                // Both stacks should be empty when we hit the end of the tree
-                GASSERT(m_RChildParents.Count() == 0);
-                GASSERT(m_LChildParents.Count() == 0);
             }
         }
     }
@@ -419,37 +354,20 @@ void bst_t::const_iterator::retreat()
     if(current)
     {
         if(current->LChild)
-        {
-            bst_node *jump_to(static_cast<bst_node *>(current->LChild)->RightmostChild);
-            if(current->LChild != jump_to)
-                m_LChildParents.Push(current->LChild);
-            if(current->SideOfParent() == binary_tree_node::RightSide)
-                m_RChildParents.Push(current);
-            current = jump_to;
-        }
+            current = static_cast<bst_node *>(current->LChild)->RightmostChild;
         else
         {
-            if(current->SideOfParent() == binary_tree_node::RightSide)
-            {
-                current = static_cast<bst_node *>(current->Parent);
-            }
-            else if(m_RChildParents.Count())
-            {
-                // Look, Ma, no loops!  The cache lets us iterate in O(1) time
-                current = static_cast<bst_node *>(m_RChildParents.Top()->Parent);
+            binary_tree_node *jump_to(current);
+            while(jump_to && jump_to->SideOfParent() != binary_tree_node::RightSide)
+                jump_to = jump_to->Parent;
 
-                m_RChildParents.Pop();
-                m_LChildParents.Pop();
-            }
+            if(jump_to)
+                current = static_cast<bst_node *>(jump_to->Parent);
             else
             {
                 // We've hit the beginning of the BST
                 mem_begin = current;
                 current = 0;
-
-                // Both stacks should be empty when we hit the beginning of the tree
-                GASSERT(m_RChildParents.Count() == 0);
-                GASSERT(m_LChildParents.Count() == 0);
             }
         }
     }
