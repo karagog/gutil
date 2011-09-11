@@ -306,7 +306,7 @@ bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc
       mem_end(0)
 {
     if(ipc)
-        _add_parent_to_cache(n);
+        _add_parents_to_cache(n);
 }
 
 bst_t::const_iterator::const_iterator(const bst_t::const_iterator &o)
@@ -331,24 +331,26 @@ bst_t::const_iterator &bst_t::const_iterator::operator = (const const_iterator &
 }
 
 
-void bst_t::const_iterator::_add_parent_to_cache(binary_tree_node *n)
+void bst_t::const_iterator::_add_parents_to_cache(binary_tree_node *n)
 {
-    if(n)
-    {
-        // Add my parent before adding myself, 'cause we're pushing onto a LIFO stack.
-        _add_parent_to_cache(n->Parent);
+    if(!n)
+        return;
 
-        switch(n->SideOfParent())
+    binary_tree_node *last_parent(n);
+    while((n = n->Parent))
+    {
+        if(last_parent->SideOfParent() == binary_tree_node::RightSide &&
+                n->SideOfParent() == binary_tree_node::LeftSide)
         {
-        case binary_tree_node::LeftSide:
             m_LChildParents.Push(n);
-            break;
-        case binary_tree_node::RightSide:
-            m_RChildParents.Push(n);
-            break;
-        default:
-            GASSERT(false);
         }
+        else if(last_parent->SideOfParent() == binary_tree_node::LeftSide &&
+                n->SideOfParent() == binary_tree_node::RightSide)
+        {
+            m_RChildParents.Push(n);
+        }
+
+        last_parent = n;
     }
 }
 

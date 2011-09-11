@@ -68,7 +68,7 @@ public:
         \sa Push()
         \note O(1)
     */
-    inline void Pop(){ iterator i(begin()); Remove(i); }
+    inline void Pop(){ if(Count()){ iterator i(begin()); Remove(i); } }
 
     /** Returns the top item on the stack, or 0 if no items in the stack.
         \note O(1)

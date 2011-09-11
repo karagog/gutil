@@ -151,7 +151,7 @@ public:
         /** Advance the iterator in reverse order.  Does nothing if you can't advance. */
         void retreat();
 
-        void _add_parent_to_cache(binary_tree_node *);
+        void _add_parents_to_cache(binary_tree_node *);
 
         bst_node *mem_begin;
         bst_node *mem_end;

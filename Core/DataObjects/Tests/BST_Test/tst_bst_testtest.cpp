@@ -115,7 +115,37 @@ void BST_TestTest::test_iterators()
     int mem = INT_MAX;
     for(BinarySearchTree<int>::const_iterator iter(--bst.end());
         iter;
-        iter--)
+        --iter)
+    {
+        // Make sure all items are in order
+        QVERIFY(mem > *iter);
+        mem = *iter;
+    }
+
+    // Create a tree with a lot of items for the next tests
+    bst.Clear();
+    for(int i(0); i < 100; i++)
+        bst.Add(i);
+
+    //show_breadth_first_tree(bst);
+
+    // Pick a point somewhere in the middle and iterate to the end
+    mem = -1;
+    for(BinarySearchTree<int>::const_iterator iter(bst.Search(35));
+        iter;
+        ++iter)
+    {
+        // Make sure all items are in order
+        //qDebug() << *iter;
+        QVERIFY(mem < *iter);
+        mem = *iter;
+    }
+
+    // Pick a point somewhere in the middle and iterate to the beginning
+    mem = INT_MAX;
+    for(BinarySearchTree<int>::const_iterator iter(bst.Search(65));
+        iter;
+        --iter)
     {
         // Make sure all items are in order
         QVERIFY(mem > *iter);
