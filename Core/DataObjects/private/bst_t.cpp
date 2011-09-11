@@ -387,33 +387,17 @@ void bst_t::const_iterator::advance()
             }
             else if(m_LChildParents.Count())
             {
-                // This is how the iterator advancement is constant time.  The stack keeps track
-                //  of the parent we should jump to
-                if(m_LChildParents.Top())
-                {
-                    current = static_cast<bst_node *>(m_LChildParents.Top()->Parent);
-                    m_LChildParents.Pop();
+                // Look, Ma, no loops!  The cache lets us iterate in O(1) time
+                current = static_cast<bst_node *>(m_LChildParents.Top()->Parent);
 
-                    m_RChildParents.Pop();
-                }
-                else
-                {
-                    // We've hit the end of the BST
-                    mem_end = current;
-                    current = 0;
-
-                    //GASSERT(m_LChildParents.IsEmpty());
-                    //GASSERT(m_RChildParents.IsEmpty());
-                }
+                m_LChildParents.Pop();
+                m_RChildParents.Pop();
             }
             else
             {
                 // We've hit the end of the BST
                 mem_end = current;
                 current = 0;
-
-                //GASSERT(m_LChildParents.IsEmpty());
-                //GASSERT(m_RChildParents.IsEmpty());
             }
         }
     }
@@ -443,31 +427,17 @@ void bst_t::const_iterator::retreat()
             }
             else if(m_RChildParents.Count())
             {
-                if(m_RChildParents.Top())
-                {
-                    current = static_cast<bst_node *>(m_RChildParents.Top()->Parent);
-                    m_RChildParents.Pop();
+                // Look, Ma, no loops!  The cache lets us iterate in O(1) time
+                current = static_cast<bst_node *>(m_RChildParents.Top()->Parent);
 
-                    m_LChildParents.Pop();
-                }
-                else
-                {
-                    // We've hit the beginning of the BST
-                    mem_begin = current;
-                    current = 0;
-
-                    //GASSERT(m_LChildParents.IsEmpty());
-                    //GASSERT(m_RChildParents.IsEmpty());
-                }
+                m_RChildParents.Pop();
+                m_LChildParents.Pop();
             }
             else
             {
                 // We've hit the beginning of the BST
                 mem_begin = current;
                 current = 0;
-
-                //GASSERT(m_LChildParents.IsEmpty());
-                //GASSERT(m_RChildParents.IsEmpty());
             }
         }
     }
