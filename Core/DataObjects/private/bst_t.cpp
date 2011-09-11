@@ -374,10 +374,12 @@ void bst_t::const_iterator::advance()
     {
         if(current->RChild)
         {
-            m_RChildParents.Push(current->RChild);
+            bst_node *jump_to( static_cast<bst_node *>(current->RChild)->LeftmostChild );
+            if(current->RChild != jump_to)
+                m_RChildParents.Push(current->RChild);
             if(current->SideOfParent() == binary_tree_node::LeftSide)
                 m_LChildParents.Push(current);
-            current = static_cast<bst_node *>(current->RChild)->LeftmostChild;
+            current = jump_to;
         }
         else
         {
@@ -398,6 +400,10 @@ void bst_t::const_iterator::advance()
                 // We've hit the end of the BST
                 mem_end = current;
                 current = 0;
+
+                // Both stacks should be empty when we hit the end of the tree
+                GASSERT(m_RChildParents.Count() == 0);
+                GASSERT(m_LChildParents.Count() == 0);
             }
         }
     }
@@ -414,10 +420,12 @@ void bst_t::const_iterator::retreat()
     {
         if(current->LChild)
         {
-            m_LChildParents.Push(current->LChild);
+            bst_node *jump_to(static_cast<bst_node *>(current->LChild)->RightmostChild);
+            if(current->LChild != jump_to)
+                m_LChildParents.Push(current->LChild);
             if(current->SideOfParent() == binary_tree_node::RightSide)
                 m_RChildParents.Push(current);
-            current = static_cast<bst_node *>(current->LChild)->RightmostChild;
+            current = jump_to;
         }
         else
         {
@@ -438,6 +446,10 @@ void bst_t::const_iterator::retreat()
                 // We've hit the beginning of the BST
                 mem_begin = current;
                 current = 0;
+
+                // Both stacks should be empty when we hit the beginning of the tree
+                GASSERT(m_RChildParents.Count() == 0);
+                GASSERT(m_LChildParents.Count() == 0);
             }
         }
     }
