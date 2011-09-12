@@ -12,19 +12,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "bst_t.h"
+#include "bst_p.h"
 #include "Core/exception.h"
 #include "gassert.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 GUTIL_USING_CORE_NAMESPACE(Interfaces);
 
-bst_t::bst_t(bst_t::void_wrapper *vw)
+bst_p::bst_p(bst_p::void_wrapper *vw)
     :root(0),
       data_access_wrapper(vw),
       m_size(0)
 {}
 
-bst_t::~bst_t()
+bst_p::~bst_p()
 {
     // Note: We delete the compare interface because it has a virtual destructor
     //  so the rest of the object will get deleted too.
@@ -32,9 +32,9 @@ bst_t::~bst_t()
     delete data_access_wrapper;
 }
 
-bst_t::void_wrapper::~void_wrapper(){}
+bst_p::void_wrapper::~void_wrapper(){}
 
-bst_t::bst_node *bst_t::add(const void *const v)
+bst_p::bst_node *bst_p::add(const void *const v)
 {
     bst_node *new_node;
     if(root)
@@ -97,7 +97,7 @@ bst_t::bst_node *bst_t::add(const void *const v)
     return new_node;
 }
 
-bool bst_t::remove(const const_iterator &iter)
+bool bst_p::remove(const const_iterator &iter)
 {
     bst_node *cur(iter.current);
     if(cur)
@@ -218,17 +218,17 @@ bool bst_t::remove(const const_iterator &iter)
     return cur;
 }
 
-bool bst_t::remove(const void *const v)
+bool bst_p::remove(const void *const v)
 {
     return remove(const_iterator(search(v), data_access_wrapper));
 }
 
-bst_t::bst_node *bst_t::search(const void *const v) const
+bst_p::bst_node *bst_p::search(const void *const v) const
 {
     return search(v, data_access_wrapper);
 }
 
-bst_t::bst_node *bst_t::search(const void *const v, const IVoidComparer *vw) const
+bst_p::bst_node *bst_p::search(const void *const v, const IVoidComparer *vw) const
 {
     bst_node *cur( root );
     while(cur)
@@ -245,7 +245,7 @@ bst_t::bst_node *bst_t::search(const void *const v, const IVoidComparer *vw) con
     return cur;
 }
 
-void bst_t::Clear()
+void bst_p::Clear()
 {
     if(root)
     {
@@ -255,7 +255,7 @@ void bst_t::Clear()
     }
 }
 
-void bst_t::_cleanup_memory(binary_tree_node *n)
+void bst_p::_cleanup_memory(binary_tree_node *n)
 {
     if(n->LChild)
     {
@@ -271,17 +271,17 @@ void bst_t::_cleanup_memory(binary_tree_node *n)
     delete n;
 }
 
-bst_t::bst_node *bst_t::first() const
+bst_p::bst_node *bst_p::first() const
 {
     return root ? root->LeftmostChild : 0;
 }
 
-bst_t::bst_node *bst_t::last() const
+bst_p::bst_node *bst_p::last() const
 {
     return root ? root->RightmostChild : 0;
 }
 
-void bst_t::_update_root_node()
+void bst_p::_update_root_node()
 {
     binary_tree_node *n(root);
     while(n && (n = n->Parent))
@@ -292,14 +292,14 @@ void bst_t::_update_root_node()
 
 
 
-bst_t::const_iterator::const_iterator()
+bst_p::const_iterator::const_iterator()
     :current(0),
       cmp(0),
       mem_begin(0),
       mem_end(0)
 {}
 
-bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc)
+bst_p::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc)
     :current(n),
       cmp(vc),
       mem_begin(0),
@@ -307,7 +307,7 @@ bst_t::const_iterator::const_iterator(bst_node *n, const IVoidComparer *const vc
 {}
 
 
-bool bst_t::const_iterator::operator == (const bst_t::const_iterator &o) const
+bool bst_p::const_iterator::operator == (const bst_p::const_iterator &o) const
 {
     return current == o.current &&
             (current != 0 ||
@@ -315,12 +315,12 @@ bool bst_t::const_iterator::operator == (const bst_t::const_iterator &o) const
                  (mem_begin == o.mem_begin && mem_end == o.mem_end)));
 }
 
-bst_t::const_iterator::operator bool() const
+bst_p::const_iterator::operator bool() const
 {
     return current;
 }
 
-void bst_t::const_iterator::advance()
+void bst_p::const_iterator::advance()
 {
     if(current)
     {
@@ -349,7 +349,7 @@ void bst_t::const_iterator::advance()
     }
 }
 
-void bst_t::const_iterator::retreat()
+void bst_p::const_iterator::retreat()
 {
     if(current)
     {
@@ -378,33 +378,33 @@ void bst_t::const_iterator::retreat()
     }
 }
 
-bst_t::const_iterator &bst_t::const_iterator::operator ++()
+bst_p::const_iterator &bst_p::const_iterator::operator ++()
 {
     advance();
     return *this;
 }
 
-bst_t::const_iterator bst_t::const_iterator::operator ++(int)
+bst_p::const_iterator bst_p::const_iterator::operator ++(int)
 {
     const_iterator ret(*this);
     advance();
     return ret;
 }
 
-bst_t::const_iterator &bst_t::const_iterator::operator --()
+bst_p::const_iterator &bst_p::const_iterator::operator --()
 {
     retreat();
     return *this;
 }
 
-bst_t::const_iterator bst_t::const_iterator::operator --(int)
+bst_p::const_iterator bst_p::const_iterator::operator --(int)
 {
     const_iterator ret(*this);
     retreat();
     return ret;
 }
 
-bool bst_t::const_iterator::operator <(const bst_t::const_iterator &o) const
+bool bst_p::const_iterator::operator <(const bst_p::const_iterator &o) const
 {
     if(current && o.current)
     {
@@ -431,24 +431,24 @@ bool bst_t::const_iterator::operator <(const bst_t::const_iterator &o) const
     }
 }
 
-bool bst_t::const_iterator::operator > (const const_iterator &o) const
+bool bst_p::const_iterator::operator > (const const_iterator &o) const
 {
     return !(*this <= o);
 }
 
-bool bst_t::const_iterator::operator <= (const const_iterator &o) const
+bool bst_p::const_iterator::operator <= (const const_iterator &o) const
 {
     return *this == o || *this < o;
 }
 
-bool bst_t::const_iterator::operator >= (const const_iterator &o) const
+bool bst_p::const_iterator::operator >= (const const_iterator &o) const
 {
     return !(*this < o);
 }
 
 
 
-void bst_t::walk_parents_update_heights_rebalance(bst_node *n, bool already_balanced)
+void bst_p::walk_parents_update_heights_rebalance(bst_node *n, bool already_balanced)
 {
     if(n)
     {
@@ -465,7 +465,7 @@ void bst_t::walk_parents_update_heights_rebalance(bst_node *n, bool already_bala
     }
 }
 
-void bst_t::refresh_node_state(bst_node *n)
+void bst_p::refresh_node_state(bst_node *n)
 {
     // Update the node's height cache
     if(!n->LChild && !n->RChild)
@@ -482,7 +482,7 @@ void bst_t::refresh_node_state(bst_node *n)
     n->RightmostChild = n->RChild ? static_cast<bst_node *>(n->RChild)->RightmostChild : n;
 }
 
-void bst_t::rotate_right(binary_tree_node *n)
+void bst_p::rotate_right(binary_tree_node *n)
 {
     binary_tree_node *parent(n->Parent);
     if(parent)
@@ -506,7 +506,7 @@ void bst_t::rotate_right(binary_tree_node *n)
     refresh_node_state(static_cast<bst_node *>(n));
 }
 
-void bst_t::rotate_left(binary_tree_node *n)
+void bst_p::rotate_left(binary_tree_node *n)
 {
     binary_tree_node *parent(n->Parent);
     if(parent)
@@ -530,7 +530,7 @@ void bst_t::rotate_left(binary_tree_node *n)
     refresh_node_state(static_cast<bst_node *>(n));
 }
 
-void bst_t::rebalance(binary_tree_node *n)
+void bst_p::rebalance(binary_tree_node *n)
 {
     int height_difference = static_cast<bst_node *>(n)->HeightDifference();
     if(height_difference > 1)
@@ -557,20 +557,20 @@ void bst_t::rebalance(binary_tree_node *n)
     }
 }
 
-bst_t::bst_node *bst_t::const_iterator::operator->()
+bst_p::bst_node *bst_p::const_iterator::operator->()
 {
     return current;
 }
 
-const bst_t::bst_node *bst_t::const_iterator::operator->() const
+const bst_p::bst_node *bst_p::const_iterator::operator->() const
 {
     return current;
 }
-const bst_t::bst_node &bst_t::const_iterator::operator *() const
+const bst_p::bst_node &bst_p::const_iterator::operator *() const
 {
     return *current;
 }
-bst_t::bst_node &bst_t::const_iterator::operator *()
+bst_p::bst_node &bst_p::const_iterator::operator *()
 {
     return *current;
 }

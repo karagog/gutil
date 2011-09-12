@@ -26,9 +26,9 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     It is implemented this way so more code is baked into the library,
     improving code size and build times.
 */
-class bst_t
+class bst_p
 {
-    GUTIL_DISABLE_COPY(bst_t);
+    GUTIL_DISABLE_COPY(bst_p);
 public:
 
     /** Represents a single node of the binary search tree.
@@ -90,7 +90,7 @@ public:
     */
     class const_iterator
     {
-        friend class bst_t;
+        friend class bst_p;
     public:
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -180,11 +180,11 @@ protected:
     };
 
     /** This class is desiged to be inherited by BinarySearchTree, so no public constructor */
-    bst_t(void_wrapper *);
+    bst_p(void_wrapper *);
     /** Deallocates all memory.
         \note O(N)
     */
-    ~bst_t();
+    ~bst_p();
 
     bst_node *add(const void *const);
     bst_node *search(const void *const) const;

@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "private/binary_tree_node.h"
 #include "Core/exception.h"
-#include "private/bst_t.h"
+#include "private/bst_p.h"
 using namespace std;
 
 #ifndef GUTIL_BST_H
@@ -32,7 +32,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     Implement your own compare function to control how the data is indexed.
 */
 template<class T>class BinarySearchTree :
-        public bst_t
+        public bst_p
 {
     GUTIL_DISABLE_COPY(BinarySearchTree<T>);
     template<class> friend class BST_NodeIterator;
@@ -44,7 +44,7 @@ public:
         override to perform your own custom steps.
     */
     class TypeWrapper :
-            public bst_t::void_wrapper
+            public bst_p::void_wrapper
     {
     public:
         virtual int Compare(const T &lhs, const T &rhs) const{
@@ -82,13 +82,13 @@ public:
         \sa BST_Type_Wrapper
     */
     inline explicit BinarySearchTree(TypeWrapper *tw = new TypeWrapper)
-        :bst_t(tw)
+        :bst_p(tw)
     {}
 
 
     /** For iterating depth-first through the BST. */
     class const_iterator :
-            public bst_t::const_iterator
+            public bst_p::const_iterator
     {
         friend class BinarySearchTree;
     public:
@@ -97,12 +97,12 @@ public:
         typedef const T &reference;
 
         inline const_iterator(){}
-        inline const_iterator(const bst_t::const_iterator &o)
-            :bst_t::const_iterator(o)
+        inline const_iterator(const bst_p::const_iterator &o)
+            :bst_p::const_iterator(o)
         {}
 
-        inline const_iterator &operator =(const bst_t::const_iterator &o){
-            *static_cast<bst_t::const_iterator *>(this) = o;
+        inline const_iterator &operator =(const bst_p::const_iterator &o){
+            *static_cast<bst_p::const_iterator *>(this) = o;
         }
 
         /** Dereference the iterator and return a reference to the data. */
@@ -112,7 +112,7 @@ public:
 
     protected:
         inline const_iterator(bst_node *n, const Interfaces::IVoidComparer *const vc)
-            :bst_t::const_iterator(n, vc)
+            :bst_p::const_iterator(n, vc)
         {}
     };
 
