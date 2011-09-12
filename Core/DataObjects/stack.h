@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_STACK_H
 #define GUTIL_STACK_H
 
-#include "Core/DataObjects/private/stack_t.h"
+#include "Core/DataObjects/private/stack_p.h"
 #include "Core/exception.h"
 #include "Core/Interfaces/iclonable.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);

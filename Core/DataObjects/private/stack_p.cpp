@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "stack_t.h"
+#include "stack_p.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 stack_t::stack_t(stack_type_wrapper *stw)

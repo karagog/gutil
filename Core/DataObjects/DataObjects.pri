@@ -1,7 +1,7 @@
 HEADERS += \
     DataObjects/private/binary_tree_node.h \
     DataObjects/private/nodechain.h \
-    DataObjects/private/stack_t.h \
+    DataObjects/private/stack_p.h \
     DataObjects/stack.h \
     DataObjects/map.h \
     DataObjects/list.h \
@@ -16,7 +16,7 @@ HEADERS += \
 SOURCES += \
     DataObjects/private/binary_tree_node.cpp \
     DataObjects/private/nodechain.cpp \
-    DataObjects/private/stack_t.cpp \
+    DataObjects/private/stack_p.cpp \
     DataObjects/private/list_p.cpp \
     DataObjects/private/queue_p.cpp \
     DataObjects/private/heap_p.cpp \
