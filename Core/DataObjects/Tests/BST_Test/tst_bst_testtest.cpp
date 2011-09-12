@@ -129,7 +129,7 @@ void BST_TestTest::test_iterators()
     for(int i(0); i < 100; i++)
         bst.Add(i);
 
-    show_breadth_first_tree(bst);
+    //show_breadth_first_tree(bst);
 
     // Pick a point somewhere in the middle and iterate to the end
     mem = -1;

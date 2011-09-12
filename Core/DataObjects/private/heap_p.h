@@ -35,6 +35,12 @@ public:
         :data_wrapper(tw)
     {}
 
+    void push(const void *const);
+    void pop();
+
+    void *top();
+    void const *top() const;
+
 
 private:
 
