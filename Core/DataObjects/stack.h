@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef STACK_H
-#define STACK_H
+#ifndef GUTIL_STACK_H
+#define GUTIL_STACK_H
 
 #include "Core/DataObjects/private/stack_t.h"
 #include "Core/exception.h"
@@ -232,4 +232,4 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // STACK_H
+#endif // GUTIL_STACK_H

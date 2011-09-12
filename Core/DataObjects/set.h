@@ -14,7 +14,8 @@ limitations under the License.*/
 
 #include "private/binary_tree_node.h"
 #include "Core/exception.h"
-#include "private/bst_p.h"
+#include "Core/DataObjects/private/bst_p.h"
+#include "Core/DataObjects/stack.h"
 using namespace std;
 
 #ifndef GUTIL_BST_H
@@ -214,12 +215,6 @@ public:
     }
 
 };
-
-
-
-
-
-
 
 
 

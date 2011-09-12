@@ -39,6 +39,7 @@ private Q_SLOTS:
     void test_deletions();
 
     void test_pointers();
+    void test_multiset();
 
     void test_load();
 
@@ -491,6 +492,14 @@ void BST_Test::test_pointers()
     a = 500;
     QVERIFY(tree_matches(pointer_tree, "(2, (500, , ), (3, , ))"));
     //show_breadth_first_pointerTree(pointer_tree);
+}
+
+void BST_Test::test_multiset()
+{
+//    MultiSet<int> set;
+//    set.Add(1);
+//    set.Add(1);
+//    QVERIFY((*set.Search(1)).Count() == 2);
 }
 
 void BST_Test::test_load()
