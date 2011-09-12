@@ -1,5 +1,4 @@
 HEADERS += \
-    DataObjects/binarysearchtree.h \
     DataObjects/private/binary_tree_node.h \
     DataObjects/private/nodechain.h \
     DataObjects/private/stack_t.h \
@@ -11,7 +10,8 @@ HEADERS += \
     DataObjects/queue.h \
     DataObjects/heap.h \
     DataObjects/private/heap_p.h \
-    DataObjects/private/bst_p.h
+    DataObjects/private/bst_p.h \
+    DataObjects/set.h
 
 SOURCES += \
     DataObjects/private/binary_tree_node.cpp \
@@ -21,6 +21,8 @@ SOURCES += \
     DataObjects/private/queue_p.cpp \
     DataObjects/private/heap_p.cpp \
     DataObjects/private/bst_p.cpp
+
+
 
 
 

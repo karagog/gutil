@@ -97,27 +97,27 @@ public:
     ~Map();
 
     class iterator :
-            public BinarySearchTree<Page *>::const_iterator
+            public Set<Page *>::const_iterator
     {
     public:
         iterator(){}
-        iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
-            :BinarySearchTree<Page *>::const_iterator(o)
+        iterator(const typename Set<Page *>::const_iterator &o)
+            :Set<Page *>::const_iterator(o)
         {}
 
-        Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+        Page *operator ->(){ return *reinterpret_cast<Page **>(Set<Page *>::const_iterator::current->Data); }
     };
 
     class const_iterator :
-            public BinarySearchTree<Page *>::const_iterator
+            public Set<Page *>::const_iterator
     {
     public:
         const_iterator(){}
-        const_iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
-            :BinarySearchTree<Page *>::const_iterator(o)
+        const_iterator(const typename Set<Page *>::const_iterator &o)
+            :Set<Page *>::const_iterator(o)
         {}
 
-        Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+        Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(Set<Page *>::const_iterator::current->Data); }
     };
 
     inline iterator begin(){ return _index.begin(); }
@@ -199,7 +199,7 @@ private:
 
     /** A wrapper class to conduct comparisons and memory allocation/deallocation */
     class PageWrapper :
-            public BinarySearchTree<Page *>::TypeWrapper,
+            public Set<Page *>::TypeWrapper,
             public KeyComparer
     {
     public:
@@ -235,7 +235,7 @@ private:
 
     void _insert(const K &, const V &, bool);
 
-    BinarySearchTree<Page *> _index;
+    Set<Page *> _index;
     KeyWrapper _key_searcher;
 
 };
@@ -261,7 +261,7 @@ template<class K, class V>Map<K, V>::~Map()
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
-    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
+    typename Set<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
     return iter->Values.Top();

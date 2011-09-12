@@ -22,7 +22,7 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-/** The BinarySearchTree non-templated base class.
+/** The Binary Search Tree non-templated base class.
     It is implemented this way so more code is baked into the library,
     improving code size and build times.
 */
@@ -33,7 +33,7 @@ public:
 
     /** Represents a single node of the binary search tree.
 
-        \sa BinarySearchTree
+        \sa Set
     */
     class bst_node :
             public binary_tree_node
@@ -179,7 +179,7 @@ protected:
         virtual ~void_wrapper();
     };
 
-    /** This class is desiged to be inherited by BinarySearchTree, so no public constructor */
+    /** This class is desiged to be inherited, so no public constructor */
     bst_p(void_wrapper *);
     /** Deallocates all memory.
         \note O(N)

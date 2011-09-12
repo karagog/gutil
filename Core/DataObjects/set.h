@@ -31,14 +31,14 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     Implement your own compare function to control how the data is indexed.
 */
-template<class T>class BinarySearchTree :
+template<class T>class Set :
         public bst_p
 {
-    GUTIL_DISABLE_COPY(BinarySearchTree<T>);
+    GUTIL_DISABLE_COPY(Set<T>);
     template<class> friend class BST_NodeIterator;
 public:
 
-    /** A type wrapper to satisfy the injection constraints of the BinarySearchTree.
+    /** A type wrapper to satisfy the injection constraints of the Set.
 
         By default it provides an allocator, deallocator and compare function, all of which you can
         override to perform your own custom steps.
@@ -81,7 +81,7 @@ public:
         The tree will take ownership of this pointer and delete it when finished.
         \sa BST_Type_Wrapper
     */
-    inline explicit BinarySearchTree(TypeWrapper *tw = new TypeWrapper)
+    inline explicit Set(TypeWrapper *tw = new TypeWrapper)
         :bst_p(tw)
     {}
 
@@ -90,7 +90,7 @@ public:
     class const_iterator :
             public bst_p::const_iterator
     {
-        friend class BinarySearchTree;
+        friend class Set;
     public:
         typedef T value_type;
         typedef const T *pointer;
@@ -236,7 +236,7 @@ public:
 template<class T> class BST_NodeIterator
 {
 public:
-    BST_NodeIterator(const BinarySearchTree<T> &t)
+    BST_NodeIterator(const Set<T> &t)
         :m_node(t.root)
     {}
 
