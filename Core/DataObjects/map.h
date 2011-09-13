@@ -94,9 +94,6 @@ public:
     */
     Map(int (*compare_keys)(const K &lhs, const K &rhs));
 
-    /** Reclaims all memory. */
-    ~Map();
-
     class iterator :
             public BinarySearchTree<Page *>::const_iterator
     {
@@ -203,6 +200,10 @@ private:
             return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
                                                     (*reinterpret_cast<const Page *const *>(rhs))->Key);
         }
+        void Delete(Page **p) const{
+            delete *p;
+            BinarySearchTree<Page *>::TypeWrapper::Delete(p);
+        }
     };
 
     /** A void wrapper which compares a page and a key (so we don't have to search
@@ -238,13 +239,6 @@ template<class K, class V>Map<K, V>::Map(int (*cmp)(const K &, const K &))
     :_index(new PageWrapper(cmp)),
       _key_searcher(cmp)
 {}
-
-template<class K, class V>Map<K, V>::~Map()
-{
-    // Have to delete all the pages in the index
-    for(iterator iter(_index.begin()); iter; iter++)
-        delete &(*iter);
-}
 
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
