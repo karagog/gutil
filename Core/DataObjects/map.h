@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "Core/DataObjects/stack.h"
 #include "binarysearchtree.h"
 #include "Core/Interfaces/icomparer.h"
+#include "Core/DataObjects/private/flexible_type_comparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -97,27 +98,27 @@ public:
     ~Map();
 
     class iterator :
-            public Set<Page *>::const_iterator
+            public BinarySearchTree<Page *>::const_iterator
     {
     public:
         iterator(){}
-        iterator(const typename Set<Page *>::const_iterator &o)
-            :Set<Page *>::const_iterator(o)
+        iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
+            :BinarySearchTree<Page *>::const_iterator(o)
         {}
 
-        Page *operator ->(){ return *reinterpret_cast<Page **>(Set<Page *>::const_iterator::current->Data); }
+        Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
     class const_iterator :
-            public Set<Page *>::const_iterator
+            public BinarySearchTree<Page *>::const_iterator
     {
     public:
         const_iterator(){}
-        const_iterator(const typename Set<Page *>::const_iterator &o)
-            :Set<Page *>::const_iterator(o)
+        const_iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
+            :BinarySearchTree<Page *>::const_iterator(o)
         {}
 
-        Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(Set<Page *>::const_iterator::current->Data); }
+        Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
     inline iterator begin(){ return _index.begin(); }
@@ -177,7 +178,9 @@ public:
     inline void InsertMulti(const K &key, const V &value){ _insert(key, value, false); }
 
     /** Removes all values corresponding to the key. */
-    void Remove(const K &);
+    inline void Remove(const K &k){
+        _index.Remove(_index.Search(k, &_key_searcher));
+    }
 
     /** Removes all values in the map and cleans up memory.
         \note O(N)
@@ -187,26 +190,18 @@ public:
 
 private:
 
-    /** A base class to provide a common comparison function between Keys. */
-    class KeyComparer
-    {
-    public:
-        KeyComparer(int (*compare_function)(const K &, const K &)){ cmp = compare_function; }
-        inline int CompareKeys(const K &lhs, const K &rhs) const{ return cmp(lhs, rhs); }
-    private:
-        int (*cmp)(const K &, const K &);
-    };
-
     /** A wrapper class to conduct comparisons and memory allocation/deallocation */
     class PageWrapper :
-            public Set<Page *>::TypeWrapper,
-            public KeyComparer
+            public BinarySearchTree<Page *>::TypeWrapper,
+            public FlexibleTypeComparer<K>
     {
     public:
-        PageWrapper(int (*compare_function)(const K &, const K &)) :KeyComparer(compare_function){}
+        inline PageWrapper(){}
+        inline PageWrapper(int (*compare_function)(const K &, const K &))
+            :FlexibleTypeComparer<K>(compare_function){}
         int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return CompareKeys((*reinterpret_cast<const Page *const *>(lhs))->Key,
-                               (*reinterpret_cast<const Page *const *>(rhs))->Key);
+            return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
+                                                    (*reinterpret_cast<const Page *const *>(rhs))->Key);
         }
     };
 
@@ -215,35 +210,28 @@ private:
     */
     class KeyWrapper :
             public Interfaces::IVoidComparer,
-            public KeyComparer
+            public FlexibleTypeComparer<K>
     {
     public:
-        KeyWrapper(int (*compare_function)(const K &, const K &)) :KeyComparer(compare_function){}
+        inline KeyWrapper(){}
+        inline KeyWrapper(int (*compare_function)(const K &, const K &))
+            :FlexibleTypeComparer<K>(compare_function){}
         int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return CompareKeys((*reinterpret_cast<const Page *const *>(lhs))->Key,
-                               *reinterpret_cast<const K *const>(rhs));
+            return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
+                                                    *reinterpret_cast<const K *const>(rhs));
         }
     };
 
-    static int default_key_compare(const K &lhs, const K &rhs){
-        if(lhs < rhs)
-            return -1;
-        else if(rhs < lhs)
-            return 1;
-        return 0;
-    }
-
     void _insert(const K &, const V &, bool);
 
-    Set<Page *> _index;
+    BinarySearchTree<Page *> _index;
     KeyWrapper _key_searcher;
 
 };
 
 
 template<class K, class V>Map<K, V>::Map()
-    :_index(new PageWrapper(&default_key_compare)),
-      _key_searcher(&default_key_compare)
+    :_index(new PageWrapper)
 {}
 
 template<class K, class V>Map<K, V>::Map(int (*cmp)(const K &, const K &))
@@ -261,7 +249,7 @@ template<class K, class V>Map<K, V>::~Map()
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
-    typename Set<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
+    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
     return iter->Values.Top();
@@ -295,16 +283,6 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
     else
     {
         _index.Add(new Page(key, value, this));
-    }
-}
-
-template<class K, class V>void Map<K, V>::Remove(const K &k)
-{
-    iterator iter(_index.Search(k, &_key_searcher));
-    if(iter)
-    {
-        delete &(*iter);
-        _index.Remove(iter);
     }
 }
 
