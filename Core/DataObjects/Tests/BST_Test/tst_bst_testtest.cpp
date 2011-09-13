@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "set.h"
+#include "binarysearchtree.h"
 #include <iostream>
 #include <vector>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
@@ -45,35 +45,35 @@ private Q_SLOTS:
 
 
 private:
-    static void show_depth_first_tree(const Set<int> &);
+    static void show_depth_first_tree(const BinarySearchTree<int> &);
 
-    static void show_breadth_first_tree(const Set<int> &);
-    static void show_breadth_first_pointerTree(const Set<int *> &);
+    static void show_breadth_first_tree(const BinarySearchTree<int> &);
+    static void show_breadth_first_pointerTree(const BinarySearchTree<int *> &);
 
     static QString get_bft_string(const BST_NodeIterator<int> &iter);
     static QString get_bft_pointer_string(const BST_NodeIterator<int *> &);
 
     // You can feed in your own manual breadth-first description to test if
     //  the tree looks like you expect
-    static bool tree_matches(const Set<int> &, const QString &);
-    static bool tree_matches(const Set<int *> &, const QString &);
+    static bool tree_matches(const BinarySearchTree<int> &, const QString &);
+    static bool tree_matches(const BinarySearchTree<int *> &, const QString &);
 
     static int backwards_compare(const int &, const int &);
 
     static int pointer_compare(int* const &, int* const &);
 
-    static void verify_tree(const Set<int> &, bool diagnostics = false);
+    static void verify_tree(const BinarySearchTree<int> &, bool diagnostics = false);
 
-    static vector<int> export_df_tree(const Set<int> &);
+    static vector<int> export_df_tree(const BinarySearchTree<int> &);
 
     static void test_number_of_items(int);
 };
 
-void BST_Test::verify_tree(const Set<int> &bst, bool diagnostics)
+void BST_Test::verify_tree(const BinarySearchTree<int> &bst, bool diagnostics)
 {
     int mycnt(0);
     int mem(-1);
-    for(Set<int>::const_iterator iter(bst.begin()); iter; ++iter, mycnt++)
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin()); iter; ++iter, mycnt++)
     {
         // Make sure all items are in order
         QVERIFY(mem < *iter);
@@ -86,7 +86,7 @@ void BST_Test::verify_tree(const Set<int> &bst, bool diagnostics)
     // Iterate backwards to make sure it works that way too
     mem = INT_MAX;
     mycnt = 0;
-    for(Set<int>::const_iterator iter(--bst.end()); iter; --iter, mycnt++)
+    for(BinarySearchTree<int>::const_iterator iter(--bst.end()); iter; --iter, mycnt++)
     {
         int tmp( *iter );
         // Make sure all items are in order
@@ -103,7 +103,7 @@ BST_Test::BST_Test()
 
 void BST_Test::test_iterators()
 {
-    Set<int> bst;
+    BinarySearchTree<int> bst;
     bst.Add(3);
     bst.Add(5);
     bst.Add(1);
@@ -116,7 +116,7 @@ void BST_Test::test_iterators()
 
     // Try iterating backwards
     int mem = INT_MAX;
-    for(Set<int>::const_iterator iter(--bst.end());
+    for(BinarySearchTree<int>::const_iterator iter(--bst.end());
         iter;
         --iter)
     {
@@ -134,7 +134,7 @@ void BST_Test::test_iterators()
 
     // Pick a point somewhere in the middle and iterate to the end
     mem = -1;
-    for(Set<int>::const_iterator iter(bst.Search(35));
+    for(BinarySearchTree<int>::const_iterator iter(bst.Search(35));
         iter;
         ++iter)
     {
@@ -146,7 +146,7 @@ void BST_Test::test_iterators()
 
     // Pick a point somewhere in the middle and iterate to the beginning
     mem = INT_MAX;
-    for(Set<int>::const_iterator iter(bst.Search(65));
+    for(BinarySearchTree<int>::const_iterator iter(bst.Search(65));
         iter;
         --iter)
     {
@@ -158,7 +158,7 @@ void BST_Test::test_iterators()
 
 void BST_Test::test_basic_function()
 {
-    Set<int> bst;
+    BinarySearchTree<int> bst;
     for(int i(1); i < 10; i++)
     {
         bst.Add(i);
@@ -192,7 +192,7 @@ void BST_Test::test_basic_function()
     //show_depth_first_tree(bst);
 }
 
-class backwards_comparer : public Set<int>::TypeWrapper
+class backwards_comparer : public BinarySearchTree<int>::TypeWrapper
 {
     int Compare(const int &lhs, const int &rhs) const{
         if(lhs < rhs)
@@ -205,7 +205,7 @@ class backwards_comparer : public Set<int>::TypeWrapper
 
 void BST_Test::test_compare()
 {
-    Set<int> backwards_tree(new backwards_comparer);
+    BinarySearchTree<int> backwards_tree(new backwards_comparer);
     for(int i(1); i < 10; i++)
         backwards_tree.Add(i);
 
@@ -219,7 +219,7 @@ void BST_Test::test_compare()
         QVERIFY(df.at(i) == 9 - i);
 }
 
-void BST_Test::show_depth_first_tree(const Set<int> &t)
+void BST_Test::show_depth_first_tree(const BinarySearchTree<int> &t)
 {
     cout<<"DF: ";
     vector<int> sorted_values(export_df_tree(t));
@@ -228,14 +228,14 @@ void BST_Test::show_depth_first_tree(const Set<int> &t)
     cout<<endl;
 }
 
-void BST_Test::show_breadth_first_tree(const Set<int> &t)
+void BST_Test::show_breadth_first_tree(const BinarySearchTree<int> &t)
 {
     cout<<"BF: ";
     cout<<get_bft_string(BST_NodeIterator<int>(t)).toStdString();
     cout<<endl;
 }
 
-void BST_Test::show_breadth_first_pointerTree(const Set<int *> &t)
+void BST_Test::show_breadth_first_pointerTree(const BinarySearchTree<int *> &t)
 {
     cout<<"BF: ";
     cout<<get_bft_pointer_string(BST_NodeIterator<int *>(t)).toStdString();
@@ -290,7 +290,7 @@ QString BST_Test::get_bft_pointer_string(const BST_NodeIterator<int *> &i)
     return ret;
 }
 
-bool BST_Test::tree_matches(const Set<int *> &t, const QString &s)
+bool BST_Test::tree_matches(const BinarySearchTree<int *> &t, const QString &s)
 {
     bool ret = get_bft_pointer_string(BST_NodeIterator<int *>(t)) == s;
     if(!ret)
@@ -300,7 +300,7 @@ bool BST_Test::tree_matches(const Set<int *> &t, const QString &s)
     return ret;
 }
 
-bool BST_Test::tree_matches(const Set<int> &t, const QString &s)
+bool BST_Test::tree_matches(const BinarySearchTree<int> &t, const QString &s)
 {
     bool ret = get_bft_string(BST_NodeIterator<int>(t)) == s;
     if(!ret)
@@ -313,7 +313,7 @@ bool BST_Test::tree_matches(const Set<int> &t, const QString &s)
 void BST_Test::test_insertions()
 {
     // Test the 4 cases of rebalancing:  LL, RR, LR, RL
-    Set<int> bst;
+    BinarySearchTree<int> bst;
 
     // This tests the RR condition twice (Rotate left)
     bst.Add(5);
@@ -349,7 +349,7 @@ void BST_Test::test_insertions()
 
 void BST_Test::test_deletions()
 {
-    Set<int> bst;
+    BinarySearchTree<int> bst;
 
     // Test root node deletion first
     bst.Add(1);
@@ -466,7 +466,7 @@ void BST_Test::test_deletions()
     }
 }
 
-class pointer_comparer : public Set<int *>::TypeWrapper
+class pointer_comparer : public BinarySearchTree<int *>::TypeWrapper
 {
     int Compare(int *const&lhs, int *const&rhs) const{
         if(*lhs < *rhs)
@@ -479,7 +479,7 @@ class pointer_comparer : public Set<int *>::TypeWrapper
 
 void BST_Test::test_pointers()
 {
-    Set<int *> pointer_tree(new pointer_comparer);
+    BinarySearchTree<int *> pointer_tree(new pointer_comparer);
     int a(1), b(2), c(3);
     pointer_tree.Add(&a);
     pointer_tree.Add(&b);
@@ -529,7 +529,7 @@ void BST_Test::test_load()
 
 void BST_Test::test_number_of_items(int num_items)
 {
-    Set<int> bst;
+    BinarySearchTree<int> bst;
     QTime total;
     QTime insert;
     QTime iterate;
@@ -543,7 +543,7 @@ void BST_Test::test_number_of_items(int num_items)
     int insert_msecs = insert.elapsed();
 
     iterate.start();
-    for(Set<int>::const_iterator iter(bst.begin()); iter; ++iter) ;
+    for(BinarySearchTree<int>::const_iterator iter(bst.begin()); iter; ++iter) ;
     int iterate_msecs = iterate.elapsed();
 
     remove.start();
@@ -560,10 +560,10 @@ void BST_Test::test_number_of_items(int num_items)
 
 
 
-vector<int> BST_Test::export_df_tree(const Set<int> &t)
+vector<int> BST_Test::export_df_tree(const BinarySearchTree<int> &t)
 {
     vector<int> ret;
-    for(Set<int>::const_iterator iter(t.begin()); iter != t.end(); iter++)
+    for(BinarySearchTree<int>::const_iterator iter(t.begin()); iter != t.end(); iter++)
         ret.push_back(*iter);
     return ret;
 }
