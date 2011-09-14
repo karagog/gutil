@@ -38,6 +38,7 @@ public:
         compare = cmp;
     }
 
+
     /** Dereferences the function pointer and calls whichever compare function you gave it.
         Use this when you want to compare two objects of type T.
 

@@ -27,6 +27,16 @@ limitations under the License.*/
 #endif
 
 
+#ifdef GUTIL_DEBUG
+    #include <iostream>
+    /** Special output method for debug mode. */
+    #define GDEBUG(x)       std::cout << x
+#else
+    /** Special output method for debug mode. */
+    #define GDEBUG(x)
+#endif
+
+
 /** The GUtil version.  This is always updated after every release.
 
     See DataObjects/version.h for a useful class for manipulating version strings,

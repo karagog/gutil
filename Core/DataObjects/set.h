@@ -20,9 +20,9 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-template<class T> class Set
+template<class T> class Set :
+        public Interfaces::IClonable< Set<T> >
 {
-    GUTIL_DISABLE_COPY(Set<T>);
 public:
 
     class TypeWrapper :
@@ -50,11 +50,48 @@ public:
         :data(new TypeWrapper),
           m_size(0)
     {}
+    /** Conducts a deep copy of the set.
+        \note O(N log(N))
+    */
+    inline Set(const Set<T> &o){
+        *this = o;
+    }
     inline Set(int (*compare)(const T &, const T &))
         :data(new TypeWrapper(compare)),
-          _key_comparer(compare),
+          _T_comparer(compare),
           m_size(0)
     {}
+
+    /** Conducts a deep copy of the set.
+        \note O(N log(N))
+    */
+    inline Set<T> &operator = (const Set<T> &o){ return o.CloneTo(*this); }
+
+    /** Conducts a deep copy of the set.  Satisfies the IClonable interface.
+        \note O(N log(N))
+    */
+    virtual Set<T> &CloneTo(Set<T> &o) const{
+        GDEBUG("Warning: Copying a Set is not efficient.  Use references and pointers when you can.");
+        o.data.Clear();
+        o._T_comparer = _T_comparer;
+        *static_cast<FlexibleTypeComparer< Stack<T> *> *>(o.data.GetTypeWrapper()) = *data.GetTypeWrapper();
+
+        Stack<T> const*last_stack(0);
+        for(Set<T>::const_iterator iter(data.begin()); iter; ++iter)
+        {
+            Stack<T> const*s(iter.stack());
+            if(s != last_stack)
+            {
+                last_stack = s;
+
+                Stack<T> *n = new Stack<T>;
+                last_stack->CloneTo(*n);
+                o.data.Add(n);
+            }
+        }
+        o.m_size = m_size;
+        return o;
+    }
 
     /** Inserts the item into the set.  If the item is already present it will be overwritten.
         \note O(log(N))
@@ -69,18 +106,18 @@ public:
     /** Removes the last one of these that you inserted.
         \note O(log(N))
     */
-    void RemoveOne(const T &);
+    inline void RemoveOne(const T &i){ _remove(i, false); }
 
     /** Removes and deletes all of those items from the set, in the reverse order you inserted them (LIFO).
         \note O(log(N) + M), where M is the number of items that will be removed from the set.  If you do
         not have duplicate items then this is O(log(N)).
     */
-    void RemoveAll(const T &);
+    inline void RemoveAll(const T &i){ _remove(i, true); }
 
     /** Does the set contain at least 1 of these?
         \note O(log(N))
     */
-    bool Contains(const T &);
+    inline bool Contains(const T &i){ return data.Search(i, &_T_comparer); }
 
     /** Empties the set and cleans up all memory. */
     void Clear(){ data.Clear(); m_size = 0;}
@@ -94,7 +131,7 @@ public:
         \note O(log(N))
     */
     inline int Count(const T &i){
-        const_iterator iter(data.Search(i, &_key_comparer));
+        const_iterator iter(data.Search(i, &_T_comparer));
         return iter ? iter.stack()->Count() : 0;
     }
 
@@ -217,11 +254,12 @@ private:
             return Compare((*reinterpret_cast< const Stack<T> *const* >(lhs))->Top(),
                            *reinterpret_cast< T const * >(rhs));
         }
-    } _key_comparer;
+    } _T_comparer;
 
     long m_size;
 
     void _insert(const T &, bool);
+    void _remove(const T &, bool);
 
 };
 
@@ -250,8 +288,7 @@ public:
 
 template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
 {
-    //typename BinarySearchTree< Stack<T> *>::const_iterator iter( data.Search(i, &_key_comparer) );
-    Set<T>::iterator iter( data.Search(i, &_key_comparer) );
+    Set<T>::iterator iter( data.Search(i, &_T_comparer) );
     if(iter)
     {
         Stack<T> *s(iter.stack());
@@ -269,6 +306,21 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
     ++m_size;
 }
 
+template<class T>void Set<T>::_remove(const T &i, bool all)
+{
+    Set<T>::iterator iter( data.Search(i, &_T_comparer) );
+    if(iter)
+    {
+        iter.stack()->Pop();
+        --m_size;
+        int cnt( iter.stack()->Count() );
+        if(all || cnt == 0)
+        {
+            m_size -= cnt;
+            data.Remove(iter);
+        }
+    }
+}
 
 GUTIL_END_CORE_NAMESPACE;
 

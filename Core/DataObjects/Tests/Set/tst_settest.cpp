@@ -31,8 +31,6 @@ private Q_SLOTS:
 
     void test_multi_set();
 
-    void test_remove();
-
 
 private:
 
@@ -140,17 +138,58 @@ void SetTest::test_set()
     set.Insert(1);
     QVERIFY(set.Size() == 3);
     QVERIFY(set.Count(1) == 1);
+
+    // Test the remove functions
+    QVERIFY(set.Contains(1));
+    set.RemoveOne(1);
+    QVERIFY(!set.Contains(1));
+    QVERIFY(set.Count(1) == 0);
+
+    QVERIFY(set.Contains(0));
+    set.RemoveAll(0);
+    QVERIFY(!set.Contains(0));
+    QVERIFY(set.Count(0) == 0);
+
+    // Test the copy constructor, and the syntax of a foreach loop
+    // Note: not a good idea to use the foreach, because cloning the set is expensive.
+    set.InsertMulti(1);
+    set.InsertMulti(2);
+    set.InsertMulti(3);
+    set.InsertMulti(4);
+    set.InsertMulti(5);
+    set.InsertMulti(6);
+    foreach(int i, set)
+    {
+        GDEBUG(std::endl << i);
+    }
 }
 
 void SetTest::test_multi_set()
 {
-    MultiSet<int> multiset;
+    MultiSet<int> set;
+
+    // Test duplicates allowed
+    set.Insert(2);
+    set.Insert(1);
+    set.Insert(1);
+    set.Insert(1);
+    set.Insert(0);
+    QVERIFY(set.Size() == 5);
+    QVERIFY(set.Count(1) == 3);
+
+    set.InsertMulti(1);
+    QVERIFY(set.Size() == 6);
+    QVERIFY(set.Count(1) == 4);
+
+    set.RemoveOne(1);
+    QVERIFY(set.Size() == 5);
+    QVERIFY(set.Count(1) == 3);
+
+    set.RemoveAll(1);
+    QVERIFY(set.Size() == 2);
+    QVERIFY(set.Count(1) == 0);
 }
 
-void SetTest::test_remove()
-{
-
-}
 
 QTEST_APPLESS_MAIN(SetTest);
 

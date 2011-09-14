@@ -95,6 +95,13 @@ public:
         :bst_p(tw)
     {}
 
+    TypeWrapper const*GetTypeWrapper() const{
+        return static_cast<TypeWrapper const *>(bst_p::data_access_wrapper);
+    }
+    TypeWrapper *GetTypeWrapper(){
+        return static_cast<TypeWrapper *>(bst_p::data_access_wrapper);
+    }
+
 
     /** For iterating depth-first through the BST. */
     class const_iterator :
