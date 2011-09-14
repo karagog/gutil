@@ -46,17 +46,17 @@ bst_p::bst_node *bst_p::add(const void *const v)
         while(next_cur)
         {
             cur = next_cur;
-            int cmp_res( data_access_wrapper->CompareVoid(v, cur->Data) );
+            int cmp_res( data_access_wrapper->CompareVoid(cur->Data, v) );
 
             if(cmp_res < 0)
             {
-                next_cur = static_cast<bst_node *>(cur->LChild);
-                insertion_side = binary_tree_node::LeftSide;
+                next_cur = static_cast<bst_node *>(cur->RChild);
+                insertion_side = binary_tree_node::RightSide;
             }
             else if(cmp_res > 0)
             {
-                next_cur = static_cast<bst_node *>(cur->RChild);
-                insertion_side = binary_tree_node::RightSide;
+                next_cur = static_cast<bst_node *>(cur->LChild);
+                insertion_side = binary_tree_node::LeftSide;
             }
             else
             {

@@ -54,6 +54,12 @@ public:
         :stack_t(w)
     {}
 
+    inline Stack(const T &item, StackTypeWrapper *w = new StackTypeWrapper)
+        :stack_t(w)
+    {
+        Push(item);
+    }
+
     /** Pushes an item onto the stack.
         \sa Pop()
         \note O(1)

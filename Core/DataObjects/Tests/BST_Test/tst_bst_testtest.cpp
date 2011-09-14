@@ -190,6 +190,16 @@ void BST_Test::test_basic_function()
     verify_tree(bst);
 
     //show_depth_first_tree(bst);
+
+    // Add numbers in reverse order
+    bst.Clear();
+    bst.Add(5);
+    bst.Add(4);
+    bst.Add(3);
+    bst.Add(2);
+    bst.Add(1);
+    bst.Add(0);
+    verify_tree(bst, true);
 }
 
 class backwards_comparer : public BinarySearchTree<int>::TypeWrapper

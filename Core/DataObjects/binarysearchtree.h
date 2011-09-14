@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "Core/DataObjects/private/bst_p.h"
 #include "Core/DataObjects/stack.h"
+#include "Core/DataObjects/private/flexible_type_comparer.h"
 using namespace std;
 
 #ifndef GUTIL_BST_H
@@ -43,24 +44,32 @@ public:
 
         By default it provides an allocator, deallocator and compare function, all of which you can
         override to perform your own custom steps.
+
+        You can also optionally inject the address of a compare function through the constructor
+        if implementing a custom less-than operator is not good enough for you.  This has no performance
+        benefit over subclassing and overriding Compare(), because in either case the virtual method
+        Compare() is called in the implementation of BST, and in either case a function pointer is
+        dereferenced.
     */
     class TypeWrapper :
-            public bst_p::void_wrapper
+            public bst_p::void_wrapper,
+            public DataObjects::FlexibleTypeComparer<T>
     {
     public:
-        virtual int Compare(const T &lhs, const T &rhs) const{
-            if(lhs < rhs)
-                return -1;
-            else if(rhs < lhs)
-                return 1;
-            return 0;
-        }
-        virtual T *Copy(const T&o) const{
-            return new T(o);
-        }
-        virtual void Delete(T *o) const{
-            delete o;
-        }
+        /** Constructs a TypeWrapper with the default compare function. s*/
+        inline TypeWrapper(){}
+
+        /** Inject your own compare function, or subclass and override Compare().
+            It's up to you, Mr. Engineer.
+        */
+        inline TypeWrapper(int (*compare)(const T &lhs, const T &rhs))
+            :FlexibleTypeComparer<T>(compare){}
+
+        /** Default copyer simply uses the copy constructor.  Override to suit your needs. */
+        virtual T *Copy(const T&o) const{ return new T(o); }
+
+        /** Deallocate memory for an object */
+        virtual void Delete(T *o) const{ delete o; }
 
     private:
         virtual int CompareVoid(const void *const lhs, const void *const rhs) const{

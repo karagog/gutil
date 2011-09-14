@@ -16,6 +16,7 @@ limitations under the License.*/
 #define FLEXIBLE_TYPE_COMPARER_H
 
 #include "gutil_macros.h"
+#include "Core/Interfaces/icomparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -23,7 +24,8 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     Simply inject your own compare function into the constructor to modify the compare
     functionality
 */
-template<class T>class FlexibleTypeComparer
+template<class T>class FlexibleTypeComparer :
+        public Interfaces::IComparer<T>
 {
 public:
     /** Constructs a type comparer with the default compare function (less-than operator). */
@@ -38,20 +40,25 @@ public:
 
     /** Dereferences the function pointer and calls whichever compare function you gave it.
         Use this when you want to compare two objects of type T.
+
+        This satisfies the IComparer interface.
     */
-    inline int Compare(const T &lhs, const T &rhs) const{
-        return compare(lhs, rhs);
-    }
+    virtual int Compare(const T &lhs, const T &rhs) const{ return compare(lhs, rhs); }
 
     /** Makes this a "function object", so you can either use this or Compare() to compare values. */
     inline int operator () (const T &lhs, const T &rhs) const{
-        return compare(lhs, rhs);
+        return FlexibleTypeComparer<T>::Compare(lhs, rhs);
     }
 
 
 private:
     int (*compare)(const T &, const T &);
 
+    /** The default compare function is the less-than operator.
+
+        I believe this is not included unless you use the default constructor, so it's no matter
+        if your class doesn't implement a less-than operator, you can implement whatever comparator you want.
+    */
     static int default_compare(const T &lhs, const T &rhs){
         if(lhs < rhs)
             return -1;

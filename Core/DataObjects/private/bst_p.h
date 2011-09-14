@@ -135,16 +135,17 @@ public:
 
     protected:
 
+        /** Advance the iterator.  Does nothing if you can't advance. */
+        virtual void advance();
+        /** Advance the iterator in reverse order.  Does nothing if you can't advance. */
+        virtual void retreat();
+
+
         bst_node *current;
 
 
     private:
         Interfaces::IVoidComparer const* cmp;
-
-        /** Advance the iterator.  Does nothing if you can't advance. */
-        void advance();
-        /** Advance the iterator in reverse order.  Does nothing if you can't advance. */
-        void retreat();
 
         bst_node *mem_begin;
         bst_node *mem_end;

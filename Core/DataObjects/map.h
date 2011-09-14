@@ -86,14 +86,27 @@ template<class K, class V>class Map
 
 public:
 
-    /** Constructs an empty map. */
-    Map();
+    /** Constructs an empty map with the default compare function. */
+    inline Map()
+        :_index(new PageWrapper),
+          _key_searcher()
+    {}
+
     /** Constructs an empty map with the specified key compare function.
-        \param compare_keys A compare function to use when comparing keys.  Return -1
+
+        Errors in the compare function will result in errors in the implementation.
+        You must have a well-defined ordering between items.
+
+        \param cmp A compare function to use when comparing keys.  Return -1
         if lhs < rhs, return 1 if rhs < lhs and 0 if they're equal.
     */
-    Map(int (*compare_keys)(const K &lhs, const K &rhs));
+    Map(int (*cmp)(const K &lhs, const K &rhs))
+        :_index(new PageWrapper(cmp)),
+          _key_searcher(cmp)
+    {}
 
+
+    /** Iterates through the key/value pairs. */
     class iterator :
             public BinarySearchTree<Page *>::const_iterator
     {
@@ -106,6 +119,9 @@ public:
         Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
+    /** Iterates through the key/value pairs, but doesn't let you edit them.
+        Use this over the regular iterator, when you can.
+    */
     class const_iterator :
             public BinarySearchTree<Page *>::const_iterator
     {
@@ -115,7 +131,7 @@ public:
             :BinarySearchTree<Page *>::const_iterator(o)
         {}
 
-        Page const*operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+        const Page *operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
     };
 
     inline iterator begin(){ return _index.begin(); }
@@ -196,13 +212,14 @@ private:
         inline PageWrapper(){}
         inline PageWrapper(int (*compare_function)(const K &, const K &))
             :FlexibleTypeComparer<K>(compare_function){}
-        int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
-                                                    (*reinterpret_cast<const Page *const *>(rhs))->Key);
-        }
         void Delete(Page **p) const{
             delete *p;
             BinarySearchTree<Page *>::TypeWrapper::Delete(p);
+        }
+    private:
+        int CompareVoid(const void *const lhs, const void *const rhs) const{
+            return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
+                                                    (*reinterpret_cast<const Page *const *>(rhs))->Key);
         }
     };
 
@@ -218,7 +235,7 @@ private:
         inline KeyWrapper(int (*compare_function)(const K &, const K &))
             :FlexibleTypeComparer<K>(compare_function){}
         int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
+            return Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
                                                     *reinterpret_cast<const K *const>(rhs));
         }
     };
@@ -229,16 +246,6 @@ private:
     KeyWrapper _key_searcher;
 
 };
-
-
-template<class K, class V>Map<K, V>::Map()
-    :_index(new PageWrapper)
-{}
-
-template<class K, class V>Map<K, V>::Map(int (*cmp)(const K &, const K &))
-    :_index(new PageWrapper(cmp)),
-      _key_searcher(cmp)
-{}
 
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
