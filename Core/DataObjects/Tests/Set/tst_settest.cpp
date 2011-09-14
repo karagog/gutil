@@ -27,6 +27,11 @@ public:
 private Q_SLOTS:
     void test_basic_function();
 
+    void test_set();
+
+    void test_multi_set();
+
+    void test_remove();
 
 
 private:
@@ -103,6 +108,48 @@ void SetTest::test_basic_function()
             cnt--;
         }
     }
+}
+
+void SetTest::test_set()
+{
+    // Test no duplicates allowed
+    Set<int> set;
+    set.Insert(2);
+    set.Insert(1);
+    set.Insert(1);
+    set.Insert(1);
+    set.Insert(0);
+    QVERIFY(set.Size() == 3);
+    QVERIFY(set.Count(1) == 1);
+
+    int cnt(0);
+    for(Set<int>::const_iterator iter( set.begin() ); iter; ++iter)
+    {
+        QVERIFY2(*iter == cnt, QString("%1 != %2").arg(*iter).arg(cnt).toAscii());
+        cnt++;
+    }
+
+    // Test inserting duplicates
+    set.InsertMulti(1);
+    set.InsertMulti(1);
+    set.InsertMulti(1);
+    QVERIFY(set.Size() == 6);
+    QVERIFY(set.Count(1) == 4);
+
+    // Inserting overwrites the multiple values
+    set.Insert(1);
+    QVERIFY(set.Size() == 3);
+    QVERIFY(set.Count(1) == 1);
+}
+
+void SetTest::test_multi_set()
+{
+    MultiSet<int> multiset;
+}
+
+void SetTest::test_remove()
+{
+
 }
 
 QTEST_APPLESS_MAIN(SetTest);

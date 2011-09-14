@@ -59,12 +59,12 @@ public:
     /** Inserts the item into the set.  If the item is already present it will be overwritten.
         \note O(log(N))
     */
-    void Insert(const T &);
+    inline void Insert(const T &i){ _insert(i, false); }
 
     /** Inserts the item into the set.  You can have duplicate items.
         \note O(log(N))
     */
-    void InsertMulti(const T &);
+    inline void InsertMulti(const T &i){ _insert(i, true);}
 
     /** Removes the last one of these that you inserted.
         \note O(log(N))
@@ -85,8 +85,18 @@ public:
     /** Empties the set and cleans up all memory. */
     void Clear(){ data.Clear(); m_size = 0;}
 
-    /** How many items in the set. */
-    long Size() const{ return m_size; }
+    /** How many items in the set.
+        \note O(1)
+    */
+    inline long Size() const{ return m_size; }
+
+    /** Returns the number of times this item occurs in the set.
+        \note O(log(N))
+    */
+    inline int Count(const T &i){
+        const_iterator iter(data.Search(i, &_key_comparer));
+        return iter ? iter.stack()->Count() : 0;
+    }
 
 
 
@@ -113,7 +123,7 @@ public:
 
     protected:
 
-        inline Stack<T> *stack(){ return *reinterpret_cast<Stack<T> **>(bst_p::const_iterator::current->Data); }
+        inline Stack<T> *stack(){ return *reinterpret_cast<Stack<T> **>(BinarySearchTree< Stack<T> *>::const_iterator::current->Data); }
 
     private:
         typename Stack<T>::iterator siter;
@@ -153,7 +163,7 @@ public:
 
     protected:
 
-        inline Stack<T> const*stack(){ return *reinterpret_cast<const Stack<T> *const*>(bst_p::const_iterator::current->Data); }
+        inline Stack<T> const*stack(){ return *reinterpret_cast<const Stack<T> *const*>(BinarySearchTree< Stack<T> *>::const_iterator::current->Data); }
 
     private:
         typename Stack<T>::const_iterator siter;
@@ -211,6 +221,8 @@ private:
 
     long m_size;
 
+    void _insert(const T &, bool);
+
 };
 
 
@@ -236,20 +248,25 @@ public:
 
 
 
-template<class T>void Set<T>::Insert(const T &i)
+template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
 {
     //typename BinarySearchTree< Stack<T> *>::const_iterator iter( data.Search(i, &_key_comparer) );
     Set<T>::iterator iter( data.Search(i, &_key_comparer) );
     if(iter)
     {
-        iter.stack()->Clear();
-        iter.stack()->Push(i);
+        Stack<T> *s(iter.stack());
+        if(!allow_multiples)
+        {
+            m_size -= s->Count();
+            s->Clear();
+        }
+        s->Push(i);
     }
     else
     {
         data.Add(new Stack<T>(i));
     }
-    m_size++;
+    ++m_size;
 }
 
 
