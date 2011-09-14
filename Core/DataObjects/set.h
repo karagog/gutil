@@ -34,13 +34,15 @@ public:
         inline TypeWrapper(int (*cmp)(const T &, const T &))
             :FlexibleTypeComparer<T>(cmp)
         {}
-        virtual int Compare(const Stack<T> &lhs, const Stack<T> &rhs){
-            return FlexibleTypeComparer<T>::Compare(lhs.Top(), rhs.Top());
-        }
 
-        virtual void Delete(Stack<T> **s){
+        virtual void Delete(Stack<T> **s) const{
             delete *s;
             BinarySearchTree< Stack<T> * >::TypeWrapper::Delete(s);
+        }
+    private:
+        int CompareVoid(const void *const lhs, const void *const rhs) const{
+            return FlexibleTypeComparer<T>::Compare((*reinterpret_cast< Stack<T> const *const *>(lhs))->Top(),
+                                                    (*reinterpret_cast< Stack<T> const *const *>(rhs))->Top());
         }
     };
 

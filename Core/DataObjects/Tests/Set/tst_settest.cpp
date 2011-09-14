@@ -66,11 +66,11 @@ void SetTest::test_basic_function()
 
         set.Clear();
         QVERIFY2(!set.begin(), "There is a valid iterator on an empty set?");
+        QVERIFY(set.Size() == 0);
 
         // Check that values inserted backwards come out sorted when we iterate
 
 
-        QVERIFY(set.Size() == 0);
         set.Insert(5);
         set.Insert(4);
         set.Insert(3);
@@ -80,7 +80,6 @@ void SetTest::test_basic_function()
         cnt = 0;
         for(Set<int>::const_iterator iter( set.begin() ); iter; ++iter)
         {
-            qDebug() << *iter;
             QVERIFY2(*iter == cnt, QString("%1 != %2").arg(*iter).arg(cnt).toAscii());
             cnt++;
         }
