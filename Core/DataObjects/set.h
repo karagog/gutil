@@ -101,6 +101,10 @@ public:
             if(*this)
                 siter = stack()->begin();
         }
+        inline iterator(const iterator &iter)
+            :BinarySearchTree< Stack<T> *>::const_iterator(iter),
+              siter(iter.siter)
+        {}
 
         inline T &operator *(){ return *siter; }
         inline T *operator ->(){ return &(*siter); }
@@ -137,6 +141,10 @@ public:
             if(*this)
                 siter = stack()->begin();
         }
+        inline const_iterator(const const_iterator &iter)
+            :BinarySearchTree< Stack<T> *>::const_iterator(iter),
+              siter(iter.siter)
+        {}
 
         const T &operator *() const{ return *siter; }
         const T *operator ->() const{ return &(*siter); }
