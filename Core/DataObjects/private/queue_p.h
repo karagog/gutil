@@ -33,25 +33,34 @@ public:
     inline long Length() const{ return Size(); }
     inline long Count() const{ return Size(); }
 
+    void Clear();
+
 
 protected:
 
-    class list_type_wrapper :
+    class queue_type_wrapper :
             public Interfaces::IVoidCopyer,
             public Interfaces::IVoidDeleter
-    {};
+    {
+    public:
+        virtual ~queue_type_wrapper(){}
+    };
 
-    queue_p(list_type_wrapper *);
+    queue_p(queue_type_wrapper *);
+    inline ~queue_p(){ Clear(); delete data_wrapper; }
 
     void push_front(const void *const);
     void push_back(const void *const);
     void pop_front();
     void pop_back();
 
+    void insert(const void *const, bidirectional_node_iterator iter);
+    void remove(bidirectional_node_iterator);
+
 
 private:
 
-    list_type_wrapper *data_wrapper;
+    queue_type_wrapper *data_wrapper;
     long m_size;
 
 };

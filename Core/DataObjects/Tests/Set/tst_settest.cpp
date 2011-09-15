@@ -105,6 +105,15 @@ void SetTest::test_basic_function()
             QVERIFY2(*iter == cnt, QString("%1 != %2").arg(*iter).arg(cnt).toAscii());
             cnt--;
         }
+
+        // Make sure a copy of the set has the same backwards compare behavior
+        Set<int> cpy( set );
+        cnt = 5;
+        for(Set<int>::const_iterator iter( cpy.begin() ); iter; ++iter)
+        {
+            QVERIFY2(*iter == cnt, QString("%1 != %2").arg(*iter).arg(cnt).toAscii());
+            cnt--;
+        }
     }
 }
 
