@@ -56,14 +56,14 @@ template<class K, class V>class Map
             removed from the map.  That operation will invalidate any iterator you
             had pointing to this page.
         */
-        inline Stack<V> &Values(){ return values; }
+        inline SList<V> &Values(){ return values; }
         /** Returns the stack of values associated with Key */
-        inline const Stack<V> &Values() const{ return values; }
+        inline const SList<V> &Values() const{ return values; }
 
     private:
 
         class value_stack :
-                public Stack<V>
+                public SList<V>
         {
         public:
             inline value_stack(Map *m, K *key)
@@ -73,7 +73,7 @@ template<class K, class V>class Map
         private:
             void on_popped(){
                 // Remove the key if the last item was popped
-                if(Stack<V>::Count() == 0)
+                if(SList<V>::Count() == 0)
                 {
                     m_map->Remove(*m_key);
                 }
@@ -173,7 +173,7 @@ public:
         Iterating through the stack will go through the values in the opposite
         order in which you inserted them.
     */
-    const Stack<V> &Values(const K &) const;
+    const SList<V> &Values(const K &) const;
 
     /** Inserts an item into the map.
 
@@ -264,7 +264,7 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     return iter->values.Top();
 }
 
-template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
+template<class K, class V>const SList<V> &Map<K, V>::Values(const K &k) const
 {
     iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)

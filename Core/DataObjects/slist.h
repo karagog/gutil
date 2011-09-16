@@ -12,26 +12,39 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_STACK_H
-#define GUTIL_STACK_H
+#ifndef GUTIL_SLIST_H
+#define GUTIL_SLIST_H
 
-#include "Core/DataObjects/private/stack_p.h"
+#include "Core/DataObjects/private/slist_p.h"
 #include "Core/exception.h"
+#include "Core/DataObjects/interfaces.h"
 #include "Core/Interfaces/iclonable.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
 /** Implements a FILO stack. */
-template<class T>class Stack :
-        public stack_t,
-        public Interfaces::IClonable< Stack<T> >
+template<class T>class SList :
+        public slist_p,
+        public IStack<T>,
+        public Interfaces::IClonable< SList<T> >
 {
-    GUTIL_DISABLE_COPY(Stack<T>);
+    GUTIL_DISABLE_COPY(SList<T>);
 public:
 
-    /** The default memory allocator for the stack.  Normally you don't deal with this class*/
-    class StackTypeWrapper :
-            public stack_t::stack_type_wrapper
+    /** Push an item into the SList. */
+    inline void PushFront(const T &i){ push(reinterpret_cast<const void* const>(&i)); }
+
+    /** Pop an item from the front of the list. */
+    inline void PopFront(){ if(!IsEmpty()){ iterator i(begin()); Remove(i); } }
+
+    /** Returns the item at the front of the list. */
+    inline const T &Front() const{ return *reinterpret_cast<const T* const>(front()); }
+    /** Returns the item at the front of the list. */
+    inline T &Front(){ return *reinterpret_cast<T*>(front()); }
+
+    /** The default memory allocator for the slist.  Normally you don't deal with this class*/
+    class TypeWrapper :
+            public slist_p::slist_pype_wrapper
     {
     public:
         virtual T* Copy(const T &t) const{
@@ -49,45 +62,42 @@ public:
         }
     };
 
-    /** Creates a new stack with the specified type wrapper. */
-    inline explicit Stack(StackTypeWrapper *w = new StackTypeWrapper)
-        :stack_t(w)
+    /** Creates a new slist with the specified type wrapper. */
+    inline explicit SList(TypeWrapper *w = new TypeWrapper)
+        :slist_p(w)
     {}
 
-    inline Stack(const T &item, StackTypeWrapper *w = new StackTypeWrapper)
-        :stack_t(w)
+    /** Creates a new slist with the item */
+    inline SList(const T &item, TypeWrapper *w = new TypeWrapper)
+        :slist_p(w)
     {
-        Push(item);
+        PushFront(item);
     }
 
-    /** Pushes an item onto the stack.
+    /** Pushes an item onto the stack.  Satisfies IStack interface.
         \sa Pop()
         \note O(1)
     */
-    void Push(const T &item){
-        on_push(item);
-        push(reinterpret_cast<const void* const>(&item));
-        on_pushed(Top());
-    }
+    virtual void Push(const T &item){ PushFront(item); }
 
-    /** Pops the top item from the stack.
+    /** Pops the top item from the stack.  Satisfies IStack interface.
         \sa Push()
         \note O(1)
     */
-    inline void Pop(){ if(Count()){ iterator i(begin()); Remove(i); } }
+    virtual void Pop(){ PopFront(); }
 
     /** Returns the top item on the stack, or 0 if no items in the stack.
         \note O(1)
     */
-    inline const T &Top() const{
-        return *reinterpret_cast<const T* const>(top());
-    }
+    virtual const T &Top() const{ return Front(); }
+
     /** Returns the top item on the stack, or 0 if no items in the stack.
         \note O(1)
     */
-    inline T &Top(){
-        return *reinterpret_cast<T*>(top());
-    }
+    virtual T &Top(){ return Front(); }
+
+    /** How many items in the SList.  Satisfies IStack interface. */
+    virtual long Count() const{ return _count(); }
 
 
     class iterator :
@@ -185,47 +195,23 @@ public:
         think about using another class like a linked list.
     */
     void Remove(iterator &iter){
-        on_pop(*iter);
         remove(iter);
-        on_popped();
     }
 
     /** Conducts a deep copy of the stack.  Overridden from IClonable.
         \note O(N)
     */
-    virtual Stack<T> &CloneTo(Stack<T> &s) const{
+    virtual SList<T> &CloneTo(SList<T> &s) const{
         s.Clear();
         _clone_helper(s, NextNode);
         return s;
     }
 
 
-protected:
-
-    /** Subclasses can take advantage of this to optionally do something when an
-        object is pushed onto the stack.  If you throw an exception the operation
-        will be safely prevented without memory implications.
-        \param The data about to be pushed
-    */
-    virtual void on_push(const T &){}
-
-    /** Called after an item was pushed onto the stack.
-        \param The item that was pushed
-    */
-    virtual void on_pushed(T &){}
-
-    /** Called before an item is removed.
-        \param The data about to be removed
-    */
-    virtual void on_pop(T &){}
-
-    /** Called after an item is removed. */
-    virtual void on_popped(){}
-
-
 private:
 
-    static void _clone_helper(Stack<T> &s, node_t *n){
+    /** Recursive function to help clone the slist. */
+    static void _clone_helper(SList<T> &s, node_t *n){
         if(n)
         {
             _clone_helper(s, n->NextNode);
@@ -238,4 +224,4 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // GUTIL_STACK_H
+#endif // GUTIL_SLIST_H

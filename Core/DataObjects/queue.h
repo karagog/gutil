@@ -28,7 +28,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     It is implemented as a doubly-linked list, so insertions and removals are done in constant time.
 
-    \sa List, Stack
+    \sa List, SList
 */
 template<class T>class Queue :
         public queue_p,

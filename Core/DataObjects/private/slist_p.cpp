@@ -12,23 +12,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "stack_p.h"
+#include "slist_p.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-stack_t::stack_t(stack_type_wrapper *stw)
+slist_p::slist_p(slist_pype_wrapper *stw)
     :data_wrapper(stw),
       m_count(0)
 {}
 
-stack_t::~stack_t()
+slist_p::~slist_p()
 {
     Clear();
     delete data_wrapper;
 }
 
-stack_t::stack_type_wrapper::~stack_type_wrapper(){}
+slist_p::slist_pype_wrapper::~slist_pype_wrapper(){}
 
-void stack_t::push(const void *const v)
+void slist_p::push(const void *const v)
 {
     node_t *new_node( new node_t );
     new_node->NextNode = NextNode;
@@ -37,24 +37,24 @@ void stack_t::push(const void *const v)
     m_count++;
 }
 
-void *stack_t::top()
+void *slist_p::front()
 {
     return NextNode ? NextNode->Data : 0;
 }
 
-void const*stack_t::top() const
+void const*slist_p::front() const
 {
     return NextNode ? NextNode->Data : 0;
 }
 
-void stack_t::Clear()
+void slist_p::Clear()
 {
     forward_node_iterator top_of_stack(NextNode, this);
     while(top_of_stack)
         remove(top_of_stack);
 }
 
-void stack_t::remove(forward_node_iterator &iter)
+void slist_p::remove(forward_node_iterator &iter)
 {
     if(!iter.current)
         return;

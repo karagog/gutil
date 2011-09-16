@@ -39,6 +39,9 @@ public:
     /** A reference to the top of the stack. */
     virtual T &Top() = 0;
 
+    /** How many items on the stack? */
+    virtual long Count() const = 0;
+
     /** So derived classes can be deleted by the interface. */
     virtual ~IStack(){}
 
@@ -86,8 +89,11 @@ public:
     /** Return the item at the front of the queue. */
     virtual T &Front() = 0;
 
+    /** How many items in the queue? */
+    virtual long Count() const = 0;
+
     /** So derived classes can be deleted by the interface. */
-    virtual ~IContainer(){}
+    virtual ~IQueue(){}
 
 };
 
@@ -126,6 +132,9 @@ public:
 
     /** Automatically calls PopFront(), for convenience. */
     virtual void Dequeue(){ PopFront(); }
+
+    /** So derived classes can be deleted by the interface. */
+    virtual ~IDequeue(){}
 
 };
 

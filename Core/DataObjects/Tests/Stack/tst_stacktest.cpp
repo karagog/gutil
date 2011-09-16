@@ -14,15 +14,15 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/stack.h"
+#include "Core/DataObjects/slist.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-class StackTest : public QObject
+class SListTest : public QObject
 {
     Q_OBJECT
 
 public:
-    StackTest();
+    SListTest();
 
 private Q_SLOTS:
     void test_basic_function();
@@ -33,13 +33,13 @@ private Q_SLOTS:
 
 };
 
-StackTest::StackTest()
+SListTest::SListTest()
 {
 }
 
-void StackTest::test_basic_function()
+void SListTest::test_basic_function()
 {
-    Stack<int> tmpstack;
+    SList<int> tmpstack;
     for(int i = 0; i < 10; i++)
         tmpstack.Push(i);
 
@@ -51,30 +51,30 @@ void StackTest::test_basic_function()
     }
 }
 
-void StackTest::test_iterators()
+void SListTest::test_iterators()
 {
-    Stack<int> stack;
+    SList<int> stack;
     for(int i = 0; i < 10; i++)
         stack.Push(i);
 
     int tmp(9);
-    for(Stack<int>::iterator iter(stack.begin()); iter != stack.end(); iter++)
+    for(SList<int>::iterator iter(stack.begin()); iter != stack.end(); iter++)
     {
         QVERIFY(*iter == tmp);
         tmp--;
     }
 }
 
-void StackTest::test_removal()
+void SListTest::test_removal()
 {
-    Stack<int> stack;
+    SList<int> stack;
     for(int i = 0; i < 10; i++)
         stack.Push(i);
 
     QVERIFY(stack.Count() == 10);
 
     // Test from the top of the stack
-    Stack<int>::iterator iter(stack.begin());
+    SList<int>::iterator iter(stack.begin());
     stack.Remove(iter);
 
     QVERIFY(stack.Count() == 9);
@@ -87,13 +87,13 @@ void StackTest::test_removal()
     QVERIFY(stack.Count() == 8);
 
     // Test removal from the end of the stack
-    Stack<int>::iterator tmp;
+    SList<int>::iterator tmp;
     while(++iter != stack.end())
         tmp = iter;
     stack.Remove(tmp);
     QVERIFY(stack.Count() == 7);
 }
 
-QTEST_APPLESS_MAIN(StackTest);
+QTEST_APPLESS_MAIN(SListTest);
 
 #include "tst_stacktest.moc"

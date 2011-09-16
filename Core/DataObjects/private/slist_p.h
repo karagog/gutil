@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef STACK_T_H
-#define STACK_T_H
+#ifndef GUTIL_SLIST_P_H
+#define GUTIL_SLIST_P_H
 
 #include "nodechain.h"
 #include "Core/Interfaces/ivoidwrappers.h"
@@ -25,59 +25,58 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     allocate/deallocate memory for a typed object, so we only manage void *'s.  That way almost
     all of the stack implementation is baked into the library.
 */
-class stack_t :
+class slist_p :
         protected node_link
 {
-    GUTIL_DISABLE_COPY(stack_t);
+    GUTIL_DISABLE_COPY(slist_p);
 public:
 
-    /** How many items are on the stack.
-        \note O(1)
-    */
-    inline long Count() const{
-        return m_count;
-    }
-
-    /** Is the stack empty? */
+    /** Is the slist empty? */
     inline bool IsEmpty() const{
-        return !Count();
+        return !_count();
     }
 
-    /** Empties the stack and clears all memory.
+    /** Empties the slist and clears all memory.
         \note O(N)
     */
     void Clear();
 
 protected:
 
+    /** How many items are in the slist
+        \note O(1)
+    */
+    inline long _count() const{ return m_count; }
+
+
     /** The type-specific functions that we require. */
-    class stack_type_wrapper :
+    class slist_pype_wrapper :
             public Interfaces::IVoidCopyer,
             public Interfaces::IVoidDeleter
     {
     public:
         /** You will be deleted by this interface. */
-        virtual ~stack_type_wrapper();
+        virtual ~slist_pype_wrapper();
     };
 
     /** The type wrapper will be owned and deleted by the stack. */
-    stack_t(stack_type_wrapper *);
-    ~stack_t();
+    slist_p(slist_pype_wrapper *);
+    ~slist_p();
 
-    /** Push an item on the stack
+    /** Push an item at the front of the list.
         \note O(1)
     */
     void push(const void *const);
 
-    /** The item on top of the stack.
+    /** The item at the front of the list.
         \note O(1)
     */
-    void *top();
+    void *front();
 
-    /** The item on top of the stack.
+    /** The item at the front of the list.
         \note O(1)
     */
-    void const*top() const;
+    void const*front() const;
 
     /** The iterator is still valid after removal; it equals the next item on the stack.
         \note O(1), despite the fact that it's implemented as a singly-linked list.
@@ -89,7 +88,7 @@ protected:
 
 private:
 
-    stack_type_wrapper *data_wrapper;
+    slist_pype_wrapper *data_wrapper;
     int m_count;
 
 };
@@ -97,4 +96,4 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // STACK_T_H
+#endif // GUTIL_SLIST_P_H
