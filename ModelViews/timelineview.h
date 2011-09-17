@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QRubberBand>
 #include <QDateTime>
 #include <QMap>
-#include "gutil_globals.h"
+#include "gutil_macros.h"
 
 class QDateTimeEdit;
 

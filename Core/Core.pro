@@ -16,9 +16,11 @@ LIBS += -L../lib -lcryptopp
 #QMAKE_CXXFLAGS += -DGUTIL_COM_EXPORTS
 
 HEADERS += \
-    exception.h
+    exception.h \
+    globals.h
 SOURCES += \
-    exception.cc
+    exception.cc \
+    globals.cpp
 
 include(DataAccess/DataAccess.pri)
 include(DataObjects/DataObjects.pri)

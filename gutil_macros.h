@@ -24,6 +24,9 @@ limitations under the License.*/
 */
 
 
+// For convenience we include all the global definitions, so including gutil_macros.h gets it all.
+#include "Core/globals.h"
+
 
 /** Use this to succinctly declare property accessors.
 
@@ -157,7 +160,6 @@ protected: \
     private: \
         cls(const cls &){} \
         cls &operator =(const cls &){return *this;}
-
 
 
 

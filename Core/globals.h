@@ -17,10 +17,6 @@ limitations under the License.*/
 
 /** \file Global definitions that anyone can use. */
 
-/** For convenience, we'll also include gutil macros */
-#include "gutil_macros.h"
-
-
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
     #define GUTIL_DEBUG
@@ -45,6 +41,22 @@ limitations under the License.*/
 #define GUTIL_VERSION       "0.0.0"
 
 
+
+/** A 32 bit integer. */
+#define GINT32  int
+
+/** A 32 bit unsigned integer. */
+#define GUINT32 unsigned int
+
+/** A 64 bit integer. */
+#define GINT64  long long
+
+/** A 64 bit unsigned integer. */
+#define GUINT64 unsigned long long
+
+
+
+
 // Here are some useful functions
 
 /** Absolute value function.  Use as an alternate to qAbs(). */
@@ -59,6 +71,44 @@ template <class T> inline T gMin(const T &one, const T &two){
 template <class T> inline T gMax(const T &one, const T &two){
     return one < two ? two : one;
 }
+
+
+
+/** Returns the most significant set bit of a 32 bit number in the minimum number of instructions.
+    \note O(1).  This is computed in 7 cpu instructions on average.
+*/
+extern "C" int MSB32(GUINT32);
+
+/** Returns the most significant set bit of a 64 bit number in the minimum number of instructions.
+    \note O(1).  This is computed in 9 cpu instructions on average.
+*/
+extern "C" int MSB64(GUINT64);
+
+/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
+extern const char MSB_LOOKUP_TABLE[256];
+
+
+/** Generates a 32-bit bitmask where the first n bits are set to 1.
+    \note O(1), takes 4 instructions to generate.
+*/
+inline static GUINT32 GEN_BITMASK_32(int n)
+{
+    if(--n < 0) return 0;
+    GINT32 ret(0x8000000);
+    return static_cast<GUINT32>(ret >> n);
+}
+
+/** Generates a 64-bit bitmask where the first n bits are set to 1.
+    \note O(1), takes 4 instructions to generate.
+*/
+inline static GUINT64 GEN_BITMASK_64(int n)
+{
+    if(--n < 0) return 0;
+    GINT64 ret(0x8000000000000000);
+    return static_cast<GUINT64>(ret >> n);
+}
+
+
 
 
 /** Some global enumerations that you can use for consistency

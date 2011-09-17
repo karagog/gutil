@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "Core/Interfaces/ivoidwrappers.h"
 #include "binary_tree_node.h"
-#include "gutil_globals.h"
+#include "Core/globals.h"
 #include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 

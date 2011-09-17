@@ -21,7 +21,7 @@ limitations under the License.*/
 #include "Custom/gvariant.h"
 #include "Utils/qstringhelpers.h"
 #include "Core/exception.h"
-#include "gutil_globals.h"
+#include "Core/globals.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QCoreApplication>
