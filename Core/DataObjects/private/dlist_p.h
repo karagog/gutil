@@ -12,21 +12,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef QUEUE_P_H
-#define QUEUE_P_H
+#ifndef GUTIL_DLIST_P_H
+#define GUTIL_DLIST_P_H
 
 #include "nodechain.h"
 #include "Core/Interfaces/ivoidwrappers.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-/** Implements a FIFO queue.
-    A queue allows pushes and pops from both ends, and bidirectional iteration.
+/** Implements a doubly-linked list.
+
+    Doubly-linked lists are optimized for lots of insertions/removals, but really suck at
+    accessing the list randomly.  It is best to use an iterator.
 */
-class queue_p :
-        public bidirectional_node_link
+class dlist_p :
+        protected bidirectional_node_link
 {
-    GUTIL_DISABLE_COPY(queue_p);
+    GUTIL_DISABLE_COPY(dlist_p);
 public:
 
     long Size() const;
@@ -38,16 +40,16 @@ public:
 
 protected:
 
-    class queue_type_wrapper :
+    class type_wrapper :
             public Interfaces::IVoidCopyer,
             public Interfaces::IVoidDeleter
     {
     public:
-        virtual ~queue_type_wrapper(){}
+        virtual ~type_wrapper(){}
     };
 
-    queue_p(queue_type_wrapper *);
-    inline ~queue_p(){ Clear(); delete data_wrapper; }
+    dlist_p(type_wrapper *);
+    inline ~dlist_p(){ Clear(); delete data_wrapper; }
 
     void push_front(const void *const);
     void push_back(const void *const);
@@ -60,7 +62,7 @@ protected:
 
 private:
 
-    queue_type_wrapper *data_wrapper;
+    type_wrapper *data_wrapper;
     long m_size;
 
 };
@@ -68,4 +70,4 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // QUEUE_P_H
+#endif // GUTIL_DLIST_P_H

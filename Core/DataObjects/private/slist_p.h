@@ -50,23 +50,29 @@ protected:
 
 
     /** The type-specific functions that we require. */
-    class slist_pype_wrapper :
+    class type_wrapper :
             public Interfaces::IVoidCopyer,
             public Interfaces::IVoidDeleter
     {
     public:
         /** You will be deleted by this interface. */
-        virtual ~slist_pype_wrapper();
+        virtual ~type_wrapper();
     };
 
     /** The type wrapper will be owned and deleted by the stack. */
-    slist_p(slist_pype_wrapper *);
+    slist_p(type_wrapper *);
     ~slist_p();
 
     /** Push an item at the front of the list.
         \note O(1)
     */
     void push(const void *const);
+
+    /** Push an item at the back of the list.  Because we keep a cache of the last item in
+        the list, this operation happens in constant time.
+        \note O(1)
+    */
+    void push_back(const void *const);
 
     /** The item at the front of the list.
         \note O(1)
@@ -88,8 +94,9 @@ protected:
 
 private:
 
-    slist_pype_wrapper *data_wrapper;
+    type_wrapper *data_wrapper;
     int m_count;
+    node_link *m_end;
 
 };
 

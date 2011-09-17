@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef HEAP_P_H
-#define HEAP_P_H
+#ifndef GUTIL_HEAP_P_H
+#define GUTIL_HEAP_P_H
 
 #include "binary_tree_node.h"
 #include "Core/Interfaces/ivoidwrappers.h"
@@ -52,4 +52,4 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // HEAP_P_H
+#endif // GUTIL_HEAP_P_H

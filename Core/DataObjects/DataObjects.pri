@@ -6,8 +6,8 @@ HEADERS += \
     DataObjects/map.h \
     DataObjects/list.h \
     DataObjects/private/list_p.h \
-    DataObjects/private/queue_p.h \
-    DataObjects/queue.h \
+    DataObjects/private/dlist_p.h \
+    DataObjects/dlist.h \
     DataObjects/heap.h \
     DataObjects/private/heap_p.h \
     DataObjects/private/bst_p.h \
@@ -21,6 +21,6 @@ SOURCES += \
     DataObjects/private/nodechain.cpp \
     DataObjects/private/slist_p.cpp \
     DataObjects/private/list_p.cpp \
-    DataObjects/private/queue_p.cpp \
+    DataObjects/private/dlist_p.cpp \
     DataObjects/private/heap_p.cpp \
     DataObjects/private/bst_p.cpp

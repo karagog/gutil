@@ -98,16 +98,6 @@ inline static GUINT32 GEN_BITMASK_32(int n)
     return static_cast<GUINT32>(ret >> n);
 }
 
-/** Generates a 64-bit bitmask where the first n bits are set to 1.
-    \note O(1), takes 4 instructions to generate.
-*/
-inline static GUINT64 GEN_BITMASK_64(int n)
-{
-    if(--n < 0) return 0;
-    GINT64 ret(0x8000000000000000);
-    return static_cast<GUINT64>(ret >> n);
-}
-
 
 
 

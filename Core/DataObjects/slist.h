@@ -22,29 +22,56 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-/** Implements a FILO stack. */
+/** Implements a singly-linked list.
+
+    A singly-linked list has the advantage of good memory performance while allowing
+    one-directional access to the list items.  It keeps a cache of the last item in the list,
+    so that you can push items on the back, but you can't use this cache to access list items.
+    In this way, it is flexible enough to represent a queue.
+
+    This has a Stack and a Queue interface, so you can have those properties with a
+    singly-linked list implementation.
+
+    All of the functions are declared virtual, so subclasses can take advantage of polymorphism
+    to customize the behavior of the SList (or Stack or Queue, or whatever they're using it as).
+*/
 template<class T>class SList :
         public slist_p,
-        public IStack<T>,
+        public Stack<T>,
+        public Queue<T>,
         public Interfaces::IClonable< SList<T> >
 {
     GUTIL_DISABLE_COPY(SList<T>);
 public:
 
-    /** Push an item into the SList. */
-    inline void PushFront(const T &i){ push(reinterpret_cast<const void* const>(&i)); }
+    /** Push an item into the SList.
+        \note O(1)
+    */
+    virtual void PushFront(const T &i){ push(reinterpret_cast<const void* const>(&i)); }
 
-    /** Pop an item from the front of the list. */
-    inline void PopFront(){ if(!IsEmpty()){ iterator i(begin()); Remove(i); } }
+    /** Push an item at the back of the SList.
+        \note O(1)
+    */
+    virtual void PushBack(const T &i){ push_back(reinterpret_cast<const void* const>(&i)); }
 
-    /** Returns the item at the front of the list. */
-    inline const T &Front() const{ return *reinterpret_cast<const T* const>(front()); }
-    /** Returns the item at the front of the list. */
-    inline T &Front(){ return *reinterpret_cast<T*>(front()); }
+    /** Pop an item from the front of the list.
+        \note O(1)
+    */
+    virtual void PopFront(){ if(!IsEmpty()){ iterator i(begin()); Remove(i); } }
+
+    /** Returns the item at the front of the list.
+        \note O(1)
+    */
+    virtual const T &Front() const{ return *reinterpret_cast<const T* const>(front()); }
+
+    /** Returns the item at the front of the list.
+        \note O(1)
+    */
+    virtual T &Front(){ return *reinterpret_cast<T*>(front()); }
 
     /** The default memory allocator for the slist.  Normally you don't deal with this class*/
     class TypeWrapper :
-            public slist_p::slist_pype_wrapper
+            public slist_p::type_wrapper
     {
     public:
         virtual T* Copy(const T &t) const{
@@ -69,35 +96,44 @@ public:
 
     /** Creates a new slist with the item */
     inline SList(const T &item, TypeWrapper *w = new TypeWrapper)
-        :slist_p(w)
-    {
+        :slist_p(w){
         PushFront(item);
     }
 
-    /** Pushes an item onto the stack.  Satisfies IStack interface.
-        \sa Pop()
-        \note O(1)
-    */
+    /** Satisfies the Stack abstract interface. */
     virtual void Push(const T &item){ PushFront(item); }
 
-    /** Pops the top item from the stack.  Satisfies IStack interface.
-        \sa Push()
-        \note O(1)
-    */
+    /** Satisfies the Stack abstract interface. */
     virtual void Pop(){ PopFront(); }
 
-    /** Returns the top item on the stack, or 0 if no items in the stack.
-        \note O(1)
-    */
+    /** Satisfies the Stack abstract interface. */
     virtual const T &Top() const{ return Front(); }
 
-    /** Returns the top item on the stack, or 0 if no items in the stack.
-        \note O(1)
-    */
+    /** Satisfies the Stack abstract interface. */
     virtual T &Top(){ return Front(); }
 
-    /** How many items in the SList.  Satisfies IStack interface. */
+    /** Satisfies the Stack abstract interface. */
+    virtual void FlushStack(){ return Clear(); }
+
+    /** How many items in the SList. */
     virtual long Count() const{ return _count(); }
+    virtual long CountStackItems() const{ return _count(); }
+    virtual long CountQueueItems() const{ return _count(); }
+
+    /** Satisfies the Queue abstract interface. */
+    virtual void Enqueue(const T &i){ PushBack(i); }
+
+    /** Satisfies the Queue abstract interface. */
+    virtual void Dequeue(){ PopFront(); }
+
+    /** Satisfies the Queue abstract interface. */
+    virtual const T &FrontOfQueue() const{ return Front(); }
+
+    /** Satisfies the Queue abstract interface. */
+    virtual T &FrontOfQueue(){ return Front(); }
+
+    /** Satisfies the Queue abstract interface. */
+    virtual void FlushQueue(){ return Clear(); }
 
 
     class iterator :
@@ -169,18 +205,16 @@ public:
     };
 
     /** Returns an iterator starting at the top of the stack. */
-    iterator begin(){
-        return iterator(NextNode, this);
-    }
+    inline iterator begin(){ return iterator(NextNode, this); }
+
     /** Returns an iterator starting at the top of the stack. */
-    const_iterator begin() const{
-        return const_iterator(NextNode, this);
-    }
+    inline const_iterator begin() const{ return const_iterator(NextNode, this); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    const_iterator end() const{
-        return const_iterator();
-    }
+    inline const_iterator end() const{ return const_iterator(); }
+
+    /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
+    inline iterator end(){ return iterator(); }
 
     /** Removes the item pointed to by the iterator.
 
@@ -194,9 +228,7 @@ public:
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
     */
-    void Remove(iterator &iter){
-        remove(iter);
-    }
+    void Remove(iterator &iter){ remove(iter); }
 
     /** Conducts a deep copy of the stack.  Overridden from IClonable.
         \note O(N)

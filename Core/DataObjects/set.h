@@ -32,7 +32,7 @@ template<class T> class Set :
 public:
 
     class TypeWrapper :
-            public BinarySearchTree< Queue<T> * >::TypeWrapper,
+            public BinarySearchTree< DList<T> * >::TypeWrapper,
             public FlexibleTypeComparer<T>
     {
     public:
@@ -41,14 +41,14 @@ public:
             :FlexibleTypeComparer<T>(cmp)
         {}
 
-        virtual void Delete(Queue<T> **s) const{
+        virtual void Delete(DList<T> **s) const{
             delete *s;
-            BinarySearchTree< Queue<T> * >::TypeWrapper::Delete(s);
+            BinarySearchTree< DList<T> * >::TypeWrapper::Delete(s);
         }
     private:
         int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return FlexibleTypeComparer<T>::Compare((*reinterpret_cast< Queue<T> const *const *>(lhs))->Front(),
-                                                    (*reinterpret_cast< Queue<T> const *const *>(rhs))->Front());
+            return FlexibleTypeComparer<T>::Compare((*reinterpret_cast< DList<T> const *const *>(lhs))->Front(),
+                                                    (*reinterpret_cast< DList<T> const *const *>(rhs))->Front());
         }
     };
 
@@ -82,17 +82,17 @@ public:
         GDEBUG("Warning: Copying a Set is not efficient.  Use references and pointers when you can.");
         o.data.Clear();
         o._T_comparer = _T_comparer;
-        *static_cast<FlexibleTypeComparer< Queue<T> *> *>(o.data.GetTypeWrapper()) = *data.GetTypeWrapper();
+        *static_cast<FlexibleTypeComparer< DList<T> *> *>(o.data.GetTypeWrapper()) = *data.GetTypeWrapper();
 
-        Queue<T> const*last_stack(0);
+        DList<T> const*last_stack(0);
         for(Set<T>::const_iterator iter(data.begin()); iter; ++iter)
         {
-            Queue<T> const*s(iter.stack());
+            DList<T> const*s(iter.stack());
             if(s != last_stack)
             {
                 last_stack = s;
 
-                Queue<T> *n = new Queue<T>;
+                DList<T> *n = new DList<T>;
                 last_stack->CloneTo(*n);
                 o.data.Add(n);
             }
@@ -148,20 +148,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class iterator :
-            public BinarySearchTree< Queue<T> *>::const_iterator
+            public BinarySearchTree< DList<T> *>::const_iterator
     {
         friend class Set;
     public:
         inline iterator(){}
-        inline iterator(const typename BinarySearchTree< Queue<T> * >::const_iterator &iter)
-            :BinarySearchTree< Queue<T> *>::const_iterator(iter)
+        inline iterator(const typename BinarySearchTree< DList<T> * >::const_iterator &iter)
+            :BinarySearchTree< DList<T> *>::const_iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
                 siter = queue()->begin();
         }
         inline iterator(const iterator &iter)
-            :BinarySearchTree< Queue<T> *>::const_iterator(iter),
+            :BinarySearchTree< DList<T> *>::const_iterator(iter),
               siter(iter.siter)
         {}
 
@@ -170,16 +170,16 @@ public:
 
     protected:
 
-        inline Queue<T> *queue(){ return *reinterpret_cast<Queue<T> **>(BinarySearchTree< Queue<T> *>::const_iterator::current->Data); }
+        inline DList<T> *queue(){ return *reinterpret_cast<DList<T> **>(BinarySearchTree< DList<T> *>::const_iterator::current->Data); }
 
     private:
-        typename Queue<T>::iterator siter;
+        typename DList<T>::iterator siter;
 
         // Overridden from bst_p
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< Queue<T> *>::const_iterator::advance();
+                    BinarySearchTree< DList<T> *>::const_iterator::advance();
                     if(*this)
                         siter = queue()->begin();
                 }
@@ -191,20 +191,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class const_iterator :
-            public BinarySearchTree< Queue<T> *>::const_iterator
+            public BinarySearchTree< DList<T> *>::const_iterator
     {
         friend class Set;
     public:
         inline const_iterator(){}
-        inline const_iterator(const typename BinarySearchTree< Queue<T> *>::const_iterator &iter)
-            :BinarySearchTree< Queue<T> *>::const_iterator(iter)
+        inline const_iterator(const typename BinarySearchTree< DList<T> *>::const_iterator &iter)
+            :BinarySearchTree< DList<T> *>::const_iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
                 siter = stack()->begin();
         }
         inline const_iterator(const const_iterator &iter)
-            :BinarySearchTree< Queue<T> *>::const_iterator(iter),
+            :BinarySearchTree< DList<T> *>::const_iterator(iter),
               siter(iter.siter)
         {}
 
@@ -213,16 +213,16 @@ public:
 
     protected:
 
-        inline Queue<T> const*stack(){ return *reinterpret_cast<const Queue<T> *const*>(BinarySearchTree< Queue<T> *>::const_iterator::current->Data); }
+        inline DList<T> const*stack(){ return *reinterpret_cast<const DList<T> *const*>(BinarySearchTree< DList<T> *>::const_iterator::current->Data); }
 
     private:
-        typename Queue<T>::const_iterator siter;
+        typename DList<T>::const_iterator siter;
 
         // Overridden from bst_p
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< Queue<T> *>::const_iterator::advance();
+                    BinarySearchTree< DList<T> *>::const_iterator::advance();
                     if(*this)
                         siter = stack()->begin();
                 }
@@ -250,7 +250,7 @@ public:
 
 private:
 
-    BinarySearchTree< Queue<T> *> data;
+    BinarySearchTree< DList<T> *> data;
 
     class KeySearcher :
             public Interfaces::IVoidComparer,
@@ -264,7 +264,7 @@ private:
     private:
         int CompareVoid(const void *const lhs, const void *const rhs) const{
             // Treat the rhs as a type T, lhs as a stack of T
-            return Compare((*reinterpret_cast< const Queue<T> *const* >(lhs))->Front(),
+            return Compare((*reinterpret_cast< const DList<T> *const* >(lhs))->Front(),
                            *reinterpret_cast< T const * >(rhs));
         }
     } _T_comparer;
@@ -304,7 +304,7 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
     Set<T>::iterator iter( data.Search(i, &_T_comparer) );
     if(iter)
     {
-        Queue<T> *s(iter.queue());
+        DList<T> *s(iter.queue());
         if(!allow_multiples)
         {
             m_size -= s->Count();
@@ -314,7 +314,7 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
     }
     else
     {
-        data.Add(new Queue<T>(i));
+        data.Add(new DList<T>(i));
     }
     ++m_size;
 }

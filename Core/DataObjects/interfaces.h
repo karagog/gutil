@@ -22,8 +22,12 @@ limitations under the License.*/
 */
 
 
+#include "gutil_macros.h"
+GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+
+
 /** An abstract interface that says you can treat me like a stack. */
-template<class T>class IStack
+template<class T>class Stack
 {
 public:
 
@@ -40,16 +44,19 @@ public:
     virtual T &Top() = 0;
 
     /** How many items on the stack? */
-    virtual long Count() const = 0;
+    virtual long CountStackItems() const = 0;
+
+    /** Remove all items from the stack. */
+    virtual void FlushStack() = 0;
 
     /** So derived classes can be deleted by the interface. */
-    virtual ~IStack(){}
+    virtual ~Stack(){}
 
 };
 
 
 /** An abstract interface that says you're a random-access container. */
-template <class T>class IContainer
+template <class T>class RandomAccessContainer
 {
 public:
 
@@ -59,7 +66,10 @@ public:
     virtual T &At(long) = 0;
 
     /** Tell us how many items in the container. */
-    inline long Count() const = 0;
+    virtual long CountContainerItems() const = 0;
+
+    /** Remove all items from the container. */
+    virtual void FlushContainer() = 0;
 
     /** For convenience, define a default index operator. */
     inline const T &operator [](long i) const{ return At(i); }
@@ -67,13 +77,13 @@ public:
     inline T &operator [](long i){ return At(i); }
 
     /** So derived classes can be deleted by the interface. */
-    virtual ~IContainer(){}
+    virtual ~RandomAccessContainer(){}
 
 };
 
 
 /** An abstract interface that says you can behave like a queue. */
-template<class T>class IQueue
+template<class T>class Queue
 {
 public:
 
@@ -84,24 +94,28 @@ public:
     virtual void Dequeue() = 0;
 
     /** Return the item at the front of the queue. */
-    virtual const T &Front() const = 0;
+    virtual const T &FrontOfQueue() const = 0;
 
     /** Return the item at the front of the queue. */
-    virtual T &Front() = 0;
+    virtual T &FrontOfQueue() = 0;
 
     /** How many items in the queue? */
-    virtual long Count() const = 0;
+    virtual long CountQueueItems() const = 0;
+
+    /** Remove all items from the Queue. */
+    virtual void FlushQueue() = 0;
 
     /** So derived classes can be deleted by the interface. */
-    virtual ~IQueue(){}
+    virtual ~Queue(){}
 
 };
 
 
-/** An abstract interface that says you can behave like a dequeue (double-ended queue).
-    It automatically inherits IQueue.
+/** An abstract interface that says you can behave like a deque (double-ended queue).
+    It automatically inherits Queue.
 */
-template<class T>class IDequeue : public IQueue<T>
+template<class T>class Deque :
+        public Queue<T>
 {
 public:
 
@@ -122,21 +136,29 @@ public:
     virtual void PopBack() = 0;
 
     /** Returns the item at the back of the queue. */
-    virtual const T &Back() const = 0;
+    virtual const T &BackOfQueue() const = 0;
 
     /** Returns the item at the back of the queue. */
-    virtual T &Back() = 0;
+    virtual T &BackOfQueue() = 0;
+
+    /** Calls the base version of Count. */
+    inline long CountDequeItems() const{ return Queue<T>::CountQueueItems(); }
+
+    /** Calls the base class, Queue, to clear itself. */
+    inline void FlushDeque(){ Queue<T>::FlushQueue(); }
 
     /** Automatically calls PushBack(), for convenience. */
-    virtual void Enqueue(const T &){ PushBack(); }
+    virtual void Enqueue(const T &i){ PushBack(i); }
 
     /** Automatically calls PopFront(), for convenience. */
     virtual void Dequeue(){ PopFront(); }
 
     /** So derived classes can be deleted by the interface. */
-    virtual ~IDequeue(){}
+    virtual ~Deque(){}
 
 };
 
+
+GUTIL_END_CORE_NAMESPACE;
 
 #endif // GUTIL_DATAOBJECTS_INTERFACES_H

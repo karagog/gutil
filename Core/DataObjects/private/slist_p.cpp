@@ -15,9 +15,10 @@ limitations under the License.*/
 #include "slist_p.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-slist_p::slist_p(slist_pype_wrapper *stw)
+slist_p::slist_p(type_wrapper *stw)
     :data_wrapper(stw),
-      m_count(0)
+      m_count(0),
+      m_end(this)
 {}
 
 slist_p::~slist_p()
@@ -26,14 +27,23 @@ slist_p::~slist_p()
     delete data_wrapper;
 }
 
-slist_p::slist_pype_wrapper::~slist_pype_wrapper(){}
+slist_p::type_wrapper::~type_wrapper(){}
 
 void slist_p::push(const void *const v)
 {
     node_t *new_node( new node_t );
+    new_node->Data = data_wrapper->CopyVoid(v);
     new_node->NextNode = NextNode;
     NextNode = new_node;
+    m_count++;
+}
+
+void slist_p::push_back(const void *const v)
+{
+    node_t *new_node( new node_t );
     new_node->Data = data_wrapper->CopyVoid(v);
+    m_end->NextNode = new_node;
+    m_end = new_node;
     m_count++;
 }
 
@@ -58,6 +68,9 @@ void slist_p::remove(forward_node_iterator &iter)
 {
     if(!iter.current)
         return;
+
+    if(m_end == iter.current)
+        m_end = iter.parent;
 
     data_wrapper->DeleteVoid(iter.current->Data);
     node_t *n( iter.current->NextNode );

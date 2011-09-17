@@ -88,7 +88,7 @@ void bidirectional_node_iterator::advance()
 void bidirectional_node_iterator::retreat()
 {
     if(current)
-        current = current->NextNode;
+        current = current->PreviousNode;
 }
 
 bool bidirectional_node_iterator::operator == (const bidirectional_node_iterator &o) const
