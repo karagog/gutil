@@ -25,11 +25,12 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 /** The DList provides a doubly-linked list.
 
     Doubly-linked lists are optimized for lots of insertions/removals, but do not allow random-access
-    to the elements.  The only way to access items inside the list is with an iterator.
+    to the elements.  The only way to access items inside the list (other than the front and back)
+    is with an iterator.
 
-    If you need random access, you can use the List.
+    If you need random access, you can use the Vector or List.
 
-    \sa List, SList
+    \sa List, Vector, SList
 */
 template<class T>class DList :
         public dlist_p,
@@ -39,59 +40,53 @@ template<class T>class DList :
 {
 public:
 
-    inline const T &Front() const{ return *reinterpret_cast<T const *>(NextNode->Data); }
-    inline T &Front(){ return *reinterpret_cast<T *>(NextNode->Data); }
-
-    inline const T &Back() const{ return *reinterpret_cast<T const *>(PreviousNode->Data); }
-    inline T &Back(){ return *reinterpret_cast<T *>(PreviousNode->Data); }
+    /** Satisfies the Dequeue abstract interface. */
+    void PushFront(const T &i){ push_front(&i); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual void PushFront(const T &i){ push_front(&i); }
+    void PushBack(const T &i){ push_back(&i); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual void PushBack(const T &i){ push_back(&i); }
+    void PopFront(){ pop_front(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual void PopFront(){ pop_front(); }
+    void PopBack(){ pop_back(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual void PopBack(){ pop_back(); }
+    const T &Front() const{ return *reinterpret_cast<T const *>(NextNode->Data);; }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual const T &FrontOfQueue() const{ return Front(); }
+    T &Front(){ return *reinterpret_cast<T *>(NextNode->Data); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual T &FrontOfQueue(){ return Front(); }
+    const T &Back() const{ return *reinterpret_cast<T const *>(PreviousNode->Data); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual const T &BackOfQueue() const{ return Back(); }
+    T &Back(){ return *reinterpret_cast<T *>(PreviousNode->Data); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual T &BackOfQueue(){ return Back(); }
+    void FlushQueue(){ Clear(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    virtual void FlushQueue(){ Clear(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    virtual long CountQueueItems() const{ return Size(); }
+    long CountQueueItems() const{ return Size(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual void Push(const T &i){ PushFront(i); }
+    void Push(const T &i){ PushFront(i); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual void Pop(){ PopFront(); }
+    void Pop(){ PopFront(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual const T &Top() const{ return Front(); }
+    const T &Top() const{ return Front(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual T &Top(){ return Front(); }
+    T &Top(){ return Front(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual void FlushStack(){ Clear(); }
+    void FlushStack(){ Clear(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual long CountStackItems() const{ return Size(); }
+    long CountStackItems() const{ return Size(); }
 
     /** A bidirectional iterator through the list. */
     class iterator :

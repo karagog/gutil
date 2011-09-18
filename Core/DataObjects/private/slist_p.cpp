@@ -16,9 +16,9 @@ limitations under the License.*/
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 slist_p::slist_p(type_wrapper *stw)
-    :data_wrapper(stw),
-      m_count(0),
-      m_end(this)
+    :m_end(this),
+      data_wrapper(stw),
+      m_count(0)
 {}
 
 slist_p::~slist_p()
@@ -29,39 +29,26 @@ slist_p::~slist_p()
 
 slist_p::type_wrapper::~type_wrapper(){}
 
-void slist_p::push(const void *const v)
-{
-    node_t *new_node( new node_t );
-    new_node->Data = data_wrapper->CopyVoid(v);
-    new_node->NextNode = NextNode;
-    NextNode = new_node;
-    m_count++;
-}
-
-void slist_p::push_back(const void *const v)
-{
-    node_t *new_node( new node_t );
-    new_node->Data = data_wrapper->CopyVoid(v);
-    m_end->NextNode = new_node;
-    m_end = new_node;
-    m_count++;
-}
-
-void *slist_p::front()
-{
-    return NextNode ? NextNode->Data : 0;
-}
-
-void const*slist_p::front() const
-{
-    return NextNode ? NextNode->Data : 0;
-}
-
 void slist_p::Clear()
 {
     forward_node_iterator top_of_stack(NextNode, this);
     while(top_of_stack)
         remove(top_of_stack);
+}
+
+void slist_p::insert(void const *v, forward_node_iterator &iter)
+{
+    node_t *new_node( new node_t );
+    new_node->Data = data_wrapper->CopyVoid(v);
+    new_node->NextNode = iter.current;
+    if(iter.parent)
+        iter.parent->NextNode = new_node;
+    else
+        NextNode = new_node;
+    iter.parent = new_node;
+    if(!iter.current)
+        m_end = new_node;
+    m_count++;
 }
 
 void slist_p::remove(forward_node_iterator &iter)

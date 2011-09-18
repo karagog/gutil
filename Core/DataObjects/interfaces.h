@@ -94,10 +94,10 @@ public:
     virtual void Dequeue() = 0;
 
     /** Return the item at the front of the queue. */
-    virtual const T &FrontOfQueue() const = 0;
+    virtual const T &Front() const = 0;
 
     /** Return the item at the front of the queue. */
-    virtual T &FrontOfQueue() = 0;
+    virtual T &Front() = 0;
 
     /** How many items in the queue? */
     virtual long CountQueueItems() const = 0;
@@ -136,10 +136,10 @@ public:
     virtual void PopBack() = 0;
 
     /** Returns the item at the back of the queue. */
-    virtual const T &BackOfQueue() const = 0;
+    virtual const T &Back() const = 0;
 
     /** Returns the item at the back of the queue. */
-    virtual T &BackOfQueue() = 0;
+    virtual T &Back() = 0;
 
     /** Calls the base version of Count. */
     inline long CountDequeItems() const{ return Queue<T>::CountQueueItems(); }
@@ -148,10 +148,10 @@ public:
     inline void FlushDeque(){ Queue<T>::FlushQueue(); }
 
     /** Automatically calls PushBack(), for convenience. */
-    virtual void Enqueue(const T &i){ PushBack(i); }
+    inline void Enqueue(const T &i){ PushBack(i); }
 
     /** Automatically calls PopFront(), for convenience. */
-    virtual void Dequeue(){ PopFront(); }
+    inline void Dequeue(){ PopFront(); }
 
     /** So derived classes can be deleted by the interface. */
     virtual ~Deque(){}

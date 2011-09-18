@@ -8,7 +8,7 @@ QT       += testlib
 
 QT       -= gui
 
-TARGET = tst_stacktest
+TARGET = tst_slisttest
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -20,5 +20,10 @@ LIBS += -L../../../../lib -lGUtilCore
 unix: LIBS += -Wl,-rpath,../../../../lib
 
 
-SOURCES += tst_stacktest.cpp
+SOURCES += \
+    tst_slisttest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+
+
+

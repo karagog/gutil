@@ -25,11 +25,13 @@ public:
     SListTest();
 
 private Q_SLOTS:
-    void test_basic_function();
+    void test_stack();
 
     void test_iterators();
 
     void test_removal();
+
+    void test_queue();
 
 };
 
@@ -37,28 +39,37 @@ SListTest::SListTest()
 {
 }
 
-void SListTest::test_basic_function()
+void SListTest::test_stack()
 {
-    SList<int> tmpstack;
+    SList<int> lst;
+    Stack<int> &stk(lst);
+
     for(int i = 0; i < 10; i++)
-        tmpstack.Push(i);
+        stk.Push(i);
 
     for(int i = 9; i >= 0; i--)
     {
-        QVERIFY(tmpstack.Top() == i);
-        QVERIFY(tmpstack.Count() == i + 1);
-        tmpstack.Pop();
+        QVERIFY(stk.Top() == i);
+        QVERIFY(stk.CountStackItems() == i + 1);
+        stk.Pop();
     }
+
+    stk.Push(1);
+    stk.Push(2);
+    QVERIFY(stk.CountStackItems() == 2);
+
+    stk.FlushStack();
+    QVERIFY(stk.CountStackItems() == 0);
 }
 
 void SListTest::test_iterators()
 {
-    SList<int> stack;
+    SList<int> lst;
     for(int i = 0; i < 10; i++)
-        stack.Push(i);
+        lst.PushFront(i);
 
     int tmp(9);
-    for(SList<int>::iterator iter(stack.begin()); iter != stack.end(); iter++)
+    for(SList<int>::iterator iter(lst.begin()); iter; ++iter)
     {
         QVERIFY(*iter == tmp);
         tmp--;
@@ -67,33 +78,60 @@ void SListTest::test_iterators()
 
 void SListTest::test_removal()
 {
-    SList<int> stack;
+    SList<int> lst;
     for(int i = 0; i < 10; i++)
-        stack.Push(i);
+        lst.Push(i);
 
-    QVERIFY(stack.Count() == 10);
+    QVERIFY(lst.Count() == 10);
 
     // Test from the top of the stack
-    SList<int>::iterator iter(stack.begin());
-    stack.Remove(iter);
+    SList<int>::iterator iter(lst.begin());
+    lst.Remove(iter);
 
-    QVERIFY(stack.Count() == 9);
+    QVERIFY(lst.Count() == 9);
     QVERIFY2(*iter == 8, QString("%1").arg(*iter).toAscii());
 
 
     // Test removal from the middle of the stack
     iter++; iter++; iter++; iter++; iter++;
-    stack.Remove(iter);
-    QVERIFY(stack.Count() == 8);
+    lst.Remove(iter);
+    QVERIFY(lst.Count() == 8);
 
     // Test removal from the end of the stack
     SList<int>::iterator tmp;
-    while(++iter != stack.end())
+    while(++iter != lst.end())
         tmp = iter;
-    stack.Remove(tmp);
-    QVERIFY(stack.Count() == 7);
+    lst.Remove(tmp);
+    QVERIFY(lst.Count() == 7);
+}
+
+void SListTest::test_queue()
+{
+    SList<int> lst;
+    Queue<int> &q( lst );
+
+    q.Enqueue(0);
+    q.Enqueue(1);
+    q.Enqueue(2);
+    q.Enqueue(3);
+    q.Enqueue(4);
+    q.Enqueue(5);
+    QVERIFY(q.CountQueueItems() == 6);
+    for(int i(0); i < 6; ++i)
+    {
+        QVERIFY2(q.Front() == i, QString("%1 != %2").arg(q.Front()).arg(i).toAscii());
+        QVERIFY(q.CountQueueItems() == 6 - i);
+        q.Dequeue();
+    }
+
+    q.Enqueue(1);
+    q.Enqueue(2);
+    QVERIFY(q.CountQueueItems() == 2);
+
+    q.FlushQueue();
+    QVERIFY(q.CountQueueItems() == 0);
 }
 
 QTEST_APPLESS_MAIN(SListTest);
 
-#include "tst_stacktest.moc"
+#include "tst_slisttest.moc"

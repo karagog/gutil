@@ -48,6 +48,8 @@ protected:
     */
     inline long _count() const{ return m_count; }
 
+    /** A reference to the last item in the list, or to myself if there are no items. */
+    node_link *m_end;
 
     /** The type-specific functions that we require. */
     class type_wrapper :
@@ -63,26 +65,11 @@ protected:
     slist_p(type_wrapper *);
     ~slist_p();
 
-    /** Push an item at the front of the list.
+    /** The iterator is still valid after insertion.
+        It simply points to the same element, which has been shifted one place in the list.
         \note O(1)
     */
-    void push(const void *const);
-
-    /** Push an item at the back of the list.  Because we keep a cache of the last item in
-        the list, this operation happens in constant time.
-        \note O(1)
-    */
-    void push_back(const void *const);
-
-    /** The item at the front of the list.
-        \note O(1)
-    */
-    void *front();
-
-    /** The item at the front of the list.
-        \note O(1)
-    */
-    void const*front() const;
+    void insert(void const *, forward_node_iterator &);
 
     /** The iterator is still valid after removal; it equals the next item on the stack.
         \note O(1), despite the fact that it's implemented as a singly-linked list.
@@ -96,7 +83,6 @@ private:
 
     type_wrapper *data_wrapper;
     int m_count;
-    node_link *m_end;
 
 };
 

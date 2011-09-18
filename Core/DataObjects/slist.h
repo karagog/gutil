@@ -31,9 +31,6 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     This has a Stack and a Queue interface, so you can have those properties with a
     singly-linked list implementation.
-
-    All of the functions are declared virtual, so subclasses can take advantage of polymorphism
-    to customize the behavior of the SList (or Stack or Queue, or whatever they're using it as).
 */
 template<class T>class SList :
         public slist_p,
@@ -43,31 +40,47 @@ template<class T>class SList :
 {
     GUTIL_DISABLE_COPY(SList<T>);
 public:
+    class iterator;
+    class const_iterator;
 
-    /** Push an item into the SList.
+    /** Removes the item pointed to by the iterator.
+
+        This is the function that's called whenever an item is removed from the list.  You can
+        optionally override it to provide custom removal behavior.
+
+        \note The iterator will remain valid after the removal.  It then points to the next
+        element which replaced the one we removed on the stack.
+        \note O(N) in the worst case.  It's O(1) if you remove the begin() iterator
+        If you are removing a lot from within the stack (aka not the top) then you should
+        think about using another class like a linked list.
+    */
+    virtual void Remove(iterator &iter){ remove(iter); }
+
+    /** Insert an item into the list.
+
+        The iterator stays valid after insertion.  It will point to the same item as before, which
+        has been shifted 1 place in the list, due to the insertion.
+
+        This is the function that's called whenever an item is added to the list.  You can optionally
+        override it to provide custom insertion behavior.
         \note O(1)
     */
-    virtual void PushFront(const T &i){ push(reinterpret_cast<const void* const>(&i)); }
+    virtual void Insert(const T &i, iterator &iter){ insert(reinterpret_cast<const void* const>(&i), iter);}
+
+    /** Push an item onto the front of the list.
+        \note O(1)
+    */
+    void PushFront(const T &i){ iterator b(begin()); Insert(i, b); }
 
     /** Push an item at the back of the SList.
         \note O(1)
     */
-    virtual void PushBack(const T &i){ push_back(reinterpret_cast<const void* const>(&i)); }
+    void PushBack(const T &i){ iterator e(end()); Insert(i, e); }
 
     /** Pop an item from the front of the list.
         \note O(1)
     */
-    virtual void PopFront(){ if(!IsEmpty()){ iterator i(begin()); Remove(i); } }
-
-    /** Returns the item at the front of the list.
-        \note O(1)
-    */
-    virtual const T &Front() const{ return *reinterpret_cast<const T* const>(front()); }
-
-    /** Returns the item at the front of the list.
-        \note O(1)
-    */
-    virtual T &Front(){ return *reinterpret_cast<T*>(front()); }
+    void PopFront(){ if(!IsEmpty()){ iterator b(begin()); Remove(b); } }
 
     /** The default memory allocator for the slist.  Normally you don't deal with this class*/
     class TypeWrapper :
@@ -101,39 +114,39 @@ public:
     }
 
     /** Satisfies the Stack abstract interface. */
-    virtual void Push(const T &item){ PushFront(item); }
+    void Push(const T &item){ PushFront(item); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual void Pop(){ PopFront(); }
+    void Pop(){ PopFront(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual const T &Top() const{ return Front(); }
+    const T &Top() const{ return Front(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual T &Top(){ return Front(); }
+    T &Top(){ return Front(); }
 
     /** Satisfies the Stack abstract interface. */
-    virtual void FlushStack(){ return Clear(); }
+    void FlushStack(){ return Clear(); }
 
     /** How many items in the SList. */
-    virtual long Count() const{ return _count(); }
-    virtual long CountStackItems() const{ return _count(); }
-    virtual long CountQueueItems() const{ return _count(); }
+    inline long Count() const{ return _count(); }
+    long CountStackItems() const{ return _count(); }
+    long CountQueueItems() const{ return _count(); }
 
     /** Satisfies the Queue abstract interface. */
-    virtual void Enqueue(const T &i){ PushBack(i); }
+    void Enqueue(const T &i){ PushBack(i); }
 
     /** Satisfies the Queue abstract interface. */
-    virtual void Dequeue(){ PopFront(); }
+    void Dequeue(){ PopFront(); }
 
     /** Satisfies the Queue abstract interface. */
-    virtual const T &FrontOfQueue() const{ return Front(); }
+    const T &Front() const{ return *reinterpret_cast<T const *>(NextNode ? NextNode->Data : 0); }
 
     /** Satisfies the Queue abstract interface. */
-    virtual T &FrontOfQueue(){ return Front(); }
+    T &Front(){ return *reinterpret_cast<T *>(NextNode ? NextNode->Data : 0); }
 
     /** Satisfies the Queue abstract interface. */
-    virtual void FlushQueue(){ return Clear(); }
+    void FlushQueue(){ return Clear(); }
 
 
     class iterator :
@@ -211,24 +224,12 @@ public:
     inline const_iterator begin() const{ return const_iterator(NextNode, this); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    inline const_iterator end() const{ return const_iterator(); }
+    inline const_iterator end() const{ return m_end == this ? const_iterator(0, this) :
+                                                              ++const_iterator(static_cast<node_t*>(m_end)); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    inline iterator end(){ return iterator(); }
-
-    /** Removes the item pointed to by the iterator.
-
-        The virtual functions on_pop() and on_popped() are called, before and after the
-        removal.  This is called whenever an item is removed, regardless if it's at the top
-        of the stack.
-
-        \note The iterator will remain valid after the removal.  It then points to the next
-        element which replaced the one we removed on the stack.
-        \note O(N) in the worst case.  It's O(1) if you remove the begin() iterator
-        If you are removing a lot from within the stack (aka not the top) then you should
-        think about using another class like a linked list.
-    */
-    void Remove(iterator &iter){ remove(iter); }
+    inline iterator end(){ return m_end == this ? iterator(0, this) :
+                                                  ++iterator(static_cast<node_t*>(m_end)); }
 
     /** Conducts a deep copy of the stack.  Overridden from IClonable.
         \note O(N)
