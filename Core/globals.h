@@ -41,6 +41,17 @@ limitations under the License.*/
 #define GUTIL_VERSION       "0.0.0"
 
 
+/** An 8 bit integer*/
+#define GINT8   char
+
+/** An 8 bit unsigned integer*/
+#define GUINT8   unsigned char
+
+/** A 16 bit integer. */
+#define GINT16  short
+
+/** A 16 bit unsigned integer. */
+#define GUINT16  unsigned short
 
 /** A 32 bit integer. */
 #define GINT32  int
@@ -94,11 +105,33 @@ extern const char MSB_LOOKUP_TABLE[256];
 inline static GUINT32 GEN_BITMASK_32(int n)
 {
     if(--n < 0) return 0;
-    GINT32 ret(0x8000000);
+    GINT32 ret(0x80000000);
+    return static_cast<GUINT32>(ret >> n);
+}
+
+/** Generates a 64-bit bitmask where the first n bits are set to 1.
+    \note O(1)
+*/
+inline static GUINT32 GEN_BITMASK_64(int n)
+{
+    if(--n < 0) return 0;
+    GINT64 ret((GUINT64)0x8000000000000000);
     return static_cast<GUINT32>(ret >> n);
 }
 
 
+
+/** Truncate the left n bits of the word. */
+inline static GUINT32 &TRUNCATE_LEFT_32(GUINT32 &w, int n)
+{
+    return w = ((w << n) >> n);
+}
+
+/** Truncate the left n bits of the word. */
+inline static GUINT64 &TRUNCATE_LEFT_64(GUINT64 &w, int n)
+{
+    return w = ((w << n) >> n);
+}
 
 
 /** Some global enumerations that you can use for consistency
