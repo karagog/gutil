@@ -19,6 +19,17 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
+/** A list of items, implemented as a memory array.
+
+    The memory for the list is separated into pages, where each successive page is twice as large
+    as the previous one.  This has an advantage over Vector's memory management, because
+    there are no large memory reallocations when you run out.  In this case we just allocate a new
+    page that effectively doubles the capacity of the list.
+
+    It implements the Deque, Queue and Stack interfaces.
+
+    \sa Vector, Dlist, SList
+*/
 template<class T>class List
 {
 public:

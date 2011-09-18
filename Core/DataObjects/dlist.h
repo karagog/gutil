@@ -39,30 +39,52 @@ template<class T>class DList :
         public Deque<T>
 {
 public:
+    class iterator;
+    class const_iterator;
+
+    /** Inserts the item into the list.
+
+        This function is called any time a new item is added to the list.
+
+        The iterator stays valid after the insertion, and it points to the same item it did before
+        the insertion, only now it has been shifted one spot in the list.
+        \note O(1)
+    */
+    virtual void Insert(const T &i, iterator &iter){ insert(reinterpret_cast<void const *>(&i),
+                                                            iter); }
+
+    /** Remove an item from the list.
+
+        This function is called any time an item is removed from the list.
+
+        The iterator stays valid after the removal, and it points to the next item in the list.
+        \note O(1)
+    */
+    virtual void Remove(iterator &iter){ remove(iter); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PushFront(const T &i){ push_front(&i); }
+    void PushFront(const T &i){ iterator b(begin()); Insert(i, b); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PushBack(const T &i){ push_back(&i); }
+    void PushBack(const T &i){ iterator e(end()); Insert(i, e); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PopFront(){ pop_front(); }
+    void PopFront(){ iterator b(begin()); Remove(b); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PopBack(){ pop_back(); }
+    void PopBack(){ iterator e(--end()); Remove(e); }
 
     /** Satisfies the Dequeue abstract interface. */
-    const T &Front() const{ return *reinterpret_cast<T const *>(NextNode->Data);; }
+    const T &Front() const{ return *begin(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    T &Front(){ return *reinterpret_cast<T *>(NextNode->Data); }
+    T &Front(){ return *begin(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    const T &Back() const{ return *reinterpret_cast<T const *>(PreviousNode->Data); }
+    const T &Back() const{ return *(--end()); }
 
     /** Satisfies the Dequeue abstract interface. */
-    T &Back(){ return *reinterpret_cast<T *>(PreviousNode->Data); }
+    T &Back(){ return *(--end()); }
 
     /** Satisfies the Dequeue abstract interface. */
     void FlushQueue(){ Clear(); }
@@ -77,10 +99,10 @@ public:
     void Pop(){ PopFront(); }
 
     /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return Front(); }
+    const T &Top() const{ return *begin(); }
 
     /** Satisfies the Stack abstract interface. */
-    T &Top(){ return Front(); }
+    T &Top(){ return *begin(); }
 
     /** Satisfies the Stack abstract interface. */
     void FlushStack(){ Clear(); }

@@ -31,7 +31,7 @@ class dlist_p :
     GUTIL_DISABLE_COPY(dlist_p);
 public:
 
-    long Size() const;
+    inline long Size() const{ return m_size; }
     inline long Length() const{ return Size(); }
     inline long Count() const{ return Size(); }
 
@@ -51,13 +51,8 @@ protected:
     dlist_p(type_wrapper *);
     inline ~dlist_p(){ Clear(); delete data_wrapper; }
 
-    void push_front(const void *const);
-    void push_back(const void *const);
-    void pop_front();
-    void pop_back();
-
-    void insert(const void *const, bidirectional_node_iterator iter);
-    void remove(bidirectional_node_iterator);
+    void insert(const void *const, bidirectional_node_iterator &iter);
+    void remove(bidirectional_node_iterator &);
 
 
 private:

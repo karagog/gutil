@@ -22,25 +22,25 @@ dlist_p::dlist_p(dlist_p::type_wrapper *tw)
 
 void dlist_p::Clear()
 {
-    while(Size() > 0)
-        pop_front();
+    bidirectional_node_iterator iter(NextNode);
+    while(iter) remove(iter);
 }
 
-void dlist_p::insert(const void *const v, bidirectional_node_iterator iter)
+void dlist_p::insert(const void *const v, bidirectional_node_iterator &iter)
 {
     bidirectional_node_t *new_node(new bidirectional_node_t);
+    new_node->Data = data_wrapper->CopyVoid(v);
 
     new_node->NextNode = iter.current;
 
     if(iter.current)
     {
         new_node->PreviousNode = iter.current->PreviousNode;
-        if(iter.current->PreviousNode) iter.current->PreviousNode->NextNode = new_node;
-        iter.current->PreviousNode = new_node;
-        new_node->NextNode = iter.current;
-
         if(iter.current == NextNode)
             NextNode = new_node;
+        else
+            iter.current->PreviousNode->NextNode = new_node;
+        iter.current->PreviousNode = new_node;
     }
     else
     {
@@ -60,20 +60,21 @@ void dlist_p::insert(const void *const v, bidirectional_node_iterator iter)
         }
     }
 
-
-    new_node->Data = data_wrapper->CopyVoid(v);
     m_size++;
 }
 
-void dlist_p::remove(bidirectional_node_iterator iter)
+void dlist_p::remove(bidirectional_node_iterator &iter)
 {
     bidirectional_node_t *n(iter.current);
     if(n)
     {
-        if(n->PreviousNode)
-            n->PreviousNode->NextNode = n->NextNode;
-        else
+        if(NextNode == n)
             NextNode = n->NextNode;
+        else
+            n->PreviousNode->NextNode = n->NextNode;
+
+        // So the iterator is still valid after the removal.
+        iter.current = n->NextNode;
 
         if(n->NextNode)
             n->NextNode->PreviousNode = n->PreviousNode;
@@ -86,29 +87,4 @@ void dlist_p::remove(bidirectional_node_iterator iter)
 
         m_size--;
     }
-}
-
-void dlist_p::push_front(const void *const v)
-{
-    insert(v, bidirectional_node_iterator(NextNode));
-}
-
-void dlist_p::push_back(const void *const v)
-{
-    insert(v, bidirectional_node_iterator(0));
-}
-
-void dlist_p::pop_front()
-{
-    remove(NextNode);
-}
-
-void dlist_p::pop_back()
-{
-    remove(PreviousNode);
-}
-
-long dlist_p::Size() const
-{
-    return m_size;
 }

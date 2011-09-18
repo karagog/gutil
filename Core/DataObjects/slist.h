@@ -67,20 +67,6 @@ public:
     */
     virtual void Insert(const T &i, iterator &iter){ insert(reinterpret_cast<const void* const>(&i), iter);}
 
-    /** Push an item onto the front of the list.
-        \note O(1)
-    */
-    void PushFront(const T &i){ iterator b(begin()); Insert(i, b); }
-
-    /** Push an item at the back of the SList.
-        \note O(1)
-    */
-    void PushBack(const T &i){ iterator e(end()); Insert(i, e); }
-
-    /** Pop an item from the front of the list.
-        \note O(1)
-    */
-    void PopFront(){ if(!IsEmpty()){ iterator b(begin()); Remove(b); } }
 
     /** The default memory allocator for the slist.  Normally you don't deal with this class*/
     class TypeWrapper :
@@ -114,16 +100,16 @@ public:
     }
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &item){ PushFront(item); }
+    void Push(const T &i){ iterator b(begin()); Insert(i, b); }
 
     /** Satisfies the Stack abstract interface. */
-    void Pop(){ PopFront(); }
+    void Pop(){ iterator b(begin()); Remove(b); }
 
     /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return Front(); }
+    const T &Top() const{ return *begin(); }
 
     /** Satisfies the Stack abstract interface. */
-    T &Top(){ return Front(); }
+    T &Top(){ return *begin(); }
 
     /** Satisfies the Stack abstract interface. */
     void FlushStack(){ return Clear(); }
@@ -134,16 +120,16 @@ public:
     long CountQueueItems() const{ return _count(); }
 
     /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ PushBack(i); }
+    void Enqueue(const T &i){ iterator e(end()); Insert(i, e); }
 
     /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ PopFront(); }
+    void Dequeue(){ iterator b(begin()); Remove(b); }
 
     /** Satisfies the Queue abstract interface. */
-    const T &Front() const{ return *reinterpret_cast<T const *>(NextNode ? NextNode->Data : 0); }
+    const T &Front() const{ return *begin(); }
 
     /** Satisfies the Queue abstract interface. */
-    T &Front(){ return *reinterpret_cast<T *>(NextNode ? NextNode->Data : 0); }
+    T &Front(){ return *begin(); }
 
     /** Satisfies the Queue abstract interface. */
     void FlushQueue(){ return Clear(); }

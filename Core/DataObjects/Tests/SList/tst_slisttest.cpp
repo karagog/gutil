@@ -66,7 +66,7 @@ void SListTest::test_iterators()
 {
     SList<int> lst;
     for(int i = 0; i < 10; i++)
-        lst.PushFront(i);
+        lst.Push(i);
 
     int tmp(9);
     for(SList<int>::iterator iter(lst.begin()); iter; ++iter)

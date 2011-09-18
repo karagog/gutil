@@ -78,7 +78,7 @@ void DListTest::testCase1()
     iter = list.begin();
     for(int i(0); i < 5; ++i, ++iter)
     {
-        int cur(q.FrontOfQueue());
+        int cur(q.Front());
         QVERIFY2(cur == i, QString("%1 != %2").arg(cur).arg(i).toAscii());
         q.Dequeue();
     }
