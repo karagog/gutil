@@ -70,8 +70,11 @@ limitations under the License.*/
 
 // Here are some useful functions
 
-/** Absolute value function.  Use as an alternate to qAbs(). */
-template <class T> inline T gAbs(const T &v){ return v < 0 ? -v : v; }
+/** Absolute value function which doesn't use branching.  Use as an alternate to qAbs(). */
+template <class T> inline T gAbs(const T &v){
+    const int mask( v >> (sizeof(int) * 8 - 1) );
+    return (v + mask) ^ mask;
+}
 
 /** Minimum value function.  Use as an alternate to qMin. */
 template <class T> inline T gMin(const T &one, const T &two){
@@ -99,14 +102,12 @@ extern "C" int MSB64(GUINT64);
 extern const char MSB_LOOKUP_TABLE[256];
 
 
-/** Generates a 32-bit bitmask where the first n bits are set to 1.
-    \note O(1), takes 4 instructions to generate.
+/** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
+    \note O(1), takes 3 instructions to generate.
 */
 inline static GUINT32 GEN_BITMASK_32(int n)
 {
-    if(--n < 0) return 0;
-    GINT32 ret(0x80000000);
-    return static_cast<GUINT32>(ret >> n);
+    return ~(GINT32(0x80000000) >> (30 - n));
 }
 
 
