@@ -46,7 +46,7 @@ protected:
     /** How many items are in the slist
         \note O(1)
     */
-    inline long _count() const{ return m_count; }
+    inline int _count() const{ return m_count; }
 
     /** A reference to the last item in the list, or to myself if there are no items. */
     node_link *m_end;

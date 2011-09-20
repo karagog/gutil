@@ -44,7 +44,7 @@ public:
     virtual T &Top() = 0;
 
     /** How many items on the stack? */
-    virtual long CountStackItems() const = 0;
+    virtual int CountStackItems() const = 0;
 
     /** Remove all items from the stack. */
     virtual void FlushStack() = 0;
@@ -100,7 +100,7 @@ public:
     virtual T &Front() = 0;
 
     /** How many items in the queue? */
-    virtual long CountQueueItems() const = 0;
+    virtual int CountQueueItems() const = 0;
 
     /** Remove all items from the Queue. */
     virtual void FlushQueue() = 0;
@@ -142,7 +142,7 @@ public:
     virtual T &Back() = 0;
 
     /** Calls the base version of Count. */
-    inline long CountDequeItems() const{ return Queue<T>::CountQueueItems(); }
+    inline int CountDequeItems() const{ return Queue<T>::CountQueueItems(); }
 
     /** Calls the base class, Queue, to clear itself. */
     inline void FlushDeque(){ Queue<T>::FlushQueue(); }

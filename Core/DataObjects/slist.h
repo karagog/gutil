@@ -115,9 +115,9 @@ public:
     void FlushStack(){ return Clear(); }
 
     /** How many items in the SList. */
-    inline long Count() const{ return _count(); }
-    long CountStackItems() const{ return _count(); }
-    long CountQueueItems() const{ return _count(); }
+    inline int Count() const{ return _count(); }
+    int CountStackItems() const{ return _count(); }
+    int CountQueueItems() const{ return _count(); }
 
     /** Satisfies the Queue abstract interface. */
     void Enqueue(const T &i){ iterator e(end()); Insert(i, e); }

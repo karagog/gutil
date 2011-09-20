@@ -109,26 +109,10 @@ inline static GUINT32 GEN_BITMASK_32(int n)
     return static_cast<GUINT32>(ret >> n);
 }
 
-/** Generates a 64-bit bitmask where the first n bits are set to 1.
-    \note O(1)
-*/
-inline static GUINT32 GEN_BITMASK_64(int n)
-{
-    if(--n < 0) return 0;
-    GINT64 ret((GUINT64)0x8000000000000000);
-    return static_cast<GUINT32>(ret >> n);
-}
-
 
 
 /** Truncate the left n bits of the word. */
 inline static GUINT32 &TRUNCATE_LEFT_32(GUINT32 &w, int n)
-{
-    return w = ((w << n) >> n);
-}
-
-/** Truncate the left n bits of the word. */
-inline static GUINT64 &TRUNCATE_LEFT_64(GUINT64 &w, int n)
 {
     return w = ((w << n) >> n);
 }

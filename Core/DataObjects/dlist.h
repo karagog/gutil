@@ -90,7 +90,7 @@ public:
     void FlushQueue(){ Clear(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    long CountQueueItems() const{ return Size(); }
+    int CountQueueItems() const{ return Size(); }
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ PushFront(i); }
@@ -108,7 +108,7 @@ public:
     void FlushStack(){ Clear(); }
 
     /** Satisfies the Stack abstract interface. */
-    long CountStackItems() const{ return Size(); }
+    int CountStackItems() const{ return Size(); }
 
     /** A bidirectional iterator through the list. */
     class iterator :
