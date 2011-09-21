@@ -113,7 +113,7 @@ inline static GUINT32 GEN_BITMASK_32(int n)
 
 
 /** Truncate the left n bits of the word. */
-inline static GUINT32 &TRUNCATE_LEFT_32(GUINT32 &w, int n)
+inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 {
     return w = ((w << n) >> n);
 }

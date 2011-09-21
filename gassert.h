@@ -20,8 +20,8 @@ limitations under the License.*/
 #if defined(GUTIL_DEBUG)
     #include <stdio.h>
     #include <stdlib.h>
-    #define GASSERT(b)          if((!b)){ printf("Assertion failed on line %d of %s", __LINE__, __FILE__); abort(); } while(0)
-    #define GASSERT2(b, msg)    if((!b)){ printf("Assertion failed on line %d of %s: %s", __LINE__, __FILE__, msg); abort(); } while(0)
+    #define GASSERT(b)          if((!b)){ printf("Assertion failed: (%s) on line %d of %s", #b, __LINE__, __FILE__); abort(); } while(0)
+    #define GASSERT2(b, msg)    if((!b)){ printf("Assertion failed: (%s) on line %d of %s: %s", #b, __LINE__, __FILE__, msg); abort(); } while(0)
 #else
     #define GASSERT(b)
     #define GASSERT2(b, msg)

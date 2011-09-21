@@ -14,7 +14,8 @@ HEADERS += \
     DataObjects/binarysearchtree.h \
     DataObjects/set.h \
     DataObjects/private/flexible_type_comparer.h \
-    DataObjects/interfaces.h
+    DataObjects/interfaces.h \
+    DataObjects/private/vector_p.h
 
 SOURCES += \
     DataObjects/private/binary_tree_node.cpp \
@@ -24,3 +25,6 @@ SOURCES += \
     DataObjects/private/dlist_p.cpp \
     DataObjects/private/heap_p.cpp \
     DataObjects/private/bst_p.cpp
+
+
+

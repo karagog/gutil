@@ -75,7 +75,8 @@ private:
 };
 
 
-#define NUMBER_OF_REPETITIONS   100
+#define NUMBER_OF_ITEMS         100000
+#define NUMBER_OF_REPETITIONS   10
 
 
 
@@ -85,7 +86,7 @@ Benchmark_ListsTest::Benchmark_ListsTest()
 
 void Benchmark_ListsTest::test_stacks()
 {
-    int num_items( 10000000 );
+    int num_items( NUMBER_OF_ITEMS );
 
     cout<<"Testing with "<< num_items <<" items..."<<endl;
     test_stacks(num_items);
@@ -124,13 +125,16 @@ void Benchmark_ListsTest::test_stack(Stack<int> *s, int num_items)
     float push_avg(0);
     float top_avg(0);
     float pop_avg(0);
-    for(int i(0); i < NUMBER_OF_REPETITIONS; ++i);
+    cout<<endl;
+    for(int i(0); i < NUMBER_OF_REPETITIONS; ++i)
     {
+        cout << ".";cout.flush();
         push_avg += stack_push(s, num_items);
         top_avg += stack_top(s, num_items);
         pop_avg += stack_pop(s, num_items);
     }
 
+    cout<<endl;
     cout<<"\tPush:\t"<<push_avg / NUMBER_OF_REPETITIONS<<endl;
     cout<<"\tTop:\t"<<top_avg / NUMBER_OF_REPETITIONS<<endl;
     cout<<"\tPop:\t"<<pop_avg / NUMBER_OF_REPETITIONS<<endl;
