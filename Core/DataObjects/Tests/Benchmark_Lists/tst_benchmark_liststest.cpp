@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "Core/DataObjects/slist.h"
 #include "Core/DataObjects/dlist.h"
 #include "Core/DataObjects/list.h"
+#include "Core/DataObjects/vector.h"
 #include <iostream>
 #include <stack>
 #include <queue>
@@ -42,7 +43,7 @@ public:
         T &Top(){ return stack<T>::top(); }
         const T &Top() const{ return stack<T>::top(); }
         void FlushStack(){  }
-        int CountStackItems() const{ return stack<T>::size(); }
+        GUINT32 CountStackItems() const{ return stack<T>::size(); }
     };
 
 
@@ -75,7 +76,7 @@ private:
 };
 
 
-#define NUMBER_OF_ITEMS         100000
+#define NUMBER_OF_ITEMS         1000000
 #define NUMBER_OF_REPETITIONS   10
 
 
@@ -106,13 +107,17 @@ void Benchmark_ListsTest::test_stacks(int num_items)
 {
     SList<int> slist;
     DList<int> dlist;
+    Vector<int> vector;
     STL_Stack<int> stl;
 
     cout<<"Stack as SList:"<<endl;
-    test_stack(&slist, num_items);
+//    test_stack(&slist, num_items);
 
     cout<<"Stack as DList:"<<endl;
-    test_stack(&dlist, num_items);
+//    test_stack(&dlist, num_items);
+
+    cout<<"Stack as a vector:"<<endl;
+    test_stack(&vector, num_items);
 
     cout<<"STL Stack (implemented as deque):"<<endl;
     test_stack(&stl, num_items);
@@ -128,7 +133,7 @@ void Benchmark_ListsTest::test_stack(Stack<int> *s, int num_items)
     cout<<endl;
     for(int i(0); i < NUMBER_OF_REPETITIONS; ++i)
     {
-        cout << ".";cout.flush();
+        //cout << ".";cout.flush();
         push_avg += stack_push(s, num_items);
         top_avg += stack_top(s, num_items);
         pop_avg += stack_pop(s, num_items);

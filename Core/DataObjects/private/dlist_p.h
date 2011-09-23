@@ -31,9 +31,9 @@ class dlist_p :
     GUTIL_DISABLE_COPY(dlist_p);
 public:
 
-    inline long Size() const{ return m_size; }
-    inline long Length() const{ return Size(); }
-    inline long Count() const{ return Size(); }
+    inline GUINT32 Size() const{ return m_size; }
+    inline GUINT32 Length() const{ return Size(); }
+    inline GUINT32 Count() const{ return Size(); }
 
     void Clear();
 
@@ -58,7 +58,7 @@ protected:
 private:
 
     type_wrapper *data_wrapper;
-    long m_size;
+    GUINT32 m_size;
 
 };
 

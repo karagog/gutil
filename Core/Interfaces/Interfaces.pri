@@ -11,9 +11,11 @@ HEADERS += \
     Interfaces/icomparable.h \
     Interfaces/iclonable.h \
     Interfaces/imatrix.h \
-    Interfaces/ivoidwrappers.h
+    Interfaces/ivoidwrappers.h \
+    Interfaces/imemoryusagereporter.h
 
 SOURCES += \
     Interfaces/ireadonlyobject.cpp \
     Interfaces/iupdatable.cpp \
     Interfaces/ivoidwrappers.cpp
+

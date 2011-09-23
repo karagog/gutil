@@ -87,10 +87,10 @@ public:
     T &Back(){ return *(--end()); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void FlushQueue(){ Clear(); }
+    void FlushDeque(){ Clear(); }
 
     /** Satisfies the Dequeue abstract interface. */
-    int CountQueueItems() const{ return Size(); }
+    GUINT32 CountDequeItems() const{ return Size(); }
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ PushFront(i); }
@@ -108,7 +108,7 @@ public:
     void FlushStack(){ Clear(); }
 
     /** Satisfies the Stack abstract interface. */
-    int CountStackItems() const{ return Size(); }
+    GUINT32 CountStackItems() const{ return Size(); }
 
     /** A bidirectional iterator through the list. */
     class iterator :

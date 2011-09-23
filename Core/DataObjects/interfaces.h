@@ -44,7 +44,7 @@ public:
     virtual T &Top() = 0;
 
     /** How many items on the stack? */
-    virtual int CountStackItems() const = 0;
+    virtual GUINT32 CountStackItems() const = 0;
 
     /** Remove all items from the stack. */
     virtual void FlushStack() = 0;
@@ -61,20 +61,16 @@ template <class T>class RandomAccessContainer
 public:
 
     /** Fetch the item at the specified index. */
-    virtual const T &At(long) const = 0;
+    virtual const T &At(GUINT32) const = 0;
+
     /** Fetch the item at the specified index. */
-    virtual T &At(long) = 0;
+    virtual T &At(GUINT32) = 0;
 
     /** Tell us how many items in the container. */
-    virtual long CountContainerItems() const = 0;
+    virtual GUINT32 CountContainerItems() const = 0;
 
     /** Remove all items from the container. */
     virtual void FlushContainer() = 0;
-
-    /** For convenience, define a default index operator. */
-    inline const T &operator [](long i) const{ return At(i); }
-    /** For convenience, define a default index operator. */
-    inline T &operator [](long i){ return At(i); }
 
     /** So derived classes can be deleted by the interface. */
     virtual ~RandomAccessContainer(){}
@@ -100,7 +96,7 @@ public:
     virtual T &Front() = 0;
 
     /** How many items in the queue? */
-    virtual int CountQueueItems() const = 0;
+    virtual GUINT32 CountQueueItems() const = 0;
 
     /** Remove all items from the Queue. */
     virtual void FlushQueue() = 0;
@@ -141,17 +137,23 @@ public:
     /** Returns the item at the back of the queue. */
     virtual T &Back() = 0;
 
-    /** Calls the base version of Count. */
-    inline int CountDequeItems() const{ return Queue<T>::CountQueueItems(); }
+    /** Returns how many items are in the deque. */
+    virtual GUINT32 CountDequeItems() const = 0;
 
-    /** Calls the base class, Queue, to clear itself. */
-    inline void FlushDeque(){ Queue<T>::FlushQueue(); }
+    /** Base implementation is automatically implemented. */
+    GUINT32 CountQueueItems() const{ return CountDequeItems(); }
+
+    /** Deletes all items from the deque. */
+    virtual void FlushDeque() = 0;
+
+    /** Base implementation is automatically implemented. */
+    void FlushQueue(){ FlushDeque(); }
 
     /** Automatically calls PushBack(), for convenience. */
-    inline void Enqueue(const T &i){ PushBack(i); }
+    void Enqueue(const T &i){ PushBack(i); }
 
     /** Automatically calls PopFront(), for convenience. */
-    inline void Dequeue(){ PopFront(); }
+    void Dequeue(){ PopFront(); }
 
     /** So derived classes can be deleted by the interface. */
     virtual ~Deque(){}

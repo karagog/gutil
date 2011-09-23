@@ -46,7 +46,7 @@ protected:
     /** How many items are in the slist
         \note O(1)
     */
-    inline int _count() const{ return m_count; }
+    inline GUINT32 _count() const{ return m_count; }
 
     /** A reference to the last item in the list, or to myself if there are no items. */
     node_link *m_end;
@@ -82,7 +82,7 @@ protected:
 private:
 
     type_wrapper *data_wrapper;
-    int m_count;
+    GUINT32 m_count;
 
 };
 

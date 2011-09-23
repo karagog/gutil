@@ -15,7 +15,7 @@ HEADERS += \
     DataObjects/set.h \
     DataObjects/private/flexible_type_comparer.h \
     DataObjects/interfaces.h \
-    DataObjects/private/vector_p.h
+    DataObjects/vector.h
 
 SOURCES += \
     DataObjects/private/binary_tree_node.cpp \
