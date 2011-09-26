@@ -27,18 +27,8 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 */
 
 
-class node_t;
+class node;
 class bidirectional_node_t;
-
-class node_link
-{
-public:
-    node_link();
-    ~node_link();
-
-    node_t *NextNode;
-};
-
 
 class bidirectional_node_link
 {
@@ -52,17 +42,6 @@ public:
 
 
 
-
-class node_t :
-        public node_link
-{
-public:
-    node_t();
-
-    void *Data;
-};
-
-
 class bidirectional_node_t :
         public bidirectional_node_link
 {
@@ -73,35 +52,6 @@ public:
 };
 
 
-
-
-/** A base class that knows how to iterate node chains. */
-class forward_node_iterator
-{
-public:
-    typedef std::forward_iterator_tag iterator_category;
-
-    forward_node_iterator(node_t *n = 0, node_link *parent = 0);
-
-    bool operator == (const forward_node_iterator &) const;
-    bool operator != (const forward_node_iterator &) const;
-
-    /** Returns if the iterator is valid. */
-    inline operator bool() const{ return current; }
-
-    /** The current node to which the iterator is pointing.  Be careful when using this. */
-    node_t *current;
-
-    /** The parent of the current node.  Be careful when using this. */
-    node_link *parent;
-
-
-protected:
-
-    /** Derived classes use this to advance the iterator. */
-    void advance();
-
-};
 
 
 /** A base class that knows how to iterate node chains. */

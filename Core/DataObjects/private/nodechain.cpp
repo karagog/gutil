@@ -15,16 +15,6 @@ limitations under the License.*/
 #include "nodechain.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-node_link::node_link()
-    :NextNode(0)
-{}
-
-node_link::~node_link()
-{
-    if(NextNode)
-        delete NextNode;
-}
-
 bidirectional_node_link::bidirectional_node_link()
     :NextNode(0),
       PreviousNode(0)
@@ -38,10 +28,6 @@ bidirectional_node_link::~bidirectional_node_link()
 
 
 
-node_t::node_t()
-    :Data(0)
-{}
-
 bidirectional_node_t::bidirectional_node_t()
     :Data(0)
 {}
@@ -49,30 +35,6 @@ bidirectional_node_t::bidirectional_node_t()
 
 
 
-
-forward_node_iterator::forward_node_iterator(node_t *n, node_link *p)
-    :current(n),
-      parent(p)
-{}
-
-void forward_node_iterator::advance()
-{
-    if(current)
-    {
-        parent = current;
-        current = current->NextNode;
-    }
-}
-
-bool forward_node_iterator::operator == (const forward_node_iterator &o) const
-{
-    return current == o.current;
-}
-
-bool forward_node_iterator::operator != (const forward_node_iterator &o) const
-{
-    return current != o.current;
-}
 
 
 bidirectional_node_iterator::bidirectional_node_iterator(bidirectional_node_t *n)

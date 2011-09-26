@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef GUTIL_SLIST_H
 #define GUTIL_SLIST_H
 
-#include "Core/DataObjects/private/slist_p.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
 #include "Core/Interfaces/iclonable.h"
@@ -33,12 +32,25 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     singly-linked list implementation.
 */
 template<class T>class SList :
-        public slist_p,
         public Stack<T>,
         public Queue<T>,
         public Interfaces::IClonable< SList<T> >
 {
     GUTIL_DISABLE_COPY(SList<T>);
+
+    /** One node of data. */
+    class node
+    {
+    public:
+        inline node(const T &i, node *next = 0)
+            :NextNode(next),
+              Data(i)
+        {}
+
+        node *NextNode;
+        T Data;
+    };
+
 public:
     class iterator;
     class const_iterator;
@@ -54,7 +66,23 @@ public:
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
     */
-    virtual void Remove(iterator &iter){ remove(iter); }
+    virtual void Remove(iterator &iter){
+        if(!iter.current)
+            return;
+
+        node *n( iter.current->NextNode );
+        if(m_last == iter.current)
+            m_last = iter.parent;
+
+        if(iter.parent)
+            iter.parent->NextNode = n;
+        else
+            m_first = n;
+
+        delete iter.current;
+        iter.current = n;
+        --m_count;
+    }
 
     /** Insert an item into the list.
 
@@ -65,39 +93,41 @@ public:
         override it to provide custom insertion behavior.
         \note O(1)
     */
-    virtual void Insert(const T &i, iterator &iter){ insert(reinterpret_cast<const void* const>(&i), iter);}
+    virtual void Insert(const T &i, iterator &iter){
+        node *new_node( new node(i) );
+        new_node->NextNode = iter.current;
+        if(iter.parent)
+            iter.parent->NextNode = new_node;
+        else
+            m_first = new_node;
+        if(!iter.current)
+            m_last = new_node;
+        ++m_count;
 
-
-    /** The default memory allocator for the slist.  Normally you don't deal with this class*/
-    class TypeWrapper :
-            public slist_p::type_wrapper
-    {
-    public:
-        virtual T* Copy(const T &t) const{
-            return new T(t);
-        }
-        virtual void Delete(T *t) const{
-            delete t;
-        }
-    private:
-        void *CopyVoid(const void *const v) const{
-            return reinterpret_cast<void *>( Copy(*reinterpret_cast<const T* const>(v)) );
-        }
-        void DeleteVoid(void *v) const{
-            Delete( reinterpret_cast<T*>(v) );
-        }
-    };
-
-    /** Creates a new slist with the specified type wrapper. */
-    inline explicit SList(TypeWrapper *w = new TypeWrapper)
-        :slist_p(w)
-    {}
-
-    /** Creates a new slist with the item */
-    inline SList(const T &item, TypeWrapper *w = new TypeWrapper)
-        :slist_p(w){
-        PushFront(item);
+        iter.parent = new_node;
     }
+
+    /** Empties the slist and clears all memory.
+        \note O(N)
+    */
+    inline void Clear(){
+        iterator iter(begin());
+        while(iter)
+            Remove(iter);
+    }
+
+    /** Is the container empty? */
+    inline bool IsEmpty() const{ return !m_count; }
+
+
+    /** Creates an empty slist. */
+    inline SList(): m_first(0), m_last(0), m_count(0){}
+
+    /** Creates a new slist with the item at the front of the list. */
+    inline SList(const T &item): m_first(0), m_last(0), m_count(0)
+    { iterator i(begin()); Insert(item, i); }
+
+    inline ~SList(){ Clear(); }
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ iterator b(begin()); Insert(i, b); }
@@ -115,9 +145,9 @@ public:
     void FlushStack(){ return Clear(); }
 
     /** How many items in the SList. */
-    inline GUINT32 Count() const{ return _count(); }
-    GUINT32 CountStackItems() const{ return _count(); }
-    GUINT32 CountQueueItems() const{ return _count(); }
+    inline GUINT32 Count() const{ return m_count; }
+    GUINT32 CountStackItems() const{ return m_count; }
+    GUINT32 CountQueueItems() const{ return m_count; }
 
     /** Satisfies the Queue abstract interface. */
     void Enqueue(const T &i){ iterator e(end()); Insert(i, e); }
@@ -135,25 +165,24 @@ public:
     void FlushQueue(){ return Clear(); }
 
 
-    class iterator :
-            public forward_node_iterator
+    class iterator
     {
+        friend class SList;
     public:
-        typedef T value_type;
-        typedef const T *pointer;
-        typedef const T &reference;
-
-        inline iterator(node_t *n = 0, node_link *parent = 0)
-            :forward_node_iterator(n, parent)
-        {}
-        inline iterator(const forward_node_iterator &o)
-            :forward_node_iterator(o.current, o.parent)
+        inline iterator(node *n = 0, node *p = 0)
+            :current(n),
+              parent(p)
         {}
 
-        /** Dereference the iterator and return a reference to the data. */
-        inline T &operator*() { return *(reinterpret_cast<T *>(current->Data)); }
-        /** Dereference the iterator and return a pointer to the data. */
-        inline T *operator->() { return reinterpret_cast<T *>(current->Data); }
+        /** Return a reference to the data. */
+        inline T &operator*() { return current->Data; }
+        /** Return a const reference to the data. */
+        inline const T &operator*() const{ return current->Data; }
+
+        /** Return a pointer to the data. */
+        inline T *operator->() { return current->Data; }
+        /** Return a const pointer to the data. */
+        inline const T *operator->() const{ return &current->Data; }
 
         /** Advances the iterator */
         inline iterator &operator++(){ advance(); return *this; }
@@ -167,27 +196,46 @@ public:
         /** Returns a copy of the iterator advanced the specified number of times. */
         inline iterator operator+(int n){ iterator r(*this); while(n-- > 0) r.advance(); return r; }
 
+        inline bool operator == (const iterator &o) const{ return current == o.current; }
+        inline bool operator != (const iterator &o) const{ return current != o.current; }
+
+        /** Returns if the iterator is valid. */
+        inline operator bool() const{ return current; }
+
+    protected:
+
+        /** The current node to which the iterator is pointing. */
+        node *current;
+
+        /** The parent of the current node.  This allows us to have constant time insertions. */
+        node *parent;
+
+    private:
+
+        inline void advance(){ if(current){ parent = current; current = current->NextNode; } }
+
     };
 
-    class const_iterator :
-            public forward_node_iterator
+    /** An iterator that won't modify the list, but it can still modify the values in the list. */
+    class const_iterator
     {
+        friend class SList;
     public:
-        typedef T value_type;
-        typedef const T *pointer;
-        typedef const T &reference;
 
-        inline const_iterator(node_t *const n = 0, const node_link *const parent = 0)
-            // Alert: Yes I am casting away the constness, but I am stricly allowing only const
-            //  access to it, so I say that's ok, 'cause it means I can still use the forward_node_iterator
-            //  for a const_iterator
-            :forward_node_iterator(const_cast<node_t *>(n), const_cast<node_link *>(parent))
+        inline const_iterator(node *n = 0, node *p = 0)
+            :current(n),
+              parent(p)
         {}
 
-        /** Dereference the iterator and return a reference to the data. */
-        inline const T &operator*() const { return *(reinterpret_cast<const T *const>(current->Data)); }
-        /** Dereference the iterator and return a pointer to the data. */
-        inline const T *operator->() const { return reinterpret_cast<const T *const>(current->Data); }
+        /** Return a reference to the data. */
+        inline T &operator*(){ return current->Data; }
+        /** Return a const reference to the data. */
+        inline const T &operator*() const { return current->Data; }
+
+        /** Return a pointer to the data. */
+        inline T *operator->(){ return current->Data; }
+        /** Return a const pointer to the data. */
+        inline const T *operator->() const { return current->Data; }
 
         /** Advances the iterator */
         inline const_iterator &operator++(){ advance(); return *this; }
@@ -201,28 +249,44 @@ public:
         /** Returns a copy of the iterator advanced the specified number of times. */
         inline const_iterator operator+(int n){ const_iterator r(*this); while(n-- > 0) r.advance(); return r; }
 
+        inline bool operator == (const const_iterator &o) const{ return current == o.current; }
+        inline bool operator != (const const_iterator &o) const{ return current != o.current; }
+
+        /** Returns if the iterator is valid. */
+        inline operator bool() const{ return current; }
+
+    protected:
+
+        /** The current node to which the iterator is pointing. */
+        node *current;
+
+        /** The parent of the current node.  This allows us to have constant time insertions. */
+        node *parent;
+
+    private:
+
+        inline void advance(){ if(current){ parent = current; current = current->NextNode; } }
+
     };
 
     /** Returns an iterator starting at the top of the stack. */
-    inline iterator begin(){ return iterator(NextNode, this); }
+    inline iterator begin(){ return iterator(m_first); }
 
     /** Returns an iterator starting at the top of the stack. */
-    inline const_iterator begin() const{ return const_iterator(NextNode, this); }
+    inline const_iterator begin() const{ return const_iterator(m_first); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    inline const_iterator end() const{ return m_end == this ? const_iterator(0, this) :
-                                                              ++const_iterator(static_cast<node_t*>(m_end)); }
+    inline const_iterator end() const{ return const_iterator(0, m_last); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    inline iterator end(){ return m_end == this ? iterator(0, this) :
-                                                  ++iterator(static_cast<node_t*>(m_end)); }
+    inline iterator end(){ return iterator(0, m_last); }
 
     /** Conducts a deep copy of the stack.  Overridden from IClonable.
         \note O(N)
     */
     virtual SList<T> &CloneTo(SList<T> &s) const{
         s.Clear();
-        _clone_helper(s, NextNode);
+        _clone_helper(s, m_first);
         return s;
     }
 
@@ -230,13 +294,17 @@ public:
 private:
 
     /** Recursive function to help clone the slist. */
-    static void _clone_helper(SList<T> &s, node_t *n){
+    static void _clone_helper(SList<T> &s, node *n){
         if(n)
         {
             _clone_helper(s, n->NextNode);
             s.Push(*reinterpret_cast<const T *const>(n->Data));
         }
     }
+
+    node *m_first;
+    node *m_last;
+    GUINT32 m_count;
 
 };
 

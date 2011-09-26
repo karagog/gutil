@@ -111,10 +111,10 @@ void Benchmark_ListsTest::test_stacks(int num_items)
     STL_Stack<int> stl;
 
     cout<<"Stack as SList:"<<endl;
-//    test_stack(&slist, num_items);
+    test_stack(&slist, num_items);
 
     cout<<"Stack as DList:"<<endl;
-//    test_stack(&dlist, num_items);
+    test_stack(&dlist, num_items);
 
     cout<<"Stack as a vector:"<<endl;
     test_stack(&vector, num_items);
