@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef CP_SERIAL_T_H
 #define CP_SERIAL_T_H
 
+#ifdef _WIN32
+        #include <windows.h>
+#endif
+
 #include "gutil_macros.h"
 #include <string>
-
-#ifdef _WIN32
-	#include <windows.h>
-#endif
 
 //This is the header for cross-platform Windows&Linux serial port functionality
 
