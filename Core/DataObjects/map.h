@@ -108,30 +108,30 @@ public:
 
     /** Iterates through the key/value pairs. */
     class iterator :
-            public BinarySearchTree<Page *>::const_iterator
+            public BinarySearchTree<Page *>::iterator
     {
     public:
         iterator(){}
-        iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
-            :BinarySearchTree<Page *>::const_iterator(o)
+        iterator(const typename BinarySearchTree<Page *>::iterator &o)
+            :BinarySearchTree<Page *>::iterator(o)
         {}
 
-        Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+        Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::iterator::current->Data); }
     };
 
     /** Iterates through the key/value pairs, but doesn't let you edit them.
         Use this over the regular iterator, when you can.
     */
     class const_iterator :
-            public BinarySearchTree<Page *>::const_iterator
+            public BinarySearchTree<Page *>::iterator
     {
     public:
-        const_iterator(){}
-        const_iterator(const typename BinarySearchTree<Page *>::const_iterator &o)
-            :BinarySearchTree<Page *>::const_iterator(o)
+        iterator(){}
+        iterator(const typename BinarySearchTree<Page *>::iterator &o)
+            :BinarySearchTree<Page *>::iterator(o)
         {}
 
-        const Page *operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::const_iterator::current->Data); }
+        const Page *operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::iterator::current->Data); }
     };
 
     inline iterator begin(){ return _index.begin(); }
@@ -250,7 +250,7 @@ private:
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
-    typename BinarySearchTree<Page *>::const_iterator iter(_index.Search(k, &_key_searcher));
+    typename BinarySearchTree<Page *>::iterator iter(_index.Search(k, &_key_searcher));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
     return iter->Values.Top();

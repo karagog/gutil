@@ -44,7 +44,7 @@ public:
 
         This satisfies the IComparer interface.
     */
-    virtual int Compare(const T &lhs, const T &rhs) const{ return compare(lhs, rhs); }
+    int Compare(const T &lhs, const T &rhs) const{ return compare(lhs, rhs); }
 
     /** Makes this a "function object", so you can either use this or Compare() to compare values. */
     inline int operator () (const T &lhs, const T &rhs) const{

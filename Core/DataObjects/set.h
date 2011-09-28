@@ -148,20 +148,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class iterator :
-            public BinarySearchTree< DList<T> *>::const_iterator
+            public BinarySearchTree< DList<T> *>::iterator
     {
         friend class Set;
     public:
         inline iterator(){}
-        inline iterator(const typename BinarySearchTree< DList<T> * >::const_iterator &iter)
-            :BinarySearchTree< DList<T> *>::const_iterator(iter)
+        inline iterator(const typename BinarySearchTree< DList<T> * >::iterator &iter)
+            :BinarySearchTree< DList<T> *>::iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
                 siter = queue()->begin();
         }
         inline iterator(const iterator &iter)
-            :BinarySearchTree< DList<T> *>::const_iterator(iter),
+            :BinarySearchTree< DList<T> *>::iterator(iter),
               siter(iter.siter)
         {}
 
@@ -170,7 +170,7 @@ public:
 
     protected:
 
-        inline DList<T> *queue(){ return *reinterpret_cast<DList<T> **>(BinarySearchTree< DList<T> *>::const_iterator::current->Data); }
+        inline DList<T> *queue(){ return *reinterpret_cast<DList<T> **>(BinarySearchTree< DList<T> *>::iterator::current->Data); }
 
     private:
         typename DList<T>::iterator siter;
@@ -179,7 +179,7 @@ public:
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T> *>::const_iterator::advance();
+                    BinarySearchTree< DList<T> *>::iterator::advance();
                     if(*this)
                         siter = queue()->begin();
                 }
@@ -191,20 +191,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class const_iterator :
-            public BinarySearchTree< DList<T> *>::const_iterator
+            public BinarySearchTree< DList<T> *>::iterator
     {
         friend class Set;
     public:
-        inline const_iterator(){}
-        inline const_iterator(const typename BinarySearchTree< DList<T> *>::const_iterator &iter)
-            :BinarySearchTree< DList<T> *>::const_iterator(iter)
+        inline iterator(){}
+        inline iterator(const typename BinarySearchTree< DList<T> *>::iterator &iter)
+            :BinarySearchTree< DList<T> *>::iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
                 siter = stack()->begin();
         }
-        inline const_iterator(const const_iterator &iter)
-            :BinarySearchTree< DList<T> *>::const_iterator(iter),
+        inline iterator(const iterator &iter)
+            :BinarySearchTree< DList<T> *>::iterator(iter),
               siter(iter.siter)
         {}
 
@@ -213,7 +213,7 @@ public:
 
     protected:
 
-        inline DList<T> const*stack(){ return *reinterpret_cast<const DList<T> *const*>(BinarySearchTree< DList<T> *>::const_iterator::current->Data); }
+        inline DList<T> const*stack(){ return *reinterpret_cast<const DList<T> *const*>(BinarySearchTree< DList<T> *>::iterator::current->Data); }
 
     private:
         typename DList<T>::const_iterator siter;
@@ -222,7 +222,7 @@ public:
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T> *>::const_iterator::advance();
+                    BinarySearchTree< DList<T> *>::iterator::advance();
                     if(*this)
                         siter = stack()->begin();
                 }

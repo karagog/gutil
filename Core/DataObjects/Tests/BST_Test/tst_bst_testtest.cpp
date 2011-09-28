@@ -202,20 +202,18 @@ void BST_Test::test_basic_function()
     verify_tree(bst, true);
 }
 
-class backwards_comparer : public BinarySearchTree<int>::TypeWrapper
+int BST_Test::backwards_compare(const int &lhs, const int &rhs)
 {
-    int Compare(const int &lhs, const int &rhs) const{
-        if(lhs < rhs)
-            return 1;
-        else if(rhs < lhs)
-            return -1;
-        return 0;
-    }
-};
+    if(lhs < rhs)
+        return 1;
+    else if(rhs < lhs)
+        return -1;
+    return 0;
+}
 
 void BST_Test::test_compare()
 {
-    BinarySearchTree<int> backwards_tree(new backwards_comparer);
+    BinarySearchTree<int> backwards_tree(&backwards_compare);
     for(int i(1); i < 10; i++)
         backwards_tree.Add(i);
 
@@ -476,20 +474,18 @@ void BST_Test::test_deletions()
     }
 }
 
-class pointer_comparer : public BinarySearchTree<int *>::TypeWrapper
+int BST_Test::pointer_compare(int *const&lhs, int *const&rhs)
 {
-    int Compare(int *const&lhs, int *const&rhs) const{
-        if(*lhs < *rhs)
-            return -1;
-        else if(*rhs < *lhs)
-            return 1;
-        return 0;
-    }
-};
+    if(*lhs < *rhs)
+        return -1;
+    else if(*rhs < *lhs)
+        return 1;
+    return 0;
+}
 
 void BST_Test::test_pointers()
 {
-    BinarySearchTree<int *> pointer_tree(new pointer_comparer);
+    BinarySearchTree<int *> pointer_tree(&pointer_compare);
     int a(1), b(2), c(3);
     pointer_tree.Add(&a);
     pointer_tree.Add(&b);

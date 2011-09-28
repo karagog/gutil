@@ -66,10 +66,12 @@ limitations under the License.*/
 #define GUINT64 unsigned long long
 
 
-#ifndef byte
-    /** Represents a generic 8 bits of memory. */
-    #define byte unsigned char
+#ifdef byte
+    #undef byte
 #endif
+
+/** Represents a generic 8 bits of memory. */
+#define byte unsigned char
 
 
 
