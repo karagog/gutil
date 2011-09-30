@@ -19,7 +19,7 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-/** The DList provides a doubly-linked list.
+/** The SimpleDList provides a doubly-linked list.
 
     Doubly-linked lists are optimized for lots of insertions/removals, but do not allow random-access
     to the elements.  The only way to access items inside the list (other than the front and back)
@@ -29,9 +29,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     \sa List, Vector, SList
 */
-template<class T>class DList :
-        public Stack<T>,
-        public Deque<T>
+template<class T>class SimpleDList
 {
 
     /** Describes a node of the dlist. */
@@ -134,58 +132,10 @@ public:
             Remove(iter);
     }
 
-    /** Satisfies the Dequeue abstract interface. */
-    void PushFront(const T &i){ iterator b(begin()); Insert(i, b); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PushBack(const T &i){ iterator e(end()); Insert(i, e); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PopFront(){ iterator b(begin()); Remove(b); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PopBack(){ iterator e(--end()); Remove(e); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    const T &Front() const{ return *begin(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    T &Front(){ return *begin(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    const T &Back() const{ return *(--end()); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    T &Back(){ return *(--end()); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void FlushDeque(){ Clear(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    GUINT32 CountDequeItems() const{ return Count(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ PushFront(i); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Pop(){ PopFront(); }
-
-    /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return *begin(); }
-
-    /** Satisfies the Stack abstract interface. */
-    T &Top(){ return *begin(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ Clear(); }
-
-    /** Satisfies the Stack abstract interface. */
-    GUINT32 CountStackItems() const{ return Count(); }
-
     /** A bidirectional iterator through the list. */
     class iterator
     {
-        friend class DList;
+        friend class SimpleDList;
     public:
         inline iterator(node *n = 0)
             :current(n){}
@@ -251,7 +201,7 @@ public:
     /** A bidirectional iterator through the list. */
     class const_iterator
     {
-        friend class DList;
+        friend class SimpleDList;
     public:
         inline const_iterator(node *n = 0)
             :current(n){}
@@ -322,31 +272,32 @@ public:
     inline const_iterator rend() const{ return --const_iterator(m_first); }
 
     /** Builds an empty list. */
-    inline DList()
+    inline SimpleDList()
         :m_size(0),
           m_first(0),
           m_last(0)
     {}
 
     /** Constructs a list with the item in it. */
-    inline DList(const T &i)
+    inline SimpleDList(const T &i)
         :m_size(0),
           m_first(0),
           m_last(0)
     {
-        PushBack(i);
+        iterator iter(begin());
+        Insert(i, iter);
     }
 
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    inline DList(const DList<T> &o)
+    inline SimpleDList(const SimpleDList<T> &o)
         :m_size(0),
           m_first(0),
           m_last(0)
     {
-        DList<T>::const_iterator iter(o.begin());
-        DList<T>::iterator e(end());
+        SimpleDList<T>::const_iterator iter(o.begin());
+        SimpleDList<T>::iterator e(end());
         while(iter)
         {
             Insert(*iter, e);
@@ -354,15 +305,15 @@ public:
         }
     }
 
-    inline ~DList(){ Clear(); }
+    inline ~SimpleDList(){ Clear(); }
 
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    inline DList<T> &operator =(const DList<T> &o){ ::new(this) DList<T>(o); return *this; }
+    inline SimpleDList<T> &operator =(const SimpleDList<T> &o){ ::new(this) SimpleDList<T>(o); return *this; }
 
     /** This is useful for chaining push commands together.  Ex: q << 1 << 2 << 3*/
-    inline DList<T> &operator <<(const T &i){ PushBack(i); return *this; }
+    inline SimpleDList<T> &operator <<(const T &i){ PushBack(i); return *this; }
 
 
 private:
@@ -370,6 +321,70 @@ private:
     GUINT32 m_size;
     node *m_first;
     node *m_last;
+
+};
+
+
+
+template<class T>class DList :
+        public SimpleDList<T>,
+        public Stack<T>,
+        public Deque<T>
+{
+public:
+
+    inline DList(){}
+    inline DList(const SimpleDList<T> &o) :SimpleDList<T>(o){}
+
+    /** Satisfies the Dequeue abstract interface. */
+    void PushFront(const T &i){ typename SimpleDList<T>::iterator b(DList<T>::begin()); DList<T>::Insert(i, b); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    void PushBack(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); DList<T>::Insert(i, e); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    void PopFront(){ typename SimpleDList<T>::iterator b(DList<T>::begin()); DList<T>::Remove(b); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    void PopBack(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); DList<T>::Remove(e); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    const T &Front() const{ return *DList<T>::begin(); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    T &Front(){ return *DList<T>::begin(); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    const T &Back() const{ return *DList<T>::rbegin(); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    T &Back(){ return *DList<T>::rbegin(); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    void FlushDeque(){ DList<T>::Clear(); }
+
+    /** Satisfies the Dequeue abstract interface. */
+    GUINT32 CountDequeItems() const{ return DList<T>::Count(); }
+
+
+
+    /** Satisfies the Stack abstract interface. */
+    void Push(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); DList<T>::Insert(i, e); }
+
+    /** Satisfies the Stack abstract interface. */
+    void Pop(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); DList<T>::Remove(e); }
+
+    /** Satisfies the Stack abstract interface. */
+    const T &Top() const{ return *DList<T>::rbegin(); }
+
+    /** Satisfies the Stack abstract interface. */
+    T &Top(){ return *DList<T>::rbegin(); }
+
+    /** Satisfies the Stack abstract interface. */
+    void FlushStack(){ DList<T>::Clear(); }
+
+    /** Satisfies the Stack abstract interface. */
+    GUINT32 CountStackItems() const{ return DList<T>::Count(); }
 
 };
 

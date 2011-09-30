@@ -421,7 +421,7 @@ public:
         Returns an invalid iterator equal to end() if not found.
         \note O(log(N))
     */
-    inline const_iterator Search(const T &object) const{
+    const_iterator Search(const T &object) const{
         const_iterator ret(root);
         while(ret)
         {

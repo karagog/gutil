@@ -32,7 +32,7 @@ public:
 
     /** Constructs an empty set. */
     inline Set()
-        :data(typename BinarySearchTree<DList<T>, T>::Comparer(), &get_list_representative),
+        :data(typename BinarySearchTree<SimpleDList<T>, T>::Comparer(), &get_list_representative),
           m_size(0)
     {}
 
@@ -102,20 +102,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class iterator :
-            public BinarySearchTree< DList<T>, T >::iterator
+            public BinarySearchTree< SimpleDList<T>, T >::iterator
     {
         friend class Set;
     public:
         inline iterator(){}
-        inline iterator(const typename BinarySearchTree< DList<T>, T >::iterator &iter)
-            :BinarySearchTree< DList<T>, T >::iterator(iter)
+        inline iterator(const typename BinarySearchTree< SimpleDList<T>, T >::iterator &iter)
+            :BinarySearchTree< SimpleDList<T>, T >::iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
                 siter = stack().begin();
         }
         inline iterator(const iterator &iter)
-            :BinarySearchTree< DList<T>, T >::iterator(iter),
+            :BinarySearchTree< SimpleDList<T>, T >::iterator(iter),
               siter(iter.siter)
         {}
 
@@ -124,16 +124,16 @@ public:
 
     protected:
 
-        inline DList<T> &stack(){ return BinarySearchTree< DList<T>, T >::iterator::current->Data; }
+        inline SimpleDList<T> &stack(){ return BinarySearchTree< SimpleDList<T>, T >::iterator::current->Data; }
 
     private:
-        typename DList<T>::iterator siter;
+        typename SimpleDList<T>::iterator siter;
 
         // Overridden from bst_p
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T>, T >::iterator::advance();
+                    BinarySearchTree< SimpleDList<T>, T >::iterator::advance();
                     if(*this)
                         siter = stack().begin();
                 }
@@ -145,20 +145,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class const_iterator :
-            public BinarySearchTree< DList<T>, T >::const_iterator
+            public BinarySearchTree< SimpleDList<T>, T >::const_iterator
     {
         friend class Set;
     public:
         inline const_iterator(){}
-        inline const_iterator(const typename BinarySearchTree< DList<T>, T >::const_iterator &iter)
-            :BinarySearchTree< DList<T>, T >::const_iterator(iter)
+        inline const_iterator(const typename BinarySearchTree< SimpleDList<T>, T >::const_iterator &iter)
+            :BinarySearchTree< SimpleDList<T>, T >::const_iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
                 siter = stack().begin();
         }
         inline const_iterator(const const_iterator &iter)
-            :BinarySearchTree< DList<T>, T >::const_iterator(iter),
+            :BinarySearchTree< SimpleDList<T>, T >::const_iterator(iter),
               siter(iter.siter)
         {}
 
@@ -167,16 +167,16 @@ public:
 
     protected:
 
-        inline DList<T> const&stack(){ return BinarySearchTree< DList<T>, T >::const_iterator::current->Data; }
+        inline SimpleDList<T> const&stack(){ return BinarySearchTree< SimpleDList<T>, T >::const_iterator::current->Data; }
 
     private:
-        typename DList<T>::const_iterator siter;
+        typename SimpleDList<T>::const_iterator siter;
 
         // Overridden from bst_p
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T>, T >::const_iterator::advance();
+                    BinarySearchTree< SimpleDList<T>, T >::const_iterator::advance();
                     if(*this)
                         siter = stack().begin();
                 }
@@ -204,13 +204,13 @@ public:
 
 private:
 
-    BinarySearchTree< DList<T>, T > data;
+    BinarySearchTree< SimpleDList<T>, T > data;
     GUINT32 m_size;
 
     void _insert(const T &, bool);
     void _remove(const T &, bool);
 
-    static const T &get_list_representative(const DList<T> &dl){ return dl.Top(); }
+    static const T &get_list_representative(const SimpleDList<T> &dl){ return *dl.begin(); }
 
 };
 
@@ -242,13 +242,14 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
     Set<T>::iterator iter( data.Search(i) );
     if(iter)
     {
-        DList<T> &s(iter.stack());
+        SimpleDList<T> &s(iter.stack());
         if(!allow_multiples)
         {
             m_size -= s.Count();
             s.Clear();
         }
-        s.Enqueue(i);
+        typename SimpleDList<T>::iterator top(s.begin());
+        s.Insert(i, top);
     }
     else
     {
@@ -262,9 +263,11 @@ template<class T>void Set<T>::_remove(const T &i, bool all)
     Set<T>::iterator iter( data.Search(i) );
     if(iter)
     {
-        iter.stack().Dequeue();
+        SimpleDList<T> &s(iter.stack());
+        typename SimpleDList<T>::iterator top(s.begin());
+        s.Remove(top);
         --m_size;
-        int cnt( iter.stack().Count() );
+        int cnt( s.Count() );
         if(all || cnt == 0)
         {
             m_size -= cnt;

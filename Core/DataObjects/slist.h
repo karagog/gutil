@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
-#include "Core/Interfaces/iclonable.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -27,16 +26,9 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     one-directional access to the list items.  It keeps a cache of the last item in the list,
     so that you can push items on the back, but you can't use this cache to access list items.
     In this way, it is flexible enough to represent a queue.
-
-    This has a Stack and a Queue interface, so you can have those properties with a
-    singly-linked list implementation.
 */
-template<class T>class SList :
-        public Stack<T>,
-        public Queue<T>,
-        public Interfaces::IClonable< SList<T> >
+template<class T>class SimpleSList
 {
-    GUTIL_DISABLE_COPY(SList<T>);
 
     /** One node of data. */
     class node
@@ -121,53 +113,29 @@ public:
 
 
     /** Creates an empty slist. */
-    inline SList(): m_first(0), m_last(0), m_count(0){}
+    inline SimpleSList(): m_first(0), m_last(0), m_count(0){}
 
     /** Creates a new slist with the item at the front of the list. */
-    inline SList(const T &item): m_first(0), m_last(0), m_count(0)
+    inline SimpleSList(const T &item): m_first(0), m_last(0), m_count(0)
     { iterator i(begin()); Insert(item, i); }
 
-    inline ~SList(){ Clear(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ iterator b(begin()); Insert(i, b); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Pop(){ iterator b(begin()); Remove(b); }
-
-    /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return *begin(); }
-
-    /** Satisfies the Stack abstract interface. */
-    T &Top(){ return *begin(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ return Clear(); }
+    inline SimpleSList(const SimpleSList<T> &o)
+        :m_first(0), m_last(0), m_count(0)
+    {
+        _clone_helper(*this, o.m_first);
+    }
+    SimpleSList<T> &operator =(const SimpleSList<T> &o){
+        Clear();
+        ::new(this) SimpleSList<T>(o);
+    }
+    inline ~SimpleSList(){ Clear(); }
 
     /** How many items in the SList. */
     inline GUINT32 Count() const{ return m_count; }
-    GUINT32 CountStackItems() const{ return m_count; }
-    GUINT32 CountQueueItems() const{ return m_count; }
-
-    /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ iterator e(end()); Insert(i, e); }
-
-    /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ iterator b(begin()); Remove(b); }
-
-    /** Satisfies the Queue abstract interface. */
-    const T &Front() const{ return *begin(); }
-
-    /** Satisfies the Queue abstract interface. */
-    T &Front(){ return *begin(); }
-
-    /** Satisfies the Queue abstract interface. */
-    void FlushQueue(){ return Clear(); }
-
 
     class iterator
     {
-        friend class SList;
+        friend class SimpleSList;
     public:
         inline iterator(node *n = 0, node *p = 0)
             :current(n),
@@ -219,7 +187,7 @@ public:
     /** An iterator that won't modify the list, but it can still modify the values in the list. */
     class const_iterator
     {
-        friend class SList;
+        friend class SimpleSList;
     public:
 
         inline const_iterator(node *n = 0, node *p = 0)
@@ -277,30 +245,70 @@ public:
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
     inline iterator end(){ return iterator(0, m_last); }
 
-    /** Conducts a deep copy of the stack.  Overridden from IClonable.
-        \note O(N)
-    */
-    virtual SList<T> &CloneTo(SList<T> &s) const{
-        s.Clear();
-        _clone_helper(s, m_first);
-        return s;
-    }
-
 
 private:
 
     /** Recursive function to help clone the slist. */
-    static void _clone_helper(SList<T> &s, node *n){
+    static void _clone_helper(SimpleSList<T> &s, node *n){
         if(n)
         {
             _clone_helper(s, n->NextNode);
-            s.Push(*reinterpret_cast<const T *const>(n->Data));
+            s.Push(n->Data);
         }
     }
 
     node *m_first;
     node *m_last;
     GUINT32 m_count;
+
+};
+
+
+template<class T>class SList :
+        public SimpleSList<T>,
+        public Stack<T>,
+        public Queue<T>
+{
+public:
+
+    inline SList(){}
+    inline SList(const SimpleSList<T> &o) :SimpleSList<T>(o){}
+
+    /** Satisfies the Stack abstract interface. */
+    void Push(const T &i){ typename SimpleSList<T>::iterator b(SList<T>::begin()); SList<T>::Insert(i, b); }
+
+    /** Satisfies the Stack abstract interface. */
+    void Pop(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); SList<T>::Remove(b); }
+
+    /** Satisfies the Stack abstract interface. */
+    const T &Top() const{ return *SList<T>::begin(); }
+
+    /** Satisfies the Stack abstract interface. */
+    T &Top(){ return *SList<T>::begin(); }
+
+    /** Satisfies the Stack abstract interface. */
+    void FlushStack(){ return SList<T>::Clear(); }
+
+    GUINT32 CountStackItems() const{ return SList<T>::Count(); }
+
+
+
+    /** Satisfies the Queue abstract interface. */
+    void Enqueue(const T &i){ typename SimpleSList<T>::iterator e(SList<T>::end()); SList<T>::Insert(i, e); }
+
+    /** Satisfies the Queue abstract interface. */
+    void Dequeue(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); SList<T>::Remove(b); }
+
+    /** Satisfies the Queue abstract interface. */
+    const T &Front() const{ return *SList<T>::begin(); }
+
+    /** Satisfies the Queue abstract interface. */
+    T &Front(){ return *SList<T>::begin(); }
+
+    /** Satisfies the Queue abstract interface. */
+    void FlushQueue(){ return SList<T>::Clear(); }
+
+    GUINT32 CountQueueItems() const{ return SList<T>::Count(); }
 
 };
 

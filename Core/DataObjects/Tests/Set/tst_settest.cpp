@@ -186,6 +186,12 @@ void SetTest::test_multi_set()
     QVERIFY(set.Size() == 5);
     QVERIFY(set.Count(1) == 3);
 
+    // Test the copy constructor
+    MultiSet<int> cpy( set );
+    QVERIFY2(cpy.Size() == 5, QString("Size = %1").arg(cpy.Size()).toAscii());
+    QVERIFY(cpy.Count(1) == 3);
+
+
     set.InsertMulti(1);
     QVERIFY(set.Size() == 6);
     QVERIFY(set.Count(1) == 4);
@@ -197,6 +203,12 @@ void SetTest::test_multi_set()
     set.RemoveAll(1);
     QVERIFY(set.Size() == 2);
     QVERIFY(set.Count(1) == 0);
+
+    // Test the assignment operator
+    cpy = set;
+    QVERIFY(set.Size() == 2);
+    QVERIFY(set.Count(1) == 0);
+
 }
 
 
