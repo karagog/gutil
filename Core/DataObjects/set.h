@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_SET_H
 #define GUTIL_SET_H
 
-#include "Core/DataObjects/queue.h"
+#include "Core/DataObjects/dlist.h"
 #include "Core/DataObjects/binarysearchtree.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -26,80 +26,34 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     treated as a unique set or a multi-set, depending on if you use
     Insert() or InsertMulti().
 */
-template<class T> class Set :
-        public Interfaces::IClonable< Set<T> >
+template<class T> class Set
 {
 public:
 
-    class TypeWrapper :
-            public BinarySearchTree< DList<T> * >::TypeWrapper,
-            public FlexibleTypeComparer<T>
-    {
-    public:
-        inline TypeWrapper(){}
-        inline TypeWrapper(int (*cmp)(const T &, const T &))
-            :FlexibleTypeComparer<T>(cmp)
-        {}
-
-        virtual void Delete(DList<T> **s) const{
-            delete *s;
-            BinarySearchTree< DList<T> * >::TypeWrapper::Delete(s);
-        }
-    private:
-        int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return FlexibleTypeComparer<T>::Compare((*reinterpret_cast< DList<T> const *const *>(lhs))->Front(),
-                                                    (*reinterpret_cast< DList<T> const *const *>(rhs))->Front());
-        }
-    };
-
     /** Constructs an empty set. */
     inline Set()
-        :data(new TypeWrapper),
+        :data(typename BinarySearchTree<DList<T>, T>::Comparer(), &get_list_representative),
           m_size(0)
     {}
-    /** Conducts a deep copy of the set.
-        \note O(N log(N))
-    */
-    inline Set(const Set<T> &o){
-        *this = o;
-    }
-    /** Constructs a set with your own compare function. */
-    inline Set(int (*compare)(const T &, const T &))
-        :data(new TypeWrapper(compare)),
-          _T_comparer(compare),
+
+    /** Constructs an empty set with the given compare function. */
+    inline Set(int (*cmp)(const T &, const T &))
+        :data(cmp, &get_list_representative),
           m_size(0)
     {}
 
     /** Conducts a deep copy of the set.
         \note O(N log(N))
     */
-    inline Set<T> &operator = (const Set<T> &o){ return o.CloneTo(*this); }
+    inline Set(const Set<T> &o)
+        :data(o.data),
+          m_size(o.m_size)
+    {}
 
-    /** Conducts a deep copy of the set.  Satisfies the IClonable interface.
+    /** Conducts a deep copy of the set.
         \note O(N log(N))
     */
-    virtual Set<T> &CloneTo(Set<T> &o) const{
-        GDEBUG("Warning: Copying a Set is not efficient.  Use references and pointers when you can.");
-        o.data.Clear();
-        o._T_comparer = _T_comparer;
-        *static_cast<FlexibleTypeComparer< DList<T> *> *>(o.data.GetTypeWrapper()) = *data.GetTypeWrapper();
-
-        DList<T> const*last_stack(0);
-        for(Set<T>::const_iterator iter(data.begin()); iter; ++iter)
-        {
-            DList<T> const*s(iter.stack());
-            if(s != last_stack)
-            {
-                last_stack = s;
-
-                DList<T> *n = new DList<T>;
-                last_stack->CloneTo(*n);
-                o.data.Add(n);
-            }
-        }
-        o.m_size = m_size;
-        return o;
-    }
+    inline Set<T> &operator = (const Set<T> &o){ Clear(); ::new(this) Set<T>(o); return *this; }
 
     /** Inserts the item into the set.  If the item is already present it will be overwritten.
         \note O(log(N))
@@ -125,7 +79,7 @@ public:
     /** Does the set contain at least 1 of these?
         \note O(log(N))
     */
-    inline bool Contains(const T &i){ return data.Search(i, &_T_comparer); }
+    inline bool Contains(const T &i){ return data.Search(i); }
 
     /** Empties the set and cleans up all memory. */
     void Clear(){ data.Clear(); m_size = 0;}
@@ -139,8 +93,8 @@ public:
         \note O(log(N))
     */
     inline int Count(const T &i){
-        const_iterator iter(data.Search(i, &_T_comparer));
-        return iter ? iter.stack()->Count() : 0;
+        const_iterator iter(data.Search(i));
+        return iter ? iter.stack().Count() : 0;
     }
 
 
@@ -148,20 +102,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class iterator :
-            public BinarySearchTree< DList<T> *>::iterator
+            public BinarySearchTree< DList<T>, T >::iterator
     {
         friend class Set;
     public:
         inline iterator(){}
-        inline iterator(const typename BinarySearchTree< DList<T> * >::iterator &iter)
-            :BinarySearchTree< DList<T> *>::iterator(iter)
+        inline iterator(const typename BinarySearchTree< DList<T>, T >::iterator &iter)
+            :BinarySearchTree< DList<T>, T >::iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
-                siter = queue()->begin();
+                siter = stack().begin();
         }
         inline iterator(const iterator &iter)
-            :BinarySearchTree< DList<T> *>::iterator(iter),
+            :BinarySearchTree< DList<T>, T >::iterator(iter),
               siter(iter.siter)
         {}
 
@@ -170,7 +124,7 @@ public:
 
     protected:
 
-        inline DList<T> *queue(){ return *reinterpret_cast<DList<T> **>(BinarySearchTree< DList<T> *>::iterator::current->Data); }
+        inline DList<T> &stack(){ return BinarySearchTree< DList<T>, T >::iterator::current->Data; }
 
     private:
         typename DList<T>::iterator siter;
@@ -179,9 +133,9 @@ public:
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T> *>::iterator::advance();
+                    BinarySearchTree< DList<T>, T >::iterator::advance();
                     if(*this)
-                        siter = queue()->begin();
+                        siter = stack().begin();
                 }
             }
         }
@@ -191,20 +145,20 @@ public:
         Duplicate items will be traversed in the order you inserted them.
     */
     class const_iterator :
-            public BinarySearchTree< DList<T> *>::iterator
+            public BinarySearchTree< DList<T>, T >::const_iterator
     {
         friend class Set;
     public:
-        inline iterator(){}
-        inline iterator(const typename BinarySearchTree< DList<T> *>::iterator &iter)
-            :BinarySearchTree< DList<T> *>::iterator(iter)
+        inline const_iterator(){}
+        inline const_iterator(const typename BinarySearchTree< DList<T>, T >::const_iterator &iter)
+            :BinarySearchTree< DList<T>, T >::const_iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
-                siter = stack()->begin();
+                siter = stack().begin();
         }
-        inline iterator(const iterator &iter)
-            :BinarySearchTree< DList<T> *>::iterator(iter),
+        inline const_iterator(const const_iterator &iter)
+            :BinarySearchTree< DList<T>, T >::const_iterator(iter),
               siter(iter.siter)
         {}
 
@@ -213,7 +167,7 @@ public:
 
     protected:
 
-        inline DList<T> const*stack(){ return *reinterpret_cast<const DList<T> *const*>(BinarySearchTree< DList<T> *>::iterator::current->Data); }
+        inline DList<T> const&stack(){ return BinarySearchTree< DList<T>, T >::const_iterator::current->Data; }
 
     private:
         typename DList<T>::const_iterator siter;
@@ -222,9 +176,9 @@ public:
         void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T> *>::iterator::advance();
+                    BinarySearchTree< DList<T>, T >::const_iterator::advance();
                     if(*this)
-                        siter = stack()->begin();
+                        siter = stack().begin();
                 }
             }
         }
@@ -250,29 +204,13 @@ public:
 
 private:
 
-    BinarySearchTree< DList<T> *> data;
-
-    class KeySearcher :
-            public Interfaces::IVoidComparer,
-            public FlexibleTypeComparer<T>
-    {
-    public:
-        inline KeySearcher(){}
-        inline KeySearcher(int (*cmp)(const T &, const T &))
-            :FlexibleTypeComparer<T>(cmp) {}
-
-    private:
-        int CompareVoid(const void *const lhs, const void *const rhs) const{
-            // Treat the rhs as a type T, lhs as a stack of T
-            return Compare((*reinterpret_cast< const DList<T> *const* >(lhs))->Front(),
-                           *reinterpret_cast< T const * >(rhs));
-        }
-    } _T_comparer;
-
-    long m_size;
+    BinarySearchTree< DList<T>, T > data;
+    GUINT32 m_size;
 
     void _insert(const T &, bool);
     void _remove(const T &, bool);
+
+    static const T &get_list_representative(const DList<T> &dl){ return dl.Top(); }
 
 };
 
@@ -301,32 +239,32 @@ public:
 
 template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
 {
-    Set<T>::iterator iter( data.Search(i, &_T_comparer) );
+    Set<T>::iterator iter( data.Search(i) );
     if(iter)
     {
-        DList<T> *s(iter.queue());
+        DList<T> &s(iter.stack());
         if(!allow_multiples)
         {
-            m_size -= s->Count();
-            s->Clear();
+            m_size -= s.Count();
+            s.Clear();
         }
-        s->Enqueue(i);
+        s.Enqueue(i);
     }
     else
     {
-        data.Add(new DList<T>(i));
+        data.Add(i);
     }
     ++m_size;
 }
 
 template<class T>void Set<T>::_remove(const T &i, bool all)
 {
-    Set<T>::iterator iter( data.Search(i, &_T_comparer) );
+    Set<T>::iterator iter( data.Search(i) );
     if(iter)
     {
-        iter.queue()->Dequeue();
+        iter.stack().Dequeue();
         --m_size;
-        int cnt( iter.queue()->Count() );
+        int cnt( iter.stack().Count() );
         if(all || cnt == 0)
         {
             m_size -= cnt;

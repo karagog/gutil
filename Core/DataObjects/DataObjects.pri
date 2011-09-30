@@ -7,7 +7,7 @@ HEADERS += \
     DataObjects/heap.h \
     DataObjects/binarysearchtree.h \
     DataObjects/set.h \
-    DataObjects/private/flexible_type_comparer.h \
+    DataObjects/flexibletypecomparer.h \
     DataObjects/interfaces.h \
     DataObjects/vector.h
 

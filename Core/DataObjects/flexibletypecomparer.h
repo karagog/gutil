@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef FLEXIBLE_TYPE_COMPARER_H
-#define FLEXIBLE_TYPE_COMPARER_H
+#ifndef GUTIL_FLEXIBLE_TYPE_COMPARER_H
+#define GUTIL_FLEXIBLE_TYPE_COMPARER_H
 
 #include "gutil_macros.h"
 #include "Core/Interfaces/icomparer.h"
@@ -72,4 +72,4 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // FLEXIBLE_TYPE_COMPARER_H
+#endif // GUTIL_FLEXIBLE_TYPE_COMPARER_H

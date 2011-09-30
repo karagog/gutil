@@ -227,13 +227,9 @@ public:
               parent(p)
         {}
 
-        /** Return a reference to the data. */
-        inline T &operator*(){ return current->Data; }
         /** Return a const reference to the data. */
         inline const T &operator*() const { return current->Data; }
 
-        /** Return a pointer to the data. */
-        inline T *operator->(){ return current->Data; }
         /** Return a const pointer to the data. */
         inline const T *operator->() const { return current->Data; }
 

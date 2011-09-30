@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "gassert.h"
 #include "Core/exception.h"
+#include "Core/DataObjects/flexibletypecomparer.h"
 using namespace std;
 
 #ifndef GUTIL_BST_H
@@ -30,11 +31,8 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     Implement your own compare function to control how the data is indexed.
 */
-template<class T>class BinarySearchTree
+template<class T, class KeyType = T>class BinarySearchTree
 {
-    GUTIL_DISABLE_COPY(BinarySearchTree<T>);
-    template<class> friend class BST_NodeIterator;
-
     class node
     {
     public:
@@ -142,6 +140,27 @@ template<class T>class BinarySearchTree
         /** Dereference the iterator and return a pointer to the data. */
         inline const T *operator->() const { return &current->Data; }
 
+        /** Manipulates the iterator manually, moving it to its right-child.
+            This is useful for iterating breadth-first.
+        */
+        inline void MoveRight(){
+            m_parent = current;
+            current = current->RChild;
+        }
+        inline bool CanMoveRight() const{ return current ? current->RChild : false; }
+        /** Manipulates the iterator manually, moving it to its left-child.
+            This is useful for iterating breadth-first.
+        */
+        inline void MoveLeft(){
+            m_parent = current;
+            current = current->LChild;
+        }
+        inline bool CanMoveLeft() const{ return current ? current->LChild : false; }
+        inline void MoveUp(){
+            current = m_parent;
+            m_parent = current->Parent;
+        }
+        inline bool CanMoveUp() const{ return m_parent; }
 
     protected:
 
@@ -150,11 +169,15 @@ template<class T>class BinarySearchTree
         node *m_begin;
         node *m_end;
 
-        inline iterator_base(node *n = 0) :current(n), m_begin(0), m_end(0){}
-        inline iterator_base(const iterator_base &o) :current(o.current), m_begin(o.m_begin), m_end(o.m_end){}
+        node *m_parent;
+
+        inline iterator_base(node *n = 0)
+            :current(n), m_begin(0), m_end(0), m_parent(0){}
+        inline iterator_base(const iterator_base &o)
+            :current(o.current), m_begin(o.m_begin), m_end(o.m_end), m_parent(o.m_parent){}
 
         /** Advance the iterator.  Does nothing if you can't advance. */
-        void advance()
+        virtual void advance()
         {
             if(current)
             {
@@ -184,7 +207,7 @@ template<class T>class BinarySearchTree
         }
 
         /** Advance the iterator in reverse order.  Does nothing if you can't advance. */
-        void retreat()
+        virtual void retreat()
         {
             if(current)
             {
@@ -217,17 +240,84 @@ template<class T>class BinarySearchTree
 
 public:
 
+    class Comparer :
+            public FlexibleTypeComparer<KeyType>
+    {
+    public:
+
+        inline Comparer(){}
+        inline Comparer(int (*cmp)(const KeyType &, const KeyType &))
+            :FlexibleTypeComparer<KeyType>(cmp)
+        {}
+
+    };
+
+    class Converter
+    {
+    public:
+        /** \note You can only use this constructor if KeyType == T, otherwise you must provide
+            your own conversion from T to the KeyType.
+        */
+        inline Converter()
+        {
+            m_convert = &default_convert;
+        }
+        inline Converter(KeyType const &(*convert)(T const &))
+        {
+            m_convert = convert;
+        }
+
+        /** Use the parenthesis operator to dereference the conversion function. */
+        inline KeyType const &operator()(T const &t) const{ return m_convert(t); }
+
+
+    private:
+
+        KeyType const &(*m_convert)(T const &);
+
+        static KeyType const &default_convert(T const &o){ return o; }
+
+    };
+
+    inline BinarySearchTree()
+        :m_size(0),
+          root(0)
+    {}
+
     /** Creates an empty BST with the default type wrapper.
         \param cmp A comparison object to determine the sort order of the tree.
         If left 0 it will use the default compare function, the less-than operator.
         The tree will take ownership of this pointer and delete it when finished.
         \sa BST_Type_Wrapper
     */
-    inline explicit BinarySearchTree(int (*cmp)(const T &, const T &) = &default_compare)
+    inline explicit BinarySearchTree(const Comparer &c)
         :m_size(0),
-          root(0)
+          root(0),
+          compare(c)
+    {}
+
+    inline explicit BinarySearchTree(const Comparer &c, const Converter &conv)
+        :m_size(0),
+          root(0),
+          compare(c),
+          convert(conv)
+    {}
+
+    /** Performs a deep copy of the other tree.
+        \note O(N Log(N))
+    */
+    inline BinarySearchTree(const BinarySearchTree<T, KeyType> &o)
+        :m_size(0),
+          root(0),
+          compare(o.compare),
+          convert(o.convert)
     {
-        compare = cmp;
+        BinarySearchTree<T, KeyType>::const_iterator iter(o.begin());
+        while(iter)
+        {
+            Add(*iter);
+            ++iter;
+        }
     }
 
     inline ~BinarySearchTree(){ Clear(); }
@@ -273,7 +363,7 @@ public:
         inline const_iterator(){}
         inline const_iterator(const iterator_base &o) :iterator_base(o){}
 
-        inline const_iterator &operator =(const const_iterator &o){ ::new(this) iterator(o); }
+        inline const_iterator &operator =(const const_iterator &o){ ::new(this) const_iterator(o); }
 
         /** Prefix ++.  \note O(1) */
         inline const_iterator &operator ++(){ this->advance(); return *this; }
@@ -305,7 +395,7 @@ public:
         \returns True if item removed
         \note O(log(N))
     */
-    inline void Remove(const T &object){ _remove( _search(object, compare) ); }
+    inline void Remove(const T &object){ _remove( Search(object).current ); }
 
     /** Removes the object from the tree.  Does nothing if object not in the tree.
         \returns True if item removed
@@ -331,13 +421,33 @@ public:
         Returns an invalid iterator equal to end() if not found.
         \note O(log(N))
     */
-    inline const_iterator Search(const T &object) const{ return const_iterator( _search(object, compare) ); }
+    inline const_iterator Search(const T &object) const{
+        const_iterator ret(root);
+        while(ret)
+        {
+            const int cmp_res( compare(convert(object), convert(ret.current->Data)) );
+            if(cmp_res < 0)         ret.MoveLeft();
+            else if(cmp_res > 0)    ret.MoveRight();
+            else break;
+        }
+        return ret;
+    }
 
     /** Does a lookup on the given object and returns an iterator to it.
         Returns an invalid iterator equal to end() if not found.
         \note O(log(N))
     */
-    inline iterator Search(const T &object){ return iterator( _search(object, compare) ); }
+    iterator Search(const T &object){
+        iterator ret(root);
+        while(ret)
+        {
+            const int cmp_res( compare(convert(object), convert(ret.current->Data)) );
+            if(cmp_res < 0)         ret.MoveLeft();
+            else if(cmp_res > 0)    ret.MoveRight();
+            else break;
+        }
+        return ret;
+    }
 
     /** Does a lookup with the provided key, which can be a different type than T,
         and returns an iterator to it.  You must provide your own void comparer which knows
@@ -346,14 +456,39 @@ public:
         Returns an invalid iterator equal to end() if not found.
         \note O(log(N))
     */
-    template<class K>inline iterator Search(const K &object, int (*cmp)(const K &, const T &)) const{
-        return iterator( _search(object, cmp) );
+    template<class KT>iterator Search(const KT &object){
+        iterator ret( root );
+        while(ret)
+        {
+            const int cmp_res( compare(object, convert(ret.current->Data)) );
+            if(cmp_res < 0)         ret.MoveLeft();
+            else if(cmp_res > 0)    ret.MoveRight();
+            else break;
+        }
+        return ret;
     }
+
+    template<class KT>const_iterator Search(const KT &object) const{
+        const_iterator ret( root );
+        while(ret)
+        {
+            const int cmp_res( compare(object, convert(ret.current->Data)) );
+            if(cmp_res < 0)         ret.MoveLeft();
+            else if(cmp_res > 0)    ret.MoveRight();
+            else break;
+        }
+        return ret;
+    }
+
+    /** Returns an iterator starting at the root of the tree. */
+    inline iterator Root(){ return root; }
+    /** Returns an iterator starting at the root of the tree. */
+    inline const_iterator Root() const{ return root; }
 
     /** A convenience function which returns if the object exists in the tree.
         \note O(log(N))
     */
-    inline bool Contains(const T &object) const{ return _search(object, compare); }
+    inline bool Contains(const T &object) const{ return Search(object); }
 
     /** Returns how many items are in the BST */
     inline GUINT32 Size() const{ return m_size; }
@@ -423,21 +558,8 @@ private:
 
     GUINT32 m_size;
     node *root;
-
-    int (*compare)(const T &, const T &);
-
-    template<class K>node *_search(const K &k, int (*cmp)(const K &, const T &)) const
-    {
-        node *cur( root );
-        while(cur)
-        {
-            const int cmp_res( cmp(k, cur->Data) );
-            if(cmp_res < 0)         cur = cur->LChild;
-            else if(cmp_res > 0)    cur = cur->RChild;
-            else break;
-        }
-        return cur;
-    }
+    Comparer compare;
+    Converter convert;
 
     void _remove(node *);
 
@@ -572,14 +694,6 @@ private:
         }
     }
 
-    static int default_compare(const T &lhs, const T &rhs){
-        if(lhs < rhs)
-            return -1;
-        if(rhs < lhs)
-            return 1;
-        return 0;
-    }
-
 };
 
 
@@ -587,7 +701,7 @@ private:
 
 
 
-template<class T>void BinarySearchTree<T>::_remove(node *n)
+template<class T, class KeyType>void BinarySearchTree<T, KeyType>::_remove(node *n)
 {
     // Remove it.  The deletion algorithm goes as follows:
     //  I need to find a replacement from the leaves of the tree to
@@ -701,139 +815,41 @@ template<class T>void BinarySearchTree<T>::_remove(node *n)
     --m_size;
 }
 
-template<class T>void BinarySearchTree<T>::Add(const T &object)
+template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &object)
 {
-    node *new_node;
     if(root)
     {
         // Find the place to insert, has to be a leaf node
-        node *cur( root );
-        node *next_cur( root );
-        typename node::SideEnum insertion_side(node::LeftSide);
-        while(next_cur)
+        iterator iter( Search(object) );
+        if(iter)
         {
-            cur = next_cur;
-            int cmp_res( compare(object, cur->Data) );
-
-            if(cmp_res < 0)
-            {
-                next_cur = cur->LChild;
-                insertion_side = node::LeftSide;
-            }
-            else if(cmp_res > 0)
-            {
-                next_cur = cur->RChild;
-                insertion_side = node::RightSide;
-            }
-            else
-            {
-                // There's an insertion collision
-                THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                           "Object already exists in BST.");
-            }
+            // There's an insertion collision
+            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+                                       "Object already exists in BST.");
         }
 
-        new_node = new node(object, cur);
-        switch(insertion_side)
-        {
-        case node::LeftSide:
-            cur->LChild = new_node;
-            break;
-        case node::RightSide:
-            cur->RChild = new_node;
-            break;
-        default:
+        node *new_node( new node(object, iter.m_parent) );
+        const int cmp_res( compare(convert(object), convert(iter.m_parent->Data)) );
+        if(cmp_res < 0)
+            new_node->Parent->LChild = new_node;
+        else if(cmp_res > 0)
+            new_node->Parent->RChild = new_node;
+        else
             GASSERT(false);
-        }
 
         // Now we need to ascend the tree to the root and update the heights
-        _walk_parents_update_heights_rebalance(cur);
+        _walk_parents_update_heights_rebalance(new_node->Parent);
 
         _update_root_node();
     }
     else
     {
         // If the root is null, then this is the first item in the tree (easy case)
-        root = new_node = new node(object);
+        root = new node(object);
     }
 
     m_size++;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/** A class for iterating manually through the binary search tree.
-
-    This iterator is not STL compliant, because there is no STL compliant way
-    to do this.  It's useful for debugging, but not much else.  You shouldn't normally
-    have to use this class.  Because it's a template, if you don't use it
-    it won't build into your application.
-*/
-template<class T> class BST_NodeIterator
-{
-public:
-    BST_NodeIterator(const BinarySearchTree<T> &t)
-        :m_node(t.root)
-    {}
-
-    /** The data held in this node. */
-    const T &Value() const{
-        return m_node->Data;
-    }
-
-    /** Returns whether a left child exists. */
-    bool CanDescendLeft() const{
-        return m_node && m_node->LChild;
-    }
-    /** Returns whether a right child exists. */
-    bool CanDescendRight() const{
-        return m_node && m_node->RChild;
-    }
-    /** Returns whether you can move the iterator to the current's parent. */
-    bool CanAscend() const{
-        return m_node && m_node->Parent;
-    }
-
-    /** Advances the iterator into the left child. */
-    bool DescendLeft(){
-        if(CanDescendLeft()){
-            m_node = m_node->LChild;
-            return true;
-        }
-        return false;
-    }
-    /** Advances the iterator into the right child. */
-    bool DescendRight(){
-        if(CanDescendRight()){
-            m_node = m_node->RChild;
-            return true;
-        }
-        return false;
-    }
-    /** Advances the iterator to the current's parent */
-    bool Ascend(){
-        if(CanAscend()){
-            m_node = m_node->Parent;
-            return true;
-        }
-        return false;
-    }
-
-private:
-    typename BinarySearchTree<T>::node *m_node;
-};
 
 
 GUTIL_END_CORE_NAMESPACE

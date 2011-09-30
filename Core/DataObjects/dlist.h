@@ -15,8 +15,6 @@ limitations under the License.*/
 #ifndef GUTIL_DLIST_H
 #define GUTIL_DLIST_H
 
-#include "Core/DataObjects/private/flexible_type_comparer.h"
-#include "Core/Interfaces/iclonable.h"
 #include "Core/DataObjects/interfaces.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -32,7 +30,6 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     \sa List, Vector, SList
 */
 template<class T>class DList :
-        public Interfaces::IClonable< DList<T> >,
         public Stack<T>,
         public Deque<T>
 {
@@ -298,9 +295,7 @@ public:
         }
 
         inline const T &operator *() const{ return current->Data; }
-        inline T &operator *(){ return current->Data; }
         inline const T *operator ->() const{ &current->Data; }
-        inline T *operator ->(){ return &current->Data; }
 
         inline bool operator == (const const_iterator &o) const{ return current == o.current; }
         inline bool operator != (const const_iterator &o) const{ return current != o.current; }
@@ -345,7 +340,19 @@ public:
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    inline DList(const DList<T> &o){ o.CloneTo(*this); }
+    inline DList(const DList<T> &o)
+        :m_size(0),
+          m_first(0),
+          m_last(0)
+    {
+        DList<T>::const_iterator iter(o.begin());
+        DList<T>::iterator e(end());
+        while(iter)
+        {
+            Insert(*iter, e);
+            ++iter;
+        }
+    }
 
     inline ~DList(){ Clear(); }
 
@@ -357,13 +364,6 @@ public:
     /** This is useful for chaining push commands together.  Ex: q << 1 << 2 << 3*/
     inline DList<T> &operator <<(const T &i){ PushBack(i); return *this; }
 
-    /** Conducts a deep copy of the list.  Satisfies the IClonable abstract interface.
-        \note O(N)
-    */
-    virtual DList<T> &CloneTo(DList<T> &o) const{
-        o.Clear();
-        return o;
-    }
 
 private:
 
