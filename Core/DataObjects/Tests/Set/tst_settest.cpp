@@ -66,6 +66,29 @@ void SetTest::test_basic_function()
             QVERIFY2(*iter == cnt, QString("%1 != %2").arg(*iter).arg(cnt).toAscii());
             cnt++;
         }
+        QVERIFY(cnt == 6);
+
+        // Test the backwards iterator
+        cnt = 0;
+        set.InsertMulti(3);
+        int three_count(0);
+        for(Set<int>::const_iterator iter( set.rbegin() ); iter; --iter)
+        {
+            int soll_val;
+            if(*iter == 3)
+            {
+                three_count++;
+                soll_val = 3;
+            }
+            else
+            {
+                soll_val = 5 - cnt + three_count - (three_count >= 1 ? 1 : 0);
+            }
+            QVERIFY2(*iter == soll_val, QString("%1 != %2").arg(*iter).arg(soll_val).toAscii());
+            cnt++;
+        }
+        QVERIFY2(three_count == 2, QString("%1").arg(three_count).toAscii());
+        QVERIFY(cnt == 7);
 
         set.Clear();
         QVERIFY2(!set.begin(), "There is a valid iterator on an empty set?");

@@ -319,6 +319,11 @@ public:
             ++iter;
         }
     }
+    inline BinarySearchTree<T, KeyType> &operator =(const BinarySearchTree<T, KeyType> &o){
+        Clear();
+        ::new(this) BinarySearchTree<T, KeyType>(o);
+        return *this;
+    }
 
     inline ~BinarySearchTree(){ Clear(); }
 

@@ -206,6 +206,11 @@ public:
         inline const_iterator(node *n = 0)
             :current(n){}
 
+        inline const_iterator(const const_iterator &o)
+            :current(o.current){}
+        inline const_iterator(const iterator &o)
+            :current(o.current){}
+
         /** Advances the iterator */
         inline const_iterator &operator++(){ advance(); return *this; }
 

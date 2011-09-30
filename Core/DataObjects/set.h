@@ -49,11 +49,12 @@ public:
         :data(o.data),
           m_size(o.m_size)
     {}
+    inline Set<T> &operator = (const Set<T> &o){
+        Clear();
+        ::new(this) Set<T>(o);
+        return *this;
+    }
 
-    /** Conducts a deep copy of the set.
-        \note O(N log(N))
-    */
-    inline Set<T> &operator = (const Set<T> &o){ Clear(); ::new(this) Set<T>(o); return *this; }
 
     /** Inserts the item into the set.  If the item is already present it will be overwritten.
         \note O(log(N))
@@ -93,7 +94,7 @@ public:
         \note O(log(N))
     */
     inline int Count(const T &i){
-        const_iterator iter(data.Search(i));
+        const_iterator iter(data.Search(i), true);
         return iter ? iter.stack().Count() : 0;
     }
 
@@ -107,13 +108,6 @@ public:
         friend class Set;
     public:
         inline iterator(){}
-        inline iterator(const typename BinarySearchTree< SimpleDList<T>, T >::iterator &iter)
-            :BinarySearchTree< SimpleDList<T>, T >::iterator(iter)
-        {
-            // Initialize our stack iterator
-            if(*this)
-                siter = stack().begin();
-        }
         inline iterator(const iterator &iter)
             :BinarySearchTree< SimpleDList<T>, T >::iterator(iter),
               siter(iter.siter)
@@ -123,6 +117,19 @@ public:
         inline T *operator ->(){ return &(*siter); }
 
     protected:
+
+        inline iterator(const typename BinarySearchTree< SimpleDList<T>, T >::iterator &iter, bool forward_direction)
+            :BinarySearchTree< SimpleDList<T>, T >::iterator(iter)
+        {
+            // Initialize our stack iterator
+            if(*this)
+            {
+                if(forward_direction)
+                    siter = stack().begin();
+                else
+                    siter = stack().rbegin();
+            }
+        }
 
         inline SimpleDList<T> &stack(){ return BinarySearchTree< SimpleDList<T>, T >::iterator::current->Data; }
 
@@ -139,6 +146,16 @@ public:
                 }
             }
         }
+        // Overridden from bst_p
+        void retreat(){
+            if(siter){
+                if(!--siter){
+                    BinarySearchTree< SimpleDList<T>, T >::iterator::retreat();
+                    if(*this)
+                        siter = stack().rbegin();
+                }
+            }
+        }
     };
 
     /** Iterates through the set.  Items are traversed in order.
@@ -150,14 +167,11 @@ public:
         friend class Set;
     public:
         inline const_iterator(){}
-        inline const_iterator(const typename BinarySearchTree< SimpleDList<T>, T >::const_iterator &iter)
-            :BinarySearchTree< SimpleDList<T>, T >::const_iterator(iter)
-        {
-            // Initialize our stack iterator
-            if(*this)
-                siter = stack().begin();
-        }
         inline const_iterator(const const_iterator &iter)
+            :BinarySearchTree< SimpleDList<T>, T >::const_iterator(iter),
+              siter(iter.siter)
+        {}
+        inline const_iterator(const iterator &iter)
             :BinarySearchTree< SimpleDList<T>, T >::const_iterator(iter),
               siter(iter.siter)
         {}
@@ -166,6 +180,19 @@ public:
         const T *operator ->() const{ return &(*siter); }
 
     protected:
+
+        inline const_iterator(const typename BinarySearchTree< SimpleDList<T>, T >::const_iterator &iter, bool forward_direction)
+            :BinarySearchTree< SimpleDList<T>, T >::const_iterator(iter)
+        {
+            // Initialize our stack iterator
+            if(*this)
+            {
+                if(forward_direction)
+                    siter = stack().begin();
+                else
+                    siter = stack().rbegin();
+            }
+        }
 
         inline SimpleDList<T> const&stack(){ return BinarySearchTree< SimpleDList<T>, T >::const_iterator::current->Data; }
 
@@ -182,24 +209,39 @@ public:
                 }
             }
         }
+        // Overridden from bst_p
+        void retreat(){
+            if(siter){
+                if(!--siter){
+                    BinarySearchTree< SimpleDList<T>, T >::const_iterator::retreat();
+                    if(*this)
+                        siter = stack().rbegin();
+                }
+            }
+        }
     };
 
     /** Returns an iterator at the beginning of the set.  Items are traversed in order.
         \note O(1)
     */
-    inline iterator begin(){ return data.begin(); }
+    inline iterator begin(){ return iterator(data.begin(), true); }
     /** Returns an iterator at the beginning of the set.  Items are traversed in order.
         \note O(1)
     */
-    inline const_iterator begin() const{ return data.begin(); }
+    inline const_iterator begin() const{ return const_iterator(data.begin(), true); }
     /** Returns an iterator at the end of the set.
         \note O(1)
     */
-    inline iterator end(){ return data.end(); }
+    inline iterator end(){ return iterator(data.end(), true); }
     /** Returns an iterator at the end of the set.
         \note O(1)
     */
-    inline const_iterator end() const{ return data.end(); }
+    inline const_iterator end() const{ return const_iterator(data.end(), true); }
+
+    inline iterator rbegin(){ return iterator(data.rbegin(), false); }
+    inline const_iterator rbegin() const{ return const_iterator(data.rbegin(), false); }
+    inline iterator rend(){ return iterator(data.rend(), false); }
+    inline const_iterator rend() const{ return const_iterator(data.rend(), false); }
 
 
 private:
@@ -224,6 +266,9 @@ template<class T>class MultiSet :
 {
 public:
 
+    inline MultiSet(){}
+    inline MultiSet(const Set<T> &o) :Set<T>(o){}
+
     /** Overridden to call InsertMulti. */
     inline void Insert(const T &i){ Set<T>::InsertMulti(i); }
 
@@ -239,7 +284,7 @@ public:
 
 template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
 {
-    Set<T>::iterator iter( data.Search(i) );
+    Set<T>::iterator iter( data.Search(i), true );
     if(iter)
     {
         SimpleDList<T> &s(iter.stack());
@@ -260,7 +305,7 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
 
 template<class T>void Set<T>::_remove(const T &i, bool all)
 {
-    Set<T>::iterator iter( data.Search(i) );
+    Set<T>::iterator iter( data.Search(i), true );
     if(iter)
     {
         SimpleDList<T> &s(iter.stack());
