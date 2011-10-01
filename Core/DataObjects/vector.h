@@ -186,7 +186,7 @@ public:
             // Need to call the destructors on the items we're (potentially) deleting
             if(new_capacity < Length())
             {
-                for(int i(new_capacity); i < m_length; ++i)
+                for(GUINT32 i(new_capacity); i < m_length; ++i)
                     m_begin[i].~T();
                 m_length = new_capacity;
             }

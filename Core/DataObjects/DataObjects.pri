@@ -2,7 +2,6 @@ HEADERS += \
     DataObjects/slist.h \
     DataObjects/map.h \
     DataObjects/list.h \
-    DataObjects/private/list_p.h \
     DataObjects/dlist.h \
     DataObjects/heap.h \
     DataObjects/binarysearchtree.h \
@@ -12,8 +11,9 @@ HEADERS += \
     DataObjects/vector.h \
     DataObjects/flags.h
 
-SOURCES += \
-    DataObjects/private/list_p.cpp
+SOURCES +=
+
+
 
 
 
