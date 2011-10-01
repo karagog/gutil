@@ -313,18 +313,24 @@ public:
     inline List(){}
     inline List(const SimpleList<T> &o) :SimpleList<T>(o){}
 
+    /** Provided so that you can override to create custom insertion behavior. */
+    virtual void Insert(const T &obj, GUINT32 indx){ SimpleList<T>::Insert(obj, indx); }
 
-    void Push(const T &o){ List<T>::Insert(o, List<T>::Size()); }
-    void Pop(){ List<T>::Remove( List<T>::Size() - 1 ); }
+    /** Provided so that you can override to create custom removal behavior. */
+    virtual void Remove(GUINT32 indx){ SimpleList<T>::Remove(indx); }
+
+
+    void Push(const T &o){ this->Insert(o, List<T>::Size()); }
+    void Pop(){ this->Remove( List<T>::Size() - 1 ); }
     const T &Top() const{ return *at(List<T>::Size() - 1); }
     T &Top(){ return *List<T>::at(List<T>::Size() - 1); }
     GUINT32 CountStackItems() const{ return List<T>::Size(); }
     void FlushStack(){ List<T>::Clear(); }
 
-    void PushBack(const T &o){ List<T>::Insert(o, List<T>::Size()); }
-    void PushFront(const T &o){ List<T>::Insert(o, 0); }
-    void PopBack(){ List<T>::Remove( List<T>::Size() - 1 ); }
-    void PopFront(){ List<T>::Remove( 0 ); }
+    void PushBack(const T &o){ this->Insert(o, List<T>::Size()); }
+    void PushFront(const T &o){ this->Insert(o, 0); }
+    void PopBack(){ this->Remove( List<T>::Size() - 1 ); }
+    void PopFront(){ this->Remove( 0 ); }
     const T &Front() const{ return *List<T>::at(0); }
     T &Front(){ return *List<T>::at(0); }
     const T &Back() const{ return *List<T>::at(List<T>::Size() - 1); }

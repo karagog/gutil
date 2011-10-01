@@ -76,7 +76,7 @@ private:
 };
 
 
-#define NUMBER_OF_ITEMS         10000000
+#define NUMBER_OF_ITEMS         1000000
 #define NUMBER_OF_REPETITIONS   10
 
 
@@ -111,11 +111,11 @@ void Benchmark_ListsTest::test_stacks(int num_items)
     List<int> list;
     STL_Stack<int> stl;
 
-//    cout<<"Stack as SList:"<<endl;
-//    test_stack(&slist, num_items);
+    cout<<"Stack as SList:"<<endl;
+    test_stack(&slist, num_items);
 
-//    cout<<"Stack as DList:"<<endl;
-//    test_stack(&dlist, num_items);
+    cout<<"Stack as DList:"<<endl;
+    test_stack(&dlist, num_items);
 
     cout<<"Stack as a vector:"<<endl;
     test_stack(&vector, num_items);
