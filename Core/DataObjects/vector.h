@@ -21,7 +21,6 @@ limitations under the License.*/
 #include "Core/Interfaces/imemoryusagereporter.h"
 #include <cstring>
 #include <malloc.h>
-#include <iterator>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -136,7 +135,7 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    virtual void Insert(const T &item, const iterator &iter)
+    void Insert(const T &item, const iterator &iter)
     {
         // Allocate more memory if we have to
         if(m_length == m_capacity)
@@ -160,7 +159,7 @@ public:
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
-    virtual void Remove(const iterator &iter)
+    void Remove(const iterator &iter)
     {
         T *const targ( m_begin + iter.m_cur );
 
@@ -417,7 +416,7 @@ public:
     /** Satisfies the Deque abstract interface. */
     T &Back(){ return (*this)[Vector<T>::Length() - 1]; }
     /** Satisfies the Deque abstract interface. */
-    const T &Back() const{ (*this)[Vector<T>::Length() - 1]; }
+    const T &Back() const{ return (*this)[Vector<T>::Length() - 1]; }
     /** Satisfies the Deque abstract interface. */
     GUINT32 CountDequeItems() const{ return Vector<T>::Length(); }
     /** Satisfies the Deque abstract interface. */
