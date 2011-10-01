@@ -43,12 +43,12 @@ enum test_enum
     Six
 };
 
-DECLARE_FLAG_OPERATORS(test_enum);
+GUTIL_DECLARE_FLAGS(TestFlags, test_enum);
 
 void FlagsTest::testCase1()
 {
-    Flags<test_enum> f;
-    qDebug(QString("The size of Flags object: %1").arg(sizeof(Flags<test_enum>)).toAscii());
+    TestFlags f;
+    qDebug(QString("The size of Flags object: %1").arg(sizeof(TestFlags)).toAscii());
 
     QVERIFY(!f.TestFlag(One));
 

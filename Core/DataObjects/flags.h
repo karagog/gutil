@@ -23,7 +23,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     Its template takes an enum parameter, which you use to specify bit-indeces of which flags to set.
 
-    Use DECLARE_FLAG_OPERATORS to declare operators for your enum type, which will allow you to
+    Use GUTIL_DECLARE_FLAGS to declare operators for your enum type, which will allow you to
     | (or) them together and yield a Flags type.
 */
 template<class EnumType>
@@ -75,9 +75,15 @@ private:
 
 
 /** Use this for convenient flag operators for your enum type. */
-#define DECLARE_FLAG_OPERATORS(enum_type) \
-    static inline Flags<enum_type> operator | (enum_type e1, enum_type e2){ \
-        Flags<enum_type> ret; \
+#define GUTIL_DECLARE_FLAGS(flags_name, enum_type) \
+    class flags_name : public Flags<enum_type>{ \
+    public: \
+        inline flags_name(){} \
+        inline flags_name(GUINT32 i) :Flags<enum_type>(i){} \
+        inline flags_name(const Flags<enum_type> &o) :Flags<enum_type>(o){} \
+    }; \
+    static inline flags_name operator | (enum_type e1, enum_type e2){ \
+        flags_name ret; \
         ret.SetFlag(e1, true); ret.SetFlag(e2, true); \
         return ret; \
     }
