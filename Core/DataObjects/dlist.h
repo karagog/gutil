@@ -59,7 +59,7 @@ public:
         the insertion, only now it has been shifted one spot in the list.
         \note O(1)
     */
-    virtual void Insert(const T &i, iterator &iter)
+    void Insert(const T &i, iterator &iter)
     {
         node *new_node( new node(i, iter.current) );
 
@@ -99,7 +99,28 @@ public:
         The iterator stays valid after the removal, and it points to the next item in the list.
         \note O(1)
     */
-    virtual void Remove(iterator &iter){ _remove(iter); }
+    void Remove(iterator &iter)
+    {
+        if(!iter)
+            return;
+
+        node *n(iter.current);
+        if(m_first == n)
+            m_first = n->NextNode;
+        else
+            n->PrevNode->NextNode = n->NextNode;
+
+        // So the iterator is still valid after the removal.
+        iter.current = n->NextNode;
+
+        if(n->NextNode)
+            n->NextNode->PrevNode = n->PrevNode;
+        else
+            m_last = n->PrevNode;
+
+        delete n;
+        m_size--;
+    }
 
     /** How many items are in the dlist. */
     inline GUINT32 Length() const{ return m_size; }
@@ -109,7 +130,7 @@ public:
     inline void Clear(){
         iterator iter(begin());
         while(iter)
-            _remove(iter);
+            Remove(iter);
     }
 
     /** A bidirectional iterator through the list. */
@@ -307,29 +328,6 @@ private:
     node *m_first;
     node *m_last;
 
-    void _remove(iterator &iter)
-    {
-        if(!iter)
-            return;
-
-        node *n(iter.current);
-        if(m_first == n)
-            m_first = n->NextNode;
-        else
-            n->PrevNode->NextNode = n->NextNode;
-
-        // So the iterator is still valid after the removal.
-        iter.current = n->NextNode;
-
-        if(n->NextNode)
-            n->NextNode->PrevNode = n->PrevNode;
-        else
-            m_last = n->PrevNode;
-
-        delete n;
-        m_size--;
-    }
-
 };
 
 
@@ -343,6 +341,13 @@ public:
 
     inline DList(){}
     inline DList(const SimpleDList<T> &o) :SimpleDList<T>(o){}
+
+    /** Provided so that you can override to create custom insertion behavior. */
+    virtual void Insert(const T &i, typename SimpleDList<T>::iterator &iter){ SimpleDList<T>::Insert(i, iter); }
+
+    /** Provided so that you can override to create custom removal behavior. */
+    virtual void Remove(typename SimpleDList<T>::iterator &iter){ SimpleDList<T>::Remove(iter); }
+
 
     /** Satisfies the Dequeue abstract interface. */
     void PushFront(const T &i){ typename SimpleDList<T>::iterator b(DList<T>::begin()); this->Insert(i, b); }

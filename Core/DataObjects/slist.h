@@ -58,7 +58,7 @@ public:
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
     */
-    virtual void Remove(iterator &iter){ _remove(iter); }
+    inline void Remove(iterator &iter){ _remove(iter); }
 
     /** Insert an item into the list.
 
@@ -69,7 +69,7 @@ public:
         override it to provide custom insertion behavior.
         \note O(1)
     */
-    virtual void Insert(const T &i, iterator &iter){
+    inline void Insert(const T &i, iterator &iter){
         node *new_node( new node(i, iter.current) );
         if(iter.parent)
             iter.parent->NextNode = new_node;
@@ -271,6 +271,13 @@ public:
 
     inline SList(){}
     inline SList(const SimpleSList<T> &o) :SimpleSList<T>(o){}
+
+    /** Provided so that you can override to create custom insertion behavior. */
+    virtual void Insert(const T &i, typename SimpleSList<T>::iterator &iter){ SimpleSList<T>::Insert(i, iter); }
+
+    /** Provided so that you can override to create custom removal behavior. */
+    virtual void Remove(typename SimpleSList<T>::iterator &iter){ SimpleSList<T>::Remove(iter); }
+
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Insert(i, b); }

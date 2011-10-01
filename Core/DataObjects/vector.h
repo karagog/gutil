@@ -388,6 +388,13 @@ public:
         :SimpleVector<T>(iter_begin, iter_end){}
 
 
+    /** Provided so that you can override to create custom insertion behavior. */
+    virtual void Insert(const T &item, const typename SimpleVector<T>::iterator &iter){ SimpleVector<T>::Insert(item, iter); }
+
+    /** Provided so that you can override to create custom removal behavior. */
+    virtual void Remove(const typename SimpleVector<T>::iterator &iter){ SimpleVector<T>::Remove(iter); }
+
+
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ this->Insert(i, Vector<T>::end()); }
     /** Satisfies the Stack abstract interface. */
