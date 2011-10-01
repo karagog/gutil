@@ -140,6 +140,15 @@ template<class T, class KeyType = T>class BinarySearchTree
         /** Dereference the iterator and return a pointer to the data. */
         inline const T *operator->() const { return &current->Data; }
 
+        /** Dereference the iterator and return a reference to the data.
+            \warning Be careful not to modify the key data!
+        */
+        inline T &operator*(){ return current->Data; }
+        /** Dereference the iterator and return a pointer to the data.
+            \warning Be careful not to modify the key data!
+        */
+        inline T *operator->(){ return &current->Data; }
+
         /** Manipulates the iterator manually, moving it to its right-child.
             This is useful for iterating breadth-first.
         */
@@ -284,16 +293,16 @@ public:
           root(0)
     {}
 
-    /** Creates an empty BST with the default type wrapper.
-        \param cmp A comparison object to determine the sort order of the tree.
-        If left 0 it will use the default compare function, the less-than operator.
-        The tree will take ownership of this pointer and delete it when finished.
-        \sa BST_Type_Wrapper
-    */
     inline explicit BinarySearchTree(const Comparer &c)
         :m_size(0),
           root(0),
           compare(c)
+    {}
+
+    inline explicit BinarySearchTree(const Converter &c)
+        :m_size(0),
+          root(0),
+          convert(c)
     {}
 
     inline explicit BinarySearchTree(const Comparer &c, const Converter &conv)
@@ -708,6 +717,8 @@ private:
 
 template<class T, class KeyType>void BinarySearchTree<T, KeyType>::_remove(node *n)
 {
+    if(!n) return;
+
     // Remove it.  The deletion algorithm goes as follows:
     //  I need to find a replacement from the leaves of the tree to
     //  come take my place, then I will rebalance from the bottom of the tree.

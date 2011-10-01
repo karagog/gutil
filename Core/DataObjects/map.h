@@ -15,10 +15,9 @@ limitations under the License.*/
 #ifndef MAP_H
 #define MAP_H
 
-#include "Core/DataObjects/stack.h"
+#include "Core/DataObjects/slist.h"
 #include "binarysearchtree.h"
 #include "Core/Interfaces/icomparer.h"
-#include "Core/DataObjects/private/flexible_type_comparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -31,15 +30,16 @@ template<class K, class V>class Map
     /** Describes one mapping of a key to a stack of values. */
     class Page
     {
-        GUTIL_DISABLE_COPY(Page);
-        friend class Map;
     public:
         inline explicit Page(const K &k, const V &v, Map *m)
             :Key(k),
-              values(m, &Key)
-        {
-            values.Push(v);
-        }
+              values(m, &Key, v)
+        {}
+
+        inline Page(const Page &o)
+            :Key(o.Key),
+              values(o.values.m_map, &Key, o.Value())
+        {}
 
         /** The key of this mapping. */
         K Key;
@@ -56,9 +56,9 @@ template<class K, class V>class Map
             removed from the map.  That operation will invalidate any iterator you
             had pointing to this page.
         */
-        inline SList<V> &Values(){ return values; }
+        inline Stack<V> &Values(){ return values; }
         /** Returns the stack of values associated with Key */
-        inline const SList<V> &Values() const{ return values; }
+        inline const Stack<V> &Values() const{ return values; }
 
     private:
 
@@ -66,21 +66,25 @@ template<class K, class V>class Map
                 public SList<V>
         {
         public:
-            inline value_stack(Map *m, K *key)
-                :m_map(m),
+            inline value_stack(Map *m, K *key, const V &val)
+                :SList<V>(val),
+                  m_map(m),
                   m_key(key)
             {}
-        private:
-            void on_popped(){
+
+            void Remove(typename SList<V>::iterator &iter)
+            {
+                SList<V>::Remove(iter);
+
                 // Remove the key if the last item was popped
-                if(SList<V>::Count() == 0)
-                {
+                if(value_stack::Count() == 0)
                     m_map->Remove(*m_key);
-                }
             }
+
             Map *m_map;
             K *m_key;
-        } values;
+        }
+        values;
 
     };
 
@@ -88,8 +92,7 @@ public:
 
     /** Constructs an empty map with the default compare function. */
     inline Map()
-        :_index(new PageWrapper),
-          _key_searcher()
+        :_index(&get_key_value)
     {}
 
     /** Constructs an empty map with the specified key compare function.
@@ -100,38 +103,37 @@ public:
         \param cmp A compare function to use when comparing keys.  Return -1
         if lhs < rhs, return 1 if rhs < lhs and 0 if they're equal.
     */
-    Map(int (*cmp)(const K &lhs, const K &rhs))
-        :_index(new PageWrapper(cmp)),
-          _key_searcher(cmp)
+    inline Map(int (*cmp)(const K &lhs, const K &rhs))
+        :_index(cmp, &get_key_value)
+    {}
+
+    Map(const Map<K, V> &o)
+        :_index(o._index)
     {}
 
 
     /** Iterates through the key/value pairs. */
     class iterator :
-            public BinarySearchTree<Page *>::iterator
+            public BinarySearchTree<Page, K>::iterator
     {
     public:
-        iterator(){}
-        iterator(const typename BinarySearchTree<Page *>::iterator &o)
-            :BinarySearchTree<Page *>::iterator(o)
+        inline iterator(){}
+        inline iterator(const typename BinarySearchTree<Page, K>::iterator &o)
+            :BinarySearchTree<Page, K>::iterator(o)
         {}
-
-        Page *operator ->(){ return *reinterpret_cast<Page **>(BinarySearchTree<Page *>::iterator::current->Data); }
     };
 
-    /** Iterates through the key/value pairs, but doesn't let you edit them.
-        Use this over the regular iterator, when you can.
+    /** Iterates through the key/value pairs.
+        Guarantees that you won't modify the map, but you can still modify the values.
     */
     class const_iterator :
-            public BinarySearchTree<Page *>::iterator
+            public BinarySearchTree<Page, K>::const_iterator
     {
     public:
-        iterator(){}
-        iterator(const typename BinarySearchTree<Page *>::iterator &o)
-            :BinarySearchTree<Page *>::iterator(o)
+        inline const_iterator(){}
+        inline const_iterator(const typename BinarySearchTree<Page, K>::const_iterator &o)
+            :BinarySearchTree<Page, K>::const_iterator(o)
         {}
-
-        const Page *operator ->() const{ return *reinterpret_cast<const Page *const*>(BinarySearchTree<Page *>::iterator::current->Data); }
     };
 
     inline iterator begin(){ return _index.begin(); }
@@ -141,12 +143,12 @@ public:
     inline iterator preBegin(){ return _index.preBegin(); }
     inline const_iterator preBegin() const{ return _index.preBegin(); }
 
-    inline iterator Search(const K &k){ return _index.Search(k, &_key_searcher); }
-    inline const_iterator Search(const K &k) const{ return _index.Search(k, &_key_searcher); }
+    inline iterator Search(const K &k){ return _index.Search(k); }
+    inline const_iterator Search(const K &k) const{ return _index.Search(k); }
 
 
     /** Returns whether the map contains this key. */
-    inline bool Contains(const K &k) const{ return _index.Search(k, &_key_searcher); }
+    inline bool Contains(const K &k) const{ return _index.Search(k); }
 
     /** How many unique keys are in the map. */
     inline long Size() const{ return _index.Size(); }
@@ -169,11 +171,10 @@ public:
     */
     inline V &operator [](const K &k){ return At(k); }
 
-    /** Returns the stack of values corresponding to the key.
-        Iterating through the stack will go through the values in the opposite
-        order in which you inserted them.
-    */
-    const SList<V> &Values(const K &) const;
+    /** Returns the stack of values corresponding to the key. */
+    const Stack<V> &Values(const K &) const;
+    /** Returns the stack of values corresponding to the key. */
+    Stack<V> &Values(const K &);
 
     /** Inserts an item into the map.
 
@@ -192,7 +193,7 @@ public:
 
     /** Removes all values corresponding to the key. */
     inline void Remove(const K &k){
-        _index.Remove(_index.Search(k, &_key_searcher));
+        _index.Remove(_index.Search(k));
     }
 
     /** Removes all values in the map and cleans up memory.
@@ -203,54 +204,18 @@ public:
 
 private:
 
-    /** A wrapper class to conduct comparisons and memory allocation/deallocation */
-    class PageWrapper :
-            public BinarySearchTree<Page *>::TypeWrapper,
-            public FlexibleTypeComparer<K>
-    {
-    public:
-        inline PageWrapper(){}
-        inline PageWrapper(int (*compare_function)(const K &, const K &))
-            :FlexibleTypeComparer<K>(compare_function){}
-        void Delete(Page **p) const{
-            delete *p;
-            BinarySearchTree<Page *>::TypeWrapper::Delete(p);
-        }
-    private:
-        int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return FlexibleTypeComparer<K>::Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
-                                                    (*reinterpret_cast<const Page *const *>(rhs))->Key);
-        }
-    };
-
-    /** A void wrapper which compares a page and a key (so we don't have to search
-        with a page).
-    */
-    class KeyWrapper :
-            public Interfaces::IVoidComparer,
-            public FlexibleTypeComparer<K>
-    {
-    public:
-        inline KeyWrapper(){}
-        inline KeyWrapper(int (*compare_function)(const K &, const K &))
-            :FlexibleTypeComparer<K>(compare_function){}
-        int CompareVoid(const void *const lhs, const void *const rhs) const{
-            return Compare((*reinterpret_cast<const Page *const *>(lhs))->Key,
-                                                    *reinterpret_cast<const K *const>(rhs));
-        }
-    };
-
     void _insert(const K &, const V &, bool);
 
-    BinarySearchTree<Page *> _index;
-    KeyWrapper _key_searcher;
+    BinarySearchTree<Page, K> _index;
+
+    static const K &get_key_value(const Page &p){ return p.Key; }
 
 };
 
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
-    typename BinarySearchTree<Page *>::iterator iter(_index.Search(k, &_key_searcher));
+    typename BinarySearchTree<Page, K>::iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
     return iter->Values.Top();
@@ -258,32 +223,38 @@ template<class K, class V>const V &Map<K, V>::At(const K &k) const
 
 template<class K, class V>V &Map<K, V>::At(const K &k)
 {
-    iterator iter(_index.Search(k, &_key_searcher));
+    iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->values.Top();
+    return iter->Values().Top();
 }
 
-template<class K, class V>const SList<V> &Map<K, V>::Values(const K &k) const
+template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
 {
-    iterator iter(_index.Search(k, &_key_searcher));
-    if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->values;
+    iterator iter(_index.Search(k));
+    if(!iter) THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    return iter->Values();
+}
+
+template<class K, class V>Stack<V> &Map<K, V>::Values(const K &k)
+{
+    iterator iter(_index.Search(k));
+    if(!iter) THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    return iter->Values();
 }
 
 template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, bool overwrite)
 {
-    iterator iter(_index.Search(key, &_key_searcher));
+    iterator iter(_index.Search(key));
     if(iter)
     {
         if(overwrite)
-            iter->values.Clear();
-        iter->values.Push(value);
+            iter->Values().FlushStack();
+        iter->Values().Push(value);
     }
     else
     {
-        _index.Add(new Page(key, value, this));
+        _index.Add(Page(key, value, this));
     }
 }
 

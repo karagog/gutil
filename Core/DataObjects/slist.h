@@ -49,8 +49,8 @@ public:
 
     /** Removes the item pointed to by the iterator.
 
-        This is the function that's called whenever an item is removed from the list.  You can
-        optionally override it to provide custom removal behavior.
+        This is the function that's called whenever an item is removed from the list,
+        except when you call Clear().
 
         \note The iterator will remain valid after the removal.  It then points to the next
         element which replaced the one we removed on the stack.
@@ -58,23 +58,7 @@ public:
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
     */
-    virtual void Remove(iterator &iter){
-        if(!iter.current)
-            return;
-
-        node *n( iter.current->NextNode );
-        if(m_last == iter.current)
-            m_last = iter.parent;
-
-        if(iter.parent)
-            iter.parent->NextNode = n;
-        else
-            m_first = n;
-
-        delete iter.current;
-        iter.current = n;
-        --m_count;
-    }
+    virtual void Remove(iterator &iter){ _remove(iter); }
 
     /** Insert an item into the list.
 
@@ -86,8 +70,7 @@ public:
         \note O(1)
     */
     virtual void Insert(const T &i, iterator &iter){
-        node *new_node( new node(i) );
-        new_node->NextNode = iter.current;
+        node *new_node( new node(i, iter.current) );
         if(iter.parent)
             iter.parent->NextNode = new_node;
         else
@@ -105,7 +88,7 @@ public:
     inline void Clear(){
         iterator iter(begin());
         while(iter)
-            Remove(iter);
+            _remove(iter);
     }
 
     /** Is the container empty? */
@@ -122,7 +105,13 @@ public:
     inline SimpleSList(const SimpleSList<T> &o)
         :m_first(0), m_last(0), m_count(0)
     {
-        _clone_helper(*this, o.m_first);
+        node *n(o.m_first);
+        iterator e(end());
+        while(n)
+        {
+            Insert(n->Data, e);
+            n = n->NextNode;
+        }
     }
     SimpleSList<T> &operator =(const SimpleSList<T> &o){
         Clear();
@@ -248,18 +237,27 @@ public:
 
 private:
 
-    /** Recursive function to help clone the slist. */
-    static void _clone_helper(SimpleSList<T> &s, node *n){
-        if(n)
-        {
-            _clone_helper(s, n->NextNode);
-            s.Push(n->Data);
-        }
-    }
-
     node *m_first;
     node *m_last;
     GUINT32 m_count;
+
+    inline void _remove(iterator &iter){
+        if(!iter.current)
+            return;
+
+        node *n( iter.current->NextNode );
+        if(m_last == iter.current)
+            m_last = iter.parent;
+
+        if(iter.parent)
+            iter.parent->NextNode = n;
+        else
+            m_first = n;
+
+        delete iter.current;
+        iter.current = n;
+        --m_count;
+    }
 
 };
 
@@ -275,10 +273,10 @@ public:
     inline SList(const SimpleSList<T> &o) :SimpleSList<T>(o){}
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ typename SimpleSList<T>::iterator b(SList<T>::begin()); SList<T>::Insert(i, b); }
+    void Push(const T &i){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Insert(i, b); }
 
     /** Satisfies the Stack abstract interface. */
-    void Pop(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); SList<T>::Remove(b); }
+    void Pop(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Remove(b); }
 
     /** Satisfies the Stack abstract interface. */
     const T &Top() const{ return *SList<T>::begin(); }
@@ -294,10 +292,10 @@ public:
 
 
     /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ typename SimpleSList<T>::iterator e(SList<T>::end()); SList<T>::Insert(i, e); }
+    void Enqueue(const T &i){ typename SimpleSList<T>::iterator e(SList<T>::end()); this->Insert(i, e); }
 
     /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); SList<T>::Remove(b); }
+    void Dequeue(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Remove(b); }
 
     /** Satisfies the Queue abstract interface. */
     const T &Front() const{ return *SList<T>::begin(); }

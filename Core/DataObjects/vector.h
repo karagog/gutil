@@ -136,7 +136,7 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(const T &item, const iterator &iter)
+    virtual void Insert(const T &item, const iterator &iter)
     {
         // Allocate more memory if we have to
         if(m_length == m_capacity)
@@ -160,7 +160,7 @@ public:
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
-    void Remove(const iterator &iter)
+    virtual void Remove(const iterator &iter)
     {
         T *const targ( m_begin + iter.m_cur );
 
@@ -376,8 +376,7 @@ template<class T>class Vector :
         public SimpleVector<T>,
         public Stack<T>,
         public Deque<T>,
-        public RandomAccessContainer<T>,
-        public Interfaces::IMemoryUsageReporter
+        public RandomAccessContainer<T>
 {
 public:
 
@@ -391,9 +390,9 @@ public:
 
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ Vector<T>::Insert(i, Vector<T>::end()); }
+    void Push(const T &i){ this->Insert(i, Vector<T>::end()); }
     /** Satisfies the Stack abstract interface. */
-    inline void Pop(){ Vector<T>::Remove( Vector<T>::rbegin() ); }
+    inline void Pop(){ this->Remove( Vector<T>::rbegin() ); }
     /** Satisfies the Stack abstract interface. */
     const T &Top() const{ return (*this)[Vector<T>::Length() - 1]; }
     /** Satisfies the Stack abstract interface. */
@@ -404,13 +403,13 @@ public:
     void FlushStack(){ Vector<T>::Clear(); }
 
     /** Satisfies the Deque abstract interface. */
-    void PushBack(const T &i){ Vector<T>::Insert(i, Vector<T>::end()); }
+    void PushBack(const T &i){ this->Insert(i, Vector<T>::end()); }
     /** Satisfies the Deque abstract interface. */
-    void PopBack(){ Vector<T>::Remove( Vector<T>::rbegin() ); }
+    void PopBack(){ this->Remove( Vector<T>::rbegin() ); }
     /** Satisfies the Deque abstract interface. */
-    void PushFront(const T &i){ Vector<T>::Insert(i, Vector<T>::begin()); }
+    void PushFront(const T &i){ this->Insert(i, Vector<T>::begin()); }
     /** Satisfies the Deque abstract interface. */
-    void PopFront(){ Vector<T>::Remove( Vector<T>::begin() ); }
+    void PopFront(){ this->Remove( Vector<T>::begin() ); }
     /** Satisfies the Deque abstract interface. */
     T &Front(){ return (*this)[0]; }
     /** Satisfies the Deque abstract interface. */
@@ -444,11 +443,6 @@ public:
     GUINT32 CountContainerItems() const{ return Vector<T>::Length(); }
     /** Satisfies the RandomAccessContainer abstract interface. */
     void FlushContainer(){ Vector<T>::Clear(); }
-
-
-    /** Satisfies the IMemoryUsageReporter abstract interface. */
-    virtual int ReportMemoryUsage() const{ return sizeof(Vector<T>) + (sizeof(T) * Vector<T>::Capacity()); }
-
 
 };
 

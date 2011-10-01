@@ -32,7 +32,7 @@ public:
 
     /** Constructs an empty set. */
     inline Set()
-        :data(typename BinarySearchTree<SimpleDList<T>, T>::Comparer(), &get_list_representative),
+        :data(&get_list_representative),
           m_size(0)
     {}
 

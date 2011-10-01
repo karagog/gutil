@@ -79,7 +79,7 @@ void MapTest::test_basic_function()
     map.Insert(100, "one");
     map.InsertMulti(100, "two");
     QVERIFY((iter = map.Search(100))->Value() == "two");
-    QVERIFY(iter->Values().Count() == 2);
+    QVERIFY(iter->Values().CountStackItems() == 2);
 
     // Test our auto-remove key when the last value is popped
     iter->Values().Pop();

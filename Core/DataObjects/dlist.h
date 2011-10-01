@@ -99,27 +99,7 @@ public:
         The iterator stays valid after the removal, and it points to the next item in the list.
         \note O(1)
     */
-    virtual void Remove(iterator &iter){
-        node *n(iter.current);
-        if(n)
-        {
-            if(m_first == n)
-                m_first = n->NextNode;
-            else
-                n->PrevNode->NextNode = n->NextNode;
-
-            // So the iterator is still valid after the removal.
-            iter.current = n->NextNode;
-
-            if(n->NextNode)
-                n->NextNode->PrevNode = n->PrevNode;
-            else
-                m_last = n->PrevNode;
-
-            delete n;
-            m_size--;
-        }
-    }
+    virtual void Remove(iterator &iter){ _remove(iter); }
 
     /** How many items are in the dlist. */
     inline GUINT32 Length() const{ return m_size; }
@@ -129,7 +109,7 @@ public:
     inline void Clear(){
         iterator iter(begin());
         while(iter)
-            Remove(iter);
+            _remove(iter);
     }
 
     /** A bidirectional iterator through the list. */
@@ -327,6 +307,29 @@ private:
     node *m_first;
     node *m_last;
 
+    void _remove(iterator &iter)
+    {
+        if(!iter)
+            return;
+
+        node *n(iter.current);
+        if(m_first == n)
+            m_first = n->NextNode;
+        else
+            n->PrevNode->NextNode = n->NextNode;
+
+        // So the iterator is still valid after the removal.
+        iter.current = n->NextNode;
+
+        if(n->NextNode)
+            n->NextNode->PrevNode = n->PrevNode;
+        else
+            m_last = n->PrevNode;
+
+        delete n;
+        m_size--;
+    }
+
 };
 
 
@@ -342,16 +345,16 @@ public:
     inline DList(const SimpleDList<T> &o) :SimpleDList<T>(o){}
 
     /** Satisfies the Dequeue abstract interface. */
-    void PushFront(const T &i){ typename SimpleDList<T>::iterator b(DList<T>::begin()); DList<T>::Insert(i, b); }
+    void PushFront(const T &i){ typename SimpleDList<T>::iterator b(DList<T>::begin()); this->Insert(i, b); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PushBack(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); DList<T>::Insert(i, e); }
+    void PushBack(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); this->Insert(i, e); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PopFront(){ typename SimpleDList<T>::iterator b(DList<T>::begin()); DList<T>::Remove(b); }
+    void PopFront(){ typename SimpleDList<T>::iterator b(DList<T>::begin()); this->Remove(b); }
 
     /** Satisfies the Dequeue abstract interface. */
-    void PopBack(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); DList<T>::Remove(e); }
+    void PopBack(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); this->Remove(e); }
 
     /** Satisfies the Dequeue abstract interface. */
     const T &Front() const{ return *DList<T>::begin(); }
@@ -374,10 +377,10 @@ public:
 
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); DList<T>::Insert(i, e); }
+    void Push(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); this->Insert(i, e); }
 
     /** Satisfies the Stack abstract interface. */
-    void Pop(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); DList<T>::Remove(e); }
+    void Pop(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); this->Remove(e); }
 
     /** Satisfies the Stack abstract interface. */
     const T &Top() const{ return *DList<T>::rbegin(); }
