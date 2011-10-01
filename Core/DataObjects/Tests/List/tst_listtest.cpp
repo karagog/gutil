@@ -48,8 +48,14 @@ void ListTest::testCase1()
     lst.Append(9);
     QVERIFY(lst.Size() == 10);
 
-    for(int i(0); i < 10; ++i)
+    List<int>::const_iterator iter(lst.begin());
+    List<int>::const_iterator riter(lst.rbegin());
+    for(int i(0); i < 10; ++i, ++iter, --riter)
+    {
         QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toAscii());
+        QVERIFY(i == *iter);
+        QVERIFY(9 - i == *riter);
+    }
 
     lst.Prepend(-1);
     QVERIFY(lst.Size() == 11);

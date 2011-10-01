@@ -207,6 +207,7 @@ public:
 
     class iterator
     {
+        friend class SimpleList;
     public:
 
         inline iterator() :d(0), current(0){}
@@ -238,9 +239,11 @@ public:
 
     class const_iterator
     {
+        friend class SimpleList;
     public:
 
         inline const_iterator() :d(0), current(0){}
+        inline const_iterator(const iterator &o) :d(o.d), current(o.current){}
 
         inline const_iterator &operator ++(){ ++current; return *this;}
         inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret; }
