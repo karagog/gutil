@@ -9,10 +9,14 @@ HEADERS += \
     DataObjects/set.h \
     DataObjects/flexibletypecomparer.h \
     DataObjects/interfaces.h \
-    DataObjects/vector.h
+    DataObjects/vector.h \
+    DataObjects/flags.h
 
 SOURCES += \
     DataObjects/private/list_p.cpp
+
+
+
 
 
 
