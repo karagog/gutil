@@ -103,17 +103,14 @@ public:
 
         if(indx < m_size)
         {
-            // Shift subsequent items in the list
+            // Shift subsequent items in the list by swapping
             GUINT32 i(m_size);
             T *prev( at(i) );
+            T *cur;
             do
             {
-                --i;
-                T *cur( at(i) );
-                if(sizeof(T) % 4)
-                    gSwap8(prev, cur, sizeof(T));
-                else
-                    gSwap32(prev, cur, sizeof(T) / 4);
+                cur = at(--i);
+                gSwap(prev, cur, sizeof(T));
                 prev = cur;
             }while(i > indx);
         }
@@ -135,15 +132,14 @@ public:
 
         if(indx < (m_size - 1))
         {
-            // Shift all the subsequent items
-            T *prev( at(indx) );
-            for(GUINT32 i(indx + 1); i <= m_size; ++i)
+            // Shift all the subsequent items by swapping
+            GUINT32 i(indx);
+            T *prev( at(i) );
+            T *cur;
+            while(i <= m_size)
             {
-                T *cur( at(i) );
-                if(sizeof(T) % 4)
-                    gSwap8(prev, cur, sizeof(T));
-                else
-                    gSwap32(prev, cur, sizeof(T) / 4);
+                cur = at(++i);
+                gSwap(prev, cur, sizeof(T));
                 prev = cur;
             }
         }

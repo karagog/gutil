@@ -104,7 +104,7 @@ template <class T> inline T gMax(const T &one, const T &two){
     Use this version to copy by bytes; this is not efficient for large memory blocks.
     \sa gSwap32
 */
-inline void gSwap8(void *one, void *two, GINT32 size_in_bytes){
+inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     byte *b1(reinterpret_cast<byte *>(one));
     byte *b2(reinterpret_cast<byte *>(two));
     while(--size_in_bytes >= 0){
@@ -118,7 +118,7 @@ inline void gSwap8(void *one, void *two, GINT32 size_in_bytes){
     large memory blocks to swap.
     \sa gSwap8
 */
-inline void gSwap32(void *one, void *two, GINT32 size_in_ints){
+inline void gSwapWord(void *one, void *two, GINT32 size_in_ints){
     GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
     GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
     while(--size_in_ints >= 0){
@@ -126,6 +126,19 @@ inline void gSwap32(void *one, void *two, GINT32 size_in_ints){
         ++b1, ++b2;
     }
 }
+
+/** Swaps the values of locations of memory, without using a temporary variable.
+    Use this version to automatically run the function that is most appropriate,
+    given whether the size is a multiple of four.
+*/
+inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
+{
+    if(size_in_bytes % 4)
+        gSwapByte(one, two, size_in_bytes);
+    else
+        gSwapWord(one, two, size_in_bytes / 4);
+}
+
 
 
 /** Returns the most significant set bit of a 32 bit number in the minimum number of instructions.
