@@ -104,18 +104,18 @@ public:
         if(indx < m_size)
         {
             // Shift subsequent items in the list
-            GUINT32 i(indx);
-            int mem_index(1);
-            T mem[2];
-            memcpy(mem, at(indx), sizeof(T));
-
-            while(++i <= m_size)
+            GUINT32 i(m_size);
+            T *prev( at(i) );
+            do
             {
+                --i;
                 T *cur( at(i) );
-                memcpy(mem + mem_index, cur, sizeof(T));
-                mem_index = (mem_index + 1) & 1;
-                memcpy(cur, mem + mem_index, sizeof(T));
-            };
+                if(sizeof(T) % 4)
+                    gSwap8(prev, cur, sizeof(T));
+                else
+                    gSwap32(prev, cur, sizeof(T) / 4);
+                prev = cur;
+            }while(i > indx);
         }
 
         ::new(at(indx)) T(obj);
@@ -136,19 +136,15 @@ public:
         if(indx < (m_size - 1))
         {
             // Shift all the subsequent items
-            int mem_index(1);
-            T mem[2];
-            memcpy(mem, at(m_size - 1), sizeof(T));
-            for(GUINT32 i(m_size - 2); i >= indx; --i)
+            T *prev( at(indx) );
+            for(GUINT32 i(indx + 1); i <= m_size; ++i)
             {
                 T *cur( at(i) );
-                memcpy(mem + mem_index, cur, sizeof(T));
-                mem_index = (mem_index + 1) & 1;
-                memcpy(cur, mem + mem_index, sizeof(T));
-
-                // We need this because we're working with unsigned integers, and if we remove the
-                //  0 index this loop fails.
-                if(i == 0) break;
+                if(sizeof(T) % 4)
+                    gSwap8(prev, cur, sizeof(T));
+                else
+                    gSwap32(prev, cur, sizeof(T) / 4);
+                prev = cur;
             }
         }
         --m_size;

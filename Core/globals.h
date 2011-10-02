@@ -94,6 +94,39 @@ template <class T> inline T gMax(const T &one, const T &two){
 }
 
 
+/** Swap values in memory without using a temporary variable.
+    \note This doesn't work when the two arguments share the same memory location.
+    \note This evaluates to three processor instructions.
+*/
+#define GUTIL_SWAP(a, b)        (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+
+/** Swaps the values of locations of memory, without using a temporary variable.
+    Use this version to copy by bytes; this is not efficient for large memory blocks.
+    \sa gSwap32
+*/
+inline void gSwap8(void *one, void *two, GINT32 size_in_bytes){
+    byte *b1(reinterpret_cast<byte *>(one));
+    byte *b2(reinterpret_cast<byte *>(two));
+    while(--size_in_bytes >= 0){
+        GUTIL_SWAP(*b1, *b2);
+        ++b1, ++b2;
+    }
+}
+
+/** Swaps the values of locations of memory, without using a temporary variable.
+    Use this version to copy by 32-bit words, which is the most efficient if you have
+    large memory blocks to swap.
+    \sa gSwap8
+*/
+inline void gSwap32(void *one, void *two, GINT32 size_in_ints){
+    GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
+    GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
+    while(--size_in_ints >= 0){
+        GUTIL_SWAP(*b1, *b2);
+        ++b1, ++b2;
+    }
+}
+
 
 /** Returns the most significant set bit of a 32 bit number in the minimum number of instructions.
     \note O(1).  This is computed in 7 cpu instructions on average.
