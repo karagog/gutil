@@ -272,12 +272,6 @@ public:
     inline SList(){}
     inline SList(const SimpleSList<T> &o) :SimpleSList<T>(o){}
 
-    /** Provided so that you can override to create custom insertion behavior. */
-    virtual void Insert(const T &i, typename SimpleSList<T>::iterator &iter){ SimpleSList<T>::Insert(i, iter); }
-
-    /** Provided so that you can override to create custom removal behavior. */
-    virtual void Remove(typename SimpleSList<T>::iterator &iter){ SimpleSList<T>::Remove(iter); }
-
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Insert(i, b); }

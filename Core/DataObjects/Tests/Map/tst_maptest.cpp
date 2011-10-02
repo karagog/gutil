@@ -81,20 +81,20 @@ void MapTest::test_basic_function()
     QVERIFY((iter = map.Search(100))->Value() == "two");
     QVERIFY(iter->Values().CountStackItems() == 2);
 
-    // Test our auto-remove key when the last value is popped
-    iter->Values().Pop();
-    iter->Values().Pop();
-    exception_caught = false;
-    try
-    {
-        if(map[100] == "")
-        {}
-    }
-    catch(const GUtil::Core::IndexOutOfRangeException &)
-    {
-        exception_caught = true;
-    }
-    QVERIFY(exception_caught);
+//    // Test our auto-remove key when the last value is popped
+//    iter->Values().Pop();
+//    iter->Values().Pop();
+//    exception_caught = false;
+//    try
+//    {
+//        if(map[100] == "")
+//        {}
+//    }
+//    catch(const GUtil::Core::IndexOutOfRangeException &)
+//    {
+//        exception_caught = true;
+//    }
+//    QVERIFY(exception_caught);
 }
 
 void MapTest::test_iterators()

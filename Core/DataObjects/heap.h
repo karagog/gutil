@@ -19,11 +19,38 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
+/** Implements a heap of objects.  You can modify the sorting behavior by injecting a new
+    compare function.  In that way this is flexible enough to be a min-heap or max-heap.
+
+    These are useful for implementing priority queues.
+*/
 template<class T>class Heap
 {
+    /** A node of the heap's binary tree structure. */
+    class node
+    {
+    public:
+        inline node(node *l, node *r, const T &d) :LChild(l), RChild(r), Data(d) {}
+
+        node *LChild;
+        node *RChild;
+        T Data;
+    };
+
 public:
 
-    Heap(){}
+    inline Heap(){}
+
+    void Insert(const T &){}
+    void Pop(){}
+
+    /** Returns the item at the top of the heap. */
+    const T &Top() const{}
+
+    /** Returns the item at the top of the heap.
+        \note Be sure not to modify the sorting key!
+    */
+    T &Top(){}
 
 };
 

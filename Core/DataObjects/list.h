@@ -313,12 +313,6 @@ public:
     inline List(){}
     inline List(const SimpleList<T> &o) :SimpleList<T>(o){}
 
-    /** Provided so that you can override to create custom insertion behavior. */
-    virtual void Insert(const T &obj, GUINT32 indx){ SimpleList<T>::Insert(obj, indx); }
-
-    /** Provided so that you can override to create custom removal behavior. */
-    virtual void Remove(GUINT32 indx){ SimpleList<T>::Remove(indx); }
-
 
     void Push(const T &o){ this->Insert(o, List<T>::Size()); }
     void Pop(){ this->Remove( List<T>::Size() - 1 ); }

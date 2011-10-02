@@ -342,12 +342,6 @@ public:
     inline DList(){}
     inline DList(const SimpleDList<T> &o) :SimpleDList<T>(o){}
 
-    /** Provided so that you can override to create custom insertion behavior. */
-    virtual void Insert(const T &i, typename SimpleDList<T>::iterator &iter){ SimpleDList<T>::Insert(i, iter); }
-
-    /** Provided so that you can override to create custom removal behavior. */
-    virtual void Remove(typename SimpleDList<T>::iterator &iter){ SimpleDList<T>::Remove(iter); }
-
 
     /** Satisfies the Dequeue abstract interface. */
     void PushFront(const T &i){ typename SimpleDList<T>::iterator b(DList<T>::begin()); this->Insert(i, b); }

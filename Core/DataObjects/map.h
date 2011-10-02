@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef MAP_H
 #define MAP_H
 
-#include "Core/DataObjects/slist.h"
+#include "Core/DataObjects/vector.h"
 #include "binarysearchtree.h"
 #include "Core/Interfaces/icomparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
@@ -30,15 +30,14 @@ template<class K, class V>class Map
     /** Describes one mapping of a key to a stack of values. */
     class Page
     {
+        friend class Map;
     public:
-        inline explicit Page(const K &k, const V &v, Map *m)
-            :Key(k),
-              values(m, &Key, v)
+        inline explicit Page(const K &k, const V &val)
+            :Key(k), values(val, 1)
         {}
 
         inline Page(const Page &o)
-            :Key(o.Key),
-              values(o.values.m_map, &Key, o.Value())
+            :Key(o.Key), values(o.values)
         {}
 
         /** The key of this mapping. */
@@ -50,41 +49,13 @@ template<class K, class V>class Map
         inline const V &Value() const{ return values.Top(); }
 
         /** Returns the stack of values associated with Key.
-            \note This returns a non-const reference to the stack, thus allowing you to
-            push/pop or do whatever to it.  The map is implemented such that you can
-            safely pop the stack, and when the last item is popped the key will be
-            removed from the map.  That operation will invalidate any iterator you
-            had pointing to this page.
+            You cannot modify the stack, but you can modify the values in it.
         */
-        inline Stack<V> &Values(){ return values; }
-        /** Returns the stack of values associated with Key */
         inline const Stack<V> &Values() const{ return values; }
 
-    private:
+    protected:
 
-        class value_stack :
-                public SList<V>
-        {
-        public:
-            inline value_stack(Map *m, K *key, const V &val)
-                :SList<V>(val),
-                  m_map(m),
-                  m_key(key)
-            {}
-
-            void Remove(typename SList<V>::iterator &iter)
-            {
-                SList<V>::Remove(iter);
-
-                // Remove the key if the last item was popped
-                if(value_stack::Count() == 0)
-                    m_map->Remove(*m_key);
-            }
-
-            Map *m_map;
-            K *m_key;
-        }
-        values;
+        Vector<V> values;
 
     };
 
@@ -173,8 +144,6 @@ public:
 
     /** Returns the stack of values corresponding to the key. */
     const Stack<V> &Values(const K &) const;
-    /** Returns the stack of values corresponding to the key. */
-    Stack<V> &Values(const K &);
 
     /** Inserts an item into the map.
 
@@ -226,17 +195,10 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->Values().Top();
+    return iter->values.Top();
 }
 
 template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
-{
-    iterator iter(_index.Search(k));
-    if(!iter) THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->Values();
-}
-
-template<class K, class V>Stack<V> &Map<K, V>::Values(const K &k)
 {
     iterator iter(_index.Search(k));
     if(!iter) THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
@@ -249,12 +211,12 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
     if(iter)
     {
         if(overwrite)
-            iter->Values().FlushStack();
-        iter->Values().Push(value);
+            iter->values.FlushStack();
+        iter->values.Push(value);
     }
     else
     {
-        _index.Add(Page(key, value, this));
+        _index.Add(Page(key, value));
     }
 }
 
