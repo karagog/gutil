@@ -362,7 +362,7 @@ private:
     inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( MSB32( n ) ); }
 
     template<class K>
-    inline static void _copy_construct(K *targ, const K &cpy){ ::new(targ) K(cpy); }
+    inline static void _copy_construct(K *targ, const K &cpy){ new(targ) K(cpy); }
 
 };
 

@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/vector.h"
+#include <vector>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 class SimpleVectorTest : public QObject
@@ -37,9 +38,11 @@ SimpleVectorTest::SimpleVectorTest()
 void SimpleVectorTest::test_basic_function()
 {
     Vector<int> vec;
-    qDebug(QString("An empty vector uses %1 bytes, and a simple vector uses %2.")
-           .arg(vec.ReportMemoryUsage())
+    qDebug(QString("An empty vector uses %1 bytes, and a simple vector uses %2.\n"
+                   "A std::vector uses %3")
+           .arg(sizeof(Vector<int>))
            .arg(sizeof(SimpleVector<int>))
+           .arg(sizeof(std::vector<int>))
            .toAscii().constData());
 
     for(int i(0); i < 100; ++i)
@@ -131,8 +134,8 @@ void SimpleVectorTest::test_vector_of_vector()
         }
     }
 
-    qDebug(QString("The %1-sized vector-of-vector<int> consumes %2 bytes of memory")
-           .arg(square_width).arg(matrix.ReportMemoryUsage()).toAscii());
+//    qDebug(QString("The %1-sized vector-of-vector<int> consumes %2 bytes of memory")
+//           .arg(square_width).arg(matrix.ReportMemoryUsage()).toAscii());
 }
 
 QTEST_APPLESS_MAIN(SimpleVectorTest);

@@ -51,7 +51,7 @@ public:
     {}
     inline Set<T> &operator = (const Set<T> &o){
         Clear();
-        ::new(this) Set<T>(o);
+        new(this) Set<T>(o);
         return *this;
     }
 

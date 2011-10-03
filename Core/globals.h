@@ -133,10 +133,11 @@ inline void gSwapWord(void *one, void *two, GINT32 size_in_ints){
 */
 inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 {
-    if(size_in_bytes % 4)
+    if(size_in_bytes & 0x3)
+        // If the size is not a multiple of 4
         gSwapByte(one, two, size_in_bytes);
     else
-        gSwapWord(one, two, size_in_bytes / 4);
+        gSwapWord(one, two, size_in_bytes >> 2);
 }
 
 

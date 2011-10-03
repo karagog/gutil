@@ -115,7 +115,7 @@ public:
             }while(i > indx);
         }
 
-        ::new(at(indx)) T(obj);
+        new(at(indx)) T(obj);
         ++m_size;
     }
 

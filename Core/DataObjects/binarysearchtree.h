@@ -330,7 +330,7 @@ public:
     }
     inline BinarySearchTree<T, KeyType> &operator =(const BinarySearchTree<T, KeyType> &o){
         Clear();
-        ::new(this) BinarySearchTree<T, KeyType>(o);
+        new(this) BinarySearchTree<T, KeyType>(o);
         return *this;
     }
 
@@ -346,7 +346,7 @@ public:
         inline iterator(){}
         inline iterator(const iterator_base &o) :iterator_base(o){}
 
-        inline iterator &operator =(const iterator_base &o){ ::new(this) iterator(o); }
+        inline iterator &operator =(const iterator_base &o){ new(this) iterator(o); }
 
         /** Prefix ++.  \note O(1) */
         inline iterator &operator ++(){ this->advance(); return *this; }
@@ -377,7 +377,7 @@ public:
         inline const_iterator(){}
         inline const_iterator(const iterator_base &o) :iterator_base(o){}
 
-        inline const_iterator &operator =(const const_iterator &o){ ::new(this) const_iterator(o); }
+        inline const_iterator &operator =(const const_iterator &o){ new(this) const_iterator(o); }
 
         /** Prefix ++.  \note O(1) */
         inline const_iterator &operator ++(){ this->advance(); return *this; }

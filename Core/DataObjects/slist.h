@@ -115,7 +115,7 @@ public:
     }
     SimpleSList<T> &operator =(const SimpleSList<T> &o){
         Clear();
-        ::new(this) SimpleSList<T>(o);
+        new(this) SimpleSList<T>(o);
     }
     inline ~SimpleSList(){ Clear(); }
 

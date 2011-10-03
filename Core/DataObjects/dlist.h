@@ -316,7 +316,7 @@ public:
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    inline SimpleDList<T> &operator =(const SimpleDList<T> &o){ ::new(this) SimpleDList<T>(o); return *this; }
+    inline SimpleDList<T> &operator =(const SimpleDList<T> &o){ new(this) SimpleDList<T>(o); return *this; }
 
     /** This is useful for chaining push commands together.  Ex: q << 1 << 2 << 3*/
     inline SimpleDList<T> &operator <<(const T &i){ PushBack(i); return *this; }

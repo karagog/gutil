@@ -16,6 +16,8 @@ limitations under the License.*/
 #define HEAP_H
 
 #include "gutil_macros.h"
+#include "Core/DataObjects/vector.h"
+#include "Core/DataObjects/flexibletypecomparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -26,31 +28,33 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 */
 template<class T>class Heap
 {
-    /** A node of the heap's binary tree structure. */
-    class node
-    {
-    public:
-        inline node(node *l, node *r, const T &d) :LChild(l), RChild(r), Data(d) {}
-
-        node *LChild;
-        node *RChild;
-        T Data;
-    };
-
 public:
 
     inline Heap(){}
+    inline Heap(const FlexibleTypeComparer<T> &f)
+        :compare(f)
+    {}
 
-    void Insert(const T &){}
+    void Insert(const T &i)
+    {
+        data.Append(i);
+        _heapify( data.Length() - 1 );
+    }
     void Pop(){}
 
     /** Returns the item at the top of the heap. */
-    const T &Top() const{}
+    inline const T &Top() const{ return data[1]; }
 
     /** Returns the item at the top of the heap.
         \note Be sure not to modify the sorting key!
     */
-    T &Top(){}
+    inline T &Top(){ return data[1]; }
+
+
+private:
+
+    SimpleVector<T> data;
+    FlexibleTypeComparer<T> compare;
 
 };
 
