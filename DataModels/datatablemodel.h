@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATATABLEMODEL_H
 #define DATATABLEMODEL_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "DataObjects/DataSet/datatable.h"
 #include <QAbstractTableModel>
 

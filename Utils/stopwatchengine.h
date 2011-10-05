@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QTime>
 #include <QReadWriteLock>
-#include "gutil_macros.h"
+#include "gutil.h"
 
 namespace GUtil{ namespace Utils{
 

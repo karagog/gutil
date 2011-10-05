@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ASYNCRESPONSE_H
 #define ASYNCRESPONSE_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 
 GUTIL_BEGIN_NAMESPACE(Utils);
 

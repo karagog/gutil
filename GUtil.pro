@@ -24,6 +24,8 @@ SUBDIRS += \
 CONFIG += ordered
 
 HEADERS += \
-    gutil_macros.h \
-    gassert.h
+    gassert.h \
+    gutil.h
+
+
 

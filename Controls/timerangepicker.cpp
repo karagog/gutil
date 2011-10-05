@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "timerangepicker.h"
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <QVBoxLayout>
 #include <QVBoxLayout>
 GUTIL_USING_NAMESPACE(Controls);

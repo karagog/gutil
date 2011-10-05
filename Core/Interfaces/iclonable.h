@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ICLONABLE_H
 #define ICLONABLE_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 
 GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
 

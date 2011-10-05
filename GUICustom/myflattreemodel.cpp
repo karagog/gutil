@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "myflattreemodel.h"
-#include "gutil_macros.h"
+#include "gutil.h"
 GUTIL_USING_NAMESPACE(GUICustom);
 
 myFlatTreeModel::myFlatTreeModel(QObject *parent) :

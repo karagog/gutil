@@ -16,7 +16,7 @@ limitations under the License.*/
 #define SHAREDSETDATA_H
 
 #include "setdata.h"
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <QSharedData>
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 

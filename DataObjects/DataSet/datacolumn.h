@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATACOLUMN_H
 #define DATACOLUMN_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <QUuid>
 
 GUTIL_BEGIN_NAMESPACE(DataObjects);

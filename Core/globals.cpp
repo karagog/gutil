@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_macros.h"
+#include "gutil.h"
 
 
 const char MSB_LOOKUP_TABLE[256] =

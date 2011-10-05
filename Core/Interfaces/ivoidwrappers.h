@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_IVOIDWRAPPER_H
 #define GUTIL_IVOIDWRAPPER_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 GUTIL_BEGIN_CORE_NAMESPACE(Interfaces);
 
 

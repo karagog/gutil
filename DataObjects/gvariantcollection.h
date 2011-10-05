@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GVARIANTCOLLECTION_H
 #define GVARIANTCOLLECTION_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "Custom/gvariant.h"
 #include "DataObjects/collection.h"
 

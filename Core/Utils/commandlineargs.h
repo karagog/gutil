@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef COMMANDLINEARGS_H
 #define COMMANDLINEARGS_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <vector>
 #include <string>
 

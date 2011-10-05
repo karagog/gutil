@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef HEAP_H
 #define HEAP_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/flexibletypecomparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);

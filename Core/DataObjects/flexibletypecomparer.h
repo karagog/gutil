@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_FLEXIBLE_TYPE_COMPARER_H
 #define GUTIL_FLEXIBLE_TYPE_COMPARER_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "Core/Interfaces/icomparer.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 

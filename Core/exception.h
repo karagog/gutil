@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GEXCEPTION_H
 #define GEXCEPTION_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <cstdio>
 #include <stdexcept>
 #include <string>

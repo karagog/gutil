@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_VECTOR_P
 #define GUTIL_VECTOR_P
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
 #include "Core/Interfaces/imemoryusagereporter.h"

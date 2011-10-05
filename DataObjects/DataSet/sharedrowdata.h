@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef SHAREDROWDATA_H
 #define SHAREDROWDATA_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "rowdata.h"
 
 

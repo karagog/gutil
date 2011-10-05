@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef STRINGHELPERS_H
 #define STRINGHELPERS_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <string>
 
 GUTIL_BEGIN_CORE_NAMESPACE( Utils );

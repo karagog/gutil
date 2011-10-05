@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QString>
 #include <QList>
-#include "gutil_macros.h"
+#include "gutil.h"
 
 class QActionGroup;
 

@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef CRYPTOHELPERS_H
 #define CRYPTOHELPERS_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <string>
 
 GUTIL_BEGIN_CORE_NAMESPACE( Utils );

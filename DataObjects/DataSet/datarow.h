@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "Core/Interfaces/ireadonlyobject.h"
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <QSet>
 
 // Derived classes can use this macro for convenience when declaring

@@ -17,14 +17,10 @@ limitations under the License.*/
 
 /** \file
 
-    Here are some useful macros for you to use.
-
-    They are for creating property accessors, using GUtil namespaces and
-    whatever else might be useful from a macro standpoint.
+    Declares useful global macros used by many classes inside GUtil.  Often if you include
+    those classes you are automatically including gutil.h, but it is useful even on its own.
 */
 
-
-// For convenience we include all the global definitions, so including gutil_macros.h gets it all.
 #include "Core/globals.h"
 
 

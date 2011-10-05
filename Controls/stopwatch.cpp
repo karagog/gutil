@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "stopwatch.h"
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <QTimerEvent>
 #include <QVBoxLayout>
 #include <QHBoxLayout>

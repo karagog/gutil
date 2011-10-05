@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GAPPLICATIONBASE_H
 #define GAPPLICATIONBASE_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "Core/Utils/commandlineargs.h"
 #include "Core/exception.h"
 #include <QCoreApplication>

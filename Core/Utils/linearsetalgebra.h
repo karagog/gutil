@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef LINEARSETALGEBRA_H
 #define LINEARSETALGEBRA_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include "Core/exception.h"
 #include <vector>
 

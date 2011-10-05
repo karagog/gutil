@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "gutil_macros.h"
+#include "gutil.h"
 #include <string>
 
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);
