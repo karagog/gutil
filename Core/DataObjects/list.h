@@ -150,7 +150,7 @@ public:
     */
     void Remove(GUINT32 indx)
     {
-        GASSERT(0 <= indx && indx <= m_size);
+        GASSERT(indx <= m_size);
 
         // Call the item's destructor
         at(indx)->~T();
@@ -321,12 +321,11 @@ public:
 
 protected:
 
-    static inline GUINT32 capacity(int n){ return ~(GINT32(0x80000000) >> (32 - (n + 1))); }
+    static inline GUINT32 capacity(GUINT32 n){ return (1 << (MSB32(n) + 1)) - 1; }
 
     inline T *at(GUINT32 indx) const{
         const int pindx( MSB64(++indx) );
-        const GUINT32 i(TRUNCATE_LEFT_32(indx, 32 - pindx));
-        return d[pindx] + i;
+        return d[pindx] + TRUNCATE_LEFT_32(indx, 32 - pindx);
     }
 
 

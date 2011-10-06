@@ -214,7 +214,7 @@ inline static GUINT32 GEN_BITMASK_32(int n)
 inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 {
     // If we're a multiple of 32 then it doesn't actually shift us, so we return 0
-    return (n & 31) ?
+    return (!n || (n & 31)) ?
                 ((w << n) >> n) : 0;
 }
 

@@ -19,7 +19,6 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
 #include "Core/Interfaces/imemoryusagereporter.h"
-#include <cstring>
 #include <malloc.h>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -158,8 +157,11 @@ public:
                 // Call the constructor on the memory location at the end
                 new(m_begin + m_length) T(*cur);
 
-                for(int i(m_length - 1); i > iter.m_cur; --i, --cur)
-                    *cur = *(cur - 1);
+                if(m_length > 0)
+                {
+                    for(GUINT32 i(m_length - 1); i > iter.m_cur; --i, --cur)
+                        *cur = *(cur - 1);
+                }
 
                 // Then assign the item to the proper location
                 m_begin[iter.m_cur] = item;
@@ -297,8 +299,7 @@ public:
     inline GUINT32 Capacity() const{ return m_capacity; }
 
     /** Iterates through the vector. */
-    class iterator :
-            public std::iterator<std::random_access_iterator_tag, T>
+    class iterator
     {
         friend class SimpleVector;
     public:
@@ -343,8 +344,7 @@ public:
     };
 
     /** Iterates through the vector, but also guarantees that it won't modify the vector. */
-    class const_iterator :
-            public std::iterator<std::random_access_iterator_tag, T>
+    class const_iterator
     {
         friend class SimpleVector;
     public:

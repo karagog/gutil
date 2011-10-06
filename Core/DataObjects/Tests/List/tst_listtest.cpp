@@ -115,7 +115,10 @@ void ListTest::test_lots()
 {
     List<int> lst;
     for(int i(0); i < NUMBER; ++i)
+    {
         lst.Push(i);
+        QVERIFY(lst.Size() == i + 1);
+    }
 
     for(int i(0); i < NUMBER; ++i)
         QVERIFY2(lst[i] == i, QString("%1 != %2").arg(lst[i]).arg(i).toAscii());
