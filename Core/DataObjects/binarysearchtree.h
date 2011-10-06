@@ -66,8 +66,8 @@ template<class T, class KeyType = T>class BinarySearchTree
         /** The difference in height of my two children (left - right) */
         inline int HeightDifference() const{
             int sum(0);
-            if(LChild) sum += (1 + static_cast<node *>(LChild)->Height);
-            if(RChild) sum -= (1 + static_cast<node *>(RChild)->Height);
+            if(LChild) sum += (1 + LChild->Height);
+            if(RChild) sum -= (1 + RChild->Height);
             return sum;
         }
 
@@ -88,11 +88,6 @@ template<class T, class KeyType = T>class BinarySearchTree
               RightmostChild(this),
               Data(data)
         {}
-
-        inline ~node(){
-            if(LChild) delete LChild;
-            if(RChild) delete RChild;
-        }
 
 
         /** Gives a way to specify the side of a node. */
@@ -583,15 +578,9 @@ private:
     static void _cleanup_memory(node *n)
     {
         if(n->LChild)
-        {
             _cleanup_memory(n->LChild);
-            n->LChild = 0;
-        }
         if(n->RChild)
-        {
             _cleanup_memory(n->RChild);
-            n->RChild = 0;
-        }
         delete n;
     }
 
@@ -614,7 +603,7 @@ private:
             already_balanced = true;
         }
 
-        _walk_parents_update_heights_rebalance(static_cast<node *>(n->Parent), already_balanced);
+        _walk_parents_update_heights_rebalance(n->Parent, already_balanced);
     }
 
     void _refresh_node_state(node *n)
@@ -732,12 +721,12 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::_remove(node 
         if(n->HeightDifference() > 0)
         {
             // Left-heavy
-            replacement = static_cast<node *>(n->LChild)->RightmostChild;
+            replacement = n->LChild->RightmostChild;
         }
         else
         {
             // Right-heavy
-            replacement = static_cast<node *>(n->RChild)->LeftmostChild;
+            replacement = n->RChild->LeftmostChild;
         }
     }
 
@@ -747,9 +736,9 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::_remove(node 
         // We have to pre-emptively adjust our root node, because we will be unable to
         //  find the new root once it's deleted.
         if(root->RChild)
-            root = static_cast<node *>(root->RChild);
+            root = root->RChild;
         else if(root->LChild)
-            root = static_cast<node *>(root->LChild);
+            root = root->LChild;
         else
             root = 0;
     }
@@ -762,15 +751,15 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::_remove(node 
         // If the replacement has a child (at most 1) then we move it into the replacement's place
         node *replacement_child(0);
         if(replacement->RChild)
-            replacement_child = static_cast<node *>(replacement->RChild);
+            replacement_child = replacement->RChild;
         else if(replacement->LChild)
-            replacement_child = static_cast<node *>(replacement->LChild);
+            replacement_child = replacement->LChild;
 
         if(n == replacement->Parent)
             start_height_adjustment = replacement;
         else
         {
-            start_height_adjustment = static_cast<node *>(replacement->Parent);
+            start_height_adjustment = replacement->Parent;
             switch(replacement->SideOfParent())
             {
             case node::RightSide:
@@ -795,7 +784,7 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::_remove(node 
     }
     else
     {
-        start_height_adjustment = static_cast<node *>(n->Parent);
+        start_height_adjustment = n->Parent;
     }
 
 

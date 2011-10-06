@@ -173,9 +173,9 @@ public:
 
 private:
 
-    void _insert(const K &, const V &, bool);
-
     BinarySearchTree<Page, K> _index;
+
+    void _insert(const K &, const V &, bool);
 
     static const K &get_key_value(const Page &p){ return p.Key; }
 
@@ -187,7 +187,7 @@ template<class K, class V>const V &Map<K, V>::At(const K &k) const
     typename BinarySearchTree<Page, K>::iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->Values.Top();
+    return iter->Value();
 }
 
 template<class K, class V>V &Map<K, V>::At(const K &k)
@@ -195,7 +195,7 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
-    return iter->values.Top();
+    return iter->Value();
 }
 
 template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const

@@ -110,7 +110,7 @@ void ListTest::test_non_primitive_type()
 }
 
 
-#define NUMBER 20
+#define NUMBER 10000
 void ListTest::test_lots()
 {
     List<int> lst;

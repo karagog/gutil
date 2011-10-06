@@ -43,7 +43,7 @@ void MapTest::test_basic_function()
     map.Insert(1, "One");
     map.Insert(2, "Two");
     map.Insert(3, "Hello World!");
-    QVERIFY(map.At(1) == "One");
+    QVERIFY2(map.At(1) == "One", map.At(1).toAscii());
     QVERIFY(map.At(2) == "Two");
     QVERIFY(map.At(3) == "Hello World!");
     QVERIFY(map.Contains(1));

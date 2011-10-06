@@ -88,7 +88,7 @@ public:
         {
             // Allocate the new pages' memory
             for(int m(0); m < new_pages; ++m)
-                d.Insert(new T [capacity(1 << (m_pageCount - new_pages + m + 1))], d.end());
+                d.Insert(new T [1 << (m_pageCount - new_pages + m + 1)], d.end());
         }
     }
 
@@ -321,7 +321,7 @@ public:
 
 protected:
 
-    static inline GUINT32 capacity(GUINT32 n){ return (1 << (MSB32(n) + 1)) - 1; }
+    static inline GUINT32 capacity(GUINT32 number_of_pages){ return (1 << number_of_pages) - 1; }
 
     inline T *at(GUINT32 indx) const{
         const int pindx( MSB64(++indx) );

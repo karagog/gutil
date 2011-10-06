@@ -48,7 +48,7 @@ public:
 
 
     /** Constructs an empty vector capable of holding the given number of items. */
-    inline explicit SimpleVector(int capacity)
+    inline explicit SimpleVector(GUINT32 capacity)
         :m_begin(NULL),
           m_capacity(0),
           m_length(0)
@@ -59,18 +59,15 @@ public:
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    inline SimpleVector(const T &o, int size)
+    inline SimpleVector(const T &o, GUINT32 size)
         :m_begin(NULL),
           m_capacity(0),
           m_length(size)
     {
-        if(size > 0)
-        {
-            Reserve(size);
-            T *cur(m_begin);
-            for(int i(0); i < m_length; ++i)
-                new(cur++) T(o);
-        }
+        Reserve(size);
+        T *cur(m_begin);
+        for(GUINT32 i(0); i < m_length; ++i, ++cur)
+            new(cur) T(o);
     }
 
 
@@ -84,7 +81,7 @@ public:
         {
             Reserve(size);
             T *cur(m_begin);
-            for(int i(0); i < m_length; ++i)
+            for(GUINT32 i(0); i < m_length; ++i)
                 new(cur++) T(*(arr++));
         }
     }
@@ -119,7 +116,7 @@ public:
         // Call the copy constructor for each item to initialize the memory
         T *cur( m_begin );
         T *ocur( o.m_begin );
-        for(int i(0); i < m_length; ++i)
+        for(GUINT32 i(0); i < m_length; ++i)
             new(cur++) T(*(ocur++));
     }
     /** Assignment operator invokes our copy constructor after clearing the container. */
@@ -206,7 +203,7 @@ public:
 
                 // Then for the rest of the move, we use the assignment operator, because those
                 //  items have already been initialized.
-                int i(iter.m_cur + 1);
+                GUINT32 i(iter.m_cur + 1);
                 for(; i < (m_length - 1); ++i, ++cur)
                     *cur = *(cur + 1);
 
@@ -239,7 +236,7 @@ public:
             return;
 
         m_capacity = new_capacity;
-        const int new_size_in_bytes(m_capacity * sizeof(T));
+        const GUINT32 new_size_in_bytes(m_capacity * sizeof(T));
         if(IsPrimitiveType<T>::Value)
         {
             // As an optimization for primitive types (ones that are not affected by binary moves)
@@ -248,13 +245,25 @@ public:
         }
         else
         {
-            // Have to manually reallocate and call the copy constructors, because a complex
-            //  type may be dependent on their memory locations (self-pointers are one example)
-            T *backup( m_begin ), *backup_cur( m_begin );
-            T *cur( m_begin = reinterpret_cast<T *>(malloc(new_size_in_bytes) ));
-            for(GUINT32 i(0); i < m_length; ++i, ++cur)
-                new(cur) T(*backup_cur);
-            delete backup;
+            if(new_size_in_bytes > 0)
+            {
+                // Have to manually reallocate and call the copy constructors, because a complex
+                //  type may be dependent on their memory locations (self-pointers are one example)
+                T *backup( m_begin ), *backup_cur( m_begin );
+                T *cur( m_begin = reinterpret_cast<T *>(malloc(new_size_in_bytes) ));
+                if(backup)
+                {
+                    for(GUINT32 i(0); i < m_length; ++i, ++cur)
+                        new(cur) T(*backup_cur);
+                    free(backup);
+                }
+            }
+            else
+            {
+                // Free memory when Reserve(0) is called
+                free(m_begin);
+                m_begin = NULL;
+            }
         }
     }
 
@@ -434,8 +443,8 @@ public:
 
     inline Vector(){}
     inline Vector(int capacity) :SimpleVector<T>(capacity){}
-    inline Vector(const T &o, int size) :SimpleVector<T>(o, size){}
-    inline Vector(T const*arr, int size) :SimpleVector<T>(arr, size){}
+    inline Vector(const T &o, GUINT32 size) :SimpleVector<T>(o, size){}
+    inline Vector(T const*arr, GUINT32 size) :SimpleVector<T>(arr, size){}
     inline Vector(const typename SimpleVector<T>::const_iterator &iter_begin,
                   const typename SimpleVector<T>::const_iterator &iter_end)
         :SimpleVector<T>(iter_begin, iter_end){}
@@ -480,7 +489,7 @@ public:
         Satisfies the RandomAccessContainer abstract interface.
     */
     T &At(GUINT32 i){
-        if(i < 0 || i >= Vector<T>::Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(i >= Vector<T>::Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return (*this)[i];
     }
     /** Accesses the element at the given index.  This DOES do bounds checking, and will
@@ -488,7 +497,7 @@ public:
         Satisfies the RandomAccessContainer abstract interface.
     */
     const T &At(GUINT32 i) const{
-        if(i < 0 || i >= Vector<T>::Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(i >= Vector<T>::Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return (*this)[i];
     }
     /** Satisfies the RandomAccessContainer abstract interface. */
