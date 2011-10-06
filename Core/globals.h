@@ -41,37 +41,67 @@ limitations under the License.*/
 #define GUTIL_VERSION       "0.0.0"
 
 
-/** An 8 bit integer*/
-#define GINT8   char
-
-/** An 8 bit unsigned integer*/
-#define GUINT8   unsigned char
-
-/** A 16 bit integer. */
-#define GINT16  short
-
-/** A 16 bit unsigned integer. */
-#define GUINT16  unsigned short
-
-/** A 32 bit integer. */
-#define GINT32  int
-
-/** A 32 bit unsigned integer. */
-#define GUINT32 unsigned int
-
-/** A 64 bit integer. */
-#define GINT64  long long
-
-/** A 64 bit unsigned integer. */
-#define GUINT64 unsigned long long
-
-
-#ifdef byte
-    #undef byte
-#endif
 
 /** Represents a generic 8 bits of memory. */
-#define byte unsigned char
+#define GBYTE unsigned char
+
+/** An 8 bit integer*/
+#define GINT8       char
+
+/** An 8 bit unsigned integer*/
+#define GUINT8      unsigned char
+
+/** A 16 bit integer. */
+#define GINT16      short
+
+/** A 16 bit unsigned integer. */
+#define GUINT16     unsigned short
+
+/** A 32 bit integer. */
+#define GINT32      int
+
+/** A 32 bit unsigned integer. */
+#define GUINT32     unsigned int
+
+/** A 64 bit integer. */
+#define GINT64      long long
+
+/** A 64 bit unsigned integer. */
+#define GUINT64     unsigned long long
+
+/** A 32-bit floating point number. */
+#define GFLOAT32    float
+
+/** A 64-bit floating point number. */
+#define GFLOAT64    double
+
+/** A 96-bit floating point number. */
+#define GFLOAT96    long double
+
+
+/** Use this template and its overrides to determine, at compile time,
+    whether an item is a primitive type or more complex.
+
+    You can create your own template specialization for your own classes
+    to declare them primitive, thereby getting a boost in performance from
+    some container classes, but by default any classes are assumed NOT primitive.
+*/
+template<class T>struct IsPrimitiveType{ enum{ Value = 0 }; };
+
+template<>struct IsPrimitiveType<GINT8>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GUINT8>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GINT16>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GUINT16>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GINT32>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GUINT32>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GINT64>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GUINT64>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GFLOAT32>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GFLOAT64>{ enum{ Value = 1 }; };
+template<>struct IsPrimitiveType<GFLOAT96>{ enum{ Value = 1 }; };
+
+/** Any kind of pointer can be considered primitive. */
+template<class T>struct IsPrimitiveType<T *>{ enum{ Value = 1 }; };
 
 
 
@@ -102,11 +132,11 @@ template <class T> inline T gMax(const T &one, const T &two){
 
 /** Swaps the values of locations of memory, without using a temporary variable.
     Use this version to copy by bytes; this is not efficient for large memory blocks.
-    \sa gSwap32
+    \sa gSwapWord32
 */
 inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
-    byte *b1(reinterpret_cast<byte *>(one));
-    byte *b2(reinterpret_cast<byte *>(two));
+    GBYTE *b1(reinterpret_cast<GBYTE *>(one));
+    GBYTE *b2(reinterpret_cast<GBYTE *>(two));
     while(--size_in_bytes >= 0){
         GUTIL_SWAP(*b1, *b2);
         ++b1, ++b2;
@@ -116,11 +146,25 @@ inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
 /** Swaps the values of locations of memory, without using a temporary variable.
     Use this version to copy by 32-bit words, which is the most efficient if you have
     large memory blocks to swap.
-    \sa gSwap8
+    \sa gSwapByte, gSwapWord64
 */
-inline void gSwapWord(void *one, void *two, GINT32 size_in_ints){
+inline void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
     GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
+    while(--size_in_ints >= 0){
+        GUTIL_SWAP(*b1, *b2);
+        ++b1, ++b2;
+    }
+}
+
+/** Swaps the values of locations of memory, without using a temporary variable.
+    Use this version to copy by 64-bit words, which is the most efficient if you have
+    large memory blocks to swap.
+    \sa gSwapByte, gSwapWord32
+*/
+inline void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
+    GUINT64 *b1(reinterpret_cast<GUINT64 *>(one));
+    GUINT64 *b2(reinterpret_cast<GUINT64 *>(two));
     while(--size_in_ints >= 0){
         GUTIL_SWAP(*b1, *b2);
         ++b1, ++b2;
@@ -133,11 +177,11 @@ inline void gSwapWord(void *one, void *two, GINT32 size_in_ints){
 */
 inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 {
-    if(size_in_bytes & 0x3)
+    if(size_in_bytes & 0b0011)
         // If the size is not a multiple of 4
         gSwapByte(one, two, size_in_bytes);
     else
-        gSwapWord(one, two, size_in_bytes >> 2);
+        gSwapWord32(one, two, size_in_bytes >> 2);
 }
 
 
@@ -169,7 +213,9 @@ inline static GUINT32 GEN_BITMASK_32(int n)
 /** Truncate the left n bits of the word. */
 inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 {
-    return w = ((w << n) >> n);
+    // If we're a multiple of 32 then it doesn't actually shift us, so we return 0
+    return (n & 31) ?
+                ((w << n) >> n) : 0;
 }
 
 

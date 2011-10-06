@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/interfaces.h"
 #include "gassert.h"
+#include "gutil.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -87,7 +88,7 @@ public:
         {
             // Allocate the new pages' memory
             for(int m(0); m < new_pages; ++m)
-                d.Insert(new T [capacity(m_pageCount - new_pages + m) + 1], d.end());
+                d.Insert(new T [capacity(1 << (m_pageCount - new_pages + m + 1))], d.end());
         }
     }
 
@@ -106,16 +107,40 @@ public:
             // Shift subsequent items in the list by swapping
             GUINT32 i(m_size);
             T *prev( at(i) );
-            T *cur;
+            T *cur( at(--i) );
+            T *mem(0);
+
+            // Call the constructor for the first item, because its memory is not initialized
+            new(prev) T(*cur);
+            prev = cur;
+
             do
             {
                 cur = at(--i);
-                gSwap(prev, cur, sizeof(T));
+                if(IsPrimitiveType<T>::Value)
+                    gSwap(prev, cur, sizeof(T));
+                else
+                {
+                    if(mem)
+                        *mem = *prev;
+                    else
+                        mem = new T(*prev);
+                    *prev = *cur;
+                    *cur = *mem;
+                }
                 prev = cur;
             }while(i > indx);
-        }
 
-        new(at(indx)) T(obj);
+            if(mem) delete mem;
+
+            // We insert the new item with the assignment operator in this branch of execution
+            *cur = obj;
+        }
+        else
+        {
+            // Initialize the memory at the end of the array
+            new(at(indx)) T(obj);
+        }
         ++m_size;
     }
 
@@ -135,13 +160,33 @@ public:
             // Shift all the subsequent items by swapping
             GUINT32 i(indx);
             T *prev( at(i) );
-            T *cur;
-            while(i <= m_size)
+            T *cur( at(++i) );
+            T *mem(0);
+
+            // On the first item we call the constructor, because we just destructed it above
+            new(prev) T(*cur);
+            prev = cur;
+
+            while(i < (m_size - 1))
             {
                 cur = at(++i);
-                gSwap(prev, cur, sizeof(T));
+                if(IsPrimitiveType<T>::Value)
+                    gSwap(prev, cur, sizeof(T));
+                else
+                {
+                    if(mem)
+                        *mem = *prev;
+                    else
+                        mem = new T(*prev);
+                    *prev = *cur;
+                    *cur = *mem;
+                }
                 prev = cur;
             }
+            if(mem) delete mem;
+
+            // We call the destructor on the memory at the end
+            cur->~T();
         }
         --m_size;
     }
@@ -280,7 +325,8 @@ protected:
 
     inline T *at(GUINT32 indx) const{
         const int pindx( MSB64(++indx) );
-        return d[pindx] + TRUNCATE_LEFT_32(indx, 32 - pindx);
+        const GUINT32 i(TRUNCATE_LEFT_32(indx, 32 - pindx));
+        return d[pindx] + i;
     }
 
 

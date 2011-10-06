@@ -26,14 +26,18 @@ public:
     ListTest();
 
 private Q_SLOTS:
-    void testCase1();
+    void test_basic_function();
+
+    void test_non_primitive_type();
+
+    void test_lots();
 };
 
 ListTest::ListTest()
 {
 }
 
-void ListTest::testCase1()
+void ListTest::test_basic_function()
 {
     List<int> lst;
     lst.Append(0);
@@ -67,6 +71,59 @@ void ListTest::testCase1()
     for(int i(0); i < 10; ++i)
         QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toAscii());
 }
+
+
+class non_primitive_type
+{
+public:
+    non_primitive_type(int one = 0, int two = 0)
+        :Value1(one), Value2(two)
+    {}
+    int Value1;
+    int Value2;
+};
+
+void ListTest::test_non_primitive_type()
+{
+    List<non_primitive_type> lst;
+    lst.Append(non_primitive_type(0, 0));
+    lst.Append(non_primitive_type(0, 1));
+    QVERIFY(lst.Size() == 2);
+    QVERIFY(lst[0].Value1 == 0);
+    QVERIFY(lst[0].Value2 == 0);
+    QVERIFY(lst[1].Value1 == 0);
+    QVERIFY(lst[1].Value2 == 1);
+
+    lst.Prepend(non_primitive_type(1, 1));
+    QVERIFY(lst[0].Value1 == 1);
+    QVERIFY(lst[0].Value2 == 1);
+    QVERIFY(lst[1].Value1 == 0);
+    QVERIFY(lst[1].Value2 == 0);
+    QVERIFY(lst[2].Value1 == 0);
+    QVERIFY(lst[2].Value2 == 1);
+
+    lst.Remove(0);
+    QVERIFY(lst[0].Value1 == 0);
+    QVERIFY(lst[0].Value2 == 0);
+    QVERIFY(lst[1].Value1 == 0);
+    QVERIFY(lst[1].Value2 == 1);
+}
+
+
+#define NUMBER 20
+void ListTest::test_lots()
+{
+    List<int> lst;
+    for(int i(0); i < NUMBER; ++i)
+        lst.Push(i);
+
+    for(int i(0); i < NUMBER; ++i)
+        QVERIFY2(lst[i] == i, QString("%1 != %2").arg(lst[i]).arg(i).toAscii());
+
+    for(int i(0); i < NUMBER; ++i)
+        lst.Pop();
+}
+
 
 QTEST_APPLESS_MAIN(ListTest);
 

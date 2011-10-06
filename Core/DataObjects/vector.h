@@ -70,7 +70,7 @@ public:
             Reserve(size);
             T *cur(m_begin);
             for(int i(0); i < m_length; ++i)
-                _copy_construct(cur++, o);
+                new(cur++) T(o);
         }
     }
 
@@ -86,7 +86,7 @@ public:
             Reserve(size);
             T *cur(m_begin);
             for(int i(0); i < m_length; ++i)
-                _copy_construct(cur++, *(arr++));
+                new(cur++) T(*(arr++));
         }
     }
 
@@ -104,7 +104,7 @@ public:
             Reserve(m_length);
         GUINT32 cnt(0);
         for(SimpleVector<T>::const_iterator cur(iter_begin); cur != iter_end; ++cur, ++cnt)
-            _copy_construct(m_begin + cnt, *cur);
+            new(m_begin + cnt) T(*cur);
     }
 
 
@@ -121,12 +121,12 @@ public:
         T *cur( m_begin );
         T *ocur( o.m_begin );
         for(int i(0); i < m_length; ++i)
-            _copy_construct(cur++, *(ocur++));
+            new(cur++) T(*(ocur++));
     }
     /** Assignment operator invokes our copy constructor after clearing the container. */
     SimpleVector &operator = (const SimpleVector<T> &o){
         Clear();
-        _copy_construct(this, o);
+        new(this) SimpleVector<T>(o);
         return *this;
     }
     inline ~SimpleVector(){ Clear(); }
@@ -145,10 +145,31 @@ public:
 
         // Move the destination out of the way, if they're inserting anywhere but the end
         if(iter.m_cur < m_length)
-            memmove(dest + 1, dest, (m_length - iter.m_cur) * sizeof(T));
+        {
+            if(IsPrimitiveType<T>::Value)
+            {
+                memmove(dest + 1, dest, (m_length - iter.m_cur) * sizeof(T));
+                new(dest) T(item);
+            }
+            else
+            {
+                T *cur(m_begin + m_length - 1);
 
-        // Call the copy constructor to initialize the memory
-        _copy_construct(dest, item);
+                // Call the constructor on the memory location at the end
+                new(m_begin + m_length) T(*cur);
+
+                for(int i(m_length - 1); i > iter.m_cur; --i, --cur)
+                    *cur = *(cur - 1);
+
+                // Then assign the item to the proper location
+                m_begin[iter.m_cur] = item;
+            }
+        }
+        else
+        {
+            // Call the copy constructor to initialize the memory at the end of the array
+            new(dest) T(item);
+        }
 
         ++m_length;
     }
@@ -168,7 +189,29 @@ public:
 
         // Copy all the following items over 1
         if(iter.m_cur < (m_length - 1))
-            memmove(targ, targ + 1, (m_length - iter.m_cur - 1) * sizeof(T));
+        {
+            if(IsPrimitiveType<T>::Value)
+                memmove(targ, targ + 1, (m_length - iter.m_cur - 1) * sizeof(T));
+            else
+            {
+                // If T is not a primitive type then this is potentially really expensive!!
+                T *cur( targ );
+
+                // Have to call the constructor on the first item, because we already destructed
+                //  this memory location above
+                new(cur) T(*(targ + 1));
+                ++cur;
+
+                // Then for the rest of the move, we use the assignment operator, because those
+                //  items have already been initialized.
+                int i(iter.m_cur + 1);
+                for(; i < (m_length - 1); ++i, ++cur)
+                    *cur = *(cur + 1);
+
+                // And on the item at the end we call the destructor
+                (m_begin + i)->~T();
+            }
+        }
 
         --m_length;
     }
@@ -179,9 +222,7 @@ public:
     void Reserve(int n)
     {
         GUINT32 new_capacity( _capacity(n) );
-        if(new_capacity == m_capacity)
-            return;
-        else if(new_capacity < m_capacity)
+        if(new_capacity < m_capacity)
         {
             // Need to call the destructors on the items we're (potentially) deleting
             if(new_capacity < Length())
@@ -191,13 +232,28 @@ public:
                 m_length = new_capacity;
             }
         }
+        else if(new_capacity == m_capacity)
+            // No need to reallocate
+            return;
 
         m_capacity = new_capacity;
-
-        // We call realloc, so that no constructors are called when the memory is allocated.
-        //  We will initialize the memory manually when we're ready to.  The memory we get
-        //  from it is indeterminate.
-        m_begin = reinterpret_cast<T *>( realloc(m_begin, m_capacity * sizeof(T)) );
+        const int new_size_in_bytes(m_capacity * sizeof(T));
+        if(IsPrimitiveType<T>::Value)
+        {
+            // As an optimization for primitive types (ones that are not affected by binary moves)
+            //  we call realloc, because a hidden memory relocation doesn't affect our type.
+            m_begin = reinterpret_cast<T *>( realloc(m_begin, new_size_in_bytes) );
+        }
+        else
+        {
+            // Have to manually reallocate and call the copy constructors, because a complex
+            //  type may be dependent on their memory locations (self-pointers are one example)
+            T *backup( m_begin ), *backup_cur( m_begin );
+            T *cur( m_begin = reinterpret_cast<T *>(malloc(new_size_in_bytes) ));
+            for(GUINT32 i(0); i < m_length; ++i, ++cur)
+                new(cur) T(*backup_cur);
+            delete backup;
+        }
     }
 
     /** Resizes the vector.  If the new size is larger than the current, then the default
@@ -361,9 +417,6 @@ private:
 
     inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( MSB32( n ) ); }
 
-    template<class K>
-    inline static void _copy_construct(K *targ, const K &cpy){ new(targ) K(cpy); }
-
 };
 
 
@@ -447,5 +500,10 @@ public:
 
 
 GUTIL_END_CORE_NAMESPACE;
+
+// Both vector types can be binary-moved, so we get a huge performance benefit for
+//  a Vector<Vector<T>> type
+template<class T>struct IsPrimitiveType< GUtil::Core::DataObjects::SimpleVector<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsPrimitiveType< GUtil::Core::DataObjects::Vector<T> >{ enum{ Value = 1 }; };
 
 #endif // GUTIL_VECTOR_P
