@@ -49,34 +49,37 @@ public:
 
 private Q_SLOTS:
 
-    void test_stacks();
+    void test_stacks_int();
+    void test_stacks_large_class();
 
 
 private:
 
-    void test_stacks(int num_items);
-    void test_stack(Stack<int> *, int num_items);
-    int stack_push(Stack<int> *, int num_items);
-    int stack_top(Stack<int> *, int num_items);
-    int stack_pop(Stack<int> *, int num_items);
+    void test_stacks_int(int num_items);
+    void test_stacks_large_class(int num_items);
+    template<class T>void test_stack(Stack<T> *, int num_items);
 
-    int queue_enqueue(Queue<int> *, int num_items);
-    int queue_front(Queue<int> *, int num_items);
-    int queue_dequeue(Queue<int> *, int num_items);
+    template<class T>int stack_push(Stack<T> *, int num_items);
+    template<class T>int stack_top(Stack<T> *, int num_items);
+    template<class T>int stack_pop(Stack<T> *, int num_items);
 
-    int deque_enqueue(Deque<int> *, int num_items);
-    int deque_front(Deque<int> *, int num_items);
-    int deque_back(Deque<int> *, int num_items);
-    int deque_dequeue(Deque<int> *, int num_items);
+    template<class T>int queue_enqueue(Queue<T> *, int num_items);
+    template<class T>int queue_front(Queue<T> *, int num_items);
+    template<class T>int queue_dequeue(Queue<T> *, int num_items);
 
-    int rac_insert(RandomAccessContainer<int> *, int num_items);
-    int rac_touch_all_values(RandomAccessContainer<int> *, int num_items);
-    int rac_remove(RandomAccessContainer<int> *, int num_items);
+    template<class T>int deque_enqueue(Deque<T> *, int num_items);
+    template<class T>int deque_front(Deque<T> *, int num_items);
+    template<class T>int deque_back(Deque<T> *, int num_items);
+    template<class T>int deque_dequeue(Deque<T> *, int num_items);
+
+    template<class T>int rac_insert(RandomAccessContainer<T> *, int num_items);
+    template<class T>int rac_touch_all_values(RandomAccessContainer<T> *, int num_items);
+    template<class T>int rac_remove(RandomAccessContainer<T> *, int num_items);
 
 };
 
 
-#define NUMBER_OF_ITEMS         1000000
+#define NUMBER_OF_ITEMS         500000
 #define NUMBER_OF_REPETITIONS   10
 
 
@@ -85,25 +88,25 @@ Benchmark_ListsTest::Benchmark_ListsTest()
 {
 }
 
-void Benchmark_ListsTest::test_stacks()
+void Benchmark_ListsTest::test_stacks_int()
 {
     int num_items( NUMBER_OF_ITEMS );
 
     cout<<"Testing with "<< num_items <<" items..."<<endl;
-    test_stacks(num_items);
+    test_stacks_int(num_items);
 
     num_items <<= 1;
 
     cout<<"Testing with "<< num_items <<" items..."<<endl;
-    test_stacks(num_items);
+    test_stacks_int(num_items);
 
     num_items <<= 1;
 
     cout<<"Testing with "<< num_items <<" items..."<<endl;
-    test_stacks(num_items);
+    test_stacks_int(num_items);
 }
 
-void Benchmark_ListsTest::test_stacks(int num_items)
+void Benchmark_ListsTest::test_stacks_int(int num_items)
 {
     SList<int> slist;
     DList<int> dlist;
@@ -127,9 +130,27 @@ void Benchmark_ListsTest::test_stacks(int num_items)
     test_stack(&stl, num_items);
 }
 
+void Benchmark_ListsTest::test_stacks_large_class()
+{
+    int num_items( NUMBER_OF_ITEMS );
+
+    cout<<"Testing with "<< num_items <<" items..."<<endl;
+    test_stacks_large_class(num_items);
+
+    num_items <<= 1;
+
+    cout<<"Testing with "<< num_items <<" items..."<<endl;
+    test_stacks_large_class(num_items);
+
+    num_items <<= 1;
+
+    cout<<"Testing with "<< num_items <<" items..."<<endl;
+    test_stacks_large_class(num_items);
+}
 
 
-void Benchmark_ListsTest::test_stack(Stack<int> *s, int num_items)
+
+template<class T>void Benchmark_ListsTest::test_stack(Stack<T> *s, int num_items)
 {
     float push_avg(0);
     float top_avg(0);
@@ -152,26 +173,62 @@ void Benchmark_ListsTest::test_stack(Stack<int> *s, int num_items)
 
 
 
+class large_class
+{
+public:
+    int one, two, three, four, five, six, seven, eight, nine, ten;
+    int eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eightteen, nineteen, twenty;
+    int twentyone, twentytwo, twentythree, twentyfour, twentyfive, twentysix, twentyseven, twentyeight, twentynine, thirty;
+    int thirtyone, thirtytwo, thirtythree, thirtyfour, thirtyfive, thirtysix, thirtyseven, thirtyeight, thirtynine, fourty;
+};
+
+void Benchmark_ListsTest::test_stacks_large_class(int num_items)
+{
+    SList<large_class> slist;
+    DList<large_class> dlist;
+    Vector<large_class> vector;
+    List<large_class> list;
+    STL_Stack<large_class> stl;
+
+    cout<<"Stack as SList:"<<endl;
+    test_stack(&slist, num_items);
+
+    cout<<"Stack as DList:"<<endl;
+    test_stack(&dlist, num_items);
+
+    cout<<"Stack as a vector:"<<endl;
+    test_stack(&vector, num_items);
+
+    cout<<"Stack as a list:"<<endl;
+    test_stack(&list, num_items);
+
+    cout<<"STL Stack (implemented as deque):"<<endl;
+    test_stack(&stl, num_items);
+}
 
 
 
-int Benchmark_ListsTest::stack_push(Stack<int> *s, int num_items)
+
+template<class T>
+int Benchmark_ListsTest::stack_push(Stack<T> *s, int num_items)
 {
     int i(0);
     QTime t; t.start();
-    for(; i < num_items; ++i) s->Push(0);
+    for(; i < num_items; ++i) s->Push(T());
     return t.elapsed();
 }
 
-int Benchmark_ListsTest::stack_top(Stack<int> *s, int num_items)
+template<class T>
+int Benchmark_ListsTest::stack_top(Stack<T> *s, int num_items)
 {
     int i(0);
     QTime t; t.start();
-    for(; i < num_items; ++i) int tmp(s->Top());
+    for(; i < num_items; ++i) T tmp(s->Top());
     return t.elapsed();
 }
 
-int Benchmark_ListsTest::stack_pop(Stack<int> *s, int num_items)
+template<class T>
+int Benchmark_ListsTest::stack_pop(Stack<T> *s, int num_items)
 {
     int i(0);
     QTime t; t.start();
@@ -179,23 +236,25 @@ int Benchmark_ListsTest::stack_pop(Stack<int> *s, int num_items)
     return t.elapsed();
 }
 
-int Benchmark_ListsTest::queue_enqueue(Queue<int> *q, int num_items)
+template<class T>
+int Benchmark_ListsTest::queue_enqueue(Queue<T> *q, int num_items)
 {
     int i(0);
     QTime t; t.start();
-    for(; i < num_items; ++i) q->Enqueue(0);
+    for(; i < num_items; ++i) q->Enqueue(T());
     return t.elapsed();
 }
 
-int Benchmark_ListsTest::queue_front(Queue<int> *q, int num_items)
+template<class T>
+int Benchmark_ListsTest::queue_front(Queue<T> *q, int num_items)
 {
     int i(0);
     QTime t; t.start();
-    for(; i < num_items; ++i) int t(q->Front());
+    for(; i < num_items; ++i) T t(q->Front());
     return t.elapsed();
 }
 
-int Benchmark_ListsTest::queue_dequeue(Queue<int> *q, int num_items)
+template<class T>int Benchmark_ListsTest::queue_dequeue(Queue<T> *q, int num_items)
 {
     int i(0);
     QTime t; t.start();

@@ -61,4 +61,15 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // HEAP_H
+
+namespace GUtil
+{
+
+template<class T>struct IsMovableType< Core::DataObjects::Heap<T> > :
+        public IsMovableType< Core::DataObjects::SimpleVector<T> >{};
+template<class T>struct IsMovableType< Core::DataObjects::List<T> >{ enum{ Value = 1 }; };
+
+}
+
+
+#endif // GUTIL_HEAP_H
