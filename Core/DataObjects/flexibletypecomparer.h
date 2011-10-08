@@ -72,4 +72,12 @@ private:
 
 GUTIL_END_CORE_NAMESPACE;
 
+
+namespace GUtil
+{
+
+template<class T>struct IsMovableType< Core::DataObjects::FlexibleTypeComparer<T> >{ enum{ Value = 1 }; };
+
+}
+
 #endif // GUTIL_FLEXIBLE_TYPE_COMPARER_H

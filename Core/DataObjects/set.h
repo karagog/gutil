@@ -238,9 +238,21 @@ public:
     */
     inline const_iterator end() const{ return const_iterator(data.end(), true); }
 
+    /** Returns an iterator at the reverse-beginning of the set.  Items are traversed in reverse order.
+        \note O(1)
+    */
     inline iterator rbegin(){ return iterator(data.rbegin(), false); }
+    /** Returns an iterator at the reverse-beginning of the set.  Items are traversed in reverse order.
+        \note O(1)
+    */
     inline const_iterator rbegin() const{ return const_iterator(data.rbegin(), false); }
+    /** Returns an iterator at the reverse-end of the set.
+        \note O(1)
+    */
     inline iterator rend(){ return iterator(data.rend(), false); }
+    /** Returns an iterator at the reverse-end of the set.
+        \note O(1)
+    */
     inline const_iterator rend() const{ return const_iterator(data.rend(), false); }
 
 
@@ -268,6 +280,7 @@ public:
 
     inline MultiSet(){}
     inline MultiSet(const Set<T> &o) :Set<T>(o){}
+    inline MultiSet(int (*cmp)(const T &, const T &)) :Set<T>(cmp){}
 
     /** Overridden to call InsertMulti. */
     inline void Insert(const T &i){ Set<T>::InsertMulti(i); }
@@ -322,5 +335,16 @@ template<class T>void Set<T>::_remove(const T &i, bool all)
 }
 
 GUTIL_END_CORE_NAMESPACE;
+
+
+namespace GUtil
+{
+
+// The set is binary-movable only if the BinarySearchTree is
+template<class T>struct IsMovableType< Core::DataObjects::Set<T> > :
+        public IsMovableType< Core::DataObjects::BinarySearchTree<T> >{};
+
+}
+
 
 #endif // GUTIL_SET_H

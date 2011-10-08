@@ -142,7 +142,7 @@ public:
         // Move the destination out of the way, if they're inserting anywhere but the end
         if(iter.current < m_length)
         {
-            if(IsPrimitiveType<T>::Value)
+            if(IsMovableType<T>::Value)
             {
                 memmove(dest + 1, dest, (m_length - iter.current) * sizeof(T));
                 new(dest) T(item);
@@ -189,7 +189,7 @@ public:
         // Copy all the following items over 1
         if(iter.current < (m_length - 1))
         {
-            if(IsPrimitiveType<T>::Value)
+            if(IsMovableType<T>::Value)
                 memmove(targ, targ + 1, (m_length - iter.current - 1) * sizeof(T));
             else
             {
@@ -237,7 +237,7 @@ public:
 
         m_capacity = new_capacity;
         const GUINT32 new_size_in_bytes(m_capacity * sizeof(T));
-        if(IsPrimitiveType<T>::Value)
+        if(IsMovableType<T>::Value)
         {
             // As an optimization for primitive types (ones that are not affected by binary moves)
             //  we call realloc, because a hidden memory relocation doesn't affect our type.
@@ -516,10 +516,8 @@ namespace GUtil
 
 // Both vector types can be binary-moved, so we get a huge performance benefit for
 //  a Vector<Vector<T>> type
-template<class T>struct IsPrimitiveType< Core::DataObjects::SimpleVector<T> > :
-        public IsPrimitiveType<T>{};
-template<class T>struct IsPrimitiveType< Core::DataObjects::Vector<T> > :
-        public IsPrimitiveType<T>{};
+template<class T>struct IsMovableType< Core::DataObjects::SimpleVector<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::Vector<T> >{ enum{ Value = 1 }; };
 
 }
 

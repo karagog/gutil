@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef MAP_H
-#define MAP_H
+#ifndef GUTIL_MAP_H
+#define GUTIL_MAP_H
 
 #include "Core/DataObjects/vector.h"
 #include "binarysearchtree.h"
@@ -223,4 +223,15 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
 
 GUTIL_END_CORE_NAMESPACE;
 
-#endif // MAP_H
+
+namespace GUtil
+{
+
+// The map is binary-movable only if the BinarySearchTree is
+template<class T>struct IsMovableType< Core::DataObjects::Map<T> > :
+        public IsMovableType< Core::DataObjects::BinarySearchTree<T> >{};
+
+}
+
+
+#endif // GUTIL_MAP_H

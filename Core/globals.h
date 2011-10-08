@@ -91,22 +91,22 @@ namespace GUtil{
     to declare them primitive, thereby getting a boost in performance from
     some container classes, but by default any classes are assumed NOT primitive.
 */
-template<class T>struct IsPrimitiveType{ enum{ Value = 0 }; };
+template<class T>struct IsMovableType{ enum{ Value = 0 }; };
 
-template<>struct IsPrimitiveType<GINT8>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GUINT8>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GINT16>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GUINT16>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GINT32>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GUINT32>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GINT64>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GUINT64>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GFLOAT32>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GFLOAT64>{ enum{ Value = 1 }; };
-template<>struct IsPrimitiveType<GFLOAT96>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GINT8>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GUINT8>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GINT16>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GUINT16>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GINT32>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GUINT32>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GINT64>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GUINT64>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GFLOAT32>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GFLOAT64>{ enum{ Value = 1 }; };
+template<>struct IsMovableType<GFLOAT96>{ enum{ Value = 1 }; };
 
 /** Any kind of pointer can be considered primitive. */
-template<class T>struct IsPrimitiveType<T *>{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType<T *>{ enum{ Value = 1 }; };
 
 
 

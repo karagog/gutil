@@ -398,4 +398,15 @@ public:
 
 GUTIL_END_CORE_NAMESPACE;
 
+
+namespace GUtil
+{
+
+// Both DList types can be binary-moved
+template<class T>struct IsMovableType< Core::DataObjects::SimpleDList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::DList<T> >{ enum{ Value = 1 }; };
+
+}
+
+
 #endif // GUTIL_DLIST_H

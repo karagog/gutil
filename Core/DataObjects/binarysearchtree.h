@@ -859,4 +859,14 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
 
 GUTIL_END_CORE_NAMESPACE
 
+
+namespace GUtil
+{
+
+// The Binary Search Tree can be binary-moved
+template<class T>struct IsMovableType< Core::DataObjects::BinarySearchTree<T> >{ enum{ Value = 1 }; };
+
+}
+
+
 #endif //GUTIL_BST_H

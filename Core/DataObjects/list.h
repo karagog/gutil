@@ -117,7 +117,7 @@ public:
             do
             {
                 cur = at(--i);
-                if(IsPrimitiveType<T>::Value)
+                if(IsMovableType<T>::Value)
                     gSwap(prev, cur, sizeof(T));
                 else
                 {
@@ -170,7 +170,7 @@ public:
             while(i < (m_size - 1))
             {
                 cur = at(++i);
-                if(IsPrimitiveType<T>::Value)
+                if(IsMovableType<T>::Value)
                     gSwap(prev, cur, sizeof(T));
                 else
                 {
@@ -378,5 +378,15 @@ public:
 
 
 GUTIL_END_CORE_NAMESPACE;
+
+
+namespace GUtil
+{
+
+template<class T>struct IsMovableType< Core::DataObjects::SimpleList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::List<T> >{ enum{ Value = 1 }; };
+
+}
+
 
 #endif // GUTIL_LIST_H

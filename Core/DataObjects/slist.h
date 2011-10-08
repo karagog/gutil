@@ -314,4 +314,14 @@ public:
 
 GUTIL_END_CORE_NAMESPACE;
 
+
+namespace GUtil
+{
+
+// Both SList types can be binary-moved
+template<class T>struct IsMovableType< Core::DataObjects::SimpleSList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::SList<T> >{ enum{ Value = 1 }; };
+
+}
+
 #endif // GUTIL_SLIST_H

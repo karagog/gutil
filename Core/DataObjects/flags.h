@@ -73,9 +73,12 @@ private:
     GUINT32 m_flags;
 };
 
+GUTIL_END_CORE_NAMESPACE;
+
 
 /** Use this for convenient flag operators for your enum type. */
 #define GUTIL_DECLARE_FLAGS(flags_name, enum_type) \
+    namespace GUtil{ namespace Core{ namespace DataObjects{ \
     class flags_name : public Flags<enum_type>{ \
     public: \
         inline flags_name(){} \
@@ -86,9 +89,21 @@ private:
         flags_name ret; \
         ret.SetFlag(e1, true); ret.SetFlag(e2, true); \
         return ret; \
-    }
+    } \
+    }} \ // namespace Core::DataObjects
+    \
+    template<class T>struct IsMovableType< Core::DataObjects::Flags<T> >{ enum{ Value = 1 }; }; \
+    \
+    } // namespace GUtil
 
 
-GUTIL_END_CORE_NAMESPACE;
+namespace GUtil
+{
+
+// The Flag type can be binary-moved
+template<class T>struct IsMovableType< Core::DataObjects::Flags<T> >{ enum{ Value = 1 }; };
+
+}
+
 
 #endif // FLAGS_H
