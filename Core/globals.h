@@ -79,6 +79,11 @@ limitations under the License.*/
 #define GFLOAT96    long double
 
 
+#ifndef GUTIL_COM_EXPORTS
+namespace GUtil{
+#endif
+
+
 /** Use this template and its overrides to determine, at compile time,
     whether an item is a primitive type or more complex.
 
@@ -185,19 +190,21 @@ inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 }
 
 
-
 /** Returns the most significant set bit of a 32 bit number in the minimum number of instructions.
     \note O(1).  This is computed in 7 cpu instructions on average.
 */
-extern "C" int MSB32(GUINT32);
+#ifdef GUTIL_COM_EXPORTS
+extern "C"
+#endif
+int MSB32(GUINT32);
 
 /** Returns the most significant set bit of a 64 bit number in the minimum number of instructions.
     \note O(1).  This is computed in 9 cpu instructions on average.
 */
-extern "C" int MSB64(GUINT64);
-
-/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
-extern const char MSB_LOOKUP_TABLE[256];
+#ifdef GUTIL_COM_EXPORTS
+extern "C"
+#endif
+int MSB64(GUINT64);
 
 
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
@@ -222,11 +229,17 @@ inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 /** Some global enumerations that you can use for consistency
     accross libraries and applications.  It's just for convention's sake.
  */
-enum GUtilTimeFormatEnum
+enum TimeFormatEnum
 {
-    GUtilFormat12Hours = 0,
-    GUtilFormat24Hours = 1
+    Format12Hours = 0,
+    Format24Hours = 1
 };
+
+
+
+#ifndef GUTIL_COM_EXPORTS
+} // namespace GUtil
+#endif
 
 
 // Some useful time constants
@@ -254,6 +267,12 @@ enum GUtilTimeFormatEnum
 
 /** The number of seconds in a leap year. */
 #define YEAR_IN_SECONDS_UB      DAY_IN_SECONDS * 366
+
+
+
+/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
+extern const char GUTIL_MSB_LOOKUP_TABLE[256];
+
 
 
 

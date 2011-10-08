@@ -45,8 +45,6 @@ void SimpleVectorTest::test_basic_function()
            .arg(sizeof(std::vector<int>))
            .toAscii().constData());
 
-    QVERIFY((1 << 32) >> 32 == 0);
-
     for(int i(0); i < 100; ++i)
     {
         vec.Insert(i, vec.end());

@@ -84,10 +84,10 @@ public:
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
     virtual void setModel(QAbstractItemModel *);
 
-    inline GUtilTimeFormatEnum GetTimeFormat() const{
+    inline TimeFormatEnum GetTimeFormat() const{
         return m_timeFormat;
     }
-    void SetTimeFormat(GUtilTimeFormatEnum t);
+    void SetTimeFormat(TimeFormatEnum t);
 
 
 signals:
@@ -192,7 +192,7 @@ private:
 
     QPersistentModelIndex m_editingIndex;
     DataEnum m_editingData;
-    GUtilTimeFormatEnum m_timeFormat;
+    TimeFormatEnum m_timeFormat;
     int m_previousVerticalScrollbarPosition;
     int m_previousHorizontalScrollbarPosition;
     QDateTimeEdit *m_dateTimeEdit;

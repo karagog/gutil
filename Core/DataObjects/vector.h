@@ -137,14 +137,14 @@ public:
         if(m_length == m_capacity)
             Reserve(m_length + 1);
 
-        T *dest( m_begin + iter.m_cur );
+        T *dest( m_begin + iter.current );
 
         // Move the destination out of the way, if they're inserting anywhere but the end
-        if(iter.m_cur < m_length)
+        if(iter.current < m_length)
         {
             if(IsPrimitiveType<T>::Value)
             {
-                memmove(dest + 1, dest, (m_length - iter.m_cur) * sizeof(T));
+                memmove(dest + 1, dest, (m_length - iter.current) * sizeof(T));
                 new(dest) T(item);
             }
             else
@@ -156,12 +156,12 @@ public:
 
                 if(m_length > 0)
                 {
-                    for(GUINT32 i(m_length - 1); i > iter.m_cur; --i, --cur)
+                    for(GUINT32 i(m_length - 1); i > iter.current; --i, --cur)
                         *cur = *(cur - 1);
                 }
 
                 // Then assign the item to the proper location
-                m_begin[iter.m_cur] = item;
+                m_begin[iter.current] = item;
             }
         }
         else
@@ -181,16 +181,16 @@ public:
     */
     void Remove(const iterator &iter)
     {
-        T *const targ( m_begin + iter.m_cur );
+        T *const targ( m_begin + iter.current );
 
         // Call the destructor on the item
         targ->~T();
 
         // Copy all the following items over 1
-        if(iter.m_cur < (m_length - 1))
+        if(iter.current < (m_length - 1))
         {
             if(IsPrimitiveType<T>::Value)
-                memmove(targ, targ + 1, (m_length - iter.m_cur - 1) * sizeof(T));
+                memmove(targ, targ + 1, (m_length - iter.current - 1) * sizeof(T));
             else
             {
                 // If T is not a primitive type then this is potentially really expensive!!
@@ -203,7 +203,7 @@ public:
 
                 // Then for the rest of the move, we use the assignment operator, because those
                 //  items have already been initialized.
-                GUINT32 i(iter.m_cur + 1);
+                GUINT32 i(iter.current + 1);
                 for(; i < (m_length - 1); ++i, ++cur)
                     *cur = *(cur + 1);
 
@@ -313,40 +313,40 @@ public:
         friend class SimpleVector;
     public:
         inline iterator()
-            :m_cur(0),
+            :current(0),
               m_begin(0),
               m_length(0){}
         inline iterator(T *begin, int length, int index)
-            :m_cur(index),
+            :current(index),
               m_begin(begin),
               m_length(length){}
 
-        inline T &operator *(){ return m_begin[m_cur]; }
-        inline const T &operator *() const{ return m_begin[m_cur]; }
-        inline T *operator ->(){ return &m_begin[m_cur]; }
-        inline T const*operator ->() const{ return &m_begin[m_cur]; }
+        inline T &operator *(){ return m_begin[current]; }
+        inline const T &operator *() const{ return m_begin[current]; }
+        inline T *operator ->(){ return &m_begin[current]; }
+        inline T const*operator ->() const{ return &m_begin[current]; }
 
-        inline iterator &operator ++(){ ++m_cur; return *this; }
-        inline iterator operator ++(int){ iterator ret(*this); ++m_cur; return ret;}
-        inline iterator &operator +=(int n){ m_cur += n; return *this; }
-        inline iterator operator +(int n) const{ iterator ret(*this); ret.m_cur += n; return ret; }
+        inline iterator &operator ++(){ ++current; return *this; }
+        inline iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
+        inline iterator &operator +=(int n){ current += n; return *this; }
+        inline iterator operator +(int n) const{ iterator ret(*this); ret.current += n; return ret; }
 
-        inline iterator &operator --(){ --m_cur; return *this; }
-        inline iterator operator --(int){ iterator ret(*this); --m_cur; return ret;}
-        inline iterator &operator -=(int n){ m_cur -= n; return *this; }
-        inline iterator operator -(int n) const{ iterator ret(*this); ret.m_cur -= n; return ret;}
+        inline iterator &operator --(){ --current; return *this; }
+        inline iterator operator --(int){ iterator ret(*this); --current; return ret;}
+        inline iterator &operator -=(int n){ current -= n; return *this; }
+        inline iterator operator -(int n) const{ iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the distance between iterators (how many items in between). */
         inline int operator - (const iterator &iter) const{
             if(m_begin != iter.m_begin) return INT_MAX;
-            return m_cur - iter.m_cur;
+            return current - iter.current;
         }
 
-        inline operator bool() const{ return m_begin && (m_cur >= 0 && m_cur < m_length); }
+        inline operator bool() const{ return m_begin && (current >= 0 && current < m_length); }
 
 
     protected:
-        GUINT32 m_cur;
+        GUINT32 current;
     private:
         T *m_begin;
         GUINT32 m_length;
@@ -358,49 +358,49 @@ public:
         friend class SimpleVector;
     public:
         inline const_iterator()
-            :m_begin(0),
-              m_cur(0),
+            :current(0),
+              m_begin(0),
               m_length(0){}
         inline const_iterator(T *begin, int length, int index)
-            :m_begin(begin),
-              m_cur(index),
+            :current(index),
+              m_begin(begin),
               m_length(length){}
         inline const_iterator(const const_iterator &iter)
-            :m_begin(iter.m_begin),
-              m_cur(iter.m_cur),
+            :current(iter.current),
+              m_begin(iter.m_begin),
               m_length(iter.m_length)
         {}
         inline const_iterator(const iterator &iter)
-            :m_begin(iter.m_begin),
-              m_cur(iter.m_cur),
+            :current(iter.current),
+              m_begin(iter.m_begin),
               m_length(iter.m_length)
         {}
 
-        inline T &operator *(){ return m_begin[m_cur]; }
-        inline const T &operator *() const{ return m_begin[m_cur]; }
-        inline T *operator ->(){ return &m_begin[m_cur]; }
-        inline T const*operator ->() const{ return &m_begin[m_cur]; }
+        inline T &operator *(){ return m_begin[current]; }
+        inline const T &operator *() const{ return m_begin[current]; }
+        inline T *operator ->(){ return &m_begin[current]; }
+        inline T const*operator ->() const{ return &m_begin[current]; }
 
-        inline const_iterator &operator ++(){ ++m_cur; return *this; }
-        inline const_iterator operator ++(int){ const_iterator ret(*this); ++m_cur; return ret;}
-        inline const_iterator &operator +=(int n){ m_cur += n; return *this; }
-        inline const_iterator operator +(int n) const{ const_iterator ret(*this); ret.m_cur += n; return ret; }
+        inline const_iterator &operator ++(){ ++current; return *this; }
+        inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
+        inline const_iterator &operator +=(int n){ current += n; return *this; }
+        inline const_iterator operator +(int n) const{ const_iterator ret(*this); ret.current += n; return ret; }
 
-        inline const_iterator &operator --(){ --m_cur; return *this; }
-        inline const_iterator operator --(int){ const_iterator ret(*this); --m_cur; return ret;}
-        inline const_iterator &operator -=(int n){ m_cur -= n; return *this; }
-        inline const_iterator operator -(int n) const{ const_iterator ret(*this); ret.m_cur -= n; return ret;}
+        inline const_iterator &operator --(){ --current; return *this; }
+        inline const_iterator operator --(int){ const_iterator ret(*this); --current; return ret;}
+        inline const_iterator &operator -=(int n){ current -= n; return *this; }
+        inline const_iterator operator -(int n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the distance between iterators (how many items in between). */
         inline int operator - (const const_iterator &iter) const{
             if(m_begin != iter.m_begin) return INT_MAX;
-            return m_cur - iter.m_cur;
+            return current - iter.current;
         }
 
-        inline operator bool() const{ return m_begin && (m_cur >= 0 && m_cur < m_length); }
+        inline operator bool() const{ return m_begin && (current >= 0 && current < m_length); }
 
     protected:
-        int m_cur;
+        int current;
     private:
         T *m_begin;
         int m_length;
@@ -510,9 +510,17 @@ public:
 
 GUTIL_END_CORE_NAMESPACE;
 
+
+namespace GUtil
+{
+
 // Both vector types can be binary-moved, so we get a huge performance benefit for
 //  a Vector<Vector<T>> type
-template<class T>struct IsPrimitiveType< GUtil::Core::DataObjects::SimpleVector<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsPrimitiveType< GUtil::Core::DataObjects::Vector<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsPrimitiveType< Core::DataObjects::SimpleVector<T> > :
+        public IsPrimitiveType<T>{};
+template<class T>struct IsPrimitiveType< Core::DataObjects::Vector<T> > :
+        public IsPrimitiveType<T>{};
+
+}
 
 #endif // GUTIL_VECTOR_P

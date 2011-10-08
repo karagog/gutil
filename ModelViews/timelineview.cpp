@@ -55,7 +55,7 @@ TimelineView::TimelineView(QWidget *p)
       m_dragRect(0),
       m_currentHighlighter(QRubberBand::Rectangle, this),
       m_drag_cursor_offset(-1),
-      m_timeFormat(GUtilFormat12Hours),
+      m_timeFormat(Format12Hours),
       m_dateTimeEdit(0)
 {
     setMouseTracking(true);
@@ -105,7 +105,7 @@ void TimelineView::paintEvent(QPaintEvent *ev)
         time_increment_in_seconds = 60 * 60;
 
         fmt = QString("h:mm%1")
-                .arg(GetTimeFormat() == GUtilFormat12Hours ? " ap" : "");
+                .arg(GetTimeFormat() == Format12Hours ? " ap" : "");
     }
     else if(days == 7)
     {
@@ -307,7 +307,7 @@ void TimelineView::_draw_datetime_rect(const QDateTime &dt, const QPoint &point,
 {
     const int side_margin( 5 );
     QString fmt_string( dt.toString(QString("M/d/yyyy hh:mm:ss%1")
-                                    .arg(GetTimeFormat() == GUtilFormat12Hours ? " ap" : "")) );
+                                    .arg(GetTimeFormat() == Format12Hours ? " ap" : "")) );
 
     QRect bounding_rect( QFontMetrics(p.font()).boundingRect(fmt_string) );
     bounding_rect.adjust(-side_margin, 0, side_margin, 0);
@@ -1191,11 +1191,11 @@ void TimelineView::_model_rows_removed()
     reset();
 }
 
-void TimelineView::SetTimeFormat(GUtilTimeFormatEnum t)
+void TimelineView::SetTimeFormat(TimeFormatEnum t)
 {
     m_timeFormat = t;
 
-    const int newx(t == GUtilFormat12Hours ?
+    const int newx(t == Format12Hours ?
                        TIMELINE_LEFT_MARGIN_12HOURS :
                        TIMELINE_LEFT_MARGIN_24HOURS);
     _origin_point.setX(newx);
