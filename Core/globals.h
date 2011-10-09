@@ -112,9 +112,26 @@ template<class T>struct IsMovableType<T *>{ enum{ Value = 1 }; };
 
 // Here are some useful functions
 
-/** Absolute value function which doesn't use branching.  Use as an alternate to qAbs(). */
-template <class T> inline T gAbs(const T &v){
-    const int mask( v >> (sizeof(int) * 8 - 1) );
+template <class T>inline T gAbs(const T &v){ return v < 0 ? -v : v; }
+
+/** Absolute value function which doesn't use branching.  This only works for ints */
+template <>inline GINT8 gAbs<GINT8>(const GINT8 &v){
+    const int mask( v >> (sizeof(GINT8) * 8 - 1) );
+    return (v + mask) ^ mask;
+}
+/** Absolute value function which doesn't use branching.  This only works for ints */
+template <>inline GINT16 gAbs<GINT16>(const GINT16 &v){
+    const int mask( v >> (sizeof(GINT16) * 8 - 1) );
+    return (v + mask) ^ mask;
+}
+/** Absolute value function which doesn't use branching.  This only works for ints */
+template <>inline GINT32 gAbs<GINT32>(const GINT32 &v){
+    const int mask( v >> (sizeof(GINT32) * 8 - 1) );
+    return (v + mask) ^ mask;
+}
+/** Absolute value function which doesn't use branching.  This only works for ints */
+template <>inline GINT64 gAbs<GINT64>(const GINT64 &v){
+    const int mask( v >> (sizeof(GINT64) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 
@@ -240,6 +257,12 @@ enum TimeFormatEnum
 #ifndef GUTIL_COM_EXPORTS
 } // namespace GUtil
 #endif
+
+
+#ifdef PI
+#undef PI
+#endif
+#define PI      3.1415926535897931160E+00
 
 
 // Some useful time constants
