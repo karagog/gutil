@@ -27,7 +27,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     so that you can push items on the back, but you can't use this cache to access list items.
     In this way, it is flexible enough to represent a queue.
 */
-template<class T>class SimpleSList
+template<class T>class SList
 {
 
     /** One node of data. */
@@ -82,6 +82,24 @@ public:
         iter.parent = new_node;
     }
 
+    inline void PushFront(const T &i)
+    {
+        iterator iter(begin());
+        Insert(i, iter);
+    }
+
+    inline void PushBack(const T &i)
+    {
+        iterator iter(end());
+        Insert(i, iter);
+    }
+
+    inline void PopFront()
+    {
+        iterator iter(begin());
+        Remove(iter);
+    }
+
     /** Empties the slist and clears all memory.
         \note O(N)
     */
@@ -96,13 +114,13 @@ public:
 
 
     /** Creates an empty slist. */
-    inline SimpleSList(): m_first(0), m_last(0), m_count(0){}
+    inline SList(): m_first(0), m_last(0), m_count(0){}
 
     /** Creates a new slist with the item at the front of the list. */
-    inline SimpleSList(const T &item): m_first(0), m_last(0), m_count(0)
+    inline SList(const T &item): m_first(0), m_last(0), m_count(0)
     { iterator i(begin()); Insert(item, i); }
 
-    inline SimpleSList(const SimpleSList<T> &o)
+    inline SList(const SList<T> &o)
         :m_first(0), m_last(0), m_count(0)
     {
         node *n(o.m_first);
@@ -113,18 +131,18 @@ public:
             n = n->NextNode;
         }
     }
-    SimpleSList<T> &operator =(const SimpleSList<T> &o){
+    SList<T> &operator =(const SList<T> &o){
         Clear();
-        new(this) SimpleSList<T>(o);
+        new(this) SList<T>(o);
     }
-    inline ~SimpleSList(){ Clear(); }
+    inline ~SList(){ Clear(); }
 
     /** How many items in the SList. */
     inline GUINT32 Count() const{ return m_count; }
 
     class iterator
     {
-        friend class SimpleSList;
+        friend class SList;
     public:
         inline iterator(node *n = 0, node *p = 0)
             :current(n),
@@ -176,7 +194,7 @@ public:
     /** An iterator that won't modify the list, but it can still modify the values in the list. */
     class const_iterator
     {
-        friend class SimpleSList;
+        friend class SList;
     public:
 
         inline const_iterator(node *n = 0, node *p = 0)
@@ -262,52 +280,67 @@ private:
 };
 
 
-template<class T>class SList :
-        public SimpleSList<T>,
-        public Stack<T>,
-        public Queue<T>
+template<class T>class SListStack : public Stack<T>
 {
 public:
 
-    inline SList(){}
-    inline SList(const SimpleSList<T> &o) :SimpleSList<T>(o){}
-
+    inline SListStack(SList<T> *lst) :m_list(lst){}
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Insert(i, b); }
+    void Push(const T &i){ m_list->PushFront(i); }
 
     /** Satisfies the Stack abstract interface. */
-    void Pop(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Remove(b); }
+    void Pop(){ m_list->PopFront(); }
 
     /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return *SList<T>::begin(); }
+    const T &Top() const{ return *m_list->begin(); }
 
     /** Satisfies the Stack abstract interface. */
-    T &Top(){ return *SList<T>::begin(); }
+    T &Top(){ return *m_list->begin(); }
 
     /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ return SList<T>::Clear(); }
+    void FlushStack(){ return m_list->Clear(); }
 
-    GUINT32 CountStackItems() const{ return SList<T>::Count(); }
+    /** Satisfies the Stack abstract interface. */
+    GUINT32 CountStackItems() const{ return m_list->Count(); }
 
+
+private:
+
+    SList<T> *m_list;
+
+};
+
+
+template<class T>class SListQueue : public Queue<T>
+{
+public:
+
+    inline SListQueue(SList<T> *lst) :m_list(lst){}
 
 
     /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ typename SimpleSList<T>::iterator e(SList<T>::end()); this->Insert(i, e); }
+    void Enqueue(const T &i){ m_list->PushBack(i); }
 
     /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ typename SimpleSList<T>::iterator b(SList<T>::begin()); this->Remove(b); }
+    void Dequeue(){ m_list->PopFront(); }
 
     /** Satisfies the Queue abstract interface. */
-    const T &Front() const{ return *SList<T>::begin(); }
+    const T &Front() const{ return *m_list->begin(); }
 
     /** Satisfies the Queue abstract interface. */
-    T &Front(){ return *SList<T>::begin(); }
+    T &Front(){ return *m_list->begin(); }
 
     /** Satisfies the Queue abstract interface. */
-    void FlushQueue(){ return SList<T>::Clear(); }
+    void FlushQueue(){ return m_list->Clear(); }
 
-    GUINT32 CountQueueItems() const{ return SList<T>::Count(); }
+    /** Satisfies the Queue abstract interface. */
+    GUINT32 CountQueueItems() const{ return m_list->Count(); }
+
+
+private:
+
+    SList<T> *m_list;
 
 };
 
@@ -319,8 +352,9 @@ namespace GUtil
 {
 
 // Both SList types can be binary-moved
-template<class T>struct IsMovableType< Core::DataObjects::SimpleSList<T> >{ enum{ Value = 1 }; };
 template<class T>struct IsMovableType< Core::DataObjects::SList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::SListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::SListQueue<T> >{ enum{ Value = 1 }; };
 
 }
 

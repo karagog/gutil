@@ -42,7 +42,7 @@ SListTest::SListTest()
 void SListTest::test_stack()
 {
     SList<int> lst;
-    Stack<int> &stk(lst);
+    SListStack<int> stk(&lst);
 
     for(int i = 0; i < 10; i++)
         stk.Push(i);
@@ -65,8 +65,9 @@ void SListTest::test_stack()
 void SListTest::test_iterators()
 {
     SList<int> lst;
+
     for(int i = 0; i < 10; i++)
-        lst.Push(i);
+        lst.PushFront(i);
 
     int tmp(9);
     for(SList<int>::iterator iter(lst.begin()); iter; ++iter)
@@ -80,7 +81,7 @@ void SListTest::test_removal()
 {
     SList<int> lst;
     for(int i = 0; i < 10; i++)
-        lst.Push(i);
+        lst.PushFront(i);
 
     QVERIFY(lst.Count() == 10);
 
@@ -108,7 +109,7 @@ void SListTest::test_removal()
 void SListTest::test_queue()
 {
     SList<int> lst;
-    Queue<int> &q( lst );
+    SListQueue<int> q( &lst );
 
     q.Enqueue(0);
     q.Enqueue(1);
