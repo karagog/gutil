@@ -18,12 +18,12 @@ limitations under the License.*/
 #include <vector>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-class SimpleVectorTest : public QObject
+class VectorTest : public QObject
 {
     Q_OBJECT
 
 public:
-    SimpleVectorTest();
+    VectorTest();
 
 private Q_SLOTS:
     void test_basic_function();
@@ -31,17 +31,17 @@ private Q_SLOTS:
     void test_vector_of_vector();
 };
 
-SimpleVectorTest::SimpleVectorTest()
+VectorTest::VectorTest()
 {
 }
 
-void SimpleVectorTest::test_basic_function()
+void VectorTest::test_basic_function()
 {
     Vector<int> vec;
     qDebug(QString("An empty vector uses %1 bytes, and a simple vector uses %2.\n"
                    "A std::vector uses %3")
            .arg(sizeof(Vector<int>))
-           .arg(sizeof(SimpleVector<int>))
+           .arg(sizeof(Vector<int>))
            .arg(sizeof(std::vector<int>))
            .toAscii().constData());
 
@@ -84,7 +84,7 @@ void SimpleVectorTest::test_basic_function()
         QVERIFY(vec[i] == i);
 }
 
-void SimpleVectorTest::test_removal()
+void VectorTest::test_removal()
 {
     Vector<int> vec;
     vec.Insert(0, vec.end());
@@ -106,23 +106,23 @@ void SimpleVectorTest::test_removal()
     QVERIFY(vec[2] == 4);
 }
 
-void SimpleVectorTest::test_vector_of_vector()
+void VectorTest::test_vector_of_vector()
 {
     const int square_width = 3;
     int row1[] = { 0, 1, 2 };
     int row2[] = { 3, 4, 5 };
     int row3[] = { 6, 7, 8 };
     Vector< Vector<int> > matrix( square_width );
-    matrix.PushBack( Vector<int>(row1, square_width) );
-    matrix.PushBack( Vector<int>(row2, square_width) );
-    matrix.PushBack( Vector<int>(row3, square_width) );
+    matrix.Insert(Vector<int>(row1, square_width), 0 );
+    matrix.Insert(Vector<int>(row3, square_width), 1 );
+    matrix.Insert(Vector<int>(row2, square_width), 1 );
 
-    SimpleVector< SimpleVector<int> > simple_matrix( 3 );
+    Vector< Vector<int> > simple_matrix( 3 );
     simple_matrix.Insert( matrix[0], simple_matrix.end() );
     simple_matrix.Insert( matrix[1], simple_matrix.end() );
     simple_matrix.Insert( matrix[2], simple_matrix.end() );
 
-    SimpleVector< SimpleVector<int> > simple_matrix_copy( simple_matrix );
+    Vector< Vector<int> > simple_matrix_copy( simple_matrix );
 
     for(int i(0); i < square_width; ++i)
     {
@@ -138,6 +138,6 @@ void SimpleVectorTest::test_vector_of_vector()
 //           .arg(square_width).arg(matrix.ReportMemoryUsage()).toAscii());
 }
 
-QTEST_APPLESS_MAIN(SimpleVectorTest);
+QTEST_APPLESS_MAIN(VectorTest);
 
 #include "tst_vectortest.moc"

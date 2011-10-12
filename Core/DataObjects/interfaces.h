@@ -107,11 +107,8 @@ public:
 };
 
 
-/** An abstract interface that says you can behave like a deque (double-ended queue).
-    It automatically inherits Queue.
-*/
-template<class T>class Deque :
-        public Queue<T>
+/** An abstract interface that says you can behave like a deque (double-ended queue). */
+template<class T>class Deque
 {
 public:
 
@@ -140,20 +137,8 @@ public:
     /** Returns how many items are in the deque. */
     virtual GUINT32 CountDequeItems() const = 0;
 
-    /** Base implementation is automatically implemented. */
-    GUINT32 CountQueueItems() const{ return CountDequeItems(); }
-
     /** Deletes all items from the deque. */
     virtual void FlushDeque() = 0;
-
-    /** Base implementation is automatically implemented. */
-    void FlushQueue(){ FlushDeque(); }
-
-    /** Automatically calls PushBack(), for convenience. */
-    void Enqueue(const T &i){ PushBack(i); }
-
-    /** Automatically calls PopFront(), for convenience. */
-    void Dequeue(){ PopFront(); }
 
     /** So derived classes can be deleted by the interface. */
     virtual ~Deque(){}

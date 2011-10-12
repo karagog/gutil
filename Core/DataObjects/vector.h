@@ -27,20 +27,16 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     You call reserve() with the number of items you want to have, and it will reserve
     at least as many, only conducting memory reallocations when necessary.
 
-    It is a simplified interface, to minimize the size of the class for better memory performance.
-    If you want more features and a better interface, and you don't care about a few extra bytes,
-    then use the Vector, which implements convenient accessor functions.
-
     \sa Vector
 */
-template<class T>class SimpleVector
+template<class T>class Vector
 {
 public:
     class iterator;
     class const_iterator;
 
     /** Constructs an empty vector. */
-    inline SimpleVector()
+    inline Vector()
         :m_begin(NULL),
           m_capacity(0),
           m_length(0)
@@ -48,7 +44,7 @@ public:
 
 
     /** Constructs an empty vector capable of holding the given number of items. */
-    inline explicit SimpleVector(GUINT32 capacity)
+    inline explicit Vector(GUINT32 capacity)
         :m_begin(NULL),
           m_capacity(0),
           m_length(0)
@@ -59,7 +55,7 @@ public:
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    inline SimpleVector(const T &o, GUINT32 size)
+    inline Vector(const T &o, GUINT32 size)
         :m_begin(NULL),
           m_capacity(0),
           m_length(size)
@@ -72,7 +68,7 @@ public:
 
 
     /**  Constructs a vector from the array of data. */
-    inline SimpleVector(T const*arr, int size)
+    inline Vector(T const*arr, int size)
         :m_begin(NULL),
           m_capacity(0),
           m_length(size)
@@ -90,8 +86,8 @@ public:
     /** Creates a vector with the elements from another vector, taken by iterating from
         iter_begin to iter_end.
     */
-    inline SimpleVector(const typename SimpleVector<T>::const_iterator &iter_begin,
-                        const typename SimpleVector<T>::const_iterator &iter_end)
+    inline Vector(const typename Vector<T>::const_iterator &iter_begin,
+                        const typename Vector<T>::const_iterator &iter_end)
         :m_begin(NULL),
           m_capacity(0),
           m_length(iter_end - iter_begin)
@@ -99,13 +95,13 @@ public:
         if(m_length > 0)
             Reserve(m_length);
         GUINT32 cnt(0);
-        for(SimpleVector<T>::const_iterator cur(iter_begin); cur != iter_end; ++cur, ++cnt)
+        for(Vector<T>::const_iterator cur(iter_begin); cur != iter_end; ++cur, ++cnt)
             new(m_begin + cnt) T(*cur);
     }
 
 
     /** The copy constructor conducts a deep copy, invoking the copy constructors on each item. */
-    SimpleVector(const SimpleVector<T> &o)
+    Vector(const Vector<T> &o)
         :m_begin(NULL),
           m_capacity(0),
           m_length(o.m_length)
@@ -120,31 +116,37 @@ public:
             new(cur++) T(*(ocur++));
     }
     /** Assignment operator invokes our copy constructor after clearing the container. */
-    SimpleVector &operator = (const SimpleVector<T> &o){
+    Vector &operator = (const Vector<T> &o){
         Clear();
-        new(this) SimpleVector<T>(o);
+        new(this) Vector<T>(o);
         return *this;
     }
-    inline ~SimpleVector(){ Clear(); }
+    inline ~Vector(){ Clear(); }
 
     /** Insert the item at the position before the iterator.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(const T &item, const iterator &iter)
+    inline void Insert(const T &item, const iterator &iter){ Insert(item, iter.current); }
+
+    /** Insert the item at the index position.
+        \note Invalidates all iterators, because the addition may cause a resize of the internal
+        memory, which potentially moves the array.
+    */
+    void Insert(const T &item, GUINT32 indx)
     {
         // Allocate more memory if we have to
         if(m_length == m_capacity)
             Reserve(m_length + 1);
 
-        T *dest( m_begin + iter.current );
+        T *dest( m_begin + indx );
 
         // Move the destination out of the way, if they're inserting anywhere but the end
-        if(iter.current < m_length)
+        if(indx < m_length)
         {
             if(IsMovableType<T>::Value)
             {
-                memmove(dest + 1, dest, (m_length - iter.current) * sizeof(T));
+                memmove(dest + 1, dest, (m_length - indx) * sizeof(T));
                 new(dest) T(item);
             }
             else
@@ -156,12 +158,12 @@ public:
 
                 if(m_length > 0)
                 {
-                    for(GUINT32 i(m_length - 1); i > iter.current; --i, --cur)
+                    for(GUINT32 i(m_length - 1); i > indx; --i, --cur)
                         *cur = *(cur - 1);
                 }
 
                 // Then assign the item to the proper location
-                m_begin[iter.current] = item;
+                m_begin[indx] = item;
             }
         }
         else
@@ -174,23 +176,33 @@ public:
     }
 
     /** Remove the item pointed to by the iterator.
-        No internal memory is freed.  You can free it manually by using Reserve(), but as a heuristic
-        it is a good estimate of how much memory we need if we remain at our max consumption.
+
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
-    void Remove(const iterator &iter)
+    inline void Remove(const iterator &iter){ RemoveAt(iter.current); }
+
+    /** Remove the item at the index location.
+
+        \note Invalidates the iterator positioned at the last element, and all other iterators
+        after the input would notice their current element has shifted
+        \note O(1) if you remove from the end.  O(N) otherwise.
+    */
+    void RemoveAt(GUINT32 indx)
     {
-        T *const targ( m_begin + iter.current );
+        if(m_length == 0 || indx >= m_length)
+            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+
+        T *const targ( m_begin + indx );
 
         // Call the destructor on the item
         targ->~T();
 
         // Copy all the following items over 1
-        if(iter.current < (m_length - 1))
+        if(indx < (m_length - 1))
         {
             if(IsMovableType<T>::Value)
-                memmove(targ, targ + 1, (m_length - iter.current - 1) * sizeof(T));
+                memmove(targ, targ + 1, (m_length - indx - 1) * sizeof(T));
             else
             {
                 // If T is not a primitive type then this is potentially really expensive!!
@@ -203,7 +215,7 @@ public:
 
                 // Then for the rest of the move, we use the assignment operator, because those
                 //  items have already been initialized.
-                GUINT32 i(iter.current + 1);
+                GUINT32 i(indx + 1);
                 for(; i < (m_length - 1); ++i, ++cur)
                     *cur = *(cur + 1);
 
@@ -213,6 +225,51 @@ public:
         }
 
         --m_length;
+    }
+
+    /** Removes the first instance of the item.  The type T must have a comparison operator.
+        \note O(n)
+    */
+    inline void RemoveOne(const T &o)
+    {
+        T *cur(m_begin);
+        for(GUINT32 i(0); i < m_length; ++i, ++cur)
+        {
+            if(o == *cur)
+            {
+                RemoveAt(i);
+                break;
+            }
+        }
+    }
+
+    /** Removes the last instance of the item.  The type T must have a comparison operator.
+        \note O(n)
+    */
+    inline void RemoveLast(const T &o)
+    {
+        T *cur(m_begin + m_length - 1);
+        for(GUINT32 i(0); i < m_length; ++i, --cur)
+        {
+            if(o == *cur)
+            {
+                RemoveAt(m_length - i - 1);
+                break;
+            }
+        }
+    }
+
+    /** Removes all instances of the item.  The type T must have a comparison operator.
+        \note O(n)
+    */
+    inline void RemoveAll(const T &o)
+    {
+        T *cur(m_begin);
+        for(GUINT32 i(0); i < m_length; ++i, ++cur)
+        {
+            if(o == *cur)
+                RemoveAt(i);
+        }
     }
 
     /** Reserves room for at least this many items.
@@ -275,7 +332,7 @@ public:
             Reserve(new_size);
         if(new_size < m_length)
         {
-            const SimpleVector<T>::iterator iter( begin() + new_size );
+            const Vector<T>::iterator iter( begin() + new_size );
             for(int i(m_length); i > new_size; --i)
                 Remove(iter);
         }
@@ -290,11 +347,28 @@ public:
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline const T &operator [](int i) const{ return m_begin[i]; }
+    inline const T &operator [](GUINT32 i) const{ return m_begin[i]; }
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T &operator [](int i){ return m_begin[i]; }
+    inline T &operator [](GUINT32 i){ return m_begin[i]; }
+
+    /** Accesses the data at the given index.
+        \note Checks the index if it's out of bounds and throws and exception if it is
+    */
+    inline T &At(GUINT32 i){
+        if(m_length == 0 || i >= m_length)
+            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+        return m_begin[i];
+    }
+    /** Accesses the data at the given index.
+        \note Does not do any bounds checking.
+    */
+    inline const T &At(GUINT32 i) const{
+        if(m_length == 0 || i >= m_length)
+            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+        return m_begin[i];
+    }
 
     /** Clears all items from the stack and frees all memory. */
     inline void Clear(){ Reserve(0); }
@@ -310,7 +384,7 @@ public:
     /** Iterates through the vector. */
     class iterator
     {
-        friend class SimpleVector;
+        friend class Vector;
     public:
         inline iterator()
             :current(0),
@@ -355,7 +429,7 @@ public:
     /** Iterates through the vector, but also guarantees that it won't modify the vector. */
     class const_iterator
     {
-        friend class SimpleVector;
+        friend class Vector;
     public:
         inline const_iterator()
             :current(0),
@@ -429,83 +503,151 @@ private:
 };
 
 
-/** A SimpleVector with extra interfaces attached.
-    So it behaves like a Stack, Deque, RandomAccessContainer, etc... at the cost of slightly more
-    memory usage to represent the various vtables, but in general you can ignore this.
-*/
-template<class T>class Vector :
-        public SimpleVector<T>,
-        public Stack<T>,
-        public Deque<T>,
-        public RandomAccessContainer<T>
+/** Provides an "attachable" stack interface to the vector. */
+template<class T>class VectorStack : public Stack<T>
 {
 public:
 
-    inline Vector(){}
-    inline Vector(int capacity) :SimpleVector<T>(capacity){}
-    inline Vector(const T &o, GUINT32 size) :SimpleVector<T>(o, size){}
-    inline Vector(T const*arr, GUINT32 size) :SimpleVector<T>(arr, size){}
-    inline Vector(const typename SimpleVector<T>::const_iterator &iter_begin,
-                  const typename SimpleVector<T>::const_iterator &iter_end)
-        :SimpleVector<T>(iter_begin, iter_end){}
-
-
-    /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ this->Insert(i, Vector<T>::end()); }
-    /** Satisfies the Stack abstract interface. */
-    inline void Pop(){ this->Remove( Vector<T>::rbegin() ); }
-    /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return (*this)[Vector<T>::Length() - 1]; }
-    /** Satisfies the Stack abstract interface. */
-    T &Top(){ return (*this)[Vector<T>::Length() - 1]; }
-    /** Satisfies the Stack abstract interface. */
-    GUINT32 CountStackItems() const{ return Vector<T>::Length(); }
-    /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ Vector<T>::Clear(); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PushBack(const T &i){ this->Insert(i, Vector<T>::end()); }
-    /** Satisfies the Deque abstract interface. */
-    void PopBack(){ this->Remove( Vector<T>::rbegin() ); }
-    /** Satisfies the Deque abstract interface. */
-    void PushFront(const T &i){ this->Insert(i, Vector<T>::begin()); }
-    /** Satisfies the Deque abstract interface. */
-    void PopFront(){ this->Remove( Vector<T>::begin() ); }
-    /** Satisfies the Deque abstract interface. */
-    T &Front(){ return (*this)[0]; }
-    /** Satisfies the Deque abstract interface. */
-    const T &Front() const{ return (*this)[0]; }
-    /** Satisfies the Deque abstract interface. */
-    T &Back(){ return (*this)[Vector<T>::Length() - 1]; }
-    /** Satisfies the Deque abstract interface. */
-    const T &Back() const{ return (*this)[Vector<T>::Length() - 1]; }
-    /** Satisfies the Deque abstract interface. */
-    GUINT32 CountDequeItems() const{ return Vector<T>::Length(); }
-    /** Satisfies the Deque abstract interface. */
-    void FlushDeque(){ Vector<T>::Clear(); }
-
-    /** Accesses the element at the given index.  This DOES do bounds checking, and will
-        throw an IndexOutOfRangeException if the index is invalid.
-        Satisfies the RandomAccessContainer abstract interface.
+    /** Attaches the stack interface to the vector.
+        We will not delete your vector; that is up to you, because you may attach multiple
+        interfaces to the same vector.
     */
-    T &At(GUINT32 i){
-        if(i >= Vector<T>::Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return (*this)[i];
-    }
-    /** Accesses the element at the given index.  This DOES do bounds checking, and will
-        throw an IndexOutOfRangeException if the index is invalid.
-        Satisfies the RandomAccessContainer abstract interface.
-    */
-    const T &At(GUINT32 i) const{
-        if(i >= Vector<T>::Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return (*this)[i];
-    }
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    GUINT32 CountContainerItems() const{ return Vector<T>::Length(); }
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    void FlushContainer(){ Vector<T>::Clear(); }
+    inline VectorStack(Vector<T> *vec) :m_vector(vec){}
+
+
+    /** Satisfies the Stack abstract interface. */
+    void Push(const T &i){ m_vector->Insert(i, m_vector->Length()); }
+
+    /** Satisfies the Stack abstract interface. */
+    void Pop(){ m_vector->RemoveAt( m_vector->Length() - 1 ); }
+
+    /** Satisfies the Stack abstract interface. */
+    const T &Top() const{ return (*m_vector)[m_vector->Length() - 1]; }
+
+    /** Satisfies the Stack abstract interface. */
+    T &Top(){ return (*m_vector)[m_vector->Length() - 1]; }
+
+    /** Satisfies the Stack abstract interface. */
+    GUINT32 CountStackItems() const{ return m_vector->Length(); }
+
+    /** Satisfies the Stack abstract interface. */
+    void FlushStack(){ m_vector->Clear(); }
+
+
+private:
+
+    Vector<T> *m_vector;
 
 };
+
+
+template<class T>class VectorQueue : public Queue<T>
+{
+public:
+
+    /** Attaches the Queue interface to the vector.
+        We will not delete your vector; that is up to you, because you may attach multiple
+        interfaces to the same vector.
+    */
+    inline VectorQueue(Vector<T> *vec) :m_vector(vec){}
+
+    /** Satisfies the Queue abstract interface. */
+    void Enqueue(const T &i){ m_vector->Insert(i, m_vector->Length()); }
+
+    /** Satisfies the Queue abstract interface. */
+    void Dequeue(){ m_vector->RemoveAt( 0 ); }
+
+    /** Satisfies the Queue abstract interface. */
+    T &Front(){ return (*m_vector)[0]; }
+
+    /** Satisfies the Queue abstract interface. */
+    const T &Front() const{ return (*m_vector)[0]; }
+
+    /** Satisfies the Queue abstract interface. */
+    GUINT32 CountQueueItems() const{ return m_vector->Length(); }
+
+    /** Satisfies the Queue abstract interface. */
+    void FlushQueue(){ m_vector->Clear(); }
+
+
+private:
+
+    Vector<T> *m_vector;
+
+};
+
+
+template<class T>class VectorDeque : public Deque<T>
+{
+public:
+
+    /** Attaches the Deque interface to the vector.
+        We will not delete your vector; that is up to you, because you may attach multiple
+        interfaces to the same vector.
+    */
+    inline VectorDeque(Vector<T> *vec) :m_vector(vec){}
+
+    /** Satisfies the Deque abstract interface. */
+    void PushBack(const T &i){ m_vector->Insert(i, m_vector->Length()); }
+
+    /** Satisfies the Deque abstract interface. */
+    void PopBack(){ m_vector->RemoveAt( m_vector->Length() - 1 ); }
+
+    /** Satisfies the Deque abstract interface. */
+    void PushFront(const T &i){ m_vector->Insert(i, 0); }
+
+    /** Satisfies the Deque abstract interface. */
+    void PopFront(){ m_vector->RemoveAt( 0 ); }
+
+    /** Satisfies the Deque abstract interface. */
+    T &Front(){ return (*m_vector)[0]; }
+
+    /** Satisfies the Deque abstract interface. */
+    const T &Front() const{ return (*m_vector)[0]; }
+
+    /** Satisfies the Deque abstract interface. */
+    T &Back(){ return (*m_vector)[m_vector->Length() - 1]; }
+
+    /** Satisfies the Deque abstract interface. */
+    const T &Back() const{ return (*m_vector)[m_vector->Length() - 1]; }
+
+    /** Satisfies the Deque abstract interface. */
+    GUINT32 CountDequeItems() const{ return m_vector->Length(); }
+
+    /** Satisfies the Deque abstract interface. */
+    void FlushDeque(){ m_vector->Clear(); }
+
+
+private:
+
+    Vector<T> *m_vector;
+
+};
+
+
+template<class T>class VectorRandomAccessContainer : public RandomAccessContainer<T>
+{
+public:
+
+    /** Satisfies the RandomAccessContainer abstract interface. */
+    T &At(GUINT32 i){ return (*m_vector)[i]; }
+
+    /** Satisfies the RandomAccessContainer abstract interface. */
+    const T &At(GUINT32 i) const{ return (*m_vector)[i]; }
+
+    /** Satisfies the RandomAccessContainer abstract interface. */
+    GUINT32 CountContainerItems() const{ return m_vector->Length(); }
+
+    /** Satisfies the RandomAccessContainer abstract interface. */
+    void FlushContainer(){ m_vector->Clear(); }
+
+
+private:
+
+    Vector<T> *m_vector;
+
+};
+
 
 
 GUTIL_END_CORE_NAMESPACE;
@@ -514,10 +656,11 @@ GUTIL_END_CORE_NAMESPACE;
 namespace GUtil
 {
 
-// Both vector types can be binary-moved, so we get a huge performance benefit for
-//  a Vector<Vector<T>> type
-template<class T>struct IsMovableType< Core::DataObjects::SimpleVector<T> >{ enum{ Value = 1 }; };
 template<class T>struct IsMovableType< Core::DataObjects::Vector<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::VectorStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::VectorQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::VectorDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::VectorRandomAccessContainer<T> >{ enum{ Value = 1 }; };
 
 }
 

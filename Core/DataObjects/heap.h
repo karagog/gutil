@@ -53,7 +53,7 @@ public:
 
 private:
 
-    SimpleVector<T> data;
+    Vector<T> data;
     FlexibleTypeComparer<T> compare;
 
 };
@@ -66,7 +66,7 @@ namespace GUtil
 {
 
 template<class T>struct IsMovableType< Core::DataObjects::Heap<T> > :
-        public IsMovableType< Core::DataObjects::SimpleVector<T> >{};
+        public IsMovableType< Core::DataObjects::Vector<T> >{};
 template<class T>struct IsMovableType< Core::DataObjects::List<T> >{ enum{ Value = 1 }; };
 
 }

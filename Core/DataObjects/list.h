@@ -331,7 +331,7 @@ protected:
 
 private:
 
-    SimpleVector<T*> d;
+    Vector<T*> d;
     GUINT32 m_size;
     int m_pageCount;
 
