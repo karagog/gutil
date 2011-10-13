@@ -19,7 +19,7 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
-/** The SimpleDList provides a doubly-linked list.
+/** The DList provides a doubly-linked list.
 
     Doubly-linked lists are optimized for lots of insertions/removals, but do not allow random-access
     to the elements.  The only way to access items inside the list (other than the front and back)
@@ -29,7 +29,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     \sa List, Vector, SList
 */
-template<class T>class SimpleDList
+template<class T>class DList
 {
 
     /** Describes a node of the dlist. */
@@ -122,6 +122,27 @@ public:
         m_size--;
     }
 
+    inline void PushFront(const T &i)
+    {
+        iterator b(begin());
+        Insert(i, b);
+    }
+    inline void PushBack(const T &i)
+    {
+        iterator e(end());
+        Insert(i, e);
+    }
+    inline void PopFront()
+    {
+        iterator b(begin());
+        Remove(b);
+    }
+    inline void PopBack()
+    {
+        iterator e(rbegin());
+        Remove(e);
+    }
+
     /** How many items are in the dlist. */
     inline GUINT32 Length() const{ return m_size; }
     inline GUINT32 Count() const{ return m_size; }
@@ -136,7 +157,7 @@ public:
     /** A bidirectional iterator through the list. */
     class iterator
     {
-        friend class SimpleDList;
+        friend class DList;
     public:
         inline iterator(node *n = 0)
             :current(n){}
@@ -202,7 +223,7 @@ public:
     /** A bidirectional iterator through the list. */
     class const_iterator
     {
-        friend class SimpleDList;
+        friend class DList;
     public:
         inline const_iterator(node *n = 0)
             :current(n){}
@@ -278,14 +299,14 @@ public:
     inline const_iterator rend() const{ return --const_iterator(m_first); }
 
     /** Builds an empty list. */
-    inline SimpleDList()
+    inline DList()
         :m_size(0),
           m_first(0),
           m_last(0)
     {}
 
     /** Constructs a list with the item in it. */
-    inline SimpleDList(const T &i)
+    inline DList(const T &i)
         :m_size(0),
           m_first(0),
           m_last(0)
@@ -297,13 +318,13 @@ public:
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    inline SimpleDList(const SimpleDList<T> &o)
+    inline DList(const DList<T> &o)
         :m_size(0),
           m_first(0),
           m_last(0)
     {
-        SimpleDList<T>::const_iterator iter(o.begin());
-        SimpleDList<T>::iterator e(end());
+        DList<T>::const_iterator iter(o.begin());
+        DList<T>::iterator e(end());
         while(iter)
         {
             Insert(*iter, e);
@@ -311,15 +332,15 @@ public:
         }
     }
 
-    inline ~SimpleDList(){ Clear(); }
+    inline ~DList(){ Clear(); }
 
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    inline SimpleDList<T> &operator =(const SimpleDList<T> &o){ new(this) SimpleDList<T>(o); return *this; }
+    inline DList<T> &operator =(const DList<T> &o){ new(this) DList<T>(o); return *this; }
 
     /** This is useful for chaining push commands together.  Ex: q << 1 << 2 << 3*/
-    inline SimpleDList<T> &operator <<(const T &i){ PushBack(i); return *this; }
+    inline DList<T> &operator <<(const T &i){ PushBack(i); return *this; }
 
 
 private:
@@ -332,66 +353,110 @@ private:
 
 
 
-template<class T>class DList :
-        public SimpleDList<T>,
-        public Stack<T>,
-        public Deque<T>
+template<class T>class DListStack : public Stack<T>
 {
 public:
 
-    inline DList(){}
-    inline DList(const SimpleDList<T> &o) :SimpleDList<T>(o){}
-
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PushFront(const T &i){ typename SimpleDList<T>::iterator b(DList<T>::begin()); this->Insert(i, b); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PushBack(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); this->Insert(i, e); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PopFront(){ typename SimpleDList<T>::iterator b(DList<T>::begin()); this->Remove(b); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void PopBack(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); this->Remove(e); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    const T &Front() const{ return *DList<T>::begin(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    T &Front(){ return *DList<T>::begin(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    const T &Back() const{ return *DList<T>::rbegin(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    T &Back(){ return *DList<T>::rbegin(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    void FlushDeque(){ DList<T>::Clear(); }
-
-    /** Satisfies the Dequeue abstract interface. */
-    GUINT32 CountDequeItems() const{ return DList<T>::Count(); }
-
-
+    inline DListStack(DList<T> *lst) :m_list(lst){}
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ typename SimpleDList<T>::iterator e(DList<T>::end()); this->Insert(i, e); }
+    void Push(const T &i){ m_list->PushBack(i); }
 
     /** Satisfies the Stack abstract interface. */
-    void Pop(){ typename SimpleDList<T>::iterator e(DList<T>::rbegin()); this->Remove(e); }
+    void Pop(){ m_list->PopBack(); }
 
     /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return *DList<T>::rbegin(); }
+    const T &Top() const{ return *m_list->rbegin(); }
 
     /** Satisfies the Stack abstract interface. */
-    T &Top(){ return *DList<T>::rbegin(); }
+    T &Top(){ return *m_list->rbegin(); }
 
     /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ DList<T>::Clear(); }
+    void FlushStack(){ m_list->Clear(); }
 
     /** Satisfies the Stack abstract interface. */
-    GUINT32 CountStackItems() const{ return DList<T>::Count(); }
+    GUINT32 CountStackItems() const{ return m_list->Count(); }
+
+
+private:
+
+    DList<T> *m_list;
+
+};
+
+
+template<class T>class DListQueue : public Queue<T>
+{
+public:
+
+    inline DListQueue(DList<T> *lst) :m_list(lst){}
+
+    /** Satisfies the Queue abstract interface. */
+    void Enqueue(const T &i){ m_list->PushBack(i); }
+
+    /** Satisfies the Queue abstract interface. */
+    void Dequeue(){ m_list->PopFront(); }
+
+    /** Satisfies the Queue abstract interface. */
+    T &Front(){ return *m_list->begin(); }
+
+    /** Satisfies the Queue abstract interface. */
+    const T &Front() const{ return *m_list->begin(); }
+
+    /** Satisfies the Queue abstract interface. */
+    void FlushQueue(){ m_list->Clear(); }
+
+    /** Satisfies the Queue abstract interface. */
+    GUINT32 CountQueueItems() const{ return m_list->Count(); }
+
+
+private:
+
+    DList<T> *m_list;
+
+};
+
+
+template<class T>class DListDeque : public Deque<T>
+{
+public:
+
+    inline DListDeque(DList<T> *lst) :m_list(lst){}
+
+    /** Satisfies the Deque abstract interface. */
+    void PushFront(const T &i){ m_list->PushFront(i); }
+
+    /** Satisfies the Deque abstract interface. */
+    void PushBack(const T &i){ m_list->PushBack(i); }
+
+    /** Satisfies the Deque abstract interface. */
+    void PopFront(){ m_list->PopFront(); }
+
+    /** Satisfies the Deque abstract interface. */
+    void PopBack(){ m_list->PopBack(); }
+
+    /** Satisfies the Deque abstract interface. */
+    const T &Front() const{ return *m_list->begin(); }
+
+    /** Satisfies the Deque abstract interface. */
+    T &Front(){ return *m_list->begin(); }
+
+    /** Satisfies the Deque abstract interface. */
+    const T &Back() const{ return *m_list->rbegin(); }
+
+    /** Satisfies the Deque abstract interface. */
+    T &Back(){ return *m_list->rbegin(); }
+
+    /** Satisfies the Deque abstract interface. */
+    void FlushDeque(){ m_list->Clear(); }
+
+    /** Satisfies the Deque abstract interface. */
+    GUINT32 CountDequeItems() const{ return m_list->Count(); }
+
+
+private:
+
+    DList<T> *m_list;
 
 };
 
@@ -403,8 +468,10 @@ namespace GUtil
 {
 
 // Both DList types can be binary-moved
-template<class T>struct IsMovableType< Core::DataObjects::SimpleDList<T> >{ enum{ Value = 1 }; };
 template<class T>struct IsMovableType< Core::DataObjects::DList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::DListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::DListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::DListDeque<T> >{ enum{ Value = 1 }; };
 
 }
 

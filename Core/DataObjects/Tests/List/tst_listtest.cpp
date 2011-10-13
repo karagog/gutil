@@ -66,7 +66,7 @@ void ListTest::test_basic_function()
     for(int i(-1); i < 10; ++i)
         QVERIFY2(i == lst[i + 1], QString("%1 != %2").arg(i).arg(lst[i + 1]).toAscii());
 
-    lst.Remove(0);
+    lst.RemoveAt(0);
     QVERIFY(lst.Size() == 10);
     for(int i(0); i < 10; ++i)
         QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toAscii());
@@ -102,7 +102,7 @@ void ListTest::test_non_primitive_type()
     QVERIFY(lst[2].Value1 == 0);
     QVERIFY(lst[2].Value2 == 1);
 
-    lst.Remove(0);
+    lst.RemoveAt(0);
     QVERIFY(lst[0].Value1 == 0);
     QVERIFY(lst[0].Value2 == 0);
     QVERIFY(lst[1].Value1 == 0);
@@ -116,7 +116,7 @@ void ListTest::test_lots()
     List<int> lst;
     for(int i(0); i < NUMBER; ++i)
     {
-        lst.Push(i);
+        lst.Append(i);
         QVERIFY(lst.Size() == i + 1);
     }
 
@@ -124,7 +124,7 @@ void ListTest::test_lots()
         QVERIFY2(lst[i] == i, QString("%1 != %2").arg(lst[i]).arg(i).toAscii());
 
     for(int i(0); i < NUMBER; ++i)
-        lst.Pop();
+        lst.RemoveAt(lst.Size() - 1);
 }
 
 

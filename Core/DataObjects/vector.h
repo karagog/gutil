@@ -264,11 +264,11 @@ public:
     */
     inline void RemoveAll(const T &o)
     {
-        T *cur(m_begin);
-        for(GUINT32 i(0); i < m_length; ++i, ++cur)
+        T *cur(m_begin + m_length - 1);
+        for(GUINT32 i(0); i < m_length; ++i, --cur)
         {
             if(o == *cur)
-                RemoveAt(i);
+                RemoveAt(m_length - i - 1);
         }
     }
 

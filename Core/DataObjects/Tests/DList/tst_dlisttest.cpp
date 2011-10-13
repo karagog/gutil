@@ -54,7 +54,7 @@ void DListTest::testCase1()
     QVERIFY(list.Count() == 0);
 
     // Test the stack interface
-    Stack<int> &stk( list );
+    DListStack<int> stk( &list );
     stk.Push(4);
     stk.Push(3);
     stk.Push(2);
@@ -69,7 +69,7 @@ void DListTest::testCase1()
     QVERIFY(stk.CountStackItems() == 0);
 
     // Test the queue interface.
-    Queue<int> &q(list);
+    DListQueue<int> q(&list);
     q.Enqueue(0);
     q.Enqueue(1);
     q.Enqueue(2);

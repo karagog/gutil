@@ -33,28 +33,28 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
     \sa Vector, Dlist, SList
 */
-template<class T>class SimpleList
+template<class T>class List
 {
     friend class iterator;
     friend class const_iterator;
 public:
 
     /** Constructs an empty list. */
-    inline SimpleList()
+    inline List()
         :d(0),
           m_size(0),
           m_pageCount(0)
     {}
 
     /** Constructs an empty list with the given storage capacity. */
-    inline SimpleList(GUINT32 reserve_capacity)
+    inline List(GUINT32 reserve_capacity)
         :m_size(0),
           m_pageCount(0)
     {
         Reserve(reserve_capacity);
     }
 
-    inline SimpleList(const SimpleList &o)
+    inline List(const List &o)
         :m_size(0),
           m_pageCount(0)
     {
@@ -62,7 +62,7 @@ public:
 
     }
 
-    inline ~SimpleList(){ Clear(); }
+    inline ~List(){ Clear(); }
 
 
     /** How many items are in the list. */
@@ -148,7 +148,7 @@ public:
         Called any time an item is removed from the list.
         \note O(N) on average, unless you always remove from the end of the list.
     */
-    void Remove(GUINT32 indx)
+    void RemoveAt(GUINT32 indx)
     {
         GASSERT(indx <= m_size);
 
@@ -191,6 +191,50 @@ public:
         --m_size;
     }
 
+    /** Removes the first instance of the item.  The type T must have a comparison operator.
+        \note O(n)
+    */
+    inline void RemoveOne(const T &o)
+    {
+        for(GUINT32 i(0); i < m_size; ++i)
+        {
+            if(o == (*this)[i])
+            {
+                RemoveAt(i);
+                break;
+            }
+        }
+    }
+
+    /** Removes the last instance of the item.  The type T must have a comparison operator.
+        \note O(n)
+    */
+    inline void RemoveLast(const T &o)
+    {
+        for(GUINT32 i(0); i < m_size; ++i)
+        {
+            const GUINT32 cur( m_size - i - 1 );
+            if(o == (*this)[cur])
+            {
+                RemoveAt(cur);
+                break;
+            }
+        }
+    }
+
+    /** Removes all instances of the item.  The type T must have a comparison operator.
+        \note O(n)
+    */
+    inline void RemoveAll(const T &o)
+    {
+        for(GUINT32 i(0); i < m_size; ++i)
+        {
+            const GUINT32 cur( m_size - 1 - i );
+            if(o == (*this)[cur])
+                RemoveAt(cur);
+        }
+    }
+
     /** Removes all items and clears all memory. */
     void Clear()
     {
@@ -216,7 +260,7 @@ public:
         \returns A reference to this list.
         \note O(M), where M:=length(l)
     */
-    inline SimpleList<T> &Append(const SimpleList<T> &l){
+    inline List<T> &Append(const List<T> &l){
         Reserve(Size() + l.Size());
         for(int i(0); i < l.Size(); ++i) Append(l[i]);
         return *this;
@@ -231,7 +275,7 @@ public:
         \returns A reference to this list.
         \note O(M*N), where M:=length(l) and N:=length(this)
     */
-    inline SimpleList<T> &Prepend(const SimpleList<T> &l){
+    inline List<T> &Prepend(const List<T> &l){
         Reserve(Size() + l.Size());
         for(int i(0); i < l.Size(); ++i) Insert(l[i], i);
         return *this;
@@ -244,7 +288,7 @@ public:
 
     class iterator
     {
-        friend class SimpleList;
+        friend class List;
     public:
 
         inline iterator() :d(0), current(0){}
@@ -266,17 +310,17 @@ public:
 
     protected:
 
-        inline iterator(SimpleList<T> *sl, GUINT32 cur)
+        inline iterator(List<T> *sl, GUINT32 cur)
             :d(sl), current(cur){}
 
-        SimpleList<T> *d;
+        List<T> *d;
         GUINT32 current;
 
     };
 
     class const_iterator
     {
-        friend class SimpleList;
+        friend class List;
     public:
 
         inline const_iterator() :d(0), current(0){}
@@ -300,10 +344,10 @@ public:
 
     protected:
 
-        inline const_iterator(SimpleList<T> &sl, GUINT32 cur)
+        inline const_iterator(List<T> &sl, GUINT32 cur)
             :d(sl), current(cur){}
 
-        SimpleList<T> *d;
+        List<T> *d;
         GUINT32 current;
 
     };
@@ -339,40 +383,88 @@ private:
 
 
 
-template<class T>class List :
-        public SimpleList<T>,
-        public Stack<T>,
-        public Deque<T>,
-        public RandomAccessContainer<T>
+template<class T>class ListStack : public Stack<T>
 {
 public:
 
-    inline List(){}
-    inline List(const SimpleList<T> &o) :SimpleList<T>(o){}
+    inline ListStack(List<T> *lst) :m_list(lst){}
+
+    void Push(const T &o){ m_list->Append(o); }
+    void Pop(){ m_list->RemoveAt( m_list->Size() - 1 ); }
+    const T &Top() const{ return (*m_list)[m_list->Size() - 1]; }
+    T &Top(){ return (*m_list)[m_list->Size() - 1]; }
+    GUINT32 CountStackItems() const{ return m_list->Size(); }
+    void FlushStack(){ m_list->Clear(); }
 
 
-    void Push(const T &o){ this->Insert(o, List<T>::Size()); }
-    void Pop(){ this->Remove( List<T>::Size() - 1 ); }
-    const T &Top() const{ return *at(List<T>::Size() - 1); }
-    T &Top(){ return *List<T>::at(List<T>::Size() - 1); }
-    GUINT32 CountStackItems() const{ return List<T>::Size(); }
-    void FlushStack(){ List<T>::Clear(); }
+private:
 
-    void PushBack(const T &o){ this->Insert(o, List<T>::Size()); }
-    void PushFront(const T &o){ this->Insert(o, 0); }
-    void PopBack(){ this->Remove( List<T>::Size() - 1 ); }
-    void PopFront(){ this->Remove( 0 ); }
-    const T &Front() const{ return *List<T>::at(0); }
-    T &Front(){ return *List<T>::at(0); }
-    const T &Back() const{ return *List<T>::at(List<T>::Size() - 1); }
-    T &Back(){ return *List<T>::at(List<T>::Size() - 1); }
-    GUINT32 CountDequeItems() const{ return List<T>::Size(); }
-    void FlushDeque(){ List<T>::Clear(); }
+    List<T> *m_list;
 
-    const T &At(GUINT32 i) const{ return *List<T>::at(i); }
-    T &At(GUINT32 i){ return *List<T>::at(i); }
-    GUINT32 CountContainerItems() const{ return List<T>::Size(); }
-    void FlushContainer(){ List<T>::Clear(); }
+};
+
+
+template<class T>class ListQueue : public Queue<T>
+{
+public:
+
+    inline ListQueue(List<T> *lst) :m_list(lst){}
+
+    void Enqueue(const T &o){ m_list->Append(o); }
+    void Dequeue(){ m_list->RemoveAt(0); }
+    T &Front(){ return (*m_list)[0]; }
+    const T &Front() const{ return (*m_list)[0]; }
+    void FlushQueue(){ m_list->Clear(); }
+    GUINT32 CountQueueItems() const{ return m_list->Size(); }
+
+
+private:
+
+    List<T> *m_list;
+
+};
+
+
+template<class T>class ListDeque : public Deque<T>
+{
+public:
+
+    inline ListDeque(List<T> *lst) :m_list(lst){}
+
+    void PushBack(const T &o){ m_list->Append(o); }
+    void PushFront(const T &o){ m_list->Prepend(o); }
+    void PopBack(){ m_list->RemoveAt( m_list->Size() - 1 ); }
+    void PopFront(){ m_list->RemoveAt( 0 ); }
+    const T &Front() const{ return (*m_list)[0]; }
+    T &Front(){ return (*m_list)[0]; }
+    const T &Back() const{ return (*m_list)[m_list->Size() - 1]; }
+    T &Back(){ return (*m_list)[m_list->Size() - 1]; }
+    GUINT32 CountDequeItems() const{ return m_list->Size(); }
+    void FlushDeque(){ m_list->Clear(); }
+
+
+private:
+
+    List<T> *m_list;
+
+};
+
+
+template<class T>class ListRandomAccessContainer : public RandomAccessContainer<T>
+{
+public:
+
+    inline ListRandomAccessContainer(List<T> *lst) :m_list(lst){}
+
+    const T &At(GUINT32 i) const{ return *m_list->at(i); }
+    T &At(GUINT32 i){ return *m_list->at(i); }
+    GUINT32 CountContainerItems() const{ return m_list->Size(); }
+    void FlushContainer(){ m_list->Clear(); }
+
+
+private:
+
+    List<T> *m_list;
 
 };
 
@@ -383,8 +475,11 @@ GUTIL_END_CORE_NAMESPACE;
 namespace GUtil
 {
 
-template<class T>struct IsMovableType< Core::DataObjects::SimpleList<T> >{ enum{ Value = 1 }; };
 template<class T>struct IsMovableType< Core::DataObjects::List<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::ListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::ListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::ListDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< Core::DataObjects::ListRandomAccessContainer<T> >{ enum{ Value = 1 }; };
 
 }
 
