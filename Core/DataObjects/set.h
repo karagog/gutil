@@ -306,8 +306,7 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
             m_size -= s.Count();
             s.Clear();
         }
-        typename DList<T>::iterator top(s.begin());
-        s.Insert(i, top);
+        s.PushFront(i);
     }
     else
     {
@@ -322,8 +321,7 @@ template<class T>void Set<T>::_remove(const T &i, bool all)
     if(iter)
     {
         DList<T> &s(iter.stack());
-        typename DList<T>::iterator top(s.begin());
-        s.Remove(top);
+        s.PopFront();
         --m_size;
         int cnt( s.Count() );
         if(all || cnt == 0)

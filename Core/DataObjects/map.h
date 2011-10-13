@@ -44,14 +44,14 @@ template<class K, class V>class Map
         K Key;
 
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
-        inline V &Value(){ return values.Top(); }
+        inline V &Value(){ return values[values.Size() - 1]; }
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
-        inline const V &Value() const{ return values.Top(); }
+        inline const V &Value() const{ return values[values.Size() - 1]; }
 
         /** Returns the stack of values associated with Key.
             You cannot modify the stack, but you can modify the values in it.
         */
-        inline const Stack<V> &Values() const{ return values; }
+        inline const Vector<V> &Values() const{ return values; }
 
     protected:
 
@@ -211,8 +211,8 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
     if(iter)
     {
         if(overwrite)
-            iter->values.FlushStack();
-        iter->values.Push(value);
+            iter->values.Clear();
+        iter->values.Insert(value, iter->values.Size());
     }
     else
     {
@@ -228,7 +228,7 @@ namespace GUtil
 {
 
 // The map is binary-movable only if the BinarySearchTree is
-template<class T>struct IsMovableType< Core::DataObjects::Map<T> > :
+template<class T, class U>struct IsMovableType< Core::DataObjects::Map<T, U> > :
         public IsMovableType< Core::DataObjects::BinarySearchTree<T> >{};
 
 }

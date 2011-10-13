@@ -79,7 +79,7 @@ void MapTest::test_basic_function()
     map.Insert(100, "one");
     map.InsertMulti(100, "two");
     QVERIFY((iter = map.Search(100))->Value() == "two");
-    QVERIFY(iter->Values().CountStackItems() == 2);
+    QVERIFY(iter->Values().Size() == 2);
 
 //    // Test our auto-remove key when the last value is popped
 //    iter->Values().Pop();
@@ -113,16 +113,16 @@ void MapTest::test_iterators()
         switch(iter->Key)
         {
         case 1:
-            QVERIFY(iter->Values().Top() == "One");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "One");
             break;
         case 2:
-            QVERIFY(iter->Values().Top() == "Two");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Two");
             break;
         case 3:
-            QVERIFY(iter->Values().Top() == "Three");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Three");
             break;
         case 4:
-            QVERIFY(iter->Values().Top() == "Four");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Four");
             break;
         default:
             QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
@@ -139,16 +139,16 @@ void MapTest::test_iterators()
         switch(iter->Key)
         {
         case 1:
-            QVERIFY(iter->Values().Top() == "One");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "One");
             break;
         case 2:
-            QVERIFY(iter->Values().Top() == "Two");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Two");
             break;
         case 3:
-            QVERIFY(iter->Values().Top() == "Three");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Three");
             break;
         case 4:
-            QVERIFY(iter->Values().Top() == "Four");
+            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Four");
             break;
         default:
             QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
