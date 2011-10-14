@@ -272,6 +272,11 @@ public:
         }
     }
 
+    inline void PushFront(const T &o){ Insert(o, 0); }
+    inline void PushBack(const T &o){ Insert(o, m_length); }
+    inline void PopFront(){ RemoveAt(0); }
+    inline void PopBack(){ RemoveAt(m_length - 1); }
+
     /** Reserves room for at least this many items.
         Pass 0 to clear memory.
     */
@@ -506,20 +511,28 @@ private:
 /** Provides an "attachable" stack interface to the vector. */
 template<class T>class VectorStack : public Stack<T>
 {
+    GUTIL_DISABLE_COPY(VectorStack<T>)
 public:
 
     /** Attaches the stack interface to the vector.
         We will not delete your vector; that is up to you, because you may attach multiple
         interfaces to the same vector.
     */
-    inline VectorStack(Vector<T> *vec) :m_vector(vec){}
+    inline VectorStack(Vector<T> *vec) :m_vector(vec), m_delete(false){}
+
+    /** Creates a new Vector with a stack interface.
+        Use this if you don't want to supply a pre-existing vector object.
+    */
+    inline VectorStack() :m_vector(new Vector<T>), m_delete(true){}
+
+    inline ~VectorStack(){ if(m_delete) delete m_vector; }
 
 
     /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ m_vector->Insert(i, m_vector->Length()); }
+    void Push(const T &i){ m_vector->PushBack(i); }
 
     /** Satisfies the Stack abstract interface. */
-    void Pop(){ m_vector->RemoveAt( m_vector->Length() - 1 ); }
+    void Pop(){ m_vector->PopBack(); }
 
     /** Satisfies the Stack abstract interface. */
     const T &Top() const{ return (*m_vector)[m_vector->Length() - 1]; }
@@ -537,25 +550,34 @@ public:
 private:
 
     Vector<T> *m_vector;
+    bool m_delete;
 
 };
 
 
 template<class T>class VectorQueue : public Queue<T>
 {
+    GUTIL_DISABLE_COPY(VectorQueue<T>)
 public:
 
     /** Attaches the Queue interface to the vector.
         We will not delete your vector; that is up to you, because you may attach multiple
         interfaces to the same vector.
     */
-    inline VectorQueue(Vector<T> *vec) :m_vector(vec){}
+    inline VectorQueue(Vector<T> *vec) :m_vector(vec), m_delete(false){}
+
+    /** Creates a new Vector with a queue interface.
+        Use this if you don't want to supply a pre-existing vector object.
+    */
+    inline VectorQueue() :m_vector(new Vector<T>), m_delete(true){}
+
+    inline ~VectorQueue(){ if(m_delete) delete m_vector; }
 
     /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ m_vector->Insert(i, m_vector->Length()); }
+    void Enqueue(const T &i){ m_vector->PushBack(i); }
 
     /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ m_vector->RemoveAt( 0 ); }
+    void Dequeue(){ m_vector->PopFront(); }
 
     /** Satisfies the Queue abstract interface. */
     T &Front(){ return (*m_vector)[0]; }
@@ -573,31 +595,40 @@ public:
 private:
 
     Vector<T> *m_vector;
+    bool m_delete;
 
 };
 
 
 template<class T>class VectorDeque : public Deque<T>
 {
+    GUTIL_DISABLE_COPY(VectorDeque<T>)
 public:
 
     /** Attaches the Deque interface to the vector.
         We will not delete your vector; that is up to you, because you may attach multiple
         interfaces to the same vector.
     */
-    inline VectorDeque(Vector<T> *vec) :m_vector(vec){}
+    inline VectorDeque(Vector<T> *vec) :m_vector(vec), m_delete(false){}
+
+    /** Creates a new Vector with a queue interface.
+        Use this if you don't want to supply a pre-existing vector object.
+    */
+    inline VectorDeque() :m_vector(new Vector<T>), m_delete(true){}
+
+    inline ~VectorDeque(){ if(m_delete) delete m_vector; }
 
     /** Satisfies the Deque abstract interface. */
-    void PushBack(const T &i){ m_vector->Insert(i, m_vector->Length()); }
+    void PushBack(const T &i){ m_vector->PushBack(i); }
 
     /** Satisfies the Deque abstract interface. */
-    void PopBack(){ m_vector->RemoveAt( m_vector->Length() - 1 ); }
+    void PopBack(){ m_vector->PopBack(); }
 
     /** Satisfies the Deque abstract interface. */
-    void PushFront(const T &i){ m_vector->Insert(i, 0); }
+    void PushFront(const T &i){ m_vector->PushFront(i); }
 
     /** Satisfies the Deque abstract interface. */
-    void PopFront(){ m_vector->RemoveAt( 0 ); }
+    void PopFront(){ m_vector->PopFront(); }
 
     /** Satisfies the Deque abstract interface. */
     T &Front(){ return (*m_vector)[0]; }
@@ -621,13 +652,21 @@ public:
 private:
 
     Vector<T> *m_vector;
+    bool m_delete;
 
 };
 
 
 template<class T>class VectorRandomAccessContainer : public RandomAccessContainer<T>
 {
+    GUTIL_DISABLE_COPY(VectorRandomAccessContainer<T>)
 public:
+
+    inline VectorRandomAccessContainer(Vector<T> *vec) :m_vector(vec), m_delete(false){}
+
+    inline VectorRandomAccessContainer() :m_vector(new Vector<T>), m_delete(true){}
+
+    inline ~VectorRandomAccessContainer(){ if(m_delete) delete m_vector; }
 
     /** Satisfies the RandomAccessContainer abstract interface. */
     T &At(GUINT32 i){ return (*m_vector)[i]; }
@@ -645,6 +684,7 @@ public:
 private:
 
     Vector<T> *m_vector;
+    bool m_delete;
 
 };
 

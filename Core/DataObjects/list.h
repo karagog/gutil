@@ -266,6 +266,9 @@ public:
         return *this;
     }
 
+    /** Removes the first item in the list. */
+    inline void RemoveLast(){ RemoveAt(m_size - 1); }
+
     /** Prepends an item to the list.
         \note O(N)
     */
@@ -281,7 +284,12 @@ public:
         return *this;
     }
 
+    /** Removes the last item in the list. */
+    inline void RemoveFirst(){ RemoveAt(0); }
+
+    /** Returns the item at the given index.  Does not do bounds checking. */
     inline const T &operator [](GUINT32 indx) const{ return *at(indx); }
+    /** Returns the item at the given index.  Does not do bounds checking. */
     inline T &operator [](GUINT32 indx){ return *at(indx); }
 
 
@@ -385,12 +393,15 @@ private:
 
 template<class T>class ListStack : public Stack<T>
 {
+    GUTIL_DISABLE_COPY(ListStack<T>)
 public:
 
-    inline ListStack(List<T> *lst) :m_list(lst){}
+    inline ListStack(List<T> *lst) :m_list(lst), m_delete(false){}
+    inline ListStack() :m_list(new List<T>), m_delete(true){}
+    inline ~ListStack(){ if(m_delete) delete m_list; }
 
     void Push(const T &o){ m_list->Append(o); }
-    void Pop(){ m_list->RemoveAt( m_list->Size() - 1 ); }
+    void Pop(){ m_list->RemoveLast(); }
     const T &Top() const{ return (*m_list)[m_list->Size() - 1]; }
     T &Top(){ return (*m_list)[m_list->Size() - 1]; }
     GUINT32 CountStackItems() const{ return m_list->Size(); }
@@ -400,18 +411,22 @@ public:
 private:
 
     List<T> *m_list;
+    bool m_delete;
 
 };
 
 
 template<class T>class ListQueue : public Queue<T>
 {
+    GUTIL_DISABLE_COPY(ListQueue<T>)
 public:
 
-    inline ListQueue(List<T> *lst) :m_list(lst){}
+    inline ListQueue(List<T> *lst) :m_list(lst), m_delete(false){}
+    inline ListQueue() :m_list(new List<T>), m_delete(true){}
+    inline ~ListQueue(){ if(m_delete) delete m_list; }
 
     void Enqueue(const T &o){ m_list->Append(o); }
-    void Dequeue(){ m_list->RemoveAt(0); }
+    void Dequeue(){ m_list->RemoveFirst(); }
     T &Front(){ return (*m_list)[0]; }
     const T &Front() const{ return (*m_list)[0]; }
     void FlushQueue(){ m_list->Clear(); }
@@ -421,20 +436,24 @@ public:
 private:
 
     List<T> *m_list;
+    bool m_delete;
 
 };
 
 
 template<class T>class ListDeque : public Deque<T>
 {
+    GUTIL_DISABLE_COPY(ListDeque<T>)
 public:
 
-    inline ListDeque(List<T> *lst) :m_list(lst){}
+    inline ListDeque(List<T> *lst) :m_list(lst), m_delete(false){}
+    inline ListDeque() :m_list(new List<T>), m_delete(true){}
+    inline ~ListDeque(){ if(m_delete) delete m_list; }
 
     void PushBack(const T &o){ m_list->Append(o); }
     void PushFront(const T &o){ m_list->Prepend(o); }
-    void PopBack(){ m_list->RemoveAt( m_list->Size() - 1 ); }
-    void PopFront(){ m_list->RemoveAt( 0 ); }
+    void PopBack(){ m_list->RemoveLast(); }
+    void PopFront(){ m_list->RemoveFirst(); }
     const T &Front() const{ return (*m_list)[0]; }
     T &Front(){ return (*m_list)[0]; }
     const T &Back() const{ return (*m_list)[m_list->Size() - 1]; }
@@ -446,15 +465,19 @@ public:
 private:
 
     List<T> *m_list;
+    bool m_delete;
 
 };
 
 
 template<class T>class ListRandomAccessContainer : public RandomAccessContainer<T>
 {
+    GUTIL_DISABLE_COPY(ListRandomAccessContainer<T>)
 public:
 
-    inline ListRandomAccessContainer(List<T> *lst) :m_list(lst){}
+    inline ListRandomAccessContainer(List<T> *lst) :m_list(lst), m_delete(false){}
+    inline ListRandomAccessContainer() :m_list(new List<T>), m_delete(true){}
+    inline ~ListRandomAccessContainer(){ if(m_delete) delete m_list; }
 
     const T &At(GUINT32 i) const{ return *m_list->at(i); }
     T &At(GUINT32 i){ return *m_list->at(i); }
@@ -465,6 +488,7 @@ public:
 private:
 
     List<T> *m_list;
+    bool m_delete;
 
 };
 

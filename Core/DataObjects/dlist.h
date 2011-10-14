@@ -355,9 +355,12 @@ private:
 
 template<class T>class DListStack : public Stack<T>
 {
+    GUTIL_DISABLE_COPY(DListStack<T>)
 public:
 
-    inline DListStack(DList<T> *lst) :m_list(lst){}
+    inline DListStack(DList<T> *lst) :m_list(lst), m_delete(false){}
+    inline DListStack() :m_list(new DList<T>), m_delete(true){}
+    inline ~DListStack(){ if(m_delete) delete m_list; }
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ m_list->PushBack(i); }
@@ -381,15 +384,19 @@ public:
 private:
 
     DList<T> *m_list;
+    bool m_delete;
 
 };
 
 
 template<class T>class DListQueue : public Queue<T>
 {
+    GUTIL_DISABLE_COPY(DListQueue<T>)
 public:
 
-    inline DListQueue(DList<T> *lst) :m_list(lst){}
+    inline DListQueue(DList<T> *lst) :m_list(lst), m_delete(false){}
+    inline DListQueue() :m_list(new DList<T>), m_delete(true){}
+    inline ~DListQueue(){ if(m_delete) delete m_list; }
 
     /** Satisfies the Queue abstract interface. */
     void Enqueue(const T &i){ m_list->PushBack(i); }
@@ -413,15 +420,19 @@ public:
 private:
 
     DList<T> *m_list;
+    bool m_delete;
 
 };
 
 
 template<class T>class DListDeque : public Deque<T>
 {
+    GUTIL_DISABLE_COPY(DListDeque<T>)
 public:
 
-    inline DListDeque(DList<T> *lst) :m_list(lst){}
+    inline DListDeque(DList<T> *lst) :m_list(lst), m_delete(false){}
+    inline DListDeque() :m_list(new DList<T>), m_delete(true){}
+    inline ~DListDeque(){ if(m_delete) delete m_list; }
 
     /** Satisfies the Deque abstract interface. */
     void PushFront(const T &i){ m_list->PushFront(i); }
@@ -457,6 +468,7 @@ public:
 private:
 
     DList<T> *m_list;
+    bool m_delete;
 
 };
 

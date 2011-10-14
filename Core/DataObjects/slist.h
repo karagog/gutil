@@ -282,9 +282,14 @@ private:
 
 template<class T>class SListStack : public Stack<T>
 {
+    GUTIL_DISABLE_COPY(SListStack<T>)
 public:
 
-    inline SListStack(SList<T> *lst) :m_list(lst){}
+    inline SListStack(SList<T> *lst) :m_list(lst), m_delete(false){}
+
+    inline SListStack() :m_list(new SList<T>), m_delete(true){}
+
+    inline ~SListStack(){ if(m_delete) delete m_list; }
 
     /** Satisfies the Stack abstract interface. */
     void Push(const T &i){ m_list->PushFront(i); }
@@ -308,16 +313,21 @@ public:
 private:
 
     SList<T> *m_list;
+    bool m_delete;
 
 };
 
 
 template<class T>class SListQueue : public Queue<T>
 {
+    GUTIL_DISABLE_COPY(SListQueue<T>)
 public:
 
-    inline SListQueue(SList<T> *lst) :m_list(lst){}
+    inline SListQueue(SList<T> *lst) :m_list(lst), m_delete(false){}
 
+    inline SListQueue() :m_list(new SList<T>), m_delete(true){}
+
+    inline ~SListQueue(){ if(m_delete) delete m_list; }
 
     /** Satisfies the Queue abstract interface. */
     void Enqueue(const T &i){ m_list->PushBack(i); }
@@ -341,6 +351,7 @@ public:
 private:
 
     SList<T> *m_list;
+    bool m_delete;
 
 };
 
