@@ -114,7 +114,7 @@ public:
             new(prev) T(*cur);
             prev = cur;
 
-            do
+            while(i > indx)
             {
                 cur = at(--i);
                 if(IsMovableType<T>::Value)
@@ -129,7 +129,7 @@ public:
                     *cur = *mem;
                 }
                 prev = cur;
-            }while(i > indx);
+            }
 
             if(mem) delete mem;
 
@@ -254,7 +254,7 @@ public:
     /** Appends an item to the list.
         \note O(1)
     */
-    inline void Append(const T &i){ Insert(i, Size()); }
+    inline void Append(const T &i){ Insert(i, m_size); }
 
     /** Appends another list on the end of this one.
         \returns A reference to this list.
@@ -479,8 +479,10 @@ public:
     inline ListRandomAccessContainer() :m_list(new List<T>), m_delete(true){}
     inline ~ListRandomAccessContainer(){ if(m_delete) delete m_list; }
 
-    const T &At(GUINT32 i) const{ return *m_list->at(i); }
-    T &At(GUINT32 i){ return *m_list->at(i); }
+    const T &At(GUINT32 i) const{ return (*m_list)[i]; }
+    T &At(GUINT32 i){ return (*m_list)[i]; }
+    void InsertAt(const T &i, GUINT32 indx){ m_list->Insert(i, indx); }
+    void RemoveAt(GUINT32 indx){ m_list->RemoveAt(indx); }
     GUINT32 CountContainerItems() const{ return m_list->Size(); }
     void FlushContainer(){ m_list->Clear(); }
 

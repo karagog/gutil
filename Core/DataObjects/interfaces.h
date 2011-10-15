@@ -66,6 +66,12 @@ public:
     /** Fetch the item at the specified index. */
     virtual T &At(GUINT32) = 0;
 
+    /** Insert an item at the given index. */
+    virtual void InsertAt(const T &, GUINT32 indx) = 0;
+
+    /** Remove the item at the given index. */
+    virtual void RemoveAt(GUINT32 indx) = 0;
+
     /** Tell us how many items in the container. */
     virtual GUINT32 CountContainerItems() const = 0;
 
@@ -127,6 +133,12 @@ public:
 
     /** Pop the item from the back of the queue. */
     virtual void PopBack() = 0;
+
+    /** Returns the item at the front of the queue. */
+    virtual const T &Front() const = 0;
+
+    /** Returns the item at the front of the queue. */
+    virtual T &Front() = 0;
 
     /** Returns the item at the back of the queue. */
     virtual const T &Back() const = 0;

@@ -675,6 +675,12 @@ public:
     const T &At(GUINT32 i) const{ return (*m_vector)[i]; }
 
     /** Satisfies the RandomAccessContainer abstract interface. */
+    void InsertAt(const T &i, GUINT32 indx){ m_vector->Insert(i, indx); }
+
+    /** Satisfies the RandomAccessContainer abstract interface. */
+    void RemoveAt(GUINT32 indx){ m_vector->RemoveAt(indx); }
+
+    /** Satisfies the RandomAccessContainer abstract interface. */
     GUINT32 CountContainerItems() const{ return m_vector->Length(); }
 
     /** Satisfies the RandomAccessContainer abstract interface. */
