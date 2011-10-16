@@ -1,0 +1,111 @@
+/*Copyright 2011 George Karagoulis
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#include <QtCore/QString>
+#include <QtTest/QtTest>
+#include "Core/DataObjects/heap.h"
+GUTIL_USING_CORE_NAMESPACE(DataObjects);
+
+class HeapTest : public QObject
+{
+    Q_OBJECT
+
+public:
+    HeapTest();
+
+private Q_SLOTS:
+    void test_minheap();
+    void test_maxheap();
+
+    void test_random();
+};
+
+HeapTest::HeapTest()
+{
+    qsrand(QDateTime::currentMSecsSinceEpoch());
+}
+
+#define ITEM_COUNT 1000
+
+void HeapTest::test_minheap()
+{
+    MinHeap<int> h;
+    for(int i(0); i < ITEM_COUNT; ++i)
+    {
+        h.Insert(i);
+        QVERIFY(h.Count() == i + 1);
+        QVERIFY(h.Top() == 0);
+        QVERIFY(const_cast<const MinHeap<int> &>(h).Top() == 0);
+    }
+
+    for(int i(0); i < ITEM_COUNT; ++i)
+    {
+        h.Pop();
+        QVERIFY(h.Count() == ITEM_COUNT - i - 1);
+        if(i < ITEM_COUNT - 1)
+        {
+            QVERIFY2(h.Top() == i + 1, QString("%1 != %2").arg(h.Top()).arg(i + 1).toAscii());
+            QVERIFY(const_cast<const MinHeap<int> &>(h).Top() == i + 1);
+        }
+    }
+}
+
+void HeapTest::test_maxheap()
+{
+    MaxHeap<int> h;
+    for(int i(0); i < ITEM_COUNT; ++i)
+    {
+        h.Insert(ITEM_COUNT - i);
+        QVERIFY(h.Count() == i + 1);
+        QVERIFY(h.Top() == ITEM_COUNT);
+        QVERIFY(const_cast<const MaxHeap<int> &>(h).Top() == ITEM_COUNT);
+    }
+
+    for(int i(0); i < ITEM_COUNT; ++i)
+    {
+        h.Pop();
+        QVERIFY(h.Count() == ITEM_COUNT - i - 1);
+        if(i < ITEM_COUNT - 1)
+        {
+            QVERIFY2(h.Top() == ITEM_COUNT - i - 1, QString("%1 != %2").arg(h.Top()).arg(ITEM_COUNT - i - 1).toAscii());
+            QVERIFY(const_cast<const MaxHeap<int> &>(h).Top() == ITEM_COUNT - i - 1);
+        }
+    }
+}
+
+void HeapTest::test_random()
+{
+    MinHeap<int> h;
+    for(int i(0); i < ITEM_COUNT; ++i)
+    {
+        h.Insert(qrand() % ITEM_COUNT);
+        QVERIFY(h.Count() == i + 1);
+    }
+
+    int last(INT_MIN);
+    for(int i(0); i < ITEM_COUNT; ++i)
+    {
+        QVERIFY(last <= h.Top());
+        QVERIFY(last <= const_cast<const MinHeap<int> &>(h).Top());
+
+        last = h.Top();
+        h.Pop();
+
+        QVERIFY(h.Count() == ITEM_COUNT - i - 1);
+    }
+}
+
+QTEST_APPLESS_MAIN(HeapTest);
+
+#include "tst_heaptest.moc"

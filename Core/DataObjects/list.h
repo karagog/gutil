@@ -376,7 +376,7 @@ protected:
     static inline GUINT32 capacity(GUINT32 number_of_pages){ return (1 << number_of_pages) - 1; }
 
     inline T *at(GUINT32 indx) const{
-        const int pindx( MSB64(++indx) );
+        const int pindx( FSB64(++indx) );
         return d[pindx] + TRUNCATE_LEFT_32(indx, 32 - pindx);
     }
 

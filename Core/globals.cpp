@@ -41,9 +41,9 @@ const char GUTIL_MSB_LOOKUP_TABLE[256] =
 
 
 #ifdef GUTIL_COM_EXPORTS
-GUTIL_COM_EXPORT int MSB32(unsigned int n)
+GUTIL_COM_EXPORT int FSB32(unsigned int n)
 #else
-GUTIL_COM_EXPORT int GUtil::MSB32(unsigned int n)
+GUTIL_COM_EXPORT int GUtil::FSB32(unsigned int n)
 #endif
 {
     int res;
@@ -63,9 +63,9 @@ GUTIL_COM_EXPORT int GUtil::MSB32(unsigned int n)
 
 
 #ifdef GUTIL_COM_EXPORTS
-GUTIL_COM_EXPORT int MSB64(GUINT64 n)
+GUTIL_COM_EXPORT int FSB64(GUINT64 n)
 #else
-GUTIL_COM_EXPORT int GUtil::MSB64(GUINT64 n)
+GUTIL_COM_EXPORT int GUtil::FSB64(GUINT64 n)
 #endif
 {
     int res;

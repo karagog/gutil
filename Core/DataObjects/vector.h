@@ -358,6 +358,11 @@ public:
     */
     inline T &operator [](GUINT32 i){ return m_begin[i]; }
 
+    /** Returns a pointer to the item at the given offset. */
+    inline const T *operator +(GUINT32 offset) const{ return m_begin + offset; }
+    /** Returns a pointer to the item at the given offset. */
+    inline T *operator +(GUINT32 offset){ return m_begin + offset; }
+
     /** Accesses the data at the given index.
         \note Checks the index if it's out of bounds and throws and exception if it is
     */
@@ -374,6 +379,11 @@ public:
             THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return m_begin[i];
     }
+
+    /** Returns a pointer to the start of the array. */
+    inline const T *ConstData() const{ return m_begin; }
+    /** Returns a pointer to the start of the array. */
+    inline T *Data(){ return m_begin; }
 
     /** Clears all items from the stack and frees all memory. */
     inline void Clear(){ Reserve(0); }
@@ -503,7 +513,7 @@ private:
     GUINT32 m_capacity;
     GUINT32 m_length;
 
-    inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( MSB32( n ) ); }
+    inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
 
 };
 

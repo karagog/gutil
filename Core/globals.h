@@ -146,6 +146,10 @@ template <class T> inline T gMax(const T &one, const T &two){
 }
 
 
+/** Declares a forever loop. */
+#define G_FOREVER           for(;;)
+
+
 /** Swap values in memory without using a temporary variable.
     \note This doesn't work when the two arguments share the same memory location.
     \note This evaluates to three processor instructions.
@@ -213,7 +217,7 @@ inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 #ifdef GUTIL_COM_EXPORTS
 extern "C"
 #endif
-int MSB32(GUINT32);
+int FSB32(GUINT32);
 
 /** Returns the most significant set bit of a 64 bit number in the minimum number of instructions.
     \note O(1).  This is computed in 9 cpu instructions on average.
@@ -221,15 +225,15 @@ int MSB32(GUINT32);
 #ifdef GUTIL_COM_EXPORTS
 extern "C"
 #endif
-int MSB64(GUINT64);
+int FSB64(GUINT64);
 
 
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
-    \note O(1), takes 3 instructions to generate.
+    \note Takes 2 instructions to generate.
 */
 inline static GUINT32 GEN_BITMASK_32(int n)
 {
-    return ~(GINT32(0x80000000) >> (30 - n));
+    return (((GUINT32) 1) << (n + 1)) - 1;
 }
 
 
