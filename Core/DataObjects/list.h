@@ -88,7 +88,12 @@ public:
         {
             // Allocate the new pages' memory
             for(int m(0); m < new_pages; ++m)
-                d.Insert(new T [1 << (m_pageCount - new_pages + m + 1)], d.end());
+            {
+                void *new_data( malloc(sizeof(T) * (1 << (m_pageCount - new_pages + m + 1))) );
+                if(!new_data)
+                    THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+                d.Insert(reinterpret_cast<T *>(new_data), d.end());
+            }
         }
     }
 
@@ -244,7 +249,7 @@ public:
 
         // Free our page memory
         for(int p(0); p < m_pageCount; ++p)
-            delete[] d[p];
+            free( d[p] );
 
         d.Clear();
         m_size = 0;

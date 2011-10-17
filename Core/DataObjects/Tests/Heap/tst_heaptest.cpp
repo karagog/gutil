@@ -95,7 +95,7 @@ void HeapTest::test_maxheap()
 void HeapTest::test_random()
 {
     MinHeap<int> h;
-    qDebug("Inserting items:");
+    //qDebug("Inserting items:");
     for(int i(0); i < RANDOM_ITEM_COUNT; ++i)
     {
         const int new_item( qrand() % RANDOM_ITEM_COUNT );
@@ -105,7 +105,7 @@ void HeapTest::test_random()
     }
 
     int last(INT_MIN);
-    qDebug("Removing items:");
+    //qDebug("Removing items:");
     for(int i(0); i < RANDOM_ITEM_COUNT; ++i)
     {
         QVERIFY(last <= h.Top());

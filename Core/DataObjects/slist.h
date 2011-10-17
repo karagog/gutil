@@ -70,7 +70,11 @@ public:
         \note O(1)
     */
     inline void Insert(const T &i, iterator &iter){
-        node *new_node( new node(i, iter.current) );
+        node *new_node( reinterpret_cast<node *>(malloc(sizeof(node))) );
+        if(new_node == NULL)
+            THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+        new(new_node) node(i, iter.current);
+
         if(iter.parent)
             iter.parent->NextNode = new_node;
         else

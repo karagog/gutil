@@ -16,6 +16,7 @@ limitations under the License.*/
 #define GUTIL_DLIST_H
 
 #include "Core/DataObjects/interfaces.h"
+#include "Core/exception.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -61,7 +62,10 @@ public:
     */
     void Insert(const T &i, iterator &iter)
     {
-        node *new_node( new node(i, iter.current) );
+        node *new_node( reinterpret_cast<node *>(malloc(sizeof(node))) );
+        if(new_node == NULL)
+            THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+        new(new_node) node(i, iter.current);
 
         if(iter.current)
         {

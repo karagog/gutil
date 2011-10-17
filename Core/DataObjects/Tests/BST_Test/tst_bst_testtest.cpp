@@ -39,7 +39,6 @@ private Q_SLOTS:
     void test_deletions();
 
     void test_pointers();
-    void test_multiset();
 
     void test_load();
 
@@ -50,8 +49,8 @@ private:
     static void show_breadth_first_tree(const BinarySearchTree<int> &);
     static void show_breadth_first_pointerTree(const BinarySearchTree<int *> &);
 
-    static QString get_bft_string(const typename BinarySearchTree<int>::const_iterator &iter);
-    static QString get_bft_pointer_string(const typename BinarySearchTree<int *>::const_iterator &);
+    static QString get_bft_string(const BinarySearchTree<int>::const_iterator &iter);
+    static QString get_bft_pointer_string(const BinarySearchTree<int *>::const_iterator &);
 
     // You can feed in your own manual breadth-first description to test if
     //  the tree looks like you expect
@@ -250,10 +249,10 @@ void BST_Test::show_breadth_first_pointerTree(const BinarySearchTree<int *> &t)
     cout<<endl;
 }
 
-QString BST_Test::get_bft_string(const typename BinarySearchTree<int>::const_iterator &i)
+QString BST_Test::get_bft_string(const BinarySearchTree<int>::const_iterator &i)
 {
     QString ret;
-    typename BinarySearchTree<int>::const_iterator iter(i);
+    BinarySearchTree<int>::const_iterator iter(i);
 
     ret.append(QString("(%1, ").arg(*iter));
     if(iter.CanMoveLeft())
@@ -274,10 +273,10 @@ QString BST_Test::get_bft_string(const typename BinarySearchTree<int>::const_ite
     return ret;
 }
 
-QString BST_Test::get_bft_pointer_string(const typename BinarySearchTree<int *>::const_iterator &i)
+QString BST_Test::get_bft_pointer_string(const BinarySearchTree<int *>::const_iterator &i)
 {
     QString ret;
-    typename BinarySearchTree<int *>::const_iterator iter(i);
+    BinarySearchTree<int *>::const_iterator iter(i);
 
     ret.append(QString("(%1, ").arg(**iter));
     if(iter.CanMoveLeft())
@@ -500,14 +499,6 @@ void BST_Test::test_pointers()
     a = 500;
     QVERIFY(tree_matches(pointer_tree, "(2, (500, , ), (3, , ))"));
     //show_breadth_first_pointerTree(pointer_tree);
-}
-
-void BST_Test::test_multiset()
-{
-//    MultiSet<int> set;
-//    set.Add(1);
-//    set.Add(1);
-//    QVERIFY((*set.Search(1)).Count() == 2);
 }
 
 void BST_Test::test_load()

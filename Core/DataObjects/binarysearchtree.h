@@ -833,7 +833,11 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
                                        "Object already exists in BST.");
         }
 
-        node *new_node( new node(object, iter.m_parent) );
+        node *new_node( reinterpret_cast<node *>(malloc(sizeof(node))) );
+        if(new_node == NULL)
+            THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+        new(new_node) node(object, iter.m_parent);
+
         const int cmp_res( compare(convert(object), convert(iter.m_parent->Data)) );
         if(cmp_res < 0)
             new_node->Parent->LChild = new_node;

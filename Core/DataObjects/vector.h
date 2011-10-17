@@ -303,7 +303,10 @@ public:
         {
             // As an optimization for primitive types (ones that are not affected by binary moves)
             //  we call realloc, because a hidden memory relocation doesn't affect our type.
-            m_begin = reinterpret_cast<T *>( realloc(m_begin, new_size_in_bytes) );
+            void *new_begin( realloc(m_begin, new_size_in_bytes) );
+            if(new_size_in_bytes > 0 && new_begin == NULL)
+                THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+            m_begin = reinterpret_cast<T *>( new_begin );
         }
         else
         {
@@ -312,7 +315,10 @@ public:
                 // Have to manually reallocate and call the copy constructors, because a complex
                 //  type may be dependent on their memory locations (self-pointers are one example)
                 T *backup( m_begin ), *backup_cur( m_begin );
-                T *cur( m_begin = reinterpret_cast<T *>(malloc(new_size_in_bytes) ));
+                void *new_begin( malloc(new_size_in_bytes) );
+                if(new_begin == NULL)
+                    THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+                T *cur( m_begin = reinterpret_cast<T *>( new_begin ));
                 if(backup)
                 {
                     for(GUINT32 i(0); i < m_length; ++i, ++cur)

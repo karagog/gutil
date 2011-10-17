@@ -126,6 +126,7 @@ public: \
 
 // Here are the other types of exceptions (all derived from Exception)
 EXCEPTION_DECLARE( NotImplemented )
+EXCEPTION_DECLARE( BadAllocation )
 EXCEPTION_DECLARE( ReadOnly )
 EXCEPTION_DECLARE( Argument )
 EXCEPTION_DECLARE( DataTransport )
