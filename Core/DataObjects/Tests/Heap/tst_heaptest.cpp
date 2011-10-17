@@ -15,7 +15,9 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/heap.h"
+#include <iostream>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
+using namespace std;
 
 class HeapTest : public QObject
 {
@@ -29,6 +31,10 @@ private Q_SLOTS:
     void test_maxheap();
 
     void test_random();
+
+private:
+
+    void show_heap(const Heap<int> &);
 };
 
 HeapTest::HeapTest()
@@ -36,7 +42,7 @@ HeapTest::HeapTest()
     qsrand(QDateTime::currentMSecsSinceEpoch());
 }
 
-#define ITEM_COUNT 1000
+#define ITEM_COUNT 10000
 
 void HeapTest::test_minheap()
 {
@@ -84,26 +90,44 @@ void HeapTest::test_maxheap()
     }
 }
 
+#define RANDOM_ITEM_COUNT 100000
+
 void HeapTest::test_random()
 {
     MinHeap<int> h;
-    for(int i(0); i < ITEM_COUNT; ++i)
+    qDebug("Inserting items:");
+    for(int i(0); i < RANDOM_ITEM_COUNT; ++i)
     {
-        h.Insert(qrand() % ITEM_COUNT);
+        const int new_item( qrand() % RANDOM_ITEM_COUNT );
+        //qDebug() << new_item;
+        h.Insert(new_item);
         QVERIFY(h.Count() == i + 1);
     }
 
     int last(INT_MIN);
-    for(int i(0); i < ITEM_COUNT; ++i)
+    qDebug("Removing items:");
+    for(int i(0); i < RANDOM_ITEM_COUNT; ++i)
     {
         QVERIFY(last <= h.Top());
         QVERIFY(last <= const_cast<const MinHeap<int> &>(h).Top());
 
-        last = h.Top();
+        const int top( h.Top() );
+
+        last = top;
         h.Pop();
 
-        QVERIFY(h.Count() == ITEM_COUNT - i - 1);
+        QVERIFY(h.Count() == RANDOM_ITEM_COUNT - i - 1);
     }
+}
+
+void HeapTest::show_heap(const Heap<int> &h)
+{
+    const int *begin( h.ConstData() );
+    for(int i(0); i < h.Count(); i++)
+    {
+        cout<<begin[i]<<",";
+    }
+    cout<<endl;
 }
 
 QTEST_APPLESS_MAIN(HeapTest);

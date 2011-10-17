@@ -90,6 +90,14 @@ public:
     /** The number of items in the heap. */
     inline GUINT32 Count() const{ return data.Size(); }
 
+    /** Returns a pointer to the start of the heap array. */
+    inline const T *ConstData() const{ return data.ConstData(); }
+    /** Returns a pointer to the start of the heap array.
+        \warning Do not modify the sorting key for the heap, or the behavior
+                    is undefined.
+    */
+    inline T *Data(){ return data.Data(); }
+
 
 private:
 
@@ -130,11 +138,9 @@ private:
 template<class T>void Heap<T>::_heapify_up()
 {
     GUINT32 indx( Count() );
-    if(indx == 1)
-        return;
-
     GUINT32 parent_indx(indx >> 1);
-    while(indx != 0)
+
+    while(parent_indx != 0)
     {
         if(0 <= compare(data[indx - 1], data[parent_indx - 1]))
             break;
