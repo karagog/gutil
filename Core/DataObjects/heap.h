@@ -41,7 +41,7 @@ public:
     /** Inserts the item into the heap.
         \note O(log(N))
     */
-    inline void Insert(const T &i)
+    inline void Push(const T &i)
     {
         const GUINT32 indx( Count() );
         data.Insert(i, indx);

@@ -26,8 +26,6 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 /** Manages a simple vector of memory, which grows exponentially with powers of two.
     You call reserve() with the number of items you want to have, and it will reserve
     at least as many, only conducting memory reallocations when necessary.
-
-    \sa Vector
 */
 template<class T>class Vector
 {
@@ -272,9 +270,13 @@ public:
         }
     }
 
+    /** Pushes the item on the front of the list. */
     inline void PushFront(const T &o){ Insert(o, 0); }
+    /** Pushes the item on the back of the list. */
     inline void PushBack(const T &o){ Insert(o, m_length); }
+    /** Removes the item on the front of the list. */
     inline void PopFront(){ RemoveAt(0); }
+    /** Removes the item on the back of the list. */
     inline void PopBack(){ RemoveAt(m_length - 1); }
 
     /** Reserves room for at least this many items.
@@ -370,17 +372,17 @@ public:
     inline T *operator +(GUINT32 offset){ return m_begin + offset; }
 
     /** Accesses the data at the given index.
-        \note Checks the index if it's out of bounds and throws and exception if it is
+        \note Checks the index and throws an exception if it is out of bounds
     */
-    inline T &At(GUINT32 i){
+    inline T &At(GUINT32 i) throw(GUtil::Core::IndexOutOfRangeException){
         if(m_length == 0 || i >= m_length)
             THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return m_begin[i];
     }
     /** Accesses the data at the given index.
-        \note Does not do any bounds checking.
+        \note Checks the index and throws an exception if it is out of bounds
     */
-    inline const T &At(GUINT32 i) const{
+    inline const T &At(GUINT32 i) const throw(GUtil::Core::IndexOutOfRangeException){
         if(m_length == 0 || i >= m_length)
             THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return m_begin[i];

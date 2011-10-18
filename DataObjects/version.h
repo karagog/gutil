@@ -40,6 +40,8 @@ public:
     bool operator == (const Version &o) const;
     bool operator != (const Version &o) const;
 
+    inline Version(int major = 0, int minor = 0, int release = 0)
+        :_p_MajorVersion(major), _p_MinorVersion(minor), _p_ReleaseVersion(release){}
     Version(const QString &version_string = QString::null);
     Version(const Version &);
 

@@ -49,7 +49,7 @@ void HeapTest::test_minheap()
     MinHeap<int> h;
     for(int i(0); i < ITEM_COUNT; ++i)
     {
-        h.Insert(i);
+        h.Push(i);
         QVERIFY(h.Count() == i + 1);
         QVERIFY(h.Top() == 0);
         QVERIFY(const_cast<const MinHeap<int> &>(h).Top() == 0);
@@ -72,7 +72,7 @@ void HeapTest::test_maxheap()
     MaxHeap<int> h;
     for(int i(0); i < ITEM_COUNT; ++i)
     {
-        h.Insert(ITEM_COUNT - i);
+        h.Push(ITEM_COUNT - i);
         QVERIFY(h.Count() == i + 1);
         QVERIFY(h.Top() == ITEM_COUNT);
         QVERIFY(const_cast<const MaxHeap<int> &>(h).Top() == ITEM_COUNT);
@@ -100,7 +100,7 @@ void HeapTest::test_random()
     {
         const int new_item( qrand() % RANDOM_ITEM_COUNT );
         //qDebug() << new_item;
-        h.Insert(new_item);
+        h.Push(new_item);
         QVERIFY(h.Count() == i + 1);
     }
 
