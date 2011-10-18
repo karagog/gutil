@@ -351,7 +351,7 @@ public:
         {
             T *cur(m_begin + m_length);
             for(int i(m_length); i < new_size; ++i)
-                _copy_construct(cur++, default_object);
+                new(cur++) T(default_object);
         }
     }
 

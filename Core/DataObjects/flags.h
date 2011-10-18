@@ -90,9 +90,9 @@ GUTIL_END_CORE_NAMESPACE;
         ret.SetFlag(e1, true); ret.SetFlag(e2, true); \
         return ret; \
     } \
-    }} \ // namespace Core::DataObjects
+    }} \
     \
-    template<class T>struct IsMovableType< Core::DataObjects::Flags<T> >{ enum{ Value = 1 }; }; \
+    template<>struct IsMovableType< Core::DataObjects::flags_name >{ enum{ Value = 1 }; }; \
     \
     } // namespace GUtil
 
