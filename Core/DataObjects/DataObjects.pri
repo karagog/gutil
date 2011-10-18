@@ -9,9 +9,13 @@ HEADERS += \
     DataObjects/flexibletypecomparer.h \
     DataObjects/interfaces.h \
     DataObjects/vector.h \
-    DataObjects/flags.h
+    DataObjects/flags.h \
+    DataObjects/string.h
 
-SOURCES +=
+SOURCES += \
+    DataObjects/string.cpp
+
+
 
 
 
