@@ -73,7 +73,8 @@ class Exception :
 {
 public:
 
-    Exception(const std::string &message = "");
+    inline Exception() :_inner_exception(0){}
+    Exception(const std::string &message);
     Exception(const Exception &);
     virtual ~Exception() throw();
 
