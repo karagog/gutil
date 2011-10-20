@@ -33,15 +33,17 @@ template<class K, class V>class Map
         friend class Map;
     public:
         inline explicit Page(const K &k, const V &val)
-            :Key(k), values(val, 1)
+            :key(k), values(val, 1)
         {}
 
         inline Page(const Page &o)
-            :Key(o.Key), values(o.values)
+            :key(o.key), values(o.values)
         {}
 
         /** The key of this mapping. */
-        K Key;
+        inline const K &Key() const{ return key; }
+        /** The key of this mapping. */
+        inline K &Key(){ return key; }
 
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
         inline V &Value(){ return values[values.Size() - 1]; }
@@ -56,6 +58,7 @@ template<class K, class V>class Map
     protected:
 
         Vector<V> values;
+        K key;
 
     };
 
@@ -177,7 +180,7 @@ private:
 
     void _insert(const K &, const V &, bool);
 
-    static const K &get_key_value(const Page &p){ return p.Key; }
+    static const K &get_key_value(const Page &p){ return p.Key(); }
 
 };
 

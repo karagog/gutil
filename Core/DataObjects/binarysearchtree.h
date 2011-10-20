@@ -12,13 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifndef GUTIL_BST_H
+#define GUTIL_BST_H
+
 #include "gassert.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/flexibletypecomparer.h"
-using namespace std;
-
-#ifndef GUTIL_BST_H
-#define GUTIL_BST_H
 
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -544,10 +543,9 @@ public:
         if there are no items in the tree
         \note O(1)
     */
-    inline const T &min() const{
+    inline const T &Min() const throw(GUtil::Core::IndexOutOfRangeException<false>){
         if(Size() == 0)
-            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                       "There are no elements in the BST");
+            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return _first()->Data;
     }
 
@@ -555,10 +553,9 @@ public:
         if there are no items in the tree.
         \note O(1)
     */
-    inline const T &max() const{
+    inline const T &Max() const throw(GUtil::Core::IndexOutOfRangeException<false>){
         if(Size() == 0)
-            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                       "There are no elements in the BST");
+            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return _last()->Data;
     }
 
@@ -829,8 +826,7 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
         if(iter)
         {
             // There's an insertion collision
-            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                       "Object already exists in BST.");
+            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::UniqueKeyException);
         }
 
         node *new_node( reinterpret_cast<node *>(malloc(sizeof(node))) );

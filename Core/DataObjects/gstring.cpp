@@ -12,9 +12,61 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "string.h"
+#include "gstring.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-String::String(const char *d)
+String::String()
 {
+}
+
+String::String(const char *d, int len)
+{
+}
+
+bool String::operator == (const String &) const
+{
+
+}
+
+bool String::operator <  (const String &) const
+{
+
+}
+
+bool String::operator <= (const String &) const
+{
+
+}
+
+bool String::operator >  (const String &) const
+{
+
+}
+
+bool String::operator >= (const String &) const
+{
+
+}
+
+String String::operator + (const String &) const
+{
+
+}
+
+String &String::operator += (const String &) const
+{
+
+}
+
+
+
+
+
+
+
+
+String operator + (const char *c, const String &s)
+{
+    String ret(c);
+    return ret.Append(s);
 }

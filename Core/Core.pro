@@ -17,12 +17,16 @@ LIBS += -L../lib -lcryptopp
 
 HEADERS += \
     exception.h \
-    globals.h
+    globals.h \
+    extendedexception.h
 SOURCES += \
-    exception.cc \
     globals.cpp
 
 include(DataAccess/DataAccess.pri)
 include(DataObjects/DataObjects.pri)
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
+
+
+
+

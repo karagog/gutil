@@ -43,27 +43,20 @@ public:
     /** Creates a new string initialized with the character repeated the specified number of times. */
     String(char c, int len = 1);
 
-    /** The copy constructor. */
-    inline String(const String &s) :Vector<char>(s){}
     /** Basically a copy constructor, but for the base type. */
     inline String(const Vector<char> &s) :Vector<char>(s){}
 
-    /** Assignment operator. */
-    inline String &operator = (const String &s){ Clear(); new(this) String(s); return *this; }
 
     /** Appends the string to this one and returns this. */
-    inline String &Append(const String &s){ return Insert(s, Length()); }
+    inline String &Append(const String &s){ Vector<char>::Insert(s, Length()); return *this; }
     /** Prepends the string to this one and returns this. */
-    inline String &Prepend(const String &s){ return Insert(s, 0); }
+    inline String &Prepend(const String &s){ Vector<char>::Insert(s, 0); return *this; }
 
     /** Inserts the string at the given index. */
     String &Insert(const String &, int indx);
 
-    int IndexOf(char, int start = 0) const;
-    int IndexOf(const String &, int start = 0) const;
-
-    int IndexOf(char, int start = Length() - 1) const;
-    int IndexOf(const String &, int start = Length() - 1) const;
+    int IndexOf(const String &, GUINT32 start = 0) const;
+    int LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
 
     /** Comparison operator. */
     bool operator == (const String &) const;
@@ -87,5 +80,9 @@ public:
 
 
 GUTIL_END_CORE_NAMESPACE;
+
+
+static GUtil::Core::DataObjects::String operator + (const char *c, const GUtil::Core::DataObjects::String &s);
+
 
 #endif // GUTIL_STRING_H

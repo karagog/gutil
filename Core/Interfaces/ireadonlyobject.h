@@ -38,7 +38,7 @@ public:
     void SetReadOnly(bool readonly = true);
 
     void FailIfReadOnly() const
-            throw(GUtil::Core::ReadOnlyException);
+            throw(GUtil::Core::ReadOnlyException<false>);
 
 protected:
     IReadOnlyObject(bool readonly = false);

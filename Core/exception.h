@@ -12,102 +12,54 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GEXCEPTION_H
-#define GEXCEPTION_H
+#ifndef GUTIL_EXCEPTION_H
+#define GUTIL_EXCEPTION_H
 
-#include "gutil.h"
-#include <cstdio>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <map>
+namespace GUtil{ namespace Core{
 
-// Use these convenient macros to insert the file/line data in the exception
-#define THROW_GUTIL_EXCEPTION( except ) \
-do{ \
-    char tmp_except_line[15];  \
-    sprintf(tmp_except_line, "%d", __LINE__); \
-    except.SetData("line", tmp_except_line); \
-    except.SetData("file", __FILE__); \
-    throw except; \
-}while(0)
+template<bool extended = false>class Exception{};
 
+/** The base class for all of my exceptions.
 
-#define THROW_NEW_GUTIL_EXCEPTION( ex_type ) \
-do{ \
-    throw ex_type(""); \
-}while(0)
+    Every other type of exception is derived from this.
 
-// pass an exception type and the message you want it to have
-#define THROW_NEW_GUTIL_EXCEPTION2( ex_type, message ) \
-do{ \
-    ex_type except(message); \
-\
-    char tmp_except_line[15];  \
-    sprintf(tmp_except_line, "%d", __LINE__); \
-    except.SetData("line", tmp_except_line); \
-    except.SetData("file", __FILE__); \
-    throw except; \
-}while(0)
-
-// This version lets you pass an inner exception into it
-#define THROW_NEW_GUTIL_EXCEPTION3( ex_type, message, inner_except ) \
-do{ \
-    ex_type except(message); \
-\
-    char tmp_except_line[15];  \
-    sprintf(tmp_except_line, "%d", __LINE__); \
-    except.SetData("line", tmp_except_line); \
-    except.SetData("file", __FILE__); \
-    except.SetInnerException(inner_except); \
-    throw except; \
-}while(0)
-
-
-GUTIL_BEGIN_NAMESPACE( Core );
-
-
-// The base class for all of my exceptions
-class Exception :
-        public std::exception
+    The default exception is non-extended, meaning it only contains the most
+    basic information, like the file and line numbers, as well as a string identifier.
+    You can use the extended version to include more complex data in your exceptions.
+*/
+template<>class Exception<false>
 {
 public:
 
-    inline Exception() :_inner_exception(0){}
-    Exception(const std::string &message);
-    Exception(const Exception &);
-    virtual ~Exception() throw();
+    inline Exception()
+        :Name("GUtil::Core::Exception"), File(0), Line(-1){}
 
-    PROPERTY( Message, std::string );
+    /** Use this constructor to inject more information in your exception. */
+    inline Exception(const char *name)
+        :Name(name), File(0), Line(-1){}
 
-    void SetData(const std::string &, const std::string &);
-    std::string GetData(const std::string &) const;
+    /** Use this constructor to inject more information in your exception. */
+    inline Exception(const char *name, const char *file, int line)
+        :Name(name), File(file), Line(line){}
 
-    // Get a list of the keys you've put in the data collection
-    std::vector<std::string> GetDataKeys(bool include_blanks = false) const;
+    /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
+        This will allow you to dynamic_cast a reference to an Exception as a different
+        type of exception at runtime.
+    */
+    virtual ~Exception() throw(){}
 
-    std::string ToString() const;
+    /** The name of the exception, injected by the constructor. */
+    const char *Name;
 
-    inline void SetInnerException(const Exception &ex){
-        if(_inner_exception)
-            delete _inner_exception;
-        _inner_exception = new Exception(ex);
-    }
+    /** You can pass the preprocessor macro __FILE__ into the constructor and it
+        will be stored here.
+    */
+    const char *File;
 
-    inline Exception *GetInnerException() const{ return _inner_exception; }
-
-
-protected:
-
-    Exception(const std::string &identifier, const std::string &message);
-
-
-private:
-
-    std::string _exception_id;
-    std::map<std::string, std::string> _data;
-
-    Exception *_inner_exception;
+    /** You can pass the preprocessor macro __LINE__ into the constructor and it
+        will be stored here.
+    */
+    int Line;
 
 };
 
@@ -115,13 +67,17 @@ private:
 
 #define STRINGIFY( something )  #something
 
-// Use this to declare any new exceptions
+/** Use this to declare any new exceptions */
 #define EXCEPTION_DECLARE( ex_name ) \
-class ex_name##Exception : public GUtil::Core::Exception \
+template<bool extended = false>class ex_name##Exception{}; \
+template<>class ex_name##Exception<false>: \
+    public GUtil::Core::Exception<false> \
 { \
 public: \
-    ex_name##Exception(const std::string &message = "") \
-        :Exception(STRINGIFY(ex_name), message ){} \
+    ex_name##Exception() \
+        :Exception(STRINGIFY(ex_name)){} \
+    ex_name##Exception(const char *file, int line) \
+        :Exception(STRINGIFY(ex_name), file, line){} \
 };
 
 
@@ -140,8 +96,23 @@ EXCEPTION_DECLARE( Validation )
 EXCEPTION_DECLARE( InvalidCast )
 EXCEPTION_DECLARE( NotFound )
 EXCEPTION_DECLARE( DivideByZero )
+EXCEPTION_DECLARE( UniqueKey )
 
 
-GUTIL_END_NAMESPACE
+
+/** Use this convenient macro to insert the file/line data in the exception */
+#define THROW_GUTIL_EXCEPTION( except ) \
+    except.File = __FILE__; \
+    except.Line = __LINE__; \
+    throw except
+
+/** Use this convenient macro to instantiate an exception of the specified type,
+    and pass the file/line data with it.
+*/
+#define THROW_NEW_GUTIL_EXCEPTION( ex_type ) \
+    throw ex_type<false>(__FILE__, __LINE__)
+
+
+}}  // GUtil::Core
 
 #endif // GEXEPTION_H

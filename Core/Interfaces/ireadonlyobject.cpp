@@ -64,10 +64,10 @@ void IReadOnlyObject::on_set_readonly(bool)
 }
 
 void IReadOnlyObject::FailIfReadOnly() const
-        throw(ReadOnlyException)
+        throw(ReadOnlyException<false>)
 {
     if(IsReadOnly())
-        THROW_NEW_GUTIL_EXCEPTION2( ReadOnlyException, ReadonlyMessageIdentifier() );
+        THROW_NEW_GUTIL_EXCEPTION( ReadOnlyException );
 }
 
 bool IReadOnlyObject::IsReadOnly() const

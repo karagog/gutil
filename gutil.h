@@ -21,9 +21,6 @@ limitations under the License.*/
     those classes you are automatically including gutil.h, but it is useful even on its own.
 */
 
-#include "Core/globals.h"
-
-
 /** Use this to succinctly declare property accessors.
 
    It declares a Get and Set method for an object of the provided variable type and name,
@@ -186,6 +183,12 @@ protected: \
     #define GUTIL_COM_EXPORT
 #endif
 
+
+
+// And here some useful includes, to sort-of set your "environment" developing in GUtil
+#include "Core/globals.h"
+#include "Core/exception.h"
+//#include "Core/DataObjects/gstring.h"
 
 
 #endif // GUTIL_MACROS_H

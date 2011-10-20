@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "stringhelpers.h"
 #include "Private/strings_p.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <climits>
 #include <cstdlib>
 #include <cassert>

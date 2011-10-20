@@ -18,8 +18,10 @@ limitations under the License.*/
 #include "gutil.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
-#include "Core/Interfaces/imemoryusagereporter.h"
-#include <malloc.h>
+#include <new>
+#include <limits.h>
+#include <cstdlib>
+#include <cstring>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -173,6 +175,60 @@ public:
         ++m_length;
     }
 
+    /** Insert the vector at the index position.
+        \note Invalidates all iterators, because the addition may cause a resize of the internal
+        memory, which potentially moves the array.
+    */
+    void Insert(const Vector<T> &vec, GUINT32 indx)
+    {
+        // Allocate more memory if we have to
+        if((m_length + vec.Size()) > m_capacity)
+            Reserve(m_length + vec.Size());
+
+        T *dest( m_begin + indx );
+
+        // Move the destination out of the way, if they're inserting anywhere but the end
+        if(indx < m_length)
+        {
+            if(IsMovableType<T>::Value)
+            {
+                memmove(dest + vec.Size(), dest, (m_length - indx) * sizeof(T));
+                for(GUINT32 i(0); i < vec.Size(); ++i)
+                    new(dest++) T(vec[i]);
+            }
+            else
+            {
+                // Call the constructors on the memory location at the end
+                for(GUINT32 i(1); i <= m_length && i <= vec.Size(); ++i)
+                    new(m_begin + m_length + vec.Size() - i) T(*(m_begin + m_length - i));
+
+                T *cur(m_begin + m_length - 1);
+                if(m_length > 0)
+                {
+                    for(GUINT32 i(m_length - 1); i > (indx + vec.Size()); --i, --cur)
+                        *cur = *(cur - vec.Size());
+                }
+
+                // Then assign the items to the proper location
+                for(GUINT32 i(0); i < vec.Size(); ++i)
+                {
+                    if(i < m_length)
+                        m_begin[indx + i] = vec[i];
+                    else
+                        new(m_begin + indx + i) T(vec[i]);
+                }
+            }
+        }
+        else
+        {
+            // Call the copy constructors to initialize the memory at the end of the array
+            for(GUINT32 i(0); i < vec.Size(); ++i, ++dest)
+                new(dest) T(vec[i]);
+        }
+
+        ++m_length;
+    }
+
     /** Remove the item pointed to by the iterator.
 
         \note Invalidates the iterator positioned at the last element, and all other iterators
@@ -270,12 +326,8 @@ public:
         }
     }
 
-    /** Pushes the item on the front of the list. */
-    inline void PushFront(const T &o){ Insert(o, 0); }
     /** Pushes the item on the back of the list. */
     inline void PushBack(const T &o){ Insert(o, m_length); }
-    /** Removes the item on the front of the list. */
-    inline void PopFront(){ RemoveAt(0); }
     /** Removes the item on the back of the list. */
     inline void PopBack(){ RemoveAt(m_length - 1); }
 
@@ -374,7 +426,7 @@ public:
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline T &At(GUINT32 i) throw(GUtil::Core::IndexOutOfRangeException){
+    inline T &At(GUINT32 i) throw(GUtil::Core::IndexOutOfRangeException<false>){
         if(m_length == 0 || i >= m_length)
             THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return m_begin[i];
@@ -382,7 +434,7 @@ public:
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline const T &At(GUINT32 i) const throw(GUtil::Core::IndexOutOfRangeException){
+    inline const T &At(GUINT32 i) const throw(GUtil::Core::IndexOutOfRangeException<false>){
         if(m_length == 0 || i >= m_length)
             THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
         return m_begin[i];
@@ -432,12 +484,6 @@ public:
         inline iterator operator --(int){ iterator ret(*this); --current; return ret;}
         inline iterator &operator -=(int n){ current -= n; return *this; }
         inline iterator operator -(int n) const{ iterator ret(*this); ret.current -= n; return ret;}
-
-        /** Returns the distance between iterators (how many items in between). */
-        inline int operator - (const iterator &iter) const{
-            if(m_begin != iter.m_begin) return INT_MAX;
-            return current - iter.current;
-        }
 
         inline operator bool() const{ return m_begin && (current >= 0 && current < m_length); }
 
