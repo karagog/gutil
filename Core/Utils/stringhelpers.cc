@@ -17,16 +17,12 @@ limitations under the License.*/
 #include "Core/extendedexception.h"
 #include <climits>
 #include <cstdlib>
-#include <cassert>
-#include <map>
 #include <cctype>
 #include <ostream>
 
 using namespace std;
 using namespace GUtil::Core;
-
-static const char base64_digits[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const char base64_padding = '=';
+using namespace GUtil::Core::Utils;
 
 bool Utils::StringHelpers::toInt(const string &s, int &res)
 {
@@ -160,12 +156,12 @@ string Utils::StringHelpers::toBase64(const string &instr)
         mem = o & mask2;
 
         //assert((int)six_bits >= 0 && (int)six_bits < 64);
-        outstr.append(&(base64_digits[(int)six_bits]), 1);
+        outstr.append( 1, base64i2a(six_bits) );
 
         // Take care of adding the 4th base64 character after every third ASCII character
         if(i % 3 == 2)
         {
-            outstr.append(&(base64_digits[(int)mem]), 1);
+            outstr.append( 1, base64i2a(mem) );
         }
     }
 
@@ -173,78 +169,126 @@ string Utils::StringHelpers::toBase64(const string &instr)
     int r = i % 3;
     if(r != 0)
     {
-        outstr.append(&(base64_digits[(int)(mem << (4 - shift))]), 1);
+        outstr.append( 1, base64i2a(mem << (4 - shift)) );
         while(r++ < 3)
-        {
-            outstr.append(&base64_padding, 1);
-        }
+            outstr.append( 1, '=');
     }
 
     return outstr;
 }
 
-string Utils::StringHelpers::fromBase64(const string &instr)
+
+#define ASCII_CAPITAL_LETTER_OFFSET     0x41
+#define ASCII_LOWCASE_LETTER_OFFSET     0x61
+#define ASCII_NUMBER_OFFSET             0x30
+
+char StringHelpers::base64a2i(const char c)
+{
+    if(ASCII_CAPITAL_LETTER_OFFSET <= c &&
+            c < ASCII_CAPITAL_LETTER_OFFSET + 26)
+    {
+        // Capital letter A-Z
+        return c - ASCII_CAPITAL_LETTER_OFFSET;
+    }
+    else if(ASCII_LOWCASE_LETTER_OFFSET <= c &&
+            c < ASCII_LOWCASE_LETTER_OFFSET + 26)
+    {
+        // Lower case letter a-z
+        return c - ASCII_LOWCASE_LETTER_OFFSET + 26;
+    }
+    else if(ASCII_NUMBER_OFFSET <= c &&
+            c < ASCII_NUMBER_OFFSET + 10)
+    {
+        // Number 0-9
+        return c - ASCII_NUMBER_OFFSET + 52;
+    }
+    else if(c == '+')
+    {
+        return 62;
+    }
+    else if(c == '/')
+    {
+        return 63;
+    }
+    else if(c == '=')
+    {
+        // A special padding character gets a special return value
+        return -1;
+    }
+    else
+    {
+        Exception<true> e("Unrecognized base-64 character");
+        e.SetData("char", c);
+        THROW_GUTIL_EXCEPTION(e);
+    }
+}
+
+char StringHelpers::base64i2a(const char c)
+{
+    if(0 <= c && c < 26)
+    {
+        return ASCII_CAPITAL_LETTER_OFFSET + c;
+    }
+    else if(26 <= c && c < 52)
+    {
+        return ASCII_LOWCASE_LETTER_OFFSET + c;
+    }
+    else if(c <= 52 && c < 62)
+    {
+        return ASCII_NUMBER_OFFSET + c;
+    }
+    else if(c == 62)
+    {
+        return '+';
+    }
+    else if(c == 63)
+    {
+        return '/';
+    }
+    else if(c == -1)
+    {
+        return '=';
+    }
+    else
+    {
+        THROW_NEW_GUTIL_EXCEPTION(Exception);
+    }
+}
+
+string StringHelpers::fromBase64(const string &instr)
 {
     string outstr = "";
 
-    if(instr.length() % 4)
+    // Length must be a multiple of 4
+    if(instr.length() & 0b0011)
         THROW_NEW_GUTIL_EXCEPTION2( Exception, "Input string is not the right length" );
-
-    // Construct a map of the possible characters, which adds a bit of overhead to this function,
-    //  but saves us a linear search of the characters for every base64 digit we find
-    map<char, int> charmap;
-    for(int i = 0; i < 64; i++)
-        charmap[base64_digits[i]] = i;
 
     int len = instr.length();
     // Now translate the string
     for(int i = 0; i < len; i += 4)
     {
-        // These chars are potentially padding, so we treat them specially for efficiency
-        char tmp1 = instr.at(i);
-        char tmp2 = instr.at(i + 1);
-        char tmp3 = instr.at(i + 2);
-        char tmp4 = instr.at(i + 3);
-
-        // Check the characters for validation; don't accept any foreign characters
-        map<char, int>::iterator it = charmap.find(tmp1);
-        if(it == charmap.end())
-            THROW_NEW_GUTIL_EXCEPTION2( Exception, "Unrecognized base-64 character" );
-
-        it = charmap.find(tmp2);
-        if(it == charmap.end())
-            THROW_NEW_GUTIL_EXCEPTION2( Exception, "Unrecognized base-64 character" );
-
-        unsigned char a = charmap[tmp1];
-        unsigned char b = charmap[tmp2];
-        unsigned char c = charmap[tmp3];
-        unsigned char d = charmap[tmp4];
+        char a( base64a2i(instr.at(i)) );
+        char b( base64a2i(instr.at(i + 1)) );
+        char c( base64a2i(instr.at(i + 2)) );
+        char d( base64a2i(instr.at(i + 3)) );
 
         char val[1] = { (a << 2) | (b >> 4) };
         outstr.append(val, 1);
 
-        if(tmp3 != base64_padding)  // Equal signs are padding in base64
+        if(c >= 0)
         {
-            it = charmap.find(tmp3);
-            if(it == charmap.end())
-                THROW_NEW_GUTIL_EXCEPTION2( Exception, "Unrecognized base-64 character" );
-
             val[0] = (b << 4) | (c >> 2);
             outstr.append(val, 1);
 
-            if(tmp4 != base64_padding)
+            if(d >= 0)
             {
-                it = charmap.find(tmp4);
-                if(it == charmap.end())
-                    THROW_NEW_GUTIL_EXCEPTION2( Exception, "Unrecognized base-64 character" );
-
                 val[0] = (c << 6) | d;
                 outstr.append(val, 1);
             }
             else if(i < (len - 4))
                 THROW_NEW_GUTIL_EXCEPTION2( Exception, "String is in unrecognized format" );
         }
-        else if(tmp4 != base64_padding)
+        else if(d >= 0)
             THROW_NEW_GUTIL_EXCEPTION2( Exception, "String is in unrecognized format" );
     }
 

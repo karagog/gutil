@@ -39,15 +39,15 @@ public:
     inline Exception(const DataObjects::String &message,
                      const char *file,
                      int line,
-                     Exception *inner_exception = 0)
+                     Exception<false> *inner_exception = 0)
         :Exception<false>("GUtil::Core::ExtendedException", file, line),
           _p_Message(message),
-          _inner_exception(_inner_exception ? new Exception(*inner_exception) : 0){}
+          _inner_exception(_inner_exception ? new Exception<false>(*inner_exception) : 0){}
     inline Exception(const Exception<true> &o)
         :Exception<false>(o),
           _p_Message(o._p_Message),
           _data(o._data),
-          _inner_exception(o._inner_exception ? new Exception(*o._inner_exception) : 0){}
+          _inner_exception(o._inner_exception ? new Exception<false>(*o._inner_exception) : 0){}
     virtual ~Exception() throw(){
         if(_inner_exception)
             delete _inner_exception;
@@ -88,7 +88,7 @@ public:
         _inner_exception = new Exception(ex);
     }
 
-    inline Exception *GetInnerException() const{ return _inner_exception; }
+    inline Exception<false> *GetInnerException() const{ return _inner_exception; }
 
 
 protected:
@@ -97,11 +97,11 @@ protected:
                      const DataObjects::String &message,
                      const char *file = 0,
                      int line = -1,
-                     Exception *inner_exception = 0)
+                     Exception<false> *inner_exception = 0)
         :Exception<false>((_identifier = "GUtil::Core::Extended").Append(identifier).Append("Exception").ConstData(),
                           file, line),
           _p_Message(message),
-          _inner_exception(_inner_exception ? new Exception(*inner_exception) : 0){}
+          _inner_exception(_inner_exception ? new Exception<false>(*inner_exception) : 0){}
 
 
 private:
@@ -109,7 +109,7 @@ private:
     DataObjects::String _identifier;
     DataObjects::Map<DataObjects::String, DataObjects::String> _data;
 
-    Exception *_inner_exception;
+    Exception<false> *_inner_exception;
 
 };
 
@@ -119,14 +119,14 @@ private:
 
 /** Use this to declare any new exceptions */
 #define EXCEPTION_DECLARE_EXTENDED( ex_name ) \
-template<>class ex_name##Exception<true> : public GUtil::Core::Exception<true> \
+template<>class ex_name##Exception<true> : public Exception<true> \
 { \
 public: \
     ex_name##Exception() \
         :Exception<true>(STRINGIFY(ex_name)){} \
     ex_name##Exception(const char *msg) \
         :Exception<true>(STRINGIFY(ex_name), msg){} \
-    ex_name##Exception(const char *msg, const char *file, int line, Exception *ie = 0) \
+    ex_name##Exception(const char *msg, const char *file, int line, Exception<false> *ie = 0) \
         :Exception<true>(STRINGIFY(ex_name), msg, file, line, ie){} \
 };
 

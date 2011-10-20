@@ -41,6 +41,9 @@ public:
     static std::string toBase64(const std::string &);
     static std::string fromBase64(const std::string &);
 
+    static char base64a2i(const char);
+    static char base64i2a(const char);
+
     // Hex conversions
     static std::string toBase16(const std::string &);
     static std::string fromBase16(const std::string &);

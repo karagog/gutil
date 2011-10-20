@@ -23,6 +23,10 @@ String::String(const char *d, int len)
 {
 }
 
+String::String(const char d, int len)
+{
+}
+
 bool String::operator == (const String &) const
 {
 

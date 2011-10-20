@@ -42,6 +42,10 @@ public:
     inline Exception(const char *name, const char *file, int line)
         :Name(name), File(file), Line(line){}
 
+    /** Use this constructor to inject more information in your exception. */
+    inline Exception(const char *file, int line)
+        :Name("GUtil::Core::Exception"), File(file), Line(line){}
+
     /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
         This will allow you to dynamic_cast a reference to an Exception as a different
         type of exception at runtime.
@@ -70,14 +74,13 @@ public:
 /** Use this to declare any new exceptions */
 #define EXCEPTION_DECLARE( ex_name ) \
 template<bool extended = false>class ex_name##Exception{}; \
-template<>class ex_name##Exception<false>: \
-    public GUtil::Core::Exception<false> \
+template<>class ex_name##Exception<false> : public Exception<false> \
 { \
 public: \
     ex_name##Exception() \
-        :Exception(STRINGIFY(ex_name)){} \
+        :Exception<false>(STRINGIFY(ex_name)){} \
     ex_name##Exception(const char *file, int line) \
-        :Exception(STRINGIFY(ex_name), file, line){} \
+        :Exception<false>(STRINGIFY(ex_name), file, line){} \
 };
 
 

@@ -41,7 +41,7 @@ public:
     String(const char *, int len = -1);
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
-    String(char c, int len = 1);
+    String(const char c, int len = 1);
 
     /** Basically a copy constructor, but for the base type. */
     inline String(const Vector<char> &s) :Vector<char>(s){}

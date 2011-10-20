@@ -226,7 +226,7 @@ public:
                 new(dest) T(vec[i]);
         }
 
-        ++m_length;
+        m_length += vec.Size();
     }
 
     /** Remove the item pointed to by the iterator.
