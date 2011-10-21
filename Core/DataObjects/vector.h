@@ -15,7 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_VECTOR_P
 #define GUTIL_VECTOR_P
 
-#include "gutil.h"
+#include "gutil_macros.h"
+#include "Core/globals.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
 #include <new>
@@ -179,11 +180,19 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(const Vector<T> &vec, GUINT32 indx)
+    inline void Insert(const Vector<T> &vec, GUINT32 indx){
+        Insert(vec.ConstData(), vec.Size(), indx);
+    }
+
+    /** Insert the array at the index position.
+        \note Invalidates all iterators, because the addition may cause a resize of the internal
+        memory, which potentially moves the array.
+    */
+    void Insert(const T *vec, GUINT32 size, GUINT32 indx)
     {
         // Allocate more memory if we have to
-        if((m_length + vec.Size()) > m_capacity)
-            Reserve(m_length + vec.Size());
+        if((m_length + size) > m_capacity)
+            Reserve(m_length + size);
 
         T *dest( m_begin + indx );
 
@@ -192,25 +201,25 @@ public:
         {
             if(IsMovableType<T>::Value)
             {
-                memmove(dest + vec.Size(), dest, (m_length - indx) * sizeof(T));
-                for(GUINT32 i(0); i < vec.Size(); ++i)
-                    new(dest++) T(vec[i]);
+                memmove(dest + size, dest, (m_length - indx) * sizeof(T));
+                for(GUINT32 i(0); i < size; ++i)
+                    new(dest++) T(*(vec++));
             }
             else
             {
                 // Call the constructors on the memory location at the end
-                for(GUINT32 i(1); i <= m_length && i <= vec.Size(); ++i)
-                    new(m_begin + m_length + vec.Size() - i) T(*(m_begin + m_length - i));
+                for(GUINT32 i(1); i <= m_length && i <= size; ++i)
+                    new(m_begin + m_length + size - i) T(*(m_begin + m_length - i));
 
                 T *cur(m_begin + m_length - 1);
                 if(m_length > 0)
                 {
-                    for(GUINT32 i(m_length - 1); i > (indx + vec.Size()); --i, --cur)
-                        *cur = *(cur - vec.Size());
+                    for(GUINT32 i(m_length - 1); i > (indx + size); --i, --cur)
+                        *cur = *(cur - size);
                 }
 
                 // Then assign the items to the proper location
-                for(GUINT32 i(0); i < vec.Size(); ++i)
+                for(GUINT32 i(0); i < size; ++i)
                 {
                     if(i < m_length)
                         m_begin[indx + i] = vec[i];
@@ -222,11 +231,11 @@ public:
         else
         {
             // Call the copy constructors to initialize the memory at the end of the array
-            for(GUINT32 i(0); i < vec.Size(); ++i, ++dest)
-                new(dest) T(vec[i]);
+            for(GUINT32 i(0); i < size; ++i)
+                new(dest++) T(*(vec++));
         }
 
-        m_length += vec.Size();
+        m_length += size;
     }
 
     /** Remove the item pointed to by the iterator.

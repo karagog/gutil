@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "datacolumncollection.h"
 #include "Custom/gvariant.h"
 #include "Utils/qstringhelpers.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include "Core/globals.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -234,7 +234,7 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
 #define READ_ERR_STRING "XML not in correct format"
 
 void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
-        throw(Core::XmlException)
+        throw(Core::XmlException<true>)
 {
     FailIfReadOnly();
 
@@ -243,8 +243,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
     if(sr.readNextStartElement())
     {
         if(sr.name() != DATATABLE_XML_ID){
-            Core::XmlException ex("Unrecognized XML Node");
-            ex.SetData("elt_name", sr.name().toString().toStdString());
+            Core::XmlException<true> ex("Unrecognized XML Node");
+            ex.SetData("elt_name", sr.name().toString().toAscii().constData());
             THROW_GUTIL_EXCEPTION(ex);
         }
 
@@ -270,8 +270,8 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
     }
     else
     {
-        Core::XmlException ex("Not a valid DataTable serialization");
-        ex.SetData("Token", sr.tokenString().toStdString());
+        Core::XmlException<true> ex("Not a valid DataTable serialization");
+        ex.SetData("Token", sr.tokenString().toAscii().constData());
         THROW_GUTIL_EXCEPTION(ex);
     }
 }
@@ -401,7 +401,7 @@ void DataObjects::DataTable::Unlock()
 }
 
 DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolumn_value_mapping)
-        throw(Core::NotFoundException)
+        throw(Core::NotFoundException<true>)
 {
     if(keycolumn_value_mapping.count() == 0)
         THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
@@ -428,18 +428,18 @@ DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolu
             return At(i);
     }
 
-    Core::NotFoundException ex("The row was not found.  Check exception data for search criteria.");
+    Core::NotFoundException<true> ex("The row was not found.  Check exception data for search criteria.");
     int cnt = 1;
     foreach(int c, keycolumn_value_mapping.keys())
-        ex.SetData(QString("k%1").arg(cnt++).toStdString(),
+        ex.SetData(QString("k%1").arg(cnt++).toAscii().constData(),
                    QString("Column %1: %2").arg(c).arg(keycolumn_value_mapping[c].toString())
-                   .toStdString());
+                   .toAscii().constData());
 
     THROW_GUTIL_EXCEPTION(ex);
 }
 
 const DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &keycolumn_value_mapping) const
-        throw(Core::NotFoundException)
+        throw(Core::NotFoundException<true>)
 {
     if(keycolumn_value_mapping.count() == 0)
         THROW_NEW_GUTIL_EXCEPTION2(Core::NotFoundException,
@@ -466,19 +466,19 @@ const DataRow &DataObjects::DataTable::FindFirstRow(const QMap<int, GVariant> &k
             return At(i);
     }
 
-    Core::NotFoundException ex("The row was not found.  Check exception data for search criteria.");
+    Core::NotFoundException<true> ex("The row was not found.  Check exception data for search criteria.");
     int cnt = 1;
     foreach(int c, keycolumn_value_mapping.keys())
-        ex.SetData(QString("k%1").arg(cnt++).toStdString(),
+        ex.SetData(QString("k%1").arg(cnt++).toAscii().constData(),
                    QString("Column %1: %2").arg(c).arg(keycolumn_value_mapping[c].toString())
-                   .toStdString());
+                   .toAscii().constData());
 
     THROW_GUTIL_EXCEPTION(ex);
 }
 
 DataRow &DataObjects::DataTable::
         FindFirstRow(const QMap<QString, GVariant> &keycolumn_value_mapping)
-        throw(Core::NotFoundException)
+        throw(Core::NotFoundException<true>)
 {
     QMap<int, Custom::GVariant> tmp;
     foreach(QString s, keycolumn_value_mapping.keys())
@@ -488,7 +488,7 @@ DataRow &DataObjects::DataTable::
 
 const DataRow &DataObjects::DataTable::
         FindFirstRow(const QMap<QString, GVariant> &keycolumn_value_mapping) const
-        throw(Core::NotFoundException)
+        throw(Core::NotFoundException<true>)
 {
     QMap<int, Custom::GVariant> tmp;
     foreach(QString s, keycolumn_value_mapping.keys())

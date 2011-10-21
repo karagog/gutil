@@ -76,7 +76,7 @@ public:
 
     void WriteXml(QXmlStreamWriter &) const;
     void ReadXml(QXmlStreamReader &)
-            throw(GUtil::Core::XmlException);
+            throw(GUtil::Core::XmlException<>);
 
     static void ToXml(const GVariant &, QXmlStreamWriter &);
     static GVariant FromXml(QXmlStreamReader &);

@@ -17,7 +17,47 @@ limitations under the License.*/
 
 namespace GUtil{ namespace Core{
 
-template<bool extended = false>class Exception{};
+
+/** We define a base class, so that the construction code is not reproduced
+    for each exception declaration.  That would be useless code bloat, so in the Exception
+    class we inline all the constructors and they call the base constructors which
+    are defined in the lib.
+*/
+class Exception_base
+{
+public:
+
+    /** Constructs an empty exception, with all pointers initialized to 0. */
+    Exception_base();
+
+    /** Use this constructor to inject more information in your exception. */
+    Exception_base(const char *name);
+
+    /** Use this constructor to inject more information in your exception. */
+    Exception_base(const char *name, const char *file, int line);
+
+    /** Use this constructor to inject more information in your exception. */
+    Exception_base(const char *file, int line);
+
+    /** The name of the exception, injected by the constructor.
+        \note You should check that it's non-zero before using.
+    */
+    const char *What;
+
+    /** You can pass the preprocessor macro __FILE__ into the constructor and it
+        will be stored here.
+        \note You should check that it's non-zero before using.
+    */
+    const char *File;
+
+    /** You can pass the preprocessor macro __LINE__ into the constructor and it
+        will be stored here.
+        \note Will be -1 if not specified
+    */
+    int Line;
+
+};
+
 
 /** The base class for all of my exceptions.
 
@@ -27,43 +67,22 @@ template<bool extended = false>class Exception{};
     basic information, like the file and line numbers, as well as a string identifier.
     You can use the extended version to include more complex data in your exceptions.
 */
-template<>class Exception<false>
+template<bool extended = false>
+class Exception :
+        public Exception_base
 {
 public:
-
-    inline Exception()
-        :Name("GUtil::Core::Exception"), File(0), Line(-1){}
-
-    /** Use this constructor to inject more information in your exception. */
-    inline Exception(const char *name)
-        :Name(name), File(0), Line(-1){}
-
-    /** Use this constructor to inject more information in your exception. */
+    inline Exception() {}
+    inline Exception(const char *name) :Exception_base(name) {}
     inline Exception(const char *name, const char *file, int line)
-        :Name(name), File(file), Line(line){}
-
-    /** Use this constructor to inject more information in your exception. */
-    inline Exception(const char *file, int line)
-        :Name("GUtil::Core::Exception"), File(file), Line(line){}
+        :Exception_base(name, file, line) {}
+    inline Exception(const char *file, int line) :Exception_base(file, line) {}
 
     /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
         This will allow you to dynamic_cast a reference to an Exception as a different
         type of exception at runtime.
     */
     virtual ~Exception() throw(){}
-
-    /** The name of the exception, injected by the constructor. */
-    const char *Name;
-
-    /** You can pass the preprocessor macro __FILE__ into the constructor and it
-        will be stored here.
-    */
-    const char *File;
-
-    /** You can pass the preprocessor macro __LINE__ into the constructor and it
-        will be stored here.
-    */
-    int Line;
 
 };
 
@@ -73,33 +92,32 @@ public:
 
 /** Use this to declare any new exceptions */
 #define EXCEPTION_DECLARE( ex_name ) \
-template<bool extended = false>class ex_name##Exception{}; \
-template<>class ex_name##Exception<false> : public Exception<false> \
+template<bool extended = false>class ex_name : public Exception<false> \
 { \
 public: \
-    ex_name##Exception() \
+    ex_name() \
         :Exception<false>(STRINGIFY(ex_name)){} \
-    ex_name##Exception(const char *file, int line) \
+    ex_name(const char *file, int line) \
         :Exception<false>(STRINGIFY(ex_name), file, line){} \
 };
 
 
 // Here are the other types of exceptions (all derived from Exception)
-EXCEPTION_DECLARE( NotImplemented )
-EXCEPTION_DECLARE( BadAllocation )
-EXCEPTION_DECLARE( ReadOnly )
-EXCEPTION_DECLARE( Argument )
-EXCEPTION_DECLARE( DataTransport )
-EXCEPTION_DECLARE( Xml )
-EXCEPTION_DECLARE( EndOfFile )
-EXCEPTION_DECLARE( Lock )
-EXCEPTION_DECLARE( NullReference )
-EXCEPTION_DECLARE( IndexOutOfRange )
-EXCEPTION_DECLARE( Validation )
-EXCEPTION_DECLARE( InvalidCast )
-EXCEPTION_DECLARE( NotFound )
-EXCEPTION_DECLARE( DivideByZero )
-EXCEPTION_DECLARE( UniqueKey )
+EXCEPTION_DECLARE( NotImplementedException )
+EXCEPTION_DECLARE( BadAllocationException )
+EXCEPTION_DECLARE( ReadOnlyException )
+EXCEPTION_DECLARE( ArgumentException )
+EXCEPTION_DECLARE( DataTransportException )
+EXCEPTION_DECLARE( XmlException )
+EXCEPTION_DECLARE( EndOfFileException )
+EXCEPTION_DECLARE( LockException )
+EXCEPTION_DECLARE( NullReferenceException )
+EXCEPTION_DECLARE( IndexOutOfRangeException )
+EXCEPTION_DECLARE( ValidationException )
+EXCEPTION_DECLARE( InvalidCastException )
+EXCEPTION_DECLARE( NotFoundException )
+EXCEPTION_DECLARE( DivideByZeroException )
+EXCEPTION_DECLARE( UniqueKeyException )
 
 
 

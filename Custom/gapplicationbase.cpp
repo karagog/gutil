@@ -63,7 +63,7 @@ void GApplicationBase::application_exiting()
         delete _cleanup_objects.pop();
 }
 
-void GApplicationBase::handle_exception(const GUtil::Core::Exception &ex)
+void GApplicationBase::handle_exception(const GUtil::Core::Exception<> &ex)
 {
     throw ex;
 }

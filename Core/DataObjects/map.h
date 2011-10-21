@@ -16,8 +16,7 @@ limitations under the License.*/
 #define GUTIL_MAP_H
 
 #include "Core/DataObjects/vector.h"
-#include "binarysearchtree.h"
-#include "Core/Interfaces/icomparer.h"
+#include "Core/DataObjects/binarysearchtree.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -57,8 +56,8 @@ template<class K, class V>class Map
 
     protected:
 
-        Vector<V> values;
         K key;
+        Vector<V> values;
 
     };
 

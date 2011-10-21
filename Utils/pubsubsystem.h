@@ -21,7 +21,7 @@ namespace GUtil
 {
     namespace Core
     {
-        class Exception;
+        template<bool>class Exception;
     }
 
     namespace Utils
@@ -40,7 +40,7 @@ namespace GUtil
             void PublishMessage(const QString &);
             void PublishError(const QString &);
             void PublishProgress(int progress, int progress_id = -1);
-            void PublishException(const GUtil::Core::Exception &);
+            void PublishException(const GUtil::Core::Exception<false> &);
 
 
         signals:
@@ -48,7 +48,7 @@ namespace GUtil
             void NotifyMessage(const QString &);
             void NotifyError(const QString &);
             void NotifyProgress(int progress, int progress_id = -1);
-            void NotifyException(const GUtil::Core::Exception &);
+            void NotifyException(const GUtil::Core::Exception<false> &);
 
 
         protected:
@@ -58,7 +58,7 @@ namespace GUtil
             virtual void on_message_published(const QString &);
             virtual void on_error_published(const QString &);
             virtual void on_progress_published(int, int);
-            virtual void on_exception_published(const Core::Exception &);
+            virtual void on_exception_published(const Core::Exception<false> &);
 
 
         };

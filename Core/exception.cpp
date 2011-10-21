@@ -12,25 +12,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CORE_IXMLSERIALIZABLE_H
-#define CORE_IXMLSERIALIZABLE_H
+#include "exception.h"
+using namespace GUtil::Core;
 
-#include "gutil.h"
-#include "Core/exception.h"
-#include <string>
+#define EXCEPTION_STRING  "GUtil::Core::Exception"
 
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+Exception_base::Exception_base()
+    :What(EXCEPTION_STRING), File(0), Line(-1)
+{}
 
+Exception_base::Exception_base(const char *name)
+    :What(name), File(0), Line(-1)
+{}
 
-class IXmlSerializable
-{
-public:
-    virtual std::string ToXmlString(bool human_readable) const = 0;
-    virtual void FromXmlString(const std::string &)
-            throw(GUtil::Core::XmlException<false>) = 0;
-};
+Exception_base::Exception_base(const char *name, const char *file, int line)
+    :What(name), File(file), Line(line)
+{}
 
-
-GUTIL_END_CORE_NAMESPACE
-
-#endif // CORE_IXMLSERIALIZABLE_H
+Exception_base::Exception_base(const char *file, int line)
+    :What(EXCEPTION_STRING), File(file), Line(line)
+{}

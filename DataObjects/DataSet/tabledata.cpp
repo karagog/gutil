@@ -47,7 +47,7 @@ int TableData::GetColumnIndex(const QString &key) const
     if(ret == -1)
         THROW_NEW_GUTIL_EXCEPTION2(Core::IndexOutOfRangeException,
                                   QString("The column key '%1' does not exist in the %2 table")
-                                  .arg(key).arg(Name).toStdString());
+                                  .arg(key).arg(Name).toAscii().constData());
 
     return ret;
 }

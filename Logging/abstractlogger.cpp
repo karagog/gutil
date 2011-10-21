@@ -13,11 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "abstractlogger.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include "DataAccess/giodevice.h"
 #include <QDateTime>
 #include <QCoreApplication>
 GUTIL_USING_NAMESPACE(Logging);
+GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 AbstractLogger::AbstractLogger(QObject *parent)
     :QObject(parent == 0 ? qApp : parent),
@@ -26,7 +27,8 @@ AbstractLogger::AbstractLogger(QObject *parent)
     _message_level = Info;
 
     // So passing exceptions through signals and slots will work
-    qRegisterMetaType<GUtil::Core::Exception>("GUtil::Core::Exception");
+    qRegisterMetaType< GUtil::Core::Exception<false> >("GUtil::Core::Exception<false");
+    qRegisterMetaType< GUtil::Core::Exception<true> >("GUtil::Core::Exception<true>");
 }
 
 AbstractLogger::~AbstractLogger()
@@ -67,44 +69,61 @@ void AbstractLogger::LogError(const QString &msg, const QString &title)
     Log(msg, title, Error);
 }
 
-void AbstractLogger::LogException(const Core::Exception &ex)
+#define TRUNCATE_LIMIT 1000
+
+void AbstractLogger::LogException(const Core::Exception<> &ex)
 {
-    QString data_string;
+    const Core::Exception<true> *ex_ptr( dynamic_cast<const Core::Exception<true> *>(&ex) );
 
-    if(m_logExceptionDetails)
+    if(ex_ptr)
     {
-        std::vector<std::string> keys = ex.GetDataKeys(true);
-        if(keys.size() > 0)
+        QString data_string;
+        if(m_logExceptionDetails)
         {
-            data_string = "\n\nException Data:";
-
-            for(std::vector<std::string>::const_iterator it = keys.begin();
-                it != keys.end();
-                it++)
+            const Map<String, String> &keys( ex_ptr->GetDataMap() );
+            if(keys.Size() > 0)
             {
-                std::string tmps(ex.GetData(*it));
-                if(tmps.length() > 1000)
-                    tmps = tmps.substr(0, 1000) + "<--- TRUNCATED";
+                data_string = "\n\nException Data:";
 
-                data_string.append(QString("\n\tKey: %1   Value: %2")
-                                   .arg(QString::fromStdString(*it))
-                                   .arg(QString::fromStdString(tmps)));
+                for(Map<String, String>::const_iterator it( keys.begin() );
+                    it; it++)
+                {
+                    QString tmps(it->Value().ConstData());
+                    if(tmps.length() > TRUNCATE_LIMIT)
+                        tmps = tmps.left(TRUNCATE_LIMIT) +
+                                QString("<--- TRUNCATED AT %1 CHARACTERS")
+                                .arg(TRUNCATE_LIMIT);
+
+                    data_string.append(QString("\n\tKey: %1   Value: %2")
+                                       .arg(it->Key().ConstData())
+                                       .arg(tmps));
+                }
             }
         }
+
+        Log(QString("%1%2")
+            .arg(ex_ptr->GetMessage().ConstData())
+            .arg(data_string),
+
+            QString("%1 Caught from line %2 of file '%3'%4:")
+            .arg(ex.What ? ex.What : "[ null ]")
+            .arg(ex.Line)
+            .arg(ex.File ? ex.File : "[ no file ]")
+            .arg(ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : ""),
+
+            Error);
+
+        if(ex_ptr->GetInnerException())
+            LogException(*ex_ptr->GetInnerException());
     }
-
-    Log(QString("%1%2")
-        .arg(QString::fromStdString(ex.GetMessage()))
-        .arg(data_string),
-
-        QString("%1 Caught%2:")
-        .arg(QString::fromStdString(ex.ToString()))
-        .arg(ex.GetInnerException() ? " (Inner exception follows immediately)" : ""),
-
-        Error);
-
-    if(ex.GetInnerException())
-        LogException(*ex.GetInnerException());
+    else
+    {
+        Log("", QString("%1 Caught from line %2 of file '%3':")
+            .arg(ex.What ? ex.What : "[ null ]")
+            .arg(ex.Line)
+            .arg(ex.File ? ex.File : "[ no file ]"),
+            Error);
+    }
 }
 
 void AbstractLogger::LogException(const std::exception &)

@@ -51,9 +51,9 @@ namespace GUtil
 
             // Just reads/writes to stdin/out
             virtual void send_data(const QByteArray &)
-                    throw(GUtil::Core::DataTransportException);
+                    throw(GUtil::Core::DataTransportException<true>);
             virtual QByteArray receive_data()
-                    throw(GUtil::Core::DataTransportException);
+                    throw(GUtil::Core::DataTransportException<true>);
 
             bool has_data_available();
 

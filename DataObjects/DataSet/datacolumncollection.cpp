@@ -53,12 +53,12 @@ QStringList DataObjects::DataColumnCollection::Labels() const
 }
 
 void DataObjects::DataColumnCollection::validate_new_item(const DataObjects::DataColumn &c) const
-        throw(Core::ValidationException)
+        throw(Core::ValidationException<true>)
 {
     if(Contains(c))
         THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,
                                   QString("Column collection already contains key '%1'")
-                                  .arg(c.GetKey()).toStdString());
+                                  .arg(c.GetKey()).toAscii().constData());
 }
 
 void DataObjects::DataColumnCollection::on_add(int ind)

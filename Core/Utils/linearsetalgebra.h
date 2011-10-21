@@ -16,7 +16,7 @@ limitations under the License.*/
 #define LINEARSETALGEBRA_H
 
 #include "gutil.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <vector>
 
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);

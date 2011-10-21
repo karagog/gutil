@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "gwidget.h"
 #include "gutil.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <QApplication>
 #include <QDesktopWidget>
 GUTIL_USING_NAMESPACE(GUICustom);

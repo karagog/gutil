@@ -20,12 +20,16 @@ HEADERS += \
     globals.h \
     extendedexception.h
 SOURCES += \
-    globals.cpp
+    globals.cpp \
+    extendedexception.cpp \
+    exception.cpp
 
 include(DataAccess/DataAccess.pri)
 include(DataObjects/DataObjects.pri)
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
+
+
 
 
 

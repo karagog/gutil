@@ -71,7 +71,7 @@ void DataObjects::RowData::value_about_to_change(int index, const Custom::GVaria
                                           "to the value \"%2\"")
                                   .arg(index)
                                   .arg(newvalue.toString())
-                                  .toStdString());
+                                  .toAscii().constData());
 }
 
 void DataObjects::RowData::on_make_dirty()

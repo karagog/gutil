@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "Core/extendedexception.h"
 #include "gconsoleiodevice.h"
 #include <cstdio>
 using namespace GUtil;
@@ -114,7 +115,7 @@ QString DataAccess::GConsoleIODevice::ReadLine()
 }
 
 void DataAccess::GConsoleIODevice::send_data(const QByteArray &d)
-        throw(GUtil::Core::DataTransportException)
+        throw(GUtil::Core::DataTransportException<true>)
 {
     _fail_if_not_initialized();
 
@@ -122,7 +123,7 @@ void DataAccess::GConsoleIODevice::send_data(const QByteArray &d)
 }
 
 QByteArray DataAccess::GConsoleIODevice::receive_data()
-        throw(GUtil::Core::DataTransportException)
+        throw(GUtil::Core::DataTransportException<true>)
 {
     QByteArray ret;
     _messages_lock.lock();
@@ -137,5 +138,6 @@ QByteArray DataAccess::GConsoleIODevice::receive_data()
 void DataAccess::GConsoleIODevice::_fail_if_not_initialized()
 {
     if(!_engaged)
-        THROW_NEW_GUTIL_EXCEPTION2( Core::DataTransportException, "The console is already in use" );
+        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                   "The console is already in use");
 }

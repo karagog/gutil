@@ -17,6 +17,7 @@ limitations under the License.*/
 #ifndef FILETRANSPORT_H
 #define FILETRANSPORT_H
 
+#include "Core/extendedexception.h"
 #include "DataAccess/gqiodevice.h"
 #include "Utils/usermachinelocks.h"
 #include <QDateTime>
@@ -63,9 +64,9 @@ namespace GUtil
         protected:
 
             virtual void send_data(const QByteArray &)
-                    throw(GUtil::Core::DataTransportException);
+                    throw(GUtil::Core::DataTransportException<true>);
             virtual QByteArray receive_data()
-                    throw(GUtil::Core::DataTransportException);
+                    throw(GUtil::Core::DataTransportException<true>);
 
             inline QFile &File(){ return (QFile &)IODevice(); }
             inline const QFile &File() const{ return (const QFile &)IODevice(); }

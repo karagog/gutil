@@ -177,7 +177,7 @@ void DataObjects::DataSet::WriteXml(QXmlStreamWriter &sw) const
 }
 
 void DataObjects::DataSet::ReadXml(QXmlStreamReader &sr)
-        throw(GUtil::Core::XmlException)
+        throw(GUtil::Core::XmlException<true>)
 {
     FailIfReadOnly();
 

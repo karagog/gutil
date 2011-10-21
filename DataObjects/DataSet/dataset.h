@@ -74,7 +74,7 @@ public:
     // IQXmlSerializable
     void WriteXml(QXmlStreamWriter &) const;
     void ReadXml(QXmlStreamReader &)
-            throw(GUtil::Core::XmlException);
+            throw(GUtil::Core::XmlException<true>);
 
 
 protected:

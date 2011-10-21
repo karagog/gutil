@@ -54,7 +54,7 @@ public:
 
     bool IsProcessRunning();
     void SetIsProcessRunning(bool)
-            throw(Core::Exception);
+            throw(Core::Exception<true>);
 
     void SendMessageToControllingProcess(const QString &);
 

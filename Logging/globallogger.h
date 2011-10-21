@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GLOBALLOGGER_H
 #define GLOBALLOGGER_H
 
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <QString>
 #include <QMap>
 
@@ -66,7 +66,7 @@ namespace GUtil
                     const QString &title = QString::null,
                     int logger_id = DefaultId);
 
-            static void LogException(const GUtil::Core::Exception &, int logger_id = DefaultId);
+            static void LogException(const GUtil::Core::Exception<> &, int logger_id = DefaultId);
             static void LogException(const std::exception &, int logger_id = DefaultId);
 
 
@@ -87,7 +87,7 @@ namespace GUtil
             static void _takedown_logger(int logger_id);
 
             static void _translate_logger_id(int &, bool allow_new_id)
-                    throw(GUtil::Core::ArgumentException);
+                    throw(GUtil::Core::ArgumentException<true>);
 
             static int _default_logger_id;
 

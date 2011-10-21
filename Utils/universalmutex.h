@@ -50,7 +50,7 @@ namespace GUtil
             ~UniversalMutex();
 
             // Thows a LockException if lock fails
-            void Lock() throw(Core::LockException);
+            void Lock() throw(Core::LockException<>);
             void Unlock();
 
             void SetFilePath(const QString &fp);

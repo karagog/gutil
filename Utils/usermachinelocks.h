@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef APPLICATIONLOCK_H
 #define APPLICATIONLOCK_H
 
-#include "Core/exception.h"
+#include "gutil.h"
 #include <QString>
 #include <QMap>
 #include <QReadWriteLock>
@@ -94,11 +94,11 @@ public:
 
     // Use these functions to lock/unlock this object for the user's machine
     void LockForReadOnMachine(bool block = false)
-            throw(GUtil::Core::LockException,
-                  GUtil::Core::Exception);
+            throw(GUtil::Core::LockException<false>,
+                  GUtil::Core::Exception<false>);
     void LockForWriteOnMachine(bool block = false)
-            throw(GUtil::Core::LockException,
-                  GUtil::Core::Exception);
+            throw(GUtil::Core::LockException<false>,
+                  GUtil::Core::Exception<false>);
 
     inline bool IsLockedForReadOnMachine() const{
         return GetLockOwner() && GetReadLockOwner();
@@ -120,8 +120,8 @@ public:
     explicit UserMachineMutex(const QString &file_name = QString::null);
 
     void LockMutexOnMachine(bool block = false)
-            throw(GUtil::Core::LockException,
-                  GUtil::Core::Exception);
+            throw(GUtil::Core::LockException<false>,
+                  GUtil::Core::Exception<false>);
 
 };
 

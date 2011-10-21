@@ -16,6 +16,7 @@ limitations under the License.*/
 
 #include "usermachinelocks.h"
 #include "ThirdParty/Qt/QtLockedFile/qtlockedfile.h"
+#include "Core/extendedexception.h"
 #include <QFileInfo>
 #include <QDesktopServices>
 using namespace GUtil;
@@ -115,8 +116,8 @@ void Utils::MachineLockBase::lock(bool for_read, bool block)
         // Then open the file in preparation for locking
         if(!_usermachinelockfile->open(QFile::ReadWrite))
         {
-            Core::Exception ex("Couldn't open lockfile!");
-            ex.SetData("err", _usermachinelockfile->errorString().toStdString());
+            Core::Exception<true> ex("Couldn't open lockfile!");
+            ex.SetData("err", _usermachinelockfile->errorString().toAscii().constData());
 
             _release_lock();
 
@@ -134,9 +135,9 @@ void Utils::MachineLockBase::lock(bool for_read, bool block)
             THROW_NEW_GUTIL_EXCEPTION2( Core::LockException, "Already locked by another process" );
         }
     }
-    catch(Core::LockException &le)
+    catch(Core::LockException<true> &le)
     {
-        le.SetData("Filename", FileNameForMachineLock().toStdString());
+        le.SetData("Filename", FileNameForMachineLock().toAscii().constData());
         throw;
     }
 }
@@ -226,15 +227,14 @@ Utils::UserMachineReadWriteLock::UserMachineReadWriteLock(const QString &file_na
 }
 
 void Utils::UserMachineReadWriteLock::LockForReadOnMachine(bool block)
-        throw(Core::LockException, Core::Exception)
+        throw(Core::LockException<false>, Core::Exception<false>)
 {
     // Lock the local mutex
     lock(true, block);
 }
 
 void Utils::UserMachineReadWriteLock::LockForWriteOnMachine(bool block)
-        throw(GUtil::Core::LockException,
-              GUtil::Core::Exception)
+        throw(GUtil::Core::LockException<false>, GUtil::Core::Exception<false>)
 {
     lock(false, block);
 }
@@ -255,8 +255,7 @@ Utils::UserMachineMutex::UserMachineMutex(const QString &file_name)
 }
 
 void Utils::UserMachineMutex::LockMutexOnMachine(bool block)
-        throw(GUtil::Core::LockException,
-              GUtil::Core::Exception)
+        throw(GUtil::Core::LockException<false>, GUtil::Core::Exception<false>)
 {
     lock(false, block);
 }

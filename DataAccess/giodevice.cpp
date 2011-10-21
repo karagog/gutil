@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "giodevice.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <QWaitCondition>
 using namespace GUtil;
 
@@ -54,7 +54,7 @@ void DataAccess::GIODevice::SendData(const QByteArray &data)
 }
 
 QByteArray DataAccess::GIODevice::ReceiveData()
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     QByteArray ret;
     _this_lock.lock();

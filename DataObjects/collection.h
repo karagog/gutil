@@ -14,7 +14,7 @@ limitations under the License.*/
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
@@ -58,7 +58,7 @@ protected:
 
     // Derived classes use this to reject new items for any reason
     virtual void validate_new_item(const T &)
-            throw(Core::ValidationException){}
+            throw(Core::ValidationException<>){}
 
 
     CollectionBase(){}
@@ -68,15 +68,15 @@ protected:
 
     T &add_protected(const T &value);
     T &insert_protected(const T &value, int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
 
     const T &at_protected(int index) const
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
     T &at_protected(int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
 
     void remove_protected(int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
     void removeOne_protected(const T &);
     void removeAll_protected(const T &);
     void clear_protected();
@@ -118,21 +118,21 @@ public:
 
     T &Add(const T &value);
     T &Insert(const T &value, int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
 
     const T &At(int index) const
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
     T &At(int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
 
     T &operator [](int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
 
     const T &operator [](int index) const
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
 
     void Remove(int index)
-            throw(Core::IndexOutOfRangeException);
+            throw(Core::IndexOutOfRangeException<>);
     void RemoveOne(const T &);
     void RemoveAll(const T &);
     void Clear();

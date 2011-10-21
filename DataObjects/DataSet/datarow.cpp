@@ -148,13 +148,13 @@ void DataObjects::DataRow::WriteXml(QXmlStreamWriter &sw) const
 }
 
 void DataObjects::DataRow::ReadXml(QXmlStreamReader &sr)
-        throw(Core::XmlException)
+        throw(Core::XmlException<true>)
 {
     if(sr.readNextStartElement())
     {
         if(sr.name() != ROW_XML_ID)
-            THROW_NEW_GUTIL_EXCEPTION2( Core::XmlException, QString("Unrecognized XML node: %1")
-                                     .arg(sr.name().toString()).toStdString() );
+            THROW_NEW_GUTIL_EXCEPTION2(Core::XmlException, QString("Unrecognized XML node: %1")
+                                       .arg(sr.name().toString()).toAscii().constData() );
 
         int cnt = sr.attributes().at(0).value().toString().toInt();
 

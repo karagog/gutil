@@ -42,7 +42,7 @@ public:
 protected:
 
     virtual void validate_new_item(const DataRow &i)
-            throw(Core::ValidationException);
+            throw(Core::ValidationException<true>);
 
 
 private:

@@ -35,7 +35,7 @@ void Logging::FileLogger::ClearLog()
     {
         _file_transport.TruncateFile();
     }
-    catch(Core::Exception &)
+    catch(Core::Exception<> &)
     {
 
     }

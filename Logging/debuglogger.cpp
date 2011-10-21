@@ -85,7 +85,7 @@ void Logging::DebugLogger::LogError(const char *file, int line,
             Logging::GlobalLogger::DebugId);
 }
 
-void Logging::DebugLogger::LogException(const GUtil::Core::Exception &ex)
+void Logging::DebugLogger::LogException(const GUtil::Core::Exception<> &ex)
 {
     _check_if_initialized();
 

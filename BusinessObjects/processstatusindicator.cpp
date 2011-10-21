@@ -69,7 +69,7 @@ bool ProcessStatusIndicator::IsProcessRunning()
     {
         _status_lock.LockForReadOnMachine(false);
     }
-    catch(Core::LockException &)
+    catch(Core::LockException<> &)
     {
         ret = true;
     }
@@ -81,7 +81,7 @@ bool ProcessStatusIndicator::IsProcessRunning()
 }
 
 void ProcessStatusIndicator::SetIsProcessRunning(bool is_running)
-        throw(Core::Exception)
+        throw(Core::Exception<true>)
 {
     bool update_status(true);
 
@@ -134,7 +134,7 @@ void ProcessStatusIndicator::SendMessageToControllingProcess(const QString &mess
             sock.write(message.toAscii());
         else
             THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                       sock.errorString().toStdString());
+                                       sock.errorString().toAscii().constData());
     }
 }
 

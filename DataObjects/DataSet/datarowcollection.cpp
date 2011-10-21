@@ -36,7 +36,7 @@ DataRowCollection::DataRowCollection(const DataRowCollection &o)
 }
 
 void DataRowCollection::validate_new_item(const DataRow &i)
-        throw(Core::ValidationException)
+        throw(Core::ValidationException<true>)
 {
     if(_table != i.row_data().Table)
         THROW_NEW_GUTIL_EXCEPTION2(Core::ValidationException,

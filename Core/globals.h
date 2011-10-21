@@ -17,6 +17,8 @@ limitations under the License.*/
 
 /** \file Global definitions that anyone can use. */
 
+#include "gutil_macros.h"
+
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
     #define GUTIL_DEBUG
@@ -41,42 +43,6 @@ limitations under the License.*/
 #define GUTIL_VERSION       "0.0.0"
 
 
-
-/** Represents a generic 8 bits of memory. */
-#define GBYTE unsigned char
-
-/** An 8 bit integer*/
-#define GINT8       char
-
-/** An 8 bit unsigned integer*/
-#define GUINT8      unsigned char
-
-/** A 16 bit integer. */
-#define GINT16      short
-
-/** A 16 bit unsigned integer. */
-#define GUINT16     unsigned short
-
-/** A 32 bit integer. */
-#define GINT32      int
-
-/** A 32 bit unsigned integer. */
-#define GUINT32     unsigned int
-
-/** A 64 bit integer. */
-#define GINT64      long long
-
-/** A 64 bit unsigned integer. */
-#define GUINT64     unsigned long long
-
-/** A 32-bit floating point number. */
-#define GFLOAT32    float
-
-/** A 64-bit floating point number. */
-#define GFLOAT64    double
-
-/** A 96-bit floating point number. */
-#define GFLOAT96    long double
 
 
 #ifndef GUTIL_COM_EXPORTS

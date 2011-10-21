@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "pubsubsystem.h"
 #include "gutil.h"
-#include "Core/exception.h"
 #include <QMetaType>
 GUTIL_USING_NAMESPACE(Utils);
 
@@ -22,7 +21,7 @@ PubSubSystem::PubSubSystem(QObject *parent)
     :QObject(parent)
 {
     // So passing exceptions through signals and slots will work
-    qRegisterMetaType<GUtil::Core::Exception>("GUtil::Core::Exception");
+    qRegisterMetaType< GUtil::Core::Exception<false> >("GUtil::Core::Exception");
 }
 
 void PubSubSystem::PublishMessage(const QString &msg)
@@ -46,7 +45,7 @@ void PubSubSystem::PublishProgress(int progress, int progress_id)
     emit NotifyProgress(progress, progress_id);
 }
 
-void PubSubSystem::PublishException(const GUtil::Core::Exception &ex)
+void PubSubSystem::PublishException(const GUtil::Core::Exception<false> &ex)
 {
     on_exception_published(ex);
 
@@ -68,7 +67,7 @@ void PubSubSystem::on_progress_published(int, int)
 
 }
 
-void PubSubSystem::on_exception_published(const Core::Exception &)
+void PubSubSystem::on_exception_published(const Core::Exception<false> &)
 {
 
 }

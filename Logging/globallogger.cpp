@@ -84,7 +84,7 @@ void Logging::GlobalLogger::_takedown_logger(int logger_id)
 }
 
 void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
-        throw(Core::ArgumentException)
+        throw(Core::ArgumentException<true>)
 {
     if(id == DebugId);
     else if(id == DefaultId)
@@ -101,8 +101,8 @@ void Logging::GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
     }
     else if(id < 0)
     {
-        Core::ArgumentException ex("Logger ID not recognized");
-        ex.SetData("id", QVariant(id).toString().toStdString());
+        Core::ArgumentException<true> ex("Logger ID not recognized");
+        ex.SetData("id", QVariant(id).toString().toAscii().constData());
         THROW_GUTIL_EXCEPTION( ex );
     }
 }
@@ -172,7 +172,7 @@ void Logging::GlobalLogger::LogError(const QString &msg, const QString &title, i
     Log(msg, title, logger_id, (int)Logging::AbstractLogger::Error);
 }
 
-void Logging::GlobalLogger::LogException(const GUtil::Core::Exception &ex, int logger_id)
+void Logging::GlobalLogger::LogException(const GUtil::Core::Exception<> &ex, int logger_id)
 {
     _logger_list_lock.lockForRead();
     try

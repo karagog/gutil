@@ -24,7 +24,7 @@ namespace GUtil
 {
     namespace Core
     {
-        class Exception;
+        template<bool>class Exception;
     }
 
     namespace DataAccess
@@ -74,7 +74,7 @@ namespace GUtil
             void LogWarning(const QString &message, const QString &title = QString::null);
             void LogError(const QString &message, const QString &title = QString::null);
 
-            void LogException(const GUtil::Core::Exception &ex);
+            void LogException(const GUtil::Core::Exception<> &ex);
 
 
         protected:

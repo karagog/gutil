@@ -32,7 +32,7 @@ public:
     String();
 
     /** Creates an empty string with the given capacity. */
-    String(int capacity);
+    inline String(GUINT32 capacity) :Vector<char>(capacity) {}
 
     /** Creates a new string initialized with the data.
         \param len Specifies the length of the data.  If it is -1 then the string automatically
@@ -49,11 +49,10 @@ public:
 
     /** Appends the string to this one and returns this. */
     inline String &Append(const String &s){ Vector<char>::Insert(s, Length()); return *this; }
+
     /** Prepends the string to this one and returns this. */
     inline String &Prepend(const String &s){ Vector<char>::Insert(s, 0); return *this; }
 
-    /** Inserts the string at the given index. */
-    String &Insert(const String &, int indx);
 
     int IndexOf(const String &, GUINT32 start = 0) const;
     int LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
@@ -78,11 +77,14 @@ public:
 
 };
 
+/** A convenience operator that allows you to create strings with the + operator. */
+inline String operator + (const char *c, const String &s){
+    GUINT32 sz( strlen(c) );
+    String ret(sz + s.Length());
+    ret.Insert(c, sz, 0);
+    return ret.Append(s);
+}
 
 GUTIL_END_CORE_NAMESPACE;
-
-
-static GUtil::Core::DataObjects::String operator + (const char *c, const GUtil::Core::DataObjects::String &s);
-
 
 #endif // GUTIL_STRING_H

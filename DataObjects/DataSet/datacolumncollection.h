@@ -44,7 +44,7 @@ protected:
     void on_remove(int);
 
     virtual void validate_new_item(const DataColumn &) const
-            throw(Core::ValidationException);
+            throw(Core::ValidationException<true>);
 
 
 private:

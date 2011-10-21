@@ -76,7 +76,7 @@ namespace GUtil
             static void LogError(const char *file, int line,
                                  const QString &msg);
 
-            static void LogException(const GUtil::Core::Exception &ex);
+            static void LogException(const GUtil::Core::Exception<> &ex);
             static void LogException(const std::exception &ex);
 
 

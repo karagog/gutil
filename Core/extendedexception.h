@@ -15,6 +15,12 @@ limitations under the License.*/
 #ifndef GUTIL_EXTENDEDEXCEPTION_H
 #define GUTIL_EXTENDEDEXCEPTION_H
 
+/** \file
+    This header file declares a template specialization for the Exception<bool>
+    class, which adds many special features like being able to store strings
+    and nested exceptions.
+*/
+
 #include "Core/exception.h"
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/map.h"
@@ -22,129 +28,87 @@ limitations under the License.*/
 GUTIL_BEGIN_NAMESPACE(Core);
 
 
-/** An exception class that stores more data.
-
-    This is a template specialization from the regular (non-extended) exception.
-*/
-template<>class Exception<true> : public Exception<false>
+/** Implements extended features for exception classes. */
+class ExtendedException
 {
 public:
 
-    inline Exception()
-        :Exception<false>("GUtil::Core::ExtendedException"), _inner_exception(0){}
-    inline Exception(const DataObjects::String &message)
-        :Exception<false>("GUtil::Core::ExtendedException"),
-          _p_Message(message),
-          _inner_exception(0){}
-    inline Exception(const DataObjects::String &message,
-                     const char *file,
-                     int line,
-                     Exception<false> *inner_exception = 0)
-        :Exception<false>("GUtil::Core::ExtendedException", file, line),
-          _p_Message(message),
-          _inner_exception(_inner_exception ? new Exception<false>(*inner_exception) : 0){}
-    inline Exception(const Exception<true> &o)
-        :Exception<false>(o),
-          _p_Message(o._p_Message),
-          _data(o._data),
-          _inner_exception(o._inner_exception ? new Exception<false>(*o._inner_exception) : 0){}
-    virtual ~Exception() throw(){
-        if(_inner_exception)
-            delete _inner_exception;
-    }
+    ExtendedException();
+    ExtendedException(const DataObjects::String &message,
+                      const Exception<> *inner_exception = 0);
+
+    ExtendedException(const ExtendedException &);
+    ExtendedException &operator = (const ExtendedException &);
+    ~ExtendedException();
 
     PROPERTY( Message, DataObjects::String );
 
     inline void SetData(const DataObjects::String &key, const DataObjects::String &value){
         _data.At(key) = value;
     }
-
     inline DataObjects::String GetData(const DataObjects::String &key) const{
         return _data.At(key);
     }
 
-    // Get a list of the keys you've put in the data collection
-    DataObjects::Vector<DataObjects::String> GetDataKeys(bool include_blanks = false) const{
-        DataObjects::Vector<DataObjects::String> ret;
+    /** Returns the map of key-value pairs. */
+    const DataObjects::Map<DataObjects::String, DataObjects::String> &GetDataMap() const
+    { return _data; }
 
-        for(DataObjects::Map<DataObjects::String, DataObjects::String>::const_iterator
-                it = _data.begin(); it; ++it)
-        {
-            DataObjects::String first = it->Key();
-            DataObjects::String second = it->Value();
-
-            if(include_blanks || second.Length() > 0)
-                ret.PushBack(first);
-        }
-
-        return ret;
-    }
-
-    DataObjects::String ToString() const;
-
-    inline void SetInnerException(const Exception &ex){
-        if(_inner_exception)
-            delete _inner_exception;
-        _inner_exception = new Exception(ex);
-    }
-
+    void SetInnerException(const Exception<> &ex);
     inline Exception<false> *GetInnerException() const{ return _inner_exception; }
-
-
-protected:
-
-    inline Exception(const DataObjects::String &identifier,
-                     const DataObjects::String &message,
-                     const char *file = 0,
-                     int line = -1,
-                     Exception<false> *inner_exception = 0)
-        :Exception<false>((_identifier = "GUtil::Core::Extended").Append(identifier).Append("Exception").ConstData(),
-                          file, line),
-          _p_Message(message),
-          _inner_exception(_inner_exception ? new Exception<false>(*inner_exception) : 0){}
 
 
 private:
 
-    DataObjects::String _identifier;
     DataObjects::Map<DataObjects::String, DataObjects::String> _data;
-
-    Exception<false> *_inner_exception;
+    Exception<> *_inner_exception;
 
 };
-
 
 
 #define STRINGIFY( something )  #something
 
-/** Use this to declare any new exceptions */
+/** An exception class that stores more data.
+
+    This is a template specialization from the regular (non-extended) exception
+    to an extended exception, which stores more complex data, including a message
+    and a string-string map.
+*/
 #define EXCEPTION_DECLARE_EXTENDED( ex_name ) \
-template<>class ex_name##Exception<true> : public Exception<true> \
+template<>class ex_name<true> : \
+    public ex_name<false>, \
+    public GUtil::Core::ExtendedException \
 { \
-public: \
-    ex_name##Exception() \
-        :Exception<true>(STRINGIFY(ex_name)){} \
-    ex_name##Exception(const char *msg) \
-        :Exception<true>(STRINGIFY(ex_name), msg){} \
-    ex_name##Exception(const char *msg, const char *file, int line, Exception<false> *ie = 0) \
-        :Exception<true>(STRINGIFY(ex_name), msg, file, line, ie){} \
+    public: \
+\
+        inline ex_name() {} \
+        inline ex_name(const DataObjects::String &message) \
+            :ExtendedException(message) {} \
+        inline ex_name(const DataObjects::String &message, \
+                         const char *file, \
+                         int line, \
+                         const Exception<> *inner_exception = 0) \
+            :ex_name<false>(file, line), \
+                ExtendedException(message, inner_exception) {} \
+        virtual ~ex_name() throw(){} \
 };
 
-EXCEPTION_DECLARE_EXTENDED( NotImplemented )
-EXCEPTION_DECLARE_EXTENDED( BadAllocation )
-EXCEPTION_DECLARE_EXTENDED( ReadOnly )
-EXCEPTION_DECLARE_EXTENDED( Argument )
-EXCEPTION_DECLARE_EXTENDED( DataTransport )
-EXCEPTION_DECLARE_EXTENDED( Xml )
-EXCEPTION_DECLARE_EXTENDED( EndOfFile )
-EXCEPTION_DECLARE_EXTENDED( Lock )
-EXCEPTION_DECLARE_EXTENDED( NullReference )
-EXCEPTION_DECLARE_EXTENDED( IndexOutOfRange )
-EXCEPTION_DECLARE_EXTENDED( Validation )
-EXCEPTION_DECLARE_EXTENDED( InvalidCast )
-EXCEPTION_DECLARE_EXTENDED( NotFound )
-EXCEPTION_DECLARE_EXTENDED( DivideByZero )
-EXCEPTION_DECLARE_EXTENDED( UniqueKey )
+EXCEPTION_DECLARE_EXTENDED( Exception )
+EXCEPTION_DECLARE_EXTENDED( NotImplementedException )
+EXCEPTION_DECLARE_EXTENDED( BadAllocationException )
+EXCEPTION_DECLARE_EXTENDED( ReadOnlyException )
+EXCEPTION_DECLARE_EXTENDED( ArgumentException )
+EXCEPTION_DECLARE_EXTENDED( DataTransportException )
+EXCEPTION_DECLARE_EXTENDED( XmlException )
+EXCEPTION_DECLARE_EXTENDED( EndOfFileException )
+EXCEPTION_DECLARE_EXTENDED( LockException )
+EXCEPTION_DECLARE_EXTENDED( NullReferenceException )
+EXCEPTION_DECLARE_EXTENDED( IndexOutOfRangeException )
+EXCEPTION_DECLARE_EXTENDED( ValidationException )
+EXCEPTION_DECLARE_EXTENDED( InvalidCastException )
+EXCEPTION_DECLARE_EXTENDED( NotFoundException )
+EXCEPTION_DECLARE_EXTENDED( DivideByZeroException )
+EXCEPTION_DECLARE_EXTENDED( UniqueKeyException )
 
 
 

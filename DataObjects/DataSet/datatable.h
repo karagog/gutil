@@ -127,13 +127,13 @@ public:
 
     // Find a row based on multiple key columns
     DataRow &FindFirstRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping)
-            throw(Core::NotFoundException);
+            throw(Core::NotFoundException<true>);
     const DataRow &FindFirstRow(const QMap<int, Custom::GVariant> &keycolumn_value_mapping) const
-            throw(Core::NotFoundException);
+            throw(Core::NotFoundException<true>);
     DataRow &FindFirstRow(const QMap<QString, Custom::GVariant> &keycolumn_value_mapping)
-            throw(Core::NotFoundException);
+            throw(Core::NotFoundException<true>);
     const DataRow &FindFirstRow(const QMap<QString, Custom::GVariant> &keycolumn_value_mapping) const
-            throw(Core::NotFoundException);
+            throw(Core::NotFoundException<true>);
 
     // Find rows based on one key column
     DataRowCollection FindRows(int, const Custom::GVariant &) const;
@@ -166,7 +166,7 @@ public:
     // Interface for IQXmlSerializable
     virtual void WriteXml(QXmlStreamWriter &) const;
     virtual void ReadXml(QXmlStreamReader &)
-            throw(GUtil::Core::XmlException);
+            throw(GUtil::Core::XmlException<true>);
 
 
 protected:

@@ -25,7 +25,8 @@ CONFIG += ordered
 
 HEADERS += \
     gassert.h \
-    gutil.h
+    gutil.h \
+    gutil_macros.h
 
 
 

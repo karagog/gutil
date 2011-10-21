@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #ifdef DATABASE_FUNCTIONALITY
 
-
+#include "Core/extendedexception.h"
 #include "gdatabaseiodevice.h"
 #include "Custom/gsemaphore.h"
 #include <QSqlQuery>
@@ -443,7 +443,7 @@ DataTable GDatabaseIODevice::GetBlankTable(const QString &table_name)
 }
 
 void GDatabaseIODevice::send_data(const QByteArray &d)
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     _p_ReturnValue.clear();
 
@@ -644,7 +644,7 @@ QString GDatabaseIODevice::_prepare_where_clause(
 }
 
 QByteArray GDatabaseIODevice::receive_data()
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     _p_ReturnValue.clear();
 
@@ -755,7 +755,7 @@ QByteArray GDatabaseIODevice::receive_data()
         }
         else
         {
-            Core::DataTransportException ex("Query Failed");
+            Core::DataTransportException<true> ex("Query Failed");
             ex.SetData("db_name", _database.databaseName().toStdString());
             ex.SetData("error", query.lastError().text().toStdString());
             ex.SetData("query", query.executedQuery().toStdString());
@@ -787,7 +787,7 @@ void GDatabaseIODevice::_execute_query(QSqlQuery &query) const
 {
     if(!query.exec())
     {
-        Core::DataTransportException ex("Query Failed");
+        Core::DataTransportException<true> ex("Query Failed");
         ex.SetData("error", query.lastError().text().toStdString());
         ex.SetData("query", query.executedQuery().toStdString());
 

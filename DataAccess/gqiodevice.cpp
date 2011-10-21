@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "Core/extendedexception.h"
 #include "gqiodevice.h"
 #include <QIODevice>
 using namespace GUtil;
@@ -33,7 +34,7 @@ DataAccess::GQIODevice::GQIODevice(QIODevice *io, QObject *parent)
 }
 
 void DataAccess::GQIODevice::send_data(const QByteArray &data)
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     _fail_if_not_open();
 
@@ -71,18 +72,18 @@ void DataAccess::GQIODevice::send_data(const QByteArray &data)
 
     if(bytes_written != data.length())
     {
-        Core::DataTransportException ex(
+        Core::DataTransportException<true> ex(
                 QString("Write failed after writing %1 / %2 bytes")
                 .arg(bytes_written)
                 .arg(data.length())
-                .toStdString());
-        ex.SetData("err", IODevice().errorString().toStdString());
+                .toAscii().constData());
+        ex.SetData("err", IODevice().errorString().toAscii().constData());
         THROW_GUTIL_EXCEPTION( ex );
     }
 }
 
 QByteArray DataAccess::GQIODevice::receive_data()
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     _fail_if_not_open();
 
@@ -115,11 +116,11 @@ QByteArray DataAccess::GQIODevice::receive_data()
 
     if(bytes_read != bytes_available)
     {
-        Core::DataTransportException ex(QString("Read %1 / %2 bytes")
+        Core::DataTransportException<true> ex(QString("Read %1 / %2 bytes")
                                         .arg(bytes_read)
                                         .arg(bytes_available)
-                                        .toStdString());
-        ex.SetData("err", IODevice().errorString().toStdString());
+                                        .toAscii().constData());
+        ex.SetData("err", IODevice().errorString().toAscii().constData());
         THROW_GUTIL_EXCEPTION( ex );
     }
 
@@ -137,5 +138,6 @@ bool DataAccess::GQIODevice::has_data_available()
 void DataAccess::GQIODevice::_fail_if_not_open()
 {
     if(!IODevice().isOpen())
-        THROW_NEW_GUTIL_EXCEPTION2( Core::DataTransportException, "IO Device is not open!" );
+        THROW_NEW_GUTIL_EXCEPTION2(Core::DataTransportException,
+                                   "IO Device is not open!" );
 }

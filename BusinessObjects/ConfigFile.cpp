@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "ConfigFile.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
 #include <QXmlStreamReader>
@@ -73,7 +73,7 @@ bool ConfigFile::Reload()
         d = FileTransport().FileData();
         _preprocess_incoming_data(d);
     }
-    catch(Core::Exception &)
+    catch(Core::Exception<> &)
     {
         ret = false;
     }
@@ -85,7 +85,7 @@ bool ConfigFile::Reload()
         {
             _table.FromXmlQString(d);
         }
-        catch(Core::Exception &)
+        catch(Core::Exception<> &)
         {
             ret = false;
         }
@@ -157,7 +157,7 @@ void ConfigFile::_preprocess_incoming_data(QByteArray &data) const
     {
         data = CRYPTOPP_DECOMPRESS(data).c_str();
     }
-    catch(Core::Exception &)
+    catch(Core::Exception<> &)
     {
         // If decompression fails we ignore it 'cause it's a human-readable file
     }
@@ -182,7 +182,7 @@ void ConfigFile::new_input_data_arrived()
             emit NotifyConfigurationUpdate();
         }
     }
-    catch(Core::Exception &)
+    catch(Core::Exception<> &)
     {}
 }
 
@@ -208,7 +208,7 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
                 DataObjects::DataRow &r = _table.FindFirstRow(0, s);
                 r[1] = values[s];
             }
-            catch(Core::NotFoundException &)
+            catch(Core::NotFoundException<> &)
             {
                 ex_hit = true;
             }
@@ -252,7 +252,7 @@ QMap<QString, Custom::GVariant> BusinessObjects::ConfigFile::Values(
                 const DataObjects::DataRow *const r = &_table.FindFirstRow(m);
                 ret.insert(r->At(0).toString(), r->At(1));
             }
-            catch(Core::NotFoundException &){}    // if key not found, ignore
+            catch(Core::NotFoundException<> &){}    // if key not found, ignore
         }
     }
     _table.Unlock();
@@ -271,7 +271,7 @@ bool ConfigFile::Contains(const QString &key)
         m.insert(0, key);
         _table.FindFirstRow(m);
     }
-    catch(Core::NotFoundException &)
+    catch(Core::NotFoundException<> &)
     {
         ret = false;
     }
@@ -302,7 +302,7 @@ void ConfigFile::RemoveValues(const QStringList &keys)
                             _table.FindFirstRow(0, s)
                             );
             }
-            catch(Core::NotFoundException &){}
+            catch(Core::NotFoundException<> &){}
         }
 
         _value_changed();

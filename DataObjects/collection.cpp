@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "Core/extendedexception.h"
 #include <QString>
 
 template <typename T> GUtil::DataObjects::Collection<T>::Collection()
@@ -32,38 +33,38 @@ template <typename T> T &GUtil::DataObjects::Collection<T>::Add(const T &value)
 }
 
 template <typename T> T &GUtil::DataObjects::Collection<T>::Insert(const T &value, int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     return CollectionBase<T>::insert_protected(value, index);
 }
 
 template <typename T> const T &GUtil::DataObjects::Collection<T>::At(int index) const
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     return CollectionBase<T>::at_protected(index);
 }
 
 template <typename T> T &GUtil::DataObjects::Collection<T>::At(int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     return CollectionBase<T>::at_protected(index);
 }
 
 template <typename T> T &GUtil::DataObjects::Collection<T>::operator [](int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     return CollectionBase<T>::at_protected(index);
 }
 
 template <typename T> const T &GUtil::DataObjects::Collection<T>::operator [](int index) const
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     return CollectionBase<T>::at_protected(index);
 }
 
 
 template <typename T> void GUtil::DataObjects::Collection<T>::Remove(int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     CollectionBase<T>::remove_protected(index);
 }
@@ -160,12 +161,13 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::add_protected(co
 }
 
 template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected(const T &value, int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     FailIfReadOnly();
     if(index < 0 || index > this->count_protected())
-        throw Core::IndexOutOfRangeException(QString("Cannot insert at index %1")
-                                             .arg(index).toStdString());
+        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::IndexOutOfRangeException,
+                                  QString("Cannot insert at index %1").arg(index)
+                                  .toAscii().constData());
 
     validate_new_item(value);
 
@@ -185,7 +187,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected
 }
 
 template <typename T> const T &GUtil::DataObjects::CollectionBase<T>::at_protected(int index) const
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     _validate_index(index);
 
@@ -193,7 +195,7 @@ template <typename T> const T &GUtil::DataObjects::CollectionBase<T>::at_protect
 }
 
 template <typename T> T &GUtil::DataObjects::CollectionBase<T>::at_protected(int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     _validate_index(index);
 
@@ -201,7 +203,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::at_protected(int
 }
 
 template <typename T> void GUtil::DataObjects::CollectionBase<T>::remove_protected(int index)
-        throw(Core::IndexOutOfRangeException)
+        throw(Core::IndexOutOfRangeException<>)
 {
     FailIfReadOnly();
 
@@ -255,9 +257,10 @@ template<typename T> void GUtil::DataObjects::CollectionBase<T>::_validate_index
 {
     if(index < 0 || index >= count_protected())
         THROW_NEW_GUTIL_EXCEPTION2(Core::IndexOutOfRangeException,
-                                  QString("Collection only has %1 items in it, and you tried to "
-                                          "index the item at %2")
-                                  .arg(count_protected()).arg(index).toStdString());
+                                   QString("Collection only has %1 items in it, and you tried to "
+                                           "index the item at %2")
+                                   .arg(count_protected()).arg(index)
+                                   .toAscii().constData());
 }
 
 template <typename T> bool GUtil::DataObjects::CollectionBase<T>::Equals(

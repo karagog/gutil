@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil.h"
 #include "Core/Utils/commandlineargs.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <QCoreApplication>
 #include <QStack>
 
@@ -97,7 +97,7 @@ protected:
 
         Don't call the base implementation, as it will only throw the exception again.
     */
-    virtual void handle_exception(const Core::Exception &);
+    virtual void handle_exception(const Core::Exception<> &);
 
 
     /** You can override this method, which are called in the event of a std::exception

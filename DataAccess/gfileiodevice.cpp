@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "gfileiodevice.h"
-#include "Core/exception.h"
 #include "gassert.h"
 #include <QFileInfo>
 #include <QDir>
@@ -40,7 +39,7 @@ DataAccess::GFileIODevice::GFileIODevice(const QString &filename, QObject *paren
 }
 
 void DataAccess::GFileIODevice::send_data(const QByteArray &data)
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     lock_file(true);
     _open_file(true);
@@ -53,7 +52,7 @@ void DataAccess::GFileIODevice::send_data(const QByteArray &data)
 }
 
 QByteArray DataAccess::GFileIODevice::receive_data()
-        throw(Core::DataTransportException)
+        throw(Core::DataTransportException<true>)
 {
     lock_file(false);
     _open_file(false);
@@ -139,7 +138,7 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
         else if(GetWriteMode() == WriteOver)
             flags |= QFile::Truncate;
         else
-            THROW_NEW_GUTIL_EXCEPTION2( Core::NotImplementedException, "" );
+            THROW_NEW_GUTIL_EXCEPTION( Core::NotImplementedException);
     }
     else
     {
@@ -150,9 +149,9 @@ void DataAccess::GFileIODevice::_open_file(bool for_write)
 
     if(!File().isOpen())
     {
-        Core::DataTransportException ex(
-                QString("Could not open file: %1").arg(FileName()).toStdString());
-        ex.SetData("err", File().errorString().toStdString());
+        Core::DataTransportException<true> ex(
+                QString("Could not open file: %1").arg(FileName()).toAscii().constData());
+        ex.SetData("err", File().errorString().toAscii().constData());
         THROW_GUTIL_EXCEPTION( ex );
     }
 }

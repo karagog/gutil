@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "databaseutils.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <QStringList>
 GUTIL_USING_NAMESPACE(Utils);
 
@@ -29,16 +29,16 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 {
     if(q.lastError().isValid())
     {
-        GUtil::Core::DataTransportException ex(q.lastError().text().toStdString());
+        GUtil::Core::DataTransportException<true> ex(q.lastError().text().toAscii().constData());
 
-        ex.SetData("query_text", q.executedQuery().toStdString());
+        ex.SetData("query_text", q.executedQuery().toAscii().constData());
 
         QMap<QString, QVariant> bound_values( q.boundValues() );
         int cnt(1);
 
         foreach(QString k, bound_values.keys())
-            ex.SetData(QString("Bound Value %1").arg(cnt++).toStdString(),
-                       bound_values[k].toString().toStdString());
+            ex.SetData(QString("Bound Value %1").arg(cnt++).toAscii().constData(),
+                       bound_values[k].toString().toAscii().constData());
 
         THROW_GUTIL_EXCEPTION(ex);
     }
@@ -49,7 +49,7 @@ void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
     if(!db.transaction())
         THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::DataTransportException,
                                    QString("Unable to create a transaction: %1")
-                                   .arg(db.lastError().text()).toStdString());
+                                   .arg(db.lastError().text()).toAscii().constData());
     try
     {
         QSqlQuery q(db);
@@ -75,7 +75,7 @@ void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
     if(!db.commit())
         THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::DataTransportException,
                                    QString("Transaction commit failed: %1")
-                                   .arg(db.lastError().text()).toStdString());
+                                   .arg(db.lastError().text()).toAscii().constData());
 }
 
 #endif // DATABASE_FUNCTIONALITY
@@ -99,7 +99,7 @@ QDateTime DatabaseUtils::ConvertStringToDate(const QString &s)
 
     if(splitted.size() < 5)
         THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
-                                   QString("Invalid date string: %1").arg(s).toStdString());
+                                   QString("Invalid date string: %1").arg(s).toAscii().constData());
 
     d.setDate(QDate(splitted[0].toInt(), splitted[1].toInt(), splitted[2].toInt()));
 

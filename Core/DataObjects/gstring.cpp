@@ -15,6 +15,11 @@ limitations under the License.*/
 #include "gstring.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
+
+/** A null byte to mark the end of a string. */
+#define STRING_TERMINATOR   static_cast<char>(0x00)
+
+
 String::String()
 {
 }
@@ -60,17 +65,4 @@ String String::operator + (const String &) const
 String &String::operator += (const String &) const
 {
 
-}
-
-
-
-
-
-
-
-
-String operator + (const char *c, const String &s)
-{
-    String ret(c);
-    return ret.Append(s);
 }

@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "gassert.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/flexibletypecomparer.h"
+#include <malloc.h>
 
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 

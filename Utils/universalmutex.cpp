@@ -16,6 +16,7 @@ limitations under the License.*/
 
 #include "universalmutex.h"
 #include "gassert.h"
+#include "Core/extendedexception.h"
 #include <QFile>
 using namespace GUtil;
 using namespace Utils;
@@ -62,7 +63,7 @@ void UniversalMutex::lock_file_updated()
 }
 
 void UniversalMutex::Lock()
-        throw(Core::LockException)
+        throw(Core::LockException<>)
 {
     _lockfile_lock.lockForWrite();
     try
@@ -77,7 +78,7 @@ void UniversalMutex::Lock()
         {
             _lock();
         }
-        catch(Core::Exception &)
+        catch(Core::Exception<> &)
         {
             // Unlock the machine lock before propagating the exception
             _machine_mutex.UnlockForMachine();
@@ -88,7 +89,7 @@ void UniversalMutex::Lock()
         if(_has_lock(false))
             _is_locked = true;
     }
-    catch(Core::Exception &)
+    catch(Core::Exception<> &)
     {
         // Unlock ourselves before propagating the exception
         _lockfile_lock.unlock();
@@ -140,7 +141,7 @@ void UniversalMutex::SetFilePath(const QString &fp)
             _fsw.addPath(_lock_file_path);
         }
     }
-    catch(Core::Exception &)
+    catch(Core::Exception<> &)
     {
         _lockfile_lock.unlock();
         throw;
@@ -177,7 +178,7 @@ void UniversalMutex::_lock()
             f.close();
             THROW_NEW_GUTIL_EXCEPTION2( Core::LockException,
                                        QString("Someone else already owns the universal lock: %1")
-                                       .arg(GetFilepath()).toStdString());
+                                       .arg(GetFilepath()).toAscii().constData());
         }
 
         f.resize(0);

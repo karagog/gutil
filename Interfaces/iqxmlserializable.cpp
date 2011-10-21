@@ -17,8 +17,6 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 using namespace GUtil;
 
-Interfaces::IQXmlSerializable::IQXmlSerializable(){}
-
 Interfaces::IQXmlSerializable::~IQXmlSerializable(){}
 
 std::string Interfaces::IQXmlSerializable::ToXmlString(bool h) const
@@ -27,7 +25,7 @@ std::string Interfaces::IQXmlSerializable::ToXmlString(bool h) const
 }
 
 void Interfaces::IQXmlSerializable::FromXmlString(const std::string &xml)
-        throw(GUtil::Core::XmlException)
+        throw(GUtil::Core::XmlException<false>)
 {
     FromXmlQString(QString::fromStdString(xml));
 }
@@ -44,7 +42,7 @@ QString Interfaces::IQXmlSerializable::ToXmlQString(bool h) const
 }
 
 void Interfaces::IQXmlSerializable::FromXmlQString(const QString &xml)
-        throw(GUtil::Core::XmlException)
+        throw(GUtil::Core::XmlException<false>)
 {
     QXmlStreamReader r(xml);
     ReadXml(r);

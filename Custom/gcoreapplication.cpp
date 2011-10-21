@@ -35,7 +35,7 @@ bool GCoreApplication::notify(QObject *o, QEvent *ev)
     {
         ret = QCoreApplication::notify(o, ev);
     }
-    catch(GUtil::Core::Exception &ex)
+    catch(GUtil::Core::Exception<> &ex)
     {
         handle_exception(ex);
     }

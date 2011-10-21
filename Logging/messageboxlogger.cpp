@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "messageboxlogger.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include <QMessageBox>
 using namespace GUtil;
 

@@ -13,7 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "globalmemorymanager.h"
-#include "Core/exception.h"
+#include "gutil.h"
+#include "Core/extendedexception.h"
 GUTIL_USING_NAMESPACE(Utils);
 
 QHash<QString, void*> GlobalMemoryManager::m_GlobalInstances;
@@ -27,7 +28,7 @@ void GlobalMemoryManager::set_global_instance(const QString &k, void *v)
         if(m_GlobalInstances.contains(k))
             THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
                                        QString("Global instance '%1' already set")
-                                       .arg(k).toStdString());
+                                       .arg(k).toAscii().constData());
         m_GlobalInstances.insert(k, v);
     }
     catch(...)
@@ -49,7 +50,7 @@ void *GlobalMemoryManager::get_global_instance(const QString &k)
         else
             THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
                                        QString("Global instance '%1' not set")
-                                       .arg(k).toStdString());
+                                       .arg(k).toAscii().constData());
     }
     catch(...)
     {

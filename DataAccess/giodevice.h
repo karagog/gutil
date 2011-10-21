@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GIODEVICE_H
 #define GIODEVICE_H
 
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include "Core/Interfaces/ireadonlyobject.h"
 #include <QByteArray>
 #include <QMutex>
@@ -68,7 +68,7 @@ namespace GUtil
 
             // ReadyRead() will tell you when you can get new data
             QByteArray ReceiveData()
-                    throw(Core::DataTransportException);
+                    throw(Core::DataTransportException<true>);
 
             READONLY_PROPERTY( Identity, QUuid );
 
@@ -91,9 +91,9 @@ namespace GUtil
             //  Note that locking is taken care of by this interface class,
             //  so you can trust that these are atomic WRT each other
             virtual void send_data(const QByteArray&)
-                    throw(GUtil::Core::DataTransportException) = 0;
+                    throw(GUtil::Core::DataTransportException<true>) = 0;
             virtual QByteArray receive_data()
-                    throw(GUtil::Core::DataTransportException) = 0;
+                    throw(GUtil::Core::DataTransportException<true>) = 0;
 
             // IReadonly interface
             virtual std::string ReadonlyMessageIdentifier() const;

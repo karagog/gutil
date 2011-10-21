@@ -262,7 +262,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
 }
 
 void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
-        throw(GUtil::Core::XmlException)
+        throw(GUtil::Core::XmlException<>)
 {
     try
     {
@@ -271,7 +271,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
         if(sr.readNextStartElement())
         {
             if(sr.name() != GVARIANT_XML_ID)
-                throw Core::XmlException();
+                THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
 
             int type = sr.attributes().at(0).value().toString().toInt();
 
@@ -354,7 +354,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                 for(int i = 0; i < tmpint; i++)
                 {
                     if(!sr.readNextStartElement())
-                        throw Core::XmlException();
+                        THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
 
                     sltemp1.append(Utils::QStringHelpers::fromBase64(
                                        sr.attributes().at(0).value().toString()));
@@ -385,7 +385,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                 for(int i = 0; i < tmpint; i++)
                 {
                     if(!sr.readNextStartElement())
-                        throw Core::XmlException();
+                        THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
 
                     QString key = Utils::QStringHelpers::fromBase64(
                                 sr.attributes().at(0).value().toString());

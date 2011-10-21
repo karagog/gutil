@@ -193,14 +193,14 @@ namespace GUtil
             // Here are the overridden methods from GIODevice
             //  Hide these members from the public; nobody should use this interface.
             inline void SendData(const QByteArray &d)
-                    throw(Core::DataTransportException){ GIODevice::SendData(d); }
+                    throw(Core::DataTransportException<true>){ GIODevice::SendData(d); }
             inline QByteArray ReceiveData(bool block)
-                    throw(Core::DataTransportException){ return GIODevice::ReceiveData(block); }
+                    throw(Core::DataTransportException<true>){ return GIODevice::ReceiveData(block); }
 
             void send_data(const QByteArray &)
-                    throw(Core::DataTransportException);
+                    throw(Core::DataTransportException<true>);
             QByteArray receive_data()
-                    throw(Core::DataTransportException);
+                    throw(Core::DataTransportException<true>);
 
             bool has_data_available();
 

@@ -81,7 +81,7 @@ public:
     // IQXmlSerializable interface:
     virtual void WriteXml(QXmlStreamWriter &) const;
     virtual void ReadXml(QXmlStreamReader &)
-            throw(Core::XmlException);
+            throw(Core::XmlException<true>);
 
 
 protected:

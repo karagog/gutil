@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "gapplication.h"
 #include "Core/globals.h"
-#include "Core/exception.h"
+#include "Core/extendedexception.h"
 #include "Ui/aboutgutil.h"
 GUTIL_USING_NAMESPACE(GUICustom);
 GUTIL_USING_NAMESPACE(Custom);
@@ -50,7 +50,7 @@ bool GApplication::notify(QObject *o, QEvent *ev)
     {
         ret = QApplication::notify(o, ev);
     }
-    catch(GUtil::Core::Exception &ex)
+    catch(GUtil::Core::Exception<> &ex)
     {
         handle_exception(ex);
     }
