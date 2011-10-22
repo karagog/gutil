@@ -38,7 +38,7 @@ public:
         \param len Specifies the length of the data.  If it is -1 then the string automatically
         finds the terminating null byte (it had better exist in this case!)
     */
-    String(const char *, int len = -1);
+    inline String(const char *d, int len = -1) :Vector<char>(d, len == -1 ? strlen(d) : len){}
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
     String(const char c, int len = 1);
@@ -58,7 +58,10 @@ public:
     int LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
 
     /** Comparison operator. */
-    bool operator == (const String &) const;
+    bool operator == (const String &s) const;
+    /** Comparison operator. */
+    bool operator == (const char *) const;
+
     /** Comparison operator. */
     bool operator <  (const String &) const;
     /** Comparison operator. */
@@ -76,6 +79,10 @@ public:
     inline operator char* (){ return Data(); }
 
 };
+
+
+/** A convenience operator allows you to compare with const char * as a lhs value. */
+inline bool operator == (const char *c, const String &s){ return s == c; }
 
 /** A convenience operator that allows you to create strings with the + operator. */
 inline String operator + (const char *c, const String &s){

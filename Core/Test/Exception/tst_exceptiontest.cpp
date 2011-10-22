@@ -1,0 +1,277 @@
+/*Copyright 2011 George Karagoulis
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#include <QtCore/QString>
+#include <QtTest/QtTest>
+#include "gutil.h"
+GUTIL_USING_NAMESPACE(Core);
+
+class ExceptionTest : public QObject
+{
+    Q_OBJECT
+
+public:
+    ExceptionTest();
+
+private Q_SLOTS:
+    void test_basic();
+
+    void test_other_exceptions();
+    void test_polymorphic_cast();
+
+    void test_data_exceptions();
+    void test_inner_exceptions();
+};
+
+ExceptionTest::ExceptionTest()
+{
+}
+
+void ExceptionTest::test_basic()
+{
+    try
+    {
+        bool exception_hit(false);
+        try
+        {
+            throw Exception<false>();
+        }
+        catch(const Exception<false> &e)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        // The exact same test as above, only with cooler syntax
+        exception_hit = false;
+        try
+        {
+            throw Exception<>();
+        }
+        catch(const Exception<> &e)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+
+        // Try catching extended exceptions
+        exception_hit = false;
+        try
+        {
+            throw Exception<true>();
+        }
+        catch(const Exception<true> &e)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+
+        // An extended exception should also be caught as a non-extended exception.
+        exception_hit = false;
+        try
+        {
+            throw Exception<true>();
+        }
+        catch(const Exception<false> &e)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+    }
+    catch(const Exception<false> &e)
+    {
+        QVERIFY(false);
+    }
+    catch(...)
+    {
+        QVERIFY(false);
+    }
+}
+
+void ExceptionTest::test_other_exceptions()
+{
+    try
+    {
+        bool exception_caught(false);
+        try
+        {
+            throw XmlException<>();
+        }
+        catch(XmlException<> &)
+        {
+            exception_caught = true;
+        }
+        QVERIFY(exception_caught);
+
+
+        exception_caught = false;
+        try
+        {
+            throw XmlException<true>();
+        }
+        catch(const XmlException<false> &)
+        {
+            exception_caught = true;
+        }
+        QVERIFY(exception_caught);
+
+
+        exception_caught = false;
+        try
+        {
+            throw XmlException<true>();
+        }
+        catch(const Exception<true> &)
+        {
+            // It should not be caught here, because XmlException is not a subclass
+            //  of Exception<true>
+        }
+        catch(XmlException<false> &)
+        {
+            exception_caught = true;
+        }
+        QVERIFY(exception_caught);
+
+
+
+        // It should, however, be caught by the base Exception<false> class
+        exception_caught = false;
+        try
+        {
+            throw XmlException<true>();
+        }
+        catch(const Exception<> &)
+        {
+            exception_caught = true;
+        }
+        QVERIFY(exception_caught);
+    }
+    catch(const Exception<false> &e)
+    {
+        QVERIFY(false);
+    }
+    catch(...)
+    {
+        QVERIFY(false);
+    }
+}
+
+void ExceptionTest::test_data_exceptions()
+{
+    try
+    {
+        throw Exception<>();
+    }
+    catch(const Exception<> &ex)
+    {
+        QVERIFY(ex.What);
+        QVERIFY2(0 == strcmp(ex.What, "GUtil::Core::Exception"), ex.What);
+    }
+
+    try
+    {
+        throw Exception<true>();
+    }
+    catch(const Exception<false> &ex)
+    {
+        QVERIFY(ex.What);
+        QVERIFY2(0 == strcmp(ex.What, "GUtil::Core::Exception"), ex.What);
+    }
+
+
+
+    try
+    {
+        throw XmlException<>();
+    }
+    catch(const XmlException<> &ex)
+    {
+        QVERIFY(ex.What);
+        QVERIFY2(0 == strcmp(ex.What, "GUtil::Core::XmlException"), ex.What);
+    }
+
+    try
+    {
+        throw XmlException<true>();
+    }
+    catch(const XmlException<> &ex)
+    {
+        QVERIFY(ex.What);
+        QVERIFY2(0 == strcmp(ex.What, "GUtil::Core::XmlException"), ex.What);
+    }
+
+    try
+    {
+        throw XmlException<>();
+    }
+    catch(const Exception<> &ex)
+    {
+        QVERIFY(ex.What);
+        QVERIFY2(0 == strcmp(ex.What, "GUtil::Core::XmlException"), ex.What);
+    }
+
+    Exception<true> e("Hello");
+    QVERIFY2(e.GetMessage() == "Hello", e.GetMessage().ConstData());
+}
+
+void ExceptionTest::test_inner_exceptions()
+{
+    XmlException<false> xex_false;
+    XmlException<true> xex_true;
+    Exception<true> ex1("", "", -1, &xex_false);
+    Exception<true> ex2("", "", -1, &xex_true);
+    QVERIFY(ex1.GetInnerException());
+    QVERIFY(ex2.GetInnerException());
+    QVERIFY(0 == strcmp(ex1.GetInnerException()->What, "GUtil::Core::XmlException"));
+    QVERIFY(0 == strcmp(ex2.GetInnerException()->What, "GUtil::Core::XmlException"));
+    QVERIFY(!dynamic_cast< const XmlException<false> *>(ex1.GetInnerException()));
+    QVERIFY(!dynamic_cast< const XmlException<true> *>(ex1.GetInnerException()));
+    QVERIFY(dynamic_cast< const Exception<false> *>(ex1.GetInnerException()));
+    QVERIFY(dynamic_cast< const Exception<true> *>(ex2.GetInnerException()));
+    QVERIFY(dynamic_cast< const Exception<false> *>(ex2.GetInnerException()));
+
+    Exception<true> ex1_cpy( ex1 );
+    Exception<true> ex2_cpy( ex2 );
+    QVERIFY(ex1_cpy.GetInnerException());
+    QVERIFY(ex2_cpy.GetInnerException());
+    QVERIFY(0 == strcmp(ex1_cpy.GetInnerException()->What, "GUtil::Core::XmlException"));
+    QVERIFY(0 == strcmp(ex2_cpy.GetInnerException()->What, "GUtil::Core::XmlException"));
+    QVERIFY(!dynamic_cast< const XmlException<false> *>(ex1_cpy.GetInnerException()));
+    QVERIFY(!dynamic_cast< const XmlException<true> *>(ex1_cpy.GetInnerException()));
+    QVERIFY(dynamic_cast< const Exception<false> *>(ex1_cpy.GetInnerException()));
+    QVERIFY(dynamic_cast< const Exception<true> *>(ex2_cpy.GetInnerException()));
+    QVERIFY(dynamic_cast< const Exception<false> *>(ex2_cpy.GetInnerException()));
+}
+
+void ExceptionTest::test_polymorphic_cast()
+{
+    try
+    {
+        throw XmlException<true>();
+    }
+    catch(const Exception<> &ex)
+    {
+        QVERIFY(dynamic_cast< const XmlException<false> *>(&ex));
+        QVERIFY(dynamic_cast< const XmlException<true> *>(&ex));
+        QVERIFY(!dynamic_cast< const Exception<true> *>(&ex));
+    }
+}
+
+QTEST_APPLESS_MAIN(ExceptionTest);
+
+#include "tst_exceptiontest.moc"

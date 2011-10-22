@@ -50,6 +50,7 @@ ExtendedException &ExtendedException::operator = (const ExtendedException &o)
     _data = o._data;
     if(o.GetInnerException())
         SetInnerException(*o.GetInnerException());
+    return *this;
 }
 
 void ExtendedException::SetInnerException(const Exception<> &ex)
@@ -57,10 +58,10 @@ void ExtendedException::SetInnerException(const Exception<> &ex)
     if(_inner_exception)
         delete _inner_exception;
 
-    const Exception<true> *extended( dynamic_cast<const Exception<true> *>(&ex) );
+    const ExtendedException *extended( dynamic_cast<const ExtendedException *>(&ex) );
     if(extended)
     {
-        _inner_exception = new Exception<true>(*extended);
+        _inner_exception = new Exception<true>(ex, *extended);
     }
     else
     {

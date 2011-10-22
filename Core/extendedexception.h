@@ -90,6 +90,8 @@ template<>class ex_name<true> : \
                          const Exception<> *inner_exception = 0) \
             :ex_name<false>(file, line), \
                 ExtendedException(message, inner_exception) {} \
+        inline ex_name(const Exception<> &ex, const ExtendedException &xex) \
+            :ex_name<false>(ex), ExtendedException(xex) {} \
         virtual ~ex_name() throw(){} \
 };
 

@@ -95,10 +95,12 @@ public:
 template<bool extended = false>class ex_name : public Exception<false> \
 { \
 public: \
-    ex_name() \
-        :Exception<false>(STRINGIFY(ex_name)){} \
-    ex_name(const char *file, int line) \
-        :Exception<false>(STRINGIFY(ex_name), file, line){} \
+    inline ex_name() \
+        :Exception<false>("GUtil::Core::" STRINGIFY(ex_name)) {} \
+    inline ex_name(const char *file, int line) \
+        :Exception<false>("GUtil::Core::" STRINGIFY(ex_name), file, line) {} \
+    inline ex_name(const Exception<false> &ex) \
+        :Exception<false>(ex) {} \
 };
 
 

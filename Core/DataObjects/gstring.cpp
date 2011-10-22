@@ -24,17 +24,32 @@ String::String()
 {
 }
 
-String::String(const char *d, int len)
-{
-}
-
 String::String(const char d, int len)
 {
 }
 
-bool String::operator == (const String &) const
+bool String::operator == (const String &s) const
 {
+    if(s.Length() != Length())
+        return false;
 
+    const char *cur1(s.ConstData()), *cur2(ConstData());
+    for(GUINT32 i(0); i < Length(); ++i)
+        if(*(cur1++) != *(cur2++))
+            return false;
+    return true;
+}
+
+bool String::operator == (const char *s) const
+{
+    if(strlen(s) != Length())
+        return false;
+
+    const char *cur(ConstData());
+    for(GUINT32 i(0); i < Length(); ++i)
+        if(*(s++) != *(cur++))
+            return false;
+    return true;
 }
 
 bool String::operator <  (const String &) const
