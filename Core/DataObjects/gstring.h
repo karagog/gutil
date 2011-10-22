@@ -24,7 +24,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     Use as an alternative to std::string.
 */
 class String :
-        public Vector<char>
+        private Vector<char>
 {
 public:
 
@@ -46,21 +46,47 @@ public:
     /** Basically a copy constructor, but for the base type. */
     inline String(const Vector<char> &s) :Vector<char>(s){}
 
+    /** The length of the string. */
+    inline GUINT32 Length() const{ return Vector<char>::Length(); }
+    inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
+
+    /** Returns if the string is null, i.e. has not been initialized. */
+    inline bool IsNull() const{ return Vector<char>::Length() == 0; }
+
+    /** Clears the string and reclaims the memory. */
+    inline void Clear(){ Vector<char>::Clear(); }
+
 
     /** Appends the string to this one and returns this. */
-    inline String &Append(const String &s){ Vector<char>::Insert(s, Length()); return *this; }
+    inline String &Append(const String &s){ Insert(s, Length()); return *this; }
 
     /** Prepends the string to this one and returns this. */
-    inline String &Prepend(const String &s){ Vector<char>::Insert(s, 0); return *this; }
+    inline String &Prepend(const String &s){ Insert(s, 0); return *this; }
 
+    /** Inserts the string at the given index. */
+    String &Insert(const String &s, GUINT32 indx);
+    /** Inserts the raw data at the given index. */
+    String &Insert(const char *c, GUINT32 sz, GUINT32 indx);
+
+
+    /** Returns the left N characters of the string. */
+    inline String Left(GUINT32 N) const { return String(ConstData(), N); }
+    /** Returns the right N characters of the string. */
+    inline String Right(GUINT32 N) const { return String(ConstData() + Length() - N, N); }
 
     int IndexOf(const String &, GUINT32 start = 0) const;
     int LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
+
 
     /** Comparison operator. */
     bool operator == (const String &s) const;
     /** Comparison operator. */
     bool operator == (const char *) const;
+
+    /** Comparison operator. */
+    inline bool operator != (const String &s) const{ return !(*this == s); }
+    /** Comparison operator. */
+    bool operator != (const char *s) const{ return !(*this == s); }
 
     /** Comparison operator. */
     bool operator <  (const String &) const;
@@ -73,6 +99,14 @@ public:
 
     String operator + (const String &) const;
     String &operator += (const String &) const;
+
+    inline char &operator[] (int i){ return Vector<char>::operator [](i); }
+    inline const char &operator[] (int i) const{ return Vector<char>::operator [](i); }
+    inline char &operator[] (GUINT32 i){ return Vector<char>::operator [](i); }
+    inline const char &operator[] (GUINT32 i) const{ return Vector<char>::operator [](i); }
+
+    inline char &At(GUINT32 i){ return Vector<char>::At(i); }
+    inline const char &At(GUINT32 i) const{ return Vector<char>::At(i); }
 
     // Useful cast operators
     inline operator const char* () const{ return ConstData(); }

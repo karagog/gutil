@@ -28,6 +28,43 @@ String::String(const char d, int len)
 {
 }
 
+
+String &String::Insert(const String &s, GUINT32 indx)
+{
+    GUINT32 len( Length() );
+    GUINT32 sl( s.Length() );
+
+    // Reserve room for the extra null-terminating byte
+    if(len + sl + 1 > Capacity())
+        Reserve(len + sl + 1);
+
+    Vector<char>::Insert(s, indx);
+
+    // Always set the null-terminating byte.
+    //  NOTE: This is 1 beyond the bounds of the vector, but since we have
+    //  reserved space for it it's okay to set this value.
+    Vector<char>::operator [](len + sl) = '\0';
+    return *this;
+}
+
+String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
+{
+    GUINT32 len( Length() );
+
+    // Reserve room for the extra null-terminating byte
+    if(len + sz + 1 > Capacity())
+        Reserve(len + sz + 1);
+
+    Vector<char>::Insert(c, sz, indx);
+
+    // Always set the null-terminating byte.
+    //  NOTE: This is 1 beyond the bounds of the vector, but since we have
+    //  reserved space for it it's okay to set this value.
+    Vector<char>::operator [](len + sz) = '\0';
+    return *this;
+}
+
+
 bool String::operator == (const String &s) const
 {
     if(s.Length() != Length())
@@ -42,11 +79,12 @@ bool String::operator == (const String &s) const
 
 bool String::operator == (const char *s) const
 {
-    if(strlen(s) != Length())
+    GUINT32 sl( Length() );
+    if(strlen(s) != sl)
         return false;
 
     const char *cur(ConstData());
-    for(GUINT32 i(0); i < Length(); ++i)
+    for(GUINT32 i(0); i < sl; ++i)
         if(*(s++) != *(cur++))
             return false;
     return true;
