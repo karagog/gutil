@@ -29,6 +29,7 @@ private Q_SLOTS:
     void test_basic_function();
     void test_removal();
     void test_vector_of_vector();
+    void test_non_movable_class();
 };
 
 VectorTest::VectorTest()
@@ -38,9 +39,7 @@ VectorTest::VectorTest()
 void VectorTest::test_basic_function()
 {
     Vector<int> vec;
-    qDebug(QString("An empty vector uses %1 bytes, and a simple vector uses %2.\n"
-                   "A std::vector uses %3")
-           .arg(sizeof(Vector<int>))
+    qDebug(QString("An empty vector uses %1 bytes, and a std::vector uses %2.")
            .arg(sizeof(Vector<int>))
            .arg(sizeof(std::vector<int>))
            .toAscii().constData());
@@ -136,6 +135,59 @@ void VectorTest::test_vector_of_vector()
 
 //    qDebug(QString("The %1-sized vector-of-vector<int> consumes %2 bytes of memory")
 //           .arg(square_width).arg(matrix.ReportMemoryUsage()).toAscii());
+}
+
+
+
+class nonmovable
+{
+public:
+    inline nonmovable() :this_ptr(this){}
+    inline nonmovable(const nonmovable &) :this_ptr(this){}
+    inline nonmovable &operator = (const nonmovable &){ this_ptr = this; return *this; }
+
+    nonmovable *this_ptr;
+};
+
+void VectorTest::test_non_movable_class()
+{
+    Vector<nonmovable> vec;
+    for(int i(0); i < 100; ++i)
+        vec.PushBack(nonmovable());
+
+    int cnt(0);
+    for(Vector<nonmovable>::const_iterator iter(vec.begin()); iter; ++iter)
+    {
+        const nonmovable &probe1( *iter );
+        const nonmovable *probe2( vec.ConstData() + cnt );
+        QVERIFY2(probe1.this_ptr == &vec[cnt], QString("%1 != %2")
+                 .arg((int)iter->this_ptr).arg((int)&vec[cnt]).toAscii());
+        ++cnt;
+    }
+    QVERIFY(cnt == vec.Size());
+
+    vec.Remove(vec.begin());
+    QVERIFY(vec.Size() == 99);
+    QVERIFY(vec[0].this_ptr == &vec[0]);
+    QVERIFY(vec[1].this_ptr == &vec[1]);
+    QVERIFY(vec[98].this_ptr == &vec[98]);
+
+    vec.Insert(nonmovable(), vec.begin());
+    QVERIFY(vec.Size() == 100);
+    QVERIFY(vec[0].this_ptr == &vec[0]);
+    QVERIFY(vec[1].this_ptr == &vec[1]);
+    QVERIFY(vec[99].this_ptr == &vec[99]);
+
+    vec.Clear();
+    QVERIFY(vec.Size() == 0);
+
+    vec.Insert(nonmovable(), vec.end());
+    vec.Insert(nonmovable(), vec.end());
+    vec.Insert(nonmovable(), vec.end());
+    vec.Insert(nonmovable(), vec.begin());
+    vec.Insert(nonmovable(), vec.begin());
+    for(int i(0); i < 5; i++)
+        QVERIFY(vec[i].this_ptr == &vec[i]);
 }
 
 QTEST_APPLESS_MAIN(VectorTest);

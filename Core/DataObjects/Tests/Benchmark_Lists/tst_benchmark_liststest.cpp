@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
+#include "gutil.h"
 #include "Core/DataObjects/slist.h"
 #include "Core/DataObjects/dlist.h"
 #include "Core/DataObjects/list.h"
@@ -108,10 +109,10 @@ void Benchmark_ListsTest::test_stacks_int()
 
 void Benchmark_ListsTest::test_stacks_int(int num_items)
 {
-    SList<int> slist;
-    DList<int> dlist;
-    Vector<int> vector;
-    List<int> list;
+    SListStack<int> slist;
+    DListStack<int> dlist;
+    VectorStack<int> vector;
+    ListStack<int> list;
     STL_Stack<int> stl;
 
     cout<<"Stack as SList:"<<endl;
@@ -184,10 +185,10 @@ public:
 
 void Benchmark_ListsTest::test_stacks_large_class(int num_items)
 {
-    SList<large_class> slist;
-    DList<large_class> dlist;
-    Vector<large_class> vector;
-    List<large_class> list;
+    SListStack<large_class> slist;
+    DListStack<large_class> dlist;
+    VectorStack<large_class> vector;
+    ListStack<large_class> list;
     STL_Stack<large_class> stl;
 
     cout<<"Stack as SList:"<<endl;

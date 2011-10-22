@@ -40,6 +40,11 @@ ExceptionTest::ExceptionTest()
 
 void ExceptionTest::test_basic()
 {
+    qDebug() << "Size of normal Exception:" << sizeof(Exception<false>);
+    qDebug() << "Size of customized Exception:" << sizeof(XmlException<false>);
+    qDebug() << "Size of extended Exception:" << sizeof(Exception<true>);
+    qDebug() << "Size of customized Extended Exception:" << sizeof(XmlException<true>);
+
     try
     {
         bool exception_hit(false);
