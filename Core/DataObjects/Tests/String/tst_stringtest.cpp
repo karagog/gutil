@@ -26,6 +26,7 @@ public:
 
 private Q_SLOTS:
     void test_basics();
+    void test_upperlowercase();
 };
 
 StringTest::StringTest()
@@ -79,6 +80,22 @@ void StringTest::test_basics()
     s.Prepend("Well ");
     QVERIFY(s.Length() == 17);
     QVERIFY(s[s.Length()] == '\0');
+}
+
+void StringTest::test_upperlowercase()
+{
+    String s("Hello");
+    QVERIFY(s == "Hello");
+
+    s.ToUpper();
+    QVERIFY(s == "HELLO");
+
+    s.ToLower();
+    QVERIFY(s == "hello");
+
+    s = "george.KaraGoulis{[@`";
+    QVERIFY(s.ToUpper() == "GEORGE.KARAGOULIS{[@`");
+    QVERIFY(s.ToLower() == "george.karagoulis{[@`");
 }
 
 QTEST_APPLESS_MAIN(StringTest);

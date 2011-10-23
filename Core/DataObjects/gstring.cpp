@@ -19,16 +19,6 @@ GUTIL_USING_CORE_NAMESPACE(DataObjects);
 /** A null byte to mark the end of a string. */
 #define STRING_TERMINATOR   static_cast<char>(0x00)
 
-
-String::String()
-{
-}
-
-String::String(const char d, int len)
-{
-}
-
-
 String &String::Insert(const String &s, GUINT32 indx)
 {
     GUINT32 len( Length() );
@@ -63,6 +53,45 @@ String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
     Vector<char>::operator [](len + sz) = '\0';
     return *this;
 }
+
+
+#define LOWERCASE_OFFSET 0x61
+#define UPPERCASE_OFFSET 0x41
+
+String &String::ToLower()
+{
+    char *c(Data());
+    if(c)
+    {
+        const GUINT32 len(Length());
+        for(GUINT32 i(0); i < len; ++i, ++c)
+        {
+            const char cpy( *c );
+            if(UPPERCASE_OFFSET <= cpy && cpy < (UPPERCASE_OFFSET + 26))
+                *c = cpy - (UPPERCASE_OFFSET - LOWERCASE_OFFSET);
+        }
+    }
+    return *this;
+}
+
+String &String::ToUpper()
+{
+    char *c(Data());
+    if(c)
+    {
+        const GUINT32 len(Length());
+        for(GUINT32 i(0); i < len; ++i, ++c)
+        {
+            const char cpy( *c );
+            if(LOWERCASE_OFFSET <= cpy && cpy < (LOWERCASE_OFFSET + 26))
+                *c = cpy - (LOWERCASE_OFFSET - UPPERCASE_OFFSET);
+        }
+    }
+    return *this;
+}
+
+
+
 
 
 bool String::operator == (const String &s) const

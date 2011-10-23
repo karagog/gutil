@@ -21,6 +21,9 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 /** Implements a contiguous string of characters, whose memory is managed automatically.
 
+    Also implements a suite of string helper functions, like for string manipulation
+    and conversions.
+
     Use as an alternative to std::string.
 */
 class String :
@@ -29,7 +32,7 @@ class String :
 public:
 
     /** Creates a new empty string. */
-    String();
+    inline String() {}
 
     /** Creates an empty string with the given capacity. */
     inline String(GUINT32 capacity) :Vector<char>(capacity) {}
@@ -41,7 +44,7 @@ public:
     inline String(const char *d, int len = -1) :Vector<char>(d, len == -1 ? strlen(d) : len){}
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
-    String(const char c, int len = 1);
+    inline String(char c, int len = 1) :Vector<char>(c, len) {}
 
     /** Basically a copy constructor, but for the base type. */
     inline String(const Vector<char> &s) :Vector<char>(s){}
@@ -51,7 +54,13 @@ public:
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
 
     /** Returns if the string is null, i.e. has not been initialized. */
-    inline bool IsNull() const{ return Vector<char>::Length() == 0; }
+    inline bool IsNull() const{ return ConstData() == NULL; }
+
+    /** Returns if it is an empty string, but has been initialized (has non-zero capacity). */
+    inline bool IsEmpty() const{ return ConstData() != NULL && Length() == 0; }
+
+    /** Returns if the string is null or if it's empty. */
+    inline bool IsNullOrEmpty() const{ return ConstData() == NULL || Length() == 0; }
 
     /** Clears the string and reclaims the memory. */
     inline void Clear(){ Vector<char>::Clear(); }
@@ -70,12 +79,26 @@ public:
 
 
     /** Returns the left N characters of the string. */
-    inline String Left(GUINT32 N) const { return String(ConstData(), N); }
+    inline String Left(GUINT32 N) const { return SubString(0, N); }
     /** Returns the right N characters of the string. */
-    inline String Right(GUINT32 N) const { return String(ConstData() + Length() - N, N); }
+    inline String Right(GUINT32 N) const { return SubString(Length() - N, N); }
 
-    int IndexOf(const String &, GUINT32 start = 0) const;
-    int LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
+    /** Returns the substring starting at the given index and going for the given length. */
+    inline String SubString(GUINT32 index, GUINT32 length) const{
+        return String(ConstData() + index, length);
+    }
+
+    /** Changes all upper case letters to lower case and returns a reference to this. */
+    String &ToLower();
+
+    /** Changes all lower case letters to upper case and returns a reference to this. */
+    String &ToUpper();
+
+    GUINT32 IndexOf(char, GUINT32 start = 0) const;
+    GUINT32 IndexOf(const String &, GUINT32 start = 0) const;
+
+    GUINT32 LastIndexOf(char, GUINT32 start = UINT_MAX) const;
+    GUINT32 LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
 
 
     /** Comparison operator. */
