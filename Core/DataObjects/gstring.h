@@ -100,6 +100,15 @@ public:
     GUINT32 LastIndexOf(char, GUINT32 start = UINT_MAX) const;
     GUINT32 LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
 
+    inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
+    inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }
+    inline Vector<char>::const_iterator end() const{ return Vector<char>::end(); }
+    inline Vector<char>::iterator end(){ return Vector<char>::end(); }
+    inline Vector<char>::const_iterator rbegin() const{ return Vector<char>::rbegin(); }
+    inline Vector<char>::iterator rbegin(){ return Vector<char>::rbegin(); }
+    inline Vector<char>::const_iterator rend() const{ return Vector<char>::rend(); }
+    inline Vector<char>::iterator rend(){ return Vector<char>::rend(); }
+
 
     /** Comparison operator. */
     bool operator == (const String &s) const;

@@ -120,7 +120,7 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    inline void Insert(const T &item, const iterator &iter){ Insert(item, iter.current); }
+    inline void Insert(const T &item, const iterator &iter){ Insert(item, iter.Index()); }
 
     /** Insert the item at the index position.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
@@ -239,7 +239,7 @@ public:
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
-    inline void Remove(const iterator &iter){ RemoveAt(iter.current); }
+    inline void Remove(const iterator &iter){ RemoveAt(iter.Index()); }
 
     /** Remove the item at the index location.
 
@@ -502,15 +502,21 @@ public:
     public:
         inline iterator()
             :current(0),
-              m_begin(0){}
+              m_begin(0),
+              m_end(0)
+        {}
         inline iterator(T *begin, int index)
-            :current(index),
-              m_begin(begin){}
+            :current(begin + index),
+              m_begin(begin),
+              m_end(begin + Vector<T>::Length(begin))
+        {}
 
-        inline T &operator *(){ return m_begin[current]; }
-        inline const T &operator *() const{ return m_begin[current]; }
-        inline T *operator ->(){ return m_begin + current; }
-        inline T const*operator ->() const{ return m_begin + current; }
+        inline T &operator *(){ return *current; }
+        inline const T &operator *() const{ return *current; }
+        inline T *operator ->(){ return current; }
+        inline T const*operator ->() const{ return current; }
+
+        inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
 
         inline iterator &operator ++(){ ++current; return *this; }
         inline iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
@@ -522,13 +528,15 @@ public:
         inline iterator &operator -=(int n){ current -= n; return *this; }
         inline iterator operator -(int n) const{ iterator ret(*this); ret.current -= n; return ret;}
 
-        inline operator bool() const{ return current < Length(); }
+        /** Returns whether the iterator is valid. */
+        inline operator bool() const{ return current && m_begin <= current && current < m_end; }
 
 
     protected:
-        GUINT32 current;
+        T *current;
     private:
         T *m_begin;
+        T *m_end;
     };
 
     /** Iterates through the vector, but also guarantees that it won't modify the vector. */
@@ -538,23 +546,31 @@ public:
     public:
         inline const_iterator()
             :current(0),
-              m_begin(0){}
+              m_begin(0),
+              m_end(0)
+        {}
         inline const_iterator(T *begin, int index)
-            :current(index),
-              m_begin(begin){}
+            :current(begin + index),
+              m_begin(begin),
+              m_end(begin + Vector<T>::Length(begin))
+        {}
         inline const_iterator(const const_iterator &iter)
             :current(iter.current),
-              m_begin(iter.m_begin)
+              m_begin(iter.m_begin),
+              m_end(iter.m_end)
         {}
         inline const_iterator(const iterator &iter)
             :current(iter.current),
-              m_begin(iter.m_begin)
+              m_begin(iter.m_begin),
+              m_end(iter.m_end)
         {}
 
-        inline T &operator *(){ return m_begin[current]; }
-        inline const T &operator *() const{ return m_begin[current]; }
-        inline T *operator ->(){ return m_begin + current; }
-        inline T const*operator ->() const{ return m_begin + current; }
+        inline T &operator *(){ return *current; }
+        inline const T &operator *() const{ return *current; }
+        inline T *operator ->(){ return current; }
+        inline T const*operator ->() const{ return current; }
+
+        inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
 
         inline const_iterator &operator ++(){ ++current; return *this; }
         inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
@@ -572,13 +588,15 @@ public:
             return current - iter.current;
         }
 
-        inline operator bool() const{ return current < Vector<T>::Length(m_begin); }
+        /** Returns whether the iterator is valid. */
+        inline operator bool() const{ return current && m_begin <= current && current < m_end;; }
 
 
     protected:
-        GUINT32 current;
+        T *current;
     private:
         T *m_begin;
+        T *m_end;
     };
 
     inline iterator begin(){ return iterator(m_begin, 0); }
