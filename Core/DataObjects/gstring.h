@@ -36,18 +36,49 @@ public:
 
     /** Creates an empty string with the given capacity. */
     inline String(GUINT32 capacity) :Vector<char>(capacity) {}
+    /** Creates an empty string with the given capacity. */
+    inline String(GINT32 capacity) :Vector<char>(capacity) {}
 
     /** Creates a new string initialized with the data.
         \param len Specifies the length of the data.  If it is -1 then the string automatically
         finds the terminating null byte (it had better exist in this case!)
     */
-    inline String(const char *d, int len = -1) :Vector<char>(d, len == -1 ? strlen(d) : len){}
+    inline String(const char *d, int len = -1)
+        :Vector<char>(len == -1 ? (len = strlen(d)) + 1 : len + 1)
+    {
+        memcpy(Data(), d, len);
+        *(Data() + len) = '\0';
+        set_length(len);
+    }
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
-    inline String(char c, int len = 1) :Vector<char>(c, len) {}
+    inline String(char c, int len = 1) :Vector<char>(len + 1) {
+        char *cur( Data() );
+        while(len-- > 0) *(cur++) = c;
+        *(Data() + len) = '\0';
+        set_length(len);
+    }
 
     /** Basically a copy constructor, but for the base type. */
-    inline String(const Vector<char> &s) :Vector<char>(s){}
+    inline String(const Vector<char> &s) :Vector<char>(s.Length() + 1){
+        memcpy(Data(), s.ConstData(), s.Length());
+        *(Data() + s.Length()) = '\0';
+        set_length(s.Length());
+    }
+
+    inline String(const String &s) :Vector<char>(s.Length() + 1){
+        memcpy(Data(), s.ConstData(), s.Length());
+        *(Data() + s.Length()) = '\0';
+        set_length(s.Length());
+    }
+    inline String &operator = (const String &s){
+        if(s.Length() + 1 > Capacity())
+            Reserve(s.Length() + 1);
+        Vector<char>::operator = (s);
+        *(Data() + s.Length()) = '\0';
+        set_length(s.Length());
+        return *this;
+    }
 
     /** The length of the string. */
     inline GUINT32 Length() const{ return Vector<char>::Length(); }
@@ -56,11 +87,8 @@ public:
     /** Returns if the string is null, i.e. has not been initialized. */
     inline bool IsNull() const{ return ConstData() == NULL; }
 
-    /** Returns if it is an empty string, but has been initialized (has non-zero capacity). */
-    inline bool IsEmpty() const{ return ConstData() != NULL && Length() == 0; }
-
-    /** Returns if the string is null or if it's empty. */
-    inline bool IsNullOrEmpty() const{ return ConstData() == NULL || Length() == 0; }
+    /** Returns if it is an empty string, including when it has not been initialized. */
+    inline bool IsEmpty() const{ return Length() == 0; }
 
     /** Clears the string and reclaims the memory. */
     inline void Clear(){ Vector<char>::Clear(); }
@@ -94,11 +122,24 @@ public:
     /** Changes all lower case letters to upper case and returns a reference to this. */
     String &ToUpper();
 
-    GUINT32 IndexOf(char, GUINT32 start = 0) const;
+    inline GUINT32 IndexOf(char c, GUINT32 start = 0) const{ return Vector<char>::IndexOf(c, start); }
     GUINT32 IndexOf(const String &, GUINT32 start = 0) const;
 
-    GUINT32 LastIndexOf(char, GUINT32 start = UINT_MAX) const;
+    inline GUINT32 LastIndexOf(char c, GUINT32 start = UINT_MAX) const{ return Vector<char>::LastIndexOf(c, start); }
     GUINT32 LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
+
+    /** Format a string using printf-style strings.  It is a static function, so
+        to use it would look like this:
+
+        String s = String::Format("Hello %s, my name is %s", "Suzy", "George")
+
+        \param fmt A format string, which will be passed directly to snprintf, so
+        all the formatting rules for that function apply here (see man page for details)
+
+        \return The formatted string.  If the formatting fails for some reason
+        then the format string itself is returned.
+    */
+    static String Format(const char *fmt, ...);
 
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
     inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }

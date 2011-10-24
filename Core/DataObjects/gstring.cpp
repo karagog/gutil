@@ -13,6 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gstring.h"
+#include "gassert.h"
+#include <cstdarg>
+#include <stdio.h>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 
@@ -88,6 +91,46 @@ String &String::ToUpper()
         }
     }
     return *this;
+}
+
+String String::Format(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+
+    // This is a heuristic to try to best estimate the size of the resulting
+    //  formatted string.  If we're wrong then we make at most 1 correction.
+    int capacity( strlen(fmt) * 5 );
+    String ret( capacity );
+
+    int new_len( vsnprintf(ret.Data(), capacity, fmt, args) );
+    if(new_len < 0)
+    {
+        // If there's an error in translation, then return the format string
+        //  Note: With old versions of the C Standard Library snprintf may
+        //   return -1 if the character buffer is not large enough.  I don't
+        //   want to support old standards, so I call this an error case.
+        ret = fmt;
+    }
+    else if(new_len >= capacity)
+    {
+        // If the capacity is not large enough to hold the formatted string,
+        //  then allocate what we'll need and try again.
+
+        // +1 to account for the terminating null character
+        ret.Reserve(new_len + 1);
+
+        int final_length( vsnprintf(ret.Data(), new_len + 1, fmt, args) );
+        GASSERT(final_length == new_len);
+        ret.set_length(final_length);
+    }
+    else
+    {
+        ret.set_length(new_len);
+    }
+
+    va_end(args);
+    return ret;
 }
 
 

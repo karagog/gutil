@@ -43,6 +43,13 @@ public:
     inline explicit Vector(GUINT32 capacity)
         :m_begin(NULL)
     {
+        if(capacity != 0)
+            Reserve(capacity);
+    }
+    /** Constructs an empty vector capable of holding the given number of items. */
+    inline explicit Vector(GINT32 capacity)
+        :m_begin(NULL)
+    {
         if(capacity > 0)
             Reserve(capacity);
     }
@@ -53,7 +60,7 @@ public:
         :m_begin(NULL)
     {
         Reserve(size);
-        _set_length(size);
+        set_length(size);
         T *cur(m_begin);
         for(GUINT32 i(0); i < size; ++i, ++cur)
             new(cur) T(o);
@@ -67,7 +74,7 @@ public:
         if(size > 0)
         {
             Reserve(size);
-            _set_length(size);
+            set_length(size);
             T *cur(m_begin);
             for(GUINT32 i(0); i < size; ++i)
                 new(cur++) T(*(arr++));
@@ -99,7 +106,7 @@ public:
         if(o.Capacity() > 0)
         {
             Reserve(o.Capacity());
-            _set_length(sz);
+            set_length(sz);
         }
 
         // Call the copy constructor for each item to initialize the memory
@@ -110,8 +117,8 @@ public:
     }
     /** Assignment operator invokes our copy constructor after clearing the container. */
     Vector &operator = (const Vector<T> &o){
-        Clear();
-        new(this) Vector<T>(o);
+        ClearContents();
+        Insert(o, 0);
         return *this;
     }
     inline ~Vector(){ Clear(); }
@@ -167,7 +174,7 @@ public:
             new(dest) T(item);
         }
 
-        _set_length( len + 1 );
+        set_length( len + 1 );
     }
 
     /** Insert the vector at the index position.
@@ -231,7 +238,7 @@ public:
                 new(dest++) T(*(vec++));
         }
 
-        _set_length(len + size);
+        set_length(len + size);
     }
 
     /** Remove the item pointed to by the iterator.
@@ -285,7 +292,7 @@ public:
             }
         }
 
-        _set_length(len - 1);
+        set_length(len - 1);
     }
 
     /** Removes the first instance of the item.  The type T must have a comparison operator.
@@ -353,7 +360,7 @@ public:
             {
                 for(GUINT32 i(new_capacity); i < len; ++i)
                     m_begin[i].~T();
-                _set_length( new_capacity );
+                set_length( new_capacity );
             }
         }
         else if(new_capacity == cur_capacity)
@@ -412,7 +419,7 @@ public:
         if(new_capacity > 0)
             _set_capacity( new_capacity );
         if(cur_capacity == 0)
-            _set_length( len );
+            set_length( len );
     }
 
     /** Resizes the vector.  If the new size is larger than the current, then the default
@@ -471,8 +478,22 @@ public:
     /** Returns a pointer to the start of the array. */
     inline T *Data(){ return m_begin; }
 
-    /** Clears all items from the stack and frees all memory. */
+    /** Clears all items and frees all memory. */
     inline void Clear(){ Reserve(0); }
+
+    /** Clears all items but retains the same capacity. */
+    inline void ClearContents(){
+        if(m_begin)
+        {
+            T *cur( m_begin );
+            T *e( m_begin + Length() );
+            while(cur != e){
+                cur->~T();
+                ++cur;
+            }
+            set_length(0);
+        }
+    }
 
     /** The current length of the vector. */
     inline GUINT32 Length() const{ return Length(m_begin); }
@@ -493,6 +514,46 @@ public:
     /** How many items of type T we are capable of holding. */
     inline GUINT32 Capacity() const{
         return m_begin ? *(reinterpret_cast<GUINT32 *>(m_begin) - 2) : 0;
+    }
+
+    /** Conducts a linear search for the first instance of the item
+        starting at the given index, and using the == operator to test equality.
+    */
+    inline GUINT32 IndexOf(const T &item, GUINT32 start = 0) const throw(NotFoundException<false>){
+        T *cur( m_begin + start );
+        T *const e( m_begin + Length() );
+        if(cur >= e) THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
+        G_FOREVER
+        {
+            if(cur == e)
+                THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
+            else if(*cur == item)
+                break;
+            ++cur;
+        }
+        return cur - m_begin;
+    }
+
+    /** Conducts a linear search for the first instance of the item
+        starting at the given index, and using the == operator to test equality.
+    */
+    inline GUINT32 LastIndexOf(const T &item, GUINT32 start = UINT_MAX) const throw(NotFoundException<false>){
+        const GUINT32 len(Length());
+        if(len == 0) THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
+
+        if(start == UINT_MAX)
+            start = len - 1;
+        T *cur( m_begin + start );
+        T *const e( m_begin - 1 );
+        G_FOREVER
+        {
+            if(cur == e)
+                THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
+            else if(*cur == item)
+                break;
+            --cur;
+        }
+        return cur - m_begin;
     }
 
     /** Iterates through the vector. */
@@ -610,11 +671,19 @@ public:
     inline const_iterator rend() const{ return const_iterator(m_begin, -1); }
 
 
+protected:
+
+    /** Subclasses can use this convenience function as a setter for the length variable.
+        \note You should only use this with POD types, because if you have a vector of
+        more complex classes then some of their destructors may not get called.
+    */
+    inline void set_length(GUINT32 len){ if(m_begin) *(reinterpret_cast<GUINT32 *>(m_begin) - 1) = len; }
+
+
 private:
 
     T *m_begin;
 
-    inline void _set_length(GUINT32 len){ *(reinterpret_cast<GUINT32 *>(m_begin) - 1) = len; }
     inline void _set_capacity(GUINT32 cap){ *(reinterpret_cast<GUINT32 *>(m_begin) - 2) = cap; }
 
     inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
