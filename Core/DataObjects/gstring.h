@@ -43,42 +43,18 @@ public:
         \param len Specifies the length of the data.  If it is -1 then the string automatically
         finds the terminating null byte (it had better exist in this case!)
     */
-    inline String(const char *d, int len = -1)
-        :Vector<char>(len == -1 ? (len = strlen(d)) + 1 : len + 1)
-    {
-        memcpy(Data(), d, len);
-        *(Data() + len) = '\0';
-        set_length(len);
-    }
+    String(const char *d, int len = -1);
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
-    inline String(char c, int len = 1) :Vector<char>(len + 1) {
-        char *cur( Data() );
-        while(len-- > 0) *(cur++) = c;
-        *(Data() + len) = '\0';
-        set_length(len);
-    }
+    String(char c, int len = 1);
 
     /** Basically a copy constructor, but for the base type. */
-    inline String(const Vector<char> &s) :Vector<char>(s.Length() + 1){
-        memcpy(Data(), s.ConstData(), s.Length());
-        *(Data() + s.Length()) = '\0';
-        set_length(s.Length());
-    }
+    String(const Vector<char> &s);
 
-    inline String(const String &s) :Vector<char>(s.Length() + 1){
-        memcpy(Data(), s.ConstData(), s.Length());
-        *(Data() + s.Length()) = '\0';
-        set_length(s.Length());
-    }
-    inline String &operator = (const String &s){
-        if(s.Length() + 1 > Capacity())
-            Reserve(s.Length() + 1);
-        Vector<char>::operator = (s);
-        *(Data() + s.Length()) = '\0';
-        set_length(s.Length());
-        return *this;
-    }
+    /** Copy constructor. */
+    String(const String &s);
+    /** Assignment operator. */
+    String &operator = (const String &s);
 
     /** The length of the string. */
     inline GUINT32 Length() const{ return Vector<char>::Length(); }
@@ -154,7 +130,7 @@ public:
     /** Comparison operator. */
     bool operator == (const String &s) const;
     /** Comparison operator. */
-    bool operator == (const char *) const;
+    bool operator == (const char *s) const;
 
     /** Comparison operator. */
     inline bool operator != (const String &s) const{ return !(*this == s); }
@@ -170,8 +146,8 @@ public:
     /** Comparison operator. */
     bool operator >= (const String &) const;
 
-    String operator + (const String &) const;
-    String &operator += (const String &) const;
+    inline String operator + (const String &s) const{ return String(*this).Append(s); }
+    inline String &operator += (const String &s){ Append(s); return *this; }
 
     inline char &operator[] (int i){ return Vector<char>::operator [](i); }
     inline const char &operator[] (int i) const{ return Vector<char>::operator [](i); }
@@ -185,6 +161,22 @@ public:
     inline operator const char* () const{ return ConstData(); }
     inline operator char* (){ return Data(); }
 
+
+private:
+
+    inline static int _string_compare(const char *lhs, const char *rhs, GUINT32 len){
+        while(len-- != 0)
+        {
+            if(*lhs == *rhs)
+            { lhs++; rhs++; }
+            else if(*lhs < *rhs)
+                return -1;
+            else
+                return 1;
+        }
+        return 0;
+    }
+
 };
 
 
@@ -192,12 +184,8 @@ public:
 inline bool operator == (const char *c, const String &s){ return s == c; }
 
 /** A convenience operator that allows you to create strings with the + operator. */
-inline String operator + (const char *c, const String &s){
-    GUINT32 sz( strlen(c) );
-    String ret(sz + s.Length());
-    ret.Insert(c, sz, 0);
-    return ret.Append(s);
-}
+String operator + (const char *c, const String &s);
+
 
 GUTIL_END_CORE_NAMESPACE;
 

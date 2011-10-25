@@ -16,11 +16,57 @@ limitations under the License.*/
 #include "gassert.h"
 #include <cstdarg>
 #include <stdio.h>
+#include <cstring>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 
 /** A null byte to mark the end of a string. */
 #define STRING_TERMINATOR   static_cast<char>(0x00)
+
+
+String::String(const char *d, int len)
+    :Vector<char>(len == -1 ? (len = strlen(d)) + 1 : len + 1)
+{
+    memcpy(Data(), d, len);
+    *(Data() + len) = '\0';
+    set_length(len);
+}
+
+String::String(char c, int len)
+    :Vector<char>(len + 1)
+{
+    char *cur( Data() );
+    while(len-- > 0) *(cur++) = c;
+    *(Data() + len) = '\0';
+    set_length(len);
+}
+
+String::String(const Vector<char> &s)
+    :Vector<char>(s.Length() + 1)
+{
+    memcpy(Data(), s.ConstData(), s.Length());
+    *(Data() + s.Length()) = '\0';
+    set_length(s.Length());
+}
+
+String::String(const String &s)
+    :Vector<char>(s.Length() + 1)
+{
+    memcpy(Data(), s.ConstData(), s.Length());
+    *(Data() + s.Length()) = '\0';
+    set_length(s.Length());
+}
+
+String &String::operator = (const String &s)
+{
+    if(s.Length() + 1 > Capacity())
+        Reserve(s.Length() + 1);
+    Vector<char>::operator = (s);
+    *(Data() + s.Length()) = '\0';
+    set_length(s.Length());
+    return *this;
+}
+
 
 String &String::Insert(const String &s, GUINT32 indx)
 {
@@ -100,7 +146,7 @@ String String::Format(const char *fmt, ...)
 
     // This is a heuristic to try to best estimate the size of the resulting
     //  formatted string.  If we're wrong then we make at most 1 correction.
-    int capacity( strlen(fmt) * 5 );
+    int capacity( strlen(fmt) * 2 );
     String ret( capacity );
 
     int new_len( vsnprintf(ret.Data(), capacity, fmt, args) );
@@ -142,52 +188,54 @@ bool String::operator == (const String &s) const
     if(s.Length() != Length())
         return false;
 
-    const char *cur1(s.ConstData()), *cur2(ConstData());
-    for(GUINT32 i(0); i < Length(); ++i)
-        if(*(cur1++) != *(cur2++))
-            return false;
-    return true;
+    return 0 == _string_compare(*this, s, Length());
 }
 
 bool String::operator == (const char *s) const
 {
-    GUINT32 sl( Length() );
-    if(strlen(s) != sl)
+    if(strlen(s) != Length())
         return false;
 
-    const char *cur(ConstData());
-    for(GUINT32 i(0); i < sl; ++i)
-        if(*(s++) != *(cur++))
-            return false;
-    return true;
+    return 0 == _string_compare(*this, s, Length());
 }
 
-bool String::operator <  (const String &) const
+bool String::operator <  (const String &s) const
 {
-
+    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    if(ret == 0)
+        return Length() < s.Length();
+    return ret < 0;
 }
 
-bool String::operator <= (const String &) const
+bool String::operator <= (const String &s) const
 {
-
+    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    if(ret == 0)
+        return Length() <= s.Length();
+    return ret < 0;
 }
 
-bool String::operator >  (const String &) const
+bool String::operator >  (const String &s) const
 {
-
+    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    if(ret == 0)
+        return Length() > s.Length();
+    return ret > 0;
 }
 
-bool String::operator >= (const String &) const
+bool String::operator >= (const String &s) const
 {
-
+    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    if(ret == 0)
+        return Length() >= s.Length();
+    return ret > 0;
 }
 
-String String::operator + (const String &) const
+
+String operator + (const char *c, const String &s)
 {
-
-}
-
-String &String::operator += (const String &) const
-{
-
+    GUINT32 sz( strlen(c) );
+    String ret(sz + s.Length());
+    ret.Insert(c, sz, 0);
+    return ret.Append(s);
 }

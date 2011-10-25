@@ -21,8 +21,7 @@ limitations under the License.*/
 #include "Core/DataObjects/interfaces.h"
 #include <new>
 #include <limits.h>
-#include <cstdlib>
-#include <cstring>
+#include <malloc.h>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 

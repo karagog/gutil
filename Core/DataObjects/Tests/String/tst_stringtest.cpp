@@ -28,6 +28,7 @@ private Q_SLOTS:
     void test_basics();
     void test_upperlowercase();
     void test_format();
+    void test_compare();
 };
 
 StringTest::StringTest()
@@ -91,6 +92,15 @@ void StringTest::test_basics()
     s.Prepend("Well ");
     QVERIFY(s.Length() == 17);
     QVERIFY(s[s.Length()] == '\0');
+
+
+    s.Clear();
+
+    s = "One";
+    s = s + " plus ";
+    QVERIFY2(s == "One plus ", s);
+    s += "one equals two";
+    QVERIFY2(s == "One plus one equals two", s);
 }
 
 void StringTest::test_upperlowercase()
@@ -117,6 +127,44 @@ void StringTest::test_format()
 
     s = String::Format("%d + %d = %d", 1, 1, 2);
     QVERIFY2(s == "1 + 1 = 2", s);
+
+    s.Clear();
+#define LARGE_STRING "This must have caused the string to resize" \
+                        " after this format.  I mean, seriously, this string" \
+                        " is HUUUUUUUUUUUUUUUUUUUUUUUGE!!!!"
+    s = String::Format("%s", LARGE_STRING);
+    QVERIFY2(s == LARGE_STRING, s);
+}
+
+void StringTest::test_compare()
+{
+    String s("B");
+    QVERIFY(s > String("A"));
+    QVERIFY(s >= String("A"));
+
+    QVERIFY(s < String("C"));
+    QVERIFY(s <= String("C"));
+
+    QVERIFY(s == String("B"));
+    QVERIFY(s <= String("B"));
+    QVERIFY(s >= String("B"));
+
+
+    QVERIFY(String("Janet") < String("Judith"));
+    QVERIFY(String("Janet") <= String("Judith"));
+    QVERIFY(String("Judith") > String("Janet"));
+    QVERIFY(String("Judith") >= String("Janet"));
+
+    QVERIFY(String("Mark") == String("Mark"));
+    QVERIFY(String("Mark") >= String("Mark"));
+    QVERIFY(String("Mark") <= String("Mark"));
+    QVERIFY(String("Mark") != String("mark"));
+
+    QVERIFY(String("OneString") != String("OneStringLonger"));
+    QVERIFY(String("OneString") < String("OneStringLonger"));
+    QVERIFY(String("OneString") <= String("OneStringLonger"));
+    QVERIFY(String("OneStringLonger") > String("OneString"));
+    QVERIFY(String("OneStringLonger") >= String("OneString"));
 }
 
 QTEST_APPLESS_MAIN(StringTest);
