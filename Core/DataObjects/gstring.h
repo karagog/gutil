@@ -117,6 +117,8 @@ public:
     */
     static String Format(const char *fmt, ...);
 
+    String Replace(const String &find, const String &replace) const;
+
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
     inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }
     inline Vector<char>::const_iterator end() const{ return Vector<char>::end(); }

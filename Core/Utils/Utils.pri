@@ -7,7 +7,8 @@ HEADERS += \
     Utils/commandlineargs.h \
     Utils/environment.h \
     Utils/linearsetalgebra.h \
-    Utils/symmetricmatrix.h
+    Utils/symmetricmatrix.h \
+    Utils/atomic.h
 
 SOURCES += \
     Utils/stringhelpers.cc \
@@ -16,3 +17,6 @@ SOURCES += \
     Utils/Private/strings_p.cc \
     Utils/commandlineargs.cpp \
     Utils/environment.cpp
+
+
+
