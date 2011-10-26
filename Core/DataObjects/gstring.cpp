@@ -141,15 +141,17 @@ String &String::ToUpper()
 
 String String::Format(const char *fmt, ...)
 {
+    String ret;
     va_list args;
     va_start(args, fmt);
 
-    // This is a heuristic to try to best estimate the size of the resulting
-    //  formatted string.  If we're wrong then we make at most 1 correction.
-    int capacity( strlen(fmt) * 2 );
-    String ret( capacity );
+    // Call vsnprintf with a 0 length string, so that it tells us how large the
+    //  string would be.  This is a design decision NOT to use a heuristic to
+    //  guess at the length.  There is no good way to know how big the resulting
+    //  string will be, so for simplicity and consistency's sake I go with the
+    //  easy implementation where snprintf just tells me how big it will be.
+    int new_len( vsnprintf(NULL, 0, fmt, args) );
 
-    int new_len( vsnprintf(ret.Data(), capacity, fmt, args) );
     if(new_len < 0)
     {
         // If there's an error in translation, then return the format string
@@ -158,21 +160,14 @@ String String::Format(const char *fmt, ...)
         //   want to support old standards, so I call this an error case.
         ret = fmt;
     }
-    else if(new_len >= capacity)
+    else
     {
-        // If the capacity is not large enough to hold the formatted string,
-        //  then allocate what we'll need and try again.
-
         // +1 to account for the terminating null character
         ret.Reserve(new_len + 1);
+        ret.set_length(new_len);
 
         int final_length( vsnprintf(ret.Data(), new_len + 1, fmt, args) );
         GASSERT(final_length == new_len);
-        ret.set_length(final_length);
-    }
-    else
-    {
-        ret.set_length(new_len);
     }
 
     va_end(args);
