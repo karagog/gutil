@@ -24,6 +24,14 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     Also implements a suite of string helper functions, like for string manipulation
     and conversions.
 
+    The requirements for this class are as follows:
+    * Always maintains enough capacity for at least the amount of characters,
+        plus the terminating null charater
+    * Always maintains the terminating null, and at any given time throughout a
+        string's life the character at index 'Length()' should be a '\0', given
+        that the string has been initialized (not IsNull())
+
+
     Use as an alternative to std::string.
 */
 class String :
@@ -76,10 +84,16 @@ public:
     /** Prepends the string to this one and returns this. */
     inline String &Prepend(const String &s){ Insert(s, 0); return *this; }
 
+
     /** Inserts the string at the given index. */
     String &Insert(const String &s, GUINT32 indx);
+
     /** Inserts the raw data at the given index. */
     String &Insert(const char *c, GUINT32 sz, GUINT32 indx);
+
+
+    /** Removes 'len' characters starting at index 'indx'. */
+    String &Remove(GUINT32 indx, GUINT32 len);
 
 
     /** Returns the left N characters of the string. */
@@ -117,7 +131,14 @@ public:
     */
     static String Format(const char *fmt, ...);
 
-    String Replace(const String &find, const String &replace) const;
+    /** Returns a copy of this string, which has been parsed linearly to replace
+        any instance of 'find' with 'replace'
+        \param find A null-terminated string to search for in this string
+        \param replace A null-terminated string with which to replace 'find'
+        \param case_sensitive Whether or not to search with case sensitivity. Replace
+        will always retain the same case it had.
+    */
+    String Replace(const char *find, const char *replace, bool case_sensitive = true) const;
 
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
     inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }

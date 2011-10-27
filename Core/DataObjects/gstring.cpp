@@ -70,6 +70,9 @@ String &String::operator = (const String &s)
 
 String &String::Insert(const String &s, GUINT32 indx)
 {
+    if(indx > Length())
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+
     GUINT32 len( Length() );
     GUINT32 sl( s.Length() );
 
@@ -88,6 +91,9 @@ String &String::Insert(const String &s, GUINT32 indx)
 
 String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
 {
+    if(indx > Length())
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+
     GUINT32 len( Length() );
 
     // Reserve room for the extra null-terminating byte
@@ -102,6 +108,19 @@ String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
     Vector<char>::operator [](len + sz) = '\0';
     return *this;
 }
+
+String &String::Remove(GUINT32 indx, GUINT32 len)
+{
+    if(indx + len > Length())
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+
+    // +1 because we need to move the null char at the end
+    memmove(Data() + indx, Data() + (indx + len), sizeof(char) * (Length() - (indx + len) + 1));
+
+    set_length(Length() - len);
+    return *this;
+}
+
 
 
 #define LOWERCASE_OFFSET 0x61
@@ -166,14 +185,48 @@ String String::Format(const char *fmt, ...)
         ret.Reserve(new_len + 1);
         ret.set_length(new_len);
 
-        int final_length( vsnprintf(ret.Data(), new_len + 1, fmt, args) );
-        GASSERT(final_length == new_len);
+        vsnprintf(ret.Data(), new_len + 1, fmt, args);
     }
 
     va_end(args);
     return ret;
 }
 
+String String::Replace(const char *find, const char *replace, bool case_sensitive) const
+{
+    String ret(*this);
+    if(!IsEmpty())
+    {
+        String find_copy(find);
+        String this_copy(*this);
+        if(case_sensitive)
+        {
+            find_copy.ToLower();
+            this_copy.ToLower();
+        }
+
+        GUINT32 len( strlen(find) );
+        GUINT32 rlen( strlen(replace) );
+        char *f( find_copy.Data() );
+        char *c( this_copy.Data() );
+        for(GUINT32 i(0); *c != '\0'; ++i, ++c)
+        {
+            const int cmp( _string_compare(c, f, gMin(len, ret.Length() - i)) );
+            if(0 == cmp)
+            {
+                ret.Remove(i, len);
+                ret.Insert(replace, rlen, i);
+
+                this_copy.Remove(i, len);
+                this_copy.Insert(replace, rlen, i);
+
+                c += (rlen - 1);
+                i += (rlen - 1);
+            }
+        }
+    }
+    return ret;
+}
 
 
 

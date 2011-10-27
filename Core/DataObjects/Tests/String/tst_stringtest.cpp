@@ -28,6 +28,7 @@ private Q_SLOTS:
     void test_basics();
     void test_upperlowercase();
     void test_format();
+    void test_replace();
     void test_compare();
 };
 
@@ -57,6 +58,21 @@ void StringTest::test_basics()
     QVERIFY(!s.IsNull());
     QVERIFY2(s == "Hello World!", s);
     QVERIFY2(s != "Hello Frenchie!", s);
+
+    s.Remove(5, 6);
+    QVERIFY(s == "Hello!");
+    QVERIFY(s.Length() == 6);
+    QVERIFY(s[6] == '\0');
+    QVERIFY(strlen(s) == 6);
+
+    // This clobbers the null from before, so we test that it is definitely overwritten
+    //  on the following insertion
+    s[12] = -1;
+
+    s.Insert(" World", 5);
+    QVERIFY2(s == "Hello World!", s);
+    QVERIFY(s.Length() == 12);
+    QVERIFY(s[12] == '\0');
 
     QVERIFY(s[0] == 'H');
     QVERIFY(s[1] == 'e');
@@ -134,6 +150,17 @@ void StringTest::test_format()
                         " is HUUUUUUUUUUUUUUUUUUUUUUUGE!!!!"
     s = String::Format("%s", LARGE_STRING);
     QVERIFY2(s == LARGE_STRING, s);
+}
+
+void StringTest::test_replace()
+{
+    String s("Hello George, my name is George.");
+    QVERIFY(s == "Hello George, my name is George.");
+    QVERIFY(s.Length() == strlen("Hello George, my name is George."));
+
+    s = s.Replace("George", "Sue");
+    QVERIFY2(s == "Hello Sue, my name is Sue.", s);
+    QVERIFY(s.Length() == strlen("Hello Sue, my name is Sue."));
 }
 
 void StringTest::test_compare()
