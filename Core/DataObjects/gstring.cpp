@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "gstring.h"
 #include "gassert.h"
-#include <cstdarg>
 #include <stdio.h>
 #include <cstring>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
@@ -121,23 +120,13 @@ String &String::Remove(GUINT32 indx, GUINT32 len)
     return *this;
 }
 
-
-
-#define LOWERCASE_OFFSET 0x61
-#define UPPERCASE_OFFSET 0x41
-
 String &String::ToLower()
 {
     char *c(Data());
     if(c)
     {
-        const GUINT32 len(Length());
-        for(GUINT32 i(0); i < len; ++i, ++c)
-        {
-            const char cpy( *c );
-            if(UPPERCASE_OFFSET <= cpy && cpy < (UPPERCASE_OFFSET + 26))
-                *c = cpy - (UPPERCASE_OFFSET - LOWERCASE_OFFSET);
-        }
+        for(GUINT32 i(0); i < Length(); ++i, ++c)
+            *c = ToLower(*c);
     }
     return *this;
 }
@@ -149,20 +138,14 @@ String &String::ToUpper()
     {
         const GUINT32 len(Length());
         for(GUINT32 i(0); i < len; ++i, ++c)
-        {
-            const char cpy( *c );
-            if(LOWERCASE_OFFSET <= cpy && cpy < (LOWERCASE_OFFSET + 26))
-                *c = cpy - (LOWERCASE_OFFSET - UPPERCASE_OFFSET);
-        }
+            *c = ToUpper(*c);
     }
     return *this;
 }
 
-String String::Format(const char *fmt, ...)
+String String::vFormat(const char *fmt, va_list args)
 {
     String ret;
-    va_list args;
-    va_start(args, fmt);
 
     // Call vsnprintf with a 0 length string, so that it tells us how large the
     //  string would be.  This is a design decision NOT to use a heuristic to
@@ -195,36 +178,156 @@ String String::Format(const char *fmt, ...)
 String String::Replace(const char *find, const char *replace, bool case_sensitive) const
 {
     String ret(*this);
-    if(!IsEmpty())
+    String this_copy(*this);
+    GUINT32 len( strlen(find) );
+    if(!IsEmpty() && len > 0)
     {
+        GUINT32 rlen( strlen(replace) );
         String find_copy(find);
-        String this_copy(*this);
-        if(case_sensitive)
+
+        if(!case_sensitive)
         {
             find_copy.ToLower();
             this_copy.ToLower();
         }
 
-        GUINT32 len( strlen(find) );
-        GUINT32 rlen( strlen(replace) );
-        char *f( find_copy.Data() );
-        char *c( this_copy.Data() );
-        for(GUINT32 i(0); *c != '\0'; ++i, ++c)
+        // If the replacement string is smaller, then start from the end of the string
+        if(rlen < len)
         {
-            const int cmp( _string_compare(c, f, gMin(len, ret.Length() - i)) );
-            if(0 == cmp)
+            GUINT32 last_index( this_copy.LastIndexOf(find_copy) );
+            while(last_index != UINT_MAX)
             {
-                ret.Remove(i, len);
-                ret.Insert(replace, rlen, i);
+                memmove(ret.Data() + last_index + rlen, ret.Data() + last_index + len,
+                        this_copy.Length() - (last_index + len));
+                memmove(this_copy.Data() + last_index + rlen, this_copy.Data() + last_index + len,
+                        this_copy.Length() - (last_index + len));
 
-                this_copy.Remove(i, len);
-                this_copy.Insert(replace, rlen, i);
+                memcpy(ret.Data() + last_index, replace, rlen);
 
-                c += (rlen - 1);
-                i += (rlen - 1);
+                // This step is necessary so the IndexOf function always searches
+                //  within the correct bounds
+                this_copy.set_length(this_copy.Length() - (len - rlen));
+
+                if(last_index < len)
+                    last_index = UINT_MAX;
+                else
+                    last_index = this_copy.LastIndexOf(find_copy, last_index - len);
+            }
+        }
+        else // Start from the beginning of the string
+        {
+            GUINT32 last_index( this_copy.IndexOf(find_copy) );
+            while(last_index != UINT_MAX)
+            {
+                if(this_copy.Length() + (rlen - len) + 1 > ret.Capacity())
+                {
+                    ret.Reserve(this_copy.Length() + rlen - len + 1);
+                    this_copy.Reserve(this_copy.Length() + rlen - len + 1);
+                }
+
+                memmove(ret.Data() + last_index + rlen, ret.Data() + last_index + len,
+                        this_copy.Length() - (last_index + len));
+                memmove(this_copy.Data() + last_index + rlen, this_copy.Data() + last_index + len,
+                        this_copy.Length() - (last_index + len));
+
+                memcpy(ret.Data() + last_index, replace, rlen);
+
+                // This step is necessary so the IndexOf function always searches
+                //  within the correct bounds
+                this_copy.set_length(this_copy.Length() + rlen - len);
+
+                if(last_index > this_copy.Length() - len)
+                    last_index = UINT_MAX;
+                else
+                    last_index = this_copy.IndexOf(find_copy, last_index + rlen);
             }
         }
     }
+
+    ret.set_length(this_copy.Length());
+    ret[this_copy.Length()] = '\0';
+    return ret;
+}
+
+GUINT32 String::IndexOf(const char *s, GUINT32 start, GUINT32 slen) const
+{
+    GUINT32 ret(UINT_MAX);
+    if(slen == UINT_MAX)
+        slen = strlen(s);
+
+    if(Length() > 0 && slen > 0 && Length() >= slen)
+    {
+        const char *c( ConstData() + start );
+        for(; start < Length() - (slen - 1); ++start, ++c)
+        {
+            if(0 == _string_compare(s, c, slen))
+            {
+                ret = start;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+GUINT32 String::LastIndexOf(const char *s, GUINT32 start, GUINT32 slen) const
+{
+    GUINT32 ret(UINT_MAX);
+    if(slen == UINT_MAX)
+        slen = strlen(s);
+
+    if(Length() > 0 && slen > 0 && Length() >= slen)
+    {
+        if(start == UINT_MAX)
+            start = Length() - slen;
+
+        if(start < Length())
+        {
+            const char *c;
+            if(Length() - start < slen)
+                c = ConstData() + Length() - (slen - 1);
+            else
+                c = ConstData() + start;
+
+            start += 1; // This helps our loop condition, because it's an unsigned int
+            for(; start > 0; --start, --c)
+            {
+                if(0 == _string_compare(s, c, slen))
+                {
+                    ret = start - 1;
+                    break;
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+
+bool String::ToBool(bool *ok) const
+{
+    GINT32 ret(0);
+    int res( sscanf(ConstData(), "%d", &ret) );
+    if(ok)
+        *ok = 1 == res;
+    return ret != 0;
+}
+
+GINT32 String::ToInt(bool *ok) const
+{
+    GINT32 ret(0);
+    int res( sscanf(ConstData(), "%d", &ret) );
+    if(ok)
+        *ok = 1 == res;
+    return ret;
+}
+
+GFLOAT32 String::ToFloat(bool *ok) const
+{
+    GFLOAT32 ret(0);
+    int res( sscanf(ConstData(), "%f", &ret) );
+    if(ok)
+        *ok = 1 == res;
     return ret;
 }
 

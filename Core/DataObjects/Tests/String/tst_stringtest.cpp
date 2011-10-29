@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/gstring.h"
+#include "Core/exception.h"
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 class StringTest : public QObject
@@ -30,6 +31,9 @@ private Q_SLOTS:
     void test_format();
     void test_replace();
     void test_compare();
+    void test_indexof();
+    void test_utf8();
+    void test_number_conversions();
 };
 
 StringTest::StringTest()
@@ -144,6 +148,9 @@ void StringTest::test_format()
     s = String::Format("%d + %d = %d", 1, 1, 2);
     QVERIFY2(s == "1 + 1 = 2", s);
 
+    s = String("%d + %d = %d").Format(1, 1, 2);
+    QVERIFY2(s == "1 + 1 = 2", s);
+
     s.Clear();
 #define LARGE_STRING "This must have caused the string to resize" \
                         " after this format.  I mean, seriously, this string" \
@@ -154,13 +161,36 @@ void StringTest::test_format()
 
 void StringTest::test_replace()
 {
-    String s("Hello George, my name is George.");
-    QVERIFY(s == "Hello George, my name is George.");
-    QVERIFY(s.Length() == strlen("Hello George, my name is George."));
+    String s("Hello George, my name is George");
+    QVERIFY(s == "Hello George, my name is George");
 
+    // First replace with a smaller word
     s = s.Replace("George", "Sue");
-    QVERIFY2(s == "Hello Sue, my name is Sue.", s);
-    QVERIFY(s.Length() == strlen("Hello Sue, my name is Sue."));
+    QVERIFY2(s == "Hello Sue, my name is Sue", s);
+    QVERIFY(s[s.Length()] == '\0');
+
+    // Now replace with a larger word
+    s = s.Replace("Sue", "George");
+    QVERIFY2(s == "Hello George, my name is George", s);
+    QVERIFY(s[s.Length()] == '\0');
+
+    // Test case sensitivity
+    s = s.Replace("george", "Sue", false);
+    QVERIFY2(s == "Hello Sue, my name is Sue", s);
+    QVERIFY(s[s.Length()] == '\0');
+
+    s = s.Replace("sue", "George", false);
+    QVERIFY2(s == "Hello George, my name is George", s);
+    QVERIFY(s[s.Length()] == '\0');
+
+
+    s = String("George GeorgeGeorge George").Replace("George", "Sue");
+    QVERIFY2(s == "Sue SueSue Sue", s);
+    QVERIFY(s[s.Length()] == '\0');
+
+    s = s.Replace("Sue", "George");
+    QVERIFY2(s == "George GeorgeGeorge George", s);
+    QVERIFY(s[s.Length()] == '\0');
 }
 
 void StringTest::test_compare()
@@ -192,6 +222,97 @@ void StringTest::test_compare()
     QVERIFY(String("OneString") <= String("OneStringLonger"));
     QVERIFY(String("OneStringLonger") > String("OneString"));
     QVERIFY(String("OneStringLonger") >= String("OneString"));
+}
+
+void StringTest::test_indexof()
+{
+    GUINT32 ind;
+    String s("George and George and George");
+
+    ind = s.IndexOf("George");
+    QVERIFY(ind == 0);
+
+    ind = s.IndexOf("George", ind + 6);
+    QVERIFY(ind == 11);
+
+    ind = s.IndexOf("George", ind + 6);
+    QVERIFY(ind == 22);
+
+    ind = s.LastIndexOf("George");
+    QVERIFY2(ind == 22, String::Format("%d", ind));
+
+    ind = s.LastIndexOf("George", ind - 1);
+    QVERIFY2(ind == 11, String::Format("%d", ind));
+
+    ind = s.LastIndexOf("George", ind - 1);
+    QVERIFY(ind == 0);
+
+
+    QVERIFY(s.IndexOf("Harry") == UINT_MAX);
+    QVERIFY(s.IndexOf("George", 100) == UINT_MAX);
+    QVERIFY(s.IndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == UINT_MAX);
+
+    QVERIFY(s.LastIndexOf("Harry") == UINT_MAX);
+    QVERIFY(s.LastIndexOf("George", 100) == UINT_MAX);
+    QVERIFY(s.LastIndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == UINT_MAX);
+}
+
+void StringTest::test_utf8()
+{
+    String s;
+}
+
+void StringTest::test_number_conversions()
+{
+    String s;
+
+    s = String::FromInt(5);
+    QVERIFY(s == "5");
+    QVERIFY(s.ToInt() == 5);
+
+    s = String::FromInt(-5);
+    QVERIFY(s == "-5");
+    QVERIFY(s.ToInt() == -5);
+
+    s = String::FromInt(101);
+    QVERIFY(s == "101");
+    QVERIFY(s.ToInt() == 101);
+
+    s = String::FromFloat(1);
+    QVERIFY(s.ToFloat() == 1);
+
+    s = String::FromFloat(1.5);
+    QVERIFY(s.ToFloat() == 1.5);
+
+    float f( 741.58465 );
+    s = String::FromFloat(f);
+    QVERIFY2(s.ToFloat() == f, s);
+
+
+    s = String::FromBool(true);
+    QVERIFY(s.ToBool() == true);
+
+    s = String::FromBool(false);
+    QVERIFY(s.ToBool() == false);
+
+
+    bool ok = true;
+    s = "Not a number";
+    s.ToInt(&ok);
+    QVERIFY(ok == false);
+
+    ok = true;
+    s.ToFloat(&ok);
+    QVERIFY(ok == false);
+
+    ok = true;
+    s.ToBool(&ok);
+    QVERIFY(ok == false);
+
+    ok = true;
+    s = "B48";
+    s.ToInt(&ok);
+    QVERIFY2(ok == false, String::FromInt(s.ToInt()));
 }
 
 QTEST_APPLESS_MAIN(StringTest);

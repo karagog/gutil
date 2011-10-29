@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_STRING_H
 #define GUTIL_STRING_H
 #include "Core/DataObjects/vector.h"
+#include <cstdarg>
 
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
@@ -106,17 +107,46 @@ public:
         return String(ConstData() + index, length);
     }
 
+
+    enum
+    {
+        /** Where the lower case letters start in ascii. */
+        LowercaseOffset = 0x61,
+
+        /** Where the upper case letters start in ascii. */
+        UppercaseOffset  = 0x41
+    };
+
     /** Changes all upper case letters to lower case and returns a reference to this. */
     String &ToLower();
 
     /** Changes all lower case letters to upper case and returns a reference to this. */
     String &ToUpper();
 
+    /** Returns the lower case version of the letter. */
+    inline static char ToLower(char c){
+        if(UppercaseOffset <= c && c < (UppercaseOffset + 26))
+            c = c - (UppercaseOffset - LowercaseOffset);
+        return c;
+    }
+    /** Returns the upper case version of the letter. */
+    inline static char ToUpper(char c){
+        if(LowercaseOffset <= c && c < (LowercaseOffset + 26))
+            c = c - (LowercaseOffset - UppercaseOffset);
+        return c;
+    }
+
     inline GUINT32 IndexOf(char c, GUINT32 start = 0) const{ return Vector<char>::IndexOf(c, start); }
-    GUINT32 IndexOf(const String &, GUINT32 start = 0) const;
+    inline GUINT32 IndexOf(const String &s, GUINT32 start = 0) const{
+        return IndexOf(s.ConstData(), start, s.Length());
+    }
+    GUINT32 IndexOf(const char *, GUINT32 start = 0, GUINT32 string_length = UINT_MAX) const;
 
     inline GUINT32 LastIndexOf(char c, GUINT32 start = UINT_MAX) const{ return Vector<char>::LastIndexOf(c, start); }
-    GUINT32 LastIndexOf(const String &, GUINT32 start = UINT_MAX) const;
+    inline GUINT32 LastIndexOf(const String &s, GUINT32 start = UINT_MAX) const{
+        return LastIndexOf(s.ConstData(), start, s.Length());
+    }
+    GUINT32 LastIndexOf(const char *, GUINT32 start = UINT_MAX, GUINT32 string_length = UINT_MAX) const;
 
     /** Format a string using printf-style strings.  It is a static function, so
         to use it would look like this:
@@ -129,7 +159,31 @@ public:
         \return The formatted string.  If the formatting fails for some reason
         then the format string itself is returned.
     */
-    static String Format(const char *fmt, ...);
+    inline static String Format(const char *fmt, ...){
+        va_list args;
+        va_start(args, fmt);
+        return vFormat(fmt, args);
+    }
+
+    /** The non-static version of Format(), in which the current string is the
+        format string.
+    */
+    inline String Format(...) const{
+        va_list args;
+        va_start(args, 0);
+        return vFormat(ConstData(), args);
+    }
+
+    /** The same as Format() except it takes a va_list as an argument.
+        \note This calls va_end for you
+    */
+    static String vFormat(const char *fmt, va_list);
+
+    /** The non-static version of vFormat(), which takes a va_list as an argument.
+        \note This calls va_end for you
+    */
+    inline String vFormat(va_list args) const{ return vFormat(ConstData(), args); }
+
 
     /** Returns a copy of this string, which has been parsed linearly to replace
         any instance of 'find' with 'replace'
@@ -139,6 +193,15 @@ public:
         will always retain the same case it had.
     */
     String Replace(const char *find, const char *replace, bool case_sensitive = true) const;
+
+    bool ToBool(bool *ok = 0) const;
+    GINT32 ToInt(bool *ok = 0) const;
+    GFLOAT32 ToFloat(bool *ok = 0) const;
+
+    inline static String FromBool(bool b){ return b ? "1" : "0"; }
+    inline static String FromInt(GINT32 i){ return String::Format("%d", i); }
+    inline static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
+
 
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
     inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }
@@ -192,6 +255,19 @@ private:
         {
             if(*lhs == *rhs)
             { lhs++; rhs++; }
+            else if(*lhs < *rhs)
+                return -1;
+            else
+                return 1;
+        }
+        return 0;
+    }
+
+    inline static int _string_compare_from_end(const char *lhs, const char *rhs, GUINT32 len){
+        while(len-- != 0)
+        {
+            if(*lhs == *rhs)
+            { lhs--; rhs--; }
             else if(*lhs < *rhs)
                 return -1;
             else

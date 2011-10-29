@@ -517,42 +517,47 @@ public:
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
+        \return The index on success, UINT_MAX on failure
     */
-    inline GUINT32 IndexOf(const T &item, GUINT32 start = 0) const throw(NotFoundException<false>){
+    inline GUINT32 IndexOf(const T &item, GUINT32 start = 0) const{
+        GUINT32 ret( UINT_MAX );
         T *cur( m_begin + start );
         T *const e( m_begin + Length() );
-        if(cur >= e) THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
-        G_FOREVER
+        while(cur < e)
         {
-            if(cur == e)
-                THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
-            else if(*cur == item)
+            if(*cur == item)
+            {
+                ret = cur - m_begin;
                 break;
+            }
             ++cur;
         }
-        return cur - m_begin;
+        return ret;
     }
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
+        \return The index on success, UINT_MAX on failure
     */
-    inline GUINT32 LastIndexOf(const T &item, GUINT32 start = UINT_MAX) const throw(NotFoundException<false>){
-        const GUINT32 len(Length());
-        if(len == 0) THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
-
-        if(start == UINT_MAX)
-            start = len - 1;
-        T *cur( m_begin + start );
-        T *const e( m_begin - 1 );
-        G_FOREVER
+    inline GUINT32 LastIndexOf(const T &item, GUINT32 start = UINT_MAX) const{
+        GUINT32 ret(UINT_MAX);
+        if(Length() > 0)
         {
-            if(cur == e)
-                THROW_NEW_GUTIL_EXCEPTION(NotFoundException);
-            else if(*cur == item)
-                break;
-            --cur;
+            if(start == UINT_MAX)
+                start = Length() - 1;
+            T *cur( m_begin + start );
+            T *const e( m_begin - 1 );
+            while(cur < e)
+            {
+                if(*cur == item)
+                {
+                    ret = cur - m_begin;
+                    break;
+                }
+                --cur;
+            }
         }
-        return cur - m_begin;
+        return ret;
     }
 
     /** Iterates through the vector. */
