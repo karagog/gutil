@@ -16,7 +16,9 @@ SOURCES += \
     Utils/cl_menu.cc \
     Utils/Private/strings_p.cc \
     Utils/commandlineargs.cpp \
-    Utils/environment.cpp
+    Utils/environment.cpp \
+    Utils/atomic.cpp
+
 
 
 

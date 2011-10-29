@@ -10,10 +10,18 @@ HEADERS += \
     DataObjects/interfaces.h \
     DataObjects/vector.h \
     DataObjects/flags.h \
-    DataObjects/gstring.h
+    DataObjects/gstring.h \
+    DataObjects/shareddata.h \
+    DataObjects/shareddatapointer.h
 
 SOURCES += \
     DataObjects/gstring.cpp
+
+
+
+
+
+
 
 
 

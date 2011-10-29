@@ -35,8 +35,34 @@ AtomicTest::AtomicTest()
 void AtomicTest::testCase1()
 {
     int i(0);
-    int ret( GAtomic::FetchAndAdd(&i, 1) );
+    int ret = Atomic::FetchAndAdd(&i, 1);
+    QVERIFY2(i == 1, QString("%1").arg(i).toAscii());
+    QVERIFY(ret == 0);
+
+    ret = Atomic::FetchAndAdd(&i, 4);
+    QVERIFY2(i == 5, QString("%1").arg(i).toAscii());
     QVERIFY(ret == 1);
+
+    i = 0;
+    ret = Atomic::AddAndFetch(&i, 1);
+    QVERIFY2(i == 1, QString("%1").arg(i).toAscii());
+    QVERIFY(ret == 1);
+
+
+    // Test inc/dec
+    i = 0;
+    bool b = Atomic::Increment(&i);
+    QVERIFY(b);
+
+    b = Atomic::Decrement(&i);
+    QVERIFY(!b);
+
+
+    QString s("A");
+    QString s2(s);
+    s[0] = 'B';
+    QVERIFY(s == "B");
+    QVERIFY(s2 == "A");
 }
 
 QTEST_APPLESS_MAIN(AtomicTest);

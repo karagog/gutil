@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2011-10-25T18:25:33
+# Project created by QtCreator 2011-10-29T10:12:00
 #
 #-------------------------------------------------
 
@@ -8,7 +8,7 @@ QT       += testlib
 
 QT       -= gui
 
-TARGET = tst_atomictest
+TARGET = tst_shareddatapointertest
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -20,5 +20,5 @@ LIBS += -L../../../../lib -lGUtilCore
 unix: LIBS += -Wl,-rpath,../../../../lib
 
 
-SOURCES += tst_atomictest.cpp
+SOURCES += tst_shareddatapointertest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"

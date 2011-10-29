@@ -20,24 +20,30 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);
 
 
-class GAtomic
+/** A static class to declare helpful atomic operations, implemented in assembly. */
+class Atomic
 {
 public:
 
-    static inline int FetchAndAdd(int *i, int n){
-        int ret;
-        asm(
+    /** Increments the integer pointed to.
+        \return True if the integer after the operation is not equal to 0
+    */
+    static bool Increment(GINT32 *i);
 
-        "movl , %ecx \n"
-        "lock \n"
-        "incl (%ecx) \n"
-        "mov $0,%eax \n"
-        "setne %al \n"
-        "ret \n"
-            :"=r" (ret)
-            :"r" (i)
-        );
-    }
+    /** Decrements the integer pointed to.
+        \return True if the integer after the operation is not equal to 0
+    */
+    static bool Decrement(GINT32 *i);
+
+    /** Adds the value to the integer pointed to.
+        \return The integer's value before adding
+    */
+    static GINT32 FetchAndAdd(GINT32 *i, GINT32 n);
+
+    /** Adds the value to the integer pointed to.
+        \return The integer's value after adding
+    */
+    static GINT32 AddAndFetch(GINT32 *i, GINT32 n);
 
 };
 
