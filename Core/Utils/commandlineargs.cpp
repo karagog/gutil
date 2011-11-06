@@ -13,32 +13,25 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "commandlineargs.h"
-#include "stringhelpers.h"
-using namespace std;
 GUTIL_USING_CORE_NAMESPACE(Utils);
-
+GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 CommandLineArgs::CommandLineArgs(int argc, char **argv)
-    :vector<string>(argc)
+    :Vector<String>(argc)
 {
     for(int i = 0; i < argc; i++)
-        at(i) = argv[i];
+        PushBack(argv[i]);
 }
 
-int CommandLineArgs::FindArgument(const string &f, bool case_sensitive) const
+int CommandLineArgs::FindArgument(const String &f, bool case_sensitive) const
 {
     int ret(-1);
-    string search(f);
+    String search(case_sensitive ? f : f.ToUpper());
 
-    if(!case_sensitive)
-        search = StringHelpers::toUpper(search);
-
-    for(int i(0); i < Count(); i++)
+    const String *cur( ConstData() );
+    for(GUINT32 i(0); i < Length(); ++i, ++cur)
     {
-        string s(at(i));
-
-        if(!case_sensitive)
-            s = StringHelpers::toUpper(s);
+        String s(case_sensitive ? *cur : cur->ToUpper());
 
         if(s == search)
         {

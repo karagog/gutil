@@ -16,8 +16,7 @@ limitations under the License.*/
 #define COMMANDLINEARGS_H
 
 #include "gutil.h"
-#include <vector>
-#include <string>
+#include "Core/DataObjects/gstring.h"
 
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);
 
@@ -27,26 +26,22 @@ GUTIL_BEGIN_CORE_NAMESPACE(Utils);
 //  is only useful while parsing the arguments.
 
 class CommandLineArgs :
-        public std::vector<std::string>
+        public DataObjects::Vector<DataObjects::String>
 {
 public:
 
     CommandLineArgs(int argc, char **argv);
 
-    inline int Count() const{
-        return size();
-    }
-
     // Returns -1 if not found
-    int FindArgument(const std::string &, bool case_sensitive = true) const;
+    int FindArgument(const DataObjects::String &, bool case_sensitive = true) const;
 
-    inline bool Contains(const std::string &arg, bool case_sensitive = true) const{
+    inline bool Contains(const DataObjects::String &arg, bool case_sensitive = true) const{
         return FindArgument(arg, case_sensitive) != -1;
     }
 
     // Get the program name argument
-    inline std::string ProgramArgument() const{
-        return Count() ? at(0) : "";
+    inline DataObjects::String ProgramArgument() const{
+        return Count() ? ConstData()[0] : "";
     }
 
 };

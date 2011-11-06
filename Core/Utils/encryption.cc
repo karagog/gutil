@@ -164,62 +164,6 @@ string CryptoHelpers::decompress(const string &instr)
     return tmp;
 }
 
-string CryptoHelpers::toBase64(const string &instr)
-{
-    string tmp;
-
-    CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(tmp), false);
-    encoder.Put((byte *)instr.c_str(), instr.length());
-    encoder.MessageEnd();
-
-    return tmp;
-}
-
-string CryptoHelpers::fromBase64(const string &instr)
-{
-    string tmp;
-
-    try
-    {
-        CryptoPP::StringSource(instr, true,
-                               new CryptoPP::Base64Decoder(new CryptoPP::StringSink(tmp)));
-    }
-    catch(CryptoPP::Exception &ex)
-    {
-        THROW_NEW_GUTIL_EXCEPTION2( Exception, ex.GetWhat() );
-    }
-
-    return tmp;
-}
-
-string CryptoHelpers::toBase16(const string &instr)
-{
-    string tmp;
-
-    CryptoPP::HexEncoder encoder(new CryptoPP::StringSink(tmp), true);
-    encoder.Put((byte *)instr.c_str(), instr.length());
-    encoder.MessageEnd();
-
-    return tmp;
-}
-
-string CryptoHelpers::fromBase16(const string &instr)
-{
-    string tmp;
-
-    try
-    {
-        CryptoPP::StringSource(instr, true,
-                               new CryptoPP::HexDecoder(new CryptoPP::StringSink(tmp)));
-    }
-    catch(CryptoPP::Exception &ex)
-    {
-        THROW_NEW_GUTIL_EXCEPTION2( Exception, ex.GetWhat() );
-    }
-
-    return tmp;
-}
-
 unsigned int CryptoHelpers::rand()
 {
     return CryptoPP::AutoSeededRandomPool().GenerateWord32();

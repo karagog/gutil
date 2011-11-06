@@ -177,7 +177,26 @@ inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 }
 
 
-/** Returns the most significant set bit of a 32 bit number in the minimum number of instructions.
+/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
+extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256];
+
+/** Returns the most significant set bit of a 8 bit number using a lookup table
+    \note O(1).  This is computed in 2 instructions (add and fetch), and is inlined
+    to avoid the function call overhead
+*/
+inline int FSB8(GBYTE n){ return GUTIL_MSB_LOOKUP_TABLE[n]; }
+
+/** Returns the most significant set bit of a 16 bit number in the minimum number of instructions
+    using a lookup table.
+    \note O(1).  This is computed in 3-4 cpu instructions
+*/
+#ifdef GUTIL_COM_EXPORTS
+extern "C"
+#endif
+int FSB16(GUINT16);
+
+/** Returns the most significant set bit of a 32 bit number in the minimum number of instructions
+    using a lookup table.
     \note O(1).  This is computed in 7 cpu instructions on average.
 */
 #ifdef GUTIL_COM_EXPORTS
@@ -185,7 +204,8 @@ extern "C"
 #endif
 int FSB32(GUINT32);
 
-/** Returns the most significant set bit of a 64 bit number in the minimum number of instructions.
+/** Returns the most significant set bit of a 64 bit number in the minimum number of instructions
+    using a lookup table.
     \note O(1).  This is computed in 9 cpu instructions on average.
 */
 #ifdef GUTIL_COM_EXPORTS
@@ -260,11 +280,6 @@ enum TimeFormatEnum
 
 /** The number of seconds in a leap year. */
 #define YEAR_IN_SECONDS_UB      DAY_IN_SECONDS * 366
-
-
-
-/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
-extern const char GUTIL_MSB_LOOKUP_TABLE[256];
 
 
 

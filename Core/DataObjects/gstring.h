@@ -67,7 +67,12 @@ public:
 
     /** The length of the string. */
     inline GUINT32 Length() const{ return Vector<char>::Length(); }
+
+    /** The number of bytes we're capable of holding. */
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
+
+    /** The number of UTF-8 characters (may differ from the actual byte length of the string). */
+    GUINT32 LengthUTF8() const;
 
     /** Returns if the string is null, i.e. has not been initialized. */
     inline bool IsNull() const{ return ConstData() == NULL; }
@@ -82,8 +87,26 @@ public:
     /** Appends the string to this one and returns this. */
     inline String &Append(const String &s){ Insert(s, Length()); return *this; }
 
+    /** Appends the character the specified number of times. */
+    inline String &Append(char c, GUINT32 cnt = 1){
+        if(cnt == 1)
+            Insert(&c, 1, Length());
+        else
+            Insert(String(c, cnt), Length());
+        return *this;
+    }
+
     /** Prepends the string to this one and returns this. */
     inline String &Prepend(const String &s){ Insert(s, 0); return *this; }
+
+    /** Prepends the character the specified number of times. */
+    inline String &Prepend(char c, GUINT32 cnt = 1){
+        if(cnt == 1)
+            Insert(&c, 1, 0);
+        else
+            Insert(String(c, cnt), 0);
+        return *this;
+    }
 
 
     /** Inserts the string at the given index. */
@@ -117,11 +140,11 @@ public:
         UppercaseOffset  = 0x41
     };
 
-    /** Changes all upper case letters to lower case and returns a reference to this. */
-    String &ToLower();
+    /** Returns a copy of this string with all upper case letters changed to lower case. */
+    String ToLower() const;
 
-    /** Changes all lower case letters to upper case and returns a reference to this. */
-    String &ToUpper();
+    /** Returns a copy of this string with all lower case letters changed to upper case. */
+    String ToUpper() const;
 
     /** Returns the lower case version of the letter. */
     inline static char ToLower(char c){
@@ -202,6 +225,135 @@ public:
     inline static String FromInt(GINT32 i){ return String::Format("%d", i); }
     inline static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
 
+    /** Remove the last n letters from the string. */
+    inline String &Chop(GUINT32 n){
+        if(n <= Length()) Remove(Length() - n, n);
+        return *this;
+    }
+
+
+    /** Removes whitespace characters from the front and back of this string.
+        \return A reference to this string after trimming.
+    */
+    String &Trim();
+
+    /** Removes whitespace characters from the front and back of a copy of this string.
+        \return A copy of this string after trimming.
+    */
+    inline String Trimmed() const{ String ret(*this); return ret.Trim(); }
+
+    /** Returns true if the character is considered whitespace.
+        \note This is used by the Trim() function
+    */
+    inline static bool IsWhitespace(char c){
+        return (0 <= c && c <= 0x20) || c == 0x7F;
+    }
+
+    /** Splits the string using the given character delimiter.
+        \param separator A single character delimiter
+    */
+    inline Vector<String> Split(char separator, bool keep_empty_parts = true) const{
+        char c[] = {separator, '\0'};
+        return Split(c, keep_empty_parts);
+    }
+
+    /** Splits the string using the given string delimiter.
+        \param separator A null-terminated string delimiter
+    */
+    Vector<String> Split(const char *separator, bool keep_empty_parts = true) const;
+
+    inline static String Join(const Vector<String> &v, char separator){ return Join(v, &separator, 1); }
+    inline static String Join(const Vector<String> &v, const String &separator){ return Join(v, separator.ConstData(), separator.Length()); }
+    static String Join(const Vector<String> &, const char *separator, GUINT32 len = UINT_MAX);
+
+
+
+    /** Returns true if the character is an ASCII character (non-extended). */
+    inline static bool IsValidAscii(char c){ return c >= 0;  }
+
+    inline static bool IsValidUTF8StartByte(GINT8 b){ return !IsValidUTF8ContinuationByte(b); }
+    inline static bool IsValidUTF8ContinuationByte(GINT8 b){
+        return GINT8(0x80) == (b & GINT8(0xC0));
+    }
+    static bool IsValidUTF8Sequence(const char *start, const char *end);
+
+    /** Returns the theoretical byte length of the multibyte character
+        starting with start_byte
+    */
+    inline static GINT8 MultiByteLength(char start_byte){
+        GINT8 msb( FSB8(~(start_byte)) );
+        return msb == 7 ? 1 : 7 - msb;
+    }
+
+    static GUINT32 UnicodeValue(const char *multibyte_start, GINT8 multibyte_length);
+
+    /** Returns a copy of this string, in which only valid UTF-8 characters are retained.
+
+        In the event that an error in the UTF-8 encoding is encountered, the
+        unrecognized bytes will be stripped from the string.
+
+        \note If the string is valid ascii, then it will be the same when you call ToUTF8()
+    */
+    String ToUTF8() const;
+
+    /** Returns whether the string is in a valid UTF-8 encoding.
+        You can optionally pass a pointer to an integer, which would tell you how many
+        bytes are invalid.
+        \note The function is optimized so if you pass a NULL pointer (the default)
+        it won't parse the rest of the string once it finds the first bad byte.
+    */
+    bool IsValidUTF8(GINT32 *bad_bytes = NULL) const;
+
+    /** Returns the base64 version of this string.
+        \note The resulting string will be 4/3 as large.
+    */
+    inline String ToBase64() const{ return ToBase64(ConstData(), Length()); }
+
+    /** Returns the base64 version of this string. */
+    static String ToBase64(const char *, GUINT32 len = UINT_MAX);
+
+    /** Returns the decoded version of this base64 string.
+        If the string is not actually a base64 string then the behavior is undefined.
+        \note The resulting string will be 3/4 as large
+    */
+    inline String FromBase64() const{ return FromBase64(ConstData(), Length()); }
+
+    /** Returns the decoded version of the base64 string. */
+    static String FromBase64(const char *, GUINT32 len = UINT_MAX);
+
+
+    /** Given a base 64 character, it returns the number it represents. */
+    static char Base64a2i(char);
+
+    /** Given a number, it returns the base 64 character for it. */
+    static char Base64i2a(char);
+
+
+    /** Returns the base16 version of this string.
+        \note The resulting string will be 2 times as large.
+    */
+    inline String ToBase16() const{ return ToBase16(ConstData(), Length()); }
+
+    /** Returns the base16 version of the given string. */
+    static String ToBase16(const char *, GUINT32 len = UINT_MAX);
+
+    /** Returns the decoded version of this base16 string.
+        \note The resulting string will be half as large.
+    */
+    inline String FromBase16() const{ return FromBase16(ConstData(), Length()); }
+
+    /** Returns the decoded version of the base16 string. */
+    static String FromBase16(const char *, GUINT32 len = UINT_MAX);
+
+    /** Given a hex digit as an ascii character, this returns the 4-bit hex value. */
+    static char CharToHex(char);
+
+    /** Given a 4-bit hex value, this returns the ascii character used in the
+        base16 numbering system.
+        \note Always returns upper case characters
+    */
+    static char HexToChar(char);
+
 
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
     inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }
@@ -211,6 +363,170 @@ public:
     inline Vector<char>::iterator rbegin(){ return Vector<char>::rbegin(); }
     inline Vector<char>::const_iterator rend() const{ return Vector<char>::rend(); }
     inline Vector<char>::iterator rend(){ return Vector<char>::rend(); }
+
+
+    /** An iterator that helps you with parsing the String object.
+
+        Strings are stored internally as UTF-8 characters, so this gives you
+        all the functions necessary for interacting with the string one UTF-8 character
+        at a time.
+    */
+    class UTF8Iterator
+    {
+        char *m_begin;
+        char *m_end;
+        char *m_cur;
+    public:
+
+        inline UTF8Iterator(char *begin, char *end, char *cur)
+            :m_begin(begin), m_end(end), m_cur(cur)
+        {}
+
+        inline bool IsValidStartByte() const{ return String::IsValidUTF8StartByte(*m_cur); }
+        inline bool IsValidContinuationByte() const{ return String::IsValidUTF8ContinuationByte(*m_cur); }
+
+        /** Returns true if we're positioned on a valid UTF-8 character sequence,
+            but doesn't validate the Unicode character value itself.
+        */
+        bool IsValidUTF8Sequence() const{ return String::IsValidUTF8Sequence(m_cur, m_cur + ByteLength()); }
+
+        /** Returns the Unicode codepoint of the current character, or -1 if it is
+            on an invalid character.
+        */
+        inline GUINT32 UnicodeValue() const{ return String::UnicodeValue(m_cur, ByteLength()); }
+
+        /** Returns the number of bytes represented by this character.
+            \note If currently positioned on an invalid UTF-8 character,
+            then the return of this function is undefined.
+            \sa IsValidStartByte()
+        */
+        inline GINT8 ByteLength() const{ GINT8 msb( FSB8(~(*m_cur)) );
+                                         return msb == 7 ? 1 : 7 - msb;
+                                        }
+
+        /** Returns the Unicode codepoint of the current character, or -1 if it is
+            on an invalid character.
+        */
+        inline GINT32 operator *() const{ return UnicodeValue(); }
+
+        /** Prefix increment, advances the iterator and returns it. */
+        inline UTF8Iterator &operator ++(){ _advance(); return *this; }
+        /** Postfix increment, advances the iterator but returns the iterator it was before. */
+        inline UTF8Iterator operator ++(int){ UTF8Iterator ret(*this); _advance(); return ret; }
+
+        /** Prefix decrement, retreats the iterator and returns it. */
+        inline UTF8Iterator &operator --(){ _retreat(); return *this; }
+        /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
+        inline UTF8Iterator operator --(int){ UTF8Iterator ret(*this); _retreat(); return ret; }
+
+        /** Returns true if we are positioned on a valid index.
+            \note This says nothing about the character itself being a valid UTF-8 character.
+        */
+        inline operator bool () const{ return m_begin <= m_cur && m_cur < m_end && *m_cur != '\0'; }
+
+
+    private:
+
+        inline void _advance(){
+            if(IsValidUTF8Sequence())
+                m_cur += ByteLength();
+            else
+                ++m_cur;
+        }
+        inline void _retreat(){
+            --m_cur;
+            while(String::IsValidUTF8ContinuationByte(*m_cur) && m_cur >= m_begin)
+                --m_cur;
+        }
+
+    };
+
+    /** A const iterator that helps you with parsing the String object.
+
+        Strings are stored internally as UTF-8 characters, so this gives you
+        all the functions necessary for interacting with the string one UTF-8 character
+        at a time.
+    */
+    class UTF8ConstIterator
+    {
+        const char *m_begin;
+        const char *m_end;
+        const char *m_cur;
+    public:
+
+        inline UTF8ConstIterator(const char *begin, const char *end, const char *cur)
+            :m_begin(begin), m_end(end), m_cur(cur)
+        {}
+
+        inline bool IsValidStartByte() const{ return String::IsValidUTF8StartByte(*m_cur); }
+
+
+        inline bool IsValidContinuationByte() const{ return String::IsValidUTF8ContinuationByte(*m_cur); }
+
+
+        /** Returns true if we're positioned on a valid UTF-8 character sequence,
+            but doesn't validate the Unicode character value itself.
+        */
+        inline bool IsValidUTF8Sequence() const{ return String::IsValidUTF8Sequence(m_cur, m_cur + ByteLength()); }
+
+        /** Returns the Unicode codepoint of the current character, or -1 if it is
+            on an invalid character.
+        */
+        inline GUINT32 UnicodeValue() const{ return String::UnicodeValue(m_cur, ByteLength()); }
+
+        /** Returns the number of bytes represented by this character.
+            \note If currently positioned on an invalid UTF-8 character,
+            then the return of this function is undefined.
+            \sa IsValidStartByte()
+        */
+        inline GINT8 ByteLength() const{ return String::MultiByteLength(*m_cur); }
+
+        /** Returns the Unicode codepoint of the current character, or -1 if it is
+            on an invalid character.
+        */
+        inline GINT32 operator *() const{ return UnicodeValue(); }
+
+        /** Prefix increment, advances the iterator and returns it. */
+        inline UTF8ConstIterator &operator ++(){ _advance(); return *this; }
+        /** Postfix increment, advances the iterator but returns the iterator it was before. */
+        inline UTF8ConstIterator operator ++(int){ UTF8ConstIterator ret(*this); _advance(); return ret; }
+
+        /** Prefix decrement, retreats the iterator and returns it. */
+        inline UTF8ConstIterator &operator --(){ _retreat(); return *this; }
+        /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
+        inline UTF8ConstIterator operator --(int){ UTF8ConstIterator ret(*this); _retreat(); return ret; }
+
+        /** Returns true if we are positioned on a valid index.
+            \note This says nothing about the character itself being a valid UTF-8 character.
+        */
+        inline operator bool () const{ return m_begin <= m_cur && m_cur < m_end && *m_cur != '\0'; }
+
+
+    private:
+
+        inline void _advance(){
+            if(IsValidUTF8Sequence())
+                m_cur += ByteLength();
+            else
+                ++m_cur;
+        }
+        inline void _retreat(){
+            --m_cur;
+            while(String::IsValidUTF8ContinuationByte(*m_cur) && m_cur >= m_begin)
+                --m_cur;
+        }
+
+    };
+
+    inline UTF8Iterator beginUTF8(){ return UTF8Iterator(Data(), Data() + Length(), Data()); }
+    inline UTF8Iterator endUTF8(){ return UTF8Iterator(Data(), Data() + Length(), Data() + Length()); }
+    inline UTF8Iterator rbeginUTF8(){ return UTF8Iterator(Data(), Data() + Length(), Data() + Length() - 1); }
+    inline UTF8Iterator rendUTF8(){ return UTF8Iterator(Data(), Data() + Length(), Data() - 1); }
+
+    inline UTF8ConstIterator beginUTF8() const{ return UTF8ConstIterator(ConstData(), ConstData() + Length(), ConstData()); }
+    inline UTF8ConstIterator endUTF8() const{ return UTF8ConstIterator(ConstData(), ConstData() + Length(), ConstData() + Length()); }
+    inline UTF8ConstIterator rbeginUTF8() const{ return UTF8ConstIterator(ConstData(), ConstData() + Length(), ConstData() + Length() - 1); }
+    inline UTF8ConstIterator rendUTF8() const{ return UTF8ConstIterator(ConstData(), ConstData() + Length(), ConstData() - 1); }
 
 
     /** Comparison operator. */
@@ -255,19 +571,6 @@ private:
         {
             if(*lhs == *rhs)
             { lhs++; rhs++; }
-            else if(*lhs < *rhs)
-                return -1;
-            else
-                return 1;
-        }
-        return 0;
-    }
-
-    inline static int _string_compare_from_end(const char *lhs, const char *rhs, GUINT32 len){
-        while(len-- != 0)
-        {
-            if(*lhs == *rhs)
-            { lhs--; rhs--; }
             else if(*lhs < *rhs)
                 return -1;
             else

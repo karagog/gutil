@@ -18,7 +18,7 @@ limitations under the License.*/
 using namespace GUtil;
 #endif
 
-const char GUTIL_MSB_LOOKUP_TABLE[256] =
+extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256] =
 {
     #define _MSB_LT2(n) n, n
     #define _MSB_LT3(n) _MSB_LT2(n), _MSB_LT2(n)
@@ -41,9 +41,22 @@ const char GUTIL_MSB_LOOKUP_TABLE[256] =
 
 
 #ifdef GUTIL_COM_EXPORTS
-GUTIL_COM_EXPORT int FSB32(unsigned int n)
+GUTIL_COM_EXPORT int FSB16(GUINT16 n)
 #else
-GUTIL_COM_EXPORT int GUtil::FSB32(unsigned int n)
+int GUtil::FSB16(GUINT16 n)
+#endif
+{
+    unsigned int t( n >> 8 );
+    return t ?
+                8 + GUTIL_MSB_LOOKUP_TABLE[t] :
+                GUTIL_MSB_LOOKUP_TABLE[n];
+}
+
+
+#ifdef GUTIL_COM_EXPORTS
+GUTIL_COM_EXPORT int FSB32(GUINT32 n)
+#else
+int GUtil::FSB32(GUINT32 n)
 #endif
 {
     int res;
@@ -65,7 +78,7 @@ GUTIL_COM_EXPORT int GUtil::FSB32(unsigned int n)
 #ifdef GUTIL_COM_EXPORTS
 GUTIL_COM_EXPORT int FSB64(GUINT64 n)
 #else
-GUTIL_COM_EXPORT int GUtil::FSB64(GUINT64 n)
+int GUtil::FSB64(GUINT64 n)
 #endif
 {
     int res;

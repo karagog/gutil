@@ -12,20 +12,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef GUTIL_ENCRYPTION
+/** \file
+
+    This file is meant to act as a wrapper around the CryptoPP library.
+
+    Ideally you would never interact directly with CryptoPP, you would just
+    use functions provided from the CryptoHelpers class.
+
+*/
 
 #ifndef CRYPTOHELPERS_H
 #define CRYPTOHELPERS_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include <string>
 
 GUTIL_BEGIN_CORE_NAMESPACE( Utils );
 
 
+/** Cryptographic and other functions built around the CryptoPP library.
+
+    The code is built when you define GUTIL_ENCRYPTION, and then you will
+    also have to build and link with the cryptopp library from ThirdParty.
+*/
 class CryptoHelpers
 {
 public:
+
     // For working with strings (returns null if conversion fails)
     static std::string encryptString(const std::string &instr,
                                      const std::string &passPhrase);
@@ -47,13 +60,6 @@ public:
     static int MIN_COMPRESSION_LEVEL;
     static int MAX_COMPRESSION_LEVEL;
 
-    // Different data encoding schemes
-    static std::string toBase64(const std::string &instr);
-    static std::string fromBase64(const std::string &instr);
-
-    static std::string toBase16(const std::string &instr);
-    static std::string fromBase16(const std::string &instr);
-
     // Random number generator
     static unsigned int rand();
     static std::string randData(int, int seed = -1);
@@ -64,5 +70,3 @@ public:
 GUTIL_END_CORE_NAMESPACE
 
 #endif // CRYPTOHELPERS_H
-
-#endif // GUTIL_ENCRYPTION

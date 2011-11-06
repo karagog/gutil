@@ -16,7 +16,9 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "Core/DataObjects/gstring.h"
 #include "Core/exception.h"
+#include <iostream>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
+using namespace std;
 
 class StringTest : public QObject
 {
@@ -34,6 +36,9 @@ private Q_SLOTS:
     void test_indexof();
     void test_utf8();
     void test_number_conversions();
+    void test_split_join();
+    void test_base64();
+    void test_base16();
 };
 
 StringTest::StringTest()
@@ -121,6 +126,16 @@ void StringTest::test_basics()
     QVERIFY2(s == "One plus ", s);
     s += "one equals two";
     QVERIFY2(s == "One plus one equals two", s);
+
+
+    s.Clear();
+    s = "   This string needs to be trimmed    \n";
+    s.Trim();
+    QVERIFY2(s == "This string needs to be trimmed", s);
+
+    s = "   This string needs to be trimmed    \n";
+    QVERIFY2(s.Trimmed() == "This string needs to be trimmed", s.Trimmed());
+    QVERIFY2(s == "   This string needs to be trimmed    \n", s);
 }
 
 void StringTest::test_upperlowercase()
@@ -129,10 +144,12 @@ void StringTest::test_upperlowercase()
     QVERIFY(s == "Hello");
 
     s.ToUpper();
-    QVERIFY(s == "HELLO");
+    QVERIFY(s == "Hello");
+    QVERIFY(s.ToUpper() == "HELLO");
 
     s.ToLower();
-    QVERIFY(s == "hello");
+    QVERIFY(s == "Hello");
+    QVERIFY(s.ToLower() == "hello");
 
     s = "george.KaraGoulis{[@`";
     QVERIFY(s.ToUpper() == "GEORGE.KARAGOULIS{[@`");
@@ -259,7 +276,46 @@ void StringTest::test_indexof()
 
 void StringTest::test_utf8()
 {
+    QString qs;
     String s;
+    const wchar_t *wc = L"Hello World!";
+
+    // Test normal ascii characters
+    qs = QString::fromWCharArray(wc);
+    s = qs.toUtf8().constData();
+    QVERIFY(s.LengthUTF8() == 12);
+    QVERIFY2(s.Length() == 12, String::FromInt(s.Length()));
+
+    // Test a 2-byte utf-8 character
+
+    // The character 'Ü' has unicode value 0x00DC, which translates to UTF-8 0xC39C
+    const char c1[] = { 0xC3, 0x9C, 0x00 };
+    qs = QString::fromUtf8(c1);
+    s = qs.toUtf8().constData();
+    QVERIFY2(s.LengthUTF8() == 1, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.Length() == 2, String::FromInt(s.Length()));
+
+    //qDebug() << String::Format("%x", s.beginUTF8().UnicodeValue());
+    QVERIFY(s.beginUTF8().UnicodeValue() == 0x00DC);
+
+    // Test a 3-byte UTF-8 character
+    // The character '?' has unicode value 0x0B82, which is UTF-8 0xE0AE82
+    const char c2[] = { 0xE0, 0xAE, 0x82, 0x00 };
+    qs = QString::fromUtf8(c2);
+    s = qs.toUtf8().constData();
+    QVERIFY2(s.LengthUTF8() == 1, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.Length() == 3, String::FromInt(s.Length()));
+
+    QVERIFY2(s.beginUTF8().UnicodeValue() == 0x0B82, String::FromInt(s.beginUTF8().UnicodeValue()));
+
+
+    // Test a combination of ascii and utf-8 characters from above
+    qs = QString::fromUtf8(c1);
+    qs.append("A");
+    qs.append(QString::fromUtf8(c2));
+    s = qs.toUtf8().constData();
+    QVERIFY2(s.Length() == 6, String::FromInt(s.Length()));
+    QVERIFY2(s.LengthUTF8() == 3, String::FromInt(s.LengthUTF8()));
 }
 
 void StringTest::test_number_conversions()
@@ -313,6 +369,76 @@ void StringTest::test_number_conversions()
     s = "B48";
     s.ToInt(&ok);
     QVERIFY2(ok == false, String::FromInt(s.ToInt()));
+}
+
+void StringTest::test_split_join()
+{
+    String s("George,Jim,Sue,Patty,");
+    Vector<String> v( s.Split(',') );
+    QVERIFY(v.Length() == 5);
+    QVERIFY2(v[0] == "George", v[0]);
+    QVERIFY2(v[1] == "Jim", v[1]);
+    QVERIFY(v[2] == "Sue");
+    QVERIFY2(v[3] == "Patty", v[3]);
+    QVERIFY(v[4] == "");
+
+
+    v = s.Split(',', false);
+    QVERIFY(v.Length() == 4);
+    QVERIFY2(v[0] == "George", v[0]);
+    QVERIFY2(v[1] == "Jim", v[1]);
+    QVERIFY(v[2] == "Sue");
+    QVERIFY2(v[3] == "Patty", v[3]);
+
+
+    // Now try with unicode characters
+    const char c[] = { 0xE0, 0xAE, 0x82, 0x00 };
+    QString qs("George");
+    qs.append(QString::fromUtf8(c));
+    qs.append("Jim");
+    qs.append(QString::fromUtf8(c));
+    qs.append("Sue");
+    qs.append(QString::fromUtf8(c));
+    qs.append("Patty");
+    qs.append(QString::fromUtf8(c));
+    s = qs.toUtf8().constData();
+
+    v = s.Split(c);
+    QVERIFY2(v.Length() == 5, String::FromInt(v.Length()));
+    QVERIFY2(v[0] == "George", v[0]);
+    QVERIFY(v[1] == "Jim");
+    QVERIFY(v[2] == "Sue");
+    QVERIFY(v[3] == "Patty");
+    QVERIFY(v[4] == "");
+
+
+    Vector<String> lst;
+    lst.PushBack("George");
+    lst.PushBack("Jim");
+    lst.PushBack("Sue");
+    lst.PushBack("Patty");
+    s = String::Join(lst, ',');
+    QVERIFY(s == "George,Jim,Sue,Patty");
+}
+
+void StringTest::test_base64()
+{
+    String s("Hello World!");
+    String b64 = s.ToBase64();
+    QVERIFY2(b64 == "SGVsbG8gV29ybGQh", b64);
+
+    s = String::FromBase64("TXkgbmFtZSBpcyBKb25hcw==");
+    QVERIFY2(s == "My name is Jonas", s);
+}
+
+void StringTest::test_base16()
+{
+    String s("Hello World!");
+    String b16 = s.ToBase16();
+    QVERIFY2(b16 == "48656C6C6F20576F726C6421", b16);
+
+    s = b16.FromBase16();
+    QVERIFY2(s == "Hello World!", s);
 }
 
 QTEST_APPLESS_MAIN(StringTest);

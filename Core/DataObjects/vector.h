@@ -22,6 +22,7 @@ limitations under the License.*/
 #include <new>
 #include <limits.h>
 #include <malloc.h>
+#include <cstring>
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
