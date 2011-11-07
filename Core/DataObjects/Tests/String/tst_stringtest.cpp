@@ -35,6 +35,7 @@ private Q_SLOTS:
     void test_compare();
     void test_indexof();
     void test_utf8();
+    void test_utf8_validation();
     void test_number_conversions();
     void test_split_join();
     void test_base64();
@@ -68,7 +69,7 @@ void StringTest::test_basics()
     QVERIFY2(s == "Hello World!", s);
     QVERIFY2(s != "Hello Frenchie!", s);
 
-    s.Remove(5, 6);
+    s.RemoveBytesAt(5, 6);
     QVERIFY(s == "Hello!");
     QVERIFY(s.Length() == 6);
     QVERIFY(s[6] == '\0');
@@ -317,6 +318,42 @@ void StringTest::test_utf8()
     QVERIFY2(s.Length() == 6, String::FromInt(s.Length()));
     QVERIFY2(s.LengthUTF8() == 3, String::FromInt(s.LengthUTF8()));
 }
+
+
+void StringTest::test_utf8_validation()
+{
+    QString qs;
+    String s;
+
+    const char goodchar_1[] = { 0xC3, 0x9C, 0x00 };     // Ü
+    const char goodchar_2[] = { 0xE0, 0xAE, 0x82, 0x00 };
+
+    const char badchar_1[] = { 0x8F, 0x00 };    // Invalid UTF-8 (starts with continuation byte)
+    const char badchar_2[] = { 0xE0, 0xAE, 0x80, 0x82, 0x00 };    // Invalid UTF-8 (extra continuation byte)
+    const char badchar_3[] = { 0xE0, 0x00, 0x82, 0x00 };    // Invalid UTF-8 (premature null)
+
+    s = "HI";
+    s.Append(badchar_1);
+    QVERIFY2(s.LengthUTF8() == 3, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.Length() == 3, String::FromInt(s.Length()));
+    QVERIFY(!s.IsValidUTF8());
+
+    s.Append(goodchar_1);
+    QVERIFY2(s.LengthUTF8() == 4, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.Length() == 5, String::FromInt(s.Length()));
+    QVERIFY(!s.IsValidUTF8());
+
+    // Try removing the invalid character (should be valid afterwards)
+    s.RemoveBytesAt(2, 1);
+    QVERIFY2(s.LengthUTF8() == 3, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.Length() == 4, String::FromInt(s.Length()));
+    QVERIFY(s.IsValidUTF8());
+
+
+
+
+}
+
 
 void StringTest::test_number_conversions()
 {

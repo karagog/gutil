@@ -32,6 +32,28 @@ private Q_SLOTS:
     void test_non_movable_class();
 };
 
+
+/** Note: You should be able to catch failures to deconstruct with valgrind
+*/
+class nonmovable
+{
+public:
+    inline nonmovable() :this_ptr(this), my_int(new int){}
+    inline nonmovable(const nonmovable &) :this_ptr(this), my_int(new int){}
+    inline nonmovable &operator = (const nonmovable &){
+        my_int = new int;
+        this_ptr = this;
+        return *this;
+    }
+    inline ~nonmovable(){ delete my_int; }
+
+    nonmovable *this_ptr;
+    int *my_int;
+};
+
+
+
+
 VectorTest::VectorTest()
 {
 }
@@ -103,6 +125,36 @@ void VectorTest::test_removal()
     QVERIFY(vec[0] == 1);
     QVERIFY(vec[1] == 2);
     QVERIFY(vec[2] == 4);
+
+
+    // Remove a range of items
+    vec.Clear();
+    vec.PushBack(1);
+    vec.PushBack(2);
+    vec.PushBack(3);
+    vec.PushBack(4);
+    vec.PushBack(5);
+    vec.PushBack(6);
+    vec.PushBack(7);
+    vec.PushBack(8);
+    vec.PushBack(9);
+    vec.PushBack(10);
+    vec.RemoveAt(1, 8);
+    QVERIFY(vec.Length() == 2);
+    QVERIFY(vec[0] == 1);
+    QVERIFY(vec[1] == 10);
+
+
+    // Remove a range of items that are not binary-movable
+    Vector<nonmovable> nmvec(10);
+    nmvec.Resize(10);
+    nmvec.RemoveAt(2, 2);
+    QVERIFY(nmvec.Size() == 8);
+
+    nmvec.Clear();
+    nmvec.Resize(10);
+    nmvec.RemoveAt(1, 8);
+    QVERIFY(nmvec.Size() == 2);
 }
 
 void VectorTest::test_vector_of_vector()
@@ -136,18 +188,6 @@ void VectorTest::test_vector_of_vector()
 //    qDebug(QString("The %1-sized vector-of-vector<int> consumes %2 bytes of memory")
 //           .arg(square_width).arg(matrix.ReportMemoryUsage()).toAscii());
 }
-
-
-
-class nonmovable
-{
-public:
-    inline nonmovable() :this_ptr(this){}
-    inline nonmovable(const nonmovable &) :this_ptr(this){}
-    inline nonmovable &operator = (const nonmovable &){ this_ptr = this; return *this; }
-
-    nonmovable *this_ptr;
-};
 
 void VectorTest::test_non_movable_class()
 {

@@ -108,18 +108,6 @@ String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
     return *this;
 }
 
-String &String::Remove(GUINT32 indx, GUINT32 len)
-{
-    if(indx + len > Length())
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-
-    // +1 because we need to move the null char at the end
-    memmove(Data() + indx, Data() + (indx + len), sizeof(char) * (Length() - (indx + len) + 1));
-
-    set_length(Length() - len);
-    return *this;
-}
-
 String String::ToLower() const
 {
     String ret(*this);
@@ -374,7 +362,7 @@ String &String::Trim()
     //  in the event that the string was full of only whitespace characters, then they
     //  would already have been removed by the back check.
     if(front_cnt > 0 && Length() > 0)
-        Remove(0, front_cnt);
+        RemoveBytesAt(0, front_cnt);
 
     return *this;
 }
@@ -448,48 +436,17 @@ String String::ToUTF8() const
 bool String::IsValidUTF8(GINT32 *bad_bytes) const
 {
     bool ret(true);
-    const char *cur(ConstData());
-    if(cur)
+    UTF8ConstIterator iter( beginUTF8() );
+    if(iter)
     {
-        for(GUINT32 i(0); i < Length() && (ret || bad_bytes); ++i, ++cur)
+        for(; iter != endUTF8() && (ret || bad_bytes); ++iter)
         {
-            char cpy(*cur);
-
-            // Found an ascii character
-            if(cpy >= 0)
-                ;
-            else
+            if(*iter.Current() == '\0' ||
+                    !iter.IsValidUTF8Sequence())
             {
-                bool char_is_valid_start_byte(false);
-                GINT16 byte_count(1);
-
-                while(((cpy = cpy << 1) & 0x80) &&
-                      (i + byte_count < Length()))
-                {
-
-                    // The first two bits need to be 0b10
-                    if(static_cast<GUINT8>( cur[byte_count] ) >> 6 == 0x02)
-                        char_is_valid_start_byte = true;
-                    else
-                    {
-                        char_is_valid_start_byte = false;
-                        break;
-                    }
-
-                    ++byte_count;
-                }
-
-                if(char_is_valid_start_byte)
-                {
-                    i += byte_count - 1;
-                    cur += byte_count - 1;
-                }
-                else
-                {
-                    ret = false;
-                    if(bad_bytes)
-                        ++(*bad_bytes);
-                }
+                ret = false;
+                if(bad_bytes)
+                    ++(*bad_bytes);
             }
         }
     }

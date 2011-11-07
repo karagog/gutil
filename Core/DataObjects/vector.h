@@ -29,6 +29,16 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 /** Manages a simple vector of memory, which grows exponentially with powers of two.
     You call reserve() with the number of items you want to have, and it will reserve
     at least as many, only conducting memory reallocations when necessary.
+
+    The Vector stores its total capacity, and also a pointer to the end of the array,
+    in the memory locations directly preceding the base of the array.  You interact
+    with these values via the Capacity(), Length() and DataEnd() functions.  If you
+    have a pointer to an array of data managed by a Vector, then you can use the
+    static versions of these functions to access this meta-data.
+
+    \note The size of a Vector on the stack is only 4 bytes, the same as an int or
+    a pointer.  This was a design choice, to allocate the necessary meta-data
+    at runtime only when you actually start putting things in the vector.
 */
 template<class T>class Vector
 {
@@ -117,7 +127,7 @@ public:
     }
     /** Assignment operator invokes our copy constructor after clearing the container. */
     Vector &operator = (const Vector<T> &o){
-        ClearContents();
+        Empty();
         Insert(o, 0);
         return *this;
     }
@@ -248,51 +258,53 @@ public:
     */
     inline void Remove(const iterator &iter){ RemoveAt(iter.Index()); }
 
-    /** Remove the item at the index location.
+    /** Remove the given number of items starting at the index location.
 
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
         \note O(1) if you remove from the end.  O(N) otherwise.
     */
-    void RemoveAt(GUINT32 indx)
+    void RemoveAt(GUINT32 indx, GUINT32 num = 1)
     {
         const GUINT32 len( Length() );
 
-        if(len == 0 || indx >= len)
+        if(len == 0 || indx + num > len)
             THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
 
         T *const targ( m_begin + indx );
 
-        // Call the destructor on the item
-        targ->~T();
+        // Call the destructors on the items
+        for(GUINT32 i(0); i < num; ++i)
+            (targ + i)->~T();
 
         // Copy all the following items over 1
-        if(indx < (len - 1))
+        if(IsMovableType<T>::Value)
+            memmove(targ, targ + num, (len - (indx + num)) * sizeof(T));
+        else
         {
-            if(IsMovableType<T>::Value)
-                memmove(targ, targ + 1, (len - indx - 1) * sizeof(T));
-            else
+            // If T is not a primitive type then this is potentially really expensive!!
+
+            // First shift the subsequent items over by the number of items removed
             {
-                // If T is not a primitive type then this is potentially really expensive!!
                 T *cur( targ );
 
-                // Have to call the constructor on the first item, because we already destructed
-                //  this memory location above
-                new(cur) T(*(targ + 1));
-                ++cur;
+                // Have to call the constructor on the items we removed, because we already destructed
+                //  these memory location above
+                for(GUINT32 i(indx); (i < indx + num) && (i < len - num); ++i, ++cur)
+                    new(cur) T(*(cur + num));
 
                 // Then for the rest of the move, we use the assignment operator, because those
                 //  items have already been initialized.
-                GUINT32 i(indx + 1);
-                for(; i < (len - 1); ++i, ++cur)
-                    *cur = *(cur + 1);
-
-                // And on the item at the end we call the destructor
-                (m_begin + i)->~T();
+                for(GUINT32 i(indx + num); i < len - num; ++i, ++cur)
+                    *cur = *(cur + num);
             }
+
+            // And on the items at the end we call the destructor
+            for(GUINT32 i(gMax(len - num, indx + num)); i < len; ++i)
+                (m_begin + i)->~T();
         }
 
-        set_length(len - 1);
+        set_length(len - num);
     }
 
     /** Removes the first instance of the item.  The type T must have a comparison operator.
@@ -300,15 +312,12 @@ public:
     */
     inline void RemoveOne(const T &o)
     {
-        T *cur(m_begin);
-        for(GUINT32 i(0); i < Length(); ++i, ++cur)
-        {
-            if(o == *cur)
+        for(iterator iter( begin() ); iter != end(); ++iter)
+            if(o == *iter)
             {
-                RemoveAt(i);
+                Remove(iter);
                 break;
             }
-        }
     }
 
     /** Removes the last instance of the item.  The type T must have a comparison operator.
@@ -316,15 +325,12 @@ public:
     */
     inline void RemoveLast(const T &o)
     {
-        T *cur(m_begin + Length() - 1);
-        for(GUINT32 i(0); i < Length(); ++i, --cur)
-        {
-            if(o == *cur)
+        for(iterator iter( rbegin() ); iter != rend(); --iter)
+            if(o == *iter)
             {
-                RemoveAt(Length() - i - 1);
+                Remove(iter);
                 break;
             }
-        }
     }
 
     /** Removes all instances of the item.  The type T must have a comparison operator.
@@ -332,12 +338,9 @@ public:
     */
     inline void RemoveAll(const T &o)
     {
-        T *cur(m_begin + Length() - 1);
-        for(GUINT32 i(0); i < Length(); ++i, --cur)
-        {
-            if(o == *cur)
-                RemoveAt(Length() - i - 1);
-        }
+        for(iterator iter( rbegin() ); iter != rend(); --iter)
+            if(o == *iter)
+                Remove(iter);
     }
 
     /** Pushes the item on the back of the list. */
@@ -373,7 +376,7 @@ public:
 
         void *real_begin(m_begin);
         if(m_begin)
-            real_begin = reinterpret_cast<GUINT32 *>(real_begin) - 2;
+            real_begin = reinterpret_cast<T **>(real_begin) - 2;
 
         if(IsMovableType<T>::Value)
         {
@@ -387,7 +390,7 @@ public:
             if(real_begin == NULL)
                 m_begin = NULL;
             else
-                m_begin = reinterpret_cast<T *>( reinterpret_cast<GUINT32 *>(real_begin) + 2 );
+                m_begin = reinterpret_cast<T *>( reinterpret_cast<T **>(real_begin) + 2 );
         }
         else
         {
@@ -418,8 +421,10 @@ public:
 
         if(new_capacity > 0)
             _set_capacity( new_capacity );
-        if(cur_capacity == 0)
-            set_length( len );
+
+        // We have to do this every time, because the end pointer changes with
+        //  the start pointer
+        set_length( len );
     }
 
     /** Resizes the vector.  If the new size is larger than the current, then the default
@@ -440,6 +445,7 @@ public:
             for(int i(Length()); i < new_size; ++i)
                 new(cur++) T(default_object);
         }
+        set_length(new_size);
     }
 
     /** Accesses the data at the given index.
@@ -478,11 +484,25 @@ public:
     /** Returns a pointer to the start of the array. */
     inline T *Data(){ return m_begin; }
 
+    /** Returns a pointer to the end of the vector, which is 1 past
+        the last item in the vector.  Do not dereference this pointer, it
+        is only to allow quick iteration through the list.
+    */
+    inline T *DataEnd() const{ return DataEnd(m_begin); }
+
+    /** Returns a pointer to the end of the vector, which is 1 past
+        the last item in the vector.  Do not dereference this pointer, it
+        is only to allow quick iteration through the list.
+        \param begin Must be a pointer to an array managed by the Vector class,
+        otherwise it will certainly crash your program.
+    */
+    inline static T *DataEnd(T *begin){ return begin ? *(reinterpret_cast<T**>(begin) - 1) : NULL; }
+
     /** Clears all items and frees all memory. */
     inline void Clear(){ Reserve(0); }
 
     /** Clears all items but retains the same capacity. */
-    inline void ClearContents(){
+    inline void Empty(){
         if(m_begin)
         {
             T *cur( m_begin );
@@ -503,7 +523,7 @@ public:
         array just before the 0 index.  So you can't pass just any old array into it.
     */
     static inline GUINT32 Length(T *vec){
-        return vec ? *(reinterpret_cast<GUINT32 *>(vec) - 1) : 0;
+        return vec ? *(reinterpret_cast<T **>(vec) - 1) - vec : 0;
     }
 
     /** The current length of the vector. */
@@ -512,8 +532,16 @@ public:
     inline GUINT32 Count() const{ return Length(); }
 
     /** How many items of type T we are capable of holding. */
-    inline GUINT32 Capacity() const{
-        return m_begin ? *(reinterpret_cast<GUINT32 *>(m_begin) - 2) : 0;
+    inline GUINT32 Capacity() const{ return Capacity(m_begin); }
+
+    /** How many items of type T the array is capable of holding.
+        \param begin A pointer to the base of an array managed by a Vector
+    */
+    inline static GUINT32 Capacity(T *begin){
+        return begin ?
+                    *(reinterpret_cast<GUINT32 *>(
+                          reinterpret_cast<GINT8 *>(begin) - sizeof(T *) - sizeof(GUINT32)))
+                  : 0;
     }
 
     /** Conducts a linear search for the first instance of the item
@@ -571,10 +599,10 @@ public:
               m_begin(0),
               m_end(0)
         {}
-        inline iterator(T *begin, int index)
-            :current(begin + index),
+        inline iterator(T *begin, T *cur)
+            :current(cur),
               m_begin(begin),
-              m_end(begin + Vector<T>::Length(begin))
+              m_end(Vector<T>::DataEnd(begin))
         {}
 
         inline T &operator *(){ return *current; }
@@ -615,10 +643,10 @@ public:
               m_begin(0),
               m_end(0)
         {}
-        inline const_iterator(T *begin, int index)
-            :current(begin + index),
+        inline const_iterator(T *begin, T *cur)
+            :current(cur),
               m_begin(begin),
-              m_end(begin + Vector<T>::Length(begin))
+              m_end(Vector<T>::DataEnd(begin))
         {}
         inline const_iterator(const const_iterator &iter)
             :current(iter.current),
@@ -665,24 +693,28 @@ public:
         T *m_end;
     };
 
-    inline iterator begin(){ return iterator(m_begin, 0); }
-    inline const_iterator begin() const{ return const_iterator(m_begin, 0); }
-    inline iterator end(){ return iterator(m_begin, Length()); }
-    inline const_iterator end() const{ return const_iterator(m_begin, Length()); }
+    inline iterator begin(){ return iterator(m_begin, m_begin); }
+    inline const_iterator begin() const{ return const_iterator(m_begin, m_begin); }
+    inline iterator end(){ return iterator(m_begin, DataEnd()); }
+    inline const_iterator end() const{ return const_iterator(m_begin, DataEnd()); }
 
-    inline iterator rbegin(){ return iterator(m_begin, Length() - 1); }
-    inline const_iterator rbegin() const{ return const_iterator(m_begin, Length() - 1); }
-    inline iterator rend(){ return iterator(m_begin, -1); }
-    inline const_iterator rend() const{ return const_iterator(m_begin, -1); }
+    inline iterator rbegin(){ return iterator(m_begin, DataEnd() - 1); }
+    inline const_iterator rbegin() const{ return const_iterator(m_begin, DataEnd() - 1); }
+    inline iterator rend(){ return iterator(m_begin, m_begin - 1); }
+    inline const_iterator rend() const{ return const_iterator(m_begin, m_begin - 1); }
 
 
 protected:
 
     /** Subclasses can use this convenience function as a setter for the length variable.
-        \note You should only use this with POD types, because if you have a vector of
-        more complex classes then some of their destructors may not get called.
+        \note You should only manually use this with POD types, because if you
+        have a vector of more complex classes then some of their destructors may not get called.
     */
-    inline void set_length(GUINT32 len){ if(m_begin) *(reinterpret_cast<GUINT32 *>(m_begin) - 1) = len; }
+    inline void set_length(GUINT32 len){
+        // Remembers a pointer to the end of the vector
+        if(m_begin)
+            *(reinterpret_cast<T **>(m_begin) - 1) = m_begin + len;
+    }
 
 
 private:

@@ -71,7 +71,10 @@ public:
     /** The number of bytes we're capable of holding. */
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
 
-    /** The number of UTF-8 characters (may differ from the actual byte length of the string). */
+    /** The number of UTF-8 characters (may differ from the actual byte length of the string).
+        \note This returns the number of valid UTF-8 characters, plus the number of bad
+        (unrecognized) bytes.
+    */
     GUINT32 LengthUTF8() const;
 
     /** Returns if the string is null, i.e. has not been initialized. */
@@ -85,7 +88,12 @@ public:
 
 
     /** Appends the string to this one and returns this. */
-    inline String &Append(const String &s){ Insert(s, Length()); return *this; }
+    inline String &Append(const String &s){ Insert(s, s.Length(), Length()); return *this; }
+
+    /** Appends the string to this one and returns this. */
+    inline String &Append(const char *s, GUINT32 len = UINT_MAX){
+        Insert(s, len == UINT_MAX ? strlen(s) : len, Length()); return *this;
+    }
 
     /** Appends the character the specified number of times. */
     inline String &Append(char c, GUINT32 cnt = 1){
@@ -116,8 +124,30 @@ public:
     String &Insert(const char *c, GUINT32 sz, GUINT32 indx);
 
 
-    /** Removes 'len' characters starting at index 'indx'. */
-    String &Remove(GUINT32 indx, GUINT32 len);
+    /** Removes the number of bytes starting at byte index 'indx'. */
+    inline String &RemoveBytesAt(GUINT32 byte_indx, GUINT32 len_in_bytes){
+        Vector<char>::RemoveAt(byte_indx, len_in_bytes);
+        *(Data() + Length()) = '\0';
+        return *this;
+    }
+
+    /** Removes the number of characters (UTF-8) starting at the given character index.
+        \note This operates on UTF-8 (multibyte) characters.  If you need to remove bytes then
+        use RemoveBytes().
+        \note In the worst case this is O(N), because it must evaluate each start byte to determine
+        how many bytes are in the multibyte character.
+    */
+    String &RemoveAt(GUINT32 char_indx, GUINT32 len_in_chars);
+
+    /** Removes all instances of the given byte. */
+    inline String &RemoveAll(GBYTE b){ Vector<char>::RemoveAll(b); return *this; }
+
+    /** Removes all instances of the given character from Unicode.
+        \param unicode_value The Unicode code-point you want to remove from the string.
+        \note This version of the function operates on UTF-8 characters only.  Use another
+        version to remove individual bytes.
+    */
+    String &RemoveAll(GUINT32 unicode_value);
 
 
     /** Returns the left N characters of the string. */
@@ -227,7 +257,7 @@ public:
 
     /** Remove the last n letters from the string. */
     inline String &Chop(GUINT32 n){
-        if(n <= Length()) Remove(Length() - n, n);
+        if(n <= Length()) RemoveBytesAt(Length() - n, n);
         return *this;
     }
 
@@ -382,6 +412,9 @@ public:
             :m_begin(begin), m_end(end), m_cur(cur)
         {}
 
+        /** Returns a pointer to the byte on which we're currently positioned. */
+        inline char *Current() const{ return m_cur; }
+
         inline bool IsValidStartByte() const{ return String::IsValidUTF8StartByte(*m_cur); }
         inline bool IsValidContinuationByte() const{ return String::IsValidUTF8ContinuationByte(*m_cur); }
 
@@ -457,6 +490,9 @@ public:
         inline UTF8ConstIterator(const char *begin, const char *end, const char *cur)
             :m_begin(begin), m_end(end), m_cur(cur)
         {}
+
+        /** Returns a pointer to the byte on which we're currently positioned. */
+        inline const char *Current() const{ return m_cur; }
 
         inline bool IsValidStartByte() const{ return String::IsValidUTF8StartByte(*m_cur); }
 
