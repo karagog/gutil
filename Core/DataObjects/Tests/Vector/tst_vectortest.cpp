@@ -41,6 +41,7 @@ public:
     inline nonmovable() :this_ptr(this), my_int(new int){}
     inline nonmovable(const nonmovable &) :this_ptr(this), my_int(new int){}
     inline nonmovable &operator = (const nonmovable &){
+        delete my_int;
         my_int = new int;
         this_ptr = this;
         return *this;

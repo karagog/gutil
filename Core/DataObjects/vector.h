@@ -361,8 +361,8 @@ public:
             // Need to call the destructors on the items we're (potentially) deleting
             if(new_capacity < len)
             {
-                for(GUINT32 i(new_capacity); i < len; ++i)
-                    m_begin[i].~T();
+                for(T *targ( m_begin + new_capacity ); targ != DataEnd(); ++targ)
+                    targ->~T();
                 set_length( new_capacity );
             }
         }
@@ -372,7 +372,7 @@ public:
 
         GUINT32 new_size_in_bytes(new_capacity * sizeof(T));
         if(new_capacity > 0)
-            new_size_in_bytes += 2 * sizeof(GUINT32);
+            new_size_in_bytes += sizeof(GUINT32) + sizeof(T*);
 
         void *real_begin(m_begin);
         if(m_begin)
@@ -408,8 +408,13 @@ public:
                 T *cur( m_begin = reinterpret_cast<T *>( reinterpret_cast<GUINT32 *>(new_begin) + 2) );
                 if(backup)
                 {
+                    // Copy the items from the backup copy to the new vector
                     for(GUINT32 i(0); i < len; ++i)
-                        new(cur++) T(*(backup++));
+                        new(cur++) T(*(backup + i));
+
+                    // Have to destruct the items from the backup vector
+                    for(GUINT32 i(0); i < len; ++i)
+                        (backup++)->~T();
                 }
             }
 
