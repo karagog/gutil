@@ -1,4 +1,6 @@
 /* See: http://msdn.microsoft.com/library/en-us/shellcc/platform/shell/programmersguide/versions.asp */
+#ifdef _WIN32
+
 #include <windows.h>
 #include <shlwapi.h>
 __declspec(dllexport) HRESULT DllGetVersion(DLLVERSIONINFO2 *pdvi);
@@ -15,3 +17,5 @@ HRESULT DllGetVersion (DLLVERSIONINFO2 *pdvi)
 		pdvi->ullVersion = MAKEDLLVERULL (5, 2, 1544, 40270);
 	return S_OK;
 }
+
+#endif  // _WIN32
