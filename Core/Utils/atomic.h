@@ -20,30 +20,50 @@ limitations under the License.*/
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);
 
 
-/** A static class to declare helpful atomic operations, implemented in assembly. */
-class Atomic
+/** A class to declare helpful atomic operations, implemented in assembly. */
+class AtomicInt
 {
 public:
+
+    /** Constructs the atomic int and initializes it to 0. */
+    inline AtomicInt() :m_value(0){}
+    inline AtomicInt(const AtomicInt &i) :m_value(i.Value()){}
+
+    /** The integer's current value. */
+    GINT32 Value() const{ return m_value; }
 
     /** Increments the integer pointed to.
         \return True if the integer after the operation is not equal to 0
     */
-    static bool Increment(GINT32 *i);
+    bool Increment();
 
     /** Decrements the integer pointed to.
         \return True if the integer after the operation is not equal to 0
     */
-    static bool Decrement(GINT32 *i);
+    bool Decrement();
 
     /** Adds the value to the integer pointed to.
         \return The integer's value before adding
     */
-    static GINT32 FetchAndAdd(GINT32 *i, GINT32 n);
+    GINT32 FetchAndAdd(GINT32 n);
 
     /** Adds the value to the integer pointed to.
         \return The integer's value after adding
     */
-    static GINT32 AddAndFetch(GINT32 *i, GINT32 n);
+    GINT32 AddAndFetch(GINT32 n);
+
+
+    inline bool operator == (GINT32 v) const{ return m_value == v; }
+    inline bool operator != (GINT32 v) const{ return m_value != v; }
+
+    inline AtomicInt &operator = (GINT32 i){ m_value = i; return *this; }
+
+    inline operator GINT32() const{ return m_value; }
+
+
+private:
+
+    GINT32 m_value;
 
 };
 

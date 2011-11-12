@@ -15,7 +15,9 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/Utils/atomic.h"
+#include "Core/DataObjects/gstring.h"
 GUTIL_USING_CORE_NAMESPACE(Utils);
+GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 class AtomicTest : public QObject
 {
@@ -34,35 +36,29 @@ AtomicTest::AtomicTest()
 
 void AtomicTest::testCase1()
 {
-    int i(0);
-    int ret = Atomic::FetchAndAdd(&i, 1);
-    QVERIFY2(i == 1, QString("%1").arg(i).toAscii());
-    QVERIFY(ret == 0);
+    AtomicInt i;
 
-    ret = Atomic::FetchAndAdd(&i, 4);
-    QVERIFY2(i == 5, QString("%1").arg(i).toAscii());
+    int ret = i.FetchAndAdd(1);
+    QVERIFY2(ret == 0, String::FromInt(ret));
+    QVERIFY2(i == 1, String::FromInt(i.Value()));
+
+    ret = i.FetchAndAdd(4);
+    QVERIFY2(i == 5, String::FromInt(i.Value()));
     QVERIFY(ret == 1);
 
     i = 0;
-    ret = Atomic::AddAndFetch(&i, 1);
-    QVERIFY2(i == 1, QString("%1").arg(i).toAscii());
+    ret = i.AddAndFetch(1);
+    QVERIFY2(i == 1, String::FromInt(i.Value()));
     QVERIFY(ret == 1);
 
 
     // Test inc/dec
     i = 0;
-    bool b = Atomic::Increment(&i);
+    bool b = i.Increment();
     QVERIFY(b);
 
-    b = Atomic::Decrement(&i);
+    b = i.Decrement();
     QVERIFY(!b);
-
-
-    QString s("A");
-    QString s2(s);
-    s[0] = 'B';
-    QVERIFY(s == "B");
-    QVERIFY(s2 == "A");
 }
 
 QTEST_APPLESS_MAIN(AtomicTest);

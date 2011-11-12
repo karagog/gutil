@@ -15,49 +15,50 @@ limitations under the License.*/
 #include "atomic.h"
 GUTIL_USING_CORE_NAMESPACE(Utils);
 
-bool Atomic::Increment(GINT32 *i)
+bool AtomicInt::Increment()
 {
     GBYTE ret;
     asm(
         "lock;"
-        "incl (%0);"
-        "setne %%bl;"
-            :"=a" (i), "=b" (ret)
+        "incl %0;"
+        "setne %1"
+            :"=m" (m_value), "=m" (ret)
+            :"m" (m_value)
     );
     return ret;
 }
 
-bool Atomic::Decrement(GINT32 *i)
+bool AtomicInt::Decrement()
 {
     GBYTE ret;
     asm(
         "lock; "
-        "decl (%0);"
-        "setne %%bl;"
-            :"=a" (i), "=b" (ret)
+        "decl %0;"
+        "setne %1;"
+            :"=m" (m_value), "=m" (ret)
+            :"m" (m_value)
     );
     return ret;
 }
 
-int Atomic::FetchAndAdd(int *i, int n)
+int AtomicInt::FetchAndAdd(int n)
 {
-    int ret;
     asm(
         "lock;"
-        "xaddl %%ebx, (%%eax);"
-            : "=b" (ret), "=a" (i)
-            : "a" (i), "b" (n)
-    );
-    return ret;
+        "xaddl %0, %1;"
+            :"=r" (n), "+m" (m_value)
+            :"0" (n)
+        );
+    return n;
 }
 
-int Atomic::AddAndFetch(int *i, int n)
+int AtomicInt::AddAndFetch(int n)
 {
     asm(
         "lock;"
-        "addl %%ebx, (%%eax);"
-            : "=a" (i)
-            : "a" (i), "b" (n)
+        "addl %0, %1;"
+            :"=r"(n), "+m" (m_value)
+            :"0" (n)
     );
-    return *i;
+    return n;
 }
