@@ -3,6 +3,8 @@ QT       -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
+QMAKE_CXXFLAGS += -w
+
 DEFINES += _IEEE_LIBM
 
 SOURCES += \
