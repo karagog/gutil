@@ -17,13 +17,22 @@ limitations under the License.*/
 #include "Core/DataObjects/vector.h"
 #include <cstdarg>
 
+#ifdef GUTIL_CORE_QT_ADAPTERS
+    #include <QString>
+#endif
+
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
 /** Implements a contiguous string of characters, whose memory is managed automatically.
 
-    Also implements a suite of string helper functions, like for string manipulation
-    and conversions.
+    The string is stored as a binary array of bytes, and the string functions are designed to operate
+    on UTF-8 encoding (which includes normal ASCII).  It provides validation functions and a UTF-8 character
+    iterator, that takes you through the string one multibyte character at a time.  Normal string functions
+    like IndexOf() or Chop() are implemented to operate on multibyte UTF-8 characters, which is different
+    than the std::string implementation.
+
+    Also implements a suite of string helper functions, like for string compression and encryption.
 
     The requirements for this class are as follows:
     * Always maintains enough capacity for at least the amount of characters,
@@ -31,9 +40,6 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
     * Always maintains the terminating null, and at any given time throughout a
         string's life the character at index 'Length()' should be a '\0', given
         that the string has been initialized (not IsNull())
-
-
-    Use as an alternative to std::string.
 */
 class String :
         private Vector<char>
@@ -56,6 +62,21 @@ public:
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
     String(char c, int len = 1);
+
+    /** Constructs a string by copying the string between two Vector<char> iterators.
+        \param b An iterator at the beginning of the string.
+        \param e An iterator one past the end of the string.
+        \note The end of the string must come after the beginning of the string
+    */
+    String(const Vector<char>::const_iterator &b, const Vector<char>::const_iterator &e);
+
+    class UTF8ConstIterator;
+    /** Constructs a string by copying the string between two UTF8 iterators.
+        \param b An iterator at the beginning of the string.
+        \param e An iterator one past the end of the string.
+        \note The end of the string must come after the beginning of the string
+    */
+    String(const UTF8ConstIterator &b, const UTF8ConstIterator &e);
 
     /** Basically a copy constructor, but for the base type. */
     String(const Vector<char> &s);
@@ -255,28 +276,26 @@ public:
     inline static String FromInt(GINT32 i){ return String::Format("%d", i); }
     inline static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
 
-    /** Remove the last n letters from the string. */
-    inline String &Chop(GUINT32 n){
-        if(n <= Length()) RemoveBytesAt(Length() - n, n);
-        return *this;
-    }
+    /** Returns a copy of the string with the last N UTF-8 characters (or invalid bytes) removed. */
+    String Chop(GUINT32 N) const;
 
 
     /** Removes whitespace characters from the front and back of this string.
         \return A reference to this string after trimming.
     */
-    String &Trim();
+    String Trim() const;
 
     /** Removes whitespace characters from the front and back of a copy of this string.
         \return A copy of this string after trimming.
     */
     inline String Trimmed() const{ String ret(*this); return ret.Trim(); }
 
-    /** Returns true if the character is considered whitespace.
+    /** Returns true if the multibyte character is considered whitespace.
         \note This is used by the Trim() function
     */
-    inline static bool IsWhitespace(char c){
-        return (0 <= c && c <= 0x20) || c == 0x7F;
+    inline static bool IsWhitespace(const char *c){
+        GUINT32 uc( UnicodeValue(c) );
+        return (uc <= 0x20) || uc == 0x7F;
     }
 
     /** Splits the string using the given character delimiter.
@@ -315,7 +334,7 @@ public:
         return msb == 7 ? 1 : 7 - msb;
     }
 
-    static GUINT32 UnicodeValue(const char *multibyte_start, GINT8 multibyte_length);
+    static GUINT32 UnicodeValue(const char *multibyte_start, GINT8 multibyte_length = -1);
 
     /** Returns a copy of this string, in which only valid UTF-8 characters are retained.
 
@@ -403,6 +422,8 @@ public:
     */
     class UTF8Iterator
     {
+        friend class UTF8ConstIterator;
+    protected:
         char *m_begin;
         char *m_end;
         char *m_cur;
@@ -414,6 +435,24 @@ public:
 
         /** Returns a pointer to the byte on which we're currently positioned. */
         inline char *Current() const{ return m_cur; }
+
+        /** If the iterator is valid, it copies one multibyte character (or invalid byte) starting at c into its current location.
+            \param very_end The very end of the string, to ensure we don't go beyond this bound
+        */
+        inline void Copy(const char *c, const char *very_end)
+        {
+            if(*this)
+            {
+                GINT8 len(String::IsValidUTF8StartByte(*c) ? String::MultiByteLength(*c) : 1);
+                char *s(m_cur);
+                char *e(s + len);
+                while(s != e && c < very_end)
+                {
+                    *s = *c;
+                    ++s, ++c;
+                }
+            }
+        }
 
         inline bool IsValidStartByte() const{ return String::IsValidUTF8StartByte(*m_cur); }
         inline bool IsValidContinuationByte() const{ return String::IsValidUTF8ContinuationByte(*m_cur); }
@@ -437,6 +476,16 @@ public:
                                          return msb == 7 ? 1 : 7 - msb;
                                         }
 
+        /** Returns the number of bytes between the first and second iterators.
+            \returns UINT_MAX if the iterators aren't from the same string, or if the end comes before the beginning
+        */
+        inline static GUINT32 ByteDistance(const UTF8Iterator &b, const UTF8Iterator &e){
+            GUINT32 ret;
+            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = UINT_MAX;
+            else ret = e.m_cur - b.m_cur;
+            return ret;
+        }
+
         /** Returns the Unicode codepoint of the current character, or -1 if it is
             on an invalid character.
         */
@@ -446,16 +495,26 @@ public:
         inline UTF8Iterator &operator ++(){ _advance(); return *this; }
         /** Postfix increment, advances the iterator but returns the iterator it was before. */
         inline UTF8Iterator operator ++(int){ UTF8Iterator ret(*this); _advance(); return ret; }
+        /** Increments the iterator n times. */
+        inline UTF8Iterator &operator += (int n){ while(n-- >= 0) _advance(); return *this; }
 
         /** Prefix decrement, retreats the iterator and returns it. */
         inline UTF8Iterator &operator --(){ _retreat(); return *this; }
         /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
         inline UTF8Iterator operator --(int){ UTF8Iterator ret(*this); _retreat(); return ret; }
+        /** Decrements the iterator n times. */
+        inline UTF8Iterator &operator -= (int n){ while(n-- >= 0) _retreat(); return *this; }
+
+        inline bool operator == (const UTF8Iterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
+        inline bool operator != (const UTF8Iterator &o) const{ return !operator == (o); }
+
+        inline bool operator == (const UTF8ConstIterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
+        inline bool operator != (const UTF8ConstIterator &o) const{ return !operator == (o); }
 
         /** Returns true if we are positioned on a valid index.
             \note This says nothing about the character itself being a valid UTF-8 character.
         */
-        inline operator bool () const{ return m_begin <= m_cur && m_cur < m_end && *m_cur != '\0'; }
+        inline operator bool () const{ return m_begin <= m_cur && m_cur < m_end; }
 
 
     private:
@@ -482,6 +541,8 @@ public:
     */
     class UTF8ConstIterator
     {
+        friend class UTF8Iterator;
+    protected:
         const char *m_begin;
         const char *m_end;
         const char *m_cur;
@@ -489,6 +550,9 @@ public:
 
         inline UTF8ConstIterator(const char *begin, const char *end, const char *cur)
             :m_begin(begin), m_end(end), m_cur(cur)
+        {}
+        inline UTF8ConstIterator(const UTF8Iterator &iter)
+            :m_begin(iter.m_begin), m_end(iter.m_end), m_cur(iter.m_cur)
         {}
 
         /** Returns a pointer to the byte on which we're currently positioned. */
@@ -503,7 +567,7 @@ public:
         /** Returns true if we're positioned on a valid UTF-8 character sequence,
             but doesn't validate the Unicode character value itself.
         */
-        inline bool IsValidUTF8Sequence() const{ return String::IsValidUTF8Sequence(m_cur, m_cur + ByteLength()); }
+        inline bool IsValidUTF8Sequence() const{ return m_cur && String::IsValidUTF8Sequence(m_cur, m_cur + ByteLength()); }
 
         /** Returns the Unicode codepoint of the current character, or -1 if it is
             on an invalid character.
@@ -517,6 +581,16 @@ public:
         */
         inline GINT8 ByteLength() const{ return String::MultiByteLength(*m_cur); }
 
+        /** Returns the number of bytes between the first and second iterators.
+            \returns UINT_MAX if the iterators aren't from the same string, or if the end comes before the beginning
+        */
+        inline static GUINT32 ByteDistance(const UTF8ConstIterator &b, const UTF8ConstIterator &e){
+            GUINT32 ret;
+            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = UINT_MAX;
+            else ret = e.m_cur - b.m_cur;
+            return ret;
+        }
+
         /** Returns the Unicode codepoint of the current character, or -1 if it is
             on an invalid character.
         */
@@ -526,11 +600,21 @@ public:
         inline UTF8ConstIterator &operator ++(){ _advance(); return *this; }
         /** Postfix increment, advances the iterator but returns the iterator it was before. */
         inline UTF8ConstIterator operator ++(int){ UTF8ConstIterator ret(*this); _advance(); return ret; }
+        /** Increments the iterator n times. */
+        inline UTF8ConstIterator &operator += (int n){ while(n-- >= 0) _advance(); return *this; }
 
         /** Prefix decrement, retreats the iterator and returns it. */
         inline UTF8ConstIterator &operator --(){ _retreat(); return *this; }
         /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
         inline UTF8ConstIterator operator --(int){ UTF8ConstIterator ret(*this); _retreat(); return ret; }
+        /** Decrements the iterator n times. */
+        inline UTF8ConstIterator &operator -= (int n){ while(n-- >= 0) _retreat(); return *this; }
+
+        inline bool operator == (const UTF8ConstIterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
+        inline bool operator != (const UTF8ConstIterator &o) const{ return !operator == (o); }
+
+        inline bool operator == (const UTF8Iterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
+        inline bool operator != (const UTF8Iterator &o) const{ return !operator == (o); }
 
         /** Returns true if we are positioned on a valid index.
             \note This says nothing about the character itself being a valid UTF-8 character.
@@ -598,6 +682,16 @@ public:
     // Useful cast operators
     inline operator const char* () const{ return ConstData(); }
     inline operator char* (){ return Data(); }
+
+
+    // Adapters to the Qt library
+#ifdef GUTIL_CORE_QT_ADAPTERS
+
+        /** Converts to a QString. */
+        QString ToQString() const{ return QString::fromUtf8(ConstData(), Length()); }
+        static String FromQString(const QString &s){ QByteArray ba(s.toUtf8()); return String(ba.constData(), ba.size()); }
+
+#endif
 
 
 private:

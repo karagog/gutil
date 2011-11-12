@@ -40,6 +40,7 @@ private Q_SLOTS:
     void test_split_join();
     void test_base64();
     void test_base16();
+    void test_qt_adapters();
 };
 
 StringTest::StringTest()
@@ -131,11 +132,10 @@ void StringTest::test_basics()
 
     s.Clear();
     s = "   This string needs to be trimmed    \n";
-    s.Trim();
-    QVERIFY2(s == "This string needs to be trimmed", s);
+    QVERIFY2(s == "   This string needs to be trimmed    \n", s);
 
-    s = "   This string needs to be trimmed    \n";
-    QVERIFY2(s.Trimmed() == "This string needs to be trimmed", s.Trimmed());
+    String trimmed = s.Trim();
+    QVERIFY2(trimmed == "This string needs to be trimmed", trimmed);
     QVERIFY2(s == "   This string needs to be trimmed    \n", s);
 }
 
@@ -476,6 +476,16 @@ void StringTest::test_base16()
 
     s = b16.FromBase16();
     QVERIFY2(s == "Hello World!", s);
+}
+
+void StringTest::test_qt_adapters()
+{
+    QString qs("HI");
+    String s = String::FromQString(qs);
+    QVERIFY(s == "HI");
+
+    qs = s.ToQString();
+    QVERIFY(qs == "HI");
 }
 
 QTEST_APPLESS_MAIN(StringTest);

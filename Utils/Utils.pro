@@ -25,7 +25,6 @@ DEFINES += NETWORK_FUNCTIONALITY
 SOURCES += \
     pubsubsystem.cpp \
     usermachinelocks.cpp \
-    qstringhelpers.cpp \
     universalmutex.cpp \
     datatransferutils.cpp \
     databaseutils.cpp \
@@ -36,7 +35,6 @@ SOURCES += \
 HEADERS += \
     pubsubsystem.h \
     usermachinelocks.h \
-    qstringhelpers.h \
     universalmutex.h \
     datatransferutils.h \
     response.h \
@@ -47,3 +45,5 @@ HEADERS += \
     commandlinemenu.h
 
 INCLUDEPATH += ..
+
+

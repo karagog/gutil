@@ -40,6 +40,51 @@ String::String(char c, int len)
     set_length(len);
 }
 
+String::String(const Vector<char>::const_iterator &b, const Vector<char>::const_iterator &e)
+{
+    GINT32 len(e - b);
+    if(len != INT_MAX)
+    {
+        Reserve(gAbs(len) + 1);
+
+        GINT8 inc(len >= 0 ? 1 : -1);
+        char *mine(len >= 0 ? Data() : Data() + (gAbs(len) - 1));
+        const char *cur( b.Current() );
+        const char *end( e.Current() );
+
+        while(cur != end)
+        {
+            *mine = *cur;
+            cur += inc;
+            mine += inc;
+        }
+
+        set_length(gAbs(len));
+        operator[](gAbs(len)) = '\0';
+    }
+}
+
+String::String(const UTF8ConstIterator &b, const UTF8ConstIterator &e)
+{
+    GUINT32 byte_len(UTF8ConstIterator::ByteDistance(b, e));
+    if(byte_len != UINT_MAX)
+    {
+        Reserve(byte_len + 1);
+        set_length(byte_len);
+
+        UTF8Iterator my_cur( beginUTF8() );
+        UTF8ConstIterator cur(b);
+        while(cur != e)
+        {
+            my_cur.Copy(cur.Current(), e.Current());
+            ++my_cur;
+            ++cur;
+        }
+
+        operator[](byte_len) = '\0';
+    }
+}
+
 String::String(const Vector<char> &s)
     :Vector<char>(s.Length() + 1)
 {
@@ -321,50 +366,37 @@ GFLOAT32 String::ToFloat(bool *ok) const
     return ret;
 }
 
-String &String::Trim()
+String String::Trim() const
 {
-    GUINT32 front_cnt(0);
-    GUINT32 back_cnt(0);
-    GUINT32 i(Length() + 1);
-    char *cur_front(Data());
-    char *cur_back(Data() + Length() - 1);
+    GUINT32 i(Length());
+    UTF8ConstIterator iter_front( beginUTF8() );
+    UTF8ConstIterator iter_back( rbeginUTF8() );
+    bool stop_front(false);
+    bool stop_back(false);
 
-    while(--i != 0 && (cur_front || cur_back))
+    while(i-- != 0 && (!stop_front || !stop_back))
     {
-        if(cur_front)
+        if(!stop_front)
         {
-            if(IsWhitespace(*cur_front))
-            {
-                ++front_cnt;
-                ++cur_front;
-            }
+            if(IsWhitespace(iter_front.Current()))
+                ++iter_front;
             else
-                cur_front = 0;
+                stop_front = true;
         }
 
-        if(cur_back)
+        if(!stop_back)
         {
-            if(IsWhitespace(*cur_back))
-            {
-                ++back_cnt;
-                --cur_back;
-            }
+            if(IsWhitespace(iter_back.Current()))
+                --iter_back;
             else
-                cur_back = 0;
+            {
+                stop_back = true;
+                iter_back++;
+            }
         }
     }
 
-
-    if(back_cnt > 0)
-        Chop(back_cnt);
-
-    // When removing from the front, we also check that our length is greater than 0,
-    //  in the event that the string was full of only whitespace characters, then they
-    //  would already have been removed by the back check.
-    if(front_cnt > 0 && Length() > 0)
-        RemoveBytesAt(0, front_cnt);
-
-    return *this;
+    return String(iter_front, iter_back);
 }
 
 
@@ -489,6 +521,16 @@ GUINT32 String::LengthUTF8() const
     return cnt;
 }
 
+String String::Chop(GUINT32 n) const
+{
+    if(n >= Length())
+        return String();
+
+    UTF8ConstIterator iter( endUTF8() );
+    iter -= n;
+    return String(beginUTF8(), iter);
+}
+
 
 
 bool String::operator == (const String &s) const
@@ -558,17 +600,18 @@ String operator + (const char *c, const String &s)
 
 GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
 {
-    GINT32 ret(0);
+    GUINT32 ret(0);
+    if(mb_len == -1)
+        mb_len = MultiByteLength(*start);
+
     if(mb_len < 0 || mb_len > 7 || !IsValidUTF8StartByte(*start))
-        ret = -1;
+        ret = UINT_MAX;
     else
     {
         if(String::IsValidAscii(*start))
             ret = *start;
         else
         {
-            // We know that len is at least 2, because we have already done down a
-            //  different code path if the char was ascii
             GINT8 byte_count(0);
             GINT8 mask( 0x3F );
             GINT8 c;
@@ -579,14 +622,14 @@ GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
                     ret |= GINT32(mask & c) << (byte_count * 6);
                 else
                 {
-                    ret = -1;
+                    ret = UINT_MAX;
                     break;
                 }
             }
 
             // The first character gets special treatment, because it is the only byte that
             //  has a variable number of possible bits present
-            if(ret != -1)
+            if(ret != UINT_MAX)
             {
                 mask = (1 << (7 - mb_len)) - 1;
                 ret |= GINT32(mask & *start) << ((byte_count) * 6);
@@ -596,7 +639,7 @@ GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
 
     // Do some final sanity checks on the Unicode value.  Is it an impossible value,
     //  because it could be represented by a shorter byte sequence, etc...?
-    if(ret != -1)
+    if(ret != UINT_MAX)
     {
 
     }

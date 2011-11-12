@@ -597,7 +597,11 @@ public:
     /** Iterates through the vector. */
     class iterator
     {
-        friend class Vector;
+        friend class const_iterator;
+    protected:
+        T *current;
+        T *m_begin;
+        T *m_end;
     public:
         inline iterator()
             :current(0),
@@ -616,6 +620,8 @@ public:
         inline T const*operator ->() const{ return current; }
 
         inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
+        inline T *Current(){ return current; }
+        inline const T *Current() const{ return current; }
 
         inline iterator &operator ++(){ ++current; return *this; }
         inline iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
@@ -629,19 +635,16 @@ public:
 
         /** Returns whether the iterator is valid. */
         inline operator bool() const{ return current && m_begin <= current && current < m_end; }
-
-
-    protected:
-        T *current;
-    private:
-        T *m_begin;
-        T *m_end;
     };
 
     /** Iterates through the vector, but also guarantees that it won't modify the vector. */
     class const_iterator
     {
-        friend class Vector;
+        friend class iterator;
+    protected:
+        T *current;
+        T *m_begin;
+        T *m_end;
     public:
         inline const_iterator()
             :current(0),
@@ -670,6 +673,7 @@ public:
         inline T const*operator ->() const{ return current; }
 
         inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
+        inline const T *Current() const{ return current; }
 
         inline const_iterator &operator ++(){ ++current; return *this; }
         inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
@@ -681,7 +685,9 @@ public:
         inline const_iterator &operator -=(int n){ current -= n; return *this; }
         inline const_iterator operator -(int n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
 
-        /** Returns the distance between iterators (how many items in between). */
+        /** Returns the distance between iterators (how many items in between).
+            \return INT_MAX if the iterators are not from the same vector
+        */
         inline int operator - (const const_iterator &iter) const{
             if(m_begin != iter.m_begin) return INT_MAX;
             return current - iter.current;
@@ -689,13 +695,6 @@ public:
 
         /** Returns whether the iterator is valid. */
         inline operator bool() const{ return current && m_begin <= current && current < m_end;; }
-
-
-    protected:
-        T *current;
-    private:
-        T *m_begin;
-        T *m_end;
     };
 
     inline iterator begin(){ return iterator(m_begin, m_begin); }
