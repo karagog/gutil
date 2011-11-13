@@ -69,7 +69,7 @@ void GVariantTest::test_basic_types()
     tmps = gv1.ToXmlQString();
     gv2.FromXmlQString(tmps);
     qDebug(gv1.ToXmlString());
-    QVERIFY2(gv1 == gv2, gv2.toGString().ToBase16());
+    QVERIFY2(gv1 == gv2, gv2.toString().toUtf8());
     QVERIFY(gv2 == QChar(0x0));
 
     // Bool
@@ -101,15 +101,6 @@ void GVariantTest::test_basic_types()
     QVERIFY(gv1 == (float)5.68921);
 
     qDebug(gv1.ToXmlString());
-
-    // GString
-    gv1 = String("Hello World!");
-    tmps = gv1.ToXmlQString();
-    gv2.FromXmlQString(tmps);
-    qDebug(gv1.ToXmlString());
-    QVERIFY2(gv1 == gv2, gv1.toGString());
-    QVERIFY2(gv2 == "Hello World!", gv2.toGString());
-    QVERIFY2(gv1 == "Hello World!", gv1.toGString());
 }
 
 void GVariantTest::test_simple_qt_types()
@@ -119,8 +110,8 @@ void GVariantTest::test_simple_qt_types()
     GVariant gv2;
     gv2.FromXmlQString(gv1.ToXmlQString());
     qDebug(gv1.ToXmlString());
-    QVERIFY2(gv1 == gv2, gv2.toGString());
-    QVERIFY2(gv2 == "Hello!", gv2.toGString());
+    QVERIFY2(gv1 == gv2, gv2.toString().toUtf8());
+    QVERIFY2(gv2 == "Hello!", gv2.toString().toUtf8());
 
     QString tmps;
     tmps.append((char)0x00);

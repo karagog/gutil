@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gvariant.h"
+#include "Core/DataObjects/gstring.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <limits.h>
@@ -28,42 +29,9 @@ QUuid GVariant::toUuid() const
     {
         if(userType() == qMetaTypeId<QUuid>())
             ret = value<QUuid>();
-        else if(userType() == qMetaTypeId<DataObjects::String>())
-            ret = toString();
     }
     else if(type() == String || type() == ByteArray)
         ret = toString();
-    return ret;
-}
-
-DataObjects::String GVariant::toGString() const
-{
-    DataObjects::String ret;
-    if(type() == UserType)
-    {
-        if(userType() == qMetaTypeId<QUuid>())
-            ret = DataObjects::String::FromQString(value<QUuid>().toString());
-        else if(userType() == qMetaTypeId<DataObjects::String>())
-            ret = value<DataObjects::String>();
-    }
-    else
-    {
-        // Define some specialized conversions from Qt types, but in
-        //  the end we'll accept any conversions to QString that Qt provides.
-        switch(type())
-        {
-        case ByteArray:
-            ret = DataObjects::String(toByteArray().constData(), toByteArray().length());
-            break;
-        default:
-            if(canConvert<QString>())
-            {
-                QByteArray ba(toString().toUtf8());
-                ret = DataObjects::String(ba.constData(), ba.length());
-            }
-            break;
-        }
-    }
     return ret;
 }
 
@@ -90,13 +58,13 @@ void GVariant::WriteXml(QXmlStreamWriter &sw) const
     switch(type)
     {
     case String:
-        sw.writeAttribute("d", toGString().ToBase64());
+        sw.writeAttribute("d", DataObjects::String(toString()).ToBase64());
         break;
     case ByteArray:
-        sw.writeAttribute("d", toGString().ToBase64());
+        sw.writeAttribute("d", DataObjects::String(toByteArray().constData(), toByteArray().length()).ToBase64());
         break;
     case Char:
-        sw.writeAttribute("d", toGString().ToBase64());
+        sw.writeAttribute("d", DataObjects::String(toString()).ToBase64());
         break;
     case Int:
         sw.writeAttribute("d", toString());
@@ -198,8 +166,6 @@ void GVariant::WriteXml(QXmlStreamWriter &sw) const
             sw.writeAttribute("d", value<QUuid>().toString());
         else if(type == qMetaTypeId<float>())
             sw.writeAttribute("d", QString("%1").arg(value<float>()));
-        else if(type == qMetaTypeId<DataObjects::String>())
-            sw.writeAttribute("d", toGString().ToBase64());
 
         break;
     }
@@ -363,8 +329,6 @@ void GVariant::ReadXml(QXmlStreamReader &sr)
                     setValue(QUuid(d));
                 else if(type == qMetaTypeId<float>())
                     setValue(d.toFloat());
-                else if(type == qMetaTypeId<DataObjects::String>())
-                    setValue(DataObjects::String(d).FromBase64());
 
                 break;
             }
@@ -402,8 +366,6 @@ bool GVariant::operator == (const GVariant &o) const
             ret = value<QUuid>() == o.value<QUuid>();
         else if(type == qMetaTypeId<float>())
             ret = value<float>() == o.value<float>();
-        else if(type == qMetaTypeId<DataObjects::String>())
-            ret = toGString() == o.toGString();
         else
             ret = false;
     }

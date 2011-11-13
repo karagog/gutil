@@ -17,16 +17,6 @@ limitations under the License.*/
 
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/iequatable.h"
-#include "Core/DataObjects/gstring.h"
-#include "Core/DataObjects/vector.h"
-#include "Core/DataObjects/list.h"
-#include "Core/DataObjects/dlist.h"
-#include "Core/DataObjects/slist.h"
-#include "Core/DataObjects/map.h"
-#include "Core/DataObjects/binarysearchtree.h"
-#include "Core/DataObjects/set.h"
-#include "Core/DataObjects/flags.h"
-#include "Core/DataObjects/heap.h"
 #include <QVariant>
 #include <QBitArray>
 #include <QRegExp>
@@ -91,13 +81,9 @@ public:
     inline GVariant(const QVariantList &i) :QVariant(i) {}
     inline GVariant(const QVariantMap &i) :QVariant(i) {}
     inline GVariant(const QUuid &i) :QVariant(qVariantFromValue(i)) {}
-    inline GVariant(const GUtil::Core::DataObjects::String &i) :QVariant(qVariantFromValue(i)) {}
 
     /** Converts this GVariant's contents to a QUuid. */
     QUuid toUuid() const;
-
-    /** Converts this GVariant's contents to a GUtil String. */
-    GUtil::Core::DataObjects::String toGString() const;
 
     void WriteXml(QXmlStreamWriter &) const;
     void ReadXml(QXmlStreamReader &)
@@ -119,9 +105,7 @@ GUTIL_END_NAMESPACE;
 
 
 // Register these types with the Qt meta-type system so we can use them with QVariants
-Q_DECLARE_METATYPE(GUtil::Core::DataObjects::String);
 Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
-
 Q_DECLARE_METATYPE(QUuid);
 Q_DECLARE_METATYPE(float);
 
