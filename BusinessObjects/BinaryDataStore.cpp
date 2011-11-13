@@ -16,7 +16,6 @@ limitations under the License.*/
 
 
 #include "BinaryDataStore.h"
-#include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
 #include "Core/extendedexception.h"
 #include <QDesktopServices>

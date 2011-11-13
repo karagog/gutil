@@ -36,10 +36,10 @@ limitations under the License.*/
     inline const RowType &At(int index) const{ return (const RowType &)Rows()[index]; } \
     \
     inline RowType &AddRow(const RowType &r){ return (RowType &)add_row(r); } \
-    inline RowType &AddNewRow(const GUtil::Custom::GVariantList &values = GUtil::Custom::GVariantList()) \
+    inline RowType &AddNewRow(const GUtil::Custom::GVariantVector &values = GUtil::Custom::GVariantVector()) \
         { return (RowType &)add_new_row(values); } \
     inline RowType &ImportRow(const RowType &r){ return (RowType &)import_row(r); } \
-    inline RowType CreateNewRow(const GUtil::Custom::GVariantList &values = GUtil::Custom::GVariantList()){ return (RowType)create_row(values); } \
+    inline RowType CreateNewRow(const GUtil::Custom::GVariantVector &values = GUtil::Custom::GVariantVector()){ return (RowType)create_row(values); } \
     enum{}
 
 
@@ -112,7 +112,7 @@ public:
 
     QStringList ColumnKeys() const;
     QStringList ColumnLabels() const;
-    QString Name() const;
+    inline QString Name() const{ return table_data().Name; }
     void SetTableName(const QString &);
 
     DataTable Clone() const;
@@ -183,9 +183,9 @@ protected:
     TableData &table_data();
     const TableData &table_data() const;
 
-    DataRow &add_new_row(const Custom::GVariantList &);
+    DataRow &add_new_row(const Custom::GVariantVector &);
     DataRow &add_row(const DataRow &);
-    DataRow create_row(const Custom::GVariantList &);
+    DataRow create_row(const Custom::GVariantVector &);
     DataRow &import_row(const DataRow &);
 
     // IClonable Interface:

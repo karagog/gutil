@@ -15,19 +15,27 @@ limitations under the License.*/
 #ifndef CORE_IXMLSERIALIZABLE_H
 #define CORE_IXMLSERIALIZABLE_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include "Core/exception.h"
-#include <string>
+#include "Core/DataObjects/gstring.h"
 
 GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
 
 
+/** An abstract interface which says your class can be serialized into
+    an XML string.
+*/
 class IXmlSerializable
 {
 public:
-    virtual std::string ToXmlString(bool human_readable) const = 0;
-    virtual void FromXmlString(const std::string &)
-            throw(GUtil::Core::XmlException<false>) = 0;
+
+    /** Serialize your class into an XML string. */
+    virtual DataObjects::String ToXmlString(bool human_readable) const = 0;
+
+    /** Construct your class from an existing XML string. */
+    virtual void FromXmlString(const DataObjects::String &)
+            throw(GUtil::Core::XmlException<>) = 0;
+
 };
 
 

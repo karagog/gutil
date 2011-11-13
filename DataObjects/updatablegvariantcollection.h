@@ -32,7 +32,7 @@ class UpdatableGVariantCollection :
 {
 public:
 
-    UpdatableGVariantCollection(int size = 0, const Custom::GVariantList &vals = Custom::GVariantList());
+    UpdatableGVariantCollection(GUINT32 size = 0, const Custom::GVariantVector &vals = Custom::GVariantVector());
     UpdatableGVariantCollection(const UpdatableGVariantCollection &);
 
 

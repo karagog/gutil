@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
 #include "gutil.h"
-#include <QList>
+#include "Core/DataObjects/vector.h"
 
 
 GUTIL_BEGIN_NAMESPACE(DataObjects);
@@ -38,8 +38,13 @@ public:
     }
 
 
-    // You can cast this as a QList
-    inline operator QList<T> () const{
+    /** You can cast this as a Vector */
+    inline operator const Core::DataObjects::Vector<T> &() const{
+        return _collection;
+    }
+
+    /** You can cast this as a Vector */
+    inline operator Core::DataObjects::Vector<T> &(){
         return _collection;
     }
 
@@ -63,7 +68,7 @@ protected:
 
     CollectionBase(){}
     CollectionBase(const CollectionBase<T> &);
-    CollectionBase(const QList<T> &);
+    CollectionBase(const Core::DataObjects::Vector<T> &);
     virtual ~CollectionBase(){}
 
     T &add_protected(const T &value);
@@ -97,7 +102,7 @@ protected:
 
 private:
 
-    QList<T> _collection;
+    Core::DataObjects::Vector<T> _collection;
 
     void _validate_index(int) const;
 
@@ -112,7 +117,7 @@ public:
 
     Collection();
     Collection(const Collection<T> &);
-    Collection(const QList<T> &);
+    Collection(const Core::DataObjects::Vector<T> &);
     virtual ~Collection();
 
 
@@ -163,7 +168,7 @@ public:
         Resize(size);
     }
 
-    inline ResizableCollection(const QList<T> &v)
+    inline ResizableCollection(const Core::DataObjects::Vector<T> &v)
         : Collection<T>(v){}
 
     inline ResizableCollection(const ResizableCollection<T> &v)

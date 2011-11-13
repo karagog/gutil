@@ -17,6 +17,16 @@ limitations under the License.*/
 
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/iequatable.h"
+#include "Core/DataObjects/gstring.h"
+#include "Core/DataObjects/vector.h"
+#include "Core/DataObjects/list.h"
+#include "Core/DataObjects/dlist.h"
+#include "Core/DataObjects/slist.h"
+#include "Core/DataObjects/map.h"
+#include "Core/DataObjects/binarysearchtree.h"
+#include "Core/DataObjects/set.h"
+#include "Core/DataObjects/flags.h"
+#include "Core/DataObjects/heap.h"
 #include <QVariant>
 #include <QBitArray>
 #include <QRegExp>
@@ -27,52 +37,67 @@ limitations under the License.*/
 #include <QVariantMap>
 #include <QDateTime>
 #include <QUuid>
+#include <QByteArray>
 
 GUTIL_BEGIN_NAMESPACE( Custom );
 
 
 class GVariant;
 
-// A convenient typedef
-typedef QList< GVariant > GVariantList;
+/** A typedef which defines a vector of GVariants. */
+typedef GUtil::Core::DataObjects::Vector<GVariant>
+        GVariantVector;
+
+/** A typedef which defines a Map of String to GVariant. */
+typedef GUtil::Core::DataObjects::Map<GUtil::Core::DataObjects::String, GVariant>
+        GVariantMap;
 
 
+
+/** A class derived from QVariant to extend its functionality.
+
+    Most notably there is an Xml Serializable interface.
+*/
 class GVariant :
         public QVariant,
-        public Interfaces::IQXmlSerializable,
-        public Core::Interfaces::IEquatable<GVariant>
+        public Interfaces::IQXmlSerializable
 {
 public:
-    GVariant();
-    GVariant(const QVariant &);
-    GVariant(Type);
-    GVariant(const std::string &);
-    GVariant(const QString &);
-    GVariant(const QByteArray &);
-    GVariant(const QChar &);
-    GVariant(int);
-    GVariant(uint);
-    GVariant(long long);
-    GVariant(unsigned long long);
-    GVariant(char *);
-    GVariant(const char *);
-    GVariant(bool);
-    GVariant(double);
-    GVariant(float);
-    GVariant(const QDate &);
-    GVariant(const QTime &);
-    GVariant(const QDateTime &);
-    GVariant(const QBitArray &);
-    GVariant(const QRegExp &);
-    GVariant(const QUrl &);
-    GVariant(const QRect &);
-    GVariant(const QSize &);
-    GVariant(const QStringList &);
-    GVariant(const QVariantList &);
-    GVariant(const QVariantMap &);
-    GVariant(const QUuid &);
+    inline GVariant() {}
+    inline GVariant(const QVariant &i) :QVariant(i) {}
+    inline GVariant(Type i) :QVariant(i) {}
+    inline GVariant(const std::string &i) :QVariant(QString::fromStdString(i)) {}
+    inline GVariant(const QString &i) :QVariant(i) {}
+    inline GVariant(const QByteArray &i) :QVariant(i) {}
+    inline GVariant(const QChar &i) :QVariant(i) {}
+    inline GVariant(int i) :QVariant(i) {}
+    inline GVariant(uint i) :QVariant(i) {}
+    inline GVariant(long long i) :QVariant(i) {}
+    inline GVariant(unsigned long long i) :QVariant(i) {}
+    inline GVariant(char *i) :QVariant(i) {}
+    inline GVariant(const char *i) :QVariant(i) {}
+    inline GVariant(bool i) :QVariant(i) {}
+    inline GVariant(double i) :QVariant(i) {}
+    inline GVariant(float i) :QVariant(i) {}
+    inline GVariant(const QDate &i) :QVariant(i) {}
+    inline GVariant(const QTime &i) :QVariant(i) {}
+    inline GVariant(const QDateTime &i) :QVariant(i) {}
+    inline GVariant(const QBitArray &i) :QVariant(i) {}
+    inline GVariant(const QRegExp &i) :QVariant(i) {}
+    inline GVariant(const QUrl &i) :QVariant(i) {}
+    inline GVariant(const QRect &i) :QVariant(i) {}
+    inline GVariant(const QSize &i) :QVariant(i) {}
+    inline GVariant(const QStringList &i) :QVariant(i) {}
+    inline GVariant(const QVariantList &i) :QVariant(i) {}
+    inline GVariant(const QVariantMap &i) :QVariant(i) {}
+    inline GVariant(const QUuid &i) :QVariant(qVariantFromValue(i)) {}
+    inline GVariant(const GUtil::Core::DataObjects::String &i) :QVariant(qVariantFromValue(i)) {}
 
+    /** Converts this GVariant's contents to a QUuid. */
     QUuid toUuid() const;
+
+    /** Converts this GVariant's contents to a GUtil String. */
+    GUtil::Core::DataObjects::String toGString() const;
 
     void WriteXml(QXmlStreamWriter &) const;
     void ReadXml(QXmlStreamReader &)
@@ -84,29 +109,8 @@ public:
     static QString ConvertToXmlQString(const GVariant &, bool human_readable = false);
     static GVariant ConvertFromXmlQString(const QString &);
 
-
-    virtual bool Equals(const GVariant &) const;
-
-    // A special (redundant) operator to prevent ambiguity when comparing with
-    //  other GVariants
-    bool operator == (const QVariant &) const;
-    bool operator != (const QVariant &) const;
-
-    // In this way, we grant the observable collection permission to be referenced
-    //  by us; we'll guarantee that these functions will call their version of it
-    virtual GVariant &operator =(const GVariant &o){return (GVariant &)(*((QVariant *)this) = o);}
-    virtual void clear(){QVariant::clear();}
-    virtual void convert(Type t){QVariant::convert(t);}
-
-    // In this function we go through our equals operator, because template functions can't
-    //  be virtual
-    template <class T> inline void setValue(const T &value){ *this = value; }
-
-
-
-    // These are types that I define, because for some reason Qt doesn't already
-    static int TypeQUuid;
-    static int TypeFloat;
+    bool operator == (const GVariant &) const;
+    inline bool operator != (const GVariant &o) const{ return !operator == (o); }
 
 };
 
@@ -115,8 +119,11 @@ GUTIL_END_NAMESPACE;
 
 
 // Register these types with the Qt meta-type system so we can use them with QVariants
+Q_DECLARE_METATYPE(GUtil::Core::DataObjects::String);
 Q_DECLARE_METATYPE(GUtil::Custom::GVariant);
+
 Q_DECLARE_METATYPE(QUuid);
+Q_DECLARE_METATYPE(float);
 
 
 #endif // GVARIANT_H

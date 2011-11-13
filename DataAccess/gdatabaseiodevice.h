@@ -22,6 +22,7 @@ limitations under the License.*/
 #include "Custom/gpairlist.h"
 #include "DataObjects/collection.h"
 #include "DataObjects/DataSet/datarow.h"
+#include "DataObjects/DataSet/datatable.h"
 #include <QVariant>
 #include <QMap>
 #include <QMutex>
@@ -194,8 +195,8 @@ namespace GUtil
             //  Hide these members from the public; nobody should use this interface.
             inline void SendData(const QByteArray &d)
                     throw(Core::DataTransportException<true>){ GIODevice::SendData(d); }
-            inline QByteArray ReceiveData(bool block)
-                    throw(Core::DataTransportException<true>){ return GIODevice::ReceiveData(block); }
+            inline QByteArray ReceiveData(bool)
+            throw(Core::DataTransportException<true>){ return GIODevice::ReceiveData(); }
 
             void send_data(const QByteArray &)
                     throw(Core::DataTransportException<true>);
@@ -277,7 +278,7 @@ namespace GUtil
             DataObjects::DataRow _row;
 
             void ReadXml(QXmlStreamReader &)
-                    throw(Core::XmlException);
+                    throw(Core::XmlException<>);
             void WriteXml(QXmlStreamWriter &) const;
 
         };

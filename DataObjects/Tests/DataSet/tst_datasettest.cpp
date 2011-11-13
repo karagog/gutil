@@ -75,10 +75,10 @@ void DataSetTest::test_dataRows()
 
         // Both data rows should be looking at the same data source
         r1[0] = "Value";
-        QVERIFY(r1[0].Equals(r2[0]));
-        QVERIFY(r1[0].Equals("Value"));
-        QVERIFY(r2[0].Equals("Value"));
-        QVERIFY(r1[t.ColumnKeys()[0]].Equals("Value"));
+        QVERIFY(r1[0] == r2[0]);
+        QVERIFY(r1[0] == "Value");
+        QVERIFY(r2[0] == "Value");
+        QVERIFY(r1[t.ColumnKeys()[0]] == "Value");
 
         DataRow r3(r2);
         r2.CloneTo(r3);
@@ -91,9 +91,9 @@ void DataSetTest::test_dataRows()
 
         // A change to either of the first two doesn't affect the cloned row
         r2[0] = "1";
-        QVERIFY(r2[0].Equals("1"));
-        QVERIFY(r1[0].Equals("1"));
-        QVERIFY(!r3[0].Equals("1"));
+        QVERIFY(r2[0] == "1");
+        QVERIFY(r1[0] == "1");
+        QVERIFY(r3[0] != "1");
 
         // Make sure the equal operator works the other way around too
         QVERIFY(!r3.Equals(r2));
@@ -143,7 +143,7 @@ void DataSetTest::test_dataRows()
         QVERIFY(tmpr.IsDirty());
         QVERIFY(t.IsDirty());
     }
-    catch(Exception &ex)
+    catch(Exception<> &ex)
     {
         dLogException(ex);
         QVERIFY(false);
@@ -161,7 +161,7 @@ void DataSetTest::test_row_errors()
         // If you initialize a row with more data than it has columns, then the extra
         //  data gets thrown out
 
-        t.AddNewRow( GVariantList() << "oops!");
+        t.AddNewRow( GVariantVector() << "oops!");
         DataRow r = t[0];
         QVERIFY(r.ColumnCount() == 0);
 
@@ -171,14 +171,14 @@ void DataSetTest::test_row_errors()
 
         QVERIFY(t.ColumnCount() == 2);
         QVERIFY(r.ColumnCount() == 2);
-        t.AddNewRow( GVariantList() << "Yay!");
+        t.AddNewRow( GVariantVector() << "Yay!");
         r = t[1];
 
         QVERIFY(r.ColumnCount() == 2);
-        QVERIFY(t[1]["one"].Equals("Yay!"));
-        QVERIFY(t[1]["two"].Equals(QVariant()));
-        QVERIFY(r[0].Equals("Yay!"));
-        QVERIFY(r[1].Equals(QVariant()));
+        QVERIFY(t[1]["one"] == "Yay!");
+        QVERIFY(t[1]["two"] == QVariant());
+        QVERIFY(r[0] == "Yay!");
+        QVERIFY(r[1] == QVariant());
 
 
         // Now test what happens when moving rows between data tables
@@ -189,7 +189,7 @@ void DataSetTest::test_row_errors()
             // We shouldn't be able to add a foreign row to the table
             t2.AddRow(r);
         }
-        catch(ValidationException &)
+        catch(ValidationException<> &)
         {
             exception_hit = true;
         }
@@ -209,13 +209,13 @@ void DataSetTest::test_row_errors()
         {
             t.Rows().Add(r);
         }
-        catch(ValidationException &)
+        catch(ValidationException<> &)
         {
             exception_hit = true;
         }
         QVERIFY(exception_hit);
     }
-    catch(Exception &ex)
+    catch(Exception<> &ex)
     {
         dLogException(ex);
         QVERIFY(false);
@@ -263,29 +263,29 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt.ColumnKeys()[0] == "OneColumn");
 
         // The column resize shouldn't affect the data in the first column
-        QVERIFY(dr[0].Equals("HI"));
+        QVERIFY(dr[0] == "HI");
 
         dt.Columns().Add(DataColumn("second", "two"));
         QVERIFY(dt.ColumnCount() == 2);
         QVERIFY(dr.ColumnCount() == 2);
 
         // Make sure the new column is null at first
-        QVERIFY(dr["second"].Equals(QVariant()));
+        QVERIFY(dr["second"] == QVariant());
 
         dr["second"] = "v";
-        QVERIFY(dr["second"].Equals("v"));
-        QVERIFY(dr[1].Equals("v"));
-        QVERIFY(dt.Rows()[0]["second"].Equals("v"));
+        QVERIFY(dr["second"] == "v");
+        QVERIFY(dr[1] == "v");
+        QVERIFY(dt.Rows()[0]["second"] == "v");
 
         dt.AddNewRow();
         DataRow dr2 = dt[dt.RowCount() - 1];
         QVERIFY(dr2.ColumnCount() == 2);
         QVERIFY(dt.Rows().Count() == 2);
-        QVERIFY(dr2[0].Equals(QVariant()));
-        QVERIFY(dr2[1].Equals(QVariant()));
+        QVERIFY(dr2[0] == QVariant());
+        QVERIFY(dr2[1] == QVariant());
 
         dr2[0] = "Hello World!";
-        QVERIFY(dr2[0].Equals("Hello World!"));
+        QVERIFY(dr2[0] == "Hello World!");
 
 
         // Test the xml import/export
@@ -303,10 +303,10 @@ void DataSetTest::test_dataTable()
         QVERIFY(dt2.ColumnLabels()[0] == "");
         QVERIFY2(dt2.ColumnLabels()[1] == "two", dt2.ColumnLabels()[1].toStdString().c_str());
 
-        QVERIFY(dt2[0][0].Equals("HI"));
-        QVERIFY(dt2[0]["second"].Equals("v"));
-        QVERIFY(dt2[1][0].Equals("Hello World!"));
-        QVERIFY(dt2[1]["second"].Equals(QVariant()));
+        QVERIFY(dt2[0][0] == "HI");
+        QVERIFY(dt2[0]["second"] == "v");
+        QVERIFY(dt2[1][0] == "Hello World!");
+        QVERIFY(dt2[1]["second"] == QVariant());
 
 
         // Test that we can find rows
@@ -314,8 +314,8 @@ void DataSetTest::test_dataTable()
         QVERIFY(asdf == dr);
 
         // Test finding a collection of rows:
-        DataRow tmpr1 = dt.AddNewRow(GVariantList() << "blah");
-        DataRow tmpr2 = dt.AddNewRow(GVariantList() << "blah");
+        DataRow tmpr1 = dt.AddNewRow(GVariantVector() << "blah");
+        DataRow tmpr2 = dt.AddNewRow(GVariantVector() << "blah");
         QVERIFY(tmpr1 != tmpr2);
         QVERIFY(tmpr1.Equals(tmpr2));
 
@@ -336,7 +336,7 @@ void DataSetTest::test_dataTable()
         dt3[0][0] = "new value";
         QVERIFY(!dt3.Equals(dt2));
     }
-    catch(Exception &ex)
+    catch(Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Caught exception");
@@ -350,16 +350,16 @@ void DataSetTest::test_dataTable_keycolumns()
         DataTable dt(2);
         dt.AddKeyColumn(0);
 
-        dt.AddNewRow(GVariantList() << 0);
-        dt.AddNewRow(GVariantList() << 1);
+        dt.AddNewRow(GVariantVector() << 0);
+        dt.AddNewRow(GVariantVector() << 1);
 
         bool exception_hit = false;
         try
         {
             // This should cause a duplicate key exception
-            dt.AddNewRow(GVariantList() << 0);
+            dt.AddNewRow(GVariantVector() << 0);
         }
-        catch(ValidationException)
+        catch(ValidationException<>)
         {
             exception_hit = true;
         }
@@ -372,7 +372,7 @@ void DataSetTest::test_dataTable_keycolumns()
             // Shouldn't be able to manually set a value to violate a primary key
             dt[1][0] = 0;
         }
-        catch(ValidationException)
+        catch(ValidationException<>)
         {
             exception_hit = true;
         }
@@ -394,7 +394,7 @@ void DataSetTest::test_dataTable_keycolumns()
             //  because the key is violated
             dt.AddKeyColumn(0);
         }
-        catch(ValidationException)
+        catch(ValidationException<>)
         {
             exception_hit = true;
         }
@@ -414,7 +414,7 @@ void DataSetTest::test_dataTable_keycolumns()
             // This would violate the primary key, because the rows' second columns are equal
             dt.RemoveKeyColumn(0);
         }
-        catch(ValidationException)
+        catch(ValidationException<>)
         {
             exception_hit = true;
         }
@@ -426,13 +426,13 @@ void DataSetTest::test_dataTable_keycolumns()
         {
             dt[1][0] = 0;
         }
-        catch(ValidationException)
+        catch(ValidationException<>)
         {
             exception_hit = true;
         }
         QVERIFY(exception_hit);
     }
-    catch(Exception &ex)
+    catch(Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Caught exception");
@@ -459,7 +459,7 @@ void DataSetTest::test_table_errors()
             // Can't add the same table twice
             ds.AddTable(ds.Tables()[0]);
         }
-        catch(ValidationException)
+        catch(ValidationException<>)
         {
             exception_hit = true;
         }
@@ -476,7 +476,7 @@ void DataSetTest::test_table_errors()
         QVERIFY(ds2.Contains(tmp));
         QVERIFY(ds.Contains(tmp));
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Exception Caught");
@@ -502,7 +502,7 @@ void DataSetTest::test_dataSet()
             // Shouldn't be able to add the same table twice
             ds.Tables().Add(dt1);
         }
-        catch(ValidationException &)
+        catch(ValidationException<> &)
         {
             exception_hit = true;
         }
@@ -510,15 +510,15 @@ void DataSetTest::test_dataSet()
 
 
         // Add a row and access it through the dataset object
-        dt1.AddNewRow( GVariantList() << "one");
-        QVERIFY(ds[0][0][0].Equals("one"));
+        dt1.AddNewRow( GVariantVector() << "one");
+        QVERIFY(ds[0][0][0] == "one");
 
-        dt2.AddNewRow( GVariantList() << "1" << "2");
-        dt2.AddNewRow( GVariantList() << "3" << "4");
-        QVERIFY(ds[1][0][0].Equals("1"));
-        QVERIFY(ds[1][0][1].Equals("2"));
-        QVERIFY(ds[1][1][0].Equals("3"));
-        QVERIFY(ds[1][1][1].Equals("4"));
+        dt2.AddNewRow( GVariantVector() << "1" << "2");
+        dt2.AddNewRow( GVariantVector() << "3" << "4");
+        QVERIFY(ds[1][0][0] == "1");
+        QVERIFY(ds[1][0][1] == "2");
+        QVERIFY(ds[1][1][0] == "3");
+        QVERIFY(ds[1][1][1] == "4");
 
 
         // Export it to Xml and import it again
@@ -533,7 +533,7 @@ void DataSetTest::test_dataSet()
         QVERIFY(ds2 != ds);
         QVERIFY(ds2.Equals(ds));
     }
-    catch(Exception &ex)
+    catch(Exception<> &ex)
     {
         dLogException(ex);
         QVERIFY(false);
@@ -556,7 +556,7 @@ void DataSetTest::test_derived_classes()
 
         pt[0].SetLastName("Toker");
         QVERIFY(pdr.GetLastName() == "Toker");
-        QVERIFY(pdr[1].Equals("Toker"));
+        QVERIFY(pdr[1] == "Toker");
 
         QUuid id(pdr.GetId());
 
@@ -566,7 +566,7 @@ void DataSetTest::test_derived_classes()
             // This clones the row and adds a copy (should fail; duplicate id)
             pt.ImportRow(pdr);
         }
-        catch(Core::ValidationException &)
+        catch(Core::ValidationException<> &)
         {
             // We should hit the exception, because our people table forbids us
             //  from adding two rows with the same id
@@ -603,9 +603,9 @@ void DataSetTest::test_derived_classes()
 
         // Now we'll create a Dog table:
         DogTable dog_table;
-        dog_table.AddNewRow(GVariantList() << "Robert" << "Bob" << "Dachshund");
-        dog_table.AddNewRow(GVariantList() << "Debi" << "Pebbles" << "Dachshund");
-        dog_table.AddNewRow(GVariantList() << "Lily" << "Lilz" << "Shitsu");
+        dog_table.AddNewRow(GVariantVector() << "Robert" << "Bob" << "Dachshund");
+        dog_table.AddNewRow(GVariantVector() << "Debi" << "Pebbles" << "Dachshund");
+        dog_table.AddNewRow(GVariantVector() << "Lily" << "Lilz" << "Shitsu");
 
         QVERIFY(_verify_dog_data(dog_table));
 
@@ -659,7 +659,7 @@ void DataSetTest::test_derived_classes()
         QVERIFY(dods.GetPeopleTable()[0].GetLastName() == "Kid");
         QVERIFY(dods.GetPeopleTable()[0].GetId() == p1_id);
 
-        DogRow d1 = dods.GetDogTable().AddNewRow(GVariantList() << "Muffy" << "" << "Terrier" << p1_id);
+        DogRow d1 = dods.GetDogTable().AddNewRow(GVariantVector() << "Muffy" << "" << "Terrier" << p1_id);
         QVERIFY(dods.GetDogTable().RowCount() == 1);
         QVERIFY(d1 == dods.GetDogTable()[0]);
 
@@ -668,7 +668,7 @@ void DataSetTest::test_derived_classes()
         QVERIFY(d1.GetBreed() == "Terrier");
         QVERIFY(d1.GetOwnerId() == p1_id);
     }
-    catch(Exception &ex)
+    catch(Exception<> &ex)
     {
         dLogException(ex);
         QVERIFY(false);

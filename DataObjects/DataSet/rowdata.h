@@ -33,7 +33,7 @@ class RowData :
 public:
 
     explicit RowData(TableData *,
-                     const Custom::GVariantList &vl = Custom::GVariantList());
+                     const Custom::GVariantVector &vl = Custom::GVariantVector());
 
     RowData(const RowData &o);
 

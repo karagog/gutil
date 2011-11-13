@@ -4,8 +4,8 @@
 DESTDIR = ../lib
 
 # If you want database functionality, uncomment these
-QT += sql
-DEFINES += DATABASE_FUNCTIONALITY
+#QT += sql
+#DEFINES += DATABASE_FUNCTIONALITY
 
 QT += network
 DEFINES += NETWORK_FUNCTIONALITY

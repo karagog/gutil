@@ -107,6 +107,13 @@ public:
     /** Clears the string and reclaims the memory. */
     inline void Clear(){ Vector<char>::Clear(); }
 
+    /** Returns a pointer to the start of the string. */
+    inline char *Data(){ return Vector<char>::Data(); }
+    /** Returns a pointer to the const start of the string. */
+    inline const char *ConstData() const{ return Vector<char>::ConstData(); }
+    /** Returns a pointer to one char past end of the string. */
+    inline const char *DataEnd() const{ return Vector<char>::DataEnd(); }
+
 
     /** Appends the string to this one and returns this. */
     inline String &Append(const String &s){ Insert(s, s.Length(), Length()); return *this; }
@@ -650,7 +657,7 @@ public:
 
 
     /** Comparison operator. */
-    bool operator == (const String &s) const;
+    inline bool operator == (const String &s) const{ return Vector<char>::operator == (s); }
     /** Comparison operator. */
     bool operator == (const char *s) const;
 
@@ -688,8 +695,11 @@ public:
 #ifdef GUTIL_CORE_QT_ADAPTERS
 
         /** Converts to a QString. */
-        QString ToQString() const{ return QString::fromUtf8(ConstData(), Length()); }
-        static String FromQString(const QString &s){ QByteArray ba(s.toUtf8()); return String(ba.constData(), ba.size()); }
+        inline QString ToQString() const{ return QString::fromUtf8(ConstData(), Length()); }
+        inline static String FromQString(const QString &s){ QByteArray ba(s.toUtf8()); return String(ba.constData(), ba.size()); }
+
+        inline String(const QString &qs){ operator = (FromQString(qs)); }
+        inline operator QString () const{ return ToQString(); }
 
 #endif
 
@@ -710,6 +720,10 @@ private:
     }
 
 };
+
+
+/** A convenient typedef for a list of strings. */
+typedef Vector<String> StringVector;
 
 
 /** A convenience operator allows you to compare with const char * as a lhs value. */

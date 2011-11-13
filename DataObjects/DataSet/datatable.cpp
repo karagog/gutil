@@ -19,7 +19,6 @@ limitations under the License.*/
 #include "datarowcollection.h"
 #include "datacolumncollection.h"
 #include "Custom/gvariant.h"
-#include "Utils/qstringhelpers.h"
 #include "Core/extendedexception.h"
 #include "Core/globals.h"
 #include <QXmlStreamReader>
@@ -28,6 +27,7 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace Custom;
 using namespace DataObjects;
+GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 DataObjects::DataTable::DataTable(const QStringList &column_keys, const QStringList &column_labels)
         :ExplicitlySharedObject< SharedTableData >(new SharedTableData)
@@ -120,7 +120,7 @@ bool DataObjects::DataTable::Equals(const DataObjects::DataTable &t) const
     return ret;
 }
 
-DataRow &DataObjects::DataTable::add_new_row(const Custom::GVariantList &values)
+DataRow &DataObjects::DataTable::add_new_row(const Custom::GVariantVector &values)
 {
     return add_row(create_row(values));
 }
@@ -140,7 +140,7 @@ DataRow &DataTable::add_row(const DataRow &r)
     return ret;
 }
 
-DataRow DataTable::create_row(const Custom::GVariantList &values)
+DataRow DataTable::create_row(const Custom::GVariantVector &values)
 {
     DataRow dr(&table_data(), values);
     init_new_row(dr);
@@ -196,11 +196,6 @@ QStringList DataObjects::DataTable::ColumnLabels() const
     return table_data().Columns.Labels();
 }
 
-QString DataObjects::DataTable::Name() const
-{
-    return table_data().Name;
-}
-
 void DataObjects::DataTable::SetTableName(const QString &n)
 {
     table_data().Name = n;
@@ -218,7 +213,7 @@ void DataObjects::DataTable::WriteXml(QXmlStreamWriter &sw) const
     sw.writeStartElement(DATATABLE_XML_ID);
     sw.writeAttribute("s", QString("%1").arg(RowCount()));
     sw.writeAttribute("n", QString("%1").arg(
-            Utils::QStringHelpers::toBase64(Name())
+            String(Name()).ToBase64()
             ));
 
     // Write our column data
@@ -250,8 +245,7 @@ void DataObjects::DataTable::ReadXml(QXmlStreamReader &sr)
 
         int sz = sr.attributes().at(0).value().toString().toInt();
 
-        table_data().Name = Utils::QStringHelpers::fromBase64(
-                    sr.attributes().at(1).value().toString());
+        table_data().Name = String(sr.attributes().at(1).value().toString()).FromBase64().ToQString();
 
         {
             QStringList new_keys = GVariant::FromXml(sr).toStringList();

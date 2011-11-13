@@ -54,10 +54,10 @@ void DataRowCollection::_init_cloned_rows(const DataRowCollection &o)
     for(int i = 0; i < o.Count(); i++)
     {
         const DataRow &r = o[i];
-        Custom::GVariantList vals;
+        Custom::GVariantVector vals;
 
         for(int j = 0; j < r.ColumnCount(); j++)
-            vals.append(r[j]);
+            vals.PushBack(r[j]);
 
         Add(DataRow(_table, vals));
     }

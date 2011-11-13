@@ -4,6 +4,8 @@ QT -= gui
 TARGET = GUtilDataObjects
 LIBS += -L../lib -lGUtilCore -lGUtilInterfaces -lGUtilCustom -lGUtilUtils
 
+DEFINES += GUTIL_CORE_QT_ADAPTERS
+
 TEMPLATE = lib
 #CONFIG += staticlib
 

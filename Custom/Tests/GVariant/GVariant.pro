@@ -12,11 +12,16 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+DEFINES += GUI_FUNCTIONALITY
+
 
 SOURCES += tst_gvarianttest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 INCLUDEPATH += ../../..
-LIBS += -L../../../lib -lGUtil
+LIBS += -L../../../lib \
+        -lGUtilCore \
+        -lGUtilCustom \
+        -lGUtilInterfaces
 
 DEFINES += DEBUG_LOGGING

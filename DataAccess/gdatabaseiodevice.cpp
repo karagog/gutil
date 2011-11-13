@@ -745,7 +745,7 @@ QByteArray GDatabaseIODevice::receive_data()
                 {
                     tbl = new DataTable(_selection_parameters->Table().Name());
                     tbl->SetColumnHeaders(QStringList("COUNT"));
-                    tbl->AddNewRow(Custom::GVariantList() << query.value(0));
+                    tbl->AddNewRow(Custom::GVariantVector() << query.value(0));
                 }
             }
 
@@ -870,7 +870,7 @@ void DatabaseParametersBase::ReadXml(QXmlStreamReader &sr)
 
 void DatabaseParametersBase::WriteXml(QXmlStreamWriter &sw) const
 {
-    Custom::GVariantList gvl;
+    Custom::GVariantVector gvl;
     for(int i = 0; i < ColumnOptions().Count(); i++)
         gvl.append((int)ColumnOptions()[i]);
 

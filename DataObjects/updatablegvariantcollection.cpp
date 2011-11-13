@@ -19,11 +19,11 @@ GUTIL_USING_NAMESPACE( DataObjects );
 GUTIL_USING_NAMESPACE( Custom );
 
 
-UpdatableGVariantCollection::UpdatableGVariantCollection(int size, const GVariantList &v)
+UpdatableGVariantCollection::UpdatableGVariantCollection(GUINT32 size, const GVariantVector &v)
     :ResizableCollection<Custom::UpdatableGVariant>(size),
     _observer(0)
 {
-    for(int i = 0; i < v.count() && i < size; i++)
+    for(GUINT32 i(0); i < v.Count() && i < size; i++)
         At(i) = v[i];
 
     _init();

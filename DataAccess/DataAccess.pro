@@ -30,8 +30,8 @@ SOURCES += \
 INCLUDEPATH += ..
 
 # Uncomment these to enable database functionality
-QT += sql
-DEFINES += DATABASE_FUNCTIONALITY
+#QT += sql
+#DEFINES += DATABASE_FUNCTIONALITY
 
 QT += network
 DEFINES += NETWORK_FUNCTIONALITY

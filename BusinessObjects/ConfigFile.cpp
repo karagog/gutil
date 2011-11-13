@@ -16,7 +16,6 @@ limitations under the License.*/
 
 #include "ConfigFile.h"
 #include "Core/extendedexception.h"
-#include "Core/Utils/stringhelpers.h"
 #include "Core/Utils/encryption.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -214,7 +213,7 @@ void ConfigFile::SetValues(const QMap<QString, Custom::GVariant> &values)
             }
 
             if(ex_hit)
-                _table.AddNewRow(Custom::GVariantList() << s << values[s]);
+                _table.AddNewRow(Custom::GVariantVector() << s << values[s]);
         }
     }
     _table.Unlock();

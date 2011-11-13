@@ -19,7 +19,7 @@ limitations under the License.*/
 using namespace GUtil;
 
 DataObjects::RowData::RowData(TableData *t,
-                              const Custom::GVariantList &vals)
+                              const Custom::GVariantVector &vals)
     :Tuple(t->Columns.Count(), vals),
       Table(t)
 {

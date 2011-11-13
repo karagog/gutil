@@ -7,10 +7,10 @@
 #include <QVariantMap>
 #include "Custom/gvariant.h"
 #include "Custom/updatablegvariant.h"
-#include "Logging/debuglogger.h"
+#include "Core/exception.h"
 using namespace GUtil;
-using namespace Custom;
-using namespace Logging;
+GUTIL_USING_NAMESPACE(Custom);
+GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
 
 class GVariantTest :
@@ -41,23 +41,24 @@ GVariantTest::GVariantTest()
 void GVariantTest::test_basic_types()
 {
     GVariant gv1, gv2;
+    QString tmps;
 
     // Test integers
     gv1 = (int)5;
     gv2.FromXmlQString(gv1.ToXmlQString());
 
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv1.Equals(5));
+    QVERIFY(gv1 == 5);
 
     // Unsigned integers
     gv1 = (uint)5;
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
 
     gv1 = (uint)-2000;
     gv2 = gv1.toInt();
-    qDebug(gv1.ToXmlString().c_str());
-    qDebug(gv2.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
+    qDebug(gv2.ToXmlString());
     QVERIFY(gv1 != gv2);
 
     gv2.FromXmlQString(gv1.ToXmlQString());
@@ -65,40 +66,50 @@ void GVariantTest::test_basic_types()
 
     // Char
     gv1 = QChar(0x0);
-    gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
-    QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(QChar(0x0)));
+    tmps = gv1.ToXmlQString();
+    gv2.FromXmlQString(tmps);
+    qDebug(gv1.ToXmlString());
+    QVERIFY2(gv1 == gv2, gv2.toGString().ToBase16());
+    QVERIFY(gv2 == QChar(0x0));
 
     // Bool
     gv1 = true;
     gv2.FromXmlQString(gv1.ToXmlQString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(true));
+    QVERIFY(gv2 == true);
 
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
 
     gv1 = false;
     gv2.FromXmlQString(gv1.ToXmlQString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(false));
+    QVERIFY(gv2 == false);
 
     // Double
     gv1 = (double)5.68921;
     gv2.FromXmlQString(gv1.ToXmlQString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(5.68921));
+    QVERIFY(gv2 == 5.68921);
 
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
 
     // Float
     gv1 = (float)5.68921;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
-    QVERIFY(gv2.Equals((float)5.68921));
-    QVERIFY(gv1.Equals((float)5.68921));
+    qDebug(gv1.ToXmlString());
+    QVERIFY(gv2 == (float)5.68921);
+    QVERIFY(gv1 == (float)5.68921);
 
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
+
+    // GString
+    gv1 = String("Hello World!");
+    tmps = gv1.ToXmlQString();
+    gv2.FromXmlQString(tmps);
+    qDebug(gv1.ToXmlString());
+    QVERIFY2(gv1 == gv2, gv1.toGString());
+    QVERIFY2(gv2 == "Hello World!", gv2.toGString());
+    QVERIFY2(gv1 == "Hello World!", gv1.toGString());
 }
 
 void GVariantTest::test_simple_qt_types()
@@ -107,9 +118,9 @@ void GVariantTest::test_simple_qt_types()
     GVariant gv1 = "Hello!";
     GVariant gv2;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
-    QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals("Hello!"));
+    qDebug(gv1.ToXmlString());
+    QVERIFY2(gv1 == gv2, gv2.toGString());
+    QVERIFY2(gv2 == "Hello!", gv2.toGString());
 
     QString tmps;
     tmps.append((char)0x00);
@@ -117,9 +128,9 @@ void GVariantTest::test_simple_qt_types()
     tmps.append((char)0x02);
     gv1 = tmps;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(tmps));
+    QVERIFY(gv2 == tmps);
 
     // Byte Arrays
     QByteArray ba;
@@ -128,40 +139,40 @@ void GVariantTest::test_simple_qt_types()
     ba.append((char)0x00);
     gv1 = ba;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(ba));
+    QVERIFY(gv2 == ba);
 
     // QDates
     QDate dt(2005, 4, 20);
     gv1 = dt;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(dt));
+    QVERIFY(gv2 == dt);
 
     // QTimes
     QTime tm(1, 2, 3, 4);
     gv1 = tm;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(tm));
+    QVERIFY(gv2 == tm);
 
     tm = QTime(1, 2);
     gv1 = tm;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(tm));
+    QVERIFY(gv2 == tm);
 
     // QDateTimes
     QDateTime dtt(dt, tm);
     gv1 = dtt;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(dtt));
+    QVERIFY(gv2 == dtt);
 
     // Bit arrays
     QBitArray b(4);
@@ -171,51 +182,51 @@ void GVariantTest::test_simple_qt_types()
     b.setBit(3, 1);
     gv1 = b;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(b));
+    QVERIFY(gv2 == b);
 
     // QRegExp
     QRegExp exp("&pattern/>", Qt::CaseInsensitive, QRegExp::Wildcard);
     QRegExp wrong("&pattern/>", Qt::CaseSensitive, QRegExp::Wildcard);
     gv1 = exp;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(exp));
-    QVERIFY(gv1.NotEquals(wrong));
+    QVERIFY(gv2 == exp);
+    QVERIFY(gv1 != wrong);
 
     // QUrl
     QUrl u("http://tempzone.com");
     gv1 = u;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(u));
+    QVERIFY(gv2 == u);
 
     // QRect
     QRect rect(1,2,3,4);
     gv1 = rect;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(rect));
+    QVERIFY(gv2 == rect);
 
     // QSize
     QSize sz(1, 2);
     gv1 = sz;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
+    qDebug(gv1.ToXmlString());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(sz));
+    QVERIFY(gv2 == sz);
 
     // QUuid
     QUuid id(QUuid::createUuid());
     gv1 = id;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    qDebug(gv1.ToXmlString().c_str());
-    QVERIFY(gv1.Equals(gv2));
-    QVERIFY(gv2.Equals(id));
+    qDebug(gv1.ToXmlString());
+    QVERIFY(gv1 == gv2);
+    QVERIFY(gv2 == id);
 }
 
 void GVariantTest::test_collections()
@@ -230,8 +241,8 @@ void GVariantTest::test_collections()
     gv2.FromXmlQString(gv1.ToXmlQString());
     //qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(sl));
-    QVERIFY(gv2.NotEquals(slbad));
+    QVERIFY(gv2 == sl);
+    QVERIFY(gv2 != slbad);
 
     // QVariantMap
     QVariantMap vm;
@@ -241,7 +252,7 @@ void GVariantTest::test_collections()
     gv2.FromXmlQString(gv1.ToXmlQString());
     //qDebug(gv1.ToXmlString(true).c_str());
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(vm));
+    QVERIFY(gv2 == vm);
 
     // VariantList
     QVariantList vl1, vl2;
@@ -252,9 +263,9 @@ void GVariantTest::test_collections()
     vl2.append("Hello!");
     gv1 = vl2;
     gv2.FromXmlQString(gv1.ToXmlQString());
-    //qDebug(gv1.ToXmlString(true).c_str());
+    //qDebug(gv1.ToXmlString(true));
     QVERIFY(gv1 == gv2);
-    QVERIFY(gv2.Equals(vl2));
+    QVERIFY(gv2 == vl2);
 }
 
 
@@ -277,7 +288,7 @@ void GVariantTest::test_callbacks()
         {
             v.setValue(5);
         }
-        catch(Core::ValidationException &)
+        catch(Core::ValidationException<> &)
         {
             exception_hit = true;
         }
@@ -289,7 +300,7 @@ void GVariantTest::test_callbacks()
         {
             v = 5;
         }
-        catch(Core::ValidationException &)
+        catch(Core::ValidationException<> &)
         {
             exception_hit = true;
         }
@@ -306,15 +317,14 @@ void GVariantTest::test_callbacks()
         {
             v = "5";
         }
-        catch(Core::ValidationException &)
+        catch(Core::ValidationException<> &)
         {
             exception_hit = true;
         }
         QVERIFY(exception_hit);
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
-        dLogException(ex);
         QFAIL("Exception Hit");
     }
 }

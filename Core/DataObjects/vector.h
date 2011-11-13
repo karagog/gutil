@@ -66,7 +66,7 @@ public:
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    inline Vector(const T &o, GUINT32 size)
+    inline Vector(const T &o, GUINT32 size = 1)
         :m_begin(NULL)
     {
         Reserve(size);
@@ -706,6 +706,47 @@ public:
     inline const_iterator rbegin() const{ return const_iterator(m_begin, DataEnd() - 1); }
     inline iterator rend(){ return iterator(m_begin, m_begin - 1); }
     inline const_iterator rend() const{ return const_iterator(m_begin, m_begin - 1); }
+
+    /** Returns true if the vectors are equal.
+        Vector equality is established by checking each individual element from
+        this vector with the corresponding element in the other vector and evaluating
+        the class' own == operator.
+        \note O(N)
+    */
+    bool operator == (const Vector<T> &o) const{
+        const T *cur1(ConstData()), *cur2(o.ConstData());
+        if(static_cast<bool>(cur1) ^ static_cast<bool>(cur2))
+            return false;
+
+        bool res(true);
+        while(cur1 != DataEnd())
+        {
+            if(*cur1 != *cur2)
+            {
+                res = false;
+                break;
+            }
+            ++cur1, ++cur2;
+        }
+        return res;
+    }
+    /** Returns true if the vectors are not equal.
+        Vector equality is established by checking each individual element from
+        this vector with the corresponding element in the other vector and evaluating
+        the class' own == operator.
+        \note O(N)
+    */
+    inline bool operator != (const Vector<T> &o) const{ return !operator == (o); }
+
+    /** Appends the item at the end of the vector. */
+    inline Vector<T> &operator << (const T &o){ PushBack(o); return *this; }
+    /** Appends the vector at the end of the vector. */
+    inline Vector<T> &operator << (const Vector<T> &o){ Insert(o, Length()); return *this; }
+
+    /** Assigns the object to the last value at the end of the vector, and
+        also pops the value.
+    */
+    inline void operator >> (T &o){ o = operator[](Length()); PopBack(); }
 
 
 protected:

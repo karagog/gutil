@@ -13,126 +13,73 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gvariant.h"
-#include "Utils/qstringhelpers.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <limits.h>
-using namespace GUtil;
+GUTIL_USING_NAMESPACE(Core);
+GUTIL_USING_NAMESPACE(Custom);
 
 #define GVARIANT_XML_ID "GV"
 
-Custom::GVariant::GVariant()
-    :QVariant(){}
-
-Custom::GVariant::GVariant(const QVariant &o)
-    :QVariant(o){}
-
-Custom::GVariant::GVariant(Type t)
-    :QVariant(t){}
-
-Custom::GVariant::GVariant(const std::string &s)
-    :QVariant( QString::fromStdString(s) ){}
-
-Custom::GVariant::GVariant(const QString &s)
-    :QVariant(s){}
-
-Custom::GVariant::GVariant(const QByteArray &b)
-    :QVariant(b){}
-
-Custom::GVariant::GVariant(const QChar &c)
-    :QVariant(c){}
-
-Custom::GVariant::GVariant(int i)
-    :QVariant(i){}
-
-Custom::GVariant::GVariant(uint i)
-    :QVariant(i){}
-
-Custom::GVariant::GVariant(long long i)
-    :QVariant(i){}
-
-Custom::GVariant::GVariant(unsigned long long i)
-    :QVariant(i){}
-
-Custom::GVariant::GVariant(char *c)
-    :QVariant(c){}
-
-Custom::GVariant::GVariant(const char *c)
-    :QVariant(c){}
-
-Custom::GVariant::GVariant(bool b)
-    :QVariant(b){}
-
-Custom::GVariant::GVariant(double d)
-    :QVariant(d){}
-
-Custom::GVariant::GVariant(float f)
-    :QVariant(QVariant::fromValue(f)){}
-
-Custom::GVariant::GVariant(const QDate &d)
-    :QVariant(d){}
-
-Custom::GVariant::GVariant(const QTime &t)
-    :QVariant(t){}
-
-Custom::GVariant::GVariant(const QDateTime &d)
-    :QVariant(d){}
-
-Custom::GVariant::GVariant(const QBitArray &b)
-    :QVariant(b){}
-
-Custom::GVariant::GVariant(const QStringList &s)
-    :QVariant(s){}
-
-Custom::GVariant::GVariant(const QRegExp &r)
-    :QVariant(r){}
-
-Custom::GVariant::GVariant(const QUrl &u)
-    :QVariant(u){}
-
-Custom::GVariant::GVariant(const QList<QVariant> &l)
-    :QVariant(l){}
-
-Custom::GVariant::GVariant(const QVariantMap &v)
-    :QVariant(v){}
-
-Custom::GVariant::GVariant(const QRect &r)
-    :QVariant(r){}
-
-Custom::GVariant::GVariant(const QSize &s)
-    :QVariant(s){}
-
-Custom::GVariant::GVariant(const QUuid &i)
-    :QVariant(TypeQUuid, new QUuid(i)){}
-
-QUuid Custom::GVariant::toUuid() const
+QUuid GVariant::toUuid() const
 {
     QUuid ret;
-    if(type() == String || type() == ByteArray)
+    if(type() == UserType)
+    {
+        if(userType() == qMetaTypeId<QUuid>())
+            ret = value<QUuid>();
+        else if(userType() == qMetaTypeId<DataObjects::String>())
+            ret = toString();
+    }
+    else if(type() == String || type() == ByteArray)
         ret = toString();
-    else if(type() == UserType && userType() == TypeQUuid)
-        ret = value<QUuid>();
     return ret;
 }
 
-QString Custom::GVariant::ConvertToXmlQString(const GVariant &v, bool h)
+DataObjects::String GVariant::toGString() const
+{
+    DataObjects::String ret;
+    if(type() == UserType)
+    {
+        if(userType() == qMetaTypeId<QUuid>())
+            ret = DataObjects::String::FromQString(value<QUuid>().toString());
+        else if(userType() == qMetaTypeId<DataObjects::String>())
+            ret = value<DataObjects::String>();
+    }
+    else
+    {
+        // Define some specialized conversions from Qt types, but in
+        //  the end we'll accept any conversions to QString that Qt provides.
+        switch(type())
+        {
+        case ByteArray:
+            ret = DataObjects::String(toByteArray().constData(), toByteArray().length());
+            break;
+        default:
+            if(canConvert<QString>())
+            {
+                QByteArray ba(toString().toUtf8());
+                ret = DataObjects::String(ba.constData(), ba.length());
+            }
+            break;
+        }
+    }
+    return ret;
+}
+
+QString GVariant::ConvertToXmlQString(const GVariant &v, bool h)
 {
     return GVariant(v).ToXmlQString(h);
 }
 
-Custom::GVariant Custom::GVariant::ConvertFromXmlQString(const QString &xml)
+GVariant GVariant::ConvertFromXmlQString(const QString &xml)
 {
     GVariant ret;
     ret.FromXmlQString(xml);
     return ret;
 }
 
-
-
-int Custom::GVariant::TypeQUuid = qMetaTypeId<QUuid>();
-int Custom::GVariant::TypeFloat = qMetaTypeId<float>();
-
-void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
+void GVariant::WriteXml(QXmlStreamWriter &sw) const
 {
     int type = userType();
 
@@ -143,16 +90,13 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     switch(type)
     {
     case String:
-        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toString()));
+        sw.writeAttribute("d", toGString().ToBase64());
         break;
     case ByteArray:
-        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(
-                QString::fromStdString(
-                        std::string(toByteArray().constData(),
-                                    toByteArray().length()))));
+        sw.writeAttribute("d", toGString().ToBase64());
         break;
     case Char:
-        sw.writeAttribute("d", Utils::QStringHelpers::toBase64(toChar()));
+        sw.writeAttribute("d", toGString().ToBase64());
         break;
     case Int:
         sw.writeAttribute("d", toString());
@@ -207,7 +151,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         foreach(QString z, toStringList())
         {
             sw.writeStartElement("i");
-            sw.writeAttribute("d", Utils::QStringHelpers::toBase64(z));
+            sw.writeAttribute("d", DataObjects::String(z).ToBase64());
             sw.writeEndElement();
         }
         break;
@@ -230,7 +174,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
         foreach(QString z, toMap().keys())
         {
             sw.writeStartElement("i");
-            sw.writeAttribute("k", Utils::QStringHelpers::toBase64(z));
+            sw.writeAttribute("k", DataObjects::String(z).ToBase64());
             GVariant(toMap().value(z)).WriteXml(sw);
             sw.writeEndElement();
         }
@@ -250,10 +194,12 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     default:
 
         // These are our custom types, that have to be handled separately
-        if(type == TypeQUuid)
+        if(type == qMetaTypeId<QUuid>())
             sw.writeAttribute("d", value<QUuid>().toString());
-        else if(type == TypeFloat)
+        else if(type == qMetaTypeId<float>())
             sw.writeAttribute("d", QString("%1").arg(value<float>()));
+        else if(type == qMetaTypeId<DataObjects::String>())
+            sw.writeAttribute("d", toGString().ToBase64());
 
         break;
     }
@@ -261,7 +207,7 @@ void Custom::GVariant::WriteXml(QXmlStreamWriter &sw) const
     sw.writeEndElement();
 }
 
-void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
+void GVariant::ReadXml(QXmlStreamReader &sr)
         throw(GUtil::Core::XmlException<>)
 {
     try
@@ -280,7 +226,6 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                 d = sr.attributes().at(1).value().toString();
 
             int tmpint;
-            QString tmps;
             QStringList sltemp1;
             QStringList sltemp2;
             QStringList sltemp3;
@@ -290,14 +235,16 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             switch(type)
             {
             case String:
-                setValue(Utils::QStringHelpers::fromBase64(d));
+                setValue(DataObjects::String(d).FromBase64().ToQString());
                 break;
             case ByteArray:
-                tmps = Utils::QStringHelpers::fromBase64(d);
-                setValue(QByteArray(tmps.toStdString().c_str(), tmps.length()));
+            {
+                DataObjects::String tmps( DataObjects::String(d).FromBase64() );
+                setValue(QByteArray(tmps.ConstData(), tmps.Length()));
+            }
                 break;
             case Char:
-                setValue(Utils::QStringHelpers::fromBase64(d).at(0));
+                setValue(QChar(DataObjects::String(d).FromBase64()[0]));
                 break;
             case Int:
                 setValue(d.toInt());
@@ -356,8 +303,8 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                     if(!sr.readNextStartElement())
                         THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
 
-                    sltemp1.append(Utils::QStringHelpers::fromBase64(
-                                       sr.attributes().at(0).value().toString()));
+                    sltemp1.append(DataObjects::String(sr.attributes().at(0).value().toString())
+                                   .FromBase64());
                     while(sr.readNext() != QXmlStreamReader::EndElement);
                 }
                 setValue(sltemp1);
@@ -374,7 +321,7 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                 tmpint = d.toInt();
                 for(int i = 0; i < tmpint; i++)
                 {
-                    Custom::GVariant gv;
+                    GVariant gv;
                     gv.ReadXml(sr);
                     vl.append(gv);
                 }
@@ -387,8 +334,9 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
                     if(!sr.readNextStartElement())
                         THROW_NEW_GUTIL_EXCEPTION(Core::XmlException);
 
-                    QString key = Utils::QStringHelpers::fromBase64(
-                                sr.attributes().at(0).value().toString());
+                    QString key = DataObjects::String(
+                                      sr.attributes().at(0).value().toString()
+                                      ).FromBase64();
                     GVariant gv;
                     gv.ReadXml(sr);
                     vm.insert(key, gv);
@@ -411,10 +359,12 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
             default:
 
                 // These are our custom types, that have to be handled separately
-                if(type == TypeQUuid)
+                if(type == qMetaTypeId<QUuid>())
                     setValue(QUuid(d));
-                else if(type == TypeFloat)
+                else if(type == qMetaTypeId<float>())
                     setValue(d.toFloat());
+                else if(type == qMetaTypeId<DataObjects::String>())
+                    setValue(DataObjects::String(d).FromBase64());
 
                 break;
             }
@@ -425,46 +375,38 @@ void Custom::GVariant::ReadXml(QXmlStreamReader &sr)
     catch(...){}
 }
 
-void Custom::GVariant::ToXml(const Custom::GVariant &g, QXmlStreamWriter &sw)
+void GVariant::ToXml(const GVariant &g, QXmlStreamWriter &sw)
 {
     g.WriteXml(sw);
 }
 
-Custom::GVariant Custom::GVariant::FromXml(QXmlStreamReader &sr)
+GVariant GVariant::FromXml(QXmlStreamReader &sr)
 {
-    Custom::GVariant ret;
+    GVariant ret;
     ret.ReadXml(sr);
     return ret;
 }
 
-bool Custom::GVariant::Equals(const Custom::GVariant &o) const
+bool GVariant::operator == (const GVariant &o) const
 {
     bool ret;
     int type = userType();
 
     if(type < (int)UserType)
-        ret = ((QVariant &)*this) == o;
+        ret = QVariant::operator == (o);
     else
     {
         // QVariant doesn't compare custom types for us, it only compares pointers,
         //  so we implement our own compare for the custom types
-        if(type == TypeQUuid)
+        if(type == qMetaTypeId<QUuid>())
             ret = value<QUuid>() == o.value<QUuid>();
-        else if(type == TypeFloat)
+        else if(type == qMetaTypeId<float>())
             ret = value<float>() == o.value<float>();
+        else if(type == qMetaTypeId<DataObjects::String>())
+            ret = toGString() == o.toGString();
         else
             ret = false;
     }
 
     return ret;
-}
-
-bool Custom::GVariant::operator == (const QVariant &v) const
-{
-    return Equals(v);
-}
-
-bool Custom::GVariant::operator != (const QVariant &v) const
-{
-    return NotEquals(v);
 }

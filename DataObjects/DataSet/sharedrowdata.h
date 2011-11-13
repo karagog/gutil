@@ -29,7 +29,7 @@ class SharedRowData :
 {
 public:
     inline explicit SharedRowData(TableData *td,
-                                  const Custom::GVariantList &vals = Custom::GVariantList())
+                                  const Custom::GVariantVector &vals = Custom::GVariantVector())
         :RowData(td, vals)
     {}
     inline SharedRowData(const SharedRowData &o)

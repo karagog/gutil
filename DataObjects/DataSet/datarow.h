@@ -87,7 +87,7 @@ public:
 protected:
 
     DataRow(TableData *,
-            const Custom::GVariantList &values = Custom::GVariantList());
+            const Custom::GVariantVector &values = Custom::GVariantVector());
     DataRow(SharedRowData *);
 
     //void set_number_of_columns(int);

@@ -8,6 +8,8 @@ LIBS += -L../lib \
     -lGUtilInterfaces \
     -lGUtilUtils
 
+DEFINES += GUTIL_CORE_QT_ADAPTERS
+
 TEMPLATE = lib
 #CONFIG += staticlib
 

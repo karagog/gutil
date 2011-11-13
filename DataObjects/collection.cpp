@@ -22,7 +22,7 @@ template <typename T> GUtil::DataObjects::Collection<T>::Collection(
         const DataObjects::Collection<T> &o)
             :CollectionBase<T>(o){}
 
-template <typename T> GUtil::DataObjects::Collection<T>::Collection(const QList<T> &o)
+template <typename T> GUtil::DataObjects::Collection<T>::Collection(const Core::DataObjects::Vector<T> &o)
     :CollectionBase<T>(o){}
 
 template <typename T> GUtil::DataObjects::Collection<T>::~Collection(){}
@@ -134,7 +134,7 @@ template <typename T> GUtil::DataObjects::CollectionBase<T>::CollectionBase(
 }
 
 
-template <typename T> GUtil::DataObjects::CollectionBase<T>::CollectionBase(const QList<T> &o)
+template <typename T> GUtil::DataObjects::CollectionBase<T>::CollectionBase(const Core::DataObjects::Vector<T> &o)
     :_collection(o)
 {}
 
@@ -144,8 +144,8 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::add_protected(co
 
     validate_new_item(value);
 
-    int index = _collection.size();
-    _collection.append(value);
+    int index = _collection.Length();
+    _collection.PushBack(value);
 
     try
     {
@@ -153,7 +153,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::add_protected(co
     }
     catch(...)
     {
-        _collection.removeLast();
+        _collection.PopBack();
         throw;
     }
 
@@ -171,7 +171,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected
 
     validate_new_item(value);
 
-    _collection.insert(index, value);
+    _collection.Insert(value, index);
 
     try
     {
@@ -179,7 +179,7 @@ template <typename T> T &GUtil::DataObjects::CollectionBase<T>::insert_protected
     }
     catch(...)
     {
-        _collection.removeAt(index);
+        _collection.RemoveAt(index);
         throw;
     }
 
@@ -209,7 +209,7 @@ template <typename T> void GUtil::DataObjects::CollectionBase<T>::remove_protect
 
     on_remove(index);
 
-    _collection.removeAt(index);
+    _collection.RemoveAt(index);
 }
 
 template <typename T> void GUtil::DataObjects::CollectionBase<T>::removeOne_protected(const T &i)
@@ -277,12 +277,12 @@ template <typename T> bool GUtil::DataObjects::CollectionBase<T>::Equals(
 
 template <typename T> int GUtil::DataObjects::CollectionBase<T>::count_protected() const
 {
-    return _collection.length();
+    return _collection.Length();
 }
 
 template <typename T> int GUtil::DataObjects::CollectionBase<T>::size_protected() const
 {
-   return _collection.length();
+   return _collection.Length();
 }
 
 template <typename T> GUtil::DataObjects::CollectionBase<T> &

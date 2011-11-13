@@ -27,7 +27,7 @@ String::String(const char *d, int len)
     :Vector<char>(len == -1 ? (len = strlen(d)) + 1 : len + 1)
 {
     memcpy(Data(), d, len);
-    *(Data() + len) = '\0';
+    Data()[len] = '\0';
     set_length(len);
 }
 
@@ -36,7 +36,7 @@ String::String(char c, int len)
 {
     char *cur( Data() );
     while(len-- > 0) *(cur++) = c;
-    *(Data() + len) = '\0';
+    Data()[len] = '\0';
     set_length(len);
 }
 
@@ -89,7 +89,7 @@ String::String(const Vector<char> &s)
     :Vector<char>(s.Length() + 1)
 {
     memcpy(Data(), s.ConstData(), s.Length());
-    *(Data() + s.Length()) = '\0';
+    Data()[s.Length()] = '\0';
     set_length(s.Length());
 }
 
@@ -97,7 +97,7 @@ String::String(const String &s)
     :Vector<char>(s.Length() + 1)
 {
     memcpy(Data(), s.ConstData(), s.Length());
-    *(Data() + s.Length()) = '\0';
+    Data()[s.Length()] = '\0';
     set_length(s.Length());
 }
 
@@ -106,7 +106,7 @@ String &String::operator = (const String &s)
     if(s.Length() + 1 > Capacity())
         Reserve(s.Length() + 1);
     Vector<char>::operator = (s);
-    *(Data() + s.Length()) = '\0';
+    Data()[s.Length()] = '\0';
     set_length(s.Length());
     return *this;
 }
@@ -532,14 +532,6 @@ String String::Chop(GUINT32 n) const
 }
 
 
-
-bool String::operator == (const String &s) const
-{
-    if(s.Length() != Length())
-        return false;
-
-    return 0 == _string_compare(*this, s, Length());
-}
 
 bool String::operator == (const char *s) const
 {

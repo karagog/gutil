@@ -23,7 +23,7 @@ limitations under the License.*/
 using namespace GUtil;
 using namespace Custom;
 
-DataObjects::DataRow::DataRow(TableData *dt, const GVariantList &vals)
+DataObjects::DataRow::DataRow(TableData *dt, const GVariantVector &vals)
     :ExplicitlySharedObject<SharedRowData>(new SharedRowData(dt, vals))
 {}
 
@@ -122,7 +122,7 @@ bool DataObjects::DataRow::Equals(const DataObjects::DataRow &rhs) const
     {
         int i;
         for(i = 0; i < ColumnCount(); i++)
-            if(At(i).NotEquals(rhs.At(i)))
+            if(At(i) != rhs.At(i))
                 break;
 
         if(i == ColumnCount())
