@@ -12,7 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Core/Utils/stringhelpers.h"
 #include "BusinessObjects/ConfigFile.h"
 #include "Logging/debuglogger.h"
 #include "Core/exception.h"
@@ -21,7 +20,7 @@ limitations under the License.*/
 #include <QTest>
 #include <QMap>
 using namespace GUtil;
-using namespace Custom;
+GUTIL_USING_NAMESPACE(Custom);
 
 class settingsTest : public QObject
 {
@@ -64,7 +63,7 @@ settingsTest::settingsTest(QObject *parent) :
     QObject(parent)
 {
     settings = new BusinessObjects::ConfigFile("GTestLib", "", this);
-    settings->SetAsyncWrite(false);
+    //settings->SetAsyncWrite(false);
     settings->Clear();
 }
 
@@ -95,7 +94,7 @@ void settingsTest::saving_value()
 
         QVERIFY(settings->Value("testkey") == "testval");
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -114,7 +113,7 @@ void settingsTest::reading_same_value()
         QString probe = newsettings.Value("testkey").toString();
         QVERIFY(probe == "testval");
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -127,7 +126,7 @@ void settingsTest::test_no_value()
     {
         QVERIFY(settings->Value("novalue.doesn'texist").isNull());
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -145,7 +144,7 @@ void settingsTest::null_dat()
         QString probe = newsettings.Value("nulldata").toString();
         QVERIFY(probe == "");
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -171,7 +170,7 @@ void settingsTest::multiple_values()
         {
             settings->SetValues(vals);
         }
-        catch(Core::Exception &)
+        catch(Core::Exception<> &)
         {
             QVERIFY(false);
         }
@@ -187,7 +186,7 @@ void settingsTest::multiple_values()
         QVERIFY(settings->Value(one) == newsettings.Value(one));
         QVERIFY(settings->Value(two) == newsettings.Value(two));
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -239,7 +238,7 @@ void settingsTest::test_reload()
         newsettings.Reload();
         QVERIFY(newsettings.Value(one) == "fart");
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -261,7 +260,7 @@ void settingsTest::test_bin_dat()
         QVERIFY(newsettings.Value("binary") == settings->Value("binary"));
         QVERIFY(newsettings.Value("binary") == str);
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -290,7 +289,7 @@ void settingsTest::test_erase_value()
         {
             settings->RemoveValue(tmpkey);
         }
-        catch(Core::Exception &)
+        catch(Core::Exception<> &)
         {
             QVERIFY(false);
         }
@@ -300,7 +299,7 @@ void settingsTest::test_erase_value()
                  newsettings.Value(tmpkey).toString().toStdString().c_str());
         QVERIFY(newsettings.Value(permkey) == "value");
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -326,7 +325,7 @@ void settingsTest::test_clear_all_values()
         {
             settings->Clear();
         }
-        catch(Core::Exception &)
+        catch(Core::Exception<> &)
         {
             QVERIFY(false);
         }
@@ -336,7 +335,7 @@ void settingsTest::test_clear_all_values()
                  newsettings.Value(tmpkey).toString().toStdString().c_str());
         QVERIFY(newsettings.Value(permkey).isNull());
     }
-    catch(Core::Exception &ex)
+    catch(Core::Exception<> &ex)
     {
         dLogException(ex);
         QFAIL("Unhandled exception");
@@ -362,7 +361,7 @@ void settingsTest::test_with_compression()
 void settingsTest::cleanupTestCase()
 {
     //QString probe = QString::fromStdString(GUtil::StringHelpers::pathName(settings->FileName().toStdString()));
-    QFile::remove(QString::fromStdString(Core::Utils::StringHelpers::pathName(settings->FileName().toStdString())));
+    QFile::remove(QString::fromStdString(settings->FileName().toStdString()));
 }
 
 QTEST_MAIN(settingsTest);

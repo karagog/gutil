@@ -39,16 +39,19 @@ public:
 
     ExtendedException(const ExtendedException &);
     ExtendedException &operator = (const ExtendedException &);
-    ~ExtendedException();
+    virtual ~ExtendedException() throw();
 
     PROPERTY( Message, DataObjects::String );
 
     inline void SetData(const DataObjects::String &key, const DataObjects::String &value){
-        _data.At(key) = value;
+        _data[key] = value;
     }
     inline DataObjects::String GetData(const DataObjects::String &key) const{
-        return _data.At(key);
+        DataObjects::String ret;
+        if(HasData(key)) ret = _data.At(key);
+        return ret;
     }
+    inline bool HasData(const DataObjects::String &key) const{ return _data.Contains(key); }
 
     /** Returns the map of key-value pairs. */
     const DataObjects::Map<DataObjects::String, DataObjects::String> &GetDataMap() const
@@ -92,7 +95,6 @@ template<>class ex_name<true> : \
                 ExtendedException(message, inner_exception) {} \
         inline ex_name(const Exception<> &ex, const ExtendedException &xex) \
             :ex_name<false>(ex), ExtendedException(xex) {} \
-        virtual ~ex_name() throw(){} \
 };
 
 EXCEPTION_DECLARE_EXTENDED( Exception )

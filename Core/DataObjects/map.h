@@ -80,7 +80,7 @@ public:
         :_index(cmp, &get_key_value)
     {}
 
-    Map(const Map<K, V> &o)
+    inline Map(const Map<K, V> &o)
         :_index(o._index)
     {}
 
@@ -126,23 +126,22 @@ public:
     /** How many unique keys are in the map. */
     inline long Size() const{ return _index.Size(); }
 
-    /** Returns the value corresponding to the key.
+    /** Returns the value corresponding to the key.  If the key does not exist, it throws an
+        IndexOutOfRangeException.
         If more than one value exist then you get the last one which was inserted.
     */
     const V &At(const K &) const;
-    /** Returns the value corresponding to the key.
+    /** Returns the value corresponding to the key.  If the key does not exist, it throws an
+        IndexOutOfRangeException.
         If more than one value exist then you get the last one which was inserted.
     */
     V &At(const K &);
 
-    /** Returns the value corresponding to the key.
+    /** Returns the value corresponding to the key.  If the key does not exist in the map, it
+        will be inserted with a blank value.
         \sa At()
     */
-    inline const V &operator [](const K &k) const{ return At(k); }
-    /** Returns the value corresponding to the key.
-        \sa At()
-    */
-    inline V &operator [](const K &k){ return At(k); }
+    inline V &operator [](const K &k);
 
     /** Returns the stack of values corresponding to the key. */
     const Stack<V> &Values(const K &) const;
@@ -186,7 +185,7 @@ private:
 
 template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
-    typename BinarySearchTree<Page, K>::iterator iter(_index.Search(k));
+    iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
     return iter->Value();
@@ -197,6 +196,17 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     iterator iter(_index.Search(k));
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    return iter->Value();
+}
+
+template<class K, class V>V &Map<K, V>::operator [](const K &k)
+{
+    iterator iter(_index.Search(k));
+    if(!iter)
+    {
+        Insert(k, V());
+        iter = _index.Search(k);
+    }
     return iter->Value();
 }
 

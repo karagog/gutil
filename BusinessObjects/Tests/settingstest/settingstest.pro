@@ -12,6 +12,7 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+DEFINES += GUI_FUNCTIONALITY
 
 SOURCES += \
     settingstest.cpp

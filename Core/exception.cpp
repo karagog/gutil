@@ -15,20 +15,20 @@ limitations under the License.*/
 #include "exception.h"
 using namespace GUtil::Core;
 
-#define EXCEPTION_STRING  "GUtil::Core::Exception"
+#define EXCEPTION_STRING  "GUtil::Core::Exception_base"
 
-Exception_base::Exception_base()
+BaseException::BaseException()
     :What(EXCEPTION_STRING), File(0), Line(-1)
 {}
 
-Exception_base::Exception_base(const char *name)
+BaseException::BaseException(const char *name)
     :What(name), File(0), Line(-1)
 {}
 
-Exception_base::Exception_base(const char *name, const char *file, int line)
+BaseException::BaseException(const char *name, const char *file, int line)
     :What(name), File(file), Line(line)
 {}
 
-Exception_base::Exception_base(const char *file, int line)
+BaseException::BaseException(const char *file, int line)
     :What(EXCEPTION_STRING), File(file), Line(line)
 {}

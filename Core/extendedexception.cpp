@@ -29,7 +29,7 @@ ExtendedException::ExtendedException(const String &message,
         SetInnerException(*inner_exception);
 }
 
-ExtendedException::~ExtendedException()
+ExtendedException::~ExtendedException() throw()
 {
     if(_inner_exception)
         delete _inner_exception;

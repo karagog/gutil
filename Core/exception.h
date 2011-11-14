@@ -22,22 +22,24 @@ namespace GUtil{ namespace Core{
     for each exception declaration.  That would be useless code bloat, so in the Exception
     class we inline all the constructors and they call the base constructors which
     are defined in the lib.
+
+    \note If you catch this type of exception, you will effectively catch any kind of GUtil exception.
 */
-class Exception_base
+class BaseException
 {
 public:
 
     /** Constructs an empty exception, with all pointers initialized to 0. */
-    Exception_base();
+    BaseException();
 
     /** Use this constructor to inject more information in your exception. */
-    Exception_base(const char *name);
+    BaseException(const char *name);
 
     /** Use this constructor to inject more information in your exception. */
-    Exception_base(const char *name, const char *file, int line);
+    BaseException(const char *name, const char *file, int line);
 
     /** Use this constructor to inject more information in your exception. */
-    Exception_base(const char *file, int line);
+    BaseException(const char *file, int line);
 
     /** The name of the exception, injected by the constructor.
         \note You should check that it's non-zero before using.
@@ -56,6 +58,12 @@ public:
     */
     int Line;
 
+    /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
+        This will allow you to dynamic_cast a reference to an Exception as a different
+        type of exception at runtime.
+    */
+    virtual ~BaseException() throw(){}
+
 };
 
 
@@ -69,21 +77,14 @@ public:
 */
 template<bool extended = false>
 class Exception :
-        public Exception_base
+        public BaseException
 {
 public:
     inline Exception() {}
-    inline Exception(const char *name) :Exception_base(name) {}
+    inline Exception(const char *name) :BaseException(name) {}
     inline Exception(const char *name, const char *file, int line)
-        :Exception_base(name, file, line) {}
-    inline Exception(const char *file, int line) :Exception_base(file, line) {}
-
-    /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
-        This will allow you to dynamic_cast a reference to an Exception as a different
-        type of exception at runtime.
-    */
-    virtual ~Exception() throw(){}
-
+        :BaseException(name, file, line) {}
+    inline Exception(const char *file, int line) :BaseException(file, line) {}
 };
 
 

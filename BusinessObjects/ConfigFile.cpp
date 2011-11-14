@@ -84,7 +84,7 @@ bool ConfigFile::Reload()
         {
             _table.FromXmlQString(d);
         }
-        catch(Core::Exception<> &)
+        catch(Core::XmlException<> &)
         {
             ret = false;
         }
