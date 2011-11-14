@@ -7,9 +7,11 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
+DEFINES += GUTIL_ENCRYPTION
+
 #DEFINES += DEBUG
 
-INCLUDEPATH += .. ../ThirdParty/CryptoPP
+INCLUDEPATH += .. ../ThirdParty
 LIBS += -L../lib -lcryptopp
 
 #QMAKE_CXXFLAGS += -DGUTIL_DLL_EXPORTS

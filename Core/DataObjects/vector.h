@@ -714,19 +714,20 @@ public:
         \note O(N)
     */
     bool operator == (const Vector<T> &o) const{
+        bool res(false);
         const T *cur1(ConstData()), *cur2(o.ConstData());
-        if(static_cast<bool>(cur1) ^ static_cast<bool>(cur2))
-            return false;
-
-        bool res(true);
-        while(cur1 != DataEnd())
+        if(Length() == o.Length() && static_cast<bool>(cur1) == static_cast<bool>(cur2))
         {
-            if(*cur1 != *cur2)
+            res = true;
+            while(cur1 != DataEnd())
             {
-                res = false;
-                break;
+                if(*cur1 != *cur2)
+                {
+                    res = false;
+                    break;
+                }
+                ++cur1, ++cur2;
             }
-            ++cur1, ++cur2;
         }
         return res;
     }

@@ -41,6 +41,9 @@ private Q_SLOTS:
     void test_base64();
     void test_base16();
     void test_qt_adapters();
+    void test_compression();
+    void test_encryption();
+    void test_random_string();
 };
 
 StringTest::StringTest()
@@ -486,6 +489,32 @@ void StringTest::test_qt_adapters()
 
     qs = s.ToQString();
     QVERIFY(qs == "HI");
+}
+
+void StringTest::test_compression()
+{
+    String s("Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello");
+    String compressed( s.Compress() );
+    String decompressed(compressed.Decompress());
+
+//    qDebug() << s.ToBase64().ConstData();
+//    qDebug() << compressed.ToBase64().ConstData();
+//    qDebug() << decompressed.ToBase64().ConstData();
+
+    QVERIFY2(s == "Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello", s);
+    QVERIFY(s != compressed);
+    QVERIFY2(s.Length() > compressed.Length(), String::Format("%d != %d", s.Length(), compressed.Length()));
+    QVERIFY2(s == decompressed, String::Format("%s != %s", s.ConstData(), decompressed.ConstData()));
+}
+
+void StringTest::test_encryption()
+{
+
+}
+
+void StringTest::test_random_string()
+{
+
 }
 
 QTEST_APPLESS_MAIN(StringTest);

@@ -49,10 +49,10 @@ public:
     /** Creates a new empty string. */
     inline String() {}
 
-    /** Creates an empty string with the given capacity. */
-    inline String(GUINT32 capacity) :Vector<char>(capacity) {}
-    /** Creates an empty string with the given capacity. */
-    inline String(GINT32 capacity) :Vector<char>(capacity) {}
+    /** Creates an empty string with the given capacity (plus one for the null terminator). */
+    inline String(GUINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
+    /** Creates an empty string with the given capacity (plus one for the null terminator). */
+    inline String(GINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
 
     /** Creates a new string initialized with the data.
         \param len Specifies the length of the data.  If it is -1 then the string automatically
@@ -83,8 +83,21 @@ public:
 
     /** Copy constructor. */
     String(const String &s);
+
     /** Assignment operator. */
-    String &operator = (const String &s);
+    inline String &operator = (const String &s){
+        Empty();
+        Append(s);
+        return *this;
+    }
+    /** Assignment operator. */
+    inline String &operator = (const char *c){
+        Empty();
+        Append(c);
+        return *this;
+    }
+    /** Assignment operator. */
+    inline String &operator = (char c){ char cpy[] = {c, '\0'}; return operator = (cpy);}
 
     /** The length of the string. */
     inline GUINT32 Length() const{ return Vector<char>::Length(); }
@@ -198,10 +211,14 @@ public:
         UppercaseOffset  = 0x41
     };
 
-    /** Returns a copy of this string with all upper case letters changed to lower case. */
+    /** Returns a copy of this string with all upper case letters changed to lower case.
+        \todo Support Unicode characters (or at least a useful subset thereof)
+    */
     String ToLower() const;
 
-    /** Returns a copy of this string with all lower case letters changed to upper case. */
+    /** Returns a copy of this string with all lower case letters changed to upper case.
+        \todo Support Unicode characters (or at least a useful subset thereof)
+    */
     String ToUpper() const;
 
     /** Returns the lower case version of the letter. */
@@ -275,12 +292,18 @@ public:
     */
     String Replace(const char *find, const char *replace, bool case_sensitive = true) const;
 
+    /** Converts the string to a boolean. */
     bool ToBool(bool *ok = 0) const;
+    /** Converts the string to an integer. */
     GINT32 ToInt(bool *ok = 0) const;
+    /** Converts the string to a float. */
     GFLOAT32 ToFloat(bool *ok = 0) const;
 
+    /** Constructs a string from a boolean. */
     inline static String FromBool(bool b){ return b ? "1" : "0"; }
+    /** Constructs a string from an integer. */
     inline static String FromInt(GINT32 i){ return String::Format("%d", i); }
+    /** Constructs a string from a float. */
     inline static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
 
     /** Returns a copy of the string with the last N UTF-8 characters (or invalid bytes) removed. */
@@ -291,11 +314,6 @@ public:
         \return A reference to this string after trimming.
     */
     String Trim() const;
-
-    /** Removes whitespace characters from the front and back of a copy of this string.
-        \return A copy of this string after trimming.
-    */
-    inline String Trimmed() const{ String ret(*this); return ret.Trim(); }
 
     /** Returns true if the multibyte character is considered whitespace.
         \note This is used by the Trim() function
@@ -318,8 +336,11 @@ public:
     */
     Vector<String> Split(const char *separator, bool keep_empty_parts = true) const;
 
+    /** Creates a new string by joining the strings in the vector, using the given separator between them. */
     inline static String Join(const Vector<String> &v, char separator){ return Join(v, &separator, 1); }
+    /** Creates a new string by joining the strings in the vector, using the given separator between them. */
     inline static String Join(const Vector<String> &v, const String &separator){ return Join(v, separator.ConstData(), separator.Length()); }
+    /** Creates a new string by joining the strings in the vector, using the given separator between them. */
     static String Join(const Vector<String> &, const char *separator, GUINT32 len = UINT_MAX);
 
 
@@ -327,10 +348,19 @@ public:
     /** Returns true if the character is an ASCII character (non-extended). */
     inline static bool IsValidAscii(char c){ return c >= 0;  }
 
+    /** Returns true if the character is a valid UTF-8 start byte. */
     inline static bool IsValidUTF8StartByte(GINT8 b){ return !IsValidUTF8ContinuationByte(b); }
+
+    /** Returns true if the character is a valid UTF-8 continuation byte. */
     inline static bool IsValidUTF8ContinuationByte(GINT8 b){
         return GINT8(0x80) == (b & GINT8(0xC0));
     }
+
+    /** Returns true if the character sequence represents a valid UTF-8 multibyte character.
+        \param start A pointer to the start of the multibyte character.
+        \param end A pointer to one past the end of the multibyte character.
+        \note This is designed to work on a single multibyte character, not a sequence of multibyte characters.
+    */
     static bool IsValidUTF8Sequence(const char *start, const char *end);
 
     /** Returns the theoretical byte length of the multibyte character
@@ -341,6 +371,7 @@ public:
         return msb == 7 ? 1 : 7 - msb;
     }
 
+    /** Returns the Unicode codepoint for the multibyte character. */
     static GUINT32 UnicodeValue(const char *multibyte_start, GINT8 multibyte_length = -1);
 
     /** Returns a copy of this string, in which only valid UTF-8 characters are retained.
@@ -409,6 +440,78 @@ public:
         \note Always returns upper case characters
     */
     static char HexToChar(char);
+
+
+    /** Defines levels of compression for the Compress() function.
+        \note These values correspond to the Gzip deflate levels in CryptoPP, but their values
+        are not actually tied to the ones in CryptoPP, so if for some reason CryptoPP adds/removes
+        deflate levels, it will have to be adjusted here so it matches.
+    */
+    enum CompressionLevelEnum
+    {
+        DefaultCompression = 6,
+        MinimumCompression = 0,
+        MaximumCompression = 9
+    };
+
+    /** Returns a zip-compressed version of the string.
+        \note Depending on the string's contents, you may not be able to compress it,
+        in which case the string stays roughly the same size.  The function is optimized to
+        recognize when the string actually grows from compression, and doesn't compress it
+        in this case.
+        \note Requires encryption functionality
+    */
+    String Compress(CompressionLevelEnum c = DefaultCompression) const;
+
+    /** Returns a copy of the compressed string after it has been inflated.
+        \note Requires encryption functionality
+    */
+    String Decompress() const;
+
+
+    /** Declares various types of encryption methods for use in the Encrypt() function. */
+    enum EncryptionTypeEnum
+    {
+        /** The default encryption method (DES-EDE2). */
+        DefaultEncryption,
+
+        /** The default encryption method with MAC (DES-EDE2 and HMAC/SHA-1). */
+        DefaultEncryptionWithMAC
+    };
+
+    /** Returns an encrypted copy of the string, using the given string as an encryption string.
+        \param str The encryption string
+        \param strlen Optional length of the string.  If you don't supply a length then it will
+        use the strlen() function to determine the length.
+        \note Requires encryption functionality
+    */
+    String Encrypt(const char *str, GUINT32 strlen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const;
+
+    /** Returns an encrypted copy of the string, using the given string as an encryption string.
+        \note Requires encryption functionality
+    */
+    inline String Encrypt(const String &encryption_string, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const{
+        return Encrypt(ConstData(), Length(), e);
+    }
+
+    /** Returns a decrypted copy of the encrypted string.  You must provide the correct
+        encryption key and method, otherwise you'll get an exception.
+        \note Requires encryption functionality
+    */
+    String Decrypt(const char *key, GUINT32 strlen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const;
+
+    /** Returns a decrypted copy of the encrypted string.  You must provide the correct
+        encryption key and method, otherwise you'll get an exception.
+        \note Requires encryption functionality
+    */
+    inline String Decrypt(const String &key, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const;
+
+
+    /** Returns a string of random data.  You can optionally supply a seed value, otherwise
+        it will be auto-seeded (implementation in CryptoPP library).
+        \note Requires encryption functionality
+    */
+    static String RandomString(GUINT32 num_bytes, GUINT32 seed = UINT_MAX);
 
 
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
@@ -676,6 +779,7 @@ public:
     bool operator >= (const String &) const;
 
     inline String operator + (const String &s) const{ return String(*this).Append(s); }
+    inline String operator + (const char *s) const{ return String(*this).Append(s); }
     inline String &operator += (const String &s){ Append(s); return *this; }
 
     inline char &operator[] (int i){ return Vector<char>::operator [](i); }

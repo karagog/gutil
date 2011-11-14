@@ -28,7 +28,7 @@ limitations under the License.*/
 #ifdef GUTIL_DEBUG
     #include <iostream>
     /** Special output method for debug mode. */
-    #define GDEBUG(x)       std::cout << x
+    #define GDEBUG(x)       std::cout << x << std::endl
 #else
     /** Special output method for debug mode. */
     #define GDEBUG(x)

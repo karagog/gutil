@@ -16,35 +16,3 @@ HEADERS += \
 
 SOURCES += \
     DataObjects/gstring.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

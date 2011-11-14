@@ -101,17 +101,6 @@ String::String(const String &s)
     set_length(s.Length());
 }
 
-String &String::operator = (const String &s)
-{
-    if(s.Length() + 1 > Capacity())
-        Reserve(s.Length() + 1);
-    Vector<char>::operator = (s);
-    Data()[s.Length()] = '\0';
-    set_length(s.Length());
-    return *this;
-}
-
-
 String &String::Insert(const String &s, GUINT32 indx)
 {
     if(indx > Length())
@@ -906,3 +895,159 @@ char String::HexToChar(char c)
 
     return ret;
 }
+
+
+
+// CryptoPP-dependent section
+
+#ifdef GUTIL_ENCRYPTION
+
+#include "cryptopp-5.6.1/cryptlib.h"
+#include "cryptopp-5.6.1/filters.h"
+#include "cryptopp-5.6.1/gzip.h"
+#include "cryptopp-5.6.1/randpool.h"
+#include "cryptopp-5.6.1/osrng.h"
+
+/** Used to adapt my string into CryptoPP Sink. */
+class GStringSink : public CryptoPP::Bufferless<CryptoPP::Sink>
+{
+    String &sref;
+public:
+    inline GStringSink(String &s) :sref(s){}
+
+    size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking){
+        sref.Append(reinterpret_cast<const char *>(inString), length);
+        return 0;
+    }
+};
+
+
+String String::Compress(CompressionLevelEnum level) const
+{
+    String ret(Length() + 1);   // Preallocate space for the return string
+    bool skip_compression = Length() > 10000000;
+
+    if(!skip_compression)
+    {
+        if(level < MinimumCompression || level > MaximumCompression)
+            level = DefaultCompression;
+
+        try
+        {
+            CryptoPP::Gzip zipper(new GStringSink(ret), level);
+            zipper.Put(reinterpret_cast<const byte *>(ConstData()), Length());
+            zipper.MessageEnd();
+        }
+        catch(const CryptoPP::Exception &ex)
+        {
+            GDEBUG(ex.GetWhat());
+            THROW_NEW_GUTIL_EXCEPTION(Exception);
+        }
+    }
+
+    if(skip_compression ||  ret.Length() >= Length())
+    {
+        // Leave it uncompressed, because we didn't gain anything by compression
+        ret = "0";
+        ret.Append(*this);
+    }
+    else
+    {
+        ret.Prepend("1");
+    }
+    return ret;
+}
+
+String String::Decompress() const
+{
+    GUINT32 len(Length());
+    String ret(len);
+
+    if(len > 0)
+    {
+        bool is_compressed( false );
+        const char *start(ConstData());
+
+        if(*start == '1')
+        {
+            is_compressed = true;
+            ++start;
+            --len;
+        }
+        else if(*start == '0')
+        {
+            ++start;
+            --len;
+        }
+        else
+        {
+            // Treat any string without our marking as compressed, then you'll get an exception
+            //  if we couldn't decompress it
+            is_compressed = true;
+        }
+
+        if(is_compressed)
+        {
+            try
+            {
+                CryptoPP::StringSource(reinterpret_cast<const byte *>(start), len, true,
+                                       new CryptoPP::Gunzip(new GStringSink(ret)));
+            }
+            catch(const CryptoPP::Exception &ex)
+            {
+                GDEBUG(ex.GetWhat());
+                THROW_NEW_GUTIL_EXCEPTION(Exception);
+            }
+        }
+        else
+        {
+            ret.Append(start, len);
+        }
+    }
+
+    return ret;
+}
+
+String String::Encrypt(const char *str, GUINT32 len, EncryptionTypeEnum e) const
+{
+    String ret;
+    if(len == UINT_MAX)
+        len = strlen(str);
+    return ret;
+}
+
+String String::RandomString(GUINT32 num_bytes, GUINT32 seed)
+{
+    String ret(num_bytes);
+    ret.set_length(num_bytes);
+
+    {
+        CryptoPP::RandomPool *rng;
+        if(seed == UINT_MAX)
+            rng = new CryptoPP::AutoSeededRandomPool();
+        else
+        {
+            rng = new CryptoPP::RandomPool();
+
+            // Seed the random pool
+            rng->IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GUINT32));
+        }
+
+        try
+        {
+            rng->GenerateBlock(reinterpret_cast<byte *>(ret.Data()), num_bytes);
+        }
+        catch(const CryptoPP::Exception &ex)
+        {
+            GDEBUG(ex.GetWhat());
+            delete rng;
+            THROW_NEW_GUTIL_EXCEPTION(Exception);
+        }
+        delete rng;
+    }
+
+    return ret;
+}
+
+
+#endif // GUTIL_ENCRYPTION
