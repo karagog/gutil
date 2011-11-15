@@ -472,11 +472,14 @@ public:
     /** Declares various types of encryption methods for use in the Encrypt() function. */
     enum EncryptionTypeEnum
     {
-        /** The default encryption method (DES-EDE2). */
+        /** The default encryption method (DES-EDE2).  Also known as Triple-DES. */
         DefaultEncryption,
 
         /** The default encryption method with MAC (DES-EDE2 and HMAC/SHA-1). */
-        DefaultEncryptionWithMAC
+        DefaultEncryptionWithMAC,
+
+        /** The most solid form of encryption. */
+        AES_Encryption
     };
 
     /** Returns an encrypted copy of the string, using the given string as an encryption string.

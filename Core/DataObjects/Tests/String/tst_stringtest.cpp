@@ -509,12 +509,68 @@ void StringTest::test_compression()
 
 void StringTest::test_encryption()
 {
+    const char password[] = "I like Toast!";
+    String plaintext("Hello World, my name is George!");
+    String ciphertext = plaintext.Encrypt(password);
+    String decrypted = ciphertext.Decrypt(password);
 
+//    qDebug(plaintext);
+//    qDebug(plaintext.ToBase16());
+//    qDebug(ciphertext.ToBase16());
+//    qDebug(decrypted.ToBase16());
+
+    QVERIFY(plaintext != ciphertext);
+    QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
+
+
+    ciphertext = plaintext.Encrypt(password, String::DefaultEncryption);
+    decrypted = ciphertext.Decrypt(password, String::DefaultEncryption);
+    QVERIFY(plaintext != ciphertext);
+    QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
+
+
+    // Test exception cases
+    bool ex_hit(false);
+    try
+    {
+        // Try decrypting with a bad password
+        decrypted = ciphertext.Decrypt("Bad Password");
+    }
+    catch(const GUtil::Core::Exception<> &)
+    {
+        ex_hit = true;
+    }
+    QVERIFY(ex_hit);
+
+    ex_hit = false;
+    try
+    {
+        // Try decrypting with a wrong encryption method
+        decrypted = ciphertext.Decrypt(password);
+    }
+    catch(const GUtil::Core::Exception<> &)
+    {
+        ex_hit = true;
+    }
+    QVERIFY(ex_hit);
 }
 
 void StringTest::test_random_string()
 {
+    const GUINT32 slen( 12 );
+    const GUINT32 seed( 0 );    // Seeding just adds entropy to the random numbers
 
+    String s1 = String::RandomString(slen, seed);
+    String s2 = String::RandomString(slen, seed);
+
+//    qDebug(s1.ToBase16());
+//    qDebug(s2.ToBase16());
+
+    QVERIFY(s1.Length() == slen);
+    QVERIFY(s2.Length() == slen);
+    QVERIFY(s1[s1.Length()] == '\0');
+    QVERIFY(s2[s2.Length()] == '\0');
+    QVERIFY(s1 != s2);
 }
 
 QTEST_APPLESS_MAIN(StringTest);

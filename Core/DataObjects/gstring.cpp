@@ -907,6 +907,7 @@ char String::HexToChar(char c)
 #include "cryptopp-5.6.1/gzip.h"
 #include "cryptopp-5.6.1/randpool.h"
 #include "cryptopp-5.6.1/osrng.h"
+#include "cryptopp-5.6.1/default.h"
 
 /** Used to adapt my string into CryptoPP Sink. */
 class GStringSink : public CryptoPP::Bufferless<CryptoPP::Sink>
@@ -1008,11 +1009,82 @@ String String::Decompress() const
     return ret;
 }
 
-String String::Encrypt(const char *str, GUINT32 len, EncryptionTypeEnum e) const
+String String::Encrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
 {
     String ret;
     if(len == UINT_MAX)
-        len = strlen(str);
+        len = strlen(key);
+
+    CryptoPP::BufferedTransformation *encryptor;
+    GStringSink ss(ret);
+    switch(e)
+    {
+    case DefaultEncryptionWithMAC:
+        encryptor = new CryptoPP::DefaultEncryptorWithMAC(reinterpret_cast<const byte *>(key),
+                                                          len, &ss);
+        break;
+    case DefaultEncryption:
+        encryptor = new CryptoPP::DefaultEncryptor(reinterpret_cast<const byte *>(key),
+                                                   len, &ss);
+        break;
+    default:
+        /** \todo Support AES encryption. */
+        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        break;
+    }
+
+    try
+    {
+        encryptor->Put(reinterpret_cast<const byte *>(ConstData()), Length());
+        encryptor->MessageEnd();
+    }
+    catch(const CryptoPP::Exception &ex)
+    {
+        delete encryptor;
+        GDEBUG(ex.GetWhat());
+        THROW_NEW_GUTIL_EXCEPTION(Exception);
+    }
+
+    delete encryptor;
+    return ret;
+}
+
+String String::Decrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
+{
+    String ret;
+    if(len == UINT_MAX)
+        len = strlen(key);
+
+    CryptoPP::BufferedTransformation *decryptor;
+    GStringSink ss(ret);
+    switch(e)
+    {
+    case DefaultEncryptionWithMAC:
+        decryptor = new CryptoPP::DefaultDecryptorWithMAC(reinterpret_cast<const byte *>(key),
+                                                          len, &ss);
+        break;
+    case DefaultEncryption:
+        decryptor = new CryptoPP::DefaultDecryptor(reinterpret_cast<const byte *>(key),
+                                                   len, &ss);
+        break;
+    default:
+        /** \todo Support AES decryption. */
+        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        break;
+    }
+
+    try
+    {
+        decryptor->Put(reinterpret_cast<const byte *>(ConstData()), Length());
+        decryptor->MessageEnd();
+    }
+    catch(const CryptoPP::Exception &ex)
+    {
+        delete decryptor;
+        GDEBUG(ex.GetWhat());
+        THROW_NEW_GUTIL_EXCEPTION(Exception);
+    }
+
     return ret;
 }
 
