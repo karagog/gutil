@@ -509,6 +509,7 @@ void StringTest::test_compression()
 
 void StringTest::test_encryption()
 {
+    // Test the default encryptor with MAC
     const char password[] = "I like Toast!";
     String plaintext("Hello World, my name is George!");
     String ciphertext = plaintext.Encrypt(password);
@@ -516,21 +517,54 @@ void StringTest::test_encryption()
 
 //    qDebug(plaintext);
 //    qDebug(plaintext.ToBase16());
-//    qDebug(ciphertext.ToBase16());
+    qDebug(ciphertext.ToBase16());
 //    qDebug(decrypted.ToBase16());
 
     QVERIFY(plaintext != ciphertext);
     QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
 
 
+    // Test the default ecryptor
     ciphertext = plaintext.Encrypt(password, String::DefaultEncryption);
     decrypted = ciphertext.Decrypt(password, String::DefaultEncryption);
     QVERIFY(plaintext != ciphertext);
     QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
 
 
+    // Test AES encryption
+    ciphertext = plaintext.Encrypt(password, String::AES_Encryption);
+    decrypted = ciphertext.Decrypt(password, String::AES_Encryption);
+    QVERIFY(plaintext != ciphertext);
+    QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
+
+//    qDebug(plaintext);
+//    qDebug(plaintext.ToBase16());
+    qDebug(ciphertext.ToBase16());
+//    qDebug(decrypted.ToBase16());
+
+
+    // Try encrypting with a large key
+    const char long_password[] = "This password is way, waaaaaaay too large.  Someone should think about shrinking this down a little smaller, because who knows what the encryption method will do?!?!?!?";
+
+//    ciphertext = plaintext.Encrypt(long_password);
+//    decrypted = ciphertext.Decrypt(long_password);
+//    QVERIFY(plaintext == decrypted);
+//    QVERIFY(decrypted != ciphertext);
+
+//    ciphertext = plaintext.Encrypt(long_password, String::DefaultEncryption);
+//    decrypted = ciphertext.Decrypt(long_password, String::AES_Encryption);
+//    QVERIFY(plaintext == decrypted);
+//    QVERIFY(decrypted != ciphertext);
+
+    ciphertext = plaintext.Encrypt(long_password, String::DefaultEncryption);
+    decrypted = ciphertext.Decrypt(long_password, String::AES_Encryption);
+    QVERIFY(plaintext == decrypted);
+    QVERIFY(decrypted != ciphertext);
+
+
     // Test exception cases
     bool ex_hit(false);
+    ciphertext = plaintext.Encrypt(password);
     try
     {
         // Try decrypting with a bad password
@@ -546,7 +580,19 @@ void StringTest::test_encryption()
     try
     {
         // Try decrypting with a wrong encryption method
-        decrypted = ciphertext.Decrypt(password);
+        decrypted = ciphertext.Decrypt(password, String::DefaultEncryption);
+    }
+    catch(const GUtil::Core::Exception<> &)
+    {
+        ex_hit = true;
+    }
+    QVERIFY(ex_hit);
+
+    ex_hit = false;
+    try
+    {
+        // Try decrypting with a wrong encryption method
+        decrypted = ciphertext.Decrypt(password, String::AES_Encryption);
     }
     catch(const GUtil::Core::Exception<> &)
     {

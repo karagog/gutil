@@ -1017,6 +1017,8 @@ String String::Encrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
 
     CryptoPP::BufferedTransformation *encryptor;
     GStringSink ss(ret);
+    CryptoPP::CFB_Mode<CryptoPP::AES>::Encryption *cfb_mode(NULL);
+
     switch(e)
     {
     case DefaultEncryptionWithMAC:
@@ -1027,14 +1029,24 @@ String String::Encrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
         encryptor = new CryptoPP::DefaultEncryptor(reinterpret_cast<const byte *>(key),
                                                    len, &ss);
         break;
+    case AES_Encryption:
+    {
+        // Create a block-sized initialization vector with pseudo-random data
+        byte init_vec[CryptoPP::AES::BLOCKSIZE];
+        CryptoPP::RandomPool().GenerateBlock(init_vec, CryptoPP::AES::BLOCKSIZE);
+
+        cfb_mode = new CryptoPP::CFB_Mode<CryptoPP::AES>::Encryption(reinterpret_cast<const byte *>(key), len, init_vec);
+        encryptor = new CryptoPP::StreamTransformationFilter(*cfb_mode, &ss);
+    }
+        break;
     default:
-        /** \todo Support AES encryption. */
         THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
         break;
     }
 
     try
     {
+        // Here is where we actually conduct the encryption
         encryptor->Put(reinterpret_cast<const byte *>(ConstData()), Length());
         encryptor->MessageEnd();
     }
@@ -1045,7 +1057,16 @@ String String::Encrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
+    switch(e)
+    {
+    case DefaultEncryptionWithMAC:
+        break;
+    case DefaultEncryption:
+        break;
+    }
+
     delete encryptor;
+    if(cfb_mode) delete cfb_mode;
     return ret;
 }
 
@@ -1057,6 +1078,8 @@ String String::Decrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
 
     CryptoPP::BufferedTransformation *decryptor;
     GStringSink ss(ret);
+    CryptoPP::CFB_Mode<CryptoPP::AES>::Decryption *cfb_mode(NULL);
+
     switch(e)
     {
     case DefaultEncryptionWithMAC:
@@ -1067,14 +1090,21 @@ String String::Decrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
         decryptor = new CryptoPP::DefaultDecryptor(reinterpret_cast<const byte *>(key),
                                                    len, &ss);
         break;
+    case AES_Encryption:
+    {
+        cfb_mode = new CryptoPP::CFB_Mode<CryptoPP::AES>::Decryption(reinterpret_cast<const byte *>(key),
+                                                         len);
+        decryptor = new CryptoPP::StreamTransformationFilter(*cfb_mode, &ss);
+    }
+        break;
     default:
-        /** \todo Support AES decryption. */
         THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
         break;
     }
 
     try
     {
+        // Here is where we actually conduct the decryption
         decryptor->Put(reinterpret_cast<const byte *>(ConstData()), Length());
         decryptor->MessageEnd();
     }
@@ -1085,6 +1115,8 @@ String String::Decrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
+    delete decryptor;
+    if(cfb_mode) delete cfb_mode;
     return ret;
 }
 

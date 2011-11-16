@@ -478,7 +478,9 @@ public:
         /** The default encryption method with MAC (DES-EDE2 and HMAC/SHA-1). */
         DefaultEncryptionWithMAC,
 
-        /** The most solid form of encryption. */
+        /** The most solid form of encryption (Advanced Encryption Standard is the current
+            encryption standard approved by the NSA.
+        */
         AES_Encryption
     };
 
