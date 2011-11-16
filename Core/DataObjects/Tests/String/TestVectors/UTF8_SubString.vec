@@ -1,0 +1,12 @@
+# On each line give a UTF-8 string, preceeded with the start index of the substring,
+#  followed by the size of the substring, and on the following line put the actual 
+#  substring you expect.
+
+5 9 This is a test
+is a test
+
+5 9 Τηισ ισ α τεστ
+ισ α τεστ
+
+1 2 థతಕథత
+తಕ

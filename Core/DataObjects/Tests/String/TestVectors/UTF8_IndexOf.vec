@@ -1,0 +1,8 @@
+# On each line give a UTF-8 string, preceeded with a character of which to find the index,
+#  and the index at which the first one should be found
+
+a 8 This is a test
+
+α 8 Τηισ ισ α τεστ
+
+ಕ 2 థతಕ

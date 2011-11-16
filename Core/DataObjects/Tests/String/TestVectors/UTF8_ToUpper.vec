@@ -1,0 +1,8 @@
+# On each line give a UTF-8 string, and a copy of the string that is in upper case on the next line
+#  Not every character set is supported, but as you add new character sets you can add a test for it here
+
+This is a test
+THIS IS A TEST
+
+Τηισ ισ α Τεστ
+ΤΗΙΣ ΙΣ Α ΤΕΣΤ

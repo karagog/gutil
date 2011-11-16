@@ -1,0 +1,9 @@
+# On each line give a format string, surrounded by ".  Directly thereafter
+#  on the same line put the string arguments separated by ',' with the expected
+#  resultant string on the next line
+
+"Hello %s, my name is %s." Bob,George
+Hello Bob, my name is George.
+
+"Ηελλο %s, μυ ναμε ισ %s." Βοβ,Γεοργε
+Ηελλο Βοβ, μυ ναμε ισ Γεοργε.

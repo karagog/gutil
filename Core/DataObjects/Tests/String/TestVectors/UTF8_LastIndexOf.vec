@@ -1,0 +1,8 @@
+# On each line give a UTF-8 string, preceeded with a character of which to find the last index,
+#  and the index at which the last one should be found
+
+i 5 This is a test
+
+ι 5 Τηισ ισ α τεστ
+
+థ 3 థతಕథత

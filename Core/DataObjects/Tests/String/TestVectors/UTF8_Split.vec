@@ -1,0 +1,19 @@
+# On each line give a UTF-8 string, preceeded with a character by which to split it, the expected
+#  number of resulting strings, and followed by as many lines carrying the expected strings after splitting.
+
+, 7 George,Judy,Bob,Ralph,Sally,Joan,Paul
+George
+Judy
+Bob
+Ralph
+Sally
+Joan
+Paul
+
+, 6 Γεοργε,Ξθδυ,Βοβ,Ραλπη,Σαλλυ,Ξοαν
+Γεοργε
+Ξθδυ
+Βοβ
+Ραλπη
+Σαλλυ
+Ξοαν

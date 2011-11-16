@@ -1,0 +1,12 @@
+# On each line give a series of UTF-8 strings, separated by a space,
+#  preceeded with a character by which to join them.  Then put the expected
+#  resultant string on the following line.
+
+, George Judy Bob Ralph Sally Joan Paul
+George,Judy,Bob,Ralph,Sally,Joan,Paul
+
+, Γεοργε Ξθδυ Βοβ Ραλπη Σαλλυ Ξοαν
+Γεοργε,Ξθδυ,Βοβ,Ραλπη,Σαλλυ,Ξοαν
+
+Ω Γεοργε Ξθδυ Βοβ Ραλπη Σαλλυ Ξοαν
+ΓεοργΩΞθδυΩΒοβΩΡαλπηΩΣαλλυΩΞοαν
