@@ -908,6 +908,7 @@ char String::HexToChar(char c)
 #include "cryptopp-5.6.1/randpool.h"
 #include "cryptopp-5.6.1/osrng.h"
 #include "cryptopp-5.6.1/default.h"
+#include "cryptopp-5.6.1/pwdbased.h"
 
 /** Used to adapt my string into CryptoPP Sink. */
 class GStringSink : public CryptoPP::Bufferless<CryptoPP::Sink>
@@ -1009,145 +1010,148 @@ String String::Decompress() const
     return ret;
 }
 
-String String::Encrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
+String String::Encrypt(const GBYTE *key, GUINT32 len, EncryptionTypeEnum e) const
 {
-    String ret;
+    byte padded_key[CryptoPP::SHA256::DIGESTSIZE];
+    String ret(Length());   // A heuristic to estimate the length of the return string
     if(len == UINT_MAX)
-        len = strlen(key);
-
-    CryptoPP::BufferedTransformation *encryptor;
-    GStringSink ss(ret);
-    CryptoPP::CFB_Mode<CryptoPP::AES>::Encryption *cfb_mode(NULL);
-
-    switch(e)
-    {
-    case DefaultEncryptionWithMAC:
-        encryptor = new CryptoPP::DefaultEncryptorWithMAC(reinterpret_cast<const byte *>(key),
-                                                          len, &ss);
-        break;
-    case DefaultEncryption:
-        encryptor = new CryptoPP::DefaultEncryptor(reinterpret_cast<const byte *>(key),
-                                                   len, &ss);
-        break;
-    case AES_Encryption:
-    {
-        // Create a block-sized initialization vector with pseudo-random data
-        byte init_vec[CryptoPP::AES::BLOCKSIZE];
-        CryptoPP::RandomPool().GenerateBlock(init_vec, CryptoPP::AES::BLOCKSIZE);
-
-        cfb_mode = new CryptoPP::CFB_Mode<CryptoPP::AES>::Encryption(reinterpret_cast<const byte *>(key), len, init_vec);
-        encryptor = new CryptoPP::StreamTransformationFilter(*cfb_mode, &ss);
-    }
-        break;
-    default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-        break;
-    }
+        len = strlen(reinterpret_cast<const char *>(key));
 
     try
     {
-        // Here is where we actually conduct the encryption
-        encryptor->Put(reinterpret_cast<const byte *>(ConstData()), Length());
-        encryptor->MessageEnd();
+        switch(e)
+        {
+        case DefaultEncryption:
+        {
+            CryptoPP::SHA256().CalculateDigest(padded_key, reinterpret_cast<const byte *>(key), len);
+            CryptoPP::DefaultEncryptorWithMAC enc(reinterpret_cast<const byte *>(padded_key),
+                                                  CryptoPP::SHA256::DIGESTSIZE, new GStringSink(ret));
+            enc.Put(reinterpret_cast<const byte *>(ConstData()), Length());
+            enc.MessageEnd();
+            break;
+        }
+        case TripleDES_Encryption:
+        {
+            // Initialize the padded key
+            CryptoPP::SHA256().CalculateTruncatedDigest(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, reinterpret_cast<const byte *>(key), len);
+
+            // Create a block-sized initialization vector with pseudo-random data
+            byte init_vec[CryptoPP::DES_EDE3::BLOCKSIZE];
+            CryptoPP::AutoSeededX917RNG<CryptoPP::DES_EDE3>().GenerateBlock(init_vec, CryptoPP::DES_EDE3::BLOCKSIZE);
+            ret.Append(reinterpret_cast<const char *>(init_vec), CryptoPP::DES_EDE3::BLOCKSIZE);
+
+            CryptoPP::CFB_Mode<CryptoPP::DES_EDE3>::Encryption cfb_mode(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, init_vec);
+            CryptoPP::StreamTransformationFilter enc(cfb_mode, new GStringSink(ret));
+
+            enc.Put(reinterpret_cast<const byte *>(ConstData()), Length());
+            enc.MessageEnd();
+        }
+            break;
+        case AES_Encryption:
+        {
+            // Initialize the padded key
+            CryptoPP::SHA256().CalculateDigest(padded_key, reinterpret_cast<const byte *>(key), len);
+
+            // Create a block-sized initialization vector with pseudo-random data
+            byte init_vec[CryptoPP::AES::BLOCKSIZE];
+            CryptoPP::AutoSeededX917RNG<CryptoPP::AES>().GenerateBlock(init_vec, CryptoPP::AES::BLOCKSIZE);
+            ret.Append(reinterpret_cast<const char *>(init_vec), CryptoPP::AES::BLOCKSIZE);
+
+            CryptoPP::CFB_Mode<CryptoPP::AES>::Encryption cfb_mode(padded_key, CryptoPP::AES::MAX_KEYLENGTH, init_vec);
+            CryptoPP::StreamTransformationFilter enc(cfb_mode, new GStringSink(ret));
+
+            enc.Put(reinterpret_cast<const byte *>(ConstData()), Length());
+            enc.MessageEnd();
+        }
+            break;
+        default:
+            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            break;
+        }
     }
     catch(const CryptoPP::Exception &ex)
     {
-        delete encryptor;
         GDEBUG(ex.GetWhat());
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
-    switch(e)
-    {
-    case DefaultEncryptionWithMAC:
-        break;
-    case DefaultEncryption:
-        break;
-    }
-
-    delete encryptor;
-    if(cfb_mode) delete cfb_mode;
     return ret;
 }
 
-String String::Decrypt(const char *key, GUINT32 len, EncryptionTypeEnum e) const
+String String::Decrypt(const GBYTE *key, GUINT32 len, EncryptionTypeEnum e) const
 {
-    String ret;
+    byte padded_key[CryptoPP::SHA256::DIGESTSIZE];
+    String ret(Length());
     if(len == UINT_MAX)
-        len = strlen(key);
-
-    CryptoPP::BufferedTransformation *decryptor;
-    GStringSink ss(ret);
-    CryptoPP::CFB_Mode<CryptoPP::AES>::Decryption *cfb_mode(NULL);
-
-    switch(e)
-    {
-    case DefaultEncryptionWithMAC:
-        decryptor = new CryptoPP::DefaultDecryptorWithMAC(reinterpret_cast<const byte *>(key),
-                                                          len, &ss);
-        break;
-    case DefaultEncryption:
-        decryptor = new CryptoPP::DefaultDecryptor(reinterpret_cast<const byte *>(key),
-                                                   len, &ss);
-        break;
-    case AES_Encryption:
-    {
-        cfb_mode = new CryptoPP::CFB_Mode<CryptoPP::AES>::Decryption(reinterpret_cast<const byte *>(key),
-                                                         len);
-        decryptor = new CryptoPP::StreamTransformationFilter(*cfb_mode, &ss);
-    }
-        break;
-    default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-        break;
-    }
+        len = strlen(reinterpret_cast<const char *>(key));
 
     try
     {
-        // Here is where we actually conduct the decryption
-        decryptor->Put(reinterpret_cast<const byte *>(ConstData()), Length());
-        decryptor->MessageEnd();
+        switch(e)
+        {
+        case DefaultEncryption:
+        {
+            CryptoPP::SHA256().CalculateDigest(padded_key, reinterpret_cast<const byte *>(key), len);
+            CryptoPP::DefaultDecryptorWithMAC decryptor(reinterpret_cast<const byte *>(padded_key), CryptoPP::SHA256::DIGESTSIZE, new GStringSink(ret));
+
+            decryptor.Put(reinterpret_cast<const byte *>(ConstData()), Length());
+            decryptor.MessageEnd();
+        }
+            break;
+        case TripleDES_Encryption:
+        {
+            CryptoPP::SHA256().CalculateTruncatedDigest(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, reinterpret_cast<const byte *>(key), len);
+
+            CryptoPP::CFB_Mode<CryptoPP::DES_EDE3>::Decryption cfb_mode(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, reinterpret_cast<const byte *>(ConstData()));
+            CryptoPP::StreamTransformationFilter decryptor(cfb_mode, new GStringSink(ret));
+
+            decryptor.Put(reinterpret_cast<const byte *>(ConstData()) + CryptoPP::DES_EDE3::BLOCKSIZE, Length() - CryptoPP::DES_EDE3::BLOCKSIZE);
+            decryptor.MessageEnd();
+        }
+            break;
+        case AES_Encryption:
+        {
+            CryptoPP::SHA256().CalculateDigest(padded_key, reinterpret_cast<const byte *>(key), len);
+
+            CryptoPP::CFB_Mode<CryptoPP::AES>::Decryption cfb_mode(padded_key, CryptoPP::AES::MAX_KEYLENGTH, reinterpret_cast<const byte *>(ConstData()));
+            CryptoPP::StreamTransformationFilter decryptor(cfb_mode, new GStringSink(ret));
+
+            decryptor.Put(reinterpret_cast<const byte *>(ConstData()) + CryptoPP::AES::BLOCKSIZE, Length() - CryptoPP::AES::BLOCKSIZE);
+            decryptor.MessageEnd();
+        }
+            break;
+        default:
+            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            break;
+        }
     }
     catch(const CryptoPP::Exception &ex)
     {
-        delete decryptor;
         GDEBUG(ex.GetWhat());
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
-    delete decryptor;
-    if(cfb_mode) delete cfb_mode;
     return ret;
 }
 
 String String::RandomString(GUINT32 num_bytes, GUINT32 seed)
 {
+    bool autoseed( seed == UINT_MAX );
     String ret(num_bytes);
     ret.set_length(num_bytes);
 
+    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng(false, autoseed);
+    if(!autoseed)
+        rng.IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GUINT32));
+
+    try
     {
-        CryptoPP::RandomPool *rng;
-        if(seed == UINT_MAX)
-            rng = new CryptoPP::AutoSeededRandomPool();
-        else
-        {
-            rng = new CryptoPP::RandomPool();
-
-            // Seed the random pool
-            rng->IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GUINT32));
-        }
-
-        try
-        {
-            rng->GenerateBlock(reinterpret_cast<byte *>(ret.Data()), num_bytes);
-        }
-        catch(const CryptoPP::Exception &ex)
-        {
-            GDEBUG(ex.GetWhat());
-            delete rng;
-            THROW_NEW_GUTIL_EXCEPTION(Exception);
-        }
-        delete rng;
+        rng.GenerateBlock(reinterpret_cast<byte *>(ret.Data()), num_bytes);
+    }
+    catch(const CryptoPP::Exception &ex)
+    {
+        GDEBUG(ex.GetWhat());
+        THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
     return ret;

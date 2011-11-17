@@ -472,44 +472,46 @@ public:
     /** Declares various types of encryption methods for use in the Encrypt() function. */
     enum EncryptionTypeEnum
     {
-        /** The default encryption method (DES-EDE2).  Also known as Triple-DES. */
+        /** The default encryption method (DES-EDE2 and HMAC/SHA-1). */
         DefaultEncryption,
 
-        /** The default encryption method with MAC (DES-EDE2 and HMAC/SHA-1). */
-        DefaultEncryptionWithMAC,
+        /** DES-EDE3, also known as Triple-DES. */
+        TripleDES_Encryption,
 
         /** The most solid form of encryption (Advanced Encryption Standard is the current
-            encryption standard approved by the NSA.
+            encryption standard approved by the NSA).
         */
         AES_Encryption
     };
 
     /** Returns an encrypted copy of the string, using the given string as an encryption string.
-        \param str The encryption string
-        \param strlen Optional length of the string.  If you don't supply a length then it will
+        \param key The encryption string
+        \param keylen Optional length of the key.  If you don't supply a length then it will
         use the strlen() function to determine the length.
         \note Requires encryption functionality
     */
-    String Encrypt(const char *str, GUINT32 strlen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const;
+    String Encrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const;
 
     /** Returns an encrypted copy of the string, using the given string as an encryption string.
         \note Requires encryption functionality
     */
-    inline String Encrypt(const String &encryption_string, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const{
-        return Encrypt(ConstData(), Length(), e);
+    inline String Encrypt(const String &key, EncryptionTypeEnum e = DefaultEncryption) const{
+        return Encrypt(reinterpret_cast<const GBYTE *>(key.ConstData()), key.Length(), e);
     }
 
     /** Returns a decrypted copy of the encrypted string.  You must provide the correct
         encryption key and method, otherwise you'll get an exception.
         \note Requires encryption functionality
     */
-    String Decrypt(const char *key, GUINT32 strlen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const;
+    String Decrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const;
 
     /** Returns a decrypted copy of the encrypted string.  You must provide the correct
         encryption key and method, otherwise you'll get an exception.
         \note Requires encryption functionality
     */
-    inline String Decrypt(const String &key, EncryptionTypeEnum e = DefaultEncryptionWithMAC) const;
+    inline String Decrypt(const String &key, EncryptionTypeEnum e = DefaultEncryption) const{
+        return Decrypt(reinterpret_cast<const GBYTE *>(key.ConstData()), key.Length(), e);
+    }
 
 
     /** Returns a string of random data.  You can optionally supply a seed value, otherwise
