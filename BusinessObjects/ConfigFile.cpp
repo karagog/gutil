@@ -16,7 +16,6 @@ limitations under the License.*/
 
 #include "ConfigFile.h"
 #include "Core/extendedexception.h"
-#include "Core/Utils/encryption.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileSystemWatcher>

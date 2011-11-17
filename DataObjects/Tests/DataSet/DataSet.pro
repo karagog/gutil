@@ -23,7 +23,7 @@ INCLUDEPATH += ../../..
 LIBS += -L../../../lib \
     -lGUtilCore \
     -lGUtilUtils \
-    -lGUtilThirdPartyQt \
+    -lGUtilThirdPartyQtLockedFile \
     -lGUtilInterfaces \
     -lGUtilDataObjects \
     -lGUtilCustom

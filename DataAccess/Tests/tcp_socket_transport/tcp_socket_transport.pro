@@ -20,7 +20,7 @@ FORMS    += mainwindow.ui
 
 INCLUDEPATH += ../../..
 LIBS += -L../../../lib \
-    -lGUtilThirdPartyQt \
+    -lGUtilThirdPartyQtLockedFile \
     -lGUtilCore \
     -lGUtilUtils \
     -lGUtilDataAccess

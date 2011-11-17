@@ -4,9 +4,10 @@
 
 TARGET = GUtilUtils
 
+INCLUDEPATH += ../ThirdParty
 LIBS += -L../lib \
     -lGUtilCore \
-    -lGUtilThirdPartyQt
+    -lGUtilThirdPartyQtLockedFile
 
 DESTDIR = ../lib
 TEMPLATE = lib

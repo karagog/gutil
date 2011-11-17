@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "usermachinelocks.h"
-#include "ThirdParty/Qt/QtLockedFile/qtlockedfile.h"
+#include "QtLockedFile/qtlockedfile.h"
 #include "Core/extendedexception.h"
 #include <QFileInfo>
 #include <QDesktopServices>
