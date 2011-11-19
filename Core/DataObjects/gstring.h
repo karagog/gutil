@@ -306,8 +306,11 @@ public:
     /** Constructs a string from a float. */
     inline static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
 
-    /** Returns a copy of the string with the last N UTF-8 characters (or invalid bytes) removed. */
-    String Chop(GUINT32 N) const;
+    /** Chops the last N UTF-8 characters (or invalid bytes) and returns a reference to it. */
+    String &ChopUTF8(GUINT32 N);
+
+    /** Chops the last N characters off this string, and returns a reference to it */
+    String &Chop(GUINT32 N);
 
 
     /** Removes whitespace characters from the front and back of this string.
@@ -472,25 +475,27 @@ public:
     /** Declares various types of encryption methods for use in the Encrypt() function. */
     enum EncryptionTypeEnum
     {
-        /** The default encryption method (DES-EDE2 and HMAC/SHA-1). */
+        /** The default encryption method (AES). */
         DefaultEncryption,
-
-        /** DES-EDE3, also known as Triple-DES. */
-        TripleDES_Encryption,
 
         /** The most solid form of encryption (Advanced Encryption Standard is the current
             encryption standard approved by the NSA).
         */
-        AES_Encryption
+        AES_Encryption,
+
+        /** DES-EDE3, also known as Triple-DES. */
+        TripleDES_Encryption,
+
+        /** The weakest form of encryption provided. */
+        DES_Encryption
     };
 
     /** Returns an encrypted copy of the string, using the given string as an encryption string.
-        \param key The encryption string
-        \param keylen Optional length of the key.  If you don't supply a length then it will
-        use the strlen() function to determine the length.
         \note Requires encryption functionality
     */
-    String Encrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const;
+    inline String Encrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const{
+        return Encrypt(reinterpret_cast<const GBYTE *>(ConstData()), Length(), key, keylen, e);
+    }
 
     /** Returns an encrypted copy of the string, using the given string as an encryption string.
         \note Requires encryption functionality
@@ -499,11 +504,20 @@ public:
         return Encrypt(reinterpret_cast<const GBYTE *>(key.ConstData()), key.Length(), e);
     }
 
+    /** Returns an encrypted copy of the data, using the given string as an encryption string.
+        \note Requires encryption functionality
+    */
+    static String Encrypt(const GBYTE *data, GUINT32 data_len,
+                                 const GBYTE *key, GUINT32 key_len,
+                                 EncryptionTypeEnum e = DefaultEncryption);
+
     /** Returns a decrypted copy of the encrypted string.  You must provide the correct
         encryption key and method, otherwise you'll get an exception.
         \note Requires encryption functionality
     */
-    String Decrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const;
+    inline String Decrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const{
+        return Decrypt(reinterpret_cast<const GBYTE *>(ConstData()), Length(), key, keylen, e);
+    }
 
     /** Returns a decrypted copy of the encrypted string.  You must provide the correct
         encryption key and method, otherwise you'll get an exception.
@@ -512,6 +526,34 @@ public:
     inline String Decrypt(const String &key, EncryptionTypeEnum e = DefaultEncryption) const{
         return Decrypt(reinterpret_cast<const GBYTE *>(key.ConstData()), key.Length(), e);
     }
+
+    static String Decrypt(const GBYTE *data, GUINT32 data_len,
+                          const GBYTE *key, GUINT32 keylen, EncryptionTypeEnum e = DefaultEncryption);
+
+
+    /** Describes different hash algorithms. */
+    enum HashAlgorithmEnum
+    {
+        DefaultHash,
+        SHA224Hash,
+        SHA256Hash,
+        SHA384Hash,
+        SHA512Hash,
+        SHA1Hash,
+        MD5Hash,
+        MD4Hash
+    };
+
+    /** Returns a hash of the string.
+        \note Requires encryption functionality
+    */
+    inline String Hash(HashAlgorithmEnum e = DefaultHash){
+        return Hash(reinterpret_cast<const GBYTE *>(ConstData()), Length(), e);
+    }
+    /** Returns a hash of the provided data.
+        \note Requires encryption functionality
+    */
+    static String Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e = DefaultHash);
 
 
     /** Returns a string of random data.  You can optionally supply a seed value, otherwise
@@ -637,9 +679,9 @@ public:
     private:
 
         inline void _advance(){
-            if(IsValidUTF8Sequence())
+            if(IsValidUTF8Sequence() && m_cur + String::MultiByteLength(*m_cur) <= m_end)
                 m_cur += ByteLength();
-            else
+            else if(m_cur < m_end)
                 ++m_cur;
         }
         inline void _retreat(){
@@ -725,7 +767,7 @@ public:
         /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
         inline UTF8ConstIterator operator --(int){ UTF8ConstIterator ret(*this); _retreat(); return ret; }
         /** Decrements the iterator n times. */
-        inline UTF8ConstIterator &operator -= (int n){ while(n-- >= 0) _retreat(); return *this; }
+        inline UTF8ConstIterator &operator -= (int n){ while(--n >= 0) _retreat(); return *this; }
 
         inline bool operator == (const UTF8ConstIterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
         inline bool operator != (const UTF8ConstIterator &o) const{ return !operator == (o); }
@@ -742,9 +784,9 @@ public:
     private:
 
         inline void _advance(){
-            if(IsValidUTF8Sequence())
+            if(IsValidUTF8Sequence() && m_cur + String::MultiByteLength(*m_cur) <= m_end)
                 m_cur += ByteLength();
-            else
+            else if(m_cur < m_end)
                 ++m_cur;
         }
         inline void _retreat(){

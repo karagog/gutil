@@ -140,6 +140,10 @@ void StringTest::test_basics()
     String trimmed = s.Trim();
     QVERIFY2(trimmed == "This string needs to be trimmed", trimmed);
     QVERIFY2(s == "   This string needs to be trimmed    \n", s);
+
+
+    s = "Chop the string here";
+    QVERIFY2(s.Chop(5) == "Chop the string", s.Chop(5));
 }
 
 void StringTest::test_upperlowercase()
@@ -509,11 +513,11 @@ void StringTest::test_compression()
 
 void StringTest::test_encryption()
 {
-    // Test the default encryptor
+    // Test the des encryptor
     const char password[] = "I like Toast!";
     String plaintext("Hello World, my name is George!");
-    String ciphertext = plaintext.Encrypt(password);
-    String decrypted = ciphertext.Decrypt(password);
+    String ciphertext = plaintext.Encrypt(password, String::DES_Encryption);
+    String decrypted = ciphertext.Decrypt(password, String::DES_Encryption);
 
 //    qDebug(plaintext);
 //    qDebug(plaintext.ToBase16());
@@ -544,7 +548,7 @@ void StringTest::test_encryption()
 
 
     // Set up the exception case tests, by encrypting with DES_EDE2
-    ciphertext = plaintext.Encrypt(password);
+    ciphertext = plaintext.Encrypt(password, String::DES_Encryption);
 
     bool ex_hit(false);
     try
@@ -559,18 +563,42 @@ void StringTest::test_encryption()
     QVERIFY(ex_hit);
 
 
-    // If you try to decrypt with Triple DES, you can but you will get the wrong message
-    decrypted = ciphertext.Decrypt(password, String::TripleDES_Encryption);
-    QVERIFY(decrypted != plaintext);
+    ex_hit = false;
+    try
+    {
+        // Try to decrypt with Triple DES
+        decrypted = ciphertext.Decrypt(password, String::TripleDES_Encryption);
+    }
+    catch(const GUtil::Core::Exception<> &)
+    {
+        ex_hit = true;
+    }
+    QVERIFY(ex_hit);
+
+    ex_hit = false;
+    try
+    {
+        // Try to decrypt with AES
+        decrypted = ciphertext.Decrypt(password, String::AES_Encryption);
+    }
+    catch(const GUtil::Core::Exception<> &)
+    {
+        ex_hit = true;
+    }
+    QVERIFY(ex_hit);
 
 
-    // If you try to decrypt with AES, you can but you will get the wrong message
-    decrypted = ciphertext.Decrypt(password, String::AES_Encryption);
-    QVERIFY(decrypted != plaintext);
-
-
-    decrypted = ciphertext.Decrypt(password, String::DefaultEncryption);
-    QVERIFY(decrypted == plaintext);
+    ciphertext = plaintext.Encrypt(password, String::AES_Encryption);
+    ex_hit = false;
+    try
+    {
+        decrypted = ciphertext.Decrypt(password, String::TripleDES_Encryption);
+    }
+    catch(const GUtil::Core::Exception<> &)
+    {
+        ex_hit = true;
+    }
+    QVERIFY(ex_hit);
 }
 
 void StringTest::test_random_string()
