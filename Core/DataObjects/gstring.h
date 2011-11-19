@@ -548,12 +548,12 @@ public:
         \note Requires encryption functionality
     */
     inline String Hash(HashAlgorithmEnum e = DefaultHash){
-        return Hash(reinterpret_cast<const GBYTE *>(ConstData()), Length(), e);
+        return Hash(ConstData(), Length(), e);
     }
     /** Returns a hash of the provided data.
         \note Requires encryption functionality
     */
-    static String Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e = DefaultHash);
+    static String Hash(const char *data, GUINT32 data_len = UINT_MAX, HashAlgorithmEnum e = DefaultHash);
 
 
     /** Returns a string of random data.  You can optionally supply a seed value, otherwise

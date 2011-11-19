@@ -44,6 +44,7 @@ private Q_SLOTS:
     void test_random_string();
     void test_compression();
     void test_encryption();
+    void test_hash();
 };
 
 StringTest::StringTest()
@@ -617,6 +618,37 @@ void StringTest::test_random_string()
     QVERIFY(s1[s1.Length()] == '\0');
     QVERIFY(s2[s2.Length()] == '\0');
     QVERIFY(s1 != s2);
+}
+
+void StringTest::test_hash()
+{
+    // Try hashing an empty string (hash references from Wikipedia)
+    String s;
+    QVERIFY2(s.Hash(String::MD5Hash).ToBase16().ToLower() == "d41d8cd98f00b204e9800998ecf8427e",
+             s.Hash(String::MD5Hash).ToBase16());
+    QVERIFY(s.Hash(String::MD4Hash).ToBase16().ToLower() ==     "31d6cfe0d16ae931b73c59d7e0c089c0");
+    QVERIFY(s.Hash(String::SHA1Hash).ToBase16().ToLower() ==    "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+    QVERIFY(s.Hash(String::SHA224Hash).ToBase16().ToLower() ==  "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f");
+    QVERIFY(s.Hash(String::SHA256Hash).ToBase16().ToLower() ==  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+    QVERIFY(s.Hash(String::SHA384Hash).ToBase16().ToLower() ==  "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b");
+    QVERIFY(s.Hash(String::SHA512Hash).ToBase16().ToLower() ==  "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
+
+
+    // Try some reference hashes
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::MD5Hash).ToBase16().ToLower()
+            == "9e107d9d372bb6826bd81d3542a419d6");
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::MD4Hash).ToBase16().ToLower()
+            == "1bee69a46ba811185c194762abaeae90");
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA1Hash).ToBase16().ToLower()
+            == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA224Hash).ToBase16().ToLower()
+            == "730e109bd7a8a32b1cb9d9a09aa2325d2430587ddbc0c38bad911525");
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA256Hash).ToBase16().ToLower()
+            == "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592");
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA384Hash).ToBase16().ToLower()
+            == "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1");
+    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA512Hash).ToBase16().ToLower()
+            == "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb642e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6");
 }
 
 QTEST_APPLESS_MAIN(StringTest);

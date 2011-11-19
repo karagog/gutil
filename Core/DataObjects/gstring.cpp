@@ -1190,10 +1190,14 @@ String String::Decrypt(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GU
     return ret;
 }
 
-String String::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e)
+String String::Hash(const char *data, GUINT32 data_len, HashAlgorithmEnum e)
 {
     GUINT32 str_len;
     CryptoPP::HashTransformation *h;
+
+    if(data_len == UINT_MAX)
+        data_len = strlen(data);
+
     switch(e)
     {
     case MD4Hash:
@@ -1231,6 +1235,8 @@ String String::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e)
 
 
     String ret(str_len);
+    ret.set_length(str_len);
+    ret[str_len] = '\0';
     try
     {
         h->CalculateDigest(reinterpret_cast<byte *>(ret.Data()),
