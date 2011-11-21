@@ -7,7 +7,9 @@ TARGET = GUtilTest
 TEMPLATE = lib
 
 HEADERS += \
-    modeltest.h
+    modeltest.h \
+    testvectorreader.h
 
 SOURCES += \
     modeltest.cpp
+
