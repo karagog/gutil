@@ -106,14 +106,14 @@ public:
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
 
     /** The number of UTF-8 characters (may differ from the actual byte length of the string).
-        \note This returns the number of valid UTF-8 characters until the terminating null,
-        or until the first invalid UTF-8 multibyte character
+        \note This returns the number of valid UTF-8 characters plus the invalid bytes, read
+        until the terminating null.
     */
     inline GUINT32 LengthUTF8() const{ return LengthUTF8(ConstData()); }
 
     /** The number of UTF-8 characters (may differ from the actual byte length of the string).
-        \note This returns the number of valid UTF-8 characters until the terminating null,
-        or until the first invalid UTF-8 multibyte character
+        \note This returns the number of valid UTF-8 characters plus the invalid bytes, read
+        until the terminating null.
     */
     static GUINT32 LengthUTF8(const char *);
 
@@ -207,6 +207,13 @@ public:
         return String(ConstData() + index, length);
     }
 
+    /** Returns the substring starting at the given index and going for the given length in UTF-8 characters. */
+    inline String SubStringUTF8(GUINT32 index, GUINT32 length_utf8) const{
+        UTF8ConstIterator iter(beginUTF8() + index);
+        UTF8ConstIterator iter_end(iter + length_utf8);
+        return String(iter, iter_end);
+    }
+
 
     /** A reference to the unicode code space, telling us the starting indexes of various
         languages.
@@ -296,24 +303,10 @@ public:
         return vFormat(fmt, args);
     }
 
-    /** The non-static version of Format(), in which the current string is the
-        format string.
-    */
-    inline String Format(...) const{
-        va_list args;
-        va_start(args, 0);
-        return vFormat(ConstData(), args);
-    }
-
     /** The same as Format() except it takes a va_list as an argument.
         \note This calls va_end for you
     */
     static String vFormat(const char *fmt, va_list);
-
-    /** The non-static version of vFormat(), which takes a va_list as an argument.
-        \note This calls va_end for you
-    */
-    inline String vFormat(va_list args) const{ return vFormat(ConstData(), args); }
 
 
     /** Returns a copy of this string, which has been parsed linearly to replace
@@ -339,17 +332,24 @@ public:
     /** Constructs a string from a float. */
     inline static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
 
-    /** Chops the last N UTF-8 characters (or invalid bytes) and returns a reference to it. */
-    String &ChopUTF8(GUINT32 N);
 
     /** Chops the last N characters off this string, and returns a reference to it */
     String &Chop(GUINT32 N);
+
+    /** Chops the last N UTF-8 characters (or invalid bytes) and returns a reference to it. */
+    String &ChopUTF8(GUINT32 N);
+
+    /** Truncates the string to the first N bytes, and returns a reference to this. */
+    inline String &Truncate(GUINT32 N){ Chop(Length() - N); return *this; }
+
+    /** Truncates the string to the first N UTF-8 characters (or invalid bytes), and returns a reference to this. */
+    inline String &TruncateUTF8(GUINT32 N){ ChopUTF8(LengthUTF8() - N); return *this; }
 
 
     /** Removes whitespace characters from the front and back of this string.
         \return A reference to this string after trimming.
     */
-    String Trim() const;
+    String Trimmed() const;
 
     /** Returns true if the multibyte character is considered whitespace.
         \note This is used by the Trim() function

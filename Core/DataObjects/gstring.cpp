@@ -161,6 +161,13 @@ void String::ToLower(char *dest, const char *c)
         UTF8CharacterFromUnicodeValue(dest, u - (RomanUpperCase - RomanLowerCase));
     }
 
+    // Extended ASCII
+    else if(0x00C0 <= u && u < 0x00DF)
+    {
+        if(u != 0x00D0 && u != 0X00D7)
+            UTF8CharacterFromUnicodeValue(dest, u + 0x0020);
+    }
+
     // Greek character
     else if(GreekUpperCase <= u && u < (GreekUpperCase + 25))
     {
@@ -185,6 +192,13 @@ void String::ToUpper(char *dest, const char *c)
     if(RomanLowerCase <= u && u < (RomanLowerCase + 26))
     {
         UTF8CharacterFromUnicodeValue(dest, u - (RomanLowerCase - RomanUpperCase));
+    }
+
+    // Extended ASCII
+    else if(0x00E0 <= u && u < 0x00FF)
+    {
+        if(u != 0x00DF && u != 0x00F0)
+            UTF8CharacterFromUnicodeValue(dest, u - 0x0020);
     }
 
     // Greek character
@@ -446,7 +460,7 @@ GFLOAT32 String::ToFloat(bool *ok) const
     return ret;
 }
 
-String String::Trim() const
+String String::Trimmed() const
 {
     GUINT32 i(Length());
     UTF8ConstIterator iter_front( beginUTF8() );
@@ -524,7 +538,7 @@ String String::Join(const Vector<String> &v, const char *separator, GUINT32 len)
         {
             ret.Append(v[i]);
             if(i < v.Length() - 1)
-                ret.Insert(separator, len, ret.Length());
+                ret.Append(separator, len);
         }
     }
     return ret;
@@ -593,10 +607,13 @@ GUINT32 String::LengthUTF8(const char *c)
 {
     GUINT32 cnt(0);
     char tmpchar(*c);
-    while(IsValidUTF8StartByte(tmpchar) && tmpchar != '\0')
+    while(tmpchar != '\0')
     {
         ++cnt;
-        c += MultiByteLength(tmpchar);
+        if(IsValidUTF8StartByte(tmpchar))
+            c += MultiByteLength(tmpchar);
+        else
+            ++c;
         tmpchar = *c;
     }
     return cnt;

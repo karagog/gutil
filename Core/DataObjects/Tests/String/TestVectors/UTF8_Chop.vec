@@ -1,0 +1,10 @@
+# On the first line, give a number and a string.  On the second line give the expected result after chopping
+
+7 This is a test
+This is
+
+7 Τηισ ισ α τεστ
+Τηισ ισ
+
+2 థతಕ
+థ

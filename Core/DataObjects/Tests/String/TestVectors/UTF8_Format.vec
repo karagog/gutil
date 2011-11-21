@@ -1,5 +1,5 @@
 # On each line give a format string, surrounded by ".  Directly thereafter
-#  on the same line put the string arguments separated by ',' with the expected
+#  on the same line put a space and two string arguments separated by ',' and the expected
 #  resultant string on the next line
 
 "Hello %s, my name is %s." Bob,George

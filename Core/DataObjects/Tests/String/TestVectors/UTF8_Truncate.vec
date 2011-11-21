@@ -1,0 +1,10 @@
+# On the first line, give a number and a string.  On the second line give the expected result after truncating
+
+9 This is a test
+This is a
+
+9 Τηισ ισ α τεστ
+Τηισ ισ α
+
+2 థతಕ
+థత

@@ -46,14 +46,21 @@ private Q_SLOTS:
     void test_compression();
     void test_encryption();
     void test_hash();
-    void test_vectors();
+    void test_utf8_vectors();
 
 private:
-    void test_vector_basics();
-    void test_vector_indexof();
-    void test_vector_lastindexof();
-    void test_vector_tolower();
-    void test_vector_toupper();
+    void test_vector_UTF8basics();
+    void test_vector_UTF8indexof();
+    void test_vector_UTF8lastindexof();
+    void test_vector_UTF8chop();
+    void test_vector_UTF8truncate();
+    void test_vector_UTF8trim();
+    void test_vector_UTF8tolower();
+    void test_vector_UTF8toupper();
+    void test_vector_UTF8substring();
+    void test_vector_UTF8format();
+    void test_vector_UTF8split();
+    void test_vector_UTF8join();
 };
 
 StringTest::StringTest()
@@ -147,7 +154,7 @@ void StringTest::test_basics()
     s = "   This string needs to be trimmed    \n";
     QVERIFY2(s == "   This string needs to be trimmed    \n", s);
 
-    String trimmed = s.Trim();
+    String trimmed = s.Trimmed();
     QVERIFY2(trimmed == "This string needs to be trimmed", trimmed);
     QVERIFY2(s == "   This string needs to be trimmed    \n", s);
 
@@ -183,7 +190,7 @@ void StringTest::test_format()
     s = String::Format("%d + %d = %d", 1, 1, 2);
     QVERIFY2(s == "1 + 1 = 2", s);
 
-    s = String("%d + %d = %d").Format(1, 1, 2);
+    s = String::Format("%d + %d = %d", 1, 1, 2);
     QVERIFY2(s == "1 + 1 = 2", s);
 
     s.Clear();
@@ -351,12 +358,12 @@ void StringTest::test_utf8_validation()
 
     s = "HI";
     s.Append(badchar_1);
-    QVERIFY2(s.LengthUTF8() == 2, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.LengthUTF8() == 3, String::FromInt(s.LengthUTF8()));
     QVERIFY2(s.Length() == 3, String::FromInt(s.Length()));
     QVERIFY(!s.IsValidUTF8());
 
     s.Append(goodchar_1);
-    QVERIFY2(s.LengthUTF8() == 2, String::FromInt(s.LengthUTF8()));
+    QVERIFY2(s.LengthUTF8() == 4, String::FromInt(s.LengthUTF8()));
     QVERIFY2(s.Length() == 5, String::FromInt(s.Length()));
     QVERIFY(!s.IsValidUTF8());
 
@@ -678,13 +685,20 @@ void StringTest::test_hash()
 }
 
 
-void StringTest::test_vectors()
+void StringTest::test_utf8_vectors()
 {
-    test_vector_basics();
-    test_vector_indexof();
-    test_vector_lastindexof();
-    test_vector_tolower();
-    test_vector_toupper();
+    test_vector_UTF8basics();
+    test_vector_UTF8indexof();
+    test_vector_UTF8lastindexof();
+    test_vector_UTF8chop();
+    test_vector_UTF8truncate();
+    test_vector_UTF8trim();
+    test_vector_UTF8tolower();
+    test_vector_UTF8toupper();
+    test_vector_UTF8substring();
+    test_vector_UTF8format();
+    test_vector_UTF8split();
+    test_vector_UTF8join();
 }
 
 
@@ -692,7 +706,7 @@ void StringTest::test_vectors()
 #define TESTVECTORS_DIRECTORY "TestVectors"
 GUTIL_USING_NAMESPACE(Test);
 
-void StringTest::test_vector_basics()
+void StringTest::test_vector_UTF8basics()
 {
     TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Basics.vec");
 
@@ -712,7 +726,7 @@ void StringTest::test_vector_basics()
     }
 }
 
-void StringTest::test_vector_indexof()
+void StringTest::test_vector_UTF8indexof()
 {
     TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_IndexOf.vec");
 
@@ -739,7 +753,7 @@ void StringTest::test_vector_indexof()
     }
 }
 
-void StringTest::test_vector_lastindexof()
+void StringTest::test_vector_UTF8lastindexof()
 {
     TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_LastIndexOf.vec");
 
@@ -766,7 +780,104 @@ void StringTest::test_vector_lastindexof()
     }
 }
 
-void StringTest::test_vector_tolower()
+void StringTest::test_vector_UTF8chop()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Chop.vec");
+
+    int pair_cnt(0);
+    int state(0);
+    String s;
+    QByteArray line;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++pair_cnt;
+
+            int indx = line.indexOf(' ');
+            QVERIFY(indx != -1);
+
+            bool ok(false);
+            GUINT32 N = line.left(indx).toInt(&ok);
+            QVERIFY(ok);
+
+            line = line.right(line.length() - (indx + 1));
+            s = String(line.constData(), line.length()).ChopUTF8(N);
+        }
+        else if(state == 1)
+        {
+            state = 0;
+
+            String s2(line.constData(), line.length());
+            QVERIFY2(s == s2, String::Format("Pair #%d: %s != %s", pair_cnt, s.ConstData(), s2.ConstData()));
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8truncate()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Truncate.vec");
+
+    int pair_cnt(0);
+    int state(0);
+    String s;
+    QByteArray line;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++pair_cnt;
+
+            int indx = line.indexOf(' ');
+            QVERIFY(indx != -1);
+
+            bool ok(false);
+            GUINT32 N = line.left(indx).toInt(&ok);
+            QVERIFY(ok);
+
+            line = line.right(line.length() - (indx + 1));
+            s = String(line.constData(), line.length()).TruncateUTF8(N);
+        }
+        else if(state == 1)
+        {
+            state = 0;
+
+            String s2(line.constData(), line.length());
+            QVERIFY2(s == s2, String::Format("Pair #%d: %s != %s", pair_cnt, s.ConstData(), s2.ConstData()));
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8trim()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Trim.vec");
+
+    int pair_cnt(0);
+    int state(0);
+    String s;
+    QByteArray line;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++pair_cnt;
+
+            s = String(line.constData(), line.length()).Trimmed();
+        }
+        else if(state == 1)
+        {
+            state = 0;
+
+            String s2(line.constData(), line.length());
+            QVERIFY2(s == s2, String::Format("Pair #%d: %s != %s", pair_cnt, s.ConstData(), s2.ConstData()));
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8tolower()
 {
     TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_toLower.vec");
 
@@ -791,7 +902,7 @@ void StringTest::test_vector_tolower()
     }
 }
 
-void StringTest::test_vector_toupper()
+void StringTest::test_vector_UTF8toupper()
 {
     TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_toUpper.vec");
 
@@ -812,6 +923,166 @@ void StringTest::test_vector_toupper()
             tmp_state = 0;
             String s2(line.constData(), line.length());
             QVERIFY2(s.ToUpper() == s2, String::Format("Pair #%d: %s", pair_cnt, s.ToUpper().ConstData()));
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8substring()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_SubString.vec");
+
+    int pair_cnt(0);
+    int state(0);
+    String s;
+    QByteArray line;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++pair_cnt;
+
+            int indx1 = line.indexOf(' ');
+            int indx2 = line.indexOf(' ', indx1 + 1);
+            QVERIFY(indx1 != -1 && indx2 != -1);
+
+            bool ok(false);
+            GUINT32 indx = line.left(indx1).toInt(&ok);
+            QVERIFY(ok);
+
+            ok = false;
+            GUINT32 count = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
+            QVERIFY(ok);
+
+            line = line.right(line.length() - (indx2 + 1));
+            s = String(line.constData(), line.length()).SubStringUTF8(indx, count);
+        }
+        else if(state == 1)
+        {
+            state = 0;
+
+            String s2(line.constData(), line.length());
+            QVERIFY2(s == s2, String::Format("Pair #%d: %s != %s", pair_cnt, s.ConstData(), s2.ConstData()));
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8format()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Format.vec");
+
+    int pair_cnt(0);
+    int state(0);
+    String s;
+    QByteArray line;
+    Vector<String> args;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++pair_cnt;
+            args.Clear();
+
+            int indx1 = line.indexOf('"');
+            int indx2 = line.indexOf('"', indx1 + 1);
+            QVERIFY(indx1 != -1 && indx2 != -1);
+
+            s = line.left(indx2).right(indx2 - (indx1 + 1)).constData();
+
+            args = String(line.right(line.length() - (indx2 + 2)).constData()).Split(',');
+            QVERIFY(args.Length() == 2);
+        }
+        else if(state == 1)
+        {
+            state = 0;
+
+            String s2(line.constData(), line.length());
+            s = String::Format(s, args[0].ConstData(), args[1].ConstData());
+            QVERIFY2(s == s2, String::Format("Pair #%d: %s != %s", pair_cnt, s.ConstData(), s2.ConstData()));
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8split()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Split.vec");
+
+    int group_cnt(0);
+    int state(0);
+    char sep[10];
+    int cnt(0);
+    int line_cnt(0);
+    Vector<String> items;
+    String s;
+    QByteArray line;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++group_cnt;
+            line_cnt = 0;
+            items.Clear();
+
+            int indx1 = line.indexOf(' ');
+            int indx2 = line.indexOf(' ', indx1 + 1);
+            QVERIFY(indx1 != -1 && indx2 != -1);
+
+            memcpy(sep, line.constData(), indx1);
+            sep[indx1] = '\0';
+
+            bool ok(false);
+            cnt = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
+
+            line = line.right(line.length() - (indx2 + 1));
+            s = String(line.constData(), line.length());
+            items = s.Split(sep);
+        }
+        else if(state == 1)
+        {
+            if(line_cnt == cnt - 1)
+                state = 0;
+
+            String s2(line.constData(), line.length());
+            QVERIFY2(items[line_cnt] == s2, String::Format("Group #%d: %s != %s", group_cnt, items[line_cnt].ConstData(), s2.ConstData()));
+            line_cnt++;
+        }
+    }
+}
+
+void StringTest::test_vector_UTF8join()
+{
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_Join.vec");
+
+    int pair_cnt(0);
+    int state(0);
+    char sep[10];
+    String s;
+    QByteArray line;
+    while(rdr.ReadNextLine(line))
+    {
+        if(state == 0)
+        {
+            state = 1;
+            ++pair_cnt;
+
+            int indx = line.indexOf(' ');
+            QVERIFY(indx != -1);
+
+            memcpy(sep, line.constData(), indx);
+
+            line = line.right(line.length() - (indx + 1));
+            s = String(line.constData(), line.length());
+
+            s = String::Join(s.Split(' '), sep, indx);
+        }
+        else if(state == 1)
+        {
+            state = 0;
+
+            String s2(line.constData(), line.length());
+            QVERIFY2(s == s2, String::Format("Pair #%d: %s != %s", pair_cnt, s.ConstData(), s2.ConstData()));
         }
     }
 }
