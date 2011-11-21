@@ -106,10 +106,16 @@ public:
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
 
     /** The number of UTF-8 characters (may differ from the actual byte length of the string).
-        \note This returns the number of valid UTF-8 characters, plus the number of bad
-        (unrecognized) bytes.
+        \note This returns the number of valid UTF-8 characters until the terminating null,
+        or until the first invalid UTF-8 multibyte character
     */
-    GUINT32 LengthUTF8() const;
+    inline GUINT32 LengthUTF8() const{ return LengthUTF8(ConstData()); }
+
+    /** The number of UTF-8 characters (may differ from the actual byte length of the string).
+        \note This returns the number of valid UTF-8 characters until the terminating null,
+        or until the first invalid UTF-8 multibyte character
+    */
+    static GUINT32 LengthUTF8(const char *);
 
     /** Returns if the string is null, i.e. has not been initialized. */
     inline bool IsNull() const{ return ConstData() == NULL; }
@@ -202,13 +208,16 @@ public:
     }
 
 
-    enum
+    /** A reference to the unicode code space, telling us the starting indexes of various
+        languages.
+    */
+    enum UnicodeCharacterOffsets
     {
-        /** Where the lower case letters start in ascii. */
-        LowercaseOffset = 0x61,
+        RomanLowerCase = 0x0061,
+        RomanUpperCase  = 0x0041,
 
-        /** Where the upper case letters start in ascii. */
-        UppercaseOffset  = 0x41
+        GreekLowerCase = 0x03B1,
+        GreekUpperCase = 0x0391
     };
 
     /** Returns a copy of this string with all upper case letters changed to lower case.
@@ -221,18 +230,25 @@ public:
     */
     String ToUpper() const;
 
-    /** Returns the lower case version of the letter. */
-    inline static char ToLower(char c){
-        if(UppercaseOffset <= c && c < (UppercaseOffset + 26))
-            c = c - (UppercaseOffset - LowercaseOffset);
-        return c;
-    }
-    /** Returns the upper case version of the letter. */
-    inline static char ToUpper(char c){
-        if(LowercaseOffset <= c && c < (LowercaseOffset + 26))
-            c = c - (LowercaseOffset - UppercaseOffset);
-        return c;
-    }
+    /** Writes the lower case version of the multibyte UTF-8 character to the destination.
+        the destination must be the same size as the character.
+
+        \note Not all character sets are supported.  In theory they all could be,
+        but I don't have time to worry about languages I don't use.  If you want
+        your language's character set to be supported, then send me a list of all
+        the upper case letters and their lower case correspondents.
+    */
+    static void ToLower(char *dest, const char *c);
+
+    /** Writes the upper case version of the multibyte UTF-8 character to the destination.
+        the destination must be the same size as the character.
+
+        \note Not all character sets are supported.  In theory they all could be,
+        but I don't have time to worry about languages I don't use.  If you want
+        your language's character set to be supported, then send me a list of all
+        the upper case letters and their lower case correspondents.
+    */
+    static void ToUpper(char *dest, const char *c);
 
     inline GUINT32 IndexOf(char c, GUINT32 start = 0) const{ return Vector<char>::IndexOf(c, start); }
     inline GUINT32 IndexOf(const String &s, GUINT32 start = 0) const{
@@ -245,6 +261,23 @@ public:
         return LastIndexOf(s.ConstData(), start, s.Length());
     }
     GUINT32 LastIndexOf(const char *, GUINT32 start = UINT_MAX, GUINT32 string_length = UINT_MAX) const;
+
+
+    /** Returns the UTF-8 index of the string. */
+    inline GUINT32 IndexOfUTF8(const String &s, GUINT32 start = 0) const{
+        return IndexOfUTF8(s.ConstData(), start, s.LengthUTF8());
+    }
+    /** Returns the UTF-8 index of the string.
+        \param string_length The UTF-8 length of the string (not the byte length!)
+    */
+    GUINT32 IndexOfUTF8(const char *, GUINT32 start = 0, GUINT32 string_length = UINT_MAX) const;
+
+    /** Returns the last UTF-8 index of the string. */
+    inline GUINT32 LastIndexOfUTF8(const String &s, GUINT32 start = UINT_MAX) const{
+        return LastIndexOfUTF8(s.ConstData(), start, s.Length());
+    }
+    /** Returns the last UTF-8 index of the string. */
+    GUINT32 LastIndexOfUTF8(const char *, GUINT32 start = UINT_MAX, GUINT32 string_length = UINT_MAX) const;
 
     /** Format a string using printf-style strings.  It is a static function, so
         to use it would look like this:
@@ -376,6 +409,12 @@ public:
 
     /** Returns the Unicode codepoint for the multibyte character. */
     static GUINT32 UnicodeValue(const char *multibyte_start, GINT8 multibyte_length = -1);
+
+    /** Generates a UTF-8 multibyte character from a unicode code point.
+        \param dest must be large enough to hold the multibyte char.  If you're only dealing
+        with ascii then the length will always be 1.
+    */
+    static void UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value);
 
     /** Returns a copy of this string, in which only valid UTF-8 characters are retained.
 
@@ -656,6 +695,8 @@ public:
         inline UTF8Iterator operator ++(int){ UTF8Iterator ret(*this); _advance(); return ret; }
         /** Increments the iterator n times. */
         inline UTF8Iterator &operator += (int n){ while(n-- >= 0) _advance(); return *this; }
+        /** Returns a copy of the iterator incremented n times. */
+        inline UTF8Iterator operator +(int n){ UTF8Iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         /** Prefix decrement, retreats the iterator and returns it. */
         inline UTF8Iterator &operator --(){ _retreat(); return *this; }
@@ -663,6 +704,8 @@ public:
         inline UTF8Iterator operator --(int){ UTF8Iterator ret(*this); _retreat(); return ret; }
         /** Decrements the iterator n times. */
         inline UTF8Iterator &operator -= (int n){ while(n-- >= 0) _retreat(); return *this; }
+        /** Returns a copy of the iterator decremented n times. */
+        inline UTF8Iterator operator -(int n){ UTF8Iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
         inline bool operator == (const UTF8Iterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
         inline bool operator != (const UTF8Iterator &o) const{ return !operator == (o); }
@@ -761,6 +804,8 @@ public:
         inline UTF8ConstIterator operator ++(int){ UTF8ConstIterator ret(*this); _advance(); return ret; }
         /** Increments the iterator n times. */
         inline UTF8ConstIterator &operator += (int n){ while(n-- >= 0) _advance(); return *this; }
+        /** Returns a copy of the iterator incremented n times. */
+        inline UTF8ConstIterator operator + (int n){ UTF8ConstIterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         /** Prefix decrement, retreats the iterator and returns it. */
         inline UTF8ConstIterator &operator --(){ _retreat(); return *this; }
@@ -768,6 +813,8 @@ public:
         inline UTF8ConstIterator operator --(int){ UTF8ConstIterator ret(*this); _retreat(); return ret; }
         /** Decrements the iterator n times. */
         inline UTF8ConstIterator &operator -= (int n){ while(--n >= 0) _retreat(); return *this; }
+        /** Returns a copy of the iterator decremented n times. */
+        inline UTF8ConstIterator operator - (int n){ UTF8ConstIterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
         inline bool operator == (const UTF8ConstIterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
         inline bool operator != (const UTF8ConstIterator &o) const{ return !operator == (o); }

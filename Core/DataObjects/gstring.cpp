@@ -145,26 +145,55 @@ String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
 String String::ToLower() const
 {
     String ret(*this);
-    char *c(ret.Data());
-    if(c)
-    {
-        for(GUINT32 i(0); i < Length(); ++i, ++c)
-            *c = ToLower(*c);
-    }
+    for(UTF8Iterator iter(ret.beginUTF8()); iter != ret.endUTF8(); ++iter)
+        ToLower(iter.Current(), iter.Current());
     return ret;
+}
+
+void String::ToLower(char *dest, const char *c)
+{
+    GINT8 blen = MultiByteLength(*c);
+    GUINT32 u = UnicodeValue(c, blen);
+
+    // Roman character
+    if(RomanUpperCase <= u && u < (RomanUpperCase + 26))
+    {
+        UTF8CharacterFromUnicodeValue(dest, u - (RomanUpperCase - RomanLowerCase));
+    }
+
+    // Greek character
+    else if(GreekUpperCase <= u && u < (GreekUpperCase + 25))
+    {
+        UTF8CharacterFromUnicodeValue(dest, u - (GreekUpperCase - GreekLowerCase));
+    }
 }
 
 String String::ToUpper() const
 {
     String ret(*this);
-    char *c(ret.Data());
-    if(c)
-    {
-        const GUINT32 len(Length());
-        for(GUINT32 i(0); i < len; ++i, ++c)
-            *c = ToUpper(*c);
-    }
+    for(UTF8Iterator iter(ret.beginUTF8()); iter != ret.endUTF8(); ++iter)
+        ToUpper(iter.Current(), iter.Current());
     return ret;
+}
+
+void String::ToUpper(char *dest, const char *c)
+{
+    GINT8 blen = MultiByteLength(*c);
+    GUINT32 u = UnicodeValue(c, blen);
+
+    // Roman character
+    if(RomanLowerCase <= u && u < (RomanLowerCase + 26))
+    {
+        UTF8CharacterFromUnicodeValue(dest, u - (RomanLowerCase - RomanUpperCase));
+    }
+
+    // Greek character
+    else if(GreekLowerCase <= u && u < (GreekLowerCase + 25))
+    {
+        // The old sigma character maps to a capital Sigma
+        if(u == 0x3C2) u = 0x3C3;
+        UTF8CharacterFromUnicodeValue(dest, u - (GreekLowerCase - GreekUpperCase));
+    }
 }
 
 String String::vFormat(const char *fmt, va_list args)
@@ -313,7 +342,7 @@ GUINT32 String::LastIndexOf(const char *s, GUINT32 start, GUINT32 slen) const
             else
                 c = ConstData() + start;
 
-            start += 1; // This helps our loop condition, because it's an unsigned int
+            ++start;
             for(; start > 0; --start, --c)
             {
                 if(0 == _string_compare(s, c, slen))
@@ -322,6 +351,68 @@ GUINT32 String::LastIndexOf(const char *s, GUINT32 start, GUINT32 slen) const
                     break;
                 }
             }
+        }
+    }
+    return ret;
+}
+
+GUINT32 String::IndexOfUTF8(const char *s, GUINT32 start, GUINT32 slen) const
+{
+    GUINT32 ret(UINT_MAX);
+    if(slen == UINT_MAX)
+        slen = LengthUTF8(s);
+
+    GUINT32 mb_len( MultiByteLength(*s) );
+    GUINT32 lutf8( LengthUTF8() );
+
+    if(lutf8 > 0 && slen > 0 && lutf8 >= slen)
+    {
+        UTF8ConstIterator iter(beginUTF8() + start);
+        for(; start < lutf8 - (slen - 1); ++start, ++iter)
+        {
+            if(0 == _string_compare(s, iter.Current(), mb_len))
+            {
+                ret = start;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+GUINT32 String::LastIndexOfUTF8(const char *s, GUINT32 start, GUINT32 slen) const
+{
+    GUINT32 ret(UINT_MAX);
+    if(slen == UINT_MAX)
+        slen = LengthUTF8(s);
+    GUINT32 mb_len( MultiByteLength(*s) );
+    GUINT32 lutf8(LengthUTF8());
+
+    if(lutf8 > 0 && slen > 0 && lutf8 >= slen)
+    {
+        if(start == UINT_MAX)
+            start = lutf8 - slen;
+
+        if(start < lutf8)
+        {
+            char __d[sizeof(UTF8ConstIterator)];
+            UTF8ConstIterator &iter(*reinterpret_cast<UTF8ConstIterator *>(__d));
+            if(LengthUTF8() - start < slen)
+                new(__d) UTF8ConstIterator(endUTF8() - (slen - 1));
+            else
+                new(__d) UTF8ConstIterator(beginUTF8() + start);
+
+            ++start;
+            for(; start > 0; --start, --iter)
+            {
+                if(0 == _string_compare(s, iter.Current(), mb_len))
+                {
+                    ret = start - 1;
+                    break;
+                }
+            }
+
+            iter.~UTF8ConstIterator();
         }
     }
     return ret;
@@ -498,14 +589,15 @@ bool String::IsValidUTF8Sequence(const char *c, const char *e)
 }
 
 
-GUINT32 String::LengthUTF8() const
+GUINT32 String::LengthUTF8(const char *c)
 {
-    UTF8ConstIterator iter( beginUTF8() );
     GUINT32 cnt(0);
-    while(iter)
+    char tmpchar(*c);
+    while(IsValidUTF8StartByte(tmpchar) && tmpchar != '\0')
     {
         ++cnt;
-        ++iter;
+        c += MultiByteLength(tmpchar);
+        tmpchar = *c;
     }
     return cnt;
 }
@@ -644,25 +736,78 @@ GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
     return ret;
 }
 
+void String::UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value)
+{
+    int fsb = FSB32(uc_value);
+    if(fsb < 7)
+    {
+        // ASCII character, 1 byte
+        *dest = uc_value;
+    }
+    else if(fsb < 11)
+    {
+        // 2-byte character
+        dest[0] = 0xC0 | (uc_value >> 6);
+        dest[1] = 0x80 | (0x3F & uc_value);
+    }
+    else if(fsb < 16)
+    {
+        // 3-byte character
+        dest[0] = 0xE0 | (uc_value >> 12);
+        dest[1] = 0x80 | (0x3F & (uc_value >> 6));
+        dest[2] = 0x80 | (0x3F & uc_value);
+    }
+    else if(fsb < 21)
+    {
+        // 4-byte character
+        dest[0] = 0xF0 | (uc_value >> 18);
+        dest[1] = 0x80 | (0x3F & (uc_value >> 12));
+        dest[2] = 0x80 | (0x3F & (uc_value >> 6));
+        dest[3] = 0x80 | (0x3F & uc_value);
+    }
+    else if(fsb < 26)
+    {
+        // 5-byte character
+        dest[0] = 0xF8 | (uc_value >> 24);
+        dest[1] = 0x80 | (0x3F & (uc_value >> 18));
+        dest[2] = 0x80 | (0x3F & (uc_value >> 12));
+        dest[3] = 0x80 | (0x3F & (uc_value >> 6));
+        dest[4] = 0x80 | (0x3F & uc_value);
+    }
+    else if(fsb < 31)
+    {
+        // 6-byte character
+        dest[0] = 0xFC | (uc_value >> 30);
+        dest[1] = 0x80 | (0x3F & (uc_value >> 24));
+        dest[2] = 0x80 | (0x3F & (uc_value >> 18));
+        dest[3] = 0x80 | (0x3F & (uc_value >> 12));
+        dest[4] = 0x80 | (0x3F & (uc_value >> 6));
+        dest[5] = 0x80 | (0x3F & uc_value);
+    }
+    else
+    {
+        // The value is not in the valid Unicode space
+        THROW_NEW_GUTIL_EXCEPTION(Exception);
+    }
+}
 
 
-#define ASCII_CAPITAL_LETTER_OFFSET     0x41
-#define ASCII_LOWCASE_LETTER_OFFSET     0x61
+
 #define ASCII_NUMBER_OFFSET             0x30
 
 char String::Base64a2i(char c)
 {
-    if(ASCII_CAPITAL_LETTER_OFFSET <= c &&
-            c < ASCII_CAPITAL_LETTER_OFFSET + 26)
+    if(RomanUpperCase <= c &&
+            c < RomanUpperCase + 26)
     {
         // Capital letter A-Z
-        return c - ASCII_CAPITAL_LETTER_OFFSET;
+        return c - RomanUpperCase;
     }
-    else if(ASCII_LOWCASE_LETTER_OFFSET <= c &&
-            c < ASCII_LOWCASE_LETTER_OFFSET + 26)
+    else if(RomanLowerCase <= c &&
+            c < RomanLowerCase + 26)
     {
         // Lower case letter a-z
-        return c - ASCII_LOWCASE_LETTER_OFFSET + 26;
+        return c - RomanLowerCase + 26;
     }
     else if(ASCII_NUMBER_OFFSET <= c &&
             c < ASCII_NUMBER_OFFSET + 10)
@@ -694,11 +839,11 @@ char String::Base64i2a(char c)
 {
     if(0 <= c && c < 26)
     {
-        return ASCII_CAPITAL_LETTER_OFFSET + c;
+        return RomanUpperCase + c;
     }
     else if(26 <= c && c < 52)
     {
-        return ASCII_LOWCASE_LETTER_OFFSET + c - 26;
+        return RomanLowerCase + c - 26;
     }
     else if(52 <= c && c < 62)
     {
