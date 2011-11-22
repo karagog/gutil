@@ -168,6 +168,40 @@ void String::ToLower(char *dest, const char *c)
             UTF8CharacterFromUnicodeValue(dest, u + 0x0020);
     }
 
+    // Latin extended
+    else if(0x0100 <= u && u < 0x0234)
+    {
+        bool even( 0 == (u & 1) );
+        if((((u <= 0x0136) || (0x014A <= u && u <= 0x0176) || (0x01DE <= u && u <= 0x01EE) || (0x01F4 <= u && u <= 0x0232 && u != 0x0220)) && even) ||
+                (((0x0139 <= u && u <= 0x0147) || (0x0179 <= u && u <= 0x017D) || (0x01CD <= u && u <= 0x01DB)) && !even) ||
+            (0x0182 == u ||
+             0x0184 == u ||
+             0x0187 == u ||
+             0x0189 == u ||
+             0x018B == u ||
+             0x018E == u ||
+             0x0191 == u ||
+             0x0193 == u ||
+             0x0196 == u ||
+             0x0198 == u ||
+             0x019A == u ||
+             0x019D == u ||
+             0x01A0 == u ||
+             0x01A2 == u ||
+             0x01A4 == u ||
+             0x01A7 == u ||
+             0x01AA == u ||
+             0x01AC == u ||
+             0x01AF == u ||
+             0x01B1 == u ||
+             0x01B3 == u ||
+             0x01B5 == u ||
+             0x01B8 == u))
+            UTF8CharacterFromUnicodeValue(dest, u + 1);
+        else if(0x01B7 == u)
+            UTF8CharacterFromUnicodeValue(dest, u + 3);
+    }
+
     // Greek character
     else if(GreekUpperCase <= u && u < (GreekUpperCase + 25))
     {
@@ -199,6 +233,40 @@ void String::ToUpper(char *dest, const char *c)
     {
         if(u != 0x00DF && u != 0x00F0)
             UTF8CharacterFromUnicodeValue(dest, u - 0x0020);
+    }
+
+    // Latin extended
+    else if(0x0101 <= u && u < 0x0234)
+    {
+        bool even( 0 == (u & 1) );
+        if((((u <= 0x0137) || (0x014B <= u && u <= 0x0177) || (0x01DF <= u && u <= 0x01EF) || (0x01F5 <= u && u <= 0x0233 && u != 0x0221)) && !even) ||
+                (((0x013A <= u && u <= 0x0148) || (0x017A <= u && u <= 0x017E) || (0x01CE <= u && u <= 0x01DC)) && even) ||
+            (0x0183 == u ||
+             0x0185 == u ||
+             0x0188 == u ||
+             0x018A == u ||
+             0x018C == u ||
+             0x018F == u ||
+             0x0192 == u ||
+             0x0194 == u ||
+             0x0197 == u ||
+             0x0199 == u ||
+             0x019B == u ||
+             0x019E == u ||
+             0x01A1 == u ||
+             0x01A3 == u ||
+             0x01A5 == u ||
+             0x01A8 == u ||
+             0x01AB == u ||
+             0x01AD == u ||
+             0x01B0 == u ||
+             0x01B2 == u ||
+             0x01B4 == u ||
+             0x01B6 == u ||
+             0x01B9 == u))
+            UTF8CharacterFromUnicodeValue(dest, u - 1);
+        else if(0x01BA == u)
+            UTF8CharacterFromUnicodeValue(dest, u - 3);
     }
 
     // Greek character

@@ -897,7 +897,9 @@ void StringTest::test_vector_UTF8tolower()
         {
             tmp_state = 0;
             String s2(line.constData(), line.length());
-            QVERIFY2(s.ToLower() == s2, String::Format("Pair #%d: %s", pair_cnt, s.ToLower().ConstData()));
+            QVERIFY2(s.ToLower() == s2, String::Format("Pair #%d: %s != %s", pair_cnt,
+                                                       s.ToLower().ToBase16().ConstData(),
+                                                       s2.ToBase16().ConstData()));
         }
     }
 }
@@ -922,7 +924,9 @@ void StringTest::test_vector_UTF8toupper()
         {
             tmp_state = 0;
             String s2(line.constData(), line.length());
-            QVERIFY2(s.ToUpper() == s2, String::Format("Pair #%d: %s", pair_cnt, s.ToUpper().ConstData()));
+            QVERIFY2(s.ToUpper() == s2, String::Format("Pair #%d: %s != %s", pair_cnt,
+                                                       s.ToUpper().ToBase16().ConstData(),
+                                                       s2.ToBase16().ConstData()));
         }
     }
 }
