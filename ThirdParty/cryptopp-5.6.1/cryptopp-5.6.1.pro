@@ -8,11 +8,12 @@ TEMPLATE = lib
 #CONFIG += staticlib
 
 INCLUDEPATH += ..
-LIBS += -lws2_32
-
 QMAKE_CXXFLAGS += -pipe -w
 
-win32: QMAKE_CXXFLAGS += -mthreads
+win32{
+  QMAKE_CXXFLAGS += -mthreads
+  LIBS += -lws2_32
+}
 
 DEFINES += NDEBUG
 DEFINES -= UNICODE

@@ -687,18 +687,29 @@ void StringTest::test_hash()
 
 void StringTest::test_utf8_vectors()
 {
-    test_vector_UTF8basics();
-    test_vector_UTF8indexof();
-    test_vector_UTF8lastindexof();
-    test_vector_UTF8chop();
-    test_vector_UTF8truncate();
-    test_vector_UTF8trim();
-    test_vector_UTF8tolower();
-    test_vector_UTF8toupper();
-    test_vector_UTF8substring();
-    test_vector_UTF8format();
-    test_vector_UTF8split();
-    test_vector_UTF8join();
+    try
+    {
+        test_vector_UTF8basics();
+        test_vector_UTF8indexof();
+        test_vector_UTF8lastindexof();
+        test_vector_UTF8chop();
+        test_vector_UTF8truncate();
+        test_vector_UTF8trim();
+        test_vector_UTF8tolower();
+        test_vector_UTF8toupper();
+        test_vector_UTF8substring();
+        test_vector_UTF8format();
+        test_vector_UTF8split();
+        test_vector_UTF8join();
+    }
+    catch(const GUtil::Core::Exception<> & ex)
+    {
+        GUtil::Core::Exception<true> const *ex_ptr( dynamic_cast<GUtil::Core::Exception<true> const *>(&ex) );
+        qDebug() << ex.What;
+        if(ex_ptr)
+            qDebug() << ex_ptr->GetMessage().ConstData();
+        throw;
+    }
 }
 
 
@@ -879,7 +890,7 @@ void StringTest::test_vector_UTF8trim()
 
 void StringTest::test_vector_UTF8tolower()
 {
-    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_toLower.vec");
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_ToLower.vec");
 
     int pair_cnt(0);
     int tmp_state(0);
@@ -906,7 +917,7 @@ void StringTest::test_vector_UTF8tolower()
 
 void StringTest::test_vector_UTF8toupper()
 {
-    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_toUpper.vec");
+    TestVectorReader rdr(TESTVECTORS_DIRECTORY "/UTF8_ToUpper.vec");
 
     int pair_cnt(0);
     int tmp_state(0);
