@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "gstring.h"
 #include "gassert.h"
+#include "smartpointer.h"
 #include <stdio.h>
 #include <cstring>
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
@@ -1269,7 +1270,7 @@ String String::Encrypt(const GBYTE *data, GUINT32 data_len,
     if(len == UINT_MAX)
         len = strlen(reinterpret_cast<const char *>(key));
 
-    CryptoPP::StreamTransformation *mode(NULL);
+    SmartPointer<CryptoPP::StreamTransformation> mode;
 
     try
     {
@@ -1339,12 +1340,10 @@ String String::Encrypt(const GBYTE *data, GUINT32 data_len,
     }
     catch(const CryptoPP::Exception &ex)
     {
-        if(mode) delete mode;
         GDEBUG(ex.GetWhat());
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
-    if(mode) delete mode;
     return ret;
 }
 
@@ -1361,7 +1360,7 @@ String String::Decrypt(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GU
 
     // This just needs to be big enough to hold the maximum padded key length
     byte padded_key[CryptoPP::AES::MAX_KEYLENGTH];
-    CryptoPP::StreamTransformation *mode(NULL);
+    SmartPointer<CryptoPP::StreamTransformation> mode;
 
     try
     {
@@ -1403,12 +1402,9 @@ String String::Decrypt(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GU
     }
     catch(const CryptoPP::Exception &ex)
     {
-        if(mode) delete mode;
         GDEBUG(ex.GetWhat());
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
-
-    if(mode) delete mode;
 
     // Check to see if the stamp is there, and remove it
     GUINT64 stamp(ENCRYPTED_MESSAGE_STAMP);
@@ -1423,7 +1419,7 @@ String String::Decrypt(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GU
 String String::Hash(const char *data, GUINT32 data_len, HashAlgorithmEnum e)
 {
     GUINT32 str_len;
-    CryptoPP::HashTransformation *h;
+    SmartPointer<CryptoPP::HashTransformation> h;
 
     if(data_len == UINT_MAX)
         data_len = strlen(data);
@@ -1475,11 +1471,9 @@ String String::Hash(const char *data, GUINT32 data_len, HashAlgorithmEnum e)
     }
     catch(const CryptoPP::Exception &ex)
     {
-        delete h;
         GDEBUG(ex.GetWhat());
         THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
-    delete h;
     return ret;
 }
 

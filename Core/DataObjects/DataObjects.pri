@@ -12,7 +12,11 @@ HEADERS += \
     DataObjects/flags.h \
     DataObjects/gstring.h \
     DataObjects/shareddata.h \
-    DataObjects/shareddatapointer.h
+    DataObjects/smartpointer.h
 
 SOURCES += \
     DataObjects/gstring.cpp
+
+
+
+

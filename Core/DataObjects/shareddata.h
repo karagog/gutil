@@ -31,15 +31,15 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 */
 class SharedData
 {
-    GINT32 m_references;
+    Utils::AtomicInt m_references;
     GUTIL_DISABLE_COPY(SharedData)
-    template<class T>friend class SharedDataPointer;
+    template<class T>friend class SharedSmartPointer;
 protected:
 
-    inline SharedData() :m_references(0){}
+    inline SharedData(){}
 
-    inline bool AddReference(){ return Utils::Atomic::Increment(&m_references); }
-    inline bool RemoveReference(){ return Utils::Atomic::Decrement(&m_references); }
+    inline bool AddReference(){ return m_references.Increment(); }
+    inline bool RemoveReference(){ return m_references.Decrement(); }
 
     inline GINT32 ReferenceCount() const{ return m_references; }
 

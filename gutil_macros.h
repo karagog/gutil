@@ -195,6 +195,10 @@ protected: \
         cls &operator =(const cls &){return *this;}
 
 
+#ifndef NULL
+    #define NULL ((void *)0)
+#endif
+
 
 
 // These macros only relevant for windows COM functionality
