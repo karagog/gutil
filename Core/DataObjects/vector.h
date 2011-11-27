@@ -349,14 +349,15 @@ public:
     inline void PopBack(){ RemoveAt(Length() - 1); }
 
     /** Reserves room for at least this many items.
-        Pass 0 to clear memory.
+        Pass 0 to free all memory.
     */
-    void Reserve(GUINT32 n)
+    inline void Reserve(GUINT32 n){ ReserveExactly( _capacity(n) ); }
+
+    /** Reserves room for exactly this number of items. */
+    void ReserveExactly(GUINT32 new_capacity)
     {
         const GUINT32 len( Length() );
-        GUINT32 new_capacity( _capacity(n) );
-        GUINT32 cur_capacity( Capacity() );
-        if(new_capacity < cur_capacity)
+        if(new_capacity < Capacity())
         {
             // Need to call the destructors on the items we're (potentially) deleting
             if(new_capacity < len)
@@ -366,7 +367,7 @@ public:
                 set_length( new_capacity );
             }
         }
-        else if(new_capacity == cur_capacity)
+        else if(new_capacity == Capacity())
             // No need to reallocate
             return;
 
@@ -594,6 +595,30 @@ public:
         return ret;
     }
 
+
+    /** Declares different sorting algorithms. */
+    enum SortTypeEnum
+    {
+        MergeSort
+    };
+
+    /** Sorts the vector using the given sorting algorithm. */
+    void Sort(SortTypeEnum e = MergeSort){
+        switch(e)
+        {
+        case MergeSort:
+        {
+            Vector<T> buffer;
+            buffer.ReserveExactly(Length());
+            _merge_sort(begin(), end(), buffer);
+        }
+            break;
+        default:
+            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        }
+    }
+
+
     /** Iterates through the vector. */
     class iterator
     {
@@ -614,14 +639,11 @@ public:
               m_end(Vector<T>::DataEnd(begin))
         {}
 
-        inline T &operator *(){ return *current; }
-        inline const T &operator *() const{ return *current; }
-        inline T *operator ->(){ return current; }
-        inline T const*operator ->() const{ return current; }
+        inline T &operator *() const{ return *current; }
+        inline T *operator ->() const{ return current; }
 
         inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
-        inline T *Current(){ return current; }
-        inline const T *Current() const{ return current; }
+        inline T *Current() const{ return current; }
 
         inline iterator &operator ++(){ ++current; return *this; }
         inline iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
@@ -632,6 +654,18 @@ public:
         inline iterator operator --(int){ iterator ret(*this); --current; return ret;}
         inline iterator &operator -=(int n){ current -= n; return *this; }
         inline iterator operator -(int n) const{ iterator ret(*this); ret.current -= n; return ret;}
+
+        /** Returns the difference between iterators. */
+        inline GUINT32 operator - (const iterator &other) const{
+            if(m_begin != other.m_begin || current < other.current)
+                return UINT_MAX;
+            return current - other.current;
+        }
+
+        inline bool operator == (const iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        inline bool operator != (const iterator &o){ return !operator == (o); }
+        inline bool operator == (const const_iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        inline bool operator != (const const_iterator &o){ return !operator == (o); }
 
         /** Returns whether the iterator is valid. */
         inline operator bool() const{ return current && m_begin <= current && current < m_end; }
@@ -685,13 +719,17 @@ public:
         inline const_iterator &operator -=(int n){ current -= n; return *this; }
         inline const_iterator operator -(int n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
 
-        /** Returns the distance between iterators (how many items in between).
-            \return INT_MAX if the iterators are not from the same vector
-        */
-        inline int operator - (const const_iterator &iter) const{
-            if(m_begin != iter.m_begin) return INT_MAX;
-            return current - iter.current;
+        /** Returns the difference between iterators. */
+        inline GUINT32 operator - (const const_iterator &other) const{
+            if(m_begin != other.m_begin || current < other.current)
+                return UINT_MAX;
+            return current - other.current;
         }
+
+        inline bool operator == (const const_iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        inline bool operator != (const const_iterator &o){ return !operator == (o); }
+        inline bool operator == (const iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        inline bool operator != (const iterator &o){ return !operator == (o); }
 
         /** Returns whether the iterator is valid. */
         inline operator bool() const{ return current && m_begin <= current && current < m_end;; }
@@ -770,6 +808,67 @@ private:
     inline void _set_capacity(GUINT32 cap){ *(reinterpret_cast<GUINT32 *>(m_begin) - 2) = cap; }
 
     inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
+
+    void _merge_sort(const iterator &b, const iterator &e, Vector<T> &buffer){
+        GUINT32 diff( e - b );
+        if(diff == UINT_MAX);
+        else if(diff == 2)
+        {
+            T *last( e.Current() - 1 );
+            if(*last < *b)
+            {
+                T cpy(*b);
+                *b = *last;
+                *last = cpy;
+            }
+        }
+        else if(diff > 2)
+        {
+            iterator m(b + (diff / 2));
+
+            // Sort the left and right halves of the list
+            _merge_sort(b, m, buffer);
+            _merge_sort(m, e, buffer);
+
+            // Join the two halves, which are already sorted
+            iterator i1(b), i2(m);
+            while((i1 != m) && (i2 != e))
+            {
+                if(*i2 < *i1)
+                {
+                    buffer.PushBack(*i2);
+                    ++i2;
+                }
+                else
+                {
+                    buffer.PushBack(*i1);
+                    ++i1;
+                }
+            }
+            while(i1 != m)
+            {
+                buffer.PushBack(*i1);
+                ++i1;
+            }
+            while(i2 != e)
+            {
+                buffer.PushBack(*i2);
+                ++i2;
+            }
+
+            // Copy the now-sorted buffer back to the original
+            i1 = b;
+            i2 = buffer.begin();
+            while(i1 != e)
+            {
+                *i1 = *i2;
+                ++i1, ++i2;
+            }
+
+            // Clear the items in the buffer
+            buffer.Empty();
+        }
+    }
 
 };
 

@@ -30,6 +30,7 @@ private Q_SLOTS:
     void test_removal();
     void test_vector_of_vector();
     void test_non_movable_class();
+    void test_sorting();
 };
 
 
@@ -229,6 +230,50 @@ void VectorTest::test_non_movable_class()
     vec.Insert(nonmovable(), vec.begin());
     for(int i(0); i < 5; i++)
         QVERIFY(vec[i].this_ptr == &vec[i]);
+}
+
+void VectorTest::test_sorting()
+{
+    Vector<int> v;
+    v.PushBack(10);
+    v.PushBack(9);
+    v.PushBack(8);
+    v.PushBack(7);
+    v.PushBack(6);
+    v.PushBack(5);
+    v.PushBack(4);
+    v.PushBack(3);
+    v.PushBack(2);
+    v.PushBack(1);
+    v.PushBack(0);
+    v.Sort(v.MergeSort);
+
+//    for(int i = 0; i < 11; ++i)
+//        qDebug() << v[i];
+
+    for(int i = 0; i < 11; ++i)
+        QVERIFY2(v[i] == i, QString("%1 != %2").arg(v[i]).arg(i).toUtf8());
+
+
+
+
+    v.Clear();
+
+    const int cnt(10000);
+    for(int i = 0; i < cnt; ++i)
+        v.PushBack(qrand());
+
+    v.Sort();
+//    for(int i = 0; i < cnt; ++i)
+//        qDebug() << v[i];
+
+    QVERIFY(v.Length() == cnt);
+    int mem(INT_MIN);
+    for(int i = 0; i < cnt; ++i)
+    {
+        QVERIFY2(mem <= v[i], QString("%1 > %2").arg(mem).arg(v[i]).toUtf8());
+        mem = v[i];
+    }
 }
 
 QTEST_APPLESS_MAIN(VectorTest);
