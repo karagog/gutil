@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
+#include "gutil_globals.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -143,6 +144,26 @@ public:
 
     /** How many items in the SList. */
     inline GUINT32 Count() const{ return m_count; }
+    /** How many items in the SList. */
+    inline GUINT32 Length() const{ return m_count; }
+
+
+    /** Sorts the list with the given sorting algorithm. */
+    inline void Sort(GUtil::SortTypeEnum e = GUtil::MergeSort)
+    {
+        switch(e)
+        {
+        case GUtil::MergeSort:
+        {
+            iterator b(begin()), e(end());
+            _merge_sort(b, e);
+        }
+            break;
+        default:
+            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            break;
+        }
+    }
 
     class iterator
     {
@@ -154,14 +175,10 @@ public:
         {}
 
         /** Return a reference to the data. */
-        inline T &operator*() { return current->Data; }
-        /** Return a const reference to the data. */
-        inline const T &operator*() const{ return current->Data; }
+        inline T &operator*() const{ return current->Data; }
 
         /** Return a pointer to the data. */
-        inline T *operator->() { return current->Data; }
-        /** Return a const pointer to the data. */
-        inline const T *operator->() const{ return &current->Data; }
+        inline T *operator->() const{ return current->Data; }
 
         /** Advances the iterator */
         inline iterator &operator++(){ advance(); return *this; }
@@ -279,6 +296,108 @@ private:
         delete iter.current;
         iter.current = n;
         --m_count;
+    }
+
+    void _merge_sort(iterator &b, iterator &e)
+    {
+        GUINT32 diff(0);
+        iterator m(b);
+        {
+            iterator c(b);
+            bool even(false);
+            while(c != e)
+            {
+                ++c, ++diff;
+                even = !even;
+                if(even) ++m;
+            }
+        }
+
+        if(diff == 2)
+        {
+            node *cur( b.current );
+            node *last( b.current->NextNode );
+            if(last->Data < cur->Data)
+            {
+                cur->NextNode = last->NextNode;
+                last->NextNode = cur;
+
+                b.current = last;
+                if(b.parent)
+                    b.parent->NextNode = last;
+                else
+                    m_first = last;
+
+                e.parent = cur;
+                if(!e.current)
+                    m_last = cur;
+            }
+        }
+        else if(diff > 2)
+        {
+            // Sort the left and right halves of the list
+            _merge_sort(b, m);
+            _merge_sort(m, e);
+
+            // Terminate the list at the middle and the end
+            m.parent->NextNode = NULL;
+            e.parent->NextNode = NULL;
+
+            // Join the two halves, which are already sorted
+            iterator i1(b), i2(m);
+            node **new_list(b.parent ? &b.parent->NextNode : &m_first);
+            node **prev_new_list(NULL);
+            b.current = NULL;
+            while(i1.current && i2.current)
+            {
+                if(*i2 < *i1)
+                {
+                    *new_list = i2.current;
+                    prev_new_list = new_list;
+                    new_list = &(*new_list)->NextNode;
+                    if(b.current == NULL)
+                    {
+                        b.current = i2.current;
+                        if(b.parent) b.parent->NextNode = b.current;
+                        else m_first = b.current;
+                    }
+                    ++i2;
+                }
+                else
+                {
+                    *new_list = i1.current;
+                    prev_new_list = new_list;
+                    new_list = &(*new_list)->NextNode;
+                    if(b.current == NULL)
+                    {
+                        b.current = i1.current;
+                        if(b.parent) b.parent->NextNode = b.current;
+                        else m_first = b.current;
+                    }
+                    ++i1;
+                }
+            }
+            while(i1.current)
+            {
+                *new_list = i1.current;
+                prev_new_list = new_list;
+                new_list = &(*new_list)->NextNode;
+                ++i1;
+            }
+            while(i2.current)
+            {
+                *new_list = i2.current;
+                prev_new_list = new_list;
+                new_list = &(*new_list)->NextNode;
+                ++i2;
+            }
+
+            e.parent = *prev_new_list;
+            if(!e.current)
+                m_last = *prev_new_list;
+
+            (*prev_new_list)->NextNode = e.current;
+        }
     }
 
 };

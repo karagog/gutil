@@ -23,7 +23,7 @@ limitations under the License.*/
 
 // And here some useful includes, to sort-of set your "environment" developing in GUtil
 #include "gutil_macros.h"
-#include "Core/globals.h"
+#include "Core/gutil_globals.h"
 #include "Core/extendedexception.h"
 //#include "Core/DataObjects/gstring.h"
 

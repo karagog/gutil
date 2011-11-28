@@ -246,7 +246,7 @@ void VectorTest::test_sorting()
     v.PushBack(2);
     v.PushBack(1);
     v.PushBack(0);
-    v.Sort(v.MergeSort);
+    v.Sort(GUtil::MergeSort);
 
 //    for(int i = 0; i < 11; ++i)
 //        qDebug() << v[i];

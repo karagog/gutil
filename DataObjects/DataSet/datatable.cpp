@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "datacolumncollection.h"
 #include "Custom/gvariant.h"
 #include "Core/extendedexception.h"
-#include "Core/globals.h"
+#include "Core/gutil_globals.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QCoreApplication>

@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_VECTOR_P
 
 #include "gutil_macros.h"
-#include "Core/globals.h"
+#include "Core/gutil_globals.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
 #include <new>
@@ -595,18 +595,11 @@ public:
         return ret;
     }
 
-
-    /** Declares different sorting algorithms. */
-    enum SortTypeEnum
-    {
-        MergeSort
-    };
-
     /** Sorts the vector using the given sorting algorithm. */
-    void Sort(SortTypeEnum e = MergeSort){
+    void Sort(GUtil::SortTypeEnum e = GUtil::MergeSort){
         switch(e)
         {
-        case MergeSort:
+        case GUtil::MergeSort:
         {
             Vector<T> buffer;
             buffer.ReserveExactly(Length());

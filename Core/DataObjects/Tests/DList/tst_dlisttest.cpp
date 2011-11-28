@@ -26,6 +26,8 @@ public:
 
 private Q_SLOTS:
     void testCase1();
+
+    void test_sorting();
 };
 
 DListTest::DListTest()
@@ -98,6 +100,60 @@ void DListTest::testCase1()
         QVERIFY2(cur == 4 - i, QString("%1 != %2").arg(cur).arg(i).toAscii());
     }
 }
+
+void DListTest::test_sorting()
+{
+    DList<int> d;
+    d.PushBack(10);
+    d.PushBack(9);
+    d.PushBack(8);
+    d.PushBack(7);
+    d.PushBack(6);
+    d.PushBack(5);
+    d.PushBack(4);
+    d.PushBack(3);
+    d.PushBack(2);
+    d.PushBack(1);
+    d.PushBack(0);
+    d.Sort(GUtil::MergeSort);
+
+    int i = 0;
+    for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, ++i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
+    d.PushBack(11);
+    d.PushBack(12);
+    d.PushBack(13);
+    d.PushFront(-1);
+    i = -1;
+    for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, ++i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
+    d.Clear();
+
+    const int cnt(10000);
+    for(int i = 0; i < cnt; ++i)
+        d.PushBack(qrand());
+
+    d.Sort();
+//    for(int i = 0; i < cnt; ++i)
+//        qDebug() << v[i];
+
+    QVERIFY(d.Length() == cnt);
+    int mem = INT_MIN;
+    for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter)
+    {
+        QVERIFY2(mem <= *iter, QString("%1 > %2").arg(mem).arg(*iter).toUtf8());
+        mem = *iter;
+    }
+}
+
 
 QTEST_APPLESS_MAIN(DListTest);
 

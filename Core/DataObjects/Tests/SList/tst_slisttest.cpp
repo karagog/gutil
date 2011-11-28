@@ -33,6 +33,8 @@ private Q_SLOTS:
 
     void test_queue();
 
+    void test_sorting();
+
 };
 
 SListTest::SListTest()
@@ -131,6 +133,61 @@ void SListTest::test_queue()
 
     q.FlushQueue();
     QVERIFY(q.CountQueueItems() == 0);
+}
+
+void SListTest::test_sorting()
+{
+    SList<int> s;
+    s.PushBack(10);
+    s.PushBack(9);
+    s.PushBack(8);
+    s.PushBack(7);
+    s.PushBack(6);
+    s.PushBack(5);
+    s.PushBack(4);
+    s.PushBack(3);
+    s.PushBack(2);
+    s.PushBack(1);
+    s.PushBack(0);
+    s.Sort(GUtil::MergeSort);
+
+    int i = 0;
+    for(SList<int>::iterator iter(s.begin()); iter != s.end(); ++iter, ++i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
+    s.PushBack(11);
+    s.PushBack(12);
+    s.PushBack(13);
+    s.PushFront(-1);
+    i = -1;
+    for(SList<int>::iterator iter(s.begin()); iter != s.end(); ++iter, ++i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
+
+
+    s.Clear();
+
+    const int cnt(10000);
+    for(int i = 0; i < cnt; ++i)
+        s.PushBack(qrand());
+
+    s.Sort();
+//    for(int i = 0; i < cnt; ++i)
+//        qDebug() << v[i];
+
+    QVERIFY(s.Length() == cnt);
+    int mem = INT_MIN;
+    for(SList<int>::iterator iter(s.begin()); iter != s.end(); ++iter)
+    {
+        QVERIFY2(mem <= *iter, QString("%1 > %2").arg(mem).arg(*iter).toUtf8());
+        mem = *iter;
+    }
 }
 
 QTEST_APPLESS_MAIN(SListTest);

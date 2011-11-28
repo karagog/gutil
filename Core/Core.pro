@@ -19,8 +19,8 @@ LIBS += -L../lib -lcryptopp
 
 HEADERS += \
     exception.h \
-    globals.h \
-    extendedexception.h
+    extendedexception.h \
+    gutil_globals.h
 SOURCES += \
     globals.cpp \
     extendedexception.cpp \
@@ -30,6 +30,8 @@ include(DataAccess/DataAccess.pri)
 include(DataObjects/DataObjects.pri)
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
+
+
 
 
 

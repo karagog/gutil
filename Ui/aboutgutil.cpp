@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "aboutgutil.h"
-#include "Core/globals.h"
+#include "Core/gutil_globals.h"
 using namespace GUtil::UI;
 
 AboutGUtil::AboutGUtil(QWidget *p)

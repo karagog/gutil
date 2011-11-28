@@ -242,6 +242,12 @@ enum TimeFormatEnum
     Format24Hours = 1
 };
 
+/** Declares different sorting algorithms. */
+enum SortTypeEnum
+{
+    MergeSort = 10
+};
+
 
 
 #ifndef GUTIL_COM_EXPORTS
