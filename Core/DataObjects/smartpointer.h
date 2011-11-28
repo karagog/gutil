@@ -44,6 +44,7 @@ public:
     inline SmartPointer &operator = (T *p){
         if(ptr) delete ptr;
         ptr = p;
+        return *this;
     }
 
     inline T &operator *() const{ return *ptr; }

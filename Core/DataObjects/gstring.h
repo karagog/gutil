@@ -694,18 +694,18 @@ public:
         /** Postfix increment, advances the iterator but returns the iterator it was before. */
         inline UTF8Iterator operator ++(int){ UTF8Iterator ret(*this); _advance(); return ret; }
         /** Increments the iterator n times. */
-        inline UTF8Iterator &operator += (int n){ while(n-- >= 0) _advance(); return *this; }
+        inline UTF8Iterator &operator += (GUINT32 n){ while(n-- >= 0) _advance(); return *this; }
         /** Returns a copy of the iterator incremented n times. */
-        inline UTF8Iterator operator +(int n){ UTF8Iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
+        inline UTF8Iterator operator +(GUINT32 n){ UTF8Iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         /** Prefix decrement, retreats the iterator and returns it. */
         inline UTF8Iterator &operator --(){ _retreat(); return *this; }
         /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
         inline UTF8Iterator operator --(int){ UTF8Iterator ret(*this); _retreat(); return ret; }
         /** Decrements the iterator n times. */
-        inline UTF8Iterator &operator -= (int n){ while(n-- >= 0) _retreat(); return *this; }
+        inline UTF8Iterator &operator -= (GUINT32 n){ while(n-- >= 0) _retreat(); return *this; }
         /** Returns a copy of the iterator decremented n times. */
-        inline UTF8Iterator operator -(int n){ UTF8Iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+        inline UTF8Iterator operator -(GUINT32 n){ UTF8Iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
         inline bool operator == (const UTF8Iterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
         inline bool operator != (const UTF8Iterator &o) const{ return !operator == (o); }
@@ -803,18 +803,18 @@ public:
         /** Postfix increment, advances the iterator but returns the iterator it was before. */
         inline UTF8ConstIterator operator ++(int){ UTF8ConstIterator ret(*this); _advance(); return ret; }
         /** Increments the iterator n times. */
-        inline UTF8ConstIterator &operator += (int n){ while(n-- >= 0) _advance(); return *this; }
+        inline UTF8ConstIterator &operator += (GUINT32 n){ while(n-- >= 0) _advance(); return *this; }
         /** Returns a copy of the iterator incremented n times. */
-        inline UTF8ConstIterator operator + (int n){ UTF8ConstIterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
+        inline UTF8ConstIterator operator + (GUINT32 n){ UTF8ConstIterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         /** Prefix decrement, retreats the iterator and returns it. */
         inline UTF8ConstIterator &operator --(){ _retreat(); return *this; }
         /** Postfix decrement, retreats the iterator but returns the iterator it was before. */
         inline UTF8ConstIterator operator --(int){ UTF8ConstIterator ret(*this); _retreat(); return ret; }
         /** Decrements the iterator n times. */
-        inline UTF8ConstIterator &operator -= (int n){ while(--n >= 0) _retreat(); return *this; }
+        inline UTF8ConstIterator &operator -= (GUINT32 n){ while(--n >= 0) _retreat(); return *this; }
         /** Returns a copy of the iterator decremented n times. */
-        inline UTF8ConstIterator operator - (int n){ UTF8ConstIterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+        inline UTF8ConstIterator operator - (GUINT32 n){ UTF8ConstIterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
         inline bool operator == (const UTF8ConstIterator &o) const{ return m_begin == o.m_begin && m_cur == o.m_cur; }
         inline bool operator != (const UTF8ConstIterator &o) const{ return !operator == (o); }

@@ -1149,6 +1149,9 @@ char String::HexToChar(char c)
 
 #ifdef GUTIL_ENCRYPTION
 
+// To disable warnings, because we're exposing some weak algorithms (MD4-5)
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
 #include "cryptopp-5.6.1/cryptlib.h"
 #include "cryptopp-5.6.1/filters.h"
 #include "cryptopp-5.6.1/gzip.h"
