@@ -102,7 +102,7 @@ void AbstractLogger::LogException(const Core::Exception<> &ex)
         }
 
         Log(QString("%1%2")
-            .arg(ex_ptr->GetMessage().ConstData())
+            .arg(ex_ptr->GetMessage())
             .arg(data_string),
 
             QString("%1 Caught from line %2 of file '%3'%4:")

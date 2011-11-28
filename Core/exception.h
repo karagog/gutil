@@ -27,19 +27,14 @@ namespace GUtil{ namespace Core{
 */
 class BaseException
 {
+    char *m_message;
 public:
 
-    /** Constructs an empty exception, with all pointers initialized to 0. */
-    BaseException();
-
     /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *name);
+    BaseException(const char *name, const char *message = 0, const char *file = 0, int line = -1);
 
-    /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *name, const char *file, int line);
-
-    /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *file, int line);
+    BaseException(const BaseException &o);
+    BaseException &operator = (const BaseException &o);
 
     /** The name of the exception, injected by the constructor.
         \note You should check that it's non-zero before using.
@@ -58,11 +53,14 @@ public:
     */
     int Line;
 
+    /** You can include a null-terminated message with the exception. */
+    inline const char *GetMessage() const{ return m_message; }
+
     /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
         This will allow you to dynamic_cast a reference to an Exception as a different
         type of exception at runtime.
     */
-    virtual ~BaseException() throw(){}
+    virtual ~BaseException() throw();
 
 };
 
@@ -80,11 +78,13 @@ class Exception :
         public BaseException
 {
 public:
-    inline Exception() {}
-    inline Exception(const char *name) :BaseException(name) {}
-    inline Exception(const char *name, const char *file, int line)
-        :BaseException(name, file, line) {}
-    inline Exception(const char *file, int line) :BaseException(file, line) {}
+    inline Exception() :BaseException("GUtil::Core::Exception<false>"){}
+    inline Exception(const char *message, const char *name = 0) :BaseException(name == 0 ? "GUtil::Core::Exception<false>" : name, message) {} \
+    inline Exception(const char *file,
+                     int line,
+                     const char *name = 0,
+                     const char *message = 0)
+        :BaseException(name == 0 ? "GUtil::Core::Exception<false>" : name, message, file, line) {}
 };
 
 
@@ -97,9 +97,11 @@ template<bool extended = false>class ex_name : public Exception<false> \
 { \
 public: \
     inline ex_name() \
-        :Exception<false>("GUtil::Core::" STRINGIFY(ex_name)) {} \
-    inline ex_name(const char *file, int line) \
-        :Exception<false>("GUtil::Core::" STRINGIFY(ex_name), file, line) {} \
+        :Exception<false>(0, -1, "GUtil::Core::" STRINGIFY(ex_name) "<false>") {} \
+    inline ex_name(const char *message, const char *name) \
+        :Exception<false>(0, -1, name == 0 ? "GUtil::Core::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+    inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
+        :Exception<false>(file, line, name == 0 ? "GUtil::Core::" STRINGIFY(ex_name) "<false>" : name, message) {} \
     inline ex_name(const Exception<false> &ex) \
         :Exception<false>(ex) {} \
 };
@@ -135,6 +137,12 @@ EXCEPTION_DECLARE( UniqueKeyException )
 */
 #define THROW_NEW_GUTIL_EXCEPTION( ex_type ) \
     throw ex_type<false>(__FILE__, __LINE__)
+
+/** Use this convenient macro to instantiate an exception of the specified type,
+    and pass the file/line data with it, along with a custom message.
+*/
+#define THROW_NEW_GUTIL_EXCEPTION2( ex_type, msg ) \
+    throw ex_type<false>(__FILE__, __LINE__, msg)
 
 
 }}  // GUtil::Core

@@ -13,22 +13,54 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "exception.h"
+#include <cstring>
+#include <malloc.h>
 using namespace GUtil::Core;
 
-#define EXCEPTION_STRING  "GUtil::Core::Exception_base"
+BaseException::BaseException(const char *name, const char *message, const char *file, int line)
+    :m_message(0), What(name), File(file), Line(line)
+{
+    if(message)
+    {
+        unsigned int len( strlen(message) );
+        m_message = reinterpret_cast<char *>(malloc(len + 1));
+        memcpy(m_message, message, len);
+        m_message[len] = '\0';
+    }
+}
 
-BaseException::BaseException()
-    :What(EXCEPTION_STRING), File(0), Line(-1)
-{}
+BaseException::BaseException(const BaseException &o)
+    :m_message(0), What(o.What), File(o.File), Line(o.Line)
+{
+    if(o.m_message)
+    {
+        unsigned int len( strlen(o.m_message) );
+        m_message = reinterpret_cast<char *>(malloc(len + 1));
+        memcpy(m_message, o.m_message, len);
+        m_message[len] = '\0';
+    }
+}
 
-BaseException::BaseException(const char *name)
-    :What(name), File(0), Line(-1)
-{}
+BaseException &BaseException::operator = (const BaseException &o)
+{
+    What = o.What;
+    File = o.File;
+    Line = o.Line;
+    if(m_message)
+    {
+        free(m_message);
+        m_message = 0;
+    }
+    if(o.m_message)
+    {
+        unsigned int len( strlen(o.m_message) );
+        m_message = reinterpret_cast<char *>(malloc(len + 1));
+        memcpy(m_message, o.m_message, len);
+        m_message[len] = '\0';
+    }
+}
 
-BaseException::BaseException(const char *name, const char *file, int line)
-    :What(name), File(file), Line(line)
-{}
-
-BaseException::BaseException(const char *file, int line)
-    :What(EXCEPTION_STRING), File(file), Line(line)
-{}
+BaseException::~BaseException() throw(){
+    if(m_message)
+        free(m_message);
+}

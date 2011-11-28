@@ -33,15 +33,11 @@ class ExtendedException
 {
 public:
 
-    ExtendedException();
-    ExtendedException(const DataObjects::String &message,
-                      const Exception<> *inner_exception = 0);
+    ExtendedException(const Exception<> *inner_exception = 0);
 
     ExtendedException(const ExtendedException &);
     ExtendedException &operator = (const ExtendedException &);
     virtual ~ExtendedException() throw();
-
-    PROPERTY( Message, DataObjects::String );
 
     inline void SetData(const DataObjects::String &key, const DataObjects::String &value){
         _data[key] = value;
@@ -84,17 +80,14 @@ template<>class ex_name<true> : \
 { \
     public: \
 \
-        inline ex_name() {} \
-        inline ex_name(const DataObjects::String &message) \
-            :ExtendedException(message) {} \
-        inline ex_name(const DataObjects::String &message, \
-                         const char *file, \
+        inline ex_name() :ex_name<false>(0, -1, "GUtil::Core::" STRINGIFY(ex_name) "<true>"){} \
+        inline ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::Core::" STRINGIFY(ex_name) "<true>", message){} \
+        inline ex_name(const char *file, \
                          int line, \
+                         const char *message = 0, \
                          const Exception<> *inner_exception = 0) \
-            :ex_name<false>(file, line), \
-                ExtendedException(message, inner_exception) {} \
-        inline ex_name(const Exception<> &ex, const ExtendedException &xex) \
-            :ex_name<false>(ex), ExtendedException(xex) {} \
+            :ex_name<false>(file, line, "GUtil::Core::" STRINGIFY(ex_name) "<true>", message), \
+                ExtendedException(inner_exception) {} \
 };
 
 EXCEPTION_DECLARE_EXTENDED( Exception )
@@ -116,14 +109,9 @@ EXCEPTION_DECLARE_EXTENDED( UniqueKeyException )
 
 
 
-
-/** This version lets you pass a message with the exception. */
-#define THROW_NEW_GUTIL_EXCEPTION2( ex_type, message ) \
-    throw ex_type<true>(message, __FILE__, __LINE__)
-
 /** This version lets you pass an inner exception into it */
 #define THROW_NEW_GUTIL_EXCEPTION3( ex_type, message, inner_except ) \
-    throw ex_type<true>(message, __FILE__, __LINE__, inner_except)
+    throw ex_type<true>(__FILE__, __LINE__, message, inner_except)
 
 
 

@@ -16,14 +16,8 @@ limitations under the License.*/
 GUTIL_USING_NAMESPACE(Core);
 GUTIL_USING_CORE_NAMESPACE(DataObjects);
 
-ExtendedException::ExtendedException()
+ExtendedException::ExtendedException(const Exception<> *inner_exception)
     :_inner_exception(0)
-{}
-
-ExtendedException::ExtendedException(const String &message,
-                                     const Exception<> *inner_exception)
-    :_p_Message(message),
-      _inner_exception(0)
 {
     if(inner_exception)
         SetInnerException(*inner_exception);
@@ -36,8 +30,7 @@ ExtendedException::~ExtendedException() throw()
 }
 
 ExtendedException::ExtendedException(const ExtendedException &o)
-    :_p_Message(o._p_Message),
-      _data(o._data),
+    :_data(o._data),
       _inner_exception(0)
 {
     if(o.GetInnerException())
@@ -46,22 +39,21 @@ ExtendedException::ExtendedException(const ExtendedException &o)
 
 ExtendedException &ExtendedException::operator = (const ExtendedException &o)
 {
-    _p_Message = o._p_Message;
     _data = o._data;
     if(o.GetInnerException())
         SetInnerException(*o.GetInnerException());
     return *this;
 }
 
-void ExtendedException::SetInnerException(const Exception<> &ex)
+void ExtendedException::SetInnerException(const Exception<false> &ex)
 {
     if(_inner_exception)
         delete _inner_exception;
 
-    const ExtendedException *extended( dynamic_cast<const ExtendedException *>(&ex) );
+    Exception<true> const *extended( dynamic_cast<Exception<true> const *>(&ex) );
     if(extended)
     {
-        _inner_exception = new Exception<true>(ex, *extended);
+        _inner_exception = new Exception<true>(*extended);
     }
     else
     {
