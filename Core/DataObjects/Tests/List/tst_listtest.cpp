@@ -31,6 +31,8 @@ private Q_SLOTS:
     void test_non_primitive_type();
 
     void test_lots();
+
+    void test_sorting();
 };
 
 ListTest::ListTest()
@@ -125,6 +127,54 @@ void ListTest::test_lots()
 
     for(int i(0); i < NUMBER; ++i)
         lst.RemoveAt(lst.Size() - 1);
+}
+
+void ListTest::test_sorting()
+{
+    List<int> l;
+    l.Append(10);
+    l.Append(9);
+    l.Append(8);
+    l.Append(7);
+    l.Append(6);
+    l.Append(5);
+    l.Append(4);
+    l.Append(3);
+    l.Append(2);
+    l.Append(1);
+    l.Append(0);
+    l.Sort(true, GUtil::MergeSort);
+
+    //    for(int i = 0; i < 11; ++i)
+    //        qDebug() << v[i];
+
+    for(int i = 0; i < 11; ++i)
+        QVERIFY2(l[i] == i, QString("%1 != %2").arg(l[i]).arg(i).toUtf8());
+
+
+    l.Sort(false);
+    for(int i = 10; i >= 0; --i)
+        QVERIFY2(l[10 - i] == i, QString("%1 != %2").arg(l[10 - i]).arg(i).toUtf8());
+
+
+
+    l.Clear();
+
+    const int cnt(10000);
+    for(int i = 0; i < cnt; ++i)
+        l.Append(qrand());
+
+    l.Sort();
+    //    for(int i = 0; i < cnt; ++i)
+    //        qDebug() << v[i];
+
+    QVERIFY(l.Length() == cnt);
+    int mem(INT_MIN);
+    for(int i = 0; i < cnt; ++i)
+    {
+        QVERIFY2(mem <= l[i], QString("%1 > %2").arg(mem).arg(l[i]).toUtf8());
+        mem = l[i];
+    }
 }
 
 

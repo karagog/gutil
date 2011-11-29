@@ -81,6 +81,10 @@ public:
 
     /** How many items are in the list. */
     inline GUINT32 Size() const{ return m_size; }
+    /** How many items are in the list. */
+    inline GUINT32 Length() const{ return m_size; }
+    /** How many items are in the list. */
+    inline GUINT32 Count() const{ return m_size; }
 
     /** How many items the list is able to hold without having to resize. */
     inline GUINT32 Capacity() const{ return capacity(m_pageCount); }
@@ -171,7 +175,7 @@ public:
         GASSERT(indx <= m_size);
 
         // Call the item's destructor
-        iterator cur(d, indx);
+        iterator cur(&d, indx);
         cur->~T();
 
         if(indx < (m_size - 1))
@@ -319,6 +323,23 @@ public:
     inline T &operator [](GUINT32 indx){ return *at(indx); }
 
 
+    /** Sorts the list using the given sorting algorithm. */
+    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const GUtil::Core::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
+        switch(e)
+        {
+        case GUtil::MergeSort:
+        {
+            Vector<T> buffer;
+            buffer.ReserveExactly(Length());
+            _merge_sort(begin(), end(), ascending, buffer, comparer);
+        }
+            break;
+        default:
+            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        }
+    }
+
+
 
     class iterator
     {
@@ -328,18 +349,32 @@ public:
         inline iterator &operator ++(){ _advance(); return *this;}
         inline iterator operator ++(int){ iterator ret(*this); _advance(); return ret; }
         inline iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
-        inline iterator operator + (GUINT32 n){ iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
+        inline iterator operator + (GUINT32 n) const{ iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         inline iterator &operator --(){ _retreat(); return *this;}
         inline iterator operator --(int){ iterator ret(*this); _retreat(); return ret; }
         inline iterator &operator -= (GUINT32 n){ while(n-- != 0) _retreat(); return *this; }
-        inline iterator operator - (GUINT32 n){ iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+        inline iterator operator - (GUINT32 n) const{ iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+
+        /** Returns the distance between iterators. */
+        inline GUINT32 operator - (const iterator &o) const{
+            GUINT32 ret(0);
+            T *tmp_cur(o.current);
+            T *tmp_end(o.m_pageEnd);
+            for(GUINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
+            {
+                ret += tmp_end - tmp_cur;
+                tmp_cur = m_pages->operator [](cur_page + 1);
+                tmp_end = tmp_cur + (1 << (cur_page + 1));
+            }
+            return ret + (current - tmp_cur);
+        }
 
         inline bool operator == (const iterator &o) const{
-            return m_pages.ConstData() == o.m_pages.ConstData() && current == o.current;
+            return m_pages->ConstData() == o.m_pages->ConstData() && current == o.current;
         }
         inline bool operator != (const iterator &o) const{
-            return m_pages.ConstData() != o.m_pages.ConstData() || current != o.current;
+            return m_pages->ConstData() != o.m_pages->ConstData() || current != o.current;
         }
 
         T *operator->() const{ return current; }
@@ -347,16 +382,16 @@ public:
 
     protected:
 
-        inline iterator(const Vector<T *> &pages, GUINT32 indx)
+        inline iterator(const Vector<T *> *pages, GUINT32 indx)
             :m_pages(pages),
               m_pageIndex(FSB32(indx + 1)),
-              m_pageBegin(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pages[m_pageIndex] : 0),
-              m_pageEnd(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
-              current(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx + 1, 32 - m_pageIndex) : 0)
+              m_pageBegin(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pages->operator [](m_pageIndex) : 0),
+              m_pageEnd(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
+              current(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx + 1, 32 - m_pageIndex) : 0)
         {}
 
 
-        Vector<T *> const &m_pages;
+        Vector<T *> const *m_pages;
         GINT32 m_pageIndex;
         T *m_pageBegin;
         T *m_pageEnd;
@@ -365,7 +400,7 @@ public:
         inline void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if(++m_pageIndex >= m_pages.Size())
+                if(++m_pageIndex >= m_pages->Size())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -373,7 +408,7 @@ public:
                 }
                 else
                 {
-                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageBegin = m_pages->operator [](m_pageIndex);
                     m_pageEnd = m_pageBegin + (1 << m_pageIndex);
                     current = m_pageBegin;
                 }
@@ -392,7 +427,7 @@ public:
                 }
                 else
                 {
-                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageBegin = m_pages->operator [](m_pageIndex);
                     m_pageEnd = m_pageBegin + (1 << m_pageIndex);
                     current = m_pageEnd - 1;
                 }
@@ -417,12 +452,26 @@ public:
         inline const_iterator &operator ++(){ _advance(); return *this;}
         inline const_iterator operator ++(int){ const_iterator ret(*this); _advance(); return ret; }
         inline const_iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
-        inline const_iterator operator + (GUINT32 n){ const_iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
+        inline const_iterator operator + (GUINT32 n) const{ const_iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         inline const_iterator &operator --(){ _retreat(); return *this;}
         inline const_iterator operator --(int){ const_iterator ret(*this); _retreat(); return ret; }
         inline const_iterator &operator -=(GUINT32 n){ while(n-- != 0) _retreat(); return *this; }
-        inline const_iterator operator -(GUINT32 n){ const_iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+        inline const_iterator operator -(GUINT32 n) const{ const_iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+
+        /** Returns the distance between iterators. */
+        inline GUINT32 operator - (const const_iterator &o) const{
+            GUINT32 ret(0);
+            T *tmp_cur(o.current);
+            T *tmp_end(o.m_pageEnd);
+            for(GUINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
+            {
+                ret += tmp_end - tmp_cur;
+                tmp_cur = m_pages->operator [](cur_page + 1);
+                tmp_end = tmp_cur + (1 << (cur_page + 1));
+            }
+            return ret + (current - tmp_cur);
+        }
 
         const T *operator->() const{ return current; }
         const T &operator*() const{ return *current; }
@@ -430,16 +479,16 @@ public:
 
     protected:
 
-        inline const_iterator(const Vector<T *> &pages, GUINT32 indx)
+        inline const_iterator(const Vector<T *> *pages, GUINT32 indx)
             :m_pages(pages),
               m_pageIndex(FSB32(indx + 1)),
-              m_pageBegin(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pages[m_pageIndex] : 0),
-              m_pageEnd(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
-              current(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx, 32 - m_pageIndex) : 0)
+              m_pageBegin(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pages->operator [](m_pageIndex) : 0),
+              m_pageEnd(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
+              current(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx, 32 - m_pageIndex) : 0)
         {}
 
 
-        Vector<T *> const &m_pages;
+        Vector<T *> const *m_pages;
         GINT32 m_pageIndex;
         T *m_pageBegin;
         T *m_pageEnd;
@@ -448,7 +497,7 @@ public:
         inline void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if(++m_pageIndex >= m_pages.Size())
+                if(++m_pageIndex >= m_pages->Size())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -456,7 +505,7 @@ public:
                 }
                 else
                 {
-                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageBegin = m_pages->operator [](m_pageIndex);
                     m_pageEnd = m_pageBegin + (1 << m_pageIndex);
                     current = m_pageBegin;
                 }
@@ -475,7 +524,7 @@ public:
                 }
                 else
                 {
-                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageBegin = m_pages->operator [](m_pageIndex);
                     m_pageEnd = m_pageBegin + (1 << m_pageIndex);
                     current = m_pageEnd - 1;
                 }
@@ -484,15 +533,15 @@ public:
 
     };
 
-    inline iterator begin(){ return iterator(d, 0); }
-    inline const_iterator begin() const{ return const_iterator(d, 0); }
-    inline iterator end(){ return iterator(d, m_size); }
-    inline const_iterator end() const{ return const_iterator(d, m_size); }
+    inline iterator begin(){ return iterator(&d, 0); }
+    inline const_iterator begin() const{ return const_iterator(&d, 0); }
+    inline iterator end(){ return iterator(&d, m_size); }
+    inline const_iterator end() const{ return const_iterator(&d, m_size); }
 
-    inline iterator rbegin(){ return iterator(d, m_size - 1); }
-    inline const_iterator rbegin() const{ return const_iterator(d, m_size - 1);}
-    inline iterator rend(){ return iterator(d, -1); }
-    inline const_iterator rend() const{ return const_iterator(d, -1); }
+    inline iterator rbegin(){ return iterator(&d, m_size - 1); }
+    inline const_iterator rbegin() const{ return const_iterator(&d, m_size - 1);}
+    inline iterator rend(){ return iterator(&d, -1); }
+    inline const_iterator rend() const{ return const_iterator(&d, -1); }
 
 
 protected:
@@ -510,6 +559,69 @@ private:
     Vector<T*> d;
     int m_pageCount;
     GUINT32 m_size;
+
+    void _merge_sort(const iterator &b, const iterator &e, bool ascending, Vector<T> &buffer, const Interfaces::IComparer<T> &cmp){
+        GUINT32 diff( e - b );
+        if(diff == UINT_MAX);
+        else if(diff == 2)
+        {
+            T *last( &(*(e - 1)) );
+            if((ascending && 0 < cmp(*b, *last)) ||
+               (!ascending && 0 > cmp(*b, *last)))
+            {
+                T cpy(*b);
+                *b = *last;
+                *last = cpy;
+            }
+        }
+        else if(diff > 2)
+        {
+            iterator m(b + (diff / 2));
+
+            // Sort the left and right halves of the list
+            _merge_sort(b, m, ascending, buffer, cmp);
+            _merge_sort(m, e, ascending, buffer, cmp);
+
+            // Join the two halves, which are already sorted
+            iterator i1(b), i2(m);
+            while((i1 != m) && (i2 != e))
+            {
+                if((ascending && 0 < cmp(*i1, *i2)) ||
+                   (!ascending && 0 > cmp(*i1, *i2)))
+                {
+                    buffer.PushBack(*i2);
+                    ++i2;
+                }
+                else
+                {
+                    buffer.PushBack(*i1);
+                    ++i1;
+                }
+            }
+            while(i1 != m)
+            {
+                buffer.PushBack(*i1);
+                ++i1;
+            }
+            while(i2 != e)
+            {
+                buffer.PushBack(*i2);
+                ++i2;
+            }
+
+            // Copy the now-sorted buffer back to the original
+            i1 = b;
+            typename Vector<T>::iterator i3( buffer.begin() );
+            while(i1 != e)
+            {
+                *i1 = *i3;
+                ++i1, ++i3;
+            }
+
+            // Clear the items in the buffer
+            buffer.Empty();
+        }
+    }
 
 };
 
