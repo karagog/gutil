@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "Core/gutil_globals.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
+#include "Core/Interfaces/icomparer.h"
 #include <new>
 #include <limits.h>
 #include <malloc.h>
@@ -442,13 +443,13 @@ public:
         if(new_size < Length())
         {
             const Vector<T>::iterator iter( begin() + new_size );
-            for(int i(Length()); i > new_size; --i)
+            for(GUINT32 i(Length()); i > new_size; --i)
                 Remove(iter);
         }
         else if(new_size > Length())
         {
             T *cur(m_begin + Length());
-            for(int i(Length()); i < new_size; ++i)
+            for(GUINT32 i(Length()); i < new_size; ++i)
                 new(cur++) T(default_object);
         }
         set_length(new_size);
@@ -596,14 +597,14 @@ public:
     }
 
     /** Sorts the vector using the given sorting algorithm. */
-    void Sort(GUtil::SortTypeEnum e = GUtil::MergeSort){
+    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const GUtil::Core::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
         switch(e)
         {
         case GUtil::MergeSort:
         {
             Vector<T> buffer;
             buffer.ReserveExactly(Length());
-            _merge_sort(begin(), end(), buffer);
+            _merge_sort(begin(), end(), ascending, buffer, comparer);
         }
             break;
         default:
@@ -640,13 +641,13 @@ public:
 
         inline iterator &operator ++(){ ++current; return *this; }
         inline iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
-        inline iterator &operator +=(int n){ current += n; return *this; }
-        inline iterator operator +(int n) const{ iterator ret(*this); ret.current += n; return ret; }
+        inline iterator &operator +=(GUINT32 n){ current += n; return *this; }
+        inline iterator operator +(GUINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
 
         inline iterator &operator --(){ --current; return *this; }
         inline iterator operator --(int){ iterator ret(*this); --current; return ret;}
-        inline iterator &operator -=(int n){ current -= n; return *this; }
-        inline iterator operator -(int n) const{ iterator ret(*this); ret.current -= n; return ret;}
+        inline iterator &operator -=(GUINT32 n){ current -= n; return *this; }
+        inline iterator operator -(GUINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
         inline GUINT32 operator - (const iterator &other) const{
@@ -695,7 +696,7 @@ public:
         {}
 
         inline T &operator *(){ return *current; }
-        inline const T &operator *() const{ return *current; }
+        inline T const &operator *() const{ return *current; }
         inline T *operator ->(){ return current; }
         inline T const*operator ->() const{ return current; }
 
@@ -704,13 +705,13 @@ public:
 
         inline const_iterator &operator ++(){ ++current; return *this; }
         inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
-        inline const_iterator &operator +=(int n){ current += n; return *this; }
-        inline const_iterator operator +(int n) const{ const_iterator ret(*this); ret.current += n; return ret; }
+        inline const_iterator &operator +=(GUINT32 n){ current += n; return *this; }
+        inline const_iterator operator +(GUINT32 n) const{ const_iterator ret(*this); ret.current += n; return ret; }
 
         inline const_iterator &operator --(){ --current; return *this; }
         inline const_iterator operator --(int){ const_iterator ret(*this); --current; return ret;}
-        inline const_iterator &operator -=(int n){ current -= n; return *this; }
-        inline const_iterator operator -(int n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
+        inline const_iterator &operator -=(GUINT32 n){ current -= n; return *this; }
+        inline const_iterator operator -(GUINT32 n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
         inline GUINT32 operator - (const const_iterator &other) const{
@@ -802,13 +803,14 @@ private:
 
     inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
 
-    void _merge_sort(const iterator &b, const iterator &e, Vector<T> &buffer){
+    void _merge_sort(const iterator &b, const iterator &e, bool ascending, Vector<T> &buffer, const Interfaces::IComparer<T> &cmp){
         GUINT32 diff( e - b );
         if(diff == UINT_MAX);
         else if(diff == 2)
         {
             T *last( e.Current() - 1 );
-            if(*last < *b)
+            if((ascending && 0 < cmp(*b, *last)) ||
+               (!ascending && 0 > cmp(*b, *last)))
             {
                 T cpy(*b);
                 *b = *last;
@@ -820,14 +822,15 @@ private:
             iterator m(b + (diff / 2));
 
             // Sort the left and right halves of the list
-            _merge_sort(b, m, buffer);
-            _merge_sort(m, e, buffer);
+            _merge_sort(b, m, ascending, buffer, cmp);
+            _merge_sort(m, e, ascending, buffer, cmp);
 
             // Join the two halves, which are already sorted
             iterator i1(b), i2(m);
             while((i1 != m) && (i2 != e))
             {
-                if(*i2 < *i1)
+                if((ascending && 0 < cmp(*i1, *i2)) ||
+                   (!ascending && 0 > cmp(*i1, *i2)))
                 {
                     buffer.PushBack(*i2);
                     ++i2;

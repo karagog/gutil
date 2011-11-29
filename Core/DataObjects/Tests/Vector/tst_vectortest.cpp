@@ -246,7 +246,7 @@ void VectorTest::test_sorting()
     v.PushBack(2);
     v.PushBack(1);
     v.PushBack(0);
-    v.Sort(GUtil::MergeSort);
+    v.Sort(true, GUtil::MergeSort);
 
 //    for(int i = 0; i < 11; ++i)
 //        qDebug() << v[i];
@@ -254,6 +254,10 @@ void VectorTest::test_sorting()
     for(int i = 0; i < 11; ++i)
         QVERIFY2(v[i] == i, QString("%1 != %2").arg(v[i]).arg(i).toUtf8());
 
+
+    v.Sort(false);
+    for(int i = 10; i >= 0; --i)
+        QVERIFY2(v[10 - i] == i, QString("%1 != %2").arg(v[10 - i]).arg(i).toUtf8());
 
 
 

@@ -174,14 +174,14 @@ public:
         inline iterator operator++(int){ const_iterator ret(*this); advance(); return ret; }
 
         /** Advances the iterator the specified number of items */
-        inline iterator &operator+=(int n){
+        inline iterator &operator += (GUINT32 n){
             while(n-- > 0) advance();
             return *this;
         }
 
         /** Returns a copy of the iterator advanced the specified number of times. */
-        inline iterator operator+(int n){
-            const_iterator ret(*this);
+        inline iterator operator + (GUINT32 n){
+            iterator ret(*this);
             while(n-- > 0) ret.advance();
             return ret;
         }
@@ -193,14 +193,14 @@ public:
         inline iterator operator--(int){ const_iterator ret(*this); retreat(); return ret;}
 
         /** Retreats the iterator the specified number of items */
-        inline iterator &operator-=(int n){
+        inline iterator &operator -= (GUINT32 n){
             while(n-- > 0) retreat();
             return *this;
         }
 
         /** Returns a copy of the iterator retreated the specified number of times. */
-        inline iterator operator-(int n){
-            const_iterator ret(*this);
+        inline iterator operator - (GUINT32 n){
+            iterator ret(*this);
             while(n-- > 0) ret.retreat();
             return ret;
         }
@@ -348,13 +348,16 @@ public:
     inline DList<T> &operator <<(const T &i){ PushBack(i); return *this; }
 
 
-    void Sort(GUtil::SortTypeEnum e = GUtil::MergeSort){
+    void Sort(bool ascending = true,
+              GUtil::SortTypeEnum e = GUtil::MergeSort,
+              const Interfaces::IComparer<T> &comparer = DefaultComparer<T>())
+    {
         switch(e)
         {
         case MergeSort:
         {
             iterator b(begin()), e(end());
-            _merge_sort(b, e);
+            _merge_sort(b, e, ascending, comparer);
         }
             break;
         default:
@@ -369,7 +372,7 @@ private:
     node *m_first;
     node *m_last;
 
-    void _merge_sort(iterator &b, iterator &e)
+    void _merge_sort(iterator &b, iterator &e, bool ascending, const Interfaces::IComparer<T> &cmp)
     {
         GUINT32 diff(0);
         iterator m(b);
@@ -388,7 +391,8 @@ private:
         {
             node *cur( b.current );
             node *last( b.current->NextNode );
-            if(last->Data < cur->Data)
+            if((ascending && 0 < cmp(cur->Data, last->Data)) ||
+               (!ascending && 0 > cmp(cur->Data, last->Data)))
             {
                 cur->NextNode = last->NextNode;
                 last->PrevNode = cur->PrevNode;
@@ -410,8 +414,8 @@ private:
         else if(diff > 2)
         {
             // Sort the left and right halves of the list
-            _merge_sort(b, m);
-            _merge_sort(m, e);
+            _merge_sort(b, m, ascending, cmp);
+            _merge_sort(m, e, ascending, cmp);
 
             // Terminate the list at the middle and the end
             m.current->PrevNode->NextNode = NULL;
@@ -425,7 +429,8 @@ private:
             b.current = NULL;
             while(i1.current && i2.current)
             {
-                if(*i2 < *i1)
+                if((ascending && 0 < cmp(*i1, *i2)) ||
+                   (!ascending && 0 > cmp(*i1, *i2)))
                 {
                     i2.current->PrevNode = prev_new_list == NULL ? NULL : *prev_new_list;
                     *new_list = i2.current;
@@ -475,6 +480,8 @@ private:
 
             if(e.current)
                 e.current->PrevNode = *prev_new_list;
+            else
+                m_last = *prev_new_list;
             (*prev_new_list)->NextNode = e.current;
         }
     }

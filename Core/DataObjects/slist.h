@@ -149,14 +149,16 @@ public:
 
 
     /** Sorts the list with the given sorting algorithm. */
-    inline void Sort(GUtil::SortTypeEnum e = GUtil::MergeSort)
+    inline void Sort(bool ascending = true,
+                     GUtil::SortTypeEnum e = GUtil::MergeSort,
+                     const Interfaces::IComparer<T> &comparer = DefaultComparer<T>())
     {
         switch(e)
         {
         case GUtil::MergeSort:
         {
             iterator b(begin()), e(end());
-            _merge_sort(b, e);
+            _merge_sort(b, e, ascending, comparer);
         }
             break;
         default:
@@ -298,7 +300,7 @@ private:
         --m_count;
     }
 
-    void _merge_sort(iterator &b, iterator &e)
+    void _merge_sort(iterator &b, iterator &e, bool ascending, const Interfaces::IComparer<T> &cmp)
     {
         GUINT32 diff(0);
         iterator m(b);
@@ -317,7 +319,8 @@ private:
         {
             node *cur( b.current );
             node *last( b.current->NextNode );
-            if(last->Data < cur->Data)
+            if((ascending && 0 < cmp(cur->Data, last->Data)) ||
+               (!ascending && 0 > cmp(cur->Data, last->Data)))
             {
                 cur->NextNode = last->NextNode;
                 last->NextNode = cur;
@@ -336,8 +339,8 @@ private:
         else if(diff > 2)
         {
             // Sort the left and right halves of the list
-            _merge_sort(b, m);
-            _merge_sort(m, e);
+            _merge_sort(b, m, ascending, cmp);
+            _merge_sort(m, e, ascending, cmp);
 
             // Terminate the list at the middle and the end
             m.parent->NextNode = NULL;
@@ -350,7 +353,8 @@ private:
             b.current = NULL;
             while(i1.current && i2.current)
             {
-                if(*i2 < *i1)
+                if((ascending && 0 < cmp(*i1, *i2)) ||
+                   (!ascending && 0 > cmp(*i1, *i2)))
                 {
                     *new_list = i2.current;
                     prev_new_list = new_list;

@@ -115,7 +115,7 @@ void DListTest::test_sorting()
     d.PushBack(2);
     d.PushBack(1);
     d.PushBack(0);
-    d.Sort(GUtil::MergeSort);
+    d.Sort(true, GUtil::MergeSort);
 
     int i = 0;
     for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, ++i)
@@ -123,6 +123,15 @@ void DListTest::test_sorting()
         //qDebug() << *iter;
         QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
     }
+
+    // Iterate backwards through the list to make sure the reverse pointers are correct
+    i = 10;
+    for(DList<int>::iterator iter(d.rbegin()); iter != d.rend(); --iter, --i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
 
     d.PushBack(11);
     d.PushBack(12);
@@ -134,6 +143,16 @@ void DListTest::test_sorting()
         //qDebug() << *iter;
         QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
     }
+
+    // Try sorting backwards
+    d.Sort(false);
+    i = 13;
+    for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, --i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
 
     d.Clear();
 

@@ -149,7 +149,7 @@ void SListTest::test_sorting()
     s.PushBack(2);
     s.PushBack(1);
     s.PushBack(0);
-    s.Sort(GUtil::MergeSort);
+    s.Sort(true, GUtil::MergeSort);
 
     int i = 0;
     for(SList<int>::iterator iter(s.begin()); iter != s.end(); ++iter, ++i)
@@ -164,6 +164,16 @@ void SListTest::test_sorting()
     s.PushFront(-1);
     i = -1;
     for(SList<int>::iterator iter(s.begin()); iter != s.end(); ++iter, ++i)
+    {
+        //qDebug() << *iter;
+        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
+    }
+
+
+    // Try sorting backwards
+    s.Sort(false);
+    i = 13;
+    for(SList<int>::iterator iter(s.begin()); iter != s.end(); ++iter, --i)
     {
         //qDebug() << *iter;
         QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());

@@ -255,9 +255,23 @@ enum SortTypeEnum
 #endif
 
 
+
+#include "Core/DataObjects/flexibletypecomparer.h"
+
+namespace GUtil
+{
+
+/** A convenience class that compares two objects with their less-than operator. */
+template<class T>
+class DefaultComparer : public Core::DataObjects::FlexibleTypeComparer<T>{};
+
+}
+
+
 #ifdef PI
 #undef PI
 #endif
+/** The number PI, to 19 decimals. */
 #define PI      3.1415926535897931160E+00
 
 

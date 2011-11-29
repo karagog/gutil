@@ -22,14 +22,16 @@ HEADERS += \
     extendedexception.h \
     gutil_globals.h
 SOURCES += \
-    globals.cpp \
     extendedexception.cpp \
-    exception.cpp
+    exception.cpp \
+    gutil_globals.cpp
 
 include(DataAccess/DataAccess.pri)
 include(DataObjects/DataObjects.pri)
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
+
+
 
 
 
