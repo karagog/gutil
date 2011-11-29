@@ -16,7 +16,7 @@ limitations under the License.*/
 #define FILECHOOSER_H
 
 #include "line_edit_with_button.h"
-#include "gutil.h"
+#include "gutil_macros.h"
 
 namespace GUtil
 {

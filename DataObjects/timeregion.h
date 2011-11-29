@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef TIMEREGION_H
 #define TIMEREGION_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include "Custom/gdatetime.h"
 #include "Core/Utils/linearsetalgebra.h"
 

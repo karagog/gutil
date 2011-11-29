@@ -134,6 +134,12 @@ public:
     }
     inline ~Vector(){ Clear(); }
 
+    /** Returns whether the vector is null (has not yet been initialized). */
+    inline bool IsNull() const{ return !m_begin; }
+
+    /** Returns whether the vector is empty (has no items in it, but the capacity may have been initialized). */
+    inline bool IsEmpty() const{ return IsNull() || Size() == 0; }
+
     /** Insert the item at the position before the iterator.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
@@ -462,12 +468,24 @@ public:
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
+    inline const T &operator [](GINT32 i) const{ return m_begin[i]; }
+    /** Accesses the data at the given index.
+        \note Does not do any bounds checking.
+    */
     inline T &operator [](GUINT32 i){ return m_begin[i]; }
+    /** Accesses the data at the given index.
+        \note Does not do any bounds checking.
+    */
+    inline T &operator [](GINT32 i){ return m_begin[i]; }
 
     /** Returns a pointer to the item at the given offset. */
-    inline const T *operator +(GUINT32 offset) const{ return m_begin + offset; }
+    inline const T *operator + (GUINT32 offset) const{ return m_begin + offset; }
     /** Returns a pointer to the item at the given offset. */
-    inline T *operator +(GUINT32 offset){ return m_begin + offset; }
+    inline const T *operator + (GINT32 offset) const{ return m_begin + offset; }
+    /** Returns a pointer to the item at the given offset. */
+    inline T *operator + (GUINT32 offset){ return m_begin + offset; }
+    /** Returns a pointer to the item at the given offset. */
+    inline T *operator + (GINT32 offset){ return m_begin + offset; }
 
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
@@ -938,7 +956,7 @@ public:
     void Enqueue(const T &i){ m_vector->PushBack(i); }
 
     /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ m_vector->PopFront(); }
+    void Dequeue(){ m_vector->RemoveAt(0); }
 
     /** Satisfies the Queue abstract interface. */
     T &Front(){ return (*m_vector)[0]; }
@@ -986,10 +1004,10 @@ public:
     void PopBack(){ m_vector->PopBack(); }
 
     /** Satisfies the Deque abstract interface. */
-    void PushFront(const T &i){ m_vector->PushFront(i); }
+    void PushFront(const T &i){ m_vector->Insert(i, 0); }
 
     /** Satisfies the Deque abstract interface. */
-    void PopFront(){ m_vector->PopFront(); }
+    void PopFront(){ m_vector->RemoveAt(0); }
 
     /** Satisfies the Deque abstract interface. */
     T &Front(){ return (*m_vector)[0]; }

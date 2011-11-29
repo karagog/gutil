@@ -96,7 +96,7 @@ namespace GUtil
                 then set this to true.  It not, then the configuration will be
                 in a compressed and unformatted xml file that only the application can read.
 
-                \note You must define GUTIL_ENCRYPTION in the preprocessor
+                \note You must define GUTIL_CRYPTOPP in the preprocessor
                 and link with libcryptopp.a to benefit from compression.
             */
             PROPERTY(IsHumanReadable, bool);

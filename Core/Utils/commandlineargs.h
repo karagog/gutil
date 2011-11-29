@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef COMMANDLINEARGS_H
 #define COMMANDLINEARGS_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include "Core/DataObjects/gstring.h"
 
 GUTIL_BEGIN_CORE_NAMESPACE(Utils);

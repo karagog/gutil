@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "pubsubsystem.h"
-#include "gutil.h"
+#include "Core/exception.h"
 #include <QMetaType>
 GUTIL_USING_NAMESPACE(Utils);
 

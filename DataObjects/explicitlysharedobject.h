@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef EXPLICITLYSHAREDOBJECT_H
 #define EXPLICITLYSHAREDOBJECT_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include <QExplicitlySharedDataPointer>
 
 GUTIL_BEGIN_NAMESPACE( DataObjects );

@@ -841,7 +841,7 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
         else if(cmp_res > 0)
             new_node->Parent->RChild = new_node;
         else
-            GASSERT(false);
+        { GASSERT(false); }
 
         // Now we need to ascend the tree to the root and update the heights
         _walk_parents_update_heights_rebalance(new_node->Parent);

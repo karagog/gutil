@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/interfaces.h"
 #include "gassert.h"
-#include "gutil.h"
+#include "gutil_macros.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 
@@ -41,25 +41,39 @@ public:
 
     /** Constructs an empty list. */
     inline List()
-        :d(0),
-          m_size(0),
-          m_pageCount(0)
+        :m_pageCount(0),
+          m_size(0)
     {}
 
     /** Constructs an empty list with the given storage capacity. */
     inline List(GUINT32 reserve_capacity)
-        :m_size(0),
-          m_pageCount(0)
+        :m_pageCount(0),
+          m_size(0)
     {
         Reserve(reserve_capacity);
     }
 
+    inline List(const T &item, GUINT32 count = 1)
+        :m_pageCount(0),
+          m_size(0)
+    {
+        Reserve(count);
+        while(count-- != 0) Append(item);
+    }
+
     inline List(const List &o)
-        :m_size(0),
-          m_pageCount(0)
+        :m_pageCount(0),
+          m_size(0)
     {
         Reserve(o.Capacity());
 
+        for(const_iterator iter(o.begin()); iter != o.end(); ++iter)
+            Append(*iter);
+    }
+    inline List<T> &operator = (const List &o){
+        Empty();
+        new(this) List<T>(o);
+        return *this;
     }
 
     inline ~List(){ Clear(); }
@@ -111,32 +125,30 @@ public:
         {
             // Shift subsequent items in the list by swapping
             GUINT32 i(m_size);
-            T *prev( at(i) );
-            T *cur( at(--i) );
-            T *mem(0);
+            iterator prev(end());
+            iterator cur(rbegin());
+            char mem_data[sizeof(T)];
+            T *mem(NULL);
 
             // Call the constructor for the first item, because its memory is not initialized
-            new(prev) T(*cur);
-            prev = cur;
+            new(&(*prev)) T(*cur);
+            --prev, --i;
 
             while(i > indx)
             {
-                cur = at(--i);
-                if(IsMovableType<T>::Value)
-                    gSwap(prev, cur, sizeof(T));
+                --cur;
+                if(mem)
+                    *mem = *prev;
                 else
                 {
-                    if(mem)
-                        *mem = *prev;
-                    else
-                        mem = new T(*prev);
-                    *prev = *cur;
-                    *cur = *mem;
+                    mem = reinterpret_cast<T *>(mem_data);
+                    new(mem) T(*prev);
                 }
-                prev = cur;
-            }
 
-            if(mem) delete mem;
+                *prev = *cur;
+                *cur = *mem;
+                --prev, --i;
+            }
 
             // We insert the new item with the assignment operator in this branch of execution
             *cur = obj;
@@ -144,8 +156,9 @@ public:
         else
         {
             // Initialize the memory at the end of the array
-            new(at(indx)) T(obj);
+            new(at(m_size)) T(obj);
         }
+
         ++m_size;
     }
 
@@ -158,37 +171,36 @@ public:
         GASSERT(indx <= m_size);
 
         // Call the item's destructor
-        at(indx)->~T();
+        iterator cur(d, indx);
+        cur->~T();
 
         if(indx < (m_size - 1))
         {
             // Shift all the subsequent items by swapping
             GUINT32 i(indx);
-            T *prev( at(i) );
-            T *cur( at(++i) );
-            T *mem(0);
+            iterator prev(cur);
+            char mem_data[sizeof(T)];
+            T *mem(NULL);
 
             // On the first item we call the constructor, because we just destructed it above
-            new(prev) T(*cur);
-            prev = cur;
+            new(&(*prev)) T(*(++cur));
+            ++prev, ++i;
 
             while(i < (m_size - 1))
             {
-                cur = at(++i);
-                if(IsMovableType<T>::Value)
-                    gSwap(prev, cur, sizeof(T));
+                ++cur;
+                if(mem)
+                    *mem = *prev;
                 else
                 {
-                    if(mem)
-                        *mem = *prev;
-                    else
-                        mem = new T(*prev);
-                    *prev = *cur;
-                    *cur = *mem;
+                    mem = reinterpret_cast<T *>(mem_data);
+                    new(mem) T(*prev);
                 }
-                prev = cur;
+
+                *prev = *cur;
+                *cur = *mem;
+                ++prev, ++i;
             }
-            if(mem) delete mem;
 
             // We call the destructor on the memory at the end
             cur->~T();
@@ -243,9 +255,9 @@ public:
     /** Removes all items and clears all memory. */
     void Clear()
     {
-        // Call the destructor on all our items
-        for(GUINT32 i(0); i < m_size; ++i)
-            at(i)->~T();
+        // Call the destructor on all the items
+        for(iterator iter(begin()); iter != end(); ++iter)
+            iter->~T();
 
         // Free our page memory
         for(int p(0); p < m_pageCount; ++p)
@@ -254,6 +266,15 @@ public:
         d.Clear();
         m_size = 0;
         m_pageCount = 0;
+    }
+
+    /** Removes all the items, but retains the same capacity. */
+    inline void Empty()
+    {
+        // Call the destructor on all the items
+        for(iterator iter(begin()); iter != end(); ++iter)
+            iter->~T();
+        m_size = 0;
     }
 
     /** Appends an item to the list.
@@ -304,30 +325,79 @@ public:
         friend class List;
     public:
 
-        inline iterator() :d(0), current(0){}
+        inline iterator &operator ++(){ _advance(); return *this;}
+        inline iterator operator ++(int){ iterator ret(*this); _advance(); return ret; }
+        inline iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
+        inline iterator operator + (GUINT32 n){ iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
-        inline iterator &operator ++(){ ++current; return *this;}
-        inline iterator operator ++(int){ iterator ret(*this); ++current; return ret; }
-        inline iterator &operator +=(int n){ current += n; return *this; }
-        inline iterator operator +(int n){ iterator ret(*this); ret.current += n; return ret; }
+        inline iterator &operator --(){ _retreat(); return *this;}
+        inline iterator operator --(int){ iterator ret(*this); _retreat(); return ret; }
+        inline iterator &operator -= (GUINT32 n){ while(n-- != 0) _retreat(); return *this; }
+        inline iterator operator - (GUINT32 n){ iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
-        inline iterator &operator --(){ --current; return *this;}
-        inline iterator operator --(int){ iterator ret(*this); --current; return ret; }
-        inline iterator &operator -=(int n){ current -= n; return *this; }
-        inline iterator operator -(int n){ iterator ret(*this); ret.current -= n; return ret; }
+        inline bool operator == (const iterator &o) const{
+            return m_pages.ConstData() == o.m_pages.ConstData() && current == o.current;
+        }
+        inline bool operator != (const iterator &o) const{
+            return m_pages.ConstData() != o.m_pages.ConstData() || current != o.current;
+        }
 
-        T *operator->(){ return d->at(current); }
-        const T *operator->() const{ return d->at(current); }
-        T &operator*(){ return *d->at(current); }
-        const T &operator*() const{ return *d->at(current); }
+        T *operator->() const{ return current; }
+        T &operator*() const{ return *current; }
 
     protected:
 
-        inline iterator(List<T> *sl, GUINT32 cur)
-            :d(sl), current(cur){}
+        inline iterator(const Vector<T *> &pages, GUINT32 indx)
+            :m_pages(pages),
+              m_pageIndex(FSB32(indx + 1)),
+              m_pageBegin(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pages[m_pageIndex] : 0),
+              m_pageEnd(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
+              current(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx + 1, 32 - m_pageIndex) : 0)
+        {}
 
-        List<T> *d;
-        GUINT32 current;
+
+        Vector<T *> const &m_pages;
+        GINT32 m_pageIndex;
+        T *m_pageBegin;
+        T *m_pageEnd;
+        T *current;
+
+        inline void _advance(){
+            if(!current || ++current == m_pageEnd)
+            {
+                if(++m_pageIndex >= m_pages.Size())
+                {
+                    m_pageBegin = 0;
+                    m_pageEnd = 0;
+                    current = 0;
+                }
+                else
+                {
+                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageEnd = m_pageBegin + (1 << m_pageIndex);
+                    current = m_pageBegin;
+                }
+            }
+
+        }
+
+        inline void _retreat(){
+            if(!current || current-- == m_pageBegin)
+            {
+                if(--m_pageIndex < 0)
+                {
+                    m_pageBegin = 0;
+                    m_pageEnd = 0;
+                    current = 0;
+                }
+                else
+                {
+                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageEnd = m_pageBegin + (1 << m_pageIndex);
+                    current = m_pageEnd - 1;
+                }
+            }
+        }
 
     };
 
@@ -336,44 +406,93 @@ public:
         friend class List;
     public:
 
-        inline const_iterator() :d(0), current(0){}
-        inline const_iterator(const iterator &o) :d(o.d), current(o.current){}
+        inline const_iterator(const iterator &o)
+            :m_pages(o.m_pages),
+              m_pageIndex(o.m_pageIndex),
+              m_pageBegin(o.m_pageBegin),
+              m_pageEnd(o.m_pageEnd),
+              current(o.current)
+        {}
 
-        inline const_iterator &operator ++(){ ++current; return *this;}
-        inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret; }
-        inline const_iterator &operator +=(int n){ current += n; return *this; }
-        inline const_iterator operator +(int n){ const_iterator ret(*this); ret.current += n; return ret; }
+        inline const_iterator &operator ++(){ _advance(); return *this;}
+        inline const_iterator operator ++(int){ const_iterator ret(*this); _advance(); return ret; }
+        inline const_iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
+        inline const_iterator operator + (GUINT32 n){ const_iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
-        inline const_iterator &operator --(){ --current; return *this;}
-        inline const_iterator operator --(int){ const_iterator ret(*this); --current; return ret; }
-        inline const_iterator &operator -=(int n){ current -= n; return *this; }
-        inline const_iterator operator -(int n){ const_iterator ret(*this); ret.current -= n; return ret; }
+        inline const_iterator &operator --(){ _retreat(); return *this;}
+        inline const_iterator operator --(int){ const_iterator ret(*this); _retreat(); return ret; }
+        inline const_iterator &operator -=(GUINT32 n){ while(n-- != 0) _retreat(); return *this; }
+        inline const_iterator operator -(GUINT32 n){ const_iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
-        T *operator->(){ return d->at(current); }
-        const T *operator->() const{ return d->at(current); }
-        T &operator*(){ return *d->at(current); }
-        const T &operator*() const{ return *d->at(current); }
+        const T *operator->() const{ return current; }
+        const T &operator*() const{ return *current; }
 
 
     protected:
 
-        inline const_iterator(List<T> &sl, GUINT32 cur)
-            :d(sl), current(cur){}
+        inline const_iterator(const Vector<T *> &pages, GUINT32 indx)
+            :m_pages(pages),
+              m_pageIndex(FSB32(indx + 1)),
+              m_pageBegin(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pages[m_pageIndex] : 0),
+              m_pageEnd(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
+              current(m_pageIndex >= 0 && !m_pages.IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx, 32 - m_pageIndex) : 0)
+        {}
 
-        List<T> *d;
-        GUINT32 current;
+
+        Vector<T *> const &m_pages;
+        GINT32 m_pageIndex;
+        T *m_pageBegin;
+        T *m_pageEnd;
+        T *current;
+
+        inline void _advance(){
+            if(!current || ++current == m_pageEnd)
+            {
+                if(++m_pageIndex >= m_pages.Size())
+                {
+                    m_pageBegin = 0;
+                    m_pageEnd = 0;
+                    current = 0;
+                }
+                else
+                {
+                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageEnd = m_pageBegin + (1 << m_pageIndex);
+                    current = m_pageBegin;
+                }
+            }
+
+        }
+
+        inline void _retreat(){
+            if(!current || current-- == m_pageBegin)
+            {
+                if(--m_pageIndex < 0)
+                {
+                    m_pageBegin = 0;
+                    m_pageEnd = 0;
+                    current = 0;
+                }
+                else
+                {
+                    m_pageBegin = m_pages[m_pageIndex];
+                    m_pageEnd = m_pageBegin + (1 << m_pageIndex);
+                    current = m_pageEnd - 1;
+                }
+            }
+        }
 
     };
 
-    inline iterator begin(){ return m_size > 0 ? iterator(this, 0) : iterator(); }
-    inline const_iterator begin() const{ return m_size > 0 ? const_iterator(this, 0) : const_iterator(); }
-    inline iterator end(){ return m_size > 0 ? iterator(this, m_size) : iterator(); }
-    inline const_iterator end() const{ return m_size > 0 ? const_iterator(this, m_size) : const_iterator(); }
+    inline iterator begin(){ return iterator(d, 0); }
+    inline const_iterator begin() const{ return const_iterator(d, 0); }
+    inline iterator end(){ return iterator(d, m_size); }
+    inline const_iterator end() const{ return const_iterator(d, m_size); }
 
-    inline iterator rbegin(){ return m_size > 0 ? iterator(this, m_size - 1) : iterator(); }
-    inline const_iterator rbegin() const{ return m_size > 0 ? const_iterator(this, m_size - 1) : const_iterator();}
-    inline iterator rend(){ return m_size > 0 ? iterator(this, -1) : iterator(); }
-    inline const_iterator rend() const{ return m_size > 0 ? const_iterator(this, -1) : const_iterator(); }
+    inline iterator rbegin(){ return iterator(d, m_size - 1); }
+    inline const_iterator rbegin() const{ return const_iterator(d, m_size - 1);}
+    inline iterator rend(){ return iterator(d, -1); }
+    inline const_iterator rend() const{ return const_iterator(d, -1); }
 
 
 protected:
@@ -381,7 +500,7 @@ protected:
     static inline GUINT32 capacity(GUINT32 number_of_pages){ return (1 << number_of_pages) - 1; }
 
     inline T *at(GUINT32 indx) const{
-        const int pindx( FSB64(++indx) );
+        const int pindx( FSB32(++indx) );
         return d[pindx] + TRUNCATE_LEFT_32(indx, 32 - pindx);
     }
 
@@ -389,8 +508,8 @@ protected:
 private:
 
     Vector<T*> d;
-    GUINT32 m_size;
     int m_pageCount;
+    GUINT32 m_size;
 
 };
 

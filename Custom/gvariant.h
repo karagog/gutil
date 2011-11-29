@@ -17,6 +17,8 @@ limitations under the License.*/
 
 #include "Interfaces/iqxmlserializable.h"
 #include "Core/Interfaces/iequatable.h"
+#include "Core/DataObjects/vector.h"
+#include "Core/DataObjects/map.h"
 #include <QVariant>
 #include <QBitArray>
 #include <QRegExp>

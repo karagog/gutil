@@ -118,7 +118,7 @@ void ConfigFile::_value_changed()
 
 
 
-#ifdef GUTIL_ENCRYPTION
+#ifdef GUTIL_CRYPTOPP
 
 #define CRYPTOPP_DECOMPRESS( data ) \
         Core::Utils::CryptoHelpers::decompress( \

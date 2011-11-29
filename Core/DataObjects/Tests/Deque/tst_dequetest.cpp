@@ -115,8 +115,8 @@ void DequeTest::_test_deque(Deque<int> &q)
 
 
     // Test the clear function
-    const int cnt( 10 );
-    for(int i(0); i < cnt; i++)
+    const GUINT32 cnt( 10 );
+    for(GUINT32 i(0); i < cnt; i++)
     {
         q.PushBack(i);
     }

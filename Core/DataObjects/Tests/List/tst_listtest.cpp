@@ -58,7 +58,7 @@ void ListTest::test_basic_function()
     {
         QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toAscii());
         QVERIFY(i == *iter);
-        QVERIFY(9 - i == *riter);
+        QVERIFY2(9 - i == *riter, QString("%1 != %2").arg(9 - i).arg(*riter).toAscii());
     }
 
     lst.Prepend(-1);

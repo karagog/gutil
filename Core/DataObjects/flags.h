@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef FLAGS_H
 #define FLAGS_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 
 

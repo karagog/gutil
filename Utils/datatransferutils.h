@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef DATATRANSFERUTILS_H
 #define DATATRANSFERUTILS_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include "Utils/pubsubsystem.h"
 
 GUTIL_BEGIN_NAMESPACE(Utils);

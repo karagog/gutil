@@ -19,7 +19,7 @@ limitations under the License.*/
         #include <windows.h>
 #endif
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include <string>
 
 //This is the header for cross-platform Windows&Linux serial port functionality

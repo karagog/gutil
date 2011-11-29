@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "Core/Interfaces/ireadonlyobject.h"
 #include "Core/Interfaces/iequatable.h"
 #include "Core/Interfaces/iclonable.h"
-#include "gutil.h"
+#include "gutil_macros.h"
 #include "Core/DataObjects/vector.h"
 
 

@@ -1147,7 +1147,7 @@ char String::HexToChar(char c)
 
 // CryptoPP-dependent section
 
-#ifdef GUTIL_ENCRYPTION
+#ifdef GUTIL_CRYPTOPP
 
 // To disable warnings, because we're exposing some weak algorithms (MD4-5)
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
@@ -1504,4 +1504,4 @@ String String::RandomString(GUINT32 num_bytes, GUINT32 seed)
 }
 
 
-#endif // GUTIL_ENCRYPTION
+#endif // GUTIL_CRYPTOPP

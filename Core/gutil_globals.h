@@ -322,7 +322,7 @@ class DefaultComparer : public Core::DataObjects::FlexibleTypeComparer<T>{};
     There will be no link dependency on Qt, so you can use this library in applications
     where Qt is not available or desireable.  This is where the encryption functions lie,
     which are dependent on Crypto++, a third-party encryption library.  You can optionally
-    not link with this library by undefining GUTIL_ENCRYPTION.
+    not link with this library by undefining GUTIL_CRYPTOPP.
 
 
     \namespace GUtil::ThirdParty A separate dll to contain code I didn't write.

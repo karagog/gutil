@@ -16,7 +16,7 @@ limitations under the License.*/
 #define SHAREDTABLEDATA_H
 
 #include "tabledata.h"
-#include "gutil.h"
+#include "gutil_macros.h"
 #include <QSharedData>
 GUTIL_BEGIN_NAMESPACE(DataObjects);
 

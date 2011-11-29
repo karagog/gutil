@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef IREADONLYOBJECT_H
 #define IREADONLYOBJECT_H
 
-#include "gutil.h"
+#include "gutil_macros.h"
 #include "Core/exception.h"
 #include <string>
 

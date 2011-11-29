@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_EXCEPTION_H
 #define GUTIL_EXCEPTION_H
 
+#include "gutil_macros.h"
+
 namespace GUtil{ namespace Core{
 
 

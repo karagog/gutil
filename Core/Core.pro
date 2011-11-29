@@ -7,7 +7,7 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
-DEFINES += GUTIL_ENCRYPTION
+#DEFINES += GUTIL_CRYPTOPP
 
 #DEFINES += DEBUG
 
