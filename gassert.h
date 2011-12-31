@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_GASSERT_H
 #define GUTIL_GASSERT_H
 
-#include "Core/gutil_globals.h"
+#include "Core/globals.h"
 
 #if defined(GUTIL_DEBUG)
     #include <stdio.h>

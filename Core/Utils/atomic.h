@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
-GUTIL_BEGIN_CORE_NAMESPACE(Utils);
+NAMESPACE_GUTIL1(Utils);
 
 
 /** A class to declare helpful atomic operations, implemented in assembly. */
@@ -68,6 +68,6 @@ private:
 };
 
 
-GUTIL_END_CORE_NAMESPACE
+END_NAMESPACE_GUTIL1
 
 #endif // GUTIL_ATOMIC_H

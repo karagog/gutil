@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "Core/DataObjects/vector.h"
 #include <vector>
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 class VectorTest : public QObject
 {

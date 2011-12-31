@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/flexibletypecomparer.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** Implements a heap of objects.  You can modify the sorting behavior by injecting a new
@@ -207,15 +207,15 @@ template<class T>void Heap<T>::_heapify_down()
 }
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
-template<class T>struct IsMovableType< Core::DataObjects::Heap<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::MinHeap<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::MaxHeap<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::Heap<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::MinHeap<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::MaxHeap<T> >{ enum{ Value = 1 }; };
 
 }
 

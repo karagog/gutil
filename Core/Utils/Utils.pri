@@ -1,17 +1,25 @@
 
 HEADERS += \
-    Utils/cl_menu.h \
     Utils/commandlineargs.h \
     Utils/environment.h \
     Utils/linearsetalgebra.h \
-    Utils/symmetricmatrix.h \
-    Utils/atomic.h
+    Utils/atomic.h \
+    Utils/smartpointer.h \
+    Utils/pubsubsystem.h \
+    Utils/flexibletypecomparer.h \
+    Utils/commandlinemenu.h
 
 SOURCES += \
-    Utils/cl_menu.cc \
     Utils/commandlineargs.cpp \
     Utils/environment.cpp \
-    Utils/atomic.cpp
+    Utils/atomic.cpp \
+    Utils/commandlinemenu.cpp
+
+
+
+
+
+
 
 
 

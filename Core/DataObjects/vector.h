@@ -16,15 +16,15 @@ limitations under the License.*/
 #define GUTIL_VECTOR_P
 
 #include "gutil_macros.h"
-#include "Core/gutil_globals.h"
+#include "Core/globals.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
-#include "Core/Interfaces/icomparer.h"
+#include "Core/Utils/flexibletypecomparer.h"
 #include <new>
 #include <limits.h>
 #include <malloc.h>
 #include <cstring>
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** Manages a simple vector of memory, which grows exponentially with powers of two.
@@ -67,7 +67,7 @@ public:
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    inline Vector(const T &o, GUINT32 size = 1)
+    inline explicit Vector(const T &o, GUINT32 size = 1)
         :m_begin(NULL)
     {
         Reserve(size);
@@ -276,7 +276,7 @@ public:
         const GUINT32 len( Length() );
 
         if(len == 0 || indx + num > len)
-            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
         T *const targ( m_begin + indx );
 
@@ -490,17 +490,17 @@ public:
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline T &At(GUINT32 i) throw(GUtil::Core::IndexOutOfRangeException<false>){
+    inline T &At(GUINT32 i){
         if(Length() == 0 || i >= Length())
-            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return m_begin[i];
     }
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline const T &At(GUINT32 i) const throw(GUtil::Core::IndexOutOfRangeException<false>){
+    inline const T &At(GUINT32 i) const{
         if(Length() == 0 || i >= Length())
-            THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return m_begin[i];
     }
 
@@ -614,8 +614,11 @@ public:
         return ret;
     }
 
+    /** Returns true if we hold a matching item */
+    inline bool Contains(const T &i) const{ return UINT_MAX != IndexOf(i); }
+
     /** Sorts the vector using the given sorting algorithm. */
-    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const GUtil::Core::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
+    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
         switch(e)
         {
         case GUtil::MergeSort:
@@ -757,6 +760,16 @@ public:
     inline iterator rend(){ return iterator(m_begin, m_begin - 1); }
     inline const_iterator rend() const{ return const_iterator(m_begin, m_begin - 1); }
 
+    /** Returns the item at the front of the list */
+    inline T &Front(){ return *m_begin; }
+    /** Returns the item at the front of the list */
+    inline T const &Front() const{ return *m_begin; }
+
+    /** Returns the item at the back of the list */
+    inline T &Back(){ return *(DataEnd() - 1); }
+    /** Returns the item at the back of the list */
+    inline T const &Back() const{ return *(DataEnd() - 1); }
+
     /** Returns true if the vectors are equal.
         Vector equality is established by checking each individual element from
         this vector with the corresponding element in the other vector and evaluating
@@ -789,15 +802,11 @@ public:
     */
     inline bool operator != (const Vector<T> &o) const{ return !operator == (o); }
 
-    /** Appends the item at the end of the vector. */
-    inline Vector<T> &operator << (const T &o){ PushBack(o); return *this; }
-    /** Appends the vector at the end of the vector. */
-    inline Vector<T> &operator << (const Vector<T> &o){ Insert(o, Length()); return *this; }
+    /** Pushes an item on a logical stack, with appealing syntax. */
+    inline Vector<T> &operator << (const T &item){ PushBack(item); return *this; }
 
-    /** Assigns the object to the last value at the end of the vector, and
-        also pops the value.
-    */
-    inline void operator >> (T &o){ o = operator[](Length()); PopBack(); }
+    /** Pops the top item from a logical stack and copies it into the given variable */
+    inline Vector<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
 
 
 protected:
@@ -1075,17 +1084,17 @@ private:
 
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
-template<class T>struct IsMovableType< Core::DataObjects::Vector<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::VectorStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::VectorQueue<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::VectorDeque<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::VectorRandomAccessContainer<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::Vector<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::VectorStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::VectorQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::VectorDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::VectorRandomAccessContainer<T> >{ enum{ Value = 1 }; };
 
 }
 

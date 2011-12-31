@@ -18,7 +18,6 @@ doc
 Makefile*
 
 # Qt-specific ignores
-tst_*
 ui_*.h
 moc_*.cpp
 *.moc

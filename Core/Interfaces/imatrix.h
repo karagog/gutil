@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef IMATRIX_H
 #define IMATRIX_H
 
-#include "gutil_macros.h"
+#include "Core/exception.h"
 
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+NAMESPACE_GUTIL1( Interfaces );
 
 
 template <class T> class IMatrix
@@ -92,6 +92,9 @@ T IMatrix<T>::FindMinInCol(int index, int &found_index) const
 template <class T>
 T IMatrix<T>::FindMaxValue(int &row, int &col) const
 {
+    if(RowCount() == 0)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Empty matrix");
+
     T max;
     bool max_found(false);
     row = -1;  col = -1;
@@ -160,6 +163,6 @@ T IMatrix<T>::_find_optimum_in_row(int index,
 }
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // IMATRIX_H

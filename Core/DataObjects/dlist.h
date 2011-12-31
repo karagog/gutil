@@ -17,8 +17,8 @@ limitations under the License.*/
 
 #include "Core/DataObjects/interfaces.h"
 #include "Core/exception.h"
-#include "gutil_globals.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+#include "Core/globals.h"
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** The DList provides a doubly-linked list.
@@ -147,6 +147,12 @@ public:
         iterator e(rbegin());
         Remove(e);
     }
+
+    /** Pushes an item on a logical stack, with appealing syntax. */
+    inline DList<T> &operator << (const T &item){ PushBack(item); return *this; }
+
+    /** Pops the top item from a logical stack and copies it into the given variable */
+    inline DList<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
 
     /** How many items are in the dlist. */
     inline GUINT32 Length() const{ return m_size; }
@@ -343,9 +349,6 @@ public:
         \note O(N)
     */
     inline DList<T> &operator =(const DList<T> &o){ new(this) DList<T>(o); return *this; }
-
-    /** This is useful for chaining push commands together.  Ex: q << 1 << 2 << 3*/
-    inline DList<T> &operator <<(const T &i){ PushBack(i); return *this; }
 
 
     void Sort(bool ascending = true,
@@ -610,17 +613,17 @@ private:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
 // Both DList types can be binary-moved
-template<class T>struct IsMovableType< Core::DataObjects::DList<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::DListStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::DListQueue<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::DListDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::DList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::DListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::DListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::DListDeque<T> >{ enum{ Value = 1 }; };
 
 }
 

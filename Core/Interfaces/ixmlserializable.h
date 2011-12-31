@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "Core/DataObjects/gstring.h"
 
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+NAMESPACE_GUTIL1( Interfaces );
 
 
 /** An abstract interface which says your class can be serialized into
@@ -33,12 +33,11 @@ public:
     virtual DataObjects::String ToXmlString(bool human_readable) const = 0;
 
     /** Construct your class from an existing XML string. */
-    virtual void FromXmlString(const DataObjects::String &)
-            throw(GUtil::Core::XmlException<>) = 0;
+    virtual void FromXmlString(const DataObjects::String &) = 0;
 
 };
 
 
-GUTIL_END_CORE_NAMESPACE
+END_NAMESPACE_GUTIL1
 
 #endif // CORE_IXMLSERIALIZABLE_H

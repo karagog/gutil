@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/binarysearchtree.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** Implements a templated mapping between values.
@@ -124,7 +124,7 @@ public:
     inline bool Contains(const K &k) const{ return _index.Search(k); }
 
     /** How many unique keys are in the map. */
-    inline long Size() const{ return _index.Size(); }
+    inline int Size() const{ return _index.Size(); }
 
     /** Returns the value corresponding to the key.  If the key does not exist, it throws an
         IndexOutOfRangeException.
@@ -171,6 +171,13 @@ public:
     */
     inline void Clear(){ _index.Clear(); }
 
+    inline Vector<K> Keys() const{
+        Vector<K> ret(Size());
+        for(const_iterator iter(begin()); iter != end(); ++iter)
+            ret.PushBack(iter->Key());
+        return ret;
+    }
+
 
 private:
 
@@ -187,7 +194,7 @@ template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
     iterator iter(_index.Search(k));
     if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
     return iter->Value();
 }
 
@@ -195,7 +202,7 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
 {
     iterator iter(_index.Search(k));
     if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
     return iter->Value();
 }
 
@@ -213,7 +220,7 @@ template<class K, class V>V &Map<K, V>::operator [](const K &k)
 template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
 {
     iterator iter(_index.Search(k));
-    if(!iter) THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::IndexOutOfRangeException);
+    if(!iter) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
     return iter->Values();
 }
 
@@ -233,15 +240,15 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
 }
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
 // The map is binary-movable only if the BinarySearchTree is
-template<class T, class U>struct IsMovableType< Core::DataObjects::Map<T, U> > :
-        public IsMovableType< Core::DataObjects::BinarySearchTree<T> >{};
+template<class T, class U>struct IsMovableType< DataObjects::Map<T, U> > :
+        public IsMovableType< DataObjects::BinarySearchTree<T> >{};
 
 }
 

@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "atomic.h"
-GUTIL_USING_CORE_NAMESPACE(Utils);
+USING_NAMESPACE_GUTIL1(Utils);
 
 bool AtomicInt::Increment()
 {

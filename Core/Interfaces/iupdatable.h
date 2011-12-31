@@ -11,54 +11,82 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IUPDATABLE_H
-#define IUPDATABLE_H
+#ifndef GUTIL_IUPDATABLE_H
+#define GUTIL_IUPDATABLE_H
 
 #include "gutil_macros.h"
 
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+NAMESPACE_GUTIL1( Interfaces );
 
 
 class IUpdatable
 {
+    GUTIL_DISABLE_COPY(IUpdatable);
 public:
 
-    IUpdatable(bool dirty = false);
-    IUpdatable(const IUpdatable &o);
+    inline explicit IUpdatable(bool dirty = false)
+        :m_dirty(dirty),
+          m_update_cnt(0),
+          m_backup_update_count(0)
+    {}
 
-    virtual bool IsDirty() const;
+    /** By default this returns the state of our internal boolean, but you can
+        override to implement your own dirty state
+    */
+    virtual bool IsDirty() const{
+        return m_dirty;
+    }
 
-    void MakeDirty();
+    inline void MakeDirty(){
+        m_update_cnt++;
 
-    // Derived classes should call this base version to reset dirty bit
-    void CommitChanges(bool commit = true);
+        if(!m_dirty)
+        {
+            m_dirty = true;
+            on_make_dirty();
+        }
+    }
 
-    void RejectChanges();
+    /** Commits changes to the object (implementation specific) and resets dirty state to "clean" */
+    inline void CommitChanges(bool commit = true){
+        commit_reject_changes(commit);
+        m_dirty = false;
 
-    IUpdatable &operator =(const IUpdatable &o);
+        if(commit)
+            m_backup_update_count = m_update_cnt;
+        else
+            m_update_cnt = m_backup_update_count;
+    }
 
-    long GetUpdateCounter() const;
+    /** Rejects changes to the object (implementation specific) and resets dirty state to "clean" */
+    inline void RejectChanges(){
+        CommitChanges(false);
+    }
+
+    inline int UpdateCount() const{
+        return m_update_cnt;
+    }
 
 
 protected:
 
     // Derived classes can act on these 'events'
-    virtual void on_make_dirty();
+    virtual void on_make_dirty(){}
 
     // True if committing, otherwise rejecting
-    virtual void commit_reject_changes(bool);
+    virtual void commit_reject_changes(bool){}
 
 
 private:
 
-    bool _iupdatable_is_dirty;
+    bool m_dirty;
 
-    long _update_counter;
-    long _backup_update_counter;
+    int m_update_cnt;
+    int m_backup_update_count;
 
 };
 
 
-GUTIL_END_CORE_NAMESPACE
+END_NAMESPACE_GUTIL1;
 
-#endif // IUPDATABLE_H
+#endif // GUTIL_IUPDATABLE_H

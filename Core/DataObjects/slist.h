@@ -17,8 +17,8 @@ limitations under the License.*/
 
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
-#include "gutil_globals.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+#include "Core/globals.h"
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** Implements a singly-linked list.
@@ -87,23 +87,32 @@ public:
         iter.parent = new_node;
     }
 
+    /** Prepends an item on the list. */
     inline void PushFront(const T &i)
     {
         iterator iter(begin());
         Insert(i, iter);
     }
 
+    /** Appends an item on the list. */
     inline void PushBack(const T &i)
     {
         iterator iter(end());
         Insert(i, iter);
     }
 
+    /** Removes the front of the list. */
     inline void PopFront()
     {
         iterator iter(begin());
         Remove(iter);
     }
+
+    /** Pushes an item on a logical stack, with appealing syntax. */
+    inline SList<T> &operator << (const T &item){ PushFront(item); return *this; }
+
+    /** Pops the top item from a logical stack and copies it into the given variable */
+    inline SList<T> &operator >> (T &cpy){ cpy = *begin(); PopFront(); return *this; }
 
     /** Empties the slist and clears all memory.
         \note O(N)
@@ -483,16 +492,16 @@ private:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
 // Both SList types can be binary-moved
-template<class T>struct IsMovableType< Core::DataObjects::SList<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::SListStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::SListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::SList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::SListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::SListQueue<T> >{ enum{ Value = 1 }; };
 
 }
 

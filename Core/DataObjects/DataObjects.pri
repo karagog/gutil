@@ -6,16 +6,35 @@ HEADERS += \
     DataObjects/heap.h \
     DataObjects/binarysearchtree.h \
     DataObjects/set.h \
-    DataObjects/flexibletypecomparer.h \
     DataObjects/interfaces.h \
     DataObjects/vector.h \
     DataObjects/flags.h \
     DataObjects/gstring.h \
-    DataObjects/shareddata.h \
-    DataObjects/smartpointer.h
+    DataObjects/collection.h \
+    DataObjects/version.h \
+    DataObjects/sharedobject.h \
+    DataObjects/datatable.h \
+    DataObjects/pair.h \
+    DataObjects/pairlist.h \
+    DataObjects/symmetricmatrix.h
 
 SOURCES += \
-    DataObjects/gstring.cpp
+    DataObjects/gstring.cpp \
+    DataObjects/version.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

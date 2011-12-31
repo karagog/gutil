@@ -17,48 +17,84 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 #include "Core/exception.h"
-#include <string>
 
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+NAMESPACE_GUTIL1( Interfaces );
 
 
+/** Declares an interface that says you have a "Readonly" state.
+*/
 class IReadOnlyObject
 {
 public:
 
-    // Use this function to track a global readonly bool variable
-    virtual void SetReadonlyBooleanReference(bool &readonlybool);
-    void ClearReadonlyBooleanReference();
+    /** Use this function to track a different readonly bool variable.
+        This could be useful if you have a global boolean switch that may determine
+        if items are readonly.
+    */
+    inline void SetReadonlyBooleanReference(bool &readonlybool){
+        _readonly_bool_reference = &readonlybool;
+    }
 
-    // Will set this object's boolean to shadow the other's
-    void TrackReadonlyObject(const IReadOnlyObject &);
+    /** If you had changed the readonly boolean reference, this will change it back
+        to our own boolean in memory.
+    */
+    inline void ClearReadonlyBooleanReference(){
+        SetReadonlyBooleanReference(m_readonly);
+    }
 
-    bool IsReadOnly() const;
+    /** This object's readonly state will shadow the other's */
+    inline void TrackReadonlyObject(const IReadOnlyObject &o){
+        SetReadonlyBooleanReference(*o._readonly_bool_reference);
+    }
 
-    void SetReadOnly(bool readonly = true);
 
-    void FailIfReadOnly() const
-            throw(GUtil::Core::ReadOnlyException<false>);
+    /** Returns true if we are currently in the readonly state */
+    inline bool IsReadOnly() const{ return *_readonly_bool_reference; }
+
+    /** Marks us "Readonly" */
+    inline void SetReadOnly(bool readonly = true){
+        on_set_readonly(readonly);
+        *_readonly_bool_reference = readonly;
+    }
+
+    /** Throws an exception if we are currently readonly. */
+    inline void FailIfReadOnly() const{
+        if(IsReadOnly())
+            THROW_NEW_GUTIL_EXCEPTION2( ReadOnlyException, ReadonlyMessageIdentifier() );
+    }
+
 
 protected:
-    IReadOnlyObject(bool readonly = false);
-    IReadOnlyObject(const IReadOnlyObject &other);
 
-    // You can throw an exception to halt the readonly setting
-    virtual void on_set_readonly(bool);
+    inline IReadOnlyObject(bool readonly = false){
+        _init_readonly_interface(readonly);
+    }
 
-    // Derived classes return a useful string to identify the object
-    //  which threw a ReadOnlyException
-    virtual std::string ReadonlyMessageIdentifier() const;
+    inline IReadOnlyObject(const IReadOnlyObject &other){
+        _init_readonly_interface(other.IsReadOnly());
+    }
+
+    /** You can throw an exception to halt the readonly setting */
+    virtual void on_set_readonly(bool){}
+
+    /** Derived classes return a useful string to identify the object
+        which threw a ReadOnlyException
+    */
+    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::Interfaces::IReadonlyObject"; }
 
 private:
-    void _init_readonly_interface(bool readonly);
 
     bool *_readonly_bool_reference;
-    bool _my_readonly_bool;
+    bool m_readonly;
+
+    inline void _init_readonly_interface(bool readonly){
+        m_readonly = readonly;
+        SetReadonlyBooleanReference(m_readonly);
+    }
+
 };
 
 
-GUTIL_END_CORE_NAMESPACE
+END_NAMESPACE_GUTIL1
 
 #endif // IREADONLYOBJECT_H

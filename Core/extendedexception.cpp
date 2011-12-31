@@ -13,20 +13,20 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "extendedexception.h"
-GUTIL_USING_NAMESPACE(Core);
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
-ExtendedException::ExtendedException(const Exception<> *inner_exception)
+NAMESPACE_GUTIL
+
+
+ExtendedException::ExtendedException(const Exception<> &inner_exception)
     :_inner_exception(0)
 {
-    if(inner_exception)
-        SetInnerException(*inner_exception);
+    SetInnerException(inner_exception);
 }
 
-ExtendedException::~ExtendedException() throw()
+ExtendedException::~ExtendedException()
 {
-    if(_inner_exception)
-        delete _inner_exception;
+    delete _inner_exception;
 }
 
 ExtendedException::ExtendedException(const ExtendedException &o)
@@ -47,8 +47,7 @@ ExtendedException &ExtendedException::operator = (const ExtendedException &o)
 
 void ExtendedException::SetInnerException(const Exception<false> &ex)
 {
-    if(_inner_exception)
-        delete _inner_exception;
+    delete _inner_exception;
 
     Exception<true> const *extended( dynamic_cast<Exception<true> const *>(&ex) );
     if(extended)
@@ -60,3 +59,5 @@ void ExtendedException::SetInnerException(const Exception<false> &ex)
         _inner_exception = new Exception<false>(ex);
     }
 }
+
+END_NAMESPACE_GUTIL

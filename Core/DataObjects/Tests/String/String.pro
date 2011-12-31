@@ -18,7 +18,7 @@ TEMPLATE = app
 DEFINES += GUTIL_CORE_QT_ADAPTERS
 
 INCLUDEPATH += ../.. ../../../.. ../../..
-LIBS += -L../../../../lib -lGUtilCore
+LIBS += -L../../../../lib -lGUtil
 
 unix: LIBS += -Wl,-rpath,../../../../lib
 

@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/dlist.h"
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 class DListTest : public QObject
 {

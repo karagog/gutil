@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "Core/DataObjects/dlist.h"
 #include "Core/DataObjects/binarysearchtree.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** Implements an associative container of objects.
@@ -80,7 +80,7 @@ public:
     /** Does the set contain at least 1 of these?
         \note O(log(N))
     */
-    inline bool Contains(const T &i){ return data.Search(i); }
+    inline bool Contains(const T &i) const{ return data.Search(i); }
 
     /** Empties the set and cleans up all memory. */
     void Clear(){ data.Clear(); m_size = 0;}
@@ -332,15 +332,15 @@ template<class T>void Set<T>::_remove(const T &i, bool all)
     }
 }
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
 // The set is binary-movable only if the BinarySearchTree is
-template<class T>struct IsMovableType< Core::DataObjects::Set<T> > :
-        public IsMovableType< Core::DataObjects::BinarySearchTree<T> >{};
+template<class T>struct IsMovableType< DataObjects::Set<T> > :
+        public IsMovableType< DataObjects::BinarySearchTree<T> >{};
 
 }
 

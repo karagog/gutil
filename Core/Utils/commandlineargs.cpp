@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "commandlineargs.h"
-GUTIL_USING_CORE_NAMESPACE(Utils);
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 CommandLineArgs::CommandLineArgs(int argc, char **argv)
     :Vector<String>(argc)

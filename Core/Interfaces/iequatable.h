@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+NAMESPACE_GUTIL1( Interfaces );
 
 
 template <class T> class IEquatable
@@ -34,6 +34,6 @@ public:
 };
 
 
-GUTIL_END_CORE_NAMESPACE
+END_NAMESPACE_GUTIL1
 
 #endif // IEQUATABLE_H

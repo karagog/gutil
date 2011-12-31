@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>549</width>
+    <height>590</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="lblServer">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="lblThreads">
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="lstClients">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="lstEvents"/>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="btnNewClient">
+        <property name="text">
+         <string>Launch Client Process</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSend">
+        <property name="text">
+         <string>Send Hello</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>549</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btnNewClient</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>start_new_client()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>533</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>116</x>
+     <y>557</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSend</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>send_message()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>402</x>
+     <y>537</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>358</x>
+     <y>558</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>start_new_client()</slot>
+  <slot>send_message()</slot>
+ </slots>
+</ui>

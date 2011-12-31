@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/GUtil/sql">
+        <file>create_log_database.sqlite.sql</file>
+    </qresource>
+</RCC>

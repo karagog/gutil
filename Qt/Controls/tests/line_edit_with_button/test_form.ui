@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>test_form</class>
+ <widget class="QWidget" name="test_form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>209</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="GUtil::Controls::line_edit_with_button" name="lineEditWidget" native="true"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Toggle Fade</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="GUtil::Controls::ProgressBarControl" name="widget" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GUtil::Controls::ProgressBarControl</class>
+   <extends>QWidget</extends>
+   <header>Controls/progressbarcontrol.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GUtil::Controls::line_edit_with_button</class>
+   <extends>QWidget</extends>
+   <header>Controls/line_edit_with_button.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>pushButton_2</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>lineEditWidget</receiver>
+   <slot>toggleButton()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>252</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "Core/DataObjects/heap.h"
 #include <iostream>
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 using namespace std;
 
 class HeapTest : public QObject

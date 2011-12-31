@@ -23,7 +23,7 @@ limitations under the License.*/
 
 
 #include "gutil_macros.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** An abstract interface that says you can treat me like a stack. */
@@ -158,6 +158,6 @@ public:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_DATAOBJECTS_INTERFACES_H

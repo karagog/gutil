@@ -2,7 +2,6 @@
 HEADERS += \
     Interfaces/ixmlserializable.h \
     Interfaces/iupdatable.h \
-    Interfaces/istringable.h \
     Interfaces/ireadonlyobject.h \
     Interfaces/iequatable.h \
     Interfaces/iequalitycomparer.h \
@@ -14,8 +13,9 @@ HEADERS += \
     Interfaces/ivoidwrappers.h \
     Interfaces/imemoryusagereporter.h
 
-SOURCES += \
-    Interfaces/ireadonlyobject.cpp \
-    Interfaces/iupdatable.cpp \
-    Interfaces/ivoidwrappers.cpp
+SOURCES +=
+
+
+
+
 

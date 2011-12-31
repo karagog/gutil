@@ -16,8 +16,11 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "Core/DataObjects/gstring.h"
 #include "Core/extendedexception.h"
+#include "CryptoPP/encryptionutils.h"
 #include <iostream>
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL1(CryptoPP);
+USING_NAMESPACE_GUTIL;
 using namespace std;
 
 class StringTest : public QObject
@@ -42,10 +45,6 @@ private Q_SLOTS:
     void test_base64();
     void test_base16();
     void test_qt_adapters();
-    void test_random_string();
-    void test_compression();
-    void test_encryption();
-    void test_hash();
     void test_utf8_vectors();
 
 private:
@@ -529,161 +528,6 @@ void StringTest::test_qt_adapters()
     QVERIFY(qs == "HI");
 }
 
-void StringTest::test_compression()
-{
-    String s("Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello");
-    String compressed( s.Compress() );
-    String decompressed(compressed.Decompress());
-
-//    qDebug() << s.ToBase64().ConstData();
-//    qDebug() << compressed.ToBase64().ConstData();
-//    qDebug() << decompressed.ToBase64().ConstData();
-
-    QVERIFY2(s == "Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello", s);
-    QVERIFY(s != compressed);
-    QVERIFY2(s.Length() > compressed.Length(), String::Format("%d != %d", s.Length(), compressed.Length()));
-    QVERIFY2(s == decompressed, String::Format("%s != %s", s.ConstData(), decompressed.ConstData()));
-}
-
-void StringTest::test_encryption()
-{
-    // Test the des encryptor
-    const char password[] = "I like Toast!";
-    String plaintext("Hello World, my name is George!");
-    String ciphertext = plaintext.Encrypt(password, String::DES_Encryption);
-    String decrypted = ciphertext.Decrypt(password, String::DES_Encryption);
-
-//    qDebug(plaintext);
-//    qDebug(plaintext.ToBase16());
-//    qDebug(ciphertext.ToBase16());
-//    qDebug(decrypted.ToBase16());
-
-    QVERIFY(plaintext != ciphertext);
-    QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
-
-
-    // Test Triple-DES
-    ciphertext = plaintext.Encrypt(password, String::TripleDES_Encryption);
-    decrypted = ciphertext.Decrypt(password, String::TripleDES_Encryption);
-    QVERIFY(plaintext != ciphertext);
-    QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
-
-
-    // Test AES encryption
-    ciphertext = plaintext.Encrypt(password, String::AES_Encryption);
-    decrypted = ciphertext.Decrypt(password, String::AES_Encryption);
-    QVERIFY(plaintext != ciphertext);
-    QVERIFY2(decrypted == plaintext, String::Format("%s != %s", decrypted.ToBase16().ConstData(), plaintext.ToBase16().ConstData()));
-
-//    qDebug(plaintext);
-//    qDebug(plaintext.ToBase16());
-//    qDebug(ciphertext.ToBase16());
-//    qDebug(decrypted.ToBase16());
-
-
-    // Set up the exception case tests, by encrypting with DES_EDE2
-    ciphertext = plaintext.Encrypt(password, String::DES_Encryption);
-
-    bool ex_hit(false);
-    try
-    {
-        // Try decrypting with a bad password
-        decrypted = ciphertext.Decrypt("Bad Password");
-    }
-    catch(const GUtil::Core::Exception<> &)
-    {
-        ex_hit = true;
-    }
-    QVERIFY(ex_hit);
-
-
-    ex_hit = false;
-    try
-    {
-        // Try to decrypt with Triple DES
-        decrypted = ciphertext.Decrypt(password, String::TripleDES_Encryption);
-    }
-    catch(const GUtil::Core::Exception<> &)
-    {
-        ex_hit = true;
-    }
-    QVERIFY(ex_hit);
-
-    ex_hit = false;
-    try
-    {
-        // Try to decrypt with AES
-        decrypted = ciphertext.Decrypt(password, String::AES_Encryption);
-    }
-    catch(const GUtil::Core::Exception<> &)
-    {
-        ex_hit = true;
-    }
-    QVERIFY(ex_hit);
-
-
-    ciphertext = plaintext.Encrypt(password, String::AES_Encryption);
-    ex_hit = false;
-    try
-    {
-        decrypted = ciphertext.Decrypt(password, String::TripleDES_Encryption);
-    }
-    catch(const GUtil::Core::Exception<> &)
-    {
-        ex_hit = true;
-    }
-    QVERIFY(ex_hit);
-}
-
-void StringTest::test_random_string()
-{
-    const GUINT32 slen( 12 );
-    const GUINT32 seed( 0 );    // Seeding just adds entropy to the random numbers
-
-    String s1 = String::RandomString(slen, seed);
-    String s2 = String::RandomString(slen, seed);
-
-//    qDebug(s1.ToBase16());
-//    qDebug(s2.ToBase16());
-
-    QVERIFY(s1.Length() == slen);
-    QVERIFY(s2.Length() == slen);
-    QVERIFY(s1[s1.Length()] == '\0');
-    QVERIFY(s2[s2.Length()] == '\0');
-    QVERIFY(s1 != s2);
-}
-
-void StringTest::test_hash()
-{
-    // Try hashing an empty string (hash references from Wikipedia)
-    String s;
-    QVERIFY2(s.Hash(String::MD5Hash).ToBase16().ToLower() == "d41d8cd98f00b204e9800998ecf8427e",
-             s.Hash(String::MD5Hash).ToBase16());
-    QVERIFY(s.Hash(String::MD4Hash).ToBase16().ToLower() ==     "31d6cfe0d16ae931b73c59d7e0c089c0");
-    QVERIFY(s.Hash(String::SHA1Hash).ToBase16().ToLower() ==    "da39a3ee5e6b4b0d3255bfef95601890afd80709");
-    QVERIFY(s.Hash(String::SHA224Hash).ToBase16().ToLower() ==  "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f");
-    QVERIFY(s.Hash(String::SHA256Hash).ToBase16().ToLower() ==  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
-    QVERIFY(s.Hash(String::SHA384Hash).ToBase16().ToLower() ==  "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b");
-    QVERIFY(s.Hash(String::SHA512Hash).ToBase16().ToLower() ==  "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
-
-
-    // Try some reference hashes
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::MD5Hash).ToBase16().ToLower()
-            == "9e107d9d372bb6826bd81d3542a419d6");
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::MD4Hash).ToBase16().ToLower()
-            == "1bee69a46ba811185c194762abaeae90");
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA1Hash).ToBase16().ToLower()
-            == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA224Hash).ToBase16().ToLower()
-            == "730e109bd7a8a32b1cb9d9a09aa2325d2430587ddbc0c38bad911525");
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA256Hash).ToBase16().ToLower()
-            == "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592");
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA384Hash).ToBase16().ToLower()
-            == "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1");
-    QVERIFY(String::Hash("The quick brown fox jumps over the lazy dog", UINT_MAX, String::SHA512Hash).ToBase16().ToLower()
-            == "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb642e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6");
-}
-
 
 void StringTest::test_utf8_vectors()
 {
@@ -702,12 +546,12 @@ void StringTest::test_utf8_vectors()
         test_vector_UTF8split();
         test_vector_UTF8join();
     }
-    catch(const GUtil::Core::Exception<> & ex)
+    catch(const Exception<> & ex)
     {
-        GUtil::Core::Exception<true> const *ex_ptr( dynamic_cast<GUtil::Core::Exception<true> const *>(&ex) );
+        Exception<true> const *ex_ptr( dynamic_cast<Exception<true> const *>(&ex) );
         qDebug() << ex.What;
         if(ex_ptr)
-            qDebug() << ex_ptr->GetMessage().ConstData();
+            qDebug() << ex_ptr->GetMessage();
         throw;
     }
 }
@@ -715,7 +559,7 @@ void StringTest::test_utf8_vectors()
 
 #include "Test/testvectorreader.h"
 #define TESTVECTORS_DIRECTORY "TestVectors"
-GUTIL_USING_NAMESPACE(Test);
+USING_NAMESPACE_GUTIL1(Test);
 
 void StringTest::test_vector_UTF8basics()
 {

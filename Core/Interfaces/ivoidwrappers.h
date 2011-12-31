@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_IVOIDWRAPPER_H
 
 #include "gutil_macros.h"
-GUTIL_BEGIN_CORE_NAMESPACE(Interfaces);
+NAMESPACE_GUTIL1(Interfaces);
 
 
 /** \file
@@ -42,7 +42,7 @@ public:
     virtual int CompareVoid(const void *const lhs, const void *const rhs) const = 0;
 
     /** So you can be deleted by this interface. */
-    virtual ~IVoidComparer();
+    virtual ~IVoidComparer(){}
 };
 
 
@@ -56,7 +56,7 @@ public:
     virtual void *CopyVoid(const void *const v) const = 0;
 
     /** So you can be deleted by this interface. */
-    virtual ~IVoidCopyer();
+    virtual ~IVoidCopyer(){}
 };
 
 
@@ -69,7 +69,7 @@ public:
     virtual void *NewVoid() const = 0;
 
     /** So you can be deleted by this interface. */
-    virtual ~IVoidNewer();
+    virtual ~IVoidNewer(){}
 };
 
 
@@ -82,10 +82,10 @@ public:
     virtual void DeleteVoid(void *) const = 0;
 
     /** So you can be deleted by this interface. */
-    virtual ~IVoidDeleter();
+    virtual ~IVoidDeleter(){}
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_IVOIDWRAPPER_H

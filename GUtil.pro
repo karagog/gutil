@@ -6,27 +6,21 @@ TEMPLATE = subdirs
 SUBDIRS += \
     ThirdParty \
     Core \
-    Interfaces \
-    Utils \
-    Custom \
-    Ui \
-    DataObjects \
-    DataModels \
-    ModelViews \
-    DataAccess \
-    Logging \
-    BusinessObjects \
-    Controls \
-    Images \
-    GUICustom \
+    Qt \
+    CryptoPP \
     Test
 
 CONFIG += ordered
 
 HEADERS += \
     gassert.h \
+    gutil_core.h \
     gutil.h \
     gutil_macros.h
+
+
+
+
 
 
 

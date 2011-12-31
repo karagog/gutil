@@ -1,0 +1,12 @@
+
+CREATE TABLE IF NOT EXISTS %TABLE_NAME% (
+        Date TEXT NOT NULL,
+        Severity INTEGER NOT NULL,
+        Title TEXT,
+        Message TEXT,
+        ID INTEGER PRIMARY KEY,
+        InnerExceptionID INTEGER DEFAULT -1
+);
+CREATE INDEX IF NOT EXISTS idx_Log_Date ON %TABLE_NAME%(Date);
+CREATE INDEX IF NOT EXISTS idx_Log_Title ON %TABLE_NAME%(Title);
+CREATE INDEX IF NOT EXISTS idx_Log_Severity ON %TABLE_NAME%(Severity);

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include <QFile>
 
-GUTIL_BEGIN_NAMESPACE(Test);
+NAMESPACE_GUTIL1(Test);
 
 
 /** A helper class that parses a test vector file, and gives you a simple api to
@@ -33,7 +33,7 @@ public:
         :f(filename)
     {
         if(!f.exists())
-            THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+            THROW_NEW_GUTIL_EXCEPTION2(Exception,
                                        QString("File does not exist: %1").arg(filename).toUtf8().constData());
     }
 
@@ -46,7 +46,7 @@ public:
         if(!f.isOpen())
         {
             if(!f.open(QFile::ReadOnly))
-                THROW_NEW_GUTIL_EXCEPTION(GUtil::Core::Exception);
+                THROW_NEW_GUTIL_EXCEPTION(Exception);
         }
 
         int cnt(0);
@@ -77,6 +77,6 @@ private:
 };
 
 
-GUTIL_END_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_TESTVECTORREADER_H

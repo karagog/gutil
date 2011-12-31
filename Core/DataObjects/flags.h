@@ -16,7 +16,7 @@ limitations under the License.*/
 #define FLAGS_H
 
 #include "gutil_macros.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** A class to encapsulate boolean memory storage on an integer type.
@@ -73,35 +73,36 @@ private:
     GUINT32 m_flags;
 };
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 /** Use this for convenient flag operators for your enum type. */
 #define GUTIL_DECLARE_FLAGS(flags_name, enum_type) \
-    namespace GUtil{ namespace Core{ namespace DataObjects{ \
-    class flags_name : public Flags<enum_type>{ \
+    class flags_name : public GUtil::DataObjects::Flags<enum_type>{ \
     public: \
         inline flags_name(){} \
-        inline flags_name(GUINT32 i) :Flags<enum_type>(i){} \
-        inline flags_name(const Flags<enum_type> &o) :Flags<enum_type>(o){} \
-    }; \
+        inline flags_name(GUINT32 i) :GUtil::DataObjects::Flags<enum_type>(i){} \
+        inline flags_name(const Flags<enum_type> &o) :GUtil::DataObjects::Flags<enum_type>(o){} \
+    };
+
+/** You need to declare this outside of a class scope. */
+#define GUTIL_DECLARE_FLAG_OPERATORS(flags_name, enum_type) \
     static inline flags_name operator | (enum_type e1, enum_type e2){ \
         flags_name ret; \
         ret.SetFlag(e1, true); ret.SetFlag(e2, true); \
         return ret; \
     } \
-    }} \
     \
-    template<>struct IsMovableType< Core::DataObjects::flags_name >{ enum{ Value = 1 }; }; \
-    \
-    } // namespace GUtil
+    namespace GUtil{ \
+    template<>struct IsMovableType< flags_name >{ enum{ Value = 1 }; }; \
+    }
 
 
 namespace GUtil
 {
 
 // The Flag type can be binary-moved
-template<class T>struct IsMovableType< Core::DataObjects::Flags<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::Flags<T> >{ enum{ Value = 1 }; };
 
 }
 

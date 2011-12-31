@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "Core/Interfaces/iequalitycomparer.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-using namespace GUtil::Core::Interfaces;
+using namespace Interfaces;
 
 class ComparableTest : public QObject
 {

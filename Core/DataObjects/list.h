@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "Core/DataObjects/interfaces.h"
 #include "gassert.h"
 #include "gutil_macros.h"
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** A list of items, implemented as a memory array.
@@ -322,9 +322,27 @@ public:
     /** Returns the item at the given index.  Does not do bounds checking. */
     inline T &operator [](GUINT32 indx){ return *at(indx); }
 
+    /** Returns the item at the given index.  Throws an exception if index out of range. */
+    inline const T &At(GUINT32 indx) const{
+        if(indx >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        return *at(indx);
+    }
+    /** Returns the item at the given index.  Throws an exception if index out of range. */
+    inline T &At(GUINT32 indx){
+        if(indx >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        return *at(indx);
+    }
+
+
+    /** Pushes an item on a logical stack, with appealing syntax. */
+    inline List<T> &operator << (const T &item){ Append(item); return *this; }
+
+    /** Pops the top item from a logical stack and copies it into the given variable */
+    inline List<T> &operator >> (T &cpy){ cpy = *rbegin(); RemoveLast(); return *this; }
+
 
     /** Sorts the list using the given sorting algorithm. */
-    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const GUtil::Core::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
+    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
         switch(e)
         {
         case GUtil::MergeSort:
@@ -345,6 +363,11 @@ public:
     {
         friend class List;
     public:
+
+        /** Returns the index we're currently on. */
+        inline GUINT32 Index() const{
+            return (1 << m_pageIndex) + (current - m_pageBegin) - 1;
+	}
 
         inline iterator &operator ++(){ _advance(); return *this;}
         inline iterator operator ++(int){ iterator ret(*this); _advance(); return ret; }
@@ -380,14 +403,15 @@ public:
         T *operator->() const{ return current; }
         T &operator*() const{ return *current; }
 
+
     protected:
 
         inline iterator(const Vector<T *> *pages, GUINT32 indx)
             :m_pages(pages),
               m_pageIndex(FSB32(indx + 1)),
-              m_pageBegin(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pages->operator [](m_pageIndex) : 0),
-              m_pageEnd(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
-              current(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx + 1, 32 - m_pageIndex) : 0)
+              m_pageBegin(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pages->operator [](m_pageIndex)),
+              m_pageEnd(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pageBegin + (1 << m_pageIndex)),
+              current(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pageBegin + TRUNCATE_LEFT_32(indx + 1, 32 - m_pageIndex))
         {}
 
 
@@ -400,7 +424,7 @@ public:
         inline void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if(++m_pageIndex >= m_pages->Size())
+                if((GUINT32)++m_pageIndex >= m_pages->Size())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -449,6 +473,11 @@ public:
               current(o.current)
         {}
 
+        /** Returns the index we're currently on. */
+        inline GUINT32 Index() const{
+            return (1 << m_pageIndex) + (current - m_pageBegin) - 1;
+        }
+
         inline const_iterator &operator ++(){ _advance(); return *this;}
         inline const_iterator operator ++(int){ const_iterator ret(*this); _advance(); return ret; }
         inline const_iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
@@ -473,6 +502,13 @@ public:
             return ret + (current - tmp_cur);
         }
 
+        inline bool operator == (const const_iterator &o) const{
+            return m_pages->ConstData() == o.m_pages->ConstData() && current == o.current;
+        }
+        inline bool operator != (const const_iterator &o) const{
+            return m_pages->ConstData() != o.m_pages->ConstData() || current != o.current;
+        }
+
         const T *operator->() const{ return current; }
         const T &operator*() const{ return *current; }
 
@@ -482,9 +518,9 @@ public:
         inline const_iterator(const Vector<T *> *pages, GUINT32 indx)
             :m_pages(pages),
               m_pageIndex(FSB32(indx + 1)),
-              m_pageBegin(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pages->operator [](m_pageIndex) : 0),
-              m_pageEnd(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + (1 << m_pageIndex) : 0),
-              current(m_pageIndex >= 0 && !m_pages->IsNull() ? m_pageBegin + TRUNCATE_LEFT_32(indx, 32 - m_pageIndex) : 0)
+              m_pageBegin(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pages->operator [](m_pageIndex)),
+              m_pageEnd(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pageBegin + (1 << m_pageIndex)),
+              current(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pageBegin + TRUNCATE_LEFT_32(indx + 1, 32 - m_pageIndex))
         {}
 
 
@@ -497,7 +533,7 @@ public:
         inline void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if(++m_pageIndex >= m_pages->Size())
+                if((GUINT32)++m_pageIndex >= m_pages->Size())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -535,13 +571,23 @@ public:
 
     inline iterator begin(){ return iterator(&d, 0); }
     inline const_iterator begin() const{ return const_iterator(&d, 0); }
-    inline iterator end(){ return iterator(&d, m_size); }
-    inline const_iterator end() const{ return const_iterator(&d, m_size); }
+    inline iterator end(){ return 0 == m_size ? iterator(&d, 0) : ++iterator(&d, m_size - 1); }
+    inline const_iterator end() const{ return 0 == m_size ? const_iterator(&d, 0) : ++const_iterator(&d, m_size - 1); }
 
     inline iterator rbegin(){ return iterator(&d, m_size - 1); }
     inline const_iterator rbegin() const{ return const_iterator(&d, m_size - 1);}
     inline iterator rend(){ return iterator(&d, -1); }
     inline const_iterator rend() const{ return const_iterator(&d, -1); }
+
+    /** Returns the item at the front of the list */
+    inline T &Front(){ return *d.Front(); }
+    /** Returns the item at the front of the list */
+    inline T const &Front() const{ return *d.Front(); }
+
+    /** Returns the item at the back of the list */
+    inline T &Back(){ return *at(Length() - 1)*at(Length() - 1); }
+    /** Returns the item at the back of the list */
+    inline T const &Back() const{ return *at(Length() - 1); }
 
 
 protected:
@@ -731,17 +777,17 @@ private:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil
 {
 
-template<class T>struct IsMovableType< Core::DataObjects::List<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::ListStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::ListQueue<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::ListDeque<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< Core::DataObjects::ListRandomAccessContainer<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::List<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::ListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::ListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::ListDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::ListRandomAccessContainer<T> >{ enum{ Value = 1 }; };
 
 }
 

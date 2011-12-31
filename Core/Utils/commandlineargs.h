@@ -12,41 +12,49 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef COMMANDLINEARGS_H
-#define COMMANDLINEARGS_H
+#ifndef GUTIL_COMMANDLINEARGS_H
+#define GUTIL_COMMANDLINEARGS_H
 
 #include "gutil_macros.h"
 #include "Core/DataObjects/gstring.h"
 
-GUTIL_BEGIN_CORE_NAMESPACE(Utils);
+NAMESPACE_GUTIL1(Utils);
 
 
-// Use this class as a wrapper for command line arguments.  You should dispose
-//  of this as soon as you're done using it, because it uses extra memory that
-//  is only useful while parsing the arguments.
+/** Use this class as a wrapper for command line arguments.  You should dispose
+    of this as soon as you're done using it, because it uses extra memory that
+    is only useful while parsing the arguments.
+*/
 
 class CommandLineArgs :
         public DataObjects::Vector<DataObjects::String>
 {
 public:
 
+    /** Just pass in argc and argv from the main function to initialize, and
+        then you can access the arguments in the Vector, or use the convenience
+        functions below.
+    */
     CommandLineArgs(int argc, char **argv);
 
-    // Returns -1 if not found
+    /** Searches for a specific argument, with or without case-sensitivity.
+        \returns -1 if not found
+    */
     int FindArgument(const DataObjects::String &, bool case_sensitive = true) const;
 
+    /** Returns whether the given argument is present in the argument list. */
     inline bool Contains(const DataObjects::String &arg, bool case_sensitive = true) const{
         return FindArgument(arg, case_sensitive) != -1;
     }
 
-    // Get the program name argument
+    /** Get the program name argument, or the element at argument 0 */
     inline DataObjects::String ProgramArgument() const{
-        return Count() ? ConstData()[0] : "";
+        return 0 < Count() ? operator[](0) : "";
     }
 
 };
 
 
-GUTIL_END_CORE_NAMESPACE
+END_NAMESPACE_GUTIL1
 
-#endif // COMMANDLINEARGS_H
+#endif // GUTIL_COMMANDLINEARGS_H

@@ -1,6 +1,6 @@
 DESTDIR = ../lib
 
-TARGET = GUtilCore
+TARGET = GUtil
 
 QT -= gui core
 
@@ -11,8 +11,7 @@ TEMPLATE = lib
 
 #DEFINES += DEBUG
 
-INCLUDEPATH += .. ../ThirdParty
-LIBS += -L../lib -lcryptopp
+INCLUDEPATH += . ..
 
 #QMAKE_CXXFLAGS += -DGUTIL_DLL_EXPORTS
 #QMAKE_CXXFLAGS += -DGUTIL_COM_EXPORTS
@@ -20,15 +19,16 @@ LIBS += -L../lib -lcryptopp
 HEADERS += \
     exception.h \
     extendedexception.h \
-    gutil_globals.h
+    globals.h
 SOURCES += \
     extendedexception.cpp \
     exception.cpp \
-    gutil_globals.cpp
+    globals.cpp
 
 include(DataAccess/DataAccess.pri)
 include(DataObjects/DataObjects.pri)
 include(Interfaces/Interfaces.pri)
+include(Logging/Logging.pri)
 include(Utils/Utils.pri)
 
 

@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_ICOMPARER_H
 
 #include "gutil_macros.h"
-GUTIL_BEGIN_CORE_NAMESPACE( Interfaces );
+NAMESPACE_GUTIL1( Interfaces );
 
 
 /** An abstract interface class to compare two objects of different types */
@@ -41,47 +41,17 @@ public:
 /** A class to compare two objects of like types.
     Use to implement custom comparators for classes.
     In general, it is easiest to implement the less-than operator and take advantage of
-    the DefaultComparer.
-    \sa DefaultComparer
+    the Utils::DefaultComparer.
 */
 template <class T> class IComparer :
         public IComparerDifferent<T, T>
 {
 public:
-    /** So you can be deleted by this interface. */
     virtual ~IComparer(){}
 };
 
 
+END_NAMESPACE_GUTIL1
 
-/** The default comparer implements IComparer using the less-than operator to
-    conduct comparisons.
-*/
-template <class T> class DefaultComparer :
-        public IComparer<T>
-{
-public:
-    /** The default compare function uses the less-than operator.
-        It is easiest to implement the less-than operator and take advantage of
-        the DefaultComparer.
-    */
-    virtual int Compare(const T&lhs, const T& rhs) const
-    {
-        int ret = 0;
-
-        if(lhs < rhs)
-            ret = -1;
-        else if(rhs < lhs)
-            ret = 1;
-
-        return ret;
-    }
-
-    /** So you can be deleted by this interface */
-    virtual ~DefaultComparer(){}
-};
-
-
-GUTIL_END_CORE_NAMESPACE
 
 #endif // GUTIL_ICOMPARER_H

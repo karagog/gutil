@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
-namespace GUtil{ namespace Core{
+NAMESPACE_GUTIL
 
 
 /** We define a base class, so that the construction code is not reproduced
@@ -62,7 +62,7 @@ public:
         This will allow you to dynamic_cast a reference to an Exception as a different
         type of exception at runtime.
     */
-    virtual ~BaseException() throw();
+    virtual ~BaseException();
 
 };
 
@@ -80,13 +80,13 @@ class Exception :
         public BaseException
 {
 public:
-    inline Exception() :BaseException("GUtil::Core::Exception<false>"){}
-    inline Exception(const char *message, const char *name = 0) :BaseException(name == 0 ? "GUtil::Core::Exception<false>" : name, message) {} \
+    inline Exception() :BaseException("GUtil::Exception<false>"){}
+    inline explicit Exception(const char *message, const char *name = 0) :BaseException(name == 0 ? "Exception<false>" : name, message) {} \
     inline Exception(const char *file,
                      int line,
                      const char *name = 0,
                      const char *message = 0)
-        :BaseException(name == 0 ? "GUtil::Core::Exception<false>" : name, message, file, line) {}
+        :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message, file, line) {}
 };
 
 
@@ -99,32 +99,70 @@ template<bool extended = false>class ex_name : public Exception<false> \
 { \
 public: \
     inline ex_name() \
-        :Exception<false>(0, -1, "GUtil::Core::" STRINGIFY(ex_name) "<false>") {} \
-    inline ex_name(const char *message, const char *name) \
-        :Exception<false>(0, -1, name == 0 ? "GUtil::Core::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+        :Exception<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
+    inline ex_name(const char *message, const char *name = 0) \
+        :Exception<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
     inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
-        :Exception<false>(file, line, name == 0 ? "GUtil::Core::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+        :Exception<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
     inline ex_name(const Exception<false> &ex) \
         :Exception<false>(ex) {} \
 };
 
 
 // Here are the other types of exceptions (all derived from Exception)
+
+/** Means the given code path is not implemented */
 EXCEPTION_DECLARE( NotImplementedException )
+
+/** Means that there was an error allocating memory */
 EXCEPTION_DECLARE( BadAllocationException )
+
+/** Means that an operation failed because an object was in a readonly state */
 EXCEPTION_DECLARE( ReadOnlyException )
+
+/** Means that an operation failed due to bad arguments */
 EXCEPTION_DECLARE( ArgumentException )
+
+/** Means that an operation failed due to a failed conversion (string->int, for example) */
+EXCEPTION_DECLARE( ConversionException )
+
+/** Means that an operation failed due to failed data transportation */
 EXCEPTION_DECLARE( DataTransportException )
+
+/** Means that an operation failed due to an XML error (bad/unexpected format) */
 EXCEPTION_DECLARE( XmlException )
+
+/** Means that an operation failed because the end of a file was encountered */
 EXCEPTION_DECLARE( EndOfFileException )
+
+/** Means that a lock operation failed */
 EXCEPTION_DECLARE( LockException )
+
+/** Means that an operation failed because a null pointer/reference was used */
 EXCEPTION_DECLARE( NullReferenceException )
+
+/** Means that an operation failed because an index was out of range */
 EXCEPTION_DECLARE( IndexOutOfRangeException )
+
+/** Means that a validation operation failed */
 EXCEPTION_DECLARE( ValidationException )
+
+/** Means that a cast operation failed */
 EXCEPTION_DECLARE( InvalidCastException )
+
+/** Means that an operation failed because an object was not found */
 EXCEPTION_DECLARE( NotFoundException )
+
+/** Means that an operation failed because it would have to divide by 0 */
 EXCEPTION_DECLARE( DivideByZeroException )
+
+/** Means that an operation failed due to a unique key violation */
 EXCEPTION_DECLARE( UniqueKeyException )
+
+/** Means that an operation failed due to a bad build.  This is a compile-time bug,
+    and probably means the developer used the wrong preprocessor definitions or something.
+*/
+EXCEPTION_DECLARE( BuildException )
 
 
 
@@ -144,9 +182,9 @@ EXCEPTION_DECLARE( UniqueKeyException )
     and pass the file/line data with it, along with a custom message.
 */
 #define THROW_NEW_GUTIL_EXCEPTION2( ex_type, msg ) \
-    throw ex_type<false>(__FILE__, __LINE__, msg)
+    throw ex_type<false>(__FILE__, __LINE__, 0, msg)
 
 
-}}  // GUtil::Core
+END_NAMESPACE_GUTIL
 
 #endif // GEXEPTION_H

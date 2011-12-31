@@ -15,7 +15,8 @@ limitations under the License.*/
 #include "exception.h"
 #include <cstring>
 #include <malloc.h>
-using namespace GUtil::Core;
+
+NAMESPACE_GUTIL
 
 BaseException::BaseException(const char *name, const char *message, const char *file, int line)
     :m_message(0), What(name), File(file), Line(line)
@@ -58,9 +59,13 @@ BaseException &BaseException::operator = (const BaseException &o)
         memcpy(m_message, o.m_message, len);
         m_message[len] = '\0';
     }
+    return *this;
 }
 
-BaseException::~BaseException() throw(){
+BaseException::~BaseException(){
     if(m_message)
         free(m_message);
 }
+
+
+END_NAMESPACE_GUTIL

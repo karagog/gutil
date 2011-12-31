@@ -21,7 +21,7 @@ limitations under the License.*/
 
 #include "environment.h"
 
-GUTIL_USING_CORE_NAMESPACE(Utils);
+USING_NAMESPACE_GUTIL1(Utils);
 
 std::string Environment::Username()
 {

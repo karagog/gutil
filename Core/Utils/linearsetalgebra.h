@@ -19,14 +19,16 @@ limitations under the License.*/
 #include "Core/extendedexception.h"
 #include <vector>
 
-GUTIL_BEGIN_CORE_NAMESPACE(Utils);
+NAMESPACE_GUTIL1(Utils);
 
+/** \file
+    These are classes to facilitate set arithmetic.  You can do things like unions,
+    intersects, compliments to ranges and regions of a linear scale of any type.
 
-// These are classes to facilitate set arithmetic.  You can do things like unions,
-//  intersects, compliments to ranges and regions of a linear scale of any type.
-//  You can use the provided example of an integer range, or sub-class the Range
-//  class yourself and simply override the is_value_null virtual function to
-//  tell the class which values are null.
+    You can use the provided example of an integer range, or sub-class the Range
+    class yourself and simply override the is_value_null virtual function to
+    tell the class which values are null.
+*/
 
 template <class T> class Range
 {
@@ -272,7 +274,7 @@ template <class T>
 Region<T> Region<T>::_union(const Range<T> &r1, const Range<T> &r2)
 {
     if(r1.m_minres != r2.m_minres)
-        THROW_NEW_GUTIL_EXCEPTION2(GUtil::Core::Exception,
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
                                    "Incompatible ranges.  They have different resolutions");
 
     Region<T> ret(r1.m_minres);
@@ -691,6 +693,6 @@ public:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // LINEARSETALGEBRA_H

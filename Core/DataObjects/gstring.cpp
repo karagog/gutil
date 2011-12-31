@@ -14,10 +14,10 @@ limitations under the License.*/
 
 #include "gstring.h"
 #include "gassert.h"
-#include "smartpointer.h"
+#include "Utils/smartpointer.h"
 #include <stdio.h>
 #include <cstring>
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 
 /** A null byte to mark the end of a string. */
@@ -35,10 +35,10 @@ String::String(const char *d, int len)
 String::String(char c, int len)
     :Vector<char>(len + 1)
 {
+    set_length(len);
+    Data()[len] = '\0';
     char *cur( Data() );
     while(len-- > 0) *(cur++) = c;
-    Data()[len] = '\0';
-    set_length(len);
 }
 
 String::String(const Vector<char>::const_iterator &b, const Vector<char>::const_iterator &e)
@@ -100,6 +100,14 @@ String::String(const String &s)
     memcpy(Data(), s.ConstData(), s.Length());
     Data()[s.Length()] = '\0';
     set_length(s.Length());
+}
+
+void String::Resize(GUINT32 sz)
+{
+    if(Capacity() <= sz)
+        Reserve(sz + 1);
+    set_length(sz);
+    operator[](sz) = '\0';
 }
 
 String &String::Insert(const String &s, GUINT32 indx)
@@ -478,12 +486,11 @@ GUINT32 String::LastIndexOfUTF8(const char *s, GUINT32 start, GUINT32 slen) cons
 
         if(start < lutf8)
         {
-            char __d[sizeof(UTF8ConstIterator)];
-            UTF8ConstIterator &iter(*reinterpret_cast<UTF8ConstIterator *>(__d));
+            UTF8ConstIterator iter;
             if(LengthUTF8() - start < slen)
-                new(__d) UTF8ConstIterator(endUTF8() - (slen - 1));
+                iter = endUTF8() - (slen - 1);
             else
-                new(__d) UTF8ConstIterator(beginUTF8() + start);
+                iter = beginUTF8() + start;
 
             ++start;
             for(; start > 0; --start, --iter)
@@ -1142,366 +1149,3 @@ char String::HexToChar(char c)
 
     return ret;
 }
-
-
-
-// CryptoPP-dependent section
-
-#ifdef GUTIL_CRYPTOPP
-
-// To disable warnings, because we're exposing some weak algorithms (MD4-5)
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-
-#include "cryptopp-5.6.1/cryptlib.h"
-#include "cryptopp-5.6.1/filters.h"
-#include "cryptopp-5.6.1/gzip.h"
-#include "cryptopp-5.6.1/randpool.h"
-#include "cryptopp-5.6.1/osrng.h"
-#include "cryptopp-5.6.1/default.h"
-#include "cryptopp-5.6.1/pwdbased.h"
-#include "cryptopp-5.6.1/md4.h"
-#include "cryptopp-5.6.1/md5.h"
-
-/** Used to adapt my string into CryptoPP Sink. */
-class GStringSink : public CryptoPP::Bufferless<CryptoPP::Sink>
-{
-    String &sref;
-public:
-    inline GStringSink(String &s) :sref(s){}
-
-    size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking){
-        sref.Append(reinterpret_cast<const char *>(inString), length);
-        return 0;
-    }
-};
-
-
-String String::Compress(CompressionLevelEnum level) const
-{
-    String ret(Length() + 1);   // Preallocate space for the return string
-    bool skip_compression = Length() > 10000000;
-
-    if(!skip_compression)
-    {
-        if(level < MinimumCompression || level > MaximumCompression)
-            level = DefaultCompression;
-
-        try
-        {
-            CryptoPP::Gzip zipper(new GStringSink(ret), level);
-            zipper.Put(reinterpret_cast<const byte *>(ConstData()), Length());
-            zipper.MessageEnd();
-        }
-        catch(const CryptoPP::Exception &ex)
-        {
-            GDEBUG(ex.GetWhat());
-            THROW_NEW_GUTIL_EXCEPTION(Exception);
-        }
-    }
-
-    if(skip_compression ||  ret.Length() >= Length())
-    {
-        // Leave it uncompressed, because we didn't gain anything by compression
-        ret = "0";
-        ret.Append(*this);
-    }
-    else
-    {
-        ret.Prepend("1");
-    }
-    return ret;
-}
-
-String String::Decompress() const
-{
-    GUINT32 len(Length());
-    String ret(len);
-
-    if(len > 0)
-    {
-        bool is_compressed( false );
-        const char *start(ConstData());
-
-        if(*start == '1')
-        {
-            is_compressed = true;
-            ++start;
-            --len;
-        }
-        else if(*start == '0')
-        {
-            ++start;
-            --len;
-        }
-        else
-        {
-            // Treat any string without our marking as compressed, then you'll get an exception
-            //  if we couldn't decompress it
-            is_compressed = true;
-        }
-
-        if(is_compressed)
-        {
-            try
-            {
-                CryptoPP::StringSource(reinterpret_cast<const byte *>(start), len, true,
-                                       new CryptoPP::Gunzip(new GStringSink(ret)));
-            }
-            catch(const CryptoPP::Exception &ex)
-            {
-                GDEBUG(ex.GetWhat());
-                THROW_NEW_GUTIL_EXCEPTION(Exception);
-            }
-        }
-        else
-        {
-            ret.Append(start, len);
-        }
-    }
-
-    return ret;
-}
-
-
-#define ENCRYPTED_MESSAGE_STAMP 0xAAAAAAAAAAAAAAAA
-
-String String::Encrypt(const GBYTE *data, GUINT32 data_len,
-                       const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
-{
-    byte padded_key[CryptoPP::SHA256::DIGESTSIZE];
-    String ret(data_len);   // A heuristic to estimate the length of the return string
-    if(len == UINT_MAX)
-        len = strlen(reinterpret_cast<const char *>(key));
-
-    SmartPointer<CryptoPP::StreamTransformation> mode;
-
-    try
-    {
-        // At least as big as the largest block size
-        byte init_vec[CryptoPP::AES::BLOCKSIZE];
-        GUINT32 block_size;
-
-        switch(e)
-        {
-        case DefaultEncryption:
-        case AES_Encryption:
-        {
-            // Initialize the padded key (SHA256 generates 32 bytes, which is the maximum key length for AES)
-            CryptoPP::SHA256().CalculateDigest(padded_key, reinterpret_cast<const byte *>(key), len);
-
-            block_size = CryptoPP::AES::BLOCKSIZE;
-
-            // Create a random initialization vector, which we'll store at the front of the string
-            CryptoPP::AutoSeededX917RNG<CryptoPP::AES>().GenerateBlock(init_vec, block_size);
-            mode = new CryptoPP::CTR_Mode<CryptoPP::AES>::Encryption(padded_key, CryptoPP::AES::MAX_KEYLENGTH, init_vec);
-        }
-            break;
-        case DES_Encryption:
-        {
-            CryptoPP::SHA256().CalculateTruncatedDigest(padded_key, CryptoPP::DES_EDE2::KEYLENGTH,
-                                                        reinterpret_cast<const byte *>(key), len);
-
-            block_size = CryptoPP::DES_EDE2::BLOCKSIZE;
-
-            // Create a random initialization vector, which we'll store at the front of the string
-            CryptoPP::AutoSeededX917RNG<CryptoPP::AES>().GenerateBlock(init_vec, block_size);
-
-            mode = new CryptoPP::CTR_Mode<CryptoPP::DES_EDE2>::Encryption(padded_key, CryptoPP::DES_EDE2::KEYLENGTH, init_vec);
-        }
-            break;
-        case TripleDES_Encryption:
-        {
-            // Initialize the padded key
-            CryptoPP::SHA256().CalculateTruncatedDigest(padded_key, CryptoPP::DES_EDE3::KEYLENGTH,
-                                                        reinterpret_cast<const byte *>(key), len);
-
-            block_size = CryptoPP::DES_EDE3::BLOCKSIZE;
-
-            CryptoPP::AutoSeededX917RNG<CryptoPP::DES_EDE3>().GenerateBlock(init_vec, block_size);
-            mode = new CryptoPP::CTR_Mode<CryptoPP::DES_EDE3>::Encryption(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, init_vec);
-        }
-            break;
-        default:
-            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-            break;
-        }
-
-        CryptoPP::StreamTransformationFilter enc(*mode, new GStringSink(ret));
-
-        // The initialization vector goes on the front of the string, unencrypted
-        ret.Append(reinterpret_cast<const char *>(init_vec), block_size);
-
-        // Put the data through the encryption
-        enc.Put(reinterpret_cast<const byte *>(data), data_len);
-
-        // We put a stamp on the end of the plaintext message,
-        //  so we know later if we have correctly decrypted it
-        GUINT64 stamp(ENCRYPTED_MESSAGE_STAMP);
-        enc.Put(reinterpret_cast<const byte *>(&stamp), sizeof(GUINT64));
-
-        enc.MessageEnd();
-    }
-    catch(const CryptoPP::Exception &ex)
-    {
-        GDEBUG(ex.GetWhat());
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
-
-    return ret;
-}
-
-String String::Decrypt(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
-{
-    String ret(data_len);
-    if(len == UINT_MAX)
-        len = strlen(reinterpret_cast<const char *>(key));
-
-
-    // Each encryption algorithm may use a different block size, and therefore require
-    //  a different length initialization vector
-    GUINT32 iv_len;
-
-    // This just needs to be big enough to hold the maximum padded key length
-    byte padded_key[CryptoPP::AES::MAX_KEYLENGTH];
-    SmartPointer<CryptoPP::StreamTransformation> mode;
-
-    try
-    {
-        switch(e)
-        {
-        case DefaultEncryption:
-        case AES_Encryption:
-        {
-            iv_len = CryptoPP::AES::BLOCKSIZE;
-
-            CryptoPP::SHA256().CalculateDigest(padded_key, reinterpret_cast<const byte *>(key), len);
-            mode = new CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption(padded_key, CryptoPP::AES::MAX_KEYLENGTH, reinterpret_cast<const byte *>(data));
-        }
-            break;
-        case DES_Encryption:
-        {
-            iv_len = CryptoPP::DES_EDE2::BLOCKSIZE;
-
-            CryptoPP::SHA256().CalculateTruncatedDigest(padded_key, CryptoPP::DES_EDE2::KEYLENGTH, reinterpret_cast<const byte *>(key), len);
-            mode = new CryptoPP::CTR_Mode<CryptoPP::DES_EDE2>::Decryption(padded_key, CryptoPP::DES_EDE2::KEYLENGTH, reinterpret_cast<const byte *>(data));
-        }
-            break;
-        case TripleDES_Encryption:
-        {
-            iv_len = CryptoPP::DES_EDE3::BLOCKSIZE;
-
-            CryptoPP::SHA256().CalculateTruncatedDigest(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, reinterpret_cast<const byte *>(key), len);
-            mode = new CryptoPP::CTR_Mode<CryptoPP::DES_EDE3>::Decryption(padded_key, CryptoPP::DES_EDE3::KEYLENGTH, reinterpret_cast<const byte *>(data));
-        }
-            break;
-        default:
-            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-            break;
-        }
-
-        CryptoPP::StreamTransformationFilter decryptor(*mode, new GStringSink(ret));
-        decryptor.Put(reinterpret_cast<const byte *>(data) + iv_len, data_len - iv_len);
-        decryptor.MessageEnd();
-    }
-    catch(const CryptoPP::Exception &ex)
-    {
-        GDEBUG(ex.GetWhat());
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
-
-    // Check to see if the stamp is there, and remove it
-    GUINT64 stamp(ENCRYPTED_MESSAGE_STAMP);
-    if(0 == memcmp(&stamp, ret.ConstData() + ret.Length() - sizeof(GUINT64), sizeof(GUINT64)))
-        ret.Chop(sizeof(GUINT64));
-    else
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-
-    return ret;
-}
-
-String String::Hash(const char *data, GUINT32 data_len, HashAlgorithmEnum e)
-{
-    GUINT32 str_len;
-    SmartPointer<CryptoPP::HashTransformation> h;
-
-    if(data_len == UINT_MAX)
-        data_len = strlen(data);
-
-    switch(e)
-    {
-    case MD4Hash:
-        str_len = CryptoPP::Weak1::MD4::DIGESTSIZE;
-        h = new CryptoPP::Weak1::MD4;
-        break;
-    case MD5Hash:
-        str_len = CryptoPP::Weak1::MD5::DIGESTSIZE;
-        h = new CryptoPP::Weak1::MD5;
-        break;
-    case SHA224Hash:
-        str_len = CryptoPP::SHA224::DIGESTSIZE;
-        h = new CryptoPP::SHA224;
-        break;
-    case SHA256Hash:
-        str_len = CryptoPP::SHA256::DIGESTSIZE;
-        h = new CryptoPP::SHA256;
-        break;
-    case SHA384Hash:
-        str_len = CryptoPP::SHA384::DIGESTSIZE;
-        h = new CryptoPP::SHA384;
-        break;
-    case SHA512Hash:
-        str_len = CryptoPP::SHA512::DIGESTSIZE;
-        h = new CryptoPP::SHA512;
-        break;
-    case SHA1Hash:
-        str_len = CryptoPP::SHA1::DIGESTSIZE;
-        h = new CryptoPP::SHA1;
-        break;
-    default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-        break;
-    }
-
-
-    String ret(str_len);
-    ret.set_length(str_len);
-    ret[str_len] = '\0';
-    try
-    {
-        h->CalculateDigest(reinterpret_cast<byte *>(ret.Data()),
-                           reinterpret_cast<const byte *>(data),
-                           data_len);
-    }
-    catch(const CryptoPP::Exception &ex)
-    {
-        GDEBUG(ex.GetWhat());
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
-    return ret;
-}
-
-String String::RandomString(GUINT32 num_bytes, GUINT32 seed)
-{
-    bool autoseed( seed == UINT_MAX );
-    String ret(num_bytes);
-    ret.set_length(num_bytes);
-
-    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng(false, autoseed);
-    if(!autoseed)
-        rng.IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GUINT32));
-
-    try
-    {
-        rng.GenerateBlock(reinterpret_cast<byte *>(ret.Data()), num_bytes);
-    }
-    catch(const CryptoPP::Exception &ex)
-    {
-        GDEBUG(ex.GetWhat());
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
-
-    return ret;
-}
-
-
-#endif // GUTIL_CRYPTOPP

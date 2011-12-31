@@ -16,7 +16,7 @@ TEMPLATE = app
 
 INCLUDEPATH += ../../.. ../..
 LIBS += -L../../../lib \
-    -lGUtilCore
+    -lGUtil
 
 
 SOURCES += \

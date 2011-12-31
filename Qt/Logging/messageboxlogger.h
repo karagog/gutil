@@ -1,0 +1,50 @@
+/*Copyright 2011 George Karagoulis
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#ifdef GUI_FUNCTIONALITY
+
+#ifndef GUTIL_MESSAGEBOXLOGGER_H
+#define GUTIL_MESSAGEBOXLOGGER_H
+
+#include "Core/Logging/abstractlogger.h"
+
+NAMESPACE_GUTIL2(QT, Logging);
+
+
+/** A logger implementation which displays the message in a modal dialog box.
+*/
+class MessageBoxLogger :
+        public GUtil::Logging::AbstractLogger
+{
+public:
+
+    inline MessageBoxLogger() :AbstractLogger(NULL){}
+
+    /** Displays a modal dialog box with the title and message, with the
+        appropriate severity.
+    */
+    virtual void Log(const DataObjects::String &message,
+                     const DataObjects::String &title,
+                     MessageLevelEnum ml);
+
+    virtual ~MessageBoxLogger(){}
+
+};
+
+
+END_NAMESPACE_GUTIL2;
+
+#endif // GUTIL_MESSAGEBOXLOGGER_H
+
+#endif // GUI_FUNCTIONALITY

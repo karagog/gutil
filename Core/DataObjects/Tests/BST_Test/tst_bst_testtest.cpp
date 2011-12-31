@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "binarysearchtree.h"
 #include <iostream>
 #include <vector>
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 using namespace std;
 
 class BST_Test :
@@ -107,8 +107,8 @@ void BST_Test::test_iterators()
     bst.Add(5);
     bst.Add(1);
     QVERIFY(bst.Size() == 3);
-    QVERIFY(bst.min() == 1);
-    QVERIFY(bst.max() == 5);
+    QVERIFY(bst.Min() == 1);
+    QVERIFY(bst.Max() == 5);
 
     verify_tree(bst);
 

@@ -25,7 +25,8 @@ limitations under the License.*/
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/map.h"
 #include "Core/DataObjects/gstring.h"
-GUTIL_BEGIN_NAMESPACE(Core);
+
+NAMESPACE_GUTIL
 
 
 /** Implements extended features for exception classes. */
@@ -33,11 +34,12 @@ class ExtendedException
 {
 public:
 
-    ExtendedException(const Exception<> *inner_exception = 0);
+    inline ExtendedException() :_inner_exception(0){}
+    ExtendedException(const Exception<> &inner_exception);
 
     ExtendedException(const ExtendedException &);
     ExtendedException &operator = (const ExtendedException &);
-    virtual ~ExtendedException() throw();
+    virtual ~ExtendedException();
 
     inline void SetData(const DataObjects::String &key, const DataObjects::String &value){
         _data[key] = value;
@@ -60,7 +62,7 @@ public:
 private:
 
     DataObjects::Map<DataObjects::String, DataObjects::String> _data;
-    Exception<> *_inner_exception;
+    Exception<false> *_inner_exception;
 
 };
 
@@ -76,25 +78,29 @@ private:
 #define EXCEPTION_DECLARE_EXTENDED( ex_name ) \
 template<>class ex_name<true> : \
     public ex_name<false>, \
-    public GUtil::Core::ExtendedException \
+    public ExtendedException \
 { \
     public: \
 \
-        inline ex_name() :ex_name<false>(0, -1, "GUtil::Core::" STRINGIFY(ex_name) "<true>"){} \
-        inline ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::Core::" STRINGIFY(ex_name) "<true>", message){} \
+        inline ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
+        inline ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
+        inline ex_name(const char *file, int line) \
+            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>") {} \
         inline ex_name(const char *file, \
                          int line, \
-                         const char *message = 0, \
-                         const Exception<> *inner_exception = 0) \
-            :ex_name<false>(file, line, "GUtil::Core::" STRINGIFY(ex_name) "<true>", message), \
+                         const char *message, \
+                         const Exception<> &inner_exception) \
+            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
                 ExtendedException(inner_exception) {} \
 };
+
 
 EXCEPTION_DECLARE_EXTENDED( Exception )
 EXCEPTION_DECLARE_EXTENDED( NotImplementedException )
 EXCEPTION_DECLARE_EXTENDED( BadAllocationException )
 EXCEPTION_DECLARE_EXTENDED( ReadOnlyException )
 EXCEPTION_DECLARE_EXTENDED( ArgumentException )
+EXCEPTION_DECLARE_EXTENDED( ConversionException )
 EXCEPTION_DECLARE_EXTENDED( DataTransportException )
 EXCEPTION_DECLARE_EXTENDED( XmlException )
 EXCEPTION_DECLARE_EXTENDED( EndOfFileException )
@@ -106,6 +112,7 @@ EXCEPTION_DECLARE_EXTENDED( InvalidCastException )
 EXCEPTION_DECLARE_EXTENDED( NotFoundException )
 EXCEPTION_DECLARE_EXTENDED( DivideByZeroException )
 EXCEPTION_DECLARE_EXTENDED( UniqueKeyException )
+EXCEPTION_DECLARE_EXTENDED( BuildException )
 
 
 
@@ -115,6 +122,6 @@ EXCEPTION_DECLARE_EXTENDED( UniqueKeyException )
 
 
 
-GUTIL_END_NAMESPACE;
+END_NAMESPACE_GUTIL
 
 #endif // GUTIL_EXTENDEDEXCEPTION_H

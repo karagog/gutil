@@ -140,47 +140,47 @@ protected: \
 
 
 
-/** A macro to begin a GUtil namespace.
 
-    IMPORTANT!  QMake does not evaluate preprocessor definitions
-    when creating meta-object files, so you cannot use these
-    to put any object derived from QObject in a namespace.
-*/
-#define GUTIL_BEGIN_NAMESPACE( n ) \
-        namespace GUtil \
-        { \
-          namespace n \
-          {
+#ifndef NO_GUTIL_NAMESPACES
+
+/** A macro to begin a nested GUtil namespace. */
+#define NAMESPACE_GUTIL2( n1, n2 )      namespace GUtil{ namespace n1{ namespace n2{
+/** A macro to begin a GUtil sub-namespace. */
+#define NAMESPACE_GUTIL1( n )           namespace GUtil{ namespace n {
+/** A macro to begin a gutil namespace. */
+#define NAMESPACE_GUTIL                 namespace GUtil{
 
 
-/** A macro to begin a GUtil::Core namespace. */
-#define GUTIL_BEGIN_CORE_NAMESPACE( n ) \
-        namespace GUtil \
-        { \
-          namespace Core \
-          { \
-            namespace n \
-            {
+/** Ends a 2-deep nested GUtil namespace. */
+#define END_NAMESPACE_GUTIL2            }}}
+/** Ends a GUtil sub-namespace. */
+#define END_NAMESPACE_GUTIL1            }}
+/** Ends a GUtil namespace declaration. */
+#define END_NAMESPACE_GUTIL             }
+
+/** Use the provided nested GUtil namespace */
+#define USING_NAMESPACE_GUTIL2( n1, n2 )        using namespace GUtil::n1::n2
+/** Use the provided GUtil sub-namespace */
+#define USING_NAMESPACE_GUTIL1( ns )            using namespace GUtil::ns
+/** Use the GUtil namespace */
+#define USING_NAMESPACE_GUTIL                   using namespace GUtil
 
 
-/** Ends a GUtil namespace. */
-#define GUTIL_END_NAMESPACE }}
-/** Ends a GUtil::Core namespace. */
-#define GUTIL_END_CORE_NAMESPACE }}}
+#else
 
-/** Begins a generic namespace declaration.
+#define NAMESPACE_GUTIL2(a, b)
+#define NAMESPACE_GUTIL1(a)
+#define NAMESPACE_GUTIL
 
-    This could be useful if you wanted to be able to switch on/off the use of namespaces
-*/
-#define BEGIN_NAMESPACE( ns ) namespace ns{
-/** Ends a generic namespace declaration. */
-#define END_NAMESPACE }
+#define END_NAMESPACE_GUTIL2
+#define END_NAMESPACE_GUTIL1
+#define END_NAMESPACE_GUTIL
 
+#define USING_NAMESPACE_GUTIL2(n1, n2)
+#define USING_NAMESPACE_GUTIL1(n1)
+#define USING_NAMESPACE_GUTIL
 
-/** Use the provided GUtil namespace */
-#define GUTIL_USING_NAMESPACE( name ) using namespace GUtil::name
-/** Use the provided GUtil::Core namespace */
-#define GUTIL_USING_CORE_NAMESPACE( name ) using namespace GUtil::Core::name
+#endif // NO_GUTIL_NAMESPACES
 
 
 /** Makes the copy constructor and assignment operators private.

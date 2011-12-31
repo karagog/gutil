@@ -16,7 +16,8 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include <string>
 #include "Core/DataObjects/map.h"
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL;
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 class MapTest : public QObject
 {
@@ -65,14 +66,26 @@ void MapTest::test_basic_function()
     bool exception_caught(false);
     try
     {
-        if(map[3] == "")
+        if(map.At(3) == "")
         {}
     }
-    catch(const GUtil::Core::IndexOutOfRangeException &)
+    catch(const IndexOutOfRangeException<> &)
     {
         exception_caught = true;
     }
     QVERIFY(exception_caught);
+
+    exception_caught = false;
+    try
+    {
+        if(map[3] == "")
+        {}
+    }
+    catch(const IndexOutOfRangeException<> &)
+    {
+        exception_caught = true;
+    }
+    QVERIFY(!exception_caught);
 
     // Try InsertMulti
     Map<int, QString>::iterator iter;
@@ -90,7 +103,7 @@ void MapTest::test_basic_function()
 //        if(map[100] == "")
 //        {}
 //    }
-//    catch(const GUtil::Core::IndexOutOfRangeException &)
+//    catch(const IndexOutOfRangeException &)
 //    {
 //        exception_caught = true;
 //    }
@@ -110,7 +123,7 @@ void MapTest::test_iterators()
         iter;
         iter++, cnt++)
     {
-        switch(iter->Key)
+        switch(iter->Key())
         {
         case 1:
             QVERIFY(iter->Values()[iter->Values().Size() - 1] == "One");
@@ -125,7 +138,7 @@ void MapTest::test_iterators()
             QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Four");
             break;
         default:
-            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
+            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key()).toStdString().c_str());
             break;
         }
     }
@@ -136,7 +149,7 @@ void MapTest::test_iterators()
         iter;
         iter--)
     {
-        switch(iter->Key)
+        switch(iter->Key())
         {
         case 1:
             QVERIFY(iter->Values()[iter->Values().Size() - 1] == "One");
@@ -151,7 +164,7 @@ void MapTest::test_iterators()
             QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Four");
             break;
         default:
-            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key).toStdString().c_str());
+            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key()).toStdString().c_str());
             break;
         }
     }
@@ -166,7 +179,7 @@ void MapTest::test_iterators()
         iter;
         iter++, cnt++)
     {
-        QVERIFY(iter->Key == cnt);
+        QVERIFY(iter->Key() == cnt);
     }
 }
 

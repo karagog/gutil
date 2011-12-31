@@ -14,14 +14,20 @@ limitations under the License.*/
 
 #ifndef GUTIL_STRING_H
 #define GUTIL_STRING_H
+
 #include "Core/DataObjects/vector.h"
+#include "Core/DataObjects/list.h"
 #include <cstdarg>
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
     #include <QString>
 #endif
 
-GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
+NAMESPACE_GUTIL1(CryptoPP);
+class EncryptionUtils;
+END_NAMESPACE_GUTIL1;
+
+NAMESPACE_GUTIL1(DataObjects);
 
 
 /** Implements a contiguous string of characters, whose memory is managed automatically.
@@ -44,6 +50,7 @@ GUTIL_BEGIN_CORE_NAMESPACE(DataObjects);
 class String :
         private Vector<char>
 {
+    friend class GUtil::CryptoPP::EncryptionUtils;
 public:
 
     /** Creates a new empty string. */
@@ -101,6 +108,19 @@ public:
 
     /** The length of the string. */
     inline GUINT32 Length() const{ return Vector<char>::Length(); }
+    /** The length of the string. */
+    inline GUINT32 Size() const{ return Vector<char>::Length(); }
+
+    /** Resizes the string, but does not initialize any new bytes. */
+    void Resize(GUINT32 sz);
+    /** Resizes the string and fills any uninitialized bytes with the given char. */
+    void Resize(GUINT32 sz, char c){
+        GUINT32 sz_before(Size());
+        Resize(sz);
+        char *ptr(Data() + sz_before);
+        while(ptr != DataEnd())
+            *(ptr++) = c;
+    }
 
     /** The number of bytes we're capable of holding. */
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
@@ -227,14 +247,10 @@ public:
         GreekUpperCase = 0x0391
     };
 
-    /** Returns a copy of this string with all upper case letters changed to lower case.
-        \todo Support Unicode characters (or at least a useful subset thereof)
-    */
+    /** Returns a copy of this string with all upper case letters changed to lower case */
     String ToLower() const;
 
-    /** Returns a copy of this string with all lower case letters changed to upper case.
-        \todo Support Unicode characters (or at least a useful subset thereof)
-    */
+    /** Returns a copy of this string with all lower case letters changed to upper case */
     String ToUpper() const;
 
     /** Writes the lower case version of the multibyte UTF-8 character to the destination.
@@ -257,33 +273,58 @@ public:
     */
     static void ToUpper(char *dest, const char *c);
 
+    /** Returns the index of the first instance of the character.
+        \returns UINT_MAX if not found
+    */
     inline GUINT32 IndexOf(char c, GUINT32 start = 0) const{ return Vector<char>::IndexOf(c, start); }
+    /** Returns the index of the first instance of the string.
+        \returns UINT_MAX if not found
+    */
     inline GUINT32 IndexOf(const String &s, GUINT32 start = 0) const{
         return IndexOf(s.ConstData(), start, s.Length());
     }
+    /** Returns the index of the first instance of the String.
+        \returns UINT_MAX if not found
+    */
     GUINT32 IndexOf(const char *, GUINT32 start = 0, GUINT32 string_length = UINT_MAX) const;
 
+    /** Returns the index of the last instance of the character.
+        \returns UINT_MAX if not found
+    */
     inline GUINT32 LastIndexOf(char c, GUINT32 start = UINT_MAX) const{ return Vector<char>::LastIndexOf(c, start); }
+    /** Returns the index of the last instance of the string.
+        \returns UINT_MAX if not found
+    */
     inline GUINT32 LastIndexOf(const String &s, GUINT32 start = UINT_MAX) const{
         return LastIndexOf(s.ConstData(), start, s.Length());
     }
+    /** Returns the index of the last instance of the string.
+        \returns UINT_MAX if not found
+    */
     GUINT32 LastIndexOf(const char *, GUINT32 start = UINT_MAX, GUINT32 string_length = UINT_MAX) const;
 
 
-    /** Returns the UTF-8 index of the string. */
+    /** Returns the UTF-8 index of the string.
+        \returns UINT_MAX if not found
+    */
     inline GUINT32 IndexOfUTF8(const String &s, GUINT32 start = 0) const{
         return IndexOfUTF8(s.ConstData(), start, s.LengthUTF8());
     }
     /** Returns the UTF-8 index of the string.
+        \returns UINT_MAX if not found
         \param string_length The UTF-8 length of the string (not the byte length!)
     */
     GUINT32 IndexOfUTF8(const char *, GUINT32 start = 0, GUINT32 string_length = UINT_MAX) const;
 
-    /** Returns the last UTF-8 index of the string. */
+    /** Returns the last UTF-8 index of the string.
+        \returns UINT_MAX if not found
+    */
     inline GUINT32 LastIndexOfUTF8(const String &s, GUINT32 start = UINT_MAX) const{
         return LastIndexOfUTF8(s.ConstData(), start, s.Length());
     }
-    /** Returns the last UTF-8 index of the string. */
+    /** Returns the last UTF-8 index of the string.
+        \returns UINT_MAX if not found
+    */
     GUINT32 LastIndexOfUTF8(const char *, GUINT32 start = UINT_MAX, GUINT32 string_length = UINT_MAX) const;
 
     /** Format a string using printf-style strings.  It is a static function, so
@@ -351,12 +392,15 @@ public:
     */
     String Trimmed() const;
 
-    /** Returns true if the multibyte character is considered whitespace.
-        \note This is used by the Trim() function
-    */
+    /** Returns true if the multibyte character is considered whitespace. */
     inline static bool IsWhitespace(const char *c){
         GUINT32 uc( UnicodeValue(c) );
         return (uc <= 0x20) || uc == 0x7F;
+    }
+    /** Returns true if the byte is considered whitespace. */
+    inline static bool IsWhitespace(char c){
+        char tmp[] = { c, '\0' };
+        return IsWhitespace(tmp);
     }
 
     /** Splits the string using the given character delimiter.
@@ -484,124 +528,6 @@ public:
     static char HexToChar(char);
 
 
-    /** Defines levels of compression for the Compress() function.
-        \note These values correspond to the Gzip deflate levels in CryptoPP, but their values
-        are not actually tied to the ones in CryptoPP, so if for some reason CryptoPP adds/removes
-        deflate levels, it will have to be adjusted here so it matches.
-    */
-    enum CompressionLevelEnum
-    {
-        DefaultCompression = 6,
-        MinimumCompression = 0,
-        MaximumCompression = 9
-    };
-
-    /** Returns a zip-compressed version of the string.
-        \note Depending on the string's contents, you may not be able to compress it,
-        in which case the string stays roughly the same size.  The function is optimized to
-        recognize when the string actually grows from compression, and doesn't compress it
-        in this case.
-        \note Requires encryption functionality
-    */
-    String Compress(CompressionLevelEnum c = DefaultCompression) const;
-
-    /** Returns a copy of the compressed string after it has been inflated.
-        \note Requires encryption functionality
-    */
-    String Decompress() const;
-
-
-    /** Declares various types of encryption methods for use in the Encrypt() function. */
-    enum EncryptionTypeEnum
-    {
-        /** The default encryption method (AES). */
-        DefaultEncryption,
-
-        /** The most solid form of encryption (Advanced Encryption Standard is the current
-            encryption standard approved by the NSA).
-        */
-        AES_Encryption,
-
-        /** DES-EDE3, also known as Triple-DES. */
-        TripleDES_Encryption,
-
-        /** The weakest form of encryption provided. */
-        DES_Encryption
-    };
-
-    /** Returns an encrypted copy of the string, using the given string as an encryption string.
-        \note Requires encryption functionality
-    */
-    inline String Encrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const{
-        return Encrypt(reinterpret_cast<const GBYTE *>(ConstData()), Length(), key, keylen, e);
-    }
-
-    /** Returns an encrypted copy of the string, using the given string as an encryption string.
-        \note Requires encryption functionality
-    */
-    inline String Encrypt(const String &key, EncryptionTypeEnum e = DefaultEncryption) const{
-        return Encrypt(reinterpret_cast<const GBYTE *>(key.ConstData()), key.Length(), e);
-    }
-
-    /** Returns an encrypted copy of the data, using the given string as an encryption string.
-        \note Requires encryption functionality
-    */
-    static String Encrypt(const GBYTE *data, GUINT32 data_len,
-                                 const GBYTE *key, GUINT32 key_len,
-                                 EncryptionTypeEnum e = DefaultEncryption);
-
-    /** Returns a decrypted copy of the encrypted string.  You must provide the correct
-        encryption key and method, otherwise you'll get an exception.
-        \note Requires encryption functionality
-    */
-    inline String Decrypt(const GBYTE *key, GUINT32 keylen = UINT_MAX, EncryptionTypeEnum e = DefaultEncryption) const{
-        return Decrypt(reinterpret_cast<const GBYTE *>(ConstData()), Length(), key, keylen, e);
-    }
-
-    /** Returns a decrypted copy of the encrypted string.  You must provide the correct
-        encryption key and method, otherwise you'll get an exception.
-        \note Requires encryption functionality
-    */
-    inline String Decrypt(const String &key, EncryptionTypeEnum e = DefaultEncryption) const{
-        return Decrypt(reinterpret_cast<const GBYTE *>(key.ConstData()), key.Length(), e);
-    }
-
-    static String Decrypt(const GBYTE *data, GUINT32 data_len,
-                          const GBYTE *key, GUINT32 keylen, EncryptionTypeEnum e = DefaultEncryption);
-
-
-    /** Describes different hash algorithms. */
-    enum HashAlgorithmEnum
-    {
-        DefaultHash,
-        SHA224Hash,
-        SHA256Hash,
-        SHA384Hash,
-        SHA512Hash,
-        SHA1Hash,
-        MD5Hash,
-        MD4Hash
-    };
-
-    /** Returns a hash of the string.
-        \note Requires encryption functionality
-    */
-    inline String Hash(HashAlgorithmEnum e = DefaultHash){
-        return Hash(ConstData(), Length(), e);
-    }
-    /** Returns a hash of the provided data.
-        \note Requires encryption functionality
-    */
-    static String Hash(const char *data, GUINT32 data_len = UINT_MAX, HashAlgorithmEnum e = DefaultHash);
-
-
-    /** Returns a string of random data.  You can optionally supply a seed value, otherwise
-        it will be auto-seeded (implementation in CryptoPP library).
-        \note Requires encryption functionality
-    */
-    static String RandomString(GUINT32 num_bytes, GUINT32 seed = UINT_MAX);
-
-
     inline Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
     inline Vector<char>::iterator begin(){ return Vector<char>::begin(); }
     inline Vector<char>::const_iterator end() const{ return Vector<char>::end(); }
@@ -621,6 +547,7 @@ public:
     class UTF8Iterator
     {
         friend class UTF8ConstIterator;
+        friend class String;
     protected:
         char *m_begin;
         char *m_end;
@@ -719,6 +646,11 @@ public:
         inline operator bool () const{ return m_begin <= m_cur && m_cur < m_end; }
 
 
+    protected:
+
+        inline UTF8Iterator() :m_begin(0), m_end(0), m_cur(0){}
+
+
     private:
 
         inline void _advance(){
@@ -744,6 +676,7 @@ public:
     class UTF8ConstIterator
     {
         friend class UTF8Iterator;
+        friend class String;
     protected:
         const char *m_begin;
         const char *m_end;
@@ -826,6 +759,11 @@ public:
             \note This says nothing about the character itself being a valid UTF-8 character.
         */
         inline operator bool () const{ return m_begin <= m_cur && m_cur < m_end && *m_cur != '\0'; }
+
+
+    protected:
+
+        inline UTF8ConstIterator() :m_begin(0), m_end(0), m_cur(0){}
 
 
     private:
@@ -923,7 +861,7 @@ private:
 
 
 /** A convenient typedef for a list of strings. */
-typedef Vector<String> StringVector;
+typedef List<String> StringList;
 
 
 /** A convenience operator allows you to compare with const char * as a lhs value. */
@@ -933,6 +871,6 @@ inline bool operator == (const char *c, const String &s){ return s == c; }
 String operator + (const char *c, const String &s);
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_STRING_H

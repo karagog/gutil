@@ -28,7 +28,7 @@ limitations under the License.*/
 
 #include <QTest>
 #include "Utils/linearsetalgebra.h"
-GUTIL_USING_CORE_NAMESPACE(Utils);
+USING_NAMESPACE_GUTIL1(Utils);
 
 class RangeTest :
         public QObject

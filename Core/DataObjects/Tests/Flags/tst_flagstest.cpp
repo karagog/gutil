@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/flags.h"
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 class FlagsTest : public QObject
 {

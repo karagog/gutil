@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_IMEMORYUSAGEREPORTER_H
 
 #include "gutil_macros.h"
-GUTIL_BEGIN_CORE_NAMESPACE(Interfaces);
+NAMESPACE_GUTIL1(Interfaces);
 
 
 /** An abstract interface class that says you're capable of reporting how much memory you're
@@ -32,6 +32,6 @@ public:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_IMEMORYUSAGEREPORTER_H

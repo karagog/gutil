@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include <string>
 
-GUTIL_BEGIN_CORE_NAMESPACE(Utils);
+NAMESPACE_GUTIL1(Utils);
 
 
 class Environment
@@ -30,6 +30,6 @@ public:
 };
 
 
-GUTIL_END_CORE_NAMESPACE;
+END_NAMESPACE_GUTIL1;
 
 #endif // ENVIRONMENT_H

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/list.h"
 #include "Core/DataObjects/dlist.h"
-GUTIL_USING_CORE_NAMESPACE(DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 class DequeTest : public QObject
 {
