@@ -12,9 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "DataAccess/giodevice.h"
-#include "DataAccess/gqiodevice.h"
-#include "DataAccess/gdatabaseiodevice.h"
-#include "DataAccess/gfileiodevice.h"
-#include "DataAccess/glocalsocketiodevice.h"
-#include "DataAccess/gconsoleiodevice.h"
+#include "Qt/DataAccess/giodevice.h"
+#include "Qt/DataAccess/gqiodevice.h"
+#include "Qt/DataAccess/gdatabaseiodevice.h"
+#include "Qt/DataAccess/gfileiodevice.h"
+#include "Qt/DataAccess/glocalsocketiodevice.h"
+#include "Qt/DataAccess/gconsoleiodevice.h"

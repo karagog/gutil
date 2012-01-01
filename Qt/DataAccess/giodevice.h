@@ -45,7 +45,7 @@ class GIODevice :
         // This derives from QThread to enable you to use the thread if you want to,
         //  but the base implementation does not make use of the thread
         public QThread,
-        public Interfaces::IReadOnlyObject
+        public GUtil::Interfaces::IReadOnlyObject
 {
     Q_OBJECT
 public slots:

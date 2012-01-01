@@ -26,17 +26,17 @@ limitations under the License.*/
 
 #include "gutil_core.h"
 
-#include "Utils/utils.h"
-#include "Ui/ui.h"
-#include "ModelViews/modelviews.h"
-#include "Logging/logging.h"
-#include "Interfaces/interfaces.h"
-#include "DataObjects/dataobjects.h"
-#include "DataModels/datamodels.h"
-#include "DataAccess/dataaccess.h"
-#include "Custom/custom.h"
-#include "Controls/controls.h"
-#include "BusinessObjects/businessobjects.h"
+#include "Qt/Utils/utils.h"
+#include "Qt/Ui/ui.h"
+#include "Qt/ModelViews/modelviews.h"
+#include "Qt/Logging/logging.h"
+#include "Qt/Interfaces/interfaces.h"
+#include "Qt/DataObjects/dataobjects.h"
+#include "Qt/DataModels/datamodels.h"
+#include "Qt/DataAccess/dataaccess.h"
+#include "Qt/Custom/custom.h"
+#include "Qt/Controls/controls.h"
+#include "Qt/BusinessObjects/businessobjects.h"
 
 
 

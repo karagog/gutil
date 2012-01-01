@@ -12,9 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Controls/faderwidget.h"
-#include "Controls/filechooser.h"
-#include "Controls/line_edit_with_button.h"
-#include "Controls/progressbarcontrol.h"
-#include "Controls/stopwatch.h"
-#include "Controls/timerangepicker.h"
+#include "Qt/Controls/filechooser.h"
+#include "Qt/Controls/lineeditwithbutton.h"
+#include "Qt/Controls/progressbarcontrol.h"
+#include "Qt/Controls/stopwatch.h"
+#include "Qt/Controls/timerangepicker.h"

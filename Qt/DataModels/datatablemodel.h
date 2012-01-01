@@ -16,7 +16,7 @@ limitations under the License.*/
 #define DATATABLEMODEL_H
 
 #include "gutil_macros.h"
-#include "DataObjects/varianttable.h"
+#include "Qt/DataObjects/varianttable.h"
 #include <QAbstractTableModel>
 
 

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_FILELOGGER_H
 #define GUTIL_FILELOGGER_H
 
-#include "DataAccess/file.h"
+#include "Core/DataAccess/file.h"
 #include "abstractlogger.h"
 
 NAMESPACE_GUTIL1(Logging);

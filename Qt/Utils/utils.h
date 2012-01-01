@@ -12,13 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Utils/commandlinemenu.h"
-#include "Utils/databaseutils.h"
-#include "Utils/datatransferutils.h"
-#include "Utils/globalmemorymanager.h"
-#include "Utils/pubsubsystem.h"
-#include "Utils/response.h"
-#include "Utils/stopwatchengine.h"
-#include "Utils/synchronizationobject.h"
-#include "Utils/universalmutex.h"
-#include "Utils/usermachinelocks.h"
+#include "Qt/Utils/databaseutils.h"
+#include "Qt/Utils/datatransferutils.h"
+#include "Qt/Utils/stopwatchengine.h"
+#include "Qt/Utils/universalmutex.h"
+#include "Qt/Utils/usermachinelocks.h"

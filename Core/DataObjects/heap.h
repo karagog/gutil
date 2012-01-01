@@ -12,12 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef HEAP_H
-#define HEAP_H
+#ifndef GUTIL_HEAP_H
+#define GUTIL_HEAP_H
 
 #include "gutil_macros.h"
 #include "Core/DataObjects/vector.h"
-#include "Core/DataObjects/flexibletypecomparer.h"
+#include "Core/Utils/flexibletypecomparer.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 
@@ -34,7 +34,7 @@ public:
     inline Heap(){}
 
     /** Creates an empty heap with your own custom compare function. */
-    inline Heap(const FlexibleTypeComparer<T> &f)
+    inline Heap(const Utils::FlexibleTypeComparer<T> &f)
         :compare(f)
     {}
 
@@ -102,7 +102,7 @@ public:
 private:
 
     Vector<T> data;
-    FlexibleTypeComparer<T> compare;
+    Utils::FlexibleTypeComparer<T> compare;
 
     void _heapify_up();
     void _heapify_down();
@@ -220,4 +220,4 @@ template<class T>struct IsMovableType< DataObjects::MaxHeap<T> >{ enum{ Value = 
 }
 
 
-#endif // GUTIL_HEAP_H
+#endif // GUTIL_GUTIL_HEAP_H

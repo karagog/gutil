@@ -12,23 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "DataObjects/collection.h"
-#include "DataObjects/explicitlysharedobject.h"
-#include "DataObjects/gvariantcollection.h"
-#include "DataObjects/timeregion.h"
-#include "DataObjects/updatablegvariantcollection.h"
-#include "DataObjects/version.h"
-
-#include "DataObjects/DataSet/datacolumn.h"
-#include "DataObjects/DataSet/datacolumncollection.h"
-#include "DataObjects/DataSet/datarow.h"
-#include "DataObjects/DataSet/datarowcollection.h"
-#include "DataObjects/DataSet/dataset.h"
-#include "DataObjects/DataSet/datatable.h"
-#include "DataObjects/DataSet/datatablecollection.h"
-#include "DataObjects/DataSet/rowdata.h"
-#include "DataObjects/DataSet/setdata.h"
-#include "DataObjects/DataSet/sharedrowdata.h"
-#include "DataObjects/DataSet/sharedsetdata.h"
-#include "DataObjects/DataSet/sharedtabledata.h"
-#include "DataObjects/DataSet/tabledata.h"
+#include "Qt/DataObjects/gdatetime.h"
+#include "Qt/DataObjects/gformattedtext.h"
+#include "Qt/DataObjects/gvariant.h"
+#include "Qt/DataObjects/timeregion.h"
+#include "Qt/DataObjects/varianttable.h"

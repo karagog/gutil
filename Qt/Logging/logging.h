@@ -12,11 +12,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Logging/abstractdatabaselogger.h"
-#include "Logging/abstractlogger.h"
-#include "Logging/consolelogger.h"
-#include "Logging/debuglogger.h"
-#include "Logging/filelogger.h"
-#include "Logging/globallogger.h"
-#include "Logging/grouplogger.h"
-#include "Logging/messageboxlogger.h"
+#include "Qt/Logging/databaselogger.h"
+#include "Qt/Logging/messageboxlogger.h"

@@ -12,6 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Custom/gapplicationbase.h"
-#include "Custom/gcoreapplication.h"
-#include "Custom/gthread.h"
+#include "Qt/Custom/gapplicationbase.h"
+#include "Qt/Custom/gcoreapplication.h"
+#include "Qt/Custom/gthread.h"

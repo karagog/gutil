@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "abstractlogger.h"
 #include "Core/DataObjects/vector.h"
-#include "Utils/smartpointer.h"
+#include "Core/Utils/smartpointer.h"
 NAMESPACE_GUTIL1(Logging);
 
 

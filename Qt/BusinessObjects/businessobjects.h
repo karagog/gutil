@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "BusinessObjects/BinaryDataStore.h"
-#include "BusinessObjects/configfile.h"
-#include "BusinessObjects/processstatusindicator.h"
-#include "BusinessObjects/processstatusserver.h"
+#include "Qt/BusinessObjects/binarydatastore.h"
+#include "Qt/BusinessObjects/configfile.h"
+#include "Qt/BusinessObjects/processstatusindicator.h"
+#include "Qt/BusinessObjects/processstatusserver.h"

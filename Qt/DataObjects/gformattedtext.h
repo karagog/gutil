@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GFORMATTEDTEXT_H
 #define GFORMATTEDTEXT_H
 
+#ifdef GUI_FUNCTIONALITY
+
 #include "gutil_macros.h"
 #include <QString>
 #include <QFont>
@@ -39,5 +41,7 @@ public:
 
 
 END_NAMESPACE_GUTIL2;
+
+#endif // GUI_FUNCTIONALITY
 
 #endif // GFORMATTEDTEXT_H

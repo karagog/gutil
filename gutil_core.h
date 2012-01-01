@@ -34,10 +34,10 @@ limitations under the License.*/
 #include "Core/DataObjects/interfaces.h"
 #include "Core/DataObjects/heap.h"
 #include "Core/DataObjects/gstring.h"
-#include "Core/DataObjects/flexibletypecomparer.h"
 #include "Core/DataObjects/flags.h"
 #include "Core/DataObjects/binarysearchtree.h"
 #include "Core/DataObjects/dlist.h"
+#include "Core/DataObjects/symmetricmatrix.h"
 
 #include "Core/DataAccess/iointerface.h"
 #include "Core/DataAccess/file.h"
@@ -52,7 +52,6 @@ limitations under the License.*/
 #include "Core/Interfaces/imatrix.h"
 #include "Core/Interfaces/imemoryusagereporter.h"
 #include "Core/Interfaces/ireadonlyobject.h"
-#include "Core/Interfaces/istringable.h"
 #include "Core/Interfaces/iupdatable.h"
 #include "Core/Interfaces/ivoidwrappers.h"
 #include "Core/Interfaces/ixmlserializable.h"
@@ -60,13 +59,17 @@ limitations under the License.*/
 
 #include "Core/Logging/abstractlogger.h"
 #include "Core/Logging/filelogger.h"
+#include "Core/Logging/consolelogger.h"
+#include "Core/Logging/debuglogger.h"
+#include "Core/Logging/globallogger.h"
+#include "Core/Logging/grouplogger.h"
 
 #include "Core/Utils/atomic.h"
 #include "Core/Utils/commandlineargs.h"
 #include "Core/Utils/environment.h"
 #include "Core/Utils/linearsetalgebra.h"
-#include "Core/Utils/symmetricmatrix.h"
 #include "Core/Utils/smartpointer.h"
+#include "Core/Utils/flexibletypecomparer.h"
 
 
 

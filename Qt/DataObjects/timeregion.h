@@ -16,24 +16,24 @@ limitations under the License.*/
 #define GUTIL_TIMEREGION_H
 
 #include "gutil_macros.h"
-#include "DataObjects/gdatetime.h"
+#include "Qt/DataObjects/gdatetime.h"
 #include "Core/Utils/linearsetalgebra.h"
 
 NAMESPACE_GUTIL2(QT, DataObjects);
 
 
 class TimeRange :
-        public Utils::Range<GDateTime>
+        public GUtil::Utils::Range<GDateTime>
 {
 public:
 
     inline TimeRange(long long msec_resolution)
-        :Utils::Range<GDateTime>(GDateTime::Origin().addMSecs(msec_resolution))
+        :Range<GDateTime>(GDateTime::Origin().addMSecs(msec_resolution))
     {}
     inline TimeRange(const QDateTime &lower_bound,
               const QDateTime &upper_bound,
               long long msec_resolution)
-        :Utils::Range<GDateTime>(lower_bound, upper_bound,
+        :Range<GDateTime>(lower_bound, upper_bound,
               GDateTime::Origin().addMSecs(msec_resolution))
     {}
 
@@ -41,12 +41,12 @@ public:
 
 
 class TimeRegion :
-        public Utils::Region<GDateTime>
+        public GUtil::Utils::Region<GDateTime>
 {
 public:
     TimeRegion(long long msec_resolution);
-    TimeRegion(const Utils::Range<GDateTime> &r)
-        :Utils::Region<GDateTime>(r)
+    TimeRegion(const GUtil::Utils::Range<GDateTime> &r)
+        :Region<GDateTime>(r)
     {}
 };
 

@@ -52,6 +52,9 @@ public:
     /** Delete the pointer when we destruct */
     inline ~SmartPointer(){ delete ptr; }
 
+    /** Deletes the pointer and sets it to null */
+    inline void Clear(){ delete ptr; ptr = 0; }
+
     /** Returns the naked pointer */
     T *Data(){ return ptr; }
     /** Returns the naked pointer */

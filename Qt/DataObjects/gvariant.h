@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 #include "Core/exception.h"
-#include "Interfaces/iqxmlserializable.h"
+#include "Qt/Interfaces/iqxmlserializable.h"
 #include <QVariant>
 #include <QBitArray>
 #include <QRegExp>

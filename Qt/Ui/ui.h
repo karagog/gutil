@@ -12,6 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Ui/about.h"
-#include "Ui/aboutgutil.h"
-#include "Ui/enterstringdialog.h"
+#include "Qt/Ui/about.h"
+#include "Qt/Ui/aboutgutil.h"
+#include "Qt/Ui/enterstringdialog.h"
