@@ -78,6 +78,27 @@ template<>struct IsMovableType<GFLOAT96>{ enum{ Value = 1 }; };
 template<class T>struct IsMovableType<T *>{ enum{ Value = 1 }; };
 
 
+/** This template is used to provide consistent "null" values for
+    various types.  The default template uses the type's default constructor
+    as the null value, but you can specialize the template for your own
+    classes to define a different null value.
+*/
+template<class T>class NullValue{ public: inline static T Value(){ return T(); } };
+
+template<>class NullValue<GINT8>{ public: inline static GINT8 Value(){ return 0; } };
+template<>class NullValue<GUINT8>{ public: inline static GUINT8 Value(){ return 0; } };
+template<>class NullValue<GINT16>{ public: inline static GINT16 Value(){ return 0; } };
+template<>class NullValue<GUINT16>{ public: inline static GUINT16 Value(){ return 0; } };
+template<>class NullValue<GINT32>{ public: inline static GINT32 Value(){ return 0; } };
+template<>class NullValue<GUINT32>{ public: inline static GUINT32 Value(){ return 0; } };
+template<>class NullValue<GINT64>{ public: inline static GINT64 Value(){ return 0; } };
+template<>class NullValue<GUINT64>{ public: inline static GUINT64 Value(){ return 0; } };
+template<>class NullValue<GFLOAT32>{ public: inline static GFLOAT32 Value(){ return 0.0; } };
+template<>class NullValue<GFLOAT64>{ public: inline static GFLOAT64 Value(){ return 0.0; } };
+template<>class NullValue<GFLOAT96>{ public: inline static GFLOAT96 Value(){ return 0.0; } };
+
+template<class T>class NullValue<T *>{ public: inline static T *Value(){ return 0; } };
+
 
 // Here are some useful functions
 

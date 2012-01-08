@@ -7,7 +7,8 @@ HEADERS += \
     Utils/smartpointer.h \
     Utils/pubsubsystem.h \
     Utils/flexibletypecomparer.h \
-    Utils/commandlinemenu.h
+    Utils/commandlinemenu.h \
+    Utils/nullable.h
 
 SOURCES += \
     Utils/commandlineargs.cpp \
