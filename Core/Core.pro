@@ -19,7 +19,8 @@ INCLUDEPATH += . ..
 HEADERS += \
     exception.h \
     extendedexception.h \
-    globals.h
+    globals.h \
+    macros.h
 SOURCES += \
     extendedexception.cpp \
     exception.cpp \

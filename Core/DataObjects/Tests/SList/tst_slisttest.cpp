@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ void SListTest::test_removal()
     QVERIFY(lst.Count() == 8);
 
     // Test removal from the end of the stack
-    SList<int>::iterator tmp;
+    SList<int>::iterator tmp(iter);
     while(++iter != lst.end())
         tmp = iter;
     lst.Remove(tmp);

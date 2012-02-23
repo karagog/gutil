@@ -2,13 +2,11 @@
 HEADERS += \
     Utils/commandlineargs.h \
     Utils/environment.h \
-    Utils/linearsetalgebra.h \
     Utils/atomic.h \
     Utils/smartpointer.h \
     Utils/pubsubsystem.h \
     Utils/flexibletypecomparer.h \
-    Utils/commandlinemenu.h \
-    Utils/nullable.h
+    Utils/commandlinemenu.h
 
 SOURCES += \
     Utils/commandlineargs.cpp \

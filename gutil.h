@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,18 +25,7 @@ limitations under the License.*/
 */
 
 #include "gutil_core.h"
-
-#include "Qt/Utils/utils.h"
-#include "Qt/Ui/ui.h"
-#include "Qt/ModelViews/modelviews.h"
-#include "Qt/Logging/logging.h"
-#include "Qt/Interfaces/interfaces.h"
-#include "Qt/DataObjects/dataobjects.h"
-#include "Qt/DataModels/datamodels.h"
-#include "Qt/DataAccess/dataaccess.h"
-#include "Qt/Custom/custom.h"
-#include "Qt/Controls/controls.h"
-#include "Qt/BusinessObjects/businessobjects.h"
+#include "gutil_qt.h"
 
 
 

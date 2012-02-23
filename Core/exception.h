@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_EXCEPTION_H
 #define GUTIL_EXCEPTION_H
 
-#include "gutil_macros.h"
+#include "Core/macros.h"
 
 NAMESPACE_GUTIL
 
@@ -80,12 +80,13 @@ class Exception :
         public BaseException
 {
 public:
-    inline Exception() :BaseException("GUtil::Exception<false>"){}
-    inline explicit Exception(const char *message, const char *name = 0) :BaseException(name == 0 ? "Exception<false>" : name, message) {} \
-    inline Exception(const char *file,
-                     int line,
-                     const char *name = 0,
-                     const char *message = 0)
+    inline Exception()
+        :BaseException("GUtil::Exception<false>"){}
+
+    inline explicit Exception(const char *message, const char *name = 0)
+        :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message) {}
+
+    inline Exception(const char *file, int line, const char *name = 0, const char *message = 0)
         :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message, file, line) {}
 };
 

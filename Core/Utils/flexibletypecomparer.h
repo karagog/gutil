@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ limitations under the License.*/
 #define GUTIL_FLEXIBLE_TYPE_COMPARER_H
 
 #include "Core/Interfaces/icomparer.h"
+#include "Core/globals.h"
 NAMESPACE_GUTIL1(Utils)
 
 
@@ -29,7 +30,7 @@ template<class T>class FlexibleTypeComparer :
 public:
     /** Constructs a type comparer with the default compare function (less-than operator). */
     inline FlexibleTypeComparer(){
-        compare = &default_compare;
+        compare = &CompareDefault;
     }
 
     /** Constructs a type comparer with a compare function you supply. */
@@ -45,22 +46,24 @@ public:
     */
     virtual int Compare(const T &lhs, const T &rhs) const{ return compare(lhs, rhs); }
 
+    /** The default compare function uses the less-than operator.
 
-private:
-    int (*compare)(const T &, const T &);
-
-    /** The default compare function is the less-than operator.
-
-        I believe this is not included unless you use the default constructor, so it's no matter
-        if your class doesn't implement a less-than operator, you can implement whatever comparator you want.
+        This static function is made publicly available, in case you want to use the
+        default compare without consuming the class itself
     */
-    static int default_compare(const T &lhs, const T &rhs){
+    static int CompareDefault(const T &lhs, const T &rhs){
         if(lhs < rhs)
             return -1;
         if(rhs < lhs)
             return 1;
         return 0;
     }
+
+
+private:
+
+    int (*compare)(const T &, const T &);
+
 };
 
 

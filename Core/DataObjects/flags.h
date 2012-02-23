@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef FLAGS_H
-#define FLAGS_H
+#ifndef GUTIL_FLAGS_H
+#define GUTIL_FLAGS_H
 
-#include "gutil_macros.h"
+#include "Core/globals.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 
@@ -82,7 +82,7 @@ END_NAMESPACE_GUTIL1;
     public: \
         inline flags_name(){} \
         inline flags_name(GUINT32 i) :GUtil::DataObjects::Flags<enum_type>(i){} \
-        inline flags_name(const Flags<enum_type> &o) :GUtil::DataObjects::Flags<enum_type>(o){} \
+        inline flags_name(const GUtil::DataObjects::Flags<enum_type> &o) :GUtil::DataObjects::Flags<enum_type>(o){} \
     };
 
 /** You need to declare this outside of a class scope. */
@@ -101,10 +101,10 @@ END_NAMESPACE_GUTIL1;
 namespace GUtil
 {
 
-// The Flag type can be binary-moved
-template<class T>struct IsMovableType< DataObjects::Flags<T> >{ enum{ Value = 1 }; };
+/** The Flag type can be binary-moved */
+template<class U>struct IsMovableType< DataObjects::Flags<U> >{ enum{ Value = 1 }; };
 
 }
 
 
-#endif // FLAGS_H
+#endif // GUTIL_FLAGS_H

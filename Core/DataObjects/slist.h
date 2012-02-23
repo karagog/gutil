@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
 #include "Core/globals.h"
+#include "Core/Utils/flexibletypecomparer.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 
@@ -47,6 +48,33 @@ template<class T>class SList
 public:
     class iterator;
     class const_iterator;
+
+    /** Creates an empty slist. */
+    inline SList(): m_first(0), m_last(0), m_count(0){}
+
+    /** Creates a new slist with the item at the front of the list. */
+    inline explicit SList(const T &item): m_first(0), m_last(0), m_count(0)
+    { iterator i(begin()); Insert(item, i); }
+
+    /** Conducts a deep copy of the slist */
+    inline SList(const SList<T> &o)
+        :m_first(0), m_last(0), m_count(0)
+    {
+        node *n(o.m_first);
+        iterator e(end());
+        while(n)
+        {
+            Insert(n->Data, e);
+            n = n->NextNode;
+        }
+    }
+    /** Conducts a deep copy of the slist */
+    SList<T> &operator =(const SList<T> &o){
+        Clear();
+        new(this) SList<T>(o);
+        return *this;
+    }
+    inline ~SList(){ Clear(); }
 
     /** Removes the item pointed to by the iterator.
 
@@ -88,25 +116,13 @@ public:
     }
 
     /** Prepends an item on the list. */
-    inline void PushFront(const T &i)
-    {
-        iterator iter(begin());
-        Insert(i, iter);
-    }
+    inline void PushFront(const T &i){ iterator iter(begin()); Insert(i, iter); }
 
     /** Appends an item on the list. */
-    inline void PushBack(const T &i)
-    {
-        iterator iter(end());
-        Insert(i, iter);
-    }
+    inline void PushBack(const T &i){ iterator iter(end()); Insert(i, iter); }
 
     /** Removes the front of the list. */
-    inline void PopFront()
-    {
-        iterator iter(begin());
-        Remove(iter);
-    }
+    inline void PopFront(){ iterator iter(begin()); Remove(iter); }
 
     /** Pushes an item on a logical stack, with appealing syntax. */
     inline SList<T> &operator << (const T &item){ PushFront(item); return *this; }
@@ -117,39 +133,11 @@ public:
     /** Empties the slist and clears all memory.
         \note O(N)
     */
-    inline void Clear(){
-        iterator iter(begin());
-        while(iter)
-            _remove(iter);
-    }
+    inline void Clear(){ iterator iter(begin()); while(iter) _remove(iter); }
 
     /** Is the container empty? */
     inline bool IsEmpty() const{ return !m_count; }
 
-
-    /** Creates an empty slist. */
-    inline SList(): m_first(0), m_last(0), m_count(0){}
-
-    /** Creates a new slist with the item at the front of the list. */
-    inline SList(const T &item): m_first(0), m_last(0), m_count(0)
-    { iterator i(begin()); Insert(item, i); }
-
-    inline SList(const SList<T> &o)
-        :m_first(0), m_last(0), m_count(0)
-    {
-        node *n(o.m_first);
-        iterator e(end());
-        while(n)
-        {
-            Insert(n->Data, e);
-            n = n->NextNode;
-        }
-    }
-    SList<T> &operator =(const SList<T> &o){
-        Clear();
-        new(this) SList<T>(o);
-    }
-    inline ~SList(){ Clear(); }
 
     /** How many items in the SList. */
     inline GUINT32 Count() const{ return m_count; }
@@ -180,10 +168,9 @@ public:
     {
         friend class SList;
     public:
-        inline iterator(node *n = 0, node *p = 0)
-            :current(n),
-              parent(p)
-        {}
+        inline iterator(node *n, node *p) :current(n), parent(p) {}
+        inline explicit iterator(node *n) :current(n), parent(0) {}
+        inline iterator() :current(0), parent(0) {}
 
         /** Return a reference to the data. */
         inline T &operator*() const{ return current->Data; }
@@ -209,15 +196,14 @@ public:
         /** Returns if the iterator is valid. */
         inline operator bool() const{ return current; }
 
-    protected:
+
+    private:
 
         /** The current node to which the iterator is pointing. */
         node *current;
 
         /** The parent of the current node.  This allows us to have constant time insertions. */
         node *parent;
-
-    private:
 
         inline void advance(){ if(current){ parent = current; current = current->NextNode; } }
 
@@ -228,11 +214,9 @@ public:
     {
         friend class SList;
     public:
-
-        inline const_iterator(node *n = 0, node *p = 0)
-            :current(n),
-              parent(p)
-        {}
+        inline const_iterator(node *n, node *p) :current(n), parent(p) {}
+        inline explicit const_iterator(node *n) :current(n), parent(0) {}
+        inline const_iterator() :current(0), parent(0) {}
 
         /** Return a const reference to the data. */
         inline const T &operator*() const { return current->Data; }
@@ -258,15 +242,14 @@ public:
         /** Returns if the iterator is valid. */
         inline operator bool() const{ return current; }
 
-    protected:
+
+    private:
 
         /** The current node to which the iterator is pointing. */
         node *current;
 
         /** The parent of the current node.  This allows us to have constant time insertions. */
         node *parent;
-
-    private:
 
         inline void advance(){ if(current){ parent = current; current = current->NextNode; } }
 
@@ -412,7 +395,6 @@ private:
             (*prev_new_list)->NextNode = e.current;
         }
     }
-
 };
 
 

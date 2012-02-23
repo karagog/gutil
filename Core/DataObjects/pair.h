@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -14,7 +14,7 @@ limitations under the License.*/
 #ifndef GUTIL_PAIR_H
 #define GUTIL_PAIR_H
 
-#include "gutil_macros.h"
+#include "Core/macros.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

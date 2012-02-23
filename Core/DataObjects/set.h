@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_SET_H
 #define GUTIL_SET_H
 
-#include "Core/DataObjects/dlist.h"
+#include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/binarysearchtree.h"
 NAMESPACE_GUTIL1(DataObjects);
 
@@ -95,84 +95,21 @@ public:
     */
     inline int Count(const T &i){
         const_iterator iter(data.Search(i), true);
-        return iter ? iter.stack().Count() : 0;
+        return iter ? iter.values().Count() : 0;
     }
 
 
     /** Iterates through the set.  Items are traversed in order.
         Duplicate items will be traversed in the order you inserted them.
     */
-    class iterator :
-            public BinarySearchTree< DList<T>, T >::iterator
-    {
-        friend class Set;
-    public:
-        inline iterator(){}
-        inline iterator(const iterator &iter)
-            :BinarySearchTree< DList<T>, T >::iterator(iter),
-              siter(iter.siter)
-        {}
-
-        inline T &operator *(){ return *siter; }
-        inline T *operator ->(){ return &(*siter); }
-
-    protected:
-
-        inline iterator(const typename BinarySearchTree< DList<T>, T >::iterator &iter, bool forward_direction)
-            :BinarySearchTree< DList<T>, T >::iterator(iter)
-        {
-            // Initialize our stack iterator
-            if(*this)
-            {
-                if(forward_direction)
-                    siter = stack().begin();
-                else
-                    siter = stack().rbegin();
-            }
-        }
-
-        inline DList<T> &stack(){ return BinarySearchTree< DList<T>, T >::iterator::current->Data; }
-
-    private:
-        typename DList<T>::iterator siter;
-
-        // Overridden from bst_p
-        void advance(){
-            if(siter){
-                if(!++siter){
-                    BinarySearchTree< DList<T>, T >::iterator::advance();
-                    if(*this)
-                        siter = stack().begin();
-                }
-            }
-        }
-        // Overridden from bst_p
-        void retreat(){
-            if(siter){
-                if(!--siter){
-                    BinarySearchTree< DList<T>, T >::iterator::retreat();
-                    if(*this)
-                        siter = stack().rbegin();
-                }
-            }
-        }
-    };
-
-    /** Iterates through the set.  Items are traversed in order.
-        Duplicate items will be traversed in the order you inserted them.
-    */
     class const_iterator :
-            public BinarySearchTree< DList<T>, T >::const_iterator
+            public BinarySearchTree< Vector<T>, T >::const_iterator
     {
         friend class Set;
     public:
         inline const_iterator(){}
         inline const_iterator(const const_iterator &iter)
-            :BinarySearchTree< DList<T>, T >::const_iterator(iter),
-              siter(iter.siter)
-        {}
-        inline const_iterator(const iterator &iter)
-            :BinarySearchTree< DList<T>, T >::const_iterator(iter),
+            :BinarySearchTree< Vector<T>, T >::const_iterator(iter),
               siter(iter.siter)
         {}
 
@@ -181,58 +118,54 @@ public:
 
     protected:
 
-        inline const_iterator(const typename BinarySearchTree< DList<T>, T >::const_iterator &iter, bool forward_direction)
-            :BinarySearchTree< DList<T>, T >::const_iterator(iter)
+        inline const_iterator(const typename BinarySearchTree< Vector<T>, T >::const_iterator &iter, bool forward_direction)
+            :BinarySearchTree< Vector<T>, T >::const_iterator(iter)
         {
             // Initialize our stack iterator
             if(*this)
             {
                 if(forward_direction)
-                    siter = stack().begin();
+                    siter = values().begin();
                 else
-                    siter = stack().rbegin();
+                    siter = values().rbegin();
             }
         }
 
-        inline DList<T> const&stack(){ return BinarySearchTree< DList<T>, T >::const_iterator::current->Data; }
+        inline Vector<T> &values(){ return BinarySearchTree< Vector<T>, T >::const_iterator::current->Data; }
 
-    private:
-        typename DList<T>::const_iterator siter;
-
-        // Overridden from bst_p
-        void advance(){
+        /** Overridden from BST */
+        virtual void advance(){
             if(siter){
                 if(!++siter){
-                    BinarySearchTree< DList<T>, T >::const_iterator::advance();
+                    BinarySearchTree< Vector<T>, T >::const_iterator::advance();
                     if(*this)
-                        siter = stack().begin();
+                        siter = values().begin();
                 }
             }
         }
-        // Overridden from bst_p
-        void retreat(){
+        /** Overridden from BST */
+        virtual void retreat(){
             if(siter){
                 if(!--siter){
-                    BinarySearchTree< DList<T>, T >::const_iterator::retreat();
+                    BinarySearchTree< Vector<T>, T >::const_iterator::retreat();
                     if(*this)
-                        siter = stack().rbegin();
+                        siter = values().rbegin();
                 }
             }
         }
+
+
+    private:
+
+        typename Vector<T>::const_iterator siter;
+
     };
 
     /** Returns an iterator at the beginning of the set.  Items are traversed in order.
         \note O(1)
     */
-    inline iterator begin(){ return iterator(data.begin(), true); }
-    /** Returns an iterator at the beginning of the set.  Items are traversed in order.
-        \note O(1)
-    */
     inline const_iterator begin() const{ return const_iterator(data.begin(), true); }
-    /** Returns an iterator at the end of the set.
-        \note O(1)
-    */
-    inline iterator end(){ return iterator(data.end(), true); }
+
     /** Returns an iterator at the end of the set.
         \note O(1)
     */
@@ -241,15 +174,8 @@ public:
     /** Returns an iterator at the reverse-beginning of the set.  Items are traversed in reverse order.
         \note O(1)
     */
-    inline iterator rbegin(){ return iterator(data.rbegin(), false); }
-    /** Returns an iterator at the reverse-beginning of the set.  Items are traversed in reverse order.
-        \note O(1)
-    */
     inline const_iterator rbegin() const{ return const_iterator(data.rbegin(), false); }
-    /** Returns an iterator at the reverse-end of the set.
-        \note O(1)
-    */
-    inline iterator rend(){ return iterator(data.rend(), false); }
+
     /** Returns an iterator at the reverse-end of the set.
         \note O(1)
     */
@@ -258,13 +184,13 @@ public:
 
 private:
 
-    BinarySearchTree< DList<T>, T > data;
+    BinarySearchTree< Vector<T>, T > data;
     GUINT32 m_size;
 
     void _insert(const T &, bool);
     void _remove(const T &, bool);
 
-    static const T &get_list_representative(const DList<T> &dl){ return *dl.begin(); }
+    static const T &get_list_representative(const Vector<T> &dl){ return *dl.begin(); }
 
 };
 
@@ -297,36 +223,35 @@ public:
 
 template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
 {
-    Set<T>::iterator iter( data.Search(i), true );
+    Set<T>::const_iterator iter( data.Search(i), true );
     if(iter)
     {
-        DList<T> &s(iter.stack());
+        Vector<T> &v(iter.values());
         if(!allow_multiples)
         {
-            m_size -= s.Count();
-            s.Clear();
+            m_size -= v.Count();
+            v.Clear();
         }
-        s.PushFront(i);
+        v.PushBack(i);
     }
     else
     {
-        data.Add(i);
+        data.Add(Vector<T>(i));
     }
     ++m_size;
 }
 
 template<class T>void Set<T>::_remove(const T &i, bool all)
 {
-    Set<T>::iterator iter( data.Search(i), true );
+    Set<T>::const_iterator iter( data.Search(i), true );
     if(iter)
     {
-        DList<T> &s(iter.stack());
-        s.PopFront();
+        Vector<T> &v(iter.values());
+        v.PopBack();
         --m_size;
-        int cnt( s.Count() );
-        if(all || cnt == 0)
+        if(all || v.Count() == 0)
         {
-            m_size -= cnt;
+            m_size -= v.Count();
             data.Remove(iter);
         }
     }

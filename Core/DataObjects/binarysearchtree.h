@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifndef GUTIL_BST_H
 #define GUTIL_BST_H
 
-#include "gassert.h"
 #include "Core/exception.h"
 #include "Core/Utils/flexibletypecomparer.h"
 

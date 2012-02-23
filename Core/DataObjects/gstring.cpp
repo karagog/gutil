@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,26 +13,26 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gstring.h"
-#include "gassert.h"
 #include "Utils/smartpointer.h"
 #include <stdio.h>
 #include <cstring>
-USING_NAMESPACE_GUTIL1(DataObjects);
-
 
 /** A null byte to mark the end of a string. */
 #define STRING_TERMINATOR   static_cast<char>(0x00)
 
 
-String::String(const char *d, int len)
-    :Vector<char>(len == -1 ? (len = strlen(d)) + 1 : len + 1)
+NAMESPACE_GUTIL1(DataObjects);
+
+
+String::String(const char *d, GUINT32 len)
+    :Vector<char>(len == UINT_MAX ? (len = strlen(d)) + 1 : len + 1)
 {
     memcpy(Data(), d, len);
     Data()[len] = '\0';
     set_length(len);
 }
 
-String::String(char c, int len)
+String::String(char c, GUINT32 len)
     :Vector<char>(len + 1)
 {
     set_length(len);
@@ -764,15 +764,6 @@ bool String::operator >= (const String &s) const
 }
 
 
-String operator + (const char *c, const String &s)
-{
-    GUINT32 sz( strlen(c) );
-    String ret(sz + s.Length());
-    ret.Insert(c, sz, 0);
-    return ret.Append(s);
-}
-
-
 
 
 
@@ -1148,4 +1139,16 @@ char String::HexToChar(char c)
         ret = 0x41 + (c - 0x0A);
 
     return ret;
+}
+
+
+END_NAMESPACE_GUTIL1;
+
+
+GUtil::DataObjects::String operator + (const char *c, const GUtil::DataObjects::String &s)
+{
+    GUINT32 sz( strlen(c) );
+    GUtil::DataObjects::String ret(sz + s.Length());
+    ret.Insert(c, sz, 0);
+    return ret.Append(s);
 }

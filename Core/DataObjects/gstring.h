@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -57,18 +57,18 @@ public:
     inline String() {}
 
     /** Creates an empty string with the given capacity (plus one for the null terminator). */
-    inline String(GUINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
+    inline explicit String(GUINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
     /** Creates an empty string with the given capacity (plus one for the null terminator). */
-    inline String(GINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
+    inline explicit String(GINT32 capacity) :Vector<char>((GUINT32)capacity + 1) { Data()[capacity] = '\0'; }
 
     /** Creates a new string initialized with the data.
         \param len Specifies the length of the data.  If it is -1 then the string automatically
         finds the terminating null byte (it had better exist in this case!)
     */
-    String(const char *d, int len = -1);
+    String(const char *d, GUINT32 len = UINT_MAX);
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
-    String(char c, int len = 1);
+    explicit String(char c, GUINT32 len = UINT_MAX);
 
     /** Constructs a string by copying the string between two Vector<char> iterators.
         \param b An iterator at the beginning of the string.
@@ -864,13 +864,16 @@ private:
 typedef List<String> StringList;
 
 
+END_NAMESPACE_GUTIL1;
+
+
 /** A convenience operator allows you to compare with const char * as a lhs value. */
-inline bool operator == (const char *c, const String &s){ return s == c; }
+inline bool operator == (const char *c, const GUtil::DataObjects::String &s){ return s == c; }
+/** A convenience operator allows you to compare with const char * as a lhs value. */
+inline bool operator != (const char *c, const GUtil::DataObjects::String &s){ return s != c; }
 
 /** A convenience operator that allows you to create strings with the + operator. */
-String operator + (const char *c, const String &s);
+GUtil::DataObjects::String operator + (const char *, const GUtil::DataObjects::String &);
 
-
-END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_STRING_H

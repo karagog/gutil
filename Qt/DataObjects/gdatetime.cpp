@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,23 +23,23 @@ GDateTime::TimeBreakdown GDateTime::GetTimeDistanceBreakdown(const GDateTime &st
     TimeBreakdown ret;
     long long msecs( start_time.msecsTo(end_time) );
 
-    if(f.testFlag(Millennia))
+    if(f.TestFlag(Millennia))
         ret.Millennia = _subtract_time_units(msecs, (long long)1000 * 1000 * YEAR_IN_SECONDS);
-    if(f.testFlag(Centuries))
+    if(f.TestFlag(Centuries))
         ret.Centuries = _subtract_time_units(msecs, (long long)100 * 1000 * YEAR_IN_SECONDS);
-    if(f.testFlag(Decades))
+    if(f.TestFlag(Decades))
         ret.Decades = _subtract_time_units(msecs, (long long)10 * 1000 * YEAR_IN_SECONDS);
-    if(f.testFlag(Years))
+    if(f.TestFlag(Years))
         ret.Years = _subtract_time_units(msecs, (long long)1000 * YEAR_IN_SECONDS);
-    if(f.testFlag(Days))
+    if(f.TestFlag(Days))
         ret.Days = _subtract_time_units(msecs, (long long)1000 * DAY_IN_SECONDS);
-    if(f.testFlag(Hours))
+    if(f.TestFlag(Hours))
         ret.Hours = _subtract_time_units(msecs, (long long)1000 * HOUR_IN_SECONDS);
-    if(f.testFlag(Minutes))
+    if(f.TestFlag(Minutes))
         ret.Minutes = _subtract_time_units(msecs, (long long)1000 * MINUTE_IN_SECONDS);
-    if(f.testFlag(Seconds))
+    if(f.TestFlag(Seconds))
         ret.Seconds = _subtract_time_units(msecs, (long long)1000);
-    if(f.testFlag(MSeconds))
+    if(f.TestFlag(MSeconds))
         ret.MSeconds = msecs;
 
     return ret;

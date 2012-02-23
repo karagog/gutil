@@ -8,15 +8,13 @@ SUBDIRS += \
     Core \
     Qt \
     CryptoPP \
-    Test
+    Test \
+    Deploy
 
 CONFIG += ordered
 
 HEADERS += \
-    gassert.h \
-    gutil_core.h \
-    gutil.h \
-    gutil_macros.h
+    gutil.h
 
 
 

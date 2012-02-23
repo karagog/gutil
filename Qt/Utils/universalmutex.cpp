@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "universalmutex.h"
-#include "gassert.h"
 #include "Core/extendedexception.h"
 #include <QFile>
 NAMESPACE_GUTIL2(QT, Utils);

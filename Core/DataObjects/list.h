@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@ limitations under the License.*/
 
 #include "Core/DataObjects/vector.h"
 #include "Core/DataObjects/interfaces.h"
-#include "gassert.h"
-#include "gutil_macros.h"
+#include "Core/macros.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 
@@ -53,7 +52,8 @@ public:
         Reserve(reserve_capacity);
     }
 
-    inline List(const T &item, GUINT32 count = 1)
+    /** Constructs a list with the given number of item copies */
+    inline explicit List(const T &item, GUINT32 count = 1)
         :m_pageCount(0),
           m_size(0)
     {
@@ -61,6 +61,7 @@ public:
         while(count-- != 0) Append(item);
     }
 
+    /** Conducts a deep copy of the list */
     inline List(const List &o)
         :m_pageCount(0),
           m_size(0)
@@ -70,6 +71,8 @@ public:
         for(const_iterator iter(o.begin()); iter != o.end(); ++iter)
             Append(*iter);
     }
+
+    /** Conducts a deep copy of the list */
     inline List<T> &operator = (const List &o){
         Empty();
         new(this) List<T>(o);

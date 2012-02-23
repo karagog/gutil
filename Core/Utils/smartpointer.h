@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_SHAREDSMARTPOINTER_H
 
 #include "Core/Utils/atomic.h"
-#include "gutil_macros.h"
+#include "Core/macros.h"
 NAMESPACE_GUTIL1(Utils);
 
 

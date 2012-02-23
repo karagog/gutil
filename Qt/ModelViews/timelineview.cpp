@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #include "timelineview.h"
 #include "Core/DataObjects/symmetricmatrix.h"
-#include "DataObjects/timeregion.h"
 #include "DataObjects/gformattedtext.h"
+#include "DataObjects/gdatetime.h"
 #include <QPaintEvent>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -1004,10 +1004,10 @@ void TimelineView::reset()
                     if(!TimeRegion::Intersect(
                                 TimeRange(ind.data(StartDate).toDateTime(),
                                           ind.data(EndDate).toDateTime(),
-                                          _resolution_in_seconds * 1000),
+                                          GDateTime::Origin().addSecs(_resolution_in_seconds)),
                                 TimeRange(cmp.data(StartDate).toDateTime(),
                                           cmp.data(EndDate).toDateTime(),
-                                          _resolution_in_seconds * 1000))
+                                          GDateTime::Origin().addSecs(_resolution_in_seconds)))
                             .IsNull())
                     {
                         ++ conflict_depth_matrix.Value(i, j);

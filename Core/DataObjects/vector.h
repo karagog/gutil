@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_VECTOR_P
 #define GUTIL_VECTOR_P
 
-#include "gutil_macros.h"
+#include "Core/macros.h"
 #include "Core/globals.h"
 #include "Core/exception.h"
 #include "Core/DataObjects/interfaces.h"
@@ -55,13 +55,6 @@ public:
         :m_begin(NULL)
     {
         if(capacity != 0)
-            Reserve(capacity);
-    }
-    /** Constructs an empty vector capable of holding the given number of items. */
-    inline explicit Vector(GINT32 capacity)
-        :m_begin(NULL)
-    {
-        if(capacity > 0)
             Reserve(capacity);
     }
 
@@ -263,6 +256,13 @@ public:
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
+    inline void Remove(const const_iterator &iter){ RemoveAt(iter.Index()); }
+
+    /** Remove the item pointed to by the iterator.
+
+        \note Invalidates the iterator positioned at the last element, and all other iterators
+        after the input would notice their current element has shifted
+    */
     inline void Remove(const iterator &iter){ RemoveAt(iter.Index()); }
 
     /** Remove the given number of items starting at the index location.
@@ -350,8 +350,12 @@ public:
                 Remove(iter);
     }
 
-    /** Pushes the item on the back of the list. */
+    /** Pushes the item on the back of the vector */
     inline void PushBack(const T &o){ Insert(o, Length()); }
+
+    /** Pushes the other vector on the back of this one */
+    inline void PushBack(const Vector<T> &v){ Insert(v, Length()); }
+
     /** Removes the item on the back of the list. */
     inline void PopBack(){ RemoveAt(Length() - 1); }
 

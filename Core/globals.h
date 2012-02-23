@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@ limitations under the License.*/
 
 /** \file Global definitions that anyone can use. */
 
-#include "gutil_macros.h"
+#include "Core/macros.h"
+#include "Core/exception.h"
 #include <malloc.h>
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
@@ -27,11 +28,11 @@ limitations under the License.*/
 
 
 #ifdef GUTIL_DEBUG
-    #include <iostream>
+    #include <stdio.h>
     /** Special output method for debug mode. */
     #define GDEBUG(x)       std::cout << x << std::endl
 
-    #define DEBUG_LOGGING 1
+    #define DEBUG_LOGGING
 #else
     /** Special output method for debug mode. */
     #define GDEBUG(x)
@@ -45,6 +46,143 @@ limitations under the License.*/
 */
 #define GUTIL_VERSION       "0.0.0"
 
+
+
+#if defined(GUTIL_DEBUG)
+    #include <stdio.h>
+    #include <stdlib.h>
+    #define GASSERT(b)          if((!(b))){ printf("Assertion failed: (%s) on line %d of %s", #b, __LINE__, __FILE__); abort(); }
+    #define GASSERT2(b, msg)    if((!(b))){ printf("Assertion failed: (%s) on line %d of %s: %s", #b, __LINE__, __FILE__, msg); abort(); }
+#else
+    /** Defines a debug assertion, which only executes in debug mode and aborts
+        the program if the boolean condition returns false
+    */
+    #define GASSERT(b)
+
+    /** Much like GASSERT, except you can also include a message when the program exits */
+    #define GASSERT2(b, msg)
+#endif
+
+
+
+
+/** An internal struct for the foreach implementation */
+template<class T, bool IsConst, bool Direction>struct GUtilForeachContainer{};
+
+/** An internal struct specialization for the foreach implementation */
+template<class T>struct GUtilForeachContainer<T, true, true>{
+    inline GUtilForeachContainer(const T &container) :c(container), iter(c.begin()), end(c.end()) {}
+    const T &c;
+    typename T::const_iterator iter, end;
+};
+
+/** An internal struct specialization for the foreach implementation */
+template<class T>struct GUtilForeachContainer<T, false, true>{
+    inline GUtilForeachContainer(T &container) :c(container), iter(container.begin()), end(container.end()) {}
+    T &c;
+    typename T::iterator iter, end;
+};
+
+/** An internal struct specialization for the foreach implementation */
+template<class T>struct GUtilForeachContainer<T, true, false>{
+    inline GUtilForeachContainer(const T &container) :c(container), iter(c.rbegin()), end(c.rend()) {}
+    const T &c;
+    typename T::const_iterator iter, end;
+};
+
+/** An internal struct specialization for the foreach implementation */
+template<class T>struct GUtilForeachContainer<T, false, false>{
+    inline GUtilForeachContainer(T &container) :c(container), iter(container.rbegin()), end(container.rend()) {}
+    T &c;
+    typename T::iterator iter, end;
+};
+
+
+/** A syntactically concise iteration loop.
+
+    This is better than Qt's foreach loop, because it doesn't make a copy of the
+    container.  Use this version when you DON'T need to modify the container elements.
+
+    \param var A variable declaration for the foreach body.  Use const-references whenever possible.
+    \param container An STL-like container, which must implement an iterator class
+            and begin()/end() functions
+*/
+#define G_FOREACH_CONST(var, container) \
+    for(GUtilForeachContainer<__typeof__(container), true, true> cont(container); cont.iter != cont.end; ++cont.iter) \
+        for(var = *cont.iter ;; __extension__({ break; }))
+
+/** A syntactically concise iteration loop.
+
+    This is better than Qt's foreach loop, because it doesn't make a copy of the
+    container.  Use this version when you need to modify the container elements.
+
+    \param var A variable declaration for the foreach body.  Use references whenever possible.
+    \param container An STL-like container, which must implement an iterator class
+            and begin()/end() functions
+*/
+#define G_FOREACH(var, container) \
+    for(GUtilForeachContainer<__typeof__(container), false, true> cont(container); cont.iter != cont.end; ++cont.iter) \
+        for(var = *cont.iter ;; __extension__({ break; }))
+
+
+/** A syntactically concise iteration loop that starts at the back of the container.
+
+    This is better than Qt's foreach loop, because it doesn't make a copy of the
+    container.  Use this version when you DON'T need to modify the container elements.
+
+    \param var A variable declaration for the foreach body.  Use const-references whenever possible.
+    \param container An STL-like container, which must implement an iterator class
+            and begin()/end() functions
+*/
+#define G_FOREACH_CONST_REVERSE(var, container) \
+    for(GUtilForeachContainer<__typeof__(container), true, false> cont(container); cont.iter != cont.end; --cont.iter) \
+        for(var = *cont.iter ;; __extension__({ break; }))
+
+/** A syntactically concise iteration loop that starts at the back of the container.
+
+    This is better than Qt's foreach loop, because it doesn't make a copy of the
+    container.  Use this version when you need to modify the container elements.
+
+    \param var A variable declaration for the foreach body.  Use references whenever possible.
+    \param container An STL-like container, which must implement an iterator class
+            and begin()/end() functions
+*/
+#define G_FOREACH_REVERSE(var, container) \
+    for(GUtilForeachContainer<__typeof__(container), false, false> cont(container); cont.iter != cont.end; --cont.iter) \
+        for(var = *cont.iter ;; __extension__({ break; }))
+
+
+/** Assigns the source to destination, but only after checking that they are not equal
+
+    \note Requires at least 2 instructions, comparison and assignment.  More instructions
+    may come from the possibility that the destination type requires multiple instructions
+    to evaluate its comparison/assignment.
+
+    \warning Do not pass any "fancy" arguments into this macro.  For example,
+    don't do SET_IF_NOT_EQUAL( tmp, var++ ), because it won't work as expected.  For
+    efficiency's sake, no copies of the source/destination objects are made.
+*/
+#define SET_IF_NOT_EQUAL(destination, source) \
+    if(destination != source) destination = source;
+
+
+/** Allocates 1 element of type T.
+    This will automatically throw a GUtil::BadAllocationException if the memory
+    could not be allocated.
+    \param T The type of object for which memory will be allocated
+*/
+#define GMALLOC( T )   GUtil::gmalloc<T>(1, __FILE__, __LINE__)
+
+/** Allocates an array of N elements of type T.
+    This will automatically throw a GUtil::BadAllocationException if the memory
+    could not be allocated.
+    \param T The type of object for which memory will be allocated
+    \param N The number of objects
+*/
+#define GMALLOC2( T, N )   GUtil::gmalloc<T>(N, __FILE__, __LINE__)
+
+/** Frees the memory allocated by GMALLOC */
+#define GFREE( mem_ptr )   free(mem_ptr)
 
 
 
@@ -300,6 +438,17 @@ inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
     // If we're a multiple of 32 then it doesn't actually shift us, so we return 0
     return (!n || (n & 31)) ?
                 ((w << n) >> n) : 0;
+}
+
+
+/** This is an internal inline function.  Don't use this directly, instead
+    use the macro GMALLOC.
+*/
+template<class T>
+inline T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
+    T *ret( reinterpret_cast<T *>(malloc( N * sizeof(T) )) );
+    if(!ret) throw BadAllocationException<>(file, line);
+    return ret;
 }
 
 

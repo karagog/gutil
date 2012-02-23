@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,38 +16,53 @@ limitations under the License.*/
 #define GDATETIME_H
 
 #include <QDateTime>
-#include <QFlags>
+#include "Core/DataObjects/flags.h"
 #include "Core/globals.h"
 
 NAMESPACE_GUTIL2(QT, DataObjects);
 
 
+/** A customization of QDateTime.
+    GDateTime builds on the functionality of QDateTime by adding +/- operators and
+    a function to break down the distance between times.  Other than that you can
+    treat it identically to QDateTime.
+*/
 class GDateTime :
         public QDateTime
 {
 public:
 
-    inline GDateTime(const QDateTime &other = QDateTime())
+    inline GDateTime(){}
+    inline GDateTime(const QDateTime &other)
         :QDateTime(other){}
-    inline GDateTime(const QDate &dt)
+    explicit inline GDateTime(const QDate &dt)
         :QDateTime(dt){}
+    explicit inline GDateTime(const QTime &dt)
+        :QDateTime(QDate(), dt){}
     inline GDateTime(const QDate &dt, const QTime &tm)
         :QDateTime(dt, tm){}
 
+    /** The time T=0, or 0 seconds from the epoch */
     inline static GDateTime Origin(){
         return fromMSecsSinceEpoch(0);
     }
 
-    // Adding/Subtracting date times is done by adding/subtracting the distance
-    //  since the last epoch
+    /** Adding date times is done by adding/subtracting the distance
+        since the last epoch
+    */
     inline GDateTime operator + (const GDateTime &other) const{
         return addMSecs(Origin().msecsTo(other));
     }
+    /** Subtracting date times is done by adding/subtracting the distance
+        since the last epoch
+    */
     inline GDateTime operator - (const GDateTime &other) const{
         return addMSecs(-Origin().msecsTo(other));
     }
 
-    // Another set of classes/functions for breaking down the distance between times
+    /** Defines a break-down of an amount of time.  You can use this to represent
+        any arbitrary combination of time units
+    */
     class TimeBreakdown
     {
     public:
@@ -62,7 +77,7 @@ public:
         int Centuries;
         int Millennia;
 
-        TimeBreakdown()
+        inline TimeBreakdown()
             :MSeconds(-1),
               Seconds(-1),
               Minutes(-1),
@@ -76,6 +91,7 @@ public:
 
     };
 
+    /** An enum for declaring how you want your time breakdown */
     enum TimeBreakdownFlag{
         MSeconds,
         Seconds,
@@ -87,11 +103,13 @@ public:
         Centuries,
         Millennia
     };
-    Q_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag)
+    GUTIL_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag)
 
+    /** Returns the time "distance" between two points in time. */
     inline TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &end_time, TimeBreakdownFlags f) const{
         return GetTimeDistanceBreakdown(*this, end_time, f);
     }
+    /** Returns the time "distance" between two points in time. */
     static TimeBreakdown GetTimeDistanceBreakdown(const GDateTime &start_time,
                                                   const GDateTime &end_time,
                                                   TimeBreakdownFlags);
@@ -105,9 +123,11 @@ private:
 };
 
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(GDateTime::TimeBreakdownFlags)
-
-
 END_NAMESPACE_GUTIL2;
+
+
+GUTIL_DECLARE_FLAG_OPERATORS(GUtil::QT::DataObjects::GDateTime::TimeBreakdownFlags,
+                             GUtil::QT::DataObjects::GDateTime::TimeBreakdownFlag)
+
 
 #endif // GDATETIME_H

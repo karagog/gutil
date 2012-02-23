@@ -16,7 +16,9 @@ HEADERS += \
     DataObjects/datatable.h \
     DataObjects/pair.h \
     DataObjects/pairlist.h \
-    DataObjects/symmetricmatrix.h
+    DataObjects/symmetricmatrix.h \
+    DataObjects/range.h \
+    DataObjects/nullable.h
 
 SOURCES += \
     DataObjects/gstring.cpp \

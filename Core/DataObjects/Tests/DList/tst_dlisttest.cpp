@@ -1,4 +1,4 @@
-/*Copyright 2011 George Karagoulis
+/*Copyright 2010-2012 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/dlist.h"
+#include "Core/DataObjects/gstring.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 class DListTest : public QObject
@@ -25,27 +26,38 @@ public:
     DListTest();
 
 private Q_SLOTS:
-    void testCase1();
+
+    void test_basics();
+
+    void test_iterators();
+
+    void test_insert();
+    void test_remove();
 
     void test_sorting();
+
+
+private:
+
+    static void validate_list(const DList<int> &);
+
 };
 
 DListTest::DListTest()
 {
 }
 
-void DListTest::testCase1()
+void DListTest::test_basics()
 {
     DList<int> list;
-    DList<int>::iterator iter;
 
     list.PushBack(0);
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
     list.PushBack(4);
-    QVERIFY(list.Count() == 5);
-    iter = list.begin();
+    QVERIFY2(list.Count() == 5, String::FromInt(list.Count()));
+    DList<int>::iterator iter( list.begin() );
     for(int i(0); i < 5; ++i, ++iter)
     {
         int cur(*iter);
@@ -99,25 +111,151 @@ void DListTest::testCase1()
         int cur(*iter);
         QVERIFY2(cur == 4 - i, QString("%1 != %2").arg(cur).arg(i).toAscii());
     }
+
+    validate_list(list);
+}
+
+void DListTest::test_iterators()
+{
+    DList<int> d;
+
+    // Test insertions do not move the iterator (stays in the same position)
+    d.PushBack(0);
+    d.PushBack(1);
+    d.PushBack(4);
+    d.PushBack(5);
+
+    DList<int>::iterator iter( d.begin() + 2 );
+    d.Insert(3, iter);
+    d.Insert(2, iter);
+    iter = d.begin();
+    for(int i(0); i < 5; ++i, ++iter){
+        int cur(*iter);
+        QVERIFY2(cur == i, QString("%1 != %2").arg(cur).arg(i).toAscii());
+    }
+
+    validate_list(d);
+
+
+    // You should be able to decrement the "end" iterator to get back on the list
+    iter = d.end();
+    --iter;
+    QVERIFY(*iter == 5);
+
+    // Vice-versa with the "rend" iterator
+    iter = d.rend();
+    ++iter;
+    QVERIFY(*iter == 0);
+}
+
+void DListTest::test_insert()
+{
+    DList<int> d;
+    d.PushBack(1);
+    d.PushBack(2);
+    d.PushBack(3);
+    d.PushBack(5);
+
+    // Insert somewhere in the middle
+    DList<int>::const_iterator iter( d.begin() + 3 );
+    d.Insert(4, iter);
+
+    // Verify that the iterator is still valid and points to the correct item
+    QVERIFY(*iter == 4);
+    QVERIFY(*(iter + 1) == 5);
+    QVERIFY(*(iter - 1) == 3);
+
+    iter = d.begin();
+    for(int i(1); i <= 5; ++i, ++iter)
+        QVERIFY(*iter == i);
+
+    // Try inserting on the front
+    d.Insert(0, (iter = d.begin()));
+    for(int i(0); i <= 5; ++i, ++iter)
+        QVERIFY(*iter == i);
+
+    // Try inserting on the back
+    d.Insert(6, (iter = d.end()));
+    QVERIFY(iter == d.end());
+    QVERIFY(*(iter - 1) == 6);
+
+    iter = d.begin();
+    for(int i(0); i <= 6; ++i, ++iter)
+        QVERIFY(*iter == i);
+}
+
+void DListTest::test_remove()
+{
+    DList<int> d;
+    d.PushBack(0);
+    d.PushBack(1);
+    d.PushBack(1);
+    d.PushBack(2);
+    d.PushBack(3);
+    d.PushBack(4);
+
+    DList<int>::const_iterator iter(d.begin() + 2);
+    d.Remove(iter);
+
+    // Verify that removing doesn't invalidate the iterator
+    QVERIFY(iter);
+    QVERIFY(*iter == 2);
+    QVERIFY(*(iter + 1) == 3);
+    QVERIFY(*(iter - 1) == 1);
+
+    // Verify that the rest of the list is still in order
+    iter = d.begin();
+    for(int i(0); i < 5; ++i, ++iter)
+        QVERIFY(*iter == i);
+
+
+    // Remove from the front of the list
+    d.Remove((iter = d.begin()));
+    QVERIFY(iter);
+    QVERIFY(*iter == 1);
+    QVERIFY(*(iter + 1) == 2);
+    QVERIFY((iter - 1) == d.rend());
+
+    iter = d.begin();
+    for(int i(1); i < 5; ++i, ++iter)
+        QVERIFY(*iter == i);
+
+
+    // Remove from the end of the list
+    d.Remove((iter = d.rbegin()));
+    QVERIFY(iter == d.end());
+    QVERIFY(*(iter - 1) == 3);
+
+    iter = d.begin();
+    for(int i(1); i < 4; ++i, ++iter)
+        QVERIFY(*iter == i);
+
+
+    // Test the function that removes a range of values
+    d.Clear();
+    d.PushBack(0);
+    d.PushBack(1);
+    d.PushBack(2);
+    d.PushBack(3);
+    d.PushBack(4);
+
+    d.Remove(d.begin() + 1, d.begin() + 3);
+    QVERIFY(d.Count() == 3);
+    QVERIFY(*(d.begin() + 0) == 0);
+    QVERIFY(*(d.begin() + 1) == 3);
+    QVERIFY(*(d.begin() + 2) == 4);
 }
 
 void DListTest::test_sorting()
 {
+    const int max(10), min(0);
+
     DList<int> d;
-    d.PushBack(10);
-    d.PushBack(9);
-    d.PushBack(8);
-    d.PushBack(7);
-    d.PushBack(6);
-    d.PushBack(5);
-    d.PushBack(4);
-    d.PushBack(3);
-    d.PushBack(2);
-    d.PushBack(1);
-    d.PushBack(0);
+    for(int i(max); i >= min; --i)
+        d.PushBack(i);
     d.Sort(true, GUtil::MergeSort);
 
-    int i = 0;
+    int i = min;
     for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, ++i)
     {
         //qDebug() << *iter;
@@ -125,20 +263,8 @@ void DListTest::test_sorting()
     }
 
     // Iterate backwards through the list to make sure the reverse pointers are correct
-    i = 10;
+    i = max;
     for(DList<int>::iterator iter(d.rbegin()); iter != d.rend(); --iter, --i)
-    {
-        //qDebug() << *iter;
-        QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
-    }
-
-
-    d.PushBack(11);
-    d.PushBack(12);
-    d.PushBack(13);
-    d.PushFront(-1);
-    i = -1;
-    for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, ++i)
     {
         //qDebug() << *iter;
         QVERIFY2(*iter == i, QString("%1 != %2").arg(*iter).arg(i).toUtf8());
@@ -146,7 +272,7 @@ void DListTest::test_sorting()
 
     // Try sorting backwards
     d.Sort(false);
-    i = 13;
+    i = max;
     for(DList<int>::iterator iter(d.begin()); iter != d.end(); ++iter, --i)
     {
         //qDebug() << *iter;
@@ -171,6 +297,26 @@ void DListTest::test_sorting()
         QVERIFY2(mem <= *iter, QString("%1 > %2").arg(mem).arg(*iter).toUtf8());
         mem = *iter;
     }
+}
+
+
+
+
+
+void DListTest::validate_list(const DList<int> &dl)
+{
+    const GUINT32 sz(dl.Size());
+    GUINT32 cnt = 0;
+    for(DList<int>::const_iterator iter(dl.begin()); iter != dl.end(); ++iter, ++cnt){
+
+    }
+    QVERIFY(sz == cnt);
+
+    cnt = 0;
+    for(DList<int>::const_iterator iter(dl.rbegin()); iter != dl.rend(); --iter, ++cnt){
+
+    }
+    QVERIFY(sz == cnt);
 }
 
 

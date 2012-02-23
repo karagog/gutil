@@ -14,8 +14,8 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../../.. ../..
-LIBS += -L../../../lib \
+INCLUDEPATH += ../../../..
+LIBS += -L../../../../lib \
     -lGUtil
 
 
