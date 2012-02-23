@@ -8,9 +8,12 @@ parser.add_argument('--outfile', dest='outfile', required=True, help='The output
 parser.add_argument('--dirs', dest='dirs', default='.', help='The directories to parse (relative or absolute path)')
 parser.add_argument('--ignore-path', dest='ignores', default='', help='Path patterns to ignore (does not work with wildcards)')
 parser.add_argument('--pattern', dest='pattern', default='*.h', help='A wildcard pattern of files to include (*.h by default)')
+parser.add_argument('--working-dir', dest='cwd', default='.', help='The current directory in which we should be running')
 
 args = parser.parse_args()
 
+# How to detect if the chdir failed?  It doesn't return anythin, I think
+os.chdir(args.cwd)
 
 if args.ignores == '': ignorelist = []
 else: ignorelist = args.ignores.split(',')

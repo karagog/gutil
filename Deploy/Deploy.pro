@@ -6,30 +6,35 @@
 
 #  1.) Generate top-level GUtil headers (gutil_core.h, gutil_qt.h, etc...)
 #  2.) Generate doxygen documentation
-#  3.)
+#  3.) TBD...
 
 TEMPLATE = lib
 CONFIG += staticlib
 
 TARGET = dummy_ignorethislib
 
-win32 {
-    COPY_LIBS = *.dll *.a
-    COPY_CMD = cp
-}
-unix {
-    COPY_LIBS = *.so*
-    COPY_CMD = cp --no-dereference
-}
 
-LIB_DESTINATION = ../../lib
+HEADER_CMD = python ../PythonUtils/GenerateHeaders.py
 
-migrate_libs.commands = $$COPY_CMD $$COPY_LIBS $$LIB_DESTINATION $$COPY_ARGS
+# The working dir for the python script
+WORKING_DIR = ..
 
-#PRE_TARGETDEPS = \
-#    migrate_staticlibs \
-#    migrate_libs
+# Directory patterns for which we want to ignore all headers
+IGNORE_PATHS = Test
 
-#QMAKE_EXTRA_TARGETS = \
-#    migrate_staticlibs \
-#    migrate_libs
+CORE_HEADER = gutil_core.h
+CORE_DIR = Core
+
+QT_HEADER = gutil_qt.h
+QT_DIR = Qt
+
+headers_core.commands = $$HEADER_CMD --outfile $$CORE_HEADER --dirs=$$CORE_DIR --ignore-path $$IGNORE_PATHS --working-dir=$$WORKING_DIR
+headers_qt.commands   = $$HEADER_CMD --outfile $$QT_HEADER --dirs=$$QT_DIR --ignore-path $$IGNORE_PATHS --working-dir=$$WORKING_DIR
+
+PRE_TARGETDEPS = \
+    headers_core \
+    headers_qt
+
+QMAKE_EXTRA_TARGETS = \
+    headers_core \
+    headers_qt
