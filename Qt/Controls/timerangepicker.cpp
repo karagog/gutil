@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "Core/macros.h"
 #include <QVBoxLayout>
 #include <QVBoxLayout>
-USING_NAMESPACE_GUTIL2(QT, DataObjects);
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 NAMESPACE_GUTIL2(QT, Controls);
 
@@ -52,24 +52,25 @@ TimeRangePicker::TimeRangePicker(QWidget *parent)
     show();
 }
 
-GUtil::QT::DataObjects::TimeRange TimeRangePicker::GetRange() const
+Range<QDateTime> TimeRangePicker::GetRange() const
 {
-    return GUtil::QT::DataObjects::TimeRange(
-                StartCheckbox.isChecked() ? StartDateEdit.dateTime() : QDateTime(),
-                EndCheckbox.isChecked() ? EndDateEdit.dateTime() : QDateTime(),
-                1
-                );
+    Range<QDateTime> ret;
+    if(StartCheckbox.isChecked())
+        ret.SetLowerBound(StartDateEdit.dateTime(), true);
+    if(EndCheckbox.isChecked())
+        ret.SetUpperBound(EndDateEdit.dateTime(), false);
+    return ret;
 }
 
-void TimeRangePicker::SetRange(const TimeRange &r)
+void TimeRangePicker::SetRange(const Range<QDateTime> &r)
 {
-    StartCheckbox.setChecked(!r.LowerBound().isNull());
-    EndCheckbox.setChecked(!r.UpperBound().isNull());
+    StartCheckbox.setChecked(r.HasLowerBound());
+    EndCheckbox.setChecked(r.HasUpperBound());
 
-    if(!r.LowerBound().isNull())
-        StartDateEdit.setDateTime(r.LowerBound());
-    if(!r.UpperBound().isNull())
-        EndDateEdit.setDateTime(r.UpperBound());
+    if(r.HasLowerBound())
+        StartDateEdit.setDateTime(r.LowerBound().Value());
+    if(r.HasUpperBound())
+        EndDateEdit.setDateTime(r.UpperBound().Value());
 }
 
 

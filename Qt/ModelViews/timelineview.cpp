@@ -1001,14 +1001,11 @@ void TimelineView::reset()
 
                     // If the intersection of the time ranges is not null, then
                     //  the items conflict
-                    if(!TimeRegion::Intersect(
-                                TimeRange(ind.data(StartDate).toDateTime(),
-                                          ind.data(EndDate).toDateTime(),
-                                          GDateTime::Origin().addSecs(_resolution_in_seconds)),
-                                TimeRange(cmp.data(StartDate).toDateTime(),
-                                          cmp.data(EndDate).toDateTime(),
-                                          GDateTime::Origin().addSecs(_resolution_in_seconds)))
-                            .IsNull())
+                    if(Range<QDateTime>::Intersects(
+                                Range<QDateTime>::CreateDoubleBound(ind.data(StartDate).toDateTime(),
+                                                                    ind.data(EndDate).toDateTime()),
+                                Range<QDateTime>::CreateDoubleBound(cmp.data(StartDate).toDateTime(),
+                                                                    cmp.data(EndDate).toDateTime())))
                     {
                         ++ conflict_depth_matrix.Value(i, j);
                     }

@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "DataObjects/timeregion.h"
+#include "Core/DataObjects/range.h"
 #include <QWidget>
 #include <QCheckBox>
 #include <QDateTimeEdit>
@@ -34,8 +34,8 @@ public:
 
     explicit TimeRangePicker(QWidget *parent = 0);
 
-    DataObjects::TimeRange GetRange() const;
-    void SetRange(const DataObjects::TimeRange &);
+    DataObjects::Range<QDateTime> GetRange() const;
+    void SetRange(const DataObjects::Range<QDateTime> &);
 
     // The elements of this control will be open to the public so they can customize them
     QCheckBox StartCheckbox;

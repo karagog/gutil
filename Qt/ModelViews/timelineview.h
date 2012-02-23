@@ -48,9 +48,6 @@ class TimelineView :
     Q_OBJECT
 public:
 
-    typedef GUtil::DataObjects::Range<QDateTime> TimeRange;
-    typedef GUtil::DataObjects::Region<QDateTime> TimeRegion;
-
     explicit TimelineView(QWidget *parent = 0);
 
     void SetStartTime(const QDateTime &);
