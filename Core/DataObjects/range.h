@@ -17,16 +17,7 @@ limitations under the License.*/
 
 #include "Core/DataObjects/dlist.h"
 #include "Core/DataObjects/nullable.h"
-#include "Core/Utils/smartpointer.h"
 #include "Core/Utils/flexibletypecomparer.h"
-
-
-/** \file
-
-    These are classes to facilitate set arithmetic along a 1-dimensional universe.
-    You can do things like unions, intersects, compliments to ranges and regions of
-    such a scale of any type (number line, time line, etc...)
-*/
 
 NAMESPACE_GUTIL1(DataObjects);
 
@@ -38,6 +29,8 @@ NAMESPACE_GUTIL1(DataObjects);
 
     In general, you don't instantiate your own bounds; they are created automatically
     inside the Range/Region implementation.  But you can if you want.
+
+    \sa range.h
 */
 template<class T>
 class Bound
@@ -95,6 +88,8 @@ private:
     The range can be bounded on either side, and if the lower bound is higher than the upper
     bound, then the range will be inverted (unbounded on either end, but with a part missing
     in the center)
+
+    \sa range.h
 */
 template <class T>
 class Range
@@ -479,6 +474,8 @@ private:
     these are the only operators which have an actual implementation.  Every other operation
     (Intersect, Difference, Symmetric Difference, Relative Complement, etc...) is done by
     chaining together combinations of Unions and Complements.
+
+    \sa range.h
 */
 template <class T>
 class Region
@@ -1044,6 +1041,55 @@ template<class T>inline bool operator <= (const GUtil::DataObjects::Range<T> &rn
 template<class T>inline bool operator >= (const GUtil::DataObjects::Range<T> &rng,
                                           const GUtil::DataObjects::Region<T> &reg)
 { return reg.IsSubset(rng); }
+
+
+
+
+/** \file
+
+    An explanation of the Range/Region implementation.
+
+    The Range/Region implementation is useful for representing a 1-dimensional
+    universe of values, like a numberline or a timeline.  You can specify an
+    arbitrarily-sized range of values simply by giving a lower bound and/or
+    an upper bound.
+
+    With this lower-bound/upper-bound implementation, you can efficiently represent
+    large sets of numbers, only having to keep track of the bound values.  For example,
+    if you wanted to use a normal STL set to contain all the numbers greater than 5,
+    then you must individually insert every integer greater than 5.  In the case of
+    floating point numbers, you would not feasibly be able to represent a range at all.
+    With this 1-dimensional universe implementation, it is trivial to have a set
+    which contains all values greater than 5, and it takes a minimal amount of
+    memory (you only have to remember the lower bound).
+
+    A Bound object is simply a value in the Universe (can also be NULL).  The Bound
+    also knows if it is "inclusive" or "exclusive", which determines whether the
+    value of the Bound itself is included in the Range or not (i.e. Greater-than 5,
+    or Greater-than-or-equal-to 5)
+
+    The only way to create a Range object is through it's static factory functions.
+    This is because it would be too complex to try to convey so much information
+    just using constructors with enums/boolean flags.
+
+    So a range can have a lower-bound, upper-bound or no bounds, but it is not
+    capable of representing more complex (or disjoint) regions of the Universe.
+    The region class exists for this purpose.  This is essentially just a
+    list of ranges.  Using the Region class, you can represent regions like: all
+    values between 0 and 5, and also every value greater than 100.
+
+    All of the set arithmetic functions are implemented for both Range and Region,
+    including Union, Intersect, Complement, Difference, Symmetric Difference.  For
+    most of the operations, they will always output a Region, even if the inputs
+    were ranges.
+
+    \note Only the Union and Complement operations actually have core implementations;
+    All the other operations are built from combinations of these core functions.
+    For example, the Intersect function is implemented as a simple combination
+    of Complement and Union calls: ~(~A U ~B)
+
+*/
+
 
 
 #endif // GUTIL_RANGE_H
