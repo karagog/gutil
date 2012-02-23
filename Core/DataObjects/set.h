@@ -49,6 +49,9 @@ public:
         :data(o.data),
           m_size(o.m_size)
     {}
+    /** Conducts a deep copy of the set.
+        \note O(N log(N))
+    */
     inline Set<T> &operator = (const Set<T> &o){
         Clear();
         new(this) Set<T>(o);
@@ -83,7 +86,7 @@ public:
     inline bool Contains(const T &i) const{ return data.Search(i); }
 
     /** Empties the set and cleans up all memory. */
-    void Clear(){ data.Clear(); m_size = 0;}
+    void Clear(){ data.Clear(); m_size = 0; }
 
     /** How many items in the set.
         \note O(1)
