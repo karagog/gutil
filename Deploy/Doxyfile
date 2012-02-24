@@ -52,7 +52,7 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = .
+OUTPUT_DIRECTORY       = ../doc
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
 # 4096 sub-directories (in 2 levels) under the output directory of each output 
@@ -129,7 +129,7 @@ INLINE_INHERITED_MEMB  = NO
 # path before files name in the file list and in the header files. If set 
 # to NO the shortest path that makes the file name unique will be used.
 
-FULL_PATH_NAMES        = YES
+FULL_PATH_NAMES        = NO
 
 # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag 
 # can be used to strip a user-defined part of the path. Stripping is 
@@ -682,7 +682,6 @@ FILE_PATTERNS          = *.c \
                          *.m \
                          *.mm \
                          *.dox \
-                         *.py \
                          *.f90 \
                          *.f \
                          *.for \
@@ -719,7 +718,9 @@ EXCLUDE_PATTERNS       = .git* \
                          */Test/* \
                          */private/* \
                          moc_*.cpp \
-                         ui_*.h
+                         ui_*.h \
+                         release \
+                         debug
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names 
 # (namespaces, classes, functions, etc.) that should be excluded from the 
@@ -932,7 +933,7 @@ HTML_EXTRA_FILES       =
 # 180 is cyan, 240 is blue, 300 purple, and 360 is red again. 
 # The allowed range is 0 to 359.
 
-HTML_COLORSTYLE_HUE    = 222
+HTML_COLORSTYLE_HUE    = 238
 
 # The HTML_COLORSTYLE_SAT tag controls the purity (or saturation) of 
 # the colors in the HTML output. For a value of 0 the output will use 
@@ -947,7 +948,7 @@ HTML_COLORSTYLE_SAT    = 255
 # so 80 represents a gamma of 0.8, The value 220 represents a gamma of 2.2, 
 # and 100 does not change the gamma.
 
-HTML_COLORSTYLE_GAMMA  = 119
+HTML_COLORSTYLE_GAMMA  = 122
 
 # If the HTML_TIMESTAMP tag is set to YES then the footer of each generated HTML 
 # page will contain the date and time when the page was generated. Setting 
@@ -1067,7 +1068,7 @@ QCH_FILE               = GUtil.qch
 # Qt Help Project output. For more information please see 
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = GUtil
+QHP_NAMESPACE          = Rapstallion
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating 
 # Qt Help Project output. For more information please see 
@@ -1101,7 +1102,7 @@ QHP_SECT_FILTER_ATTRS  =
 # If non-empty doxygen will try to run qhelpgenerator on the generated 
 # .qhp file.
 
-QHG_LOCATION           = 
+QHG_LOCATION           = qhelpgenerator
 
 # If the GENERATE_ECLIPSEHELP tag is set to YES, additional index files  
 # will be generated, which together with the HTML files, form an Eclipse help 
@@ -1131,7 +1132,7 @@ DISABLE_INDEX          = NO
 # documentation. Note that a value of 0 will completely suppress the enum 
 # values from appearing in the overview section.
 
-ENUM_VALUES_PER_LINE   = 4
+ENUM_VALUES_PER_LINE   = 1
 
 # The GENERATE_TREEVIEW tag is used to specify whether a tree-like index 
 # structure should be generated to display hierarchical information. 
@@ -1146,7 +1147,7 @@ GENERATE_TREEVIEW      = YES
 # By enabling USE_INLINE_TREES, doxygen will generate the Groups, Directories, 
 # and Class Hierarchy pages using a tree view instead of an ordered list.
 
-USE_INLINE_TREES       = NO
+USE_INLINE_TREES       = YES
 
 # If the treeview is enabled (see GENERATE_TREEVIEW) then this tag can be 
 # used to set the initial width (in pixels) of the frame in which the tree 

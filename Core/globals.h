@@ -15,7 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_GLOBALS_H
 #define GUTIL_GLOBALS_H
 
-/** \file Global definitions that anyone can use. */
+/** \file
+    Global definitions that anyone can use.
+*/
 
 #include "Core/macros.h"
 #include "Core/exception.h"

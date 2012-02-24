@@ -15,7 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_DATAOBJECTS_INTERFACES_H
 #define GUTIL_DATAOBJECTS_INTERFACES_H
 
-/** \file Defines a set of interfaces used by the data objects, which allow you to
+/** \file
+
+    Defines a set of interfaces used by the data objects, which allow you to
     take advantage of several container implementations to do the same things.  For
     example, you can have a stack which is implemented as a vector, singly-linked list
     or doubly-linked list.

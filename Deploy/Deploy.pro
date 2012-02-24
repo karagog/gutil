@@ -15,6 +15,7 @@ TARGET = dummy_ignorethislib
 
 
 HEADER_CMD = python ../PythonUtils/GenerateHeaders.py
+DOCGEN_COMMAND = doxygen
 
 # The working dir for the python script
 WORKING_DIR = ..
@@ -28,13 +29,18 @@ CORE_DIR = Core
 QT_HEADER = gutil_qt.h
 QT_DIR = Qt
 
+
+
 headers_core.commands = $$HEADER_CMD --outfile $$CORE_HEADER --dirs=$$CORE_DIR --ignore-path $$IGNORE_PATHS --working-dir=$$WORKING_DIR
 headers_qt.commands   = $$HEADER_CMD --outfile $$QT_HEADER --dirs=$$QT_DIR --ignore-path $$IGNORE_PATHS --working-dir=$$WORKING_DIR
+docs.commands = $$DOCGEN_COMMAND
 
 PRE_TARGETDEPS = \
     headers_core \
-    headers_qt
+    headers_qt \
+    docs
 
 QMAKE_EXTRA_TARGETS = \
     headers_core \
-    headers_qt
+    headers_qt \
+    docs

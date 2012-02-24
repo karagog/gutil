@@ -14,6 +14,12 @@ doc
 
 *.dat
 
+
+# Project-specific ignores
+gutil_core.h
+gutil_qt.h
+
+
 # The user can add this specially if they need it
 Makefile*
 
