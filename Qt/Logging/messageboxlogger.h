@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef GUTIL_MESSAGEBOXLOGGER_H
 #define GUTIL_MESSAGEBOXLOGGER_H
 
-#include "Core/Logging/abstractlogger.h"
+#include "gutil_abstractlogger.h"
 
 NAMESPACE_GUTIL2(QT, Logging);
 

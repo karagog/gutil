@@ -16,7 +16,7 @@ limitations under the License.*/
 
 
 #include "binarydatastore.h"
-#include "Core/extendedexception.h"
+#include "gutil_extendedexception.h"
 #include <QDesktopServices>
 #include <QFile>
 #include <QXmlStreamWriter>
@@ -39,7 +39,7 @@ NAMESPACE_GUTIL2(QT, BusinessObjects);
 #define BS_TABLE_NAME "data"
 
 BinaryDataStore::BinaryDataStore(const QString &id)
-    :dbio(new GDatabaseIODevice(QString("%1_database").arg(id))),
+    :dbio(new DatabaseIODevice(QString("%1_database").arg(id))),
       _file_location(_get_file_loc(id)),
       _max_id(0)
 {}

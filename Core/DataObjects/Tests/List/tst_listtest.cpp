@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/list.h"
+#include "gutil_list.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 

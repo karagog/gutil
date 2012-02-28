@@ -5,14 +5,14 @@ INCLUDEPATH += ../..
 
 HEADERS += \
     DataObjects/varianttable.h \
-    DataObjects/gvariant.h \
-    DataObjects/gdatetime.h \
-    DataObjects/gformattedtext.h
+    DataObjects/datetime.h \
+    DataObjects/formattedtext.h \
+    DataObjects/variant.h
 
 SOURCES += \
     DataObjects/varianttable.cpp \
-    DataObjects/gvariant.cpp \
-    DataObjects/gdatetime.cpp
+    DataObjects/variant.cpp \
+    DataObjects/datetime.cpp
 
 
 

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_DATABASELOGGER_H
 #define GUTIL_DATABASELOGGER_H
 
-#include "Core/Logging/abstractlogger.h"
+#include "gutil_abstractlogger.h"
 #include <QString>
 
 class QSqlDatabase;

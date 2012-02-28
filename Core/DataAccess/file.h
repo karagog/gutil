@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_FILE_H
 #define GUTIL_FILE_H
 
-#include "iointerface.h"
-#include "Core/DataObjects/gstring.h"
-#include "Core/exception.h"
+#include "gutil_iointerface.h"
+#include "gutil_strings.h"
+#include "gutil_exception.h"
 #include <stdio.h>
 
 NAMESPACE_GUTIL1(DataAccess);

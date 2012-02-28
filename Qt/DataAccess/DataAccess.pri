@@ -1,19 +1,19 @@
 
 HEADERS += \
-    DataAccess/gfileiodevice.h \
-    DataAccess/giodevice.h \
-    DataAccess/gconsoleiodevice.h \
-    DataAccess/gqiodevice.h \
-    DataAccess/gdatabaseiodevice.h \
-    DataAccess/glocalsocketiodevice.h
+    DataAccess/iodevice.h \
+    DataAccess/qt_iodevice.h \
+    DataAccess/consoleiodevice.h \
+    DataAccess/databaseiodevice.h \
+    DataAccess/fileiodevice.h \
+    DataAccess/localsocketiodevice.h
 
 SOURCES += \
-    DataAccess/gfileiodevice.cpp \
-    DataAccess/giodevice.cpp \
-    DataAccess/gconsoleiodevice.cpp \
-    DataAccess/gqiodevice.cpp \
-    DataAccess/gdatabaseiodevice.cpp \
-    DataAccess/glocalsocketiodevice.cpp
+    DataAccess/iodevice.cpp \
+    DataAccess/qt_iodevice.cpp \
+    DataAccess/consoleiodevice.cpp \
+    DataAccess/localsocketiodevice.cpp \
+    DataAccess/fileiodevice.cpp \
+    DataAccess/databaseiodevice.cpp
 
 
 

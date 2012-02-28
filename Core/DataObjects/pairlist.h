@@ -14,8 +14,8 @@ limitations under the License.*/
 #ifndef GUTIL_PAIRLIST_H
 #define GUTIL_PAIRLIST_H
 
-#include "Core/DataObjects/pair.h"
-#include "Core/DataObjects/list.h"
+#include "gutil_pair.h"
+#include "gutil_list.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

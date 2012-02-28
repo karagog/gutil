@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef GUTIL_SLIST_H
 #define GUTIL_SLIST_H
 
-#include "Core/exception.h"
-#include "Core/DataObjects/interfaces.h"
-#include "Core/globals.h"
-#include "Core/Utils/flexibletypecomparer.h"
+#include "gutil_exception.h"
+#include "gutil_interfaces.h"
+#include "gutil_globals.h"
+#include "gutil_flexibletypecomparer.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 

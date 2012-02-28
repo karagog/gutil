@@ -15,10 +15,10 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "gutil.h"
-#include "Core/DataObjects/slist.h"
-#include "Core/DataObjects/dlist.h"
-#include "Core/DataObjects/list.h"
-#include "Core/DataObjects/vector.h"
+#include "gutil_slist.h"
+#include "gutil_dlist.h"
+#include "gutil_list.h"
+#include "gutil_vector.h"
 #include <iostream>
 #include <stack>
 #include <queue>

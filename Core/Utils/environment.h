@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "Core/macros.h"
+#include "gutil_macros.h"
 #include <string>
 
 NAMESPACE_GUTIL1(Utils);

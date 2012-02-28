@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/vector.h"
+#include "gutil_vector.h"
 #include <vector>
 USING_NAMESPACE_GUTIL1(DataObjects);
 

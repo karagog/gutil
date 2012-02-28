@@ -35,8 +35,8 @@ void VariantTable::WriteXml(QXmlStreamWriter &sw) const
         iter != Columns().end(); ++iter)
     {
         sw.writeStartElement("c");
-        GVariant::ToXml(iter->GetKey().ConstData(), sw);
-        GVariant::ToXml(iter->GetName().ConstData(), sw);
+        Variant::ToXml(iter->GetKey().ConstData(), sw);
+        Variant::ToXml(iter->GetName().ConstData(), sw);
         sw.writeEndElement();
     }
 
@@ -51,7 +51,7 @@ void VariantTable::WriteRowXml(QXmlStreamWriter &sw, const DataRow<QVariant> &dr
 {
     sw.writeStartElement("r");
     for(DataRow<QVariant>::const_iterator iter(dr.begin()); iter != dr.end(); ++iter)
-        GVariant::ToXml(*iter, sw);
+        Variant::ToXml(*iter, sw);
     sw.writeEndElement();
 }
 
@@ -73,8 +73,8 @@ void VariantTable::ReadXml(QXmlStreamReader &sr)
         {
             if(!sr.readNextStartElement() || sr.name() != "c")
                 THROW_NEW_GUTIL_EXCEPTION2(XmlException, "Unrecognized XML Data");
-            String col_key( GVariant::FromXml(sr).toString().toUtf8().constData() );
-            String col_name( GVariant::FromXml(sr).toString().toUtf8().constData() );
+            String col_key( Variant::FromXml(sr).toString().toUtf8().constData() );
+            String col_name( Variant::FromXml(sr).toString().toUtf8().constData() );
             AddColumn(col_key, col_name);
             while(sr.readNext() != QXmlStreamReader::EndElement);
         }
@@ -101,7 +101,7 @@ void VariantTable::ReadRowXml(QXmlStreamReader &sr, DataRow<QVariant> &dr)
     if(!sr.readNextStartElement())
         THROW_NEW_GUTIL_EXCEPTION2(XmlException, "Unrecognized XML Data");
     for(DataRow<QVariant>::iterator iter(dr.begin()); iter != dr.end(); ++iter)
-        iter.SetValue(GVariant::FromXml(sr));
+        iter.SetValue(Variant::FromXml(sr));
     while(sr.tokenType() != QXmlStreamReader::EndElement || sr.name() != "r") sr.readNext();
 }
 

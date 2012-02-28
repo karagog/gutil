@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include <string>
-#include "Core/DataObjects/map.h"
+#include "gutil_map.h"
 USING_NAMESPACE_GUTIL;
 USING_NAMESPACE_GUTIL1(DataObjects);
 

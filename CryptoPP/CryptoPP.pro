@@ -9,7 +9,7 @@ TEMPLATE = lib
 
 #DEFINES += DEBUG
 
-INCLUDEPATH += . .. ../ThirdParty
+INCLUDEPATH += ../include ../ThirdParty
 LIBS += -L../lib -lGUtil -lcryptopp
 
 #QMAKE_CXXFLAGS += -DGUTIL_DLL_EXPORTS
@@ -17,7 +17,7 @@ LIBS += -L../lib -lGUtil -lcryptopp
 
 HEADERS += \
     encryptionutils.h \
-    gstringsink.h
+    stringsink.h
 SOURCES += \
     encryptionutils.cpp
 

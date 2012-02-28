@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "Core/macros.h"
+#include "gutil_macros.h"
 #include <QWidget>
 #include <QMutex>
 

@@ -14,11 +14,11 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/interfaces.h"
-#include "Core/DataObjects/vector.h"
-#include "Core/DataObjects/list.h"
-#include "Core/DataObjects/dlist.h"
-#include "Core/DataObjects/slist.h"
+#include "gutil_interfaces.h"
+#include "gutil_vector.h"
+#include "gutil_list.h"
+#include "gutil_dlist.h"
+#include "gutil_slist.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 class QueueTest : public QObject

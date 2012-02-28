@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef GUTIL_COMMANDLINEMENU_H
 #define GUTIL_COMMANDLINEMENU_H
 
-#include "Core/DataObjects/gstring.h"
-#include "Core/DataObjects/vector.h"
-#include "Core/Utils/smartpointer.h"
-#include "Core/macros.h"
+#include "gutil_strings.h"
+#include "gutil_vector.h"
+#include "gutil_smartpointer.h"
+#include "gutil_macros.h"
 
 namespace GUtil{
 

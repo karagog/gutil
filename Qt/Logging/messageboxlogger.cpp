@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "messageboxlogger.h"
-#include "Core/extendedexception.h"
+#include "gutil_extendedexception.h"
 #include <QMessageBox>
 USING_NAMESPACE_GUTIL1(DataObjects);
 

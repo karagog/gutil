@@ -9,7 +9,6 @@ HEADERS += \
     DataObjects/interfaces.h \
     DataObjects/vector.h \
     DataObjects/flags.h \
-    DataObjects/gstring.h \
     DataObjects/collection.h \
     DataObjects/version.h \
     DataObjects/sharedobject.h \
@@ -18,11 +17,12 @@ HEADERS += \
     DataObjects/pairlist.h \
     DataObjects/symmetricmatrix.h \
     DataObjects/range.h \
-    DataObjects/nullable.h
+    DataObjects/nullable.h \
+    DataObjects/strings.h
 
 SOURCES += \
-    DataObjects/gstring.cpp \
-    DataObjects/version.cpp
+    DataObjects/version.cpp \
+    DataObjects/strings.cpp
 
 
 

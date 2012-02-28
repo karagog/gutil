@@ -48,7 +48,7 @@ limitations under the License.*/
 #endif
 
 
-#include "Core/DataObjects/gstring.h"
+#include "gutil_strings.h"
 #include "globallogger.h"
 
 NAMESPACE_GUTIL1(Logging);

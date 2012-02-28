@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "Core/DataObjects/range.h"
+#include "gutil_range.h"
 #include <QWidget>
 #include <QCheckBox>
 #include <QDateTimeEdit>

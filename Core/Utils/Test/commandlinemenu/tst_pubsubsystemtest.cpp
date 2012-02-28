@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/Utils/commandlinemenu.h"
-#include "Core/DataAccess/console.h"
+#include "gutil_console.h"
 USING_NAMESPACE_GUTIL;
 USING_NAMESPACE_GUTIL1(Utils);
 USING_NAMESPACE_GUTIL1(DataAccess);

@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "BusinessObjects/configfile.h"
 #include "Core/Logging/debuglogger.h"
-#include "Core/exception.h"
+#include "gutil_exception.h"
 #include <string>
 #include <QFile>
 #include <QTest>

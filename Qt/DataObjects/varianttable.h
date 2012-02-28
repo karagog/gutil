@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_VARIANTTABLE_H
 #define GUTIL_VARIANTTABLE_H
 
-#include "Core/DataObjects/datatable.h"
-#include "Qt/DataObjects/gvariant.h"
+#include "gutil_datatable.h"
+#include "gutil_variant.h"
 
 
 class QXmlStreamWriter;

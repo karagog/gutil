@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_SHAREDOBJECT_H
 #define GUTIL_SHAREDOBJECT_H
 
-#include "Core/Utils/smartpointer.h"
+#include "gutil_smartpointer.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

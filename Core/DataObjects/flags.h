@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_FLAGS_H
 #define GUTIL_FLAGS_H
 
-#include "Core/globals.h"
+#include "gutil_globals.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 

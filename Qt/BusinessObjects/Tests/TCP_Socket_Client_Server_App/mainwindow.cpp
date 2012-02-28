@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "Core/exception.h"
+#include "gutil_exception.h"
 #include <QProcess>
 #include <QApplication>
 using namespace GUtil;

@@ -15,8 +15,8 @@ limitations under the License.*/
 /** To disable warnings, because we're exposing some weak algorithms (MD4-5) */
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "encryptionutils.h"
-#include "Core/Utils/smartpointer.h"
+#include "gutil_encryptionutils.h"
+#include "gutil_smartpointer.h"
 #include "cryptopp-5.6.1/cryptlib.h"
 #include "cryptopp-5.6.1/filters.h"
 #include "cryptopp-5.6.1/gzip.h"
@@ -26,7 +26,7 @@ limitations under the License.*/
 #include "cryptopp-5.6.1/pwdbased.h"
 #include "cryptopp-5.6.1/md4.h"
 #include "cryptopp-5.6.1/md5.h"
-#include "gstringsink.h"
+#include "gutil_stringsink.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(Utils);
 using namespace CryptoPP;

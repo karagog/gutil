@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "BusinessObjects/BinaryDataStore.h"
-#include "Core/exception.h"
+#include "gutil_exception.h"
 #include "Logging/debuglogger.h"
 #include <QTest>
 using namespace GUtil;

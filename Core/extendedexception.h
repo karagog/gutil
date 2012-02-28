@@ -21,10 +21,10 @@ limitations under the License.*/
     and nested exceptions.
 */
 
-#include "Core/exception.h"
-#include "Core/DataObjects/vector.h"
-#include "Core/DataObjects/map.h"
-#include "Core/DataObjects/gstring.h"
+#include "gutil_exception.h"
+#include "gutil_vector.h"
+#include "gutil_map.h"
+#include "gutil_strings.h"
 
 NAMESPACE_GUTIL
 

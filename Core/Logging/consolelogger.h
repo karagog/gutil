@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_CONSOLELOGGER_H
 
 #include "abstractlogger.h"
-#include "Core/DataAccess/console.h"
+#include "gutil_console.h"
 NAMESPACE_GUTIL1(Logging);
 
 

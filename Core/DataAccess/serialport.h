@@ -12,14 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CP_SERIAL_T_H
-#define CP_SERIAL_T_H
+#ifndef GUTIL_SERIAL_H
+#define GUTIL_SERIAL_H
 
 #ifdef _WIN32
         #include <windows.h>
 #endif
 
-#include "iointerface.h"
+#include "gutil_iointerface.h"
 
 //This is the header for cross-platform Windows&Linux serial port functionality
 
@@ -66,4 +66,4 @@ private:
 
 END_NAMESPACE_GUTIL1    // DataAccess
 
-#endif  // CP_SERIAL_T_H
+#endif  // GUTIL_SERIAL_H

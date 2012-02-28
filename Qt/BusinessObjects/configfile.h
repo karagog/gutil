@@ -17,10 +17,10 @@ limitations under the License.*/
 #ifndef GUTIL_CONFIGFILE_H
 #define GUTIL_CONFIGFILE_H
 
-#include "DataAccess/gfileiodevice.h"
-#include "Core/Interfaces/iupdatable.h"
-#include "Core/Utils/smartpointer.h"
-#include "Core/DataObjects/map.h"
+#include "gutil_fileiodevice.h"
+#include "gutil_iupdatable.h"
+#include "gutil_smartpointer.h"
+#include "gutil_map.h"
 #include <QObject>
 #include <QVariant>
 
@@ -153,11 +153,11 @@ signals:
 protected:
 
     /** Returns our file transport */
-    inline DataAccess::GFileIODevice &FileTransport(){
+    inline DataAccess::FileIODevice &FileTransport(){
         return *_iodevice;
     }
     /** Returns our file transport */
-    inline const DataAccess::GFileIODevice &FileTransport() const{
+    inline const DataAccess::FileIODevice &FileTransport() const{
         return *_iodevice;
     }
 
@@ -174,7 +174,7 @@ private:
 
     GUtil::DataObjects::String _identity, _modifier;
     GUtil::DataObjects::Map<GUtil::DataObjects::String, QVariant> m_data;
-    GUtil::Utils::SmartPointer<DataAccess::GFileIODevice> _iodevice;
+    GUtil::Utils::SmartPointer<DataAccess::FileIODevice> _iodevice;
 
     static QString get_file_location(QString id);
 

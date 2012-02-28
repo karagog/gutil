@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "universalmutex.h"
-#include "Core/extendedexception.h"
+#include "gutil_universalmutex.h"
+#include "gutil_extendedexception.h"
 #include <QFile>
 NAMESPACE_GUTIL2(QT, Utils);
 

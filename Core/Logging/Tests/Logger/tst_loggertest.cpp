@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "Logging/globallogger.h"
 #include "Logging/grouplogger.h"
 #include "Logging/debuglogger.h"
-#include "Core/extendedexception.h"
+#include "gutil_extendedexception.h"
 #include <QtConcurrentRun>
 #include <QtCore/QString>
 #include <QtTest/QtTest>

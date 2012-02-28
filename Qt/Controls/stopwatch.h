@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "Utils/stopwatchengine.h"
+#include "gutil_stopwatchengine.h"
 #include <QPushButton>
 
 class QLabel;

@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_BST_H
 #define GUTIL_BST_H
 
-#include "Core/exception.h"
-#include "Core/Utils/flexibletypecomparer.h"
+#include "gutil_exception.h"
+#include "gutil_flexibletypecomparer.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

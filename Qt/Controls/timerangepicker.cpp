@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "timerangepicker.h"
-#include "Core/macros.h"
+#include "gutil_macros.h"
 #include <QVBoxLayout>
 #include <QVBoxLayout>
 USING_NAMESPACE_GUTIL1(DataObjects);

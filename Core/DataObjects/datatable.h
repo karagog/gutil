@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef GUTIL_DATATABLE_H
 #define GUTIL_DATATABLE_H
 
-#include "Core/DataObjects/collection.h"
-#include "Core/DataObjects/map.h"
-#include "Core/DataObjects/gstring.h"
-#include "Core/DataObjects/pairlist.h"
-#include "Core/Utils/smartpointer.h"
-#include "Core/Interfaces/iupdatable.h"
+#include "gutil_collection.h"
+#include "gutil_map.h"
+#include "gutil_strings.h"
+#include "gutil_pairlist.h"
+#include "gutil_smartpointer.h"
+#include "gutil_iupdatable.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

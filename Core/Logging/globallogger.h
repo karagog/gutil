@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef GUTIL_GLOBALLOGGER_H
 #define GUTIL_GLOBALLOGGER_H
 
-#include "Core/exception.h"
-#include "Core/DataObjects/gstring.h"
-#include "Core/DataObjects/map.h"
-#include "Core/Utils/smartpointer.h"
+#include "gutil_exception.h"
+#include "gutil_strings.h"
+#include "gutil_map.h"
+#include "gutil_smartpointer.h"
 #include "abstractlogger.h"
 
 NAMESPACE_GUTIL1(Logging);

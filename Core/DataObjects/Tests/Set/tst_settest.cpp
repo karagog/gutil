@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/set.h"
+#include "gutil_set.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 class SetTest : public QObject

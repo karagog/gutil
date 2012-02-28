@@ -16,26 +16,11 @@ limitations under the License.*/
 #define GUTIL_H
 
 /** \file
-    An all-inclusive, catch-all, include that will cover all your GUtil needs.
 
-    If you #include this, you shouldn't need to include any other gutil header.
-
-    You may have to link with GUtilCore and/or GUtil if you use it.
-
+    Just contains miscellaneous documentation for GUtil
 */
 
-#include "gutil_core.h"
-#include "gutil_qt.h"
 
-
-
-
-
-
-
-
-
-// Miscellaneous documentation
 /**
 
     \namespace GUtil Encapsulates George's Utility Library.

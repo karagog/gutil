@@ -17,8 +17,11 @@ DEFINES += NETWORK_FUNCTIONALITY
 # So we can interface our core classes more easily with Qt
 DEFINES += QT_ADAPTERS
 
-INCLUDEPATH += . .. ../ThirdParty
+INCLUDEPATH += ../include ../ThirdParty
 LIBS += -L../lib -lGUtil
+
+HEADERS += \
+    core_conversions.h
 
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)

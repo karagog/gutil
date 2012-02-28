@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "databaselogmodel.h"
-#include "Utils/databaseutils.h"
-#include "Logging/databaselogger.h"
+#include "gutil_databaseutils.h"
+#include "gutil_databaselogger.h"
 USING_NAMESPACE_GUTIL2(QT, DataModels);
 USING_NAMESPACE_GUTIL2(QT, Utils);
 USING_NAMESPACE_GUTIL2(QT, Logging);

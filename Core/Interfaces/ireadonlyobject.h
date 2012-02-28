@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef IREADONLYOBJECT_H
 #define IREADONLYOBJECT_H
 
-#include "Core/macros.h"
-#include "Core/exception.h"
+#include "gutil_macros.h"
+#include "gutil_exception.h"
 
 NAMESPACE_GUTIL1( Interfaces );
 

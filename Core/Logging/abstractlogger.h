@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_ABSTRACTLOGGER_H
 #define GUTIL_ABSTRACTLOGGER_H
 
-#include "Core/DataAccess/iointerface.h"
-#include "Core/DataObjects/gstring.h"
-#include "Core/Utils/smartpointer.h"
+#include "gutil_iointerface.h"
+#include "gutil_strings.h"
+#include "gutil_smartpointer.h"
 
 NAMESPACE_GUTIL1(Logging);
 

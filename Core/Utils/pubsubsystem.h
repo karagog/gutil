@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_PUBSUBSYSTEM_H
 #define GUTIL_PUBSUBSYSTEM_H
 
-#include "Core/macros.h"
-#include "Core/DataObjects/vector.h"
+#include "gutil_macros.h"
+#include "gutil_vector.h"
 
 namespace GUtil{
 

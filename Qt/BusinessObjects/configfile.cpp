@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "configfile.h"
-#include "DataObjects/varianttable.h"
+#include "gutil_configfile.h"
+#include "gutil_varianttable.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileSystemWatcher>
@@ -51,7 +51,7 @@ ConfigFile::ConfigFile(const ConfigFile &other)
 
 void ConfigFile::_init(const String &identity, const String &modifier)
 {
-    _iodevice = new GFileIODevice(QString("%1%2%3.config.xml")
+    _iodevice = new FileIODevice(QString("%1%2%3.config.xml")
                                   .arg(get_file_location(identity))
                                   .arg(modifier.IsEmpty() ? "" : ".")
                                   .arg(modifier.IsEmpty() ? "" : modifier.ConstData()));
@@ -59,7 +59,7 @@ void ConfigFile::_init(const String &identity, const String &modifier)
             this, SLOT(new_input_data_arrived()));
 
     // Set the file transport to overwrite the config file rather than append
-    FileTransport().SetWriteMode(GFileIODevice::WriteOver);
+    FileTransport().SetWriteMode(FileIODevice::WriteOver);
 
     if(!Reload());
 }

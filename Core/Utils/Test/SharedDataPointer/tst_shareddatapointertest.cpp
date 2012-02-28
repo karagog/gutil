@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/DataObjects/smartpointer.h"
-#include "Core/DataObjects/string.h"
+#include "gutil_strings.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 

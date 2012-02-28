@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_LIST_H
 #define GUTIL_LIST_H
 
-#include "Core/DataObjects/vector.h"
-#include "Core/DataObjects/interfaces.h"
-#include "Core/macros.h"
+#include "gutil_vector.h"
+#include "gutil_interfaces.h"
+#include "gutil_macros.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 

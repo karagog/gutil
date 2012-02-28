@@ -17,7 +17,7 @@ limitations under the License.*/
 #ifndef APPLICATIONLOCK_H
 #define APPLICATIONLOCK_H
 
-#include "Core/exception.h"
+#include "gutil_exception.h"
 #include <QString>
 #include <QMap>
 #include <QReadWriteLock>

@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_RANGE_H
 #define GUTIL_RANGE_H
 
-#include "Core/DataObjects/dlist.h"
-#include "Core/DataObjects/nullable.h"
-#include "Core/Utils/flexibletypecomparer.h"
+#include "gutil_dlist.h"
+#include "gutil_nullable.h"
+#include "gutil_flexibletypecomparer.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

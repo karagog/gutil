@@ -14,11 +14,11 @@ limitations under the License.*/
 
 #if defined(GUI_FUNCTIONALITY) && defined(NETWORK_FUNCTIONALITY)
 
-#ifndef PROCESSSTATUSINDICATOR_H
-#define PROCESSSTATUSINDICATOR_H
+#ifndef GUTIL_PROCESSSTATUSINDICATOR_H
+#define GUTIL_PROCESSSTATUSINDICATOR_H
 
-#include "BusinessObjects/configfile.h"
-#include "Utils/usermachinelocks.h"
+#include "gutil_configfile.h"
+#include "gutil_usermachinelocks.h"
 #include <QRunnable>
 #include <QThreadPool>
 
@@ -110,6 +110,6 @@ private slots:
 
 }}}
 
-#endif // PROCESSSTATUSINDICATOR_H
+#endif // GUTIL_PROCESSSTATUSINDICATOR_H
 
 #endif // GUI_FUNCTIONALITY && NETWORK_FUNCTIONALITY

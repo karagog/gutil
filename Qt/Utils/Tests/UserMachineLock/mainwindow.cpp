@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "Core/exception.h"
+#include "gutil_exception.h"
 #include "Logging/globallogger.h"
 #include <QMessageBox>
 #include <QFileDialog>

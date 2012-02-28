@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_FLEXIBLE_TYPE_COMPARER_H
 #define GUTIL_FLEXIBLE_TYPE_COMPARER_H
 
-#include "Core/Interfaces/icomparer.h"
-#include "Core/globals.h"
+#include "gutil_icomparer.h"
+#include "gutil_globals.h"
 NAMESPACE_GUTIL1(Utils)
 
 

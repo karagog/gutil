@@ -14,10 +14,10 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/gstring.h"
-#include "Core/extendedexception.h"
-#include "CryptoPP/encryptionutils.h"
 #include <iostream>
+#include "gutil_strings.h"
+#include "gutil_extendedexception.h"
+#include "gutil_encryptionutils.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(CryptoPP);
 USING_NAMESPACE_GUTIL;

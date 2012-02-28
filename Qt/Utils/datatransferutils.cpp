@@ -12,9 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "datatransferutils.h"
-#include "Core/extendedexception.h"
-#include "Core/Utils/pubsubsystem.h"
+#include "gutil_datatransferutils.h"
+#include "gutil_extendedexception.h"
+#include "gutil_pubsubsystem.h"
 #include <QFile>
 USING_NAMESPACE_GUTIL1(Utils);
 

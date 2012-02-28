@@ -18,7 +18,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include <QAbstractProxyModel>
-#include "Core/DataObjects/map.h"
+#include "gutil_map.h"
 
 namespace GUtil{ namespace QT{ namespace DataModels{
 

@@ -14,9 +14,9 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/interfaces.h"
-#include "Core/DataObjects/vector.h"
-#include "Core/DataObjects/list.h"
+#include "gutil_interfaces.h"
+#include "gutil_vector.h"
+#include "gutil_list.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 class RandomAccessContainerTest : public QObject

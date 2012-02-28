@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "Ui/faderwidget.h"
+#include "gutil_faderwidget.h"
 #include <QWidget>
 #include <QPushButton>
 #include <QLineEdit>

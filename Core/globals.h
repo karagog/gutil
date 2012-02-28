@@ -19,8 +19,8 @@ limitations under the License.*/
     Global definitions that anyone can use.
 */
 
-#include "Core/macros.h"
-#include "Core/exception.h"
+#include "gutil_macros.h"
+#include "gutil_exception.h"
 #include <malloc.h>
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
@@ -511,9 +511,5 @@ END_NAMESPACE_GUTIL
 /** The number of seconds in a leap year. */
 #define YEAR_IN_SECONDS_UB      DAY_IN_SECONDS * 366
 
-
-
-
-// We'll put the namespace document here, because it's as good a place as any.
 
 #endif // GUTIL_GLOBALS_H

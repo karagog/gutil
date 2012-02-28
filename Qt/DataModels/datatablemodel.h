@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef DATATABLEMODEL_H
 #define DATATABLEMODEL_H
 
-#include "Core/macros.h"
-#include "Qt/DataObjects/varianttable.h"
+#include "gutil_macros.h"
+#include "gutil_varianttable.h"
 #include <QAbstractTableModel>
 
 
@@ -34,7 +34,7 @@ public:
     explicit DataTableModel(QObject *parent = 0);
     virtual ~DataTableModel(){}
 
-    PROPERTY_POINTER(DataTable, GUtil::DataObjects::DataTable<DataObjects::GVariant>);
+    PROPERTY_POINTER(DataTable, GUtil::DataObjects::DataTable<DataObjects::Variant>);
 
 
     // QAbstractTableModel interface:

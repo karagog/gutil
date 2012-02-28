@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifdef DATABASE_FUNCTIONALITY
 
 
-#include "databaselogger.h"
-#include "Utils/databaseutils.h"
+#include "gutil_databaselogger.h"
+#include "gutil_databaseutils.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>

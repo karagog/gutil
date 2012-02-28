@@ -17,7 +17,7 @@ TEMPLATE = app
 # Enable this define to have access to functions that will convert between Qt types and GUtil types
 DEFINES += GUTIL_CORE_QT_ADAPTERS
 
-INCLUDEPATH += ../.. ../../../.. ../../..
+INCLUDEPATH += ../.. ../../.. ../../../.. ../../../../include
 LIBS += -L../../../../lib -lGUtil
 
 unix: LIBS += -Wl,-rpath,../../../../lib

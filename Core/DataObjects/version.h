@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_VERSION_H
 #define GUTIL_VERSION_H
 
-#include "Core/macros.h"
-#include "Core/DataObjects/gstring.h"
+#include "gutil_macros.h"
+#include "gutil_strings.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 

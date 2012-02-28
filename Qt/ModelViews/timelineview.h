@@ -17,8 +17,8 @@ limitations under the License.*/
 
 #ifdef GUI_FUNCTIONALITY
 
-#include "Core/DataObjects/range.h"
-#include "Core/globals.h"
+#include "gutil_range.h"
+#include "gutil_globals.h"
 #include <QAbstractItemView>
 #include <QPointer>
 #include <QRubberBand>
@@ -35,7 +35,7 @@ namespace Utils{
 
 namespace QT{
 namespace DataObjects{
-    class GFormattedText;
+    class FormattedText;
 }
 
 
@@ -156,7 +156,7 @@ private:
     void _draw_items(QModelIndexList &, QPainter &, int iteration);
     void _draw_item(const QModelIndex &, QPainter &);
     void _draw_rect(const QRect &, const QColor &,
-                    const DataObjects::GFormattedText &, QPainter &);
+                    const DataObjects::FormattedText &, QPainter &);
     void _draw_datetime_rect(const QDateTime &, const QPoint &center_point, bool raise, QPainter &);
 
     QRegion itemRegion(const QModelIndex &) const;

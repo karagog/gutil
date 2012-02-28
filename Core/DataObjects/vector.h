@@ -12,14 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_VECTOR_P
-#define GUTIL_VECTOR_P
+#ifndef GUTIL_VECTOR_H
+#define GUTIL_VECTOR_H
 
-#include "Core/macros.h"
-#include "Core/globals.h"
-#include "Core/exception.h"
-#include "Core/DataObjects/interfaces.h"
-#include "Core/Utils/flexibletypecomparer.h"
+#include "gutil_macros.h"
+#include "gutil_globals.h"
+#include "gutil_exception.h"
+#include "gutil_interfaces.h"
+#include "gutil_flexibletypecomparer.h"
 #include <new>
 #include <limits.h>
 #include <malloc.h>
@@ -1102,4 +1102,4 @@ template<class T>struct IsMovableType< DataObjects::VectorRandomAccessContainer<
 
 }
 
-#endif // GUTIL_VECTOR_P
+#endif // GUTIL_VECTOR_H

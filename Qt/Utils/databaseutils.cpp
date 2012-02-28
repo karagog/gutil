@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifdef DATABASE_FUNCTIONALITY
 
 #include "databaseutils.h"
-#include "Core/extendedexception.h"
+#include "gutil_extendedexception.h"
 #include <QStringList>
 #include <QSqlQuery>
 #include <QSqlError>

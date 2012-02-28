@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "Core/DataObjects/slist.h"
+#include "gutil_slist.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 class SListTest : public QObject

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef SYNCHRONIZATIONOBJECT_H
 #define SYNCHRONIZATIONOBJECT_H
 
-#include "Core/macros.h"
+#include "gutil_macros.h"
 #include <QReadWriteLock>
 #include <QWaitCondition>
 

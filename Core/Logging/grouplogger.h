@@ -16,8 +16,8 @@ limitations under the License.*/
 #define GUTIL_GROUPLOGGER_H
 
 #include "abstractlogger.h"
-#include "Core/DataObjects/vector.h"
-#include "Core/Utils/smartpointer.h"
+#include "gutil_vector.h"
+#include "gutil_smartpointer.h"
 NAMESPACE_GUTIL1(Logging);
 
 

@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "Core/Utils/atomic.h"
-#include "Core/DataObjects/string.h"
+#include "gutil_strings.h"
 USING_NAMESPACE_GUTIL1(Utils);
 USING_NAMESPACE_GUTIL1(DataObjects);
 

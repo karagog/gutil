@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "progressbarcontrol.h"
-#include "Core/macros.h"
+#include "gutil_macros.h"
 #include <QStackedLayout>
 #include <QVBoxLayout>
 

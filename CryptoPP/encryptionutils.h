@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_CRYPTOPP_UTILS_H
 #define GUTIL_CRYPTOPP_UTILS_H
 
-#include "Core/DataObjects/gstring.h"
+#include "gutil_strings.h"
 
 NAMESPACE_GUTIL1(CryptoPP);
 

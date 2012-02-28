@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef IEQUATABLE_H
 #define IEQUATABLE_H
 
-#include "Core/macros.h"
+#include "gutil_macros.h"
 
 NAMESPACE_GUTIL1( Interfaces );
 

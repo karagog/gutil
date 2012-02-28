@@ -13,9 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QTest>
-#include "Core/DataObjects/range.h"
-#include "Core/DataObjects/gstring.h"
-#include "Core/DataAccess/console.h"
+#include "gutil_range.h"
+#include "Core/DataObjects/gstrings.h"
+#include "gutil_console.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(DataAccess);
 

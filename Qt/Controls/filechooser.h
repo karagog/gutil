@@ -18,7 +18,7 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 
 #include "lineeditwithbutton.h"
-#include "Core/exception.h"
+#include "gutil_exception.h"
 #include <QFileDialog>
 
 namespace GUtil{ namespace QT{ namespace Controls{

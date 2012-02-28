@@ -18,8 +18,8 @@ limitations under the License.*/
 #ifdef GUI_FUNCTIONALITY
 #ifdef DATABASE_FUNCTIONALITY
 
-#include "DataAccess/gdatabaseiodevice.h"
-#include "Core/DataObjects/set.h"
+#include "gutil_databaseiodevice.h"
+#include "gutil_set.h"
 #include <QString>
 
 namespace GUtil{ namespace QT{ namespace BusinessObjects{
@@ -112,7 +112,7 @@ public:
 
 private:
 
-    Utils::SmartPointer<DataAccess::GDatabaseIODevice> dbio;
+    Utils::SmartPointer<DataAccess::DatabaseIODevice> dbio;
     QString _file_location;
 
     GUtil::DataObjects::Set<int> _ids;

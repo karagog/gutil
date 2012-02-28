@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "timelineview.h"
-#include "Core/DataObjects/symmetricmatrix.h"
-#include "DataObjects/gformattedtext.h"
-#include "DataObjects/gdatetime.h"
+#include "gutil_timelineview.h"
+#include "gutil_symmetricmatrix.h"
+#include "gutil_formattedtext.h"
+#include "gutil_datetime.h"
 #include <QPaintEvent>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -275,7 +275,7 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
         c = QColor(SELECTED_RGB);
 
     _draw_rect(item_rect, c,
-               GFormattedText(ind.data(Qt::DisplayRole).toString(),
+               FormattedText(ind.data(Qt::DisplayRole).toString(),
                               ind.data(Qt::FontRole).value<QFont>()),
                p);
 
@@ -287,7 +287,7 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
     }
 }
 
-void TimelineView::_draw_rect(const QRect &r, const QColor &c, const GFormattedText &txt, QPainter &p)
+void TimelineView::_draw_rect(const QRect &r, const QColor &c, const FormattedText &txt, QPainter &p)
 {
     p.fillRect(r, c);
     p.drawRect(r);
