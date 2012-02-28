@@ -16,10 +16,7 @@ CONFIG += ordered
 HEADERS += \
     gutil.h
 
-
-
-
-
-
-
+OTHER_FILES += \
+    PythonUtils/GenerateHeaders.py \
+    Deploy/Doxyfile
 

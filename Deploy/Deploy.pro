@@ -16,6 +16,7 @@ TARGET = dummy_ignorethislib
 
 ZIP_CMD = zip
 HEADER_CMD = python ../PythonUtils/GenerateHeaders.py
+HEADER_PREFIX = gutil_
 
 DOCS_COMMAND = doxygen
 DOCS_PATH = ../doc
@@ -28,15 +29,14 @@ HEADERGEN_WORKING_DIR = ..
 # Directory patterns for which we want to ignore all headers
 IGNORE_PATHS = Test
 
-CORE_HEADER = gutil_core.h
-CORE_DIR = Core
-
-QT_HEADER = gutil_qt.h
-QT_DIR = Qt
+HEADERGEN_TARGET_DIRS = Core,Qt,CryptoPP
 
 
-headers_core.commands = $$HEADER_CMD --outfile $$CORE_HEADER --dirs=$$CORE_DIR --ignore-path $$IGNORE_PATHS --working-dir=$$HEADERGEN_WORKING_DIR
-headers_qt.commands   = $$HEADER_CMD --outfile $$QT_HEADER --dirs=$$QT_DIR --ignore-path $$IGNORE_PATHS --working-dir=$$HEADERGEN_WORKING_DIR
+headers.commands = $$HEADER_CMD \
+                        --working-dir=$$HEADERGEN_WORKING_DIR \
+                        --input-dirs=$$HEADERGEN_TARGET_DIRS \
+                        --ignore-path=$$IGNORE_PATHS \
+                        --output-prefix=$$HEADER_PREFIX
 
 exists(($$DOCS_PATH/$$DOCS_DIR)){
     docs_clean.commands = rm $$DOCS_PATH/$$DOCS_DIR -rf
@@ -53,16 +53,14 @@ docs_gen.commands = $$DOCS_COMMAND
 docs_zip.commands = cd $$DOCS_PATH; $$ZIP_CMD $$DOCS_ZIP_TARGET -r $$DOCS_DIR
 
 PRE_TARGETDEPS = \
-    headers_core \
-    headers_qt \
+    headers \
     docs_clean \
     docs_gen \
     docs_clean_zip \
     docs_zip
 
 QMAKE_EXTRA_TARGETS = \
-    headers_core \
-    headers_qt \
+    headers \
     docs_clean \
     docs_gen \
     docs_clean_zip \
