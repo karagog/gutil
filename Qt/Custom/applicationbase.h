@@ -53,8 +53,8 @@ public:
     inline ApplicationBase() :m_exiting(0){}
 
     /** Use this function to quit the application, instead of QApplication::quit()
-.
-        This will call the virtual function application_exiting()' which you can
+
+        This will call the virtual function 'application_exiting()' which you can
         override to put cleanup code in.
     */
     static inline void Exit(int return_code = 0){

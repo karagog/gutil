@@ -38,15 +38,12 @@ headers.commands = $$HEADER_CMD \
                         --ignore-path=$$IGNORE_PATHS \
                         --output-prefix=$$HEADER_PREFIX
 
-exists(($$DOCS_PATH/$$DOCS_DIR)){
-    docs_clean.commands = rm $$DOCS_PATH/$$DOCS_DIR -rf
-} else{
-    docs_clean.commands =
+docs_clean.commands =
+exists($$DOCS_PATH/$$DOCS_DIR){
+    docs_clean.commands = rm $$DOCS_PATH/$$DOCS_DIR -rf;
 }
-exists(($$DOCS_PATH/$$DOCS_ZIP_TARGET)){
-    docs_clean_zip.commands = rm $$DOCS_PATH/$$DOCS_ZIP_TARGET
-} else{
-    docs_clean_zip.commands =
+exists($$DOCS_PATH/$$DOCS_ZIP_TARGET){
+    docs_clean.commands += rm $$DOCS_PATH/$$DOCS_ZIP_TARGET;
 }
 
 docs_gen.commands = $$DOCS_COMMAND
@@ -56,14 +53,12 @@ PRE_TARGETDEPS = \
     headers \
     docs_clean \
     docs_gen \
-    docs_clean_zip \
     docs_zip
 
 QMAKE_EXTRA_TARGETS = \
     headers \
     docs_clean \
     docs_gen \
-    docs_clean_zip \
     docs_zip
 
 OTHER_FILES += \

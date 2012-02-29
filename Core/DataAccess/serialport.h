@@ -21,7 +21,10 @@ limitations under the License.*/
 
 #include "gutil_iointerface.h"
 
-//This is the header for cross-platform Windows&Linux serial port functionality
+/** \file
+
+    This is the header for cross-platform serial port functionality
+*/
 
 NAMESPACE_GUTIL1( DataAccess )
 

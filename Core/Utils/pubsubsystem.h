@@ -28,11 +28,11 @@ namespace Utils{
 
 /** Declares a notification topic, to which classes can subscribe.
 
-    You subscribe by calling "Subscribe<name>Handler()".
-    You notify by calling Notify<name>Handler()
+    You subscribe by calling "Subscribe(name)Handler()".
+    You notify by calling Notify(name)Handler()
 
     \param name The name of the event.  This name defines the name of
-    the handler class for the event, which becomes class <name>Handler.
+    the handler class for the event, which becomes class (name)Handler.
 */
 #define DECLARE_TOPIC(name) \
 public: \
@@ -50,11 +50,11 @@ public: \
 
 /** Declares a notification topic, to which classes can subscribe.
 
-    You subscribe by calling "Subscribe<name>Handler()".
-    You notify by calling Notify<name>Handler()
+    You subscribe by calling "Subscribe(name)Handler()".
+    You notify by calling Notify(name)Handler()
 
     \param name The name of the event.  This name defines the name of
-    the handler class for the event, which becomes class <name>Handler.
+    the handler class for the event, which becomes class (name)Handler.
     \param type The type of an argument passed with the event.  You should
     use const references whenever possible.
 */

@@ -12,7 +12,6 @@ HEADERS += \
     Utils/usermachinelocks.h \
     Utils/universalmutex.h \
     Utils/datatransferutils.h \
-    Utils/synchronizationobject.h \
     Utils/databaseutils.h \
     Utils/stopwatchengine.h
 

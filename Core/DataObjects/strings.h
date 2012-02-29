@@ -63,6 +63,7 @@ public:
     inline explicit String(GINT32 capacity) :Vector<char>((GUINT32)capacity + 1) { Data()[capacity] = '\0'; }
 
     /** Creates a new string initialized with the data.
+        \param d Points to the start of a char array
         \param len Specifies the length of the data.  If it is -1 then the string automatically
         finds the terminating null byte (it had better exist in this case!)
     */
@@ -312,10 +313,17 @@ public:
         return IndexOfUTF8(s.ConstData(), start, s.LengthUTF8());
     }
     /** Returns the UTF-8 index of the string.
+        \param s A pointer to the starting byte of a UTF-8 string.  If you already know
+        how long this string is (in UTF-8 characters), then you are encouraged to
+        pass it as the string_length parameter to increase efficiency
+        \param start Indicates the UTF-8 character index of this string at which to
+        start searching.  By default we start at the beginning of the string (index 0)
+        \param string_length The UTF-8 length of the search string (not the byte length!)
+        This is only for optimization purposes; if you don't know the length of the
+        string it will be determined automatically for you
         \returns UINT_MAX if not found
-        \param string_length The UTF-8 length of the string (not the byte length!)
     */
-    GUINT32 IndexOfUTF8(const char *, GUINT32 start = 0, GUINT32 string_length = UINT_MAX) const;
+    GUINT32 IndexOfUTF8(const char *s, GUINT32 start = 0, GUINT32 string_length = UINT_MAX) const;
 
     /** Returns the last UTF-8 index of the string.
         \returns UINT_MAX if not found
@@ -406,6 +414,9 @@ public:
 
     /** Splits the string using the given character delimiter.
         \param separator A single character delimiter
+        \param keep_empty_parts Indicates whether or not to retain the empty strings
+        that may result from the split (such is the case when two delimiters appear
+        side-by-side)  Then you would have an empty placeholder spot in the list.
     */
     inline Vector<String> Split(char separator, bool keep_empty_parts = true) const{
         char c[] = {separator, '\0'};
@@ -414,6 +425,9 @@ public:
 
     /** Splits the string using the given string delimiter.
         \param separator A null-terminated string delimiter
+        \param keep_empty_parts Indicates whether or not to retain the empty strings
+        that may result from the split (such is the case when two delimiters appear
+        side-by-side)  Then you would have an empty placeholder spot in the list.
     */
     Vector<String> Split(const char *separator, bool keep_empty_parts = true) const;
 
@@ -458,6 +472,7 @@ public:
     /** Generates a UTF-8 multibyte character from a unicode code point.
         \param dest must be large enough to hold the multibyte char.  If you're only dealing
         with ascii then the length will always be 1.
+        \param uc_value The unicode codepoint value
     */
     static void UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value);
 
@@ -563,7 +578,9 @@ public:
         inline char *Current() const{ return m_cur; }
 
         /** If the iterator is valid, it copies one multibyte character (or invalid byte) starting at c into its current location.
-            \param very_end The very end of the string, to ensure we don't go beyond this bound
+            \param c
+            \param very_end The very end of this string, to ensure we don't go beyond it
+            during a search of a poorly formed
         */
         inline void Copy(const char *c, const char *very_end)
         {

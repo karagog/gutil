@@ -38,12 +38,7 @@ class Application :
     Q_OBJECT
 public:
 
-    /** Constructs an instance of Application.
-        \param application_name The name of the application, which determines, among other things,
-        the directory paths to the various storage locations.
-        \param application_version The current version of the application
-        \sa QDesktopServices::storageLocation()
-    */
+    /** Constructs an instance of Application. */
     inline Application(int &argc, char **argv) :QApplication(argc, argv) {}
 
     /** Constructs an instance of Application.
@@ -53,7 +48,7 @@ public:
         \sa QDesktopServices::storageLocation()
     */
     inline Application(int &argc, char **argv,
-                          const QString &application_name = QString::null,
+                          const QString &application_name,
                           const QString &application_version = QString::null)
         :QApplication(argc, argv)
     {

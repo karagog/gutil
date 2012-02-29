@@ -103,6 +103,7 @@ public:
 
     /** Creates a single-bound range with the given lower bound.
 
+        \param lb The lower bound
         \param including_value Indicates whether the bound is inclusive. Passing
         false would declare that the bound itself should not be included in the range
     */
@@ -114,6 +115,7 @@ public:
 
     /** Creates a single-bound range with the given upper bound.
 
+        \param ub The upper bound
         \param including_value Indicates whether the bound is inclusive. Passing
         false would declare that the bound itself should not be included in the range
     */
