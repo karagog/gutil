@@ -7,6 +7,7 @@ SUBDIRS += \
     PreBuild \
     ThirdParty \
     Core \
+    QtPlugins \
     Qt \
     CryptoPP \
     Test

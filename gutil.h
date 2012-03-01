@@ -129,9 +129,11 @@ limitations under the License.*/
     \namespace GUtil::QT::Controls UI controls built with Qt's widget system.
 
 
-    \namespace GUtil::QT::Images A library to contain common icons and image resources.
+    \namespace GUtil::QT::Resources A library to contain common resources, such as images
+    and text.
 
-    Nothing is built into this library by default, you must add the resources to the .qrc file
+    No images are built into this library by default, although there are some provided
+    with the library.  You must add them to the .qrc file yourself
     if you want to use them, that way you optimize the dll size and the GUtil build speed.
 
     You must use the Q_INIT_RESOURCES() macro when you want to use this library, with the

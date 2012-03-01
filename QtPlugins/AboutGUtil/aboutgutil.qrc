@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/GUtil/About">
+        <file>abouttext.txt</file>
+    </qresource>
+</RCC>

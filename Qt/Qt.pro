@@ -20,9 +20,6 @@ DEFINES += QT_ADAPTERS
 INCLUDEPATH += ../include ../ThirdParty
 LIBS += -L../lib -lGUtil
 
-HEADERS += \
-    core_conversions.h
-
 include(Interfaces/Interfaces.pri)
 include(Utils/Utils.pri)
 include(Custom/Custom.pri)

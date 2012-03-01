@@ -23,6 +23,11 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <malloc.h>
 
+
+/** The date and time of build */
+#define GUTIL_BUILD_DATE __DATE__ " - " __TIME__
+
+
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
     #define GUTIL_DEBUG
@@ -510,6 +515,24 @@ END_NAMESPACE_GUTIL
 
 /** The number of seconds in a leap year. */
 #define YEAR_IN_SECONDS_UB      DAY_IN_SECONDS * 366
+
+
+
+/** The suffix you find on the end of shared libraries in Windows */
+#define GUTIL_LIBRARY_SUFFIX_WINDOWS ".dll"
+
+/** The suffix you find on the end of shared libraries in Linux */
+#define GUTIL_LIBRARY_SUFFIX_LINUX ".so.1"
+
+#if defined(Q_OS_WIN)
+#define GUTIL_LIBRARY_SUFFIX GUTIL_LIBRARY_SUFFIX_WINDOWS
+#elif defined(Q_OS_LINUX)
+#define GUTIL_LIBRARY_SUFFIX GUTIL_LIBRARY_SUFFIX_LINUX
+#else
+/** A platform-independent definition for the suffix of shared libraries */
+#define GUTIL_LIBRARY_SUFFIX
+#endif
+
 
 
 #endif // GUTIL_GLOBALS_H

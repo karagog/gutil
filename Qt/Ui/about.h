@@ -19,12 +19,12 @@ limitations under the License.*/
 
 #include <QDialog>
 #include <QLabel>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 
 namespace GUtil{ namespace QT{ namespace UI{
 
 
-// A generic about window
+/** A generic about window that you can use to quickly set your own */
 class About :
         public QDialog
 {
@@ -33,22 +33,25 @@ public:
 
     explicit About(QWidget *parent = 0, bool show_about_gutil = true);
 
-    // You can manipulate these members directly to set the title and about text
+    /** Controls the title of the window */
     QLabel Title;
+
+    /** Gives information about the version and/or date */
     QLabel BuildInfo;
-    QPlainTextEdit Text;
 
-    // The image will appear next to the title, and as the window icon.  It can be
-    //  a regular filename or a resource name (:/resource.bmp for example)
-    void SetImage(const QString &filename);
+    /** Controls the text content of the window */
+    QTextEdit Text;
 
-    // Add another about pushbutton
+    /** Sets an image to display in the window
+        \param path_to_resource Can be a resource or a file path
+    */
+    void SetImage(const QString &path_to_resource);
+
+    /** Adds your own custom pushbutton to the interface.
+        This extends the window's functionality, because the button
+        can do literally anything.
+    */
     void AddPushButton(QPushButton *);
-
-
-private slots:
-
-    void _about_gutil();
 
 
 private:

@@ -12,30 +12,35 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ABOUTGUTIL_H
-#define ABOUTGUTIL_H
+#ifndef GUTIL_ABOUTGUTIL_H
+#define GUTIL_ABOUTGUTIL_H
 
-#ifdef GUI_FUNCTIONALITY
+#include "gutil_macros.h"
+#include "gutil_aboutplugininterface.h"
+#include <QtPlugin>
 
-#include "about.h"
-
-namespace GUtil{ namespace QT{ namespace UI{
+namespace GUtil{ namespace QT{ namespace Plugins{
 
 
+/** Plugin wrapper that shows GUtil's about window
+
+    I did this in a plugin so that any text/images will be loaded only
+    when needed.
+*/
 class AboutGUtil :
-        public About
+        public QObject,
+        public IAboutGUtil
 {
     Q_OBJECT
+    Q_INTERFACES(GUtil::QT::Plugins::IAboutGUtil);
 public:
 
-    AboutGUtil(QWidget *p = 0);
+    /** Shows the "About GUtil" window with the widget as parent */
+    virtual void ShowAboutGUtil(QWidget *parent = 0);
 
 };
 
 
 }}}
 
-
-#endif // GUI_FUNCTIONALITY
-
-#endif // ABOUTGUTIL_H
+#endif // GUTIL_ABOUTGUTIL_H

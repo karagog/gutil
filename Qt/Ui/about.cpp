@@ -12,9 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "about.h"
+#ifdef GUI_FUNCTIONALITY
+
+
+#include "gutil_about.h"
 #include "gutil_macros.h"
-#include "aboutgutil.h"
+#include "gutil_application.h"
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
@@ -65,7 +68,8 @@ About::About(QWidget *parent, bool show_about_gutil)
             aboutGUtil = new QPushButton("About GUtil", this);
             m_buttonList.append(aboutGUtil);
             aboutGUtil->setMinimumWidth(PUSH_BUTTON_WIDTH);
-            connect(aboutGUtil, SIGNAL(clicked()), this, SLOT(_about_gutil()));
+            connect(aboutGUtil, SIGNAL(clicked()),
+                    gApp, SLOT(AboutGUtil()));
         }
         QPushButton *ok( new QPushButton("Ok", this) );
         m_buttonList.append(ok);
@@ -126,10 +130,8 @@ void About::AddPushButton(QPushButton *pb)
     }
 }
 
-void About::_about_gutil()
-{
-    AboutGUtil(this).exec();
-}
-
 
 END_NAMESPACE_GUTIL2;
+
+
+#endif // GUI_FUNCTIONALITY

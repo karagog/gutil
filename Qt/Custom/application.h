@@ -20,7 +20,10 @@ limitations under the License.*/
 #include "gutil_applicationbase.h"
 #include "gutil_processstatusindicator.h"
 #include "gutil_aboutgutil.h"
+#include "gutil_smartpointer.h"
 #include <QApplication>
+#include <QPluginLoader>
+#include <QMessageBox>
 
 namespace GUtil{ namespace QT{ namespace Custom{
 
@@ -42,6 +45,8 @@ public:
     inline Application(int &argc, char **argv) :QApplication(argc, argv) {}
 
     /** Constructs an instance of Application.
+        \param argc The number of command line parameters, as passed to main()
+        \param argv The command line trings, as passed to main()
         \param application_name The name of the application, which determines, among other things,
         the directory paths to the various storage locations.
         \param application_version The current version of the application
@@ -116,8 +121,31 @@ public slots:
         Just connect a QPushButton to the gApp instance's slot to show the about.
 
         C'mon give a guy some credit, I made it super easy for you ;)
+
+        \param dialog_parent The parent widget for the about dialog (can also be left empty)
     */
-    static void AboutGUtil(){ GUtil::QT::UI::AboutGUtil().exec(); }
+    static void AboutGUtil(QWidget *dialog_parent = 0){
+        // Have to load the about plugin
+        QPluginLoader pl("GUtilAboutPlugin" GUTIL_LIBRARY_SUFFIX);
+        QString error_msg;
+        if(pl.load()){
+            GUtil::QT::Plugins::IAboutGUtil *about =
+                    qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance());
+            if(about)
+                about->ShowAboutGUtil(dialog_parent);
+            else
+                error_msg = "Unable to cast plugin as expected type";
+            pl.unload();
+        }
+        else{
+            error_msg = QString("Unable to load about plugin: %1\n\n"
+                                "Make sure it is located in the working directory in which the application is executing")
+                    .arg(pl.fileName());
+        }
+
+        if(!error_msg.isEmpty())
+            QMessageBox::critical(0, "ERROR", error_msg, QMessageBox::Ok);
+    }
 
 
 protected:
@@ -125,8 +153,7 @@ protected:
     #ifdef NETWORK_FUNCTIONALITY
     /** We have to delete the status indicator in the cleanup handler. */
     virtual void application_exiting(){
-        delete m_psi;
-        m_psi = 0;
+        m_psi.Clear();
         ApplicationBase::application_exiting();
     }
     #endif // NETWORK_FUNCTIONALITY
@@ -135,7 +162,7 @@ protected:
 private:
 
     #ifdef NETWORK_FUNCTIONALITY
-    GUtil::QT::BusinessObjects::ProcessStatusIndicator *m_psi;
+    GUtil::Utils::SmartPointer<GUtil::QT::BusinessObjects::ProcessStatusIndicator> m_psi;
     #endif // NETWORK_FUNCTIONALITY
 
 };
