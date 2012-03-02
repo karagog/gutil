@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef TIMERANGEPICKER_H
 #define TIMERANGEPICKER_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_range.h"
 #include <QWidget>

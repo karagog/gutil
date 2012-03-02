@@ -12,7 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#if defined(GUI_FUNCTIONALITY) && defined(NETWORK_FUNCTIONALITY)
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
 
 #include "processstatusindicator.h"
 #include "processstatusserver.h"
@@ -132,4 +133,5 @@ void ProcessStatusIndicator::SendMessageToControllingProcess(const QString &mess
 
 END_NAMESPACE_GUTIL2;
 
-#endif // GUI_FUNCTIONALITY && NETWORK_FUNCTIONALITY
+#endif // GUTIL_NO_NETWORK_FUNCTIONALITY
+#endif // GUTIL_NO_GUI_FUNCTIONALITY

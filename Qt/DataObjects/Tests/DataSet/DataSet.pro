@@ -28,8 +28,9 @@ LIBS += -L../../../../lib \
 unix: LIBS += -Wl,-rpath,../../../lib
 
 DEFINES += \
-    DEBUG_LOGGING \
-    #GUI_FUNCTIONALITY
+    DEBUG_LOGGING
+
+DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 HEADERS += \
     persondatarow.h \

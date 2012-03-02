@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_UNDOSTACK_H
 #define GUTIL_UNDOSTACK_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include <QUndoStack>
 

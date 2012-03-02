@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef TIMELINEVIEW_H
 #define TIMELINEVIEW_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_range.h"
 #include "gutil_globals.h"

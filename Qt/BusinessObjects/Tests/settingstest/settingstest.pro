@@ -12,7 +12,7 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-DEFINES += GUI_FUNCTIONALITY
+#DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 SOURCES += \
     settingstest.cpp

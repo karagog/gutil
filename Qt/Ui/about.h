@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_ABOUT_H
 #define GUTIL_ABOUT_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include <QDialog>
 #include <QLabel>

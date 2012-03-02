@@ -17,7 +17,7 @@ TEMPLATE = app
 INCLUDEPATH += ../../../.. ../../..
 LIBS += -L../../../../lib -lGUtil
 
-DEFINES += GUI_FUNCTIONALITY
+#DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 SOURCES += main.cpp
 

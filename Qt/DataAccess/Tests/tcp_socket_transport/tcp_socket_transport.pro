@@ -9,7 +9,7 @@ QT       += core gui network
 TARGET = tcp_socket_transport
 TEMPLATE = app
 
-DEFINES += NETWORK_FUNCTIONALITY
+#DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
 
 SOURCES += main.cpp\
         mainwindow.cpp

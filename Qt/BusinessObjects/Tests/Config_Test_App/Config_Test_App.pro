@@ -9,7 +9,7 @@ QT       += core gui network
 TARGET = Config_Test_App
 TEMPLATE = app
 
-DEFINES += GUI_FUNCTIONALITY
+#DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 SOURCES += main.cpp\
         mainwindow.cpp

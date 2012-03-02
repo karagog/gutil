@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef FILECHOOSER_H
 #define FILECHOOSER_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "lineeditwithbutton.h"
 #include "gutil_exception.h"

@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef DATABASE_FUNCTIONALITY
+#ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
 
 #include "binarydatastore.h"

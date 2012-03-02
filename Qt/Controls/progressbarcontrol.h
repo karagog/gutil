@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef LABELLEDPROGRESSBAR_H
 #define LABELLEDPROGRESSBAR_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include <QWidget>
 #include <QLabel>

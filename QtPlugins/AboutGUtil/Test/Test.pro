@@ -9,7 +9,7 @@ QT       += core gui
 TARGET = Test
 TEMPLATE = app
 
-DEFINES += GUI_FUNCTIONALITY
+#DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 INCLUDEPATH += ../../../include
 LIBS += -L../../../lib -lGUtil -lGUtilQt

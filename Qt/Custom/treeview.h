@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GTREEVIEW_H
 #define GTREEVIEW_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include <QTreeView>
 

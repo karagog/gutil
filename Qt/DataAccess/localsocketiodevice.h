@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifdef NETWORK_FUNCTIONALITY
+#ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
 
-#ifndef LocalSocketIODevice_H
-#define LocalSocketIODevice_H
+#ifndef GUTIL_LOCAL_SOCKET_IODEVICE_H
+#define GUTIL_LOCAL_SOCKET_IODEVICE_H
 
 #include "qt_iodevice.h"
 #include <QLocalSocket>
@@ -64,6 +64,6 @@ private slots:
 
 }}}
 
-#endif // LocalSocketIODevice_H
+#endif // GUTIL_LOCAL_SOCKET_IODEVICE_H
 
 #endif // NETWORK_FUNCTIONALITY

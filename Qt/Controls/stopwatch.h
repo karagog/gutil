@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef STOPWATCH_H
 #define STOPWATCH_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_stopwatchengine.h"
 #include <QPushButton>

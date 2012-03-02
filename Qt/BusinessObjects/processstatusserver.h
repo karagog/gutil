@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#if defined(NETWORK_FUNCTIONALITY)
+#ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
 
 #ifndef GUTIL_PROCESSSTATUSSERVER_H
 #define GUTIL_PROCESSSTATUSSERVER_H
@@ -94,4 +94,4 @@ private:
 
 #endif // GUTIL_PROCESSSTATUSSERVER_H
 
-#endif // NETWORK_FUNCTIONALITY
+#endif // GUTIL_NO_NETWORK_FUNCTIONALITY

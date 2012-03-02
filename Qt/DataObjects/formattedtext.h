@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_FORMATTEDTEXT_H
 #define GUTIL_FORMATTEDTEXT_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_macros.h"
 #include <QString>

@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef FILE_MANAGER_H
 #define FILE_MANAGER_H
 
-#ifdef GUI_FUNCTIONALITY
-#ifdef DATABASE_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
 #include "gutil_databaseiodevice.h"
 #include "gutil_set.h"

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef EFFECTSWIDGETS_H
 #define EFFECTSWIDGETS_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_macros.h"
 #include <QWidget>

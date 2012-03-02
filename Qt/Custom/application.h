@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_APPLICATION_H
 #define GUTIL_APPLICATION_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_applicationbase.h"
 #include "gutil_processstatusindicator.h"
@@ -62,14 +62,14 @@ public:
         if(!application_version.isEmpty())
             setApplicationVersion(application_version);
 
-        #ifdef NETWORK_FUNCTIONALITY
+        #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
         // Initialize this after setting the application name and version
         m_psi = new BusinessObjects::ProcessStatusIndicator;
         #endif
     }
 
 
-    #ifdef NETWORK_FUNCTIONALITY
+    #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
 
     /** To facilitate Inter-process communication between application instances.
 
@@ -150,7 +150,7 @@ public slots:
 
 protected:
 
-    #ifdef NETWORK_FUNCTIONALITY
+    #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
     /** We have to delete the status indicator in the cleanup handler. */
     virtual void application_exiting(){
         m_psi.Clear();
@@ -161,7 +161,7 @@ protected:
 
 private:
 
-    #ifdef NETWORK_FUNCTIONALITY
+    #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
     GUtil::Utils::SmartPointer<GUtil::QT::BusinessObjects::ProcessStatusIndicator> m_psi;
     #endif // NETWORK_FUNCTIONALITY
 

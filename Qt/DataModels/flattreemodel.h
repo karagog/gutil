@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef MYFLATTREEVIEW_H
 #define MYFLATTREEVIEW_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include <QAbstractProxyModel>
 #include "gutil_map.h"

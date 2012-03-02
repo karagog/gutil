@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef LINE_EDIT_WITH_BUTTON_H
 #define LINE_EDIT_WITH_BUTTON_H
 
-#ifdef GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_faderwidget.h"
 #include <QWidget>
