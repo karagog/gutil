@@ -34,11 +34,8 @@ public:
     /** Overridden from AbstractLogger to log the message to all loggers in the group */
     virtual void Log(const DataObjects::String &message,
                      const DataObjects::String &title = DataObjects::String(),
-                     MessageLevelEnum msg_lvl = Info)
+                     MessageLevelEnum msg_lvl = MessageLevel_Info)
     {
-        if(msg_lvl < MessageLevelTolerance())
-            return;
-
         // Log the message to all of our loggers
         for(DataObjects::Vector< Utils::SharedSmartPointer<AbstractLogger> >::const_iterator iter(m_loggers.begin());
             iter != m_loggers.end(); ++iter)

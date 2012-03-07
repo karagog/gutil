@@ -22,39 +22,31 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 NAMESPACE_GUTIL1(Logging)
 
 
+#define DEFAULT_TRUNCATE_LIMIT   1000
+
 AbstractLogger::AbstractLogger(OutputInterface *io)
     :_io(io),
-      m_logExceptionDetails(true)
-{
-    m_message_level_tolerance = Info;
-}
+      m_options(GUINT32_MAX),
+      m_truncate_limit(DEFAULT_TRUNCATE_LIMIT)
+{}
 
-void AbstractLogger::LogExceptionDetails(bool l)
-{
-    m_logExceptionDetails = l;
-}
-
-void AbstractLogger::SetMessageLevelTolerance(MessageLevelEnum message_level)
-{
-    m_message_level_tolerance = message_level;
-}
-
-AbstractLogger::MessageLevelEnum AbstractLogger::MessageLevelTolerance()
-{
-    return m_message_level_tolerance;
-}
-
-
-#define TRUNCATE_LIMIT 1000
+AbstractLogger::AbstractLogger(OutputInterface *io, const AbstractLogger::LoggingOptionsFlags &f)
+    :_io(io),
+      m_options(f),
+      m_truncate_limit(DEFAULT_TRUNCATE_LIMIT)
+{}
 
 void AbstractLogger::LogException(const Exception<false> &ex)
 {
+    if(!should_log_message(MessageLevel_Error))
+        return;
+
     const Exception<true> *ex_ptr( dynamic_cast<const Exception<true> *>(&ex) );
 
     if(ex_ptr)
     {
         String data_string;
-        if(m_logExceptionDetails)
+        if(m_options.TestFlag(Option_LogExceptionDetails))
         {
             const Map<String, String> &keys( ex_ptr->GetDataMap() );
             if(keys.Size() > 0)
@@ -62,14 +54,17 @@ void AbstractLogger::LogException(const Exception<false> &ex)
                 data_string = "\n\nException Data:";
 
                 for(Map<String, String>::const_iterator it( keys.begin() );
-                    it; it++)
+                    it; ++it)
                 {
                     String tmps( it->Value() );
-                    if(tmps.Length() > TRUNCATE_LIMIT)
-                        tmps.TruncateUTF8(TRUNCATE_LIMIT)
+                    if(m_options.TestFlag(Option_TruncateExceptionDetails) &&
+                            tmps.Length() > m_truncate_limit)
+                    {
+                        tmps.TruncateUTF8(m_truncate_limit)
                                 .Append(String::Format(
                                             "<--- TRUNCATED AT %d CHARACTERS",
-                                            TRUNCATE_LIMIT));
+                                            m_truncate_limit));
+                    }
 
                     data_string.Append(String::Format("\n\tKey: %s   Value: %s",
                                                       it->Key().ConstData(),
@@ -80,13 +75,13 @@ void AbstractLogger::LogException(const Exception<false> &ex)
 
         Log(String::Format("%s%s", ex_ptr->GetMessage(), data_string.ConstData()),
 
-            String::Format("%s Caught from line %d of file '%s'%s:",
+            String::Format("%s caught from line %d of file '%s'%s:",
             ex.What ? ex.What : "[ null ]",
             ex.Line,
             ex.File ? ex.File : "[ no file ]",
             ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : ""),
 
-            Error);
+            MessageLevel_Error);
 
         if(ex_ptr->GetInnerException())
             LogException(*ex_ptr->GetInnerException());
@@ -94,19 +89,16 @@ void AbstractLogger::LogException(const Exception<false> &ex)
     else
     {
         Log("",
-            String::Format("%s Caught from line %d of file '%s':",
+            String::Format("%s caught from line %d of file '%s':",
                            ex.What ? ex.What : "[ null ]",
                            ex.Line,
                            ex.File ? ex.File : "[ no file ]"),
-            Error);
+            MessageLevel_Error);
     }
 }
 
-void AbstractLogger::Log(const String &msg, const String &title, MessageLevelEnum message_level)
+void AbstractLogger::log_protected(const String &msg, const String &title, MessageLevelEnum message_level)
 {
-    if(message_level < MessageLevelTolerance())
-        return;
-
     String log_message( prepare_log_message(msg, title, message_level) );
     try
     {
@@ -115,7 +107,8 @@ void AbstractLogger::Log(const String &msg, const String &title, MessageLevelEnu
     }
     catch(...)
     {
-        return;
+        // Quietly absorb any exceptions.
+        // We're just a logger, so we want to be sure we're stable
     }
 }
 
@@ -127,17 +120,18 @@ String AbstractLogger::prepare_log_message(
     char const *msg_id;
     switch(message_type)
     {
-    case Info:
+    case MessageLevel_Info:
         msg_id = "Info";
         break;
-    case Warning:
+    case MessageLevel_Warning:
         msg_id = "Warning";
         break;
-    case Error:
+    case MessageLevel_Error:
         msg_id = "ERROR";
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION2( NotImplementedException, "Invalid Message Type" );
+        THROW_NEW_GUTIL_EXCEPTION2( NotImplementedException,
+                                    "Invalid Message Type" );
     }
 
     // Find the current time

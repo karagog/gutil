@@ -28,13 +28,13 @@ void MessageBoxLogger::Log(const String &message,
 {
     switch(ml)
     {
-    case Info:
+    case MessageLevel_Info:
         QMessageBox::information(0, title.ToQString(), message.ToQString());
         break;
-    case Warning:
+    case MessageLevel_Warning:
         QMessageBox::warning(0, title.ToQString(), message.ToQString());
         break;
-    case Error:
+    case MessageLevel_Error:
         QMessageBox::critical(0, title.ToQString(), message.ToQString());
         break;
     default:

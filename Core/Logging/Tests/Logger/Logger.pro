@@ -20,7 +20,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 DEFINES += GUTIL_DEBUG
 
-INCLUDEPATH += ../../../.. ../../..
+INCLUDEPATH += ../../../../include ../../..
 LIBS += -L../../../../lib \
     -lGUtil
 

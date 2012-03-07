@@ -39,13 +39,13 @@ QVariant DatabaseLogModel::data(const QModelIndex &idx, int role) const
         {
             switch((DatabaseLogger::MessageLevelEnum)ret.toInt())
             {
-            case DatabaseLogger::Info:
+            case DatabaseLogger::MessageLevel_Info:
                 ret = "Info";
                 break;
-            case DatabaseLogger::Warning:
+            case DatabaseLogger::MessageLevel_Warning:
                 ret = "Warning";
                 break;
-            case DatabaseLogger::Error:
+            case DatabaseLogger::MessageLevel_Error:
                 ret = "Error";
                 break;
             default:

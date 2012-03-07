@@ -93,7 +93,7 @@ public:
                                   const DataObjects::String &title = DataObjects::String(),
                                   int logger_id = DefaultId)
     {
-        _log(msg, title, logger_id, AbstractLogger::Info);
+        _log(msg, title, logger_id, AbstractLogger::MessageLevel_Info);
     }
 
     /** Logs a message with a severity of "warning". */
@@ -101,7 +101,7 @@ public:
                            const DataObjects::String &title = DataObjects::String(),
                            int logger_id = DefaultId)
     {
-        _log(msg, title, logger_id, AbstractLogger::Warning);
+        _log(msg, title, logger_id, AbstractLogger::MessageLevel_Warning);
     }
 
     /** Logs a message with a severity of "error". */
@@ -109,7 +109,7 @@ public:
                                 const DataObjects::String &title = DataObjects::String(),
                                 int logger_id = DefaultId)
     {
-        _log(msg, title, logger_id, AbstractLogger::Error);
+        _log(msg, title, logger_id, AbstractLogger::MessageLevel_Error);
     }
 
     /** Logs an exception. */

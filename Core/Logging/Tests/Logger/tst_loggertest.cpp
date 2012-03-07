@@ -12,11 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "Logging/filelogger.h"
-#include "Logging/consolelogger.h"
-#include "Logging/globallogger.h"
-#include "Logging/grouplogger.h"
-#include "Logging/debuglogger.h"
+#include "gutil_filelogger.h"
+#include "gutil_consolelogger.h"
+#include "gutil_globallogger.h"
+#include "gutil_grouplogger.h"
+#include "gutil_debuglogger.h"
 #include "gutil_extendedexception.h"
 #include <QtConcurrentRun>
 #include <QtCore/QString>
@@ -84,14 +84,15 @@ void LoggerTest::test_normal_logging()
         clog.Log("This is a message", "Hello world");
         flog.Log("This is a message", "Hello world");
 
-        clog.Log("Bar", "Foo", flog.Error);
-        flog.Log("Bar", "Foo", flog.Error);
+        clog.Log("Bar", "Foo", flog.MessageLevel_Error);
+        flog.Log("Bar", "Foo", flog.MessageLevel_Error);
 
-        clog.SetMessageLevelTolerance(ConsoleLogger::Error);
-        flog.SetMessageLevelTolerance(ConsoleLogger::Error);
+        clog.SetOption(ConsoleLogger::Option_LogInfo, false);
+        flog.SetOption(ConsoleLogger::Option_LogInfo, false);
+        flog.SetOption(ConsoleLogger::Option_LogWarning, false);
 
         flog.Log("Shouldn't see this message");
-        flog.Log("Shouldn't see this warning", "", flog.Warning);
+        flog.Log("Shouldn't see this warning", "", flog.MessageLevel_Warning);
     }
     catch(const Exception<> &ex)
     {

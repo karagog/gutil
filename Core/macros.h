@@ -22,33 +22,59 @@ limitations under the License.*/
 */
 
 
+#include <limits.h>
+
 
 /** Represents a generic 8 bits of memory. */
 #define GBYTE unsigned char
 
 /** An 8 bit integer*/
 #define GINT8       char
+/** The max value of a GINT8 */
+#define GINT8_MAX     ((GINT8)0x7F)
+/** The min value of a GINT8 */
+#define GINT8_MIN     ((GINT8)0x80)
 
 /** An 8 bit unsigned integer*/
 #define GUINT8      unsigned char
+/** The max value of a GUINT8 */
+#define GUINT8_MAX     ((GUINT8)0xFF)
 
 /** A 16 bit integer. */
 #define GINT16      short
+/** The max value of a GINT16 */
+#define GINT16_MAX     ((GINT16)0x7FFF)
+/** The min value of a GINT16 */
+#define GINT16_MIN     ((GINT16)0x8000)
 
 /** A 16 bit unsigned integer. */
 #define GUINT16     unsigned short
+/** The max value of a GUINT16 */
+#define GUINT16_MAX     ((GUINT16)0xFFFF)
 
 /** A 32 bit integer. */
 #define GINT32      int
+/** The max value of a GINT32 */
+#define GINT32_MAX      (0x7FFFFFFF)
+/** The min value of a GINT32 */
+#define GINT32_MIN      (0X80000000)
 
 /** A 32 bit unsigned integer. */
 #define GUINT32     unsigned int
+/** The max value of a GUINT32 */
+#define GUINT32_MAX     (0xFFFFFFFF)
 
 /** A 64 bit integer. */
 #define GINT64      long long
+/** The max value of a GINT64 */
+#define GINT64_MAX      (0x7FFFFFFFFFFFFFFFLL)
+/** The min value of a GINT64 */
+#define GINT64_MIN      (0x8000000000000000LL)
 
 /** A 64 bit unsigned integer. */
 #define GUINT64     unsigned long long
+/** The max value of a GUINT64 */
+#define GUINT64_MAX     (0xFFFFFFFFFFFFFFFFLL)
 
 /** A 32-bit floating point number. */
 #define GFLOAT32    float

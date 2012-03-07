@@ -76,7 +76,10 @@ private:
 END_NAMESPACE_GUTIL1;
 
 
-/** Use this for convenient flag operators for your enum type. */
+/** Use this for convenient flag operators for your enum type.
+    \param flags_name The name of the resultant flags class.
+    \param enum_type The name of the enum that you wish to turn into flags
+*/
 #define GUTIL_DECLARE_FLAGS(flags_name, enum_type) \
     class flags_name : public GUtil::DataObjects::Flags<enum_type>{ \
     public: \
@@ -85,7 +88,14 @@ END_NAMESPACE_GUTIL1;
         inline flags_name(const GUtil::DataObjects::Flags<enum_type> &o) :GUtil::DataObjects::Flags<enum_type>(o){} \
     };
 
-/** You need to declare this outside of a class scope. */
+/** Declares all necessary operators and supplement classes to integrate
+    a Flags class defined with GUTIL_DECLARE_FLAGS with the rest of your code.
+
+    You need to declare this outside of any class/namespace scope.
+
+    \param flags_name The name of the flags class.
+    \param enum_type The name of the enum that you wish to turn into flags
+*/
 #define GUTIL_DECLARE_FLAG_OPERATORS(flags_name, enum_type) \
     static inline flags_name operator | (enum_type e1, enum_type e2){ \
         flags_name ret; \
