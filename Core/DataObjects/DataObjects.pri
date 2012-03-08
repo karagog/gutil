@@ -18,11 +18,13 @@ HEADERS += \
     DataObjects/symmetricmatrix.h \
     DataObjects/range.h \
     DataObjects/nullable.h \
-    DataObjects/strings.h
+    DataObjects/strings.h \
+    DataObjects/bitvector.h
 
 SOURCES += \
     DataObjects/version.cpp \
-    DataObjects/strings.cpp
+    DataObjects/strings.cpp \
+    DataObjects/bitvector.cpp
 
 
 

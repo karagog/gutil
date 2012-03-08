@@ -14,8 +14,12 @@ limitations under the License.*/
 
 #include "gutil_globals.h"
 
+#if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
+NAMESPACE_GUTIL;
+#endif
 
-extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256] =
+
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC const char GUTIL_MSB_LOOKUP_TABLE[256] =
 {
     #define _MSB_LT2(n) n, n
     #define _MSB_LT3(n) _MSB_LT2(n), _MSB_LT2(n)
@@ -37,17 +41,10 @@ extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256] =
 };
 
 
-#ifndef GUTIL_COM_EXPORTS
-NAMESPACE_GUTIL
-#endif
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC const char *BUILD_TIME = __DATE__ " - " __TIME__;
 
-const char *BUILD_TIME = __DATE__ " - " __TIME__;
 
-#ifdef GUTIL_COM_EXPORTS
-GUTIL_COM_EXPORT int FSB16(GUINT16 n)
-#else
-int FSB16(GUINT16 n)
-#endif
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB16(GUINT16 n)
 {
     unsigned int t( n >> 8 );
     return t ?
@@ -56,11 +53,7 @@ int FSB16(GUINT16 n)
 }
 
 
-#ifdef GUTIL_COM_EXPORTS
-GUTIL_COM_EXPORT int FSB32(GUINT32 n)
-#else
-int FSB32(GUINT32 n)
-#endif
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32 n)
 {
     int res;
     unsigned int t1, t2;
@@ -78,11 +71,7 @@ int FSB32(GUINT32 n)
 }
 
 
-#ifdef GUTIL_COM_EXPORTS
-GUTIL_COM_EXPORT int FSB64(GUINT64 n)
-#else
-int FSB64(GUINT64 n)
-#endif
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
 {
     int res;
     GUINT64 t1, t2;
@@ -113,6 +102,6 @@ int FSB64(GUINT64 n)
 }
 
 
-#ifndef GUTIL_COM_EXPORTS
-END_NAMESPACE_GUTIL
+#if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
+END_NAMESPACE_GUTIL;
 #endif

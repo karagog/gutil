@@ -227,34 +227,24 @@ protected: \
 
 
 
-// These macros only relevant for windows COM functionality
-#ifdef __WIN32__
 
-    /** Preps a function to be exported in a COM interface
-            (no member functions; it is strictly C style).
 
-        It is declared extern "C" to avoid name-mangling of the function name, so you
-        can call functions directly by their name.  You can even call the native functions in managed (C#) code.
-    */
-    #ifdef GUTIL_COM_EXPORTS
-        #define GUTIL_COM_EXPORT extern "C" __declspec(dllexport)
-    #else
-        #define GUTIL_COM_EXPORT
-    #endif
+#if defined(GUTIL_COM_EXPORTS)
+    #define GUTIL_COM_DECLSPEC  __declspec(dllexport)
+    #define GUTIL_COM_EXTERN    extern "C"
+    #define GUTIL_EXTERN
 
-    /** Declares a function as a dll export (name mangling still applies). */
-    #ifdef GUTIL_DLL_EXPORTS
-        #define GUTIL_DLL_EXPORT __declspec(dllexport)
-    #else
-        #define GUTIL_DLL_EXPORT
-    #endif
+#elif defined(GUTIL_COM_IMPORTS)
+    #define GUTIL_COM_DECLSPEC  __declspec(dllimport)
+    #define GUTIL_COM_EXTERN    extern "C"
+    #define GUTIL_EXTERN
+
 #else
-    #define GUTIL_DLL_EXPORT
-    #define GUTIL_COM_EXPORT
+    #define GUTIL_COM_DECLSPEC
+    #define GUTIL_COM_EXTERN
+    #define GUTIL_EXTERN        extern
+
 #endif
-
-
-
 
 
 #endif // GUTIL_MACROS_H

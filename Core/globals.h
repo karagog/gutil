@@ -189,13 +189,46 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 
 
 
-#ifndef GUTIL_COM_EXPORTS
-NAMESPACE_GUTIL
+// In this section we define our potential COM exports (no namespaces when exporting)
+
+#if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
+NAMESPACE_GUTIL;
 #endif
 
 
 /** The date and time at which the core library was built */
-extern const char *BUILD_TIME;
+GUTIL_EXTERN GUTIL_COM_DECLSPEC const char *BUILD_TIME;
+
+
+/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
+GUTIL_EXTERN GUTIL_COM_DECLSPEC const char GUTIL_MSB_LOOKUP_TABLE[256];
+
+/** Returns the most significant set bit of a 16 bit number in the minimum number of instructions
+    using a lookup table.
+    \note O(1).  This is computed in 3-4 cpu instructions
+*/
+GUTIL_EXTERN GUTIL_COM_DECLSPEC int FSB16(GUINT16);
+
+/** Returns the most significant set bit of a 32 bit number in the minimum number of instructions
+    using a lookup table.
+    \note O(1).  This is computed in 7 cpu instructions on average.
+*/
+GUTIL_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32);
+
+/** Returns the most significant set bit of a 64 bit number in the minimum number of instructions
+    using a lookup table.
+    \note O(1).  This is computed in 9 cpu instructions on average.
+*/
+GUTIL_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64);
+
+
+#if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
+END_NAMESPACE_GUTIL
+#endif
+
+
+
+NAMESPACE_GUTIL;
 
 
 /** Use this template and its overrides to determine, at compile time,
@@ -392,41 +425,12 @@ inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 }
 
 
-/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
-extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256];
 
 /** Returns the most significant set bit of a 8 bit number using a lookup table
     \note O(1).  This is computed in 2 instructions (add and fetch), and is inlined
     to avoid the function call overhead
 */
 inline int FSB8(GBYTE n){ return GUTIL_MSB_LOOKUP_TABLE[n]; }
-
-/** Returns the most significant set bit of a 16 bit number in the minimum number of instructions
-    using a lookup table.
-    \note O(1).  This is computed in 3-4 cpu instructions
-*/
-#ifdef GUTIL_COM_EXPORTS
-extern "C"
-#endif
-int FSB16(GUINT16);
-
-/** Returns the most significant set bit of a 32 bit number in the minimum number of instructions
-    using a lookup table.
-    \note O(1).  This is computed in 7 cpu instructions on average.
-*/
-#ifdef GUTIL_COM_EXPORTS
-extern "C"
-#endif
-int FSB32(GUINT32);
-
-/** Returns the most significant set bit of a 64 bit number in the minimum number of instructions
-    using a lookup table.
-    \note O(1).  This is computed in 9 cpu instructions on average.
-*/
-#ifdef GUTIL_COM_EXPORTS
-extern "C"
-#endif
-int FSB64(GUINT64);
 
 
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
@@ -454,7 +458,7 @@ inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 template<class T>
 inline T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
     T *ret( reinterpret_cast<T *>(malloc( N * sizeof(T) )) );
-    if(!ret) throw BadAllocationException<>(file, line);
+    if(!ret) throw GUtil::BadAllocationException<>(file, line);
     return ret;
 }
 
@@ -476,9 +480,7 @@ enum SortTypeEnum
 
 
 
-#ifndef GUTIL_COM_EXPORTS
-END_NAMESPACE_GUTIL
-#endif
+END_NAMESPACE_GUTIL;
 
 
 
