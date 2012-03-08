@@ -62,7 +62,12 @@ void File::Close()
     {
         // Even if fclose fails, the handle is not associated with the file anymore
         m_handle = NULL;
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to close file");
+
+        // Do not throw an exception here, because some operating
+        //  systems may automatically close a file before your program
+        //  gets around to it.  In that case your program could
+        //  end always with a crash.
+        //THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to close file");
     }
     m_handle = NULL;
 }

@@ -95,7 +95,7 @@ private:
     static bool _initialized;
 
     inline static DataObjects::String _create_title(const char *file, int line){
-        return DataObjects::String::Format("%s    Line #%d:", file, line);
+        return DataObjects::String::Format("  File: %s    Line: %d", file, line);
     }
 
     static void _check_if_initialized();
