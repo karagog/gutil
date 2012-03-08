@@ -24,10 +24,6 @@ limitations under the License.*/
 #include <malloc.h>
 
 
-/** The date and time of build */
-#define GUTIL_BUILD_DATE __DATE__ " - " __TIME__
-
-
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
     #define GUTIL_DEBUG
@@ -196,6 +192,10 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 #ifndef GUTIL_COM_EXPORTS
 NAMESPACE_GUTIL
 #endif
+
+
+/** The date and time at which the core library was built */
+extern const char *BUILD_TIME;
 
 
 /** Use this template and its overrides to determine, at compile time,

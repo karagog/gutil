@@ -14,9 +14,6 @@ limitations under the License.*/
 
 #include "gutil_globals.h"
 
-#ifndef GUTIL_COM_EXPORTS
-using namespace GUtil;
-#endif
 
 extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256] =
 {
@@ -40,10 +37,16 @@ extern "C" const char GUTIL_MSB_LOOKUP_TABLE[256] =
 };
 
 
+#ifndef GUTIL_COM_EXPORTS
+NAMESPACE_GUTIL
+#endif
+
+const char *BUILD_TIME = __DATE__ " - " __TIME__;
+
 #ifdef GUTIL_COM_EXPORTS
 GUTIL_COM_EXPORT int FSB16(GUINT16 n)
 #else
-int GUtil::FSB16(GUINT16 n)
+int FSB16(GUINT16 n)
 #endif
 {
     unsigned int t( n >> 8 );
@@ -56,7 +59,7 @@ int GUtil::FSB16(GUINT16 n)
 #ifdef GUTIL_COM_EXPORTS
 GUTIL_COM_EXPORT int FSB32(GUINT32 n)
 #else
-int GUtil::FSB32(GUINT32 n)
+int FSB32(GUINT32 n)
 #endif
 {
     int res;
@@ -78,7 +81,7 @@ int GUtil::FSB32(GUINT32 n)
 #ifdef GUTIL_COM_EXPORTS
 GUTIL_COM_EXPORT int FSB64(GUINT64 n)
 #else
-int GUtil::FSB64(GUINT64 n)
+int FSB64(GUINT64 n)
 #endif
 {
     int res;
@@ -108,3 +111,8 @@ int GUtil::FSB64(GUINT64 n)
     }
     return res;
 }
+
+
+#ifndef GUTIL_COM_EXPORTS
+END_NAMESPACE_GUTIL
+#endif

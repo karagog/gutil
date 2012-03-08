@@ -25,8 +25,7 @@ void AboutGUtil::ShowAboutGUtil(QWidget *parent)
 
     a.Title.setText("GUtil Libraries - " GUTIL_VERSION);
 
-    // Note: GUTIL_BUILD_DATE is defined by one of our QMake .pro files
-    a.BuildInfo.setText("Built on " GUTIL_BUILD_DATE);
+    a.BuildInfo.setText(QString("Built on %1").arg(GUtil::BUILD_TIME));
 
     // Fetch the about text from a resource
     QResource r(":/GUtil/About/abouttext.txt");
