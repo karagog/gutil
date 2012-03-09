@@ -7,8 +7,6 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
-#DEFINES += DEBUG
-
 INCLUDEPATH += ../include
 
 #DEFINES += GUTIL_COM_EXPORTS

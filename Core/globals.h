@@ -196,30 +196,28 @@ NAMESPACE_GUTIL;
 #endif
 
 
-/** The date and time at which the core library was built */
-GUTIL_EXTERN GUTIL_COM_DECLSPEC const char *BUILD_TIME;
-
-
-/** This is a lookup table which allows us to find the MSB in constant time (and very few instructions). */
-GUTIL_EXTERN GUTIL_COM_DECLSPEC const char GUTIL_MSB_LOOKUP_TABLE[256];
+/** Returns the most significant set bit of a 8 bit number using a lookup table
+    \note O(1).  This is implemented simply using a lookup table
+*/
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB8(GUINT8 n);
 
 /** Returns the most significant set bit of a 16 bit number in the minimum number of instructions
     using a lookup table.
-    \note O(1).  This is computed in 3-4 cpu instructions
+    \note O(1).  This is computed in 3-4 cpu instructions using a lookup table
 */
-GUTIL_EXTERN GUTIL_COM_DECLSPEC int FSB16(GUINT16);
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB16(GUINT16);
 
 /** Returns the most significant set bit of a 32 bit number in the minimum number of instructions
     using a lookup table.
-    \note O(1).  This is computed in 7 cpu instructions on average.
+    \note O(1).  This is computed in 7 cpu instructions on average using a lookup table
 */
-GUTIL_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32);
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32);
 
 /** Returns the most significant set bit of a 64 bit number in the minimum number of instructions
     using a lookup table.
-    \note O(1).  This is computed in 9 cpu instructions on average.
+    \note O(1).  This is computed in 9 cpu instructions on average using a lookup table
 */
-GUTIL_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64);
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64);
 
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
@@ -229,6 +227,14 @@ END_NAMESPACE_GUTIL
 
 
 NAMESPACE_GUTIL;
+
+
+/** The date and time at which the core library was built
+
+    This string will also be exported with the COM interface, if that build
+    flag is set
+*/
+extern const char *BUILD_TIME;
 
 
 /** Use this template and its overrides to determine, at compile time,
@@ -424,13 +430,6 @@ inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
         gSwapWord32(one, two, size_in_bytes >> 2);
 }
 
-
-
-/** Returns the most significant set bit of a 8 bit number using a lookup table
-    \note O(1).  This is computed in 2 instructions (add and fetch), and is inlined
-    to avoid the function call overhead
-*/
-inline int FSB8(GBYTE n){ return GUTIL_MSB_LOOKUP_TABLE[n]; }
 
 
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.

@@ -232,17 +232,14 @@ protected: \
 #if defined(GUTIL_COM_EXPORTS)
     #define GUTIL_COM_DECLSPEC  __declspec(dllexport)
     #define GUTIL_COM_EXTERN    extern "C"
-    #define GUTIL_EXTERN
 
 #elif defined(GUTIL_COM_IMPORTS)
     #define GUTIL_COM_DECLSPEC  __declspec(dllimport)
     #define GUTIL_COM_EXTERN    extern "C"
-    #define GUTIL_EXTERN
 
 #else
     #define GUTIL_COM_DECLSPEC
     #define GUTIL_COM_EXTERN
-    #define GUTIL_EXTERN        extern
 
 #endif
 

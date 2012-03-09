@@ -12,14 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_globals.h"
+#include "gutil_macros.h"
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
 NAMESPACE_GUTIL;
 #endif
 
 
-GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC const char GUTIL_MSB_LOOKUP_TABLE[256] =
+/** A lookup table for quickly determining the first set bit of an integer */
+static GBYTE const _MSB_LUT[] =
 {
     #define _MSB_LT2(n) n, n
     #define _MSB_LT3(n) _MSB_LT2(n), _MSB_LT2(n)
@@ -41,15 +42,18 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC const char GUTIL_MSB_LOOKUP_TABLE[256] =
 };
 
 
-GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC const char *BUILD_TIME = __DATE__ " - " __TIME__;
+const char *BUILD_TIME = __DATE__ " - " __TIME__;
 
+
+GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB8(GUINT8 n)
+{
+    return _MSB_LUT[n];
+}
 
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB16(GUINT16 n)
 {
     unsigned int t( n >> 8 );
-    return t ?
-                8 + GUTIL_MSB_LOOKUP_TABLE[t] :
-                GUTIL_MSB_LOOKUP_TABLE[n];
+    return t ? 8 + _MSB_LUT[t] : _MSB_LUT[n];
 }
 
 
@@ -59,13 +63,13 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32 n)
     unsigned int t1, t2;
     if((t1 = n >> 16))
     {
-      res = (t2 = t1 >> 8) ? 24 + GUTIL_MSB_LOOKUP_TABLE[t2] :
-                           16 + GUTIL_MSB_LOOKUP_TABLE[t1];
+      res = (t2 = t1 >> 8) ? 24 + _MSB_LUT[t2] :
+                           16 + _MSB_LUT[t1];
     }
     else
     {
-      res = (t2 = n >> 8) ? 8 + GUTIL_MSB_LOOKUP_TABLE[t2] :
-                          GUTIL_MSB_LOOKUP_TABLE[n];
+      res = (t2 = n >> 8) ? 8 + _MSB_LUT[t2] :
+                          _MSB_LUT[n];
     }
     return res;
 }
@@ -79,24 +83,24 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
     {
         if((t1 = t2 >> 16))
         {
-            res = (t2 = t1 >> 8) ? 56 +  GUTIL_MSB_LOOKUP_TABLE[t2] :
-                                   48 + GUTIL_MSB_LOOKUP_TABLE[t1];
+            res = (t2 = t1 >> 8) ? 56 +  _MSB_LUT[t2] :
+                                   48 + _MSB_LUT[t1];
         }
         else
         {
-            res = (t2 = t1 >> 8) ? 40 +  GUTIL_MSB_LOOKUP_TABLE[t2] :
-                                   32 + GUTIL_MSB_LOOKUP_TABLE[t1];
+            res = (t2 = t1 >> 8) ? 40 +  _MSB_LUT[t2] :
+                                   32 + _MSB_LUT[t1];
         }
     }
     else if((t1 = n >> 16))
     {
-      res = (t2 = t1 >> 8) ? 24 + GUTIL_MSB_LOOKUP_TABLE[t2] :
-                           16 + GUTIL_MSB_LOOKUP_TABLE[t1];
+      res = (t2 = t1 >> 8) ? 24 + _MSB_LUT[t2] :
+                           16 + _MSB_LUT[t1];
     }
     else
     {
-      res = (t2 = n >> 8) ? 8 + GUTIL_MSB_LOOKUP_TABLE[t2] :
-                          GUTIL_MSB_LOOKUP_TABLE[n];
+      res = (t2 = n >> 8) ? 8 + _MSB_LUT[t2] :
+                          _MSB_LUT[n];
     }
     return res;
 }
