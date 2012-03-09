@@ -75,19 +75,16 @@ public:
     basic information, like the file and line numbers, as well as a string identifier.
     You can use the extended version to include more complex data in your exceptions.
 */
-template<bool extended = false>
-class Exception :
+template<bool extended = false> class Exception;
+
+template<>
+class Exception<false> :
         public BaseException
 {
 public:
-    inline Exception()
-        :BaseException("GUtil::Exception<false>"){}
-
-    inline explicit Exception(const char *message, const char *name = 0)
-        :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message) {}
-
-    inline Exception(const char *file, int line, const char *name = 0, const char *message = 0)
-        :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message, file, line) {}
+    Exception();
+    explicit Exception(const char *message, const char *name = 0);
+    Exception(const char *file, int line, const char *name = 0, const char *message = 0);
 };
 
 

@@ -69,4 +69,20 @@ BaseException::~BaseException()
 }
 
 
+
+#define EXCEPTION_STRING  "GUtil::Exception<false>"
+
+Exception<false>::Exception()
+    :BaseException(EXCEPTION_STRING)
+{}
+
+Exception<false>::Exception(const char *message, const char *name)
+    :BaseException(name == 0 ? EXCEPTION_STRING : name, message)
+{}
+
+Exception<false>::Exception(const char *file, int line, const char *name, const char *message)
+    :BaseException(name == 0 ? EXCEPTION_STRING : name, message, file, line)
+{}
+
+
 END_NAMESPACE_GUTIL
