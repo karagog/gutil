@@ -295,7 +295,7 @@ public:
     */
     inline List<T> &Append(const List<T> &l){
         Reserve(Size() + l.Size());
-        for(int i(0); i < l.Size(); ++i) Append(l[i]);
+        for(GUINT32 i(0); i < l.Size(); ++i) Append(l[i]);
         return *this;
     }
 
@@ -313,7 +313,7 @@ public:
     */
     inline List<T> &Prepend(const List<T> &l){
         Reserve(Size() + l.Size());
-        for(int i(0); i < l.Size(); ++i) Insert(l[i], i);
+        for(GUINT32 i(0); i < l.Size(); ++i) Insert(l[i], i);
         return *this;
     }
 
@@ -387,7 +387,7 @@ public:
             GUINT32 ret(0);
             T *tmp_cur(o.current);
             T *tmp_end(o.m_pageEnd);
-            for(GUINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
+            for(GINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
             {
                 ret += tmp_end - tmp_cur;
                 tmp_cur = m_pages->operator [](cur_page + 1);
@@ -496,7 +496,7 @@ public:
             GUINT32 ret(0);
             T *tmp_cur(o.current);
             T *tmp_end(o.m_pageEnd);
-            for(GUINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
+            for(GINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
             {
                 ret += tmp_end - tmp_cur;
                 tmp_cur = m_pages->operator [](cur_page + 1);
@@ -588,7 +588,7 @@ public:
     inline T const &Front() const{ return *d.Front(); }
 
     /** Returns the item at the back of the list */
-    inline T &Back(){ return *at(Length() - 1)*at(Length() - 1); }
+    inline T &Back(){ return *at(Length() - 1); }
     /** Returns the item at the back of the list */
     inline T const &Back() const{ return *at(Length() - 1); }
 

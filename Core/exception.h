@@ -92,7 +92,7 @@ public:
 #define STRINGIFY( something )  #something
 
 /** Use this to declare any new exceptions */
-#define EXCEPTION_DECLARE( ex_name ) \
+#define GUTIL_EXCEPTION_DECLARE( ex_name ) \
 template<bool extended = false>class ex_name : public Exception<false> \
 { \
 public: \
@@ -104,63 +104,64 @@ public: \
         :Exception<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
     inline ex_name(const Exception<false> &ex) \
         :Exception<false>(ex) {} \
-};
+}; \
+extern template class ex_name<false>
 
 
 // Here are the other types of exceptions (all derived from Exception)
 
 /** Means the given code path is not implemented */
-EXCEPTION_DECLARE( NotImplementedException )
+GUTIL_EXCEPTION_DECLARE( NotImplementedException );
 
 /** Means that there was an error allocating memory */
-EXCEPTION_DECLARE( BadAllocationException )
+GUTIL_EXCEPTION_DECLARE( BadAllocationException );
 
 /** Means that an operation failed because an object was in a readonly state */
-EXCEPTION_DECLARE( ReadOnlyException )
+GUTIL_EXCEPTION_DECLARE( ReadOnlyException );
 
 /** Means that an operation failed due to bad arguments */
-EXCEPTION_DECLARE( ArgumentException )
+GUTIL_EXCEPTION_DECLARE( ArgumentException );
 
 /** Means that an operation failed due to a failed conversion (string->int, for example) */
-EXCEPTION_DECLARE( ConversionException )
+GUTIL_EXCEPTION_DECLARE( ConversionException );
 
 /** Means that an operation failed due to failed data transportation */
-EXCEPTION_DECLARE( DataTransportException )
+GUTIL_EXCEPTION_DECLARE( DataTransportException );
 
 /** Means that an operation failed due to an XML error (bad/unexpected format) */
-EXCEPTION_DECLARE( XmlException )
+GUTIL_EXCEPTION_DECLARE( XmlException );
 
 /** Means that an operation failed because the end of a file was encountered */
-EXCEPTION_DECLARE( EndOfFileException )
+GUTIL_EXCEPTION_DECLARE( EndOfFileException );
 
 /** Means that a lock operation failed */
-EXCEPTION_DECLARE( LockException )
+GUTIL_EXCEPTION_DECLARE( LockException );
 
 /** Means that an operation failed because a null pointer/reference was used */
-EXCEPTION_DECLARE( NullReferenceException )
+GUTIL_EXCEPTION_DECLARE( NullReferenceException );
 
 /** Means that an operation failed because an index was out of range */
-EXCEPTION_DECLARE( IndexOutOfRangeException )
+GUTIL_EXCEPTION_DECLARE( IndexOutOfRangeException );
 
 /** Means that a validation operation failed */
-EXCEPTION_DECLARE( ValidationException )
+GUTIL_EXCEPTION_DECLARE( ValidationException );
 
 /** Means that a cast operation failed */
-EXCEPTION_DECLARE( InvalidCastException )
+GUTIL_EXCEPTION_DECLARE( InvalidCastException );
 
 /** Means that an operation failed because an object was not found */
-EXCEPTION_DECLARE( NotFoundException )
+GUTIL_EXCEPTION_DECLARE( NotFoundException );
 
 /** Means that an operation failed because it would have to divide by 0 */
-EXCEPTION_DECLARE( DivideByZeroException )
+GUTIL_EXCEPTION_DECLARE( DivideByZeroException );
 
 /** Means that an operation failed due to a unique key violation */
-EXCEPTION_DECLARE( UniqueKeyException )
+GUTIL_EXCEPTION_DECLARE( UniqueKeyException );
 
 /** Means that an operation failed due to a bad build.  This is a compile-time bug,
     and probably means the developer used the wrong preprocessor definitions or something.
 */
-EXCEPTION_DECLARE( BuildException )
+GUTIL_EXCEPTION_DECLARE( BuildException );
 
 
 

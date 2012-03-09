@@ -75,7 +75,7 @@ private:
     to an extended exception, which stores more complex data, including a message
     and a string-string map.
 */
-#define EXCEPTION_DECLARE_EXTENDED( ex_name ) \
+#define GUTIL_EXCEPTION_DECLARE_EXTENDED( ex_name ) \
 template<>class ex_name<true> : \
     public ex_name<false>, \
     public ExtendedException \
@@ -92,27 +92,28 @@ template<>class ex_name<true> : \
                          const Exception<> &inner_exception) \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
                 ExtendedException(inner_exception) {} \
-};
+}; \
+extern template class ex_name<true>
 
 
-EXCEPTION_DECLARE_EXTENDED( Exception )
-EXCEPTION_DECLARE_EXTENDED( NotImplementedException )
-EXCEPTION_DECLARE_EXTENDED( BadAllocationException )
-EXCEPTION_DECLARE_EXTENDED( ReadOnlyException )
-EXCEPTION_DECLARE_EXTENDED( ArgumentException )
-EXCEPTION_DECLARE_EXTENDED( ConversionException )
-EXCEPTION_DECLARE_EXTENDED( DataTransportException )
-EXCEPTION_DECLARE_EXTENDED( XmlException )
-EXCEPTION_DECLARE_EXTENDED( EndOfFileException )
-EXCEPTION_DECLARE_EXTENDED( LockException )
-EXCEPTION_DECLARE_EXTENDED( NullReferenceException )
-EXCEPTION_DECLARE_EXTENDED( IndexOutOfRangeException )
-EXCEPTION_DECLARE_EXTENDED( ValidationException )
-EXCEPTION_DECLARE_EXTENDED( InvalidCastException )
-EXCEPTION_DECLARE_EXTENDED( NotFoundException )
-EXCEPTION_DECLARE_EXTENDED( DivideByZeroException )
-EXCEPTION_DECLARE_EXTENDED( UniqueKeyException )
-EXCEPTION_DECLARE_EXTENDED( BuildException )
+GUTIL_EXCEPTION_DECLARE_EXTENDED( Exception );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( NotImplementedException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( BadAllocationException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ReadOnlyException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ArgumentException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ConversionException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( DataTransportException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( XmlException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( EndOfFileException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( LockException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( NullReferenceException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( IndexOutOfRangeException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ValidationException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( InvalidCastException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( NotFoundException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( DivideByZeroException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( UniqueKeyException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( BuildException );
 
 
 

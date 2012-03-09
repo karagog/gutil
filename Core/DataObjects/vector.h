@@ -1087,11 +1087,6 @@ private:
 };
 
 
-// Here we export some common template specializations of Vector
-
-extern template class Vector<GINT32>;
-
-
 END_NAMESPACE_GUTIL1;
 
 
