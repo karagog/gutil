@@ -42,10 +42,26 @@ NAMESPACE_GUTIL1(DataObjects);
 */
 template<>
 class Vector<bool> :
-        Vector<GUINT32>
+        private Vector<GINT32>
 {
 public:
-    Vector();
+
+    inline Vector(){}
+    Vector(GUINT32 capacity);
+    Vector(GUINT32 size, bool init_val);
+
+    /** This enum doesn't exist in the normal Vector implementation,
+        so your code can check this at compile time to make absolute sure
+        you're taking advantage of the boolean vector specialization.
+
+        \note Put this in an assert statement rather than checking it in your
+        final code.  This is really only useful for debugging.
+        Note also that if the symbol BitVector is available, then the correct
+        file must have already been included, so if the compiler doesn't complain
+        about BitVector, you should be good to go.
+    */
+    enum{ IS_SPECIALIZED_BITVECTOR = 1 };
+
 };
 
 

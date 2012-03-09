@@ -16,12 +16,9 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(DataObjects);
 
 
-Vector<bool>::Vector()
+Vector<bool>::Vector(GUINT32 capacity)
 {
 }
-
-
-//__declspec(dllexport) template<> class Vector<GUINT32>{};
 
 
 END_NAMESPACE_GUTIL1;
