@@ -14,7 +14,7 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../.. ../../../.. ../../..
+INCLUDEPATH += ../.. ../../../../include ../../..
 LIBS += -L../../../../lib -lGUtil
 
 unix: LIBS += -Wl,-rpath,../../../../lib

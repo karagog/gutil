@@ -25,7 +25,9 @@ public:
     FlagsTest();
 
 private Q_SLOTS:
-    void testCase1();
+    void test_basics();
+
+    void test_smaller_flags();
 };
 
 FlagsTest::FlagsTest()
@@ -44,8 +46,9 @@ enum test_enum
 };
 
 GUTIL_DECLARE_FLAGS(TestFlags, test_enum);
+GUTIL_DECLARE_FLAG_OPERATORS(TestFlags, test_enum);
 
-void FlagsTest::testCase1()
+void FlagsTest::test_basics()
 {
     TestFlags f;
     qDebug(QString("The size of Flags object: %1").arg(sizeof(TestFlags)).toAscii());
@@ -69,6 +72,46 @@ void FlagsTest::testCase1()
     QVERIFY(!f.TestFlag((test_enum)10));
     f |= (test_enum)10;
     QVERIFY(f.TestFlag((test_enum)10));
+}
+
+
+enum test_enum2
+{
+    one,
+    two,
+    three,
+    four,
+    five,
+    six
+};
+
+GUTIL_DECLARE_FLAGS2(TestFlags16Bit, test_enum2, GINT16);
+GUTIL_DECLARE_FLAG_OPERATORS(TestFlags16Bit, test_enum2);
+
+void FlagsTest::test_smaller_flags()
+{
+    TestFlags16Bit f;
+    qDebug(QString("The size of 16-bit Flags object: %1").arg(sizeof(TestFlags16Bit)).toAscii());
+
+    QVERIFY(!f.TestFlag(one));
+
+    f |= one;
+    QVERIFY(f.TestFlag(one));
+
+    f.ToggleFlag(one);
+    QVERIFY(!f.TestFlag(one));
+
+    f = one | two | four | six;
+    QVERIFY(f.TestFlag(one));
+    QVERIFY(f.TestFlag(two));
+    QVERIFY(!f.TestFlag(three));
+    QVERIFY(f.TestFlag(four));
+    QVERIFY(!f.TestFlag(five));
+    QVERIFY(f.TestFlag(six));
+
+    QVERIFY(!f.TestFlag((test_enum2)10));
+    f |= (test_enum2)10;
+    QVERIFY(f.TestFlag((test_enum2)10));
 }
 
 QTEST_APPLESS_MAIN(FlagsTest);

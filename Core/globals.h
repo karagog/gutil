@@ -478,6 +478,11 @@ enum SortTypeEnum
 };
 
 
+/** Returns a full word of the given type with all bits initialized to init_val */
+template<class INT_TYPE> inline INT_TYPE BitMask(bool init_val){
+    return init_val ? ((INT_TYPE)-1) : ((INT_TYPE)0);
+}
+
 
 END_NAMESPACE_GUTIL;
 

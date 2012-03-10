@@ -103,7 +103,7 @@ public:
         Centuries,
         Millennia
     };
-    GUTIL_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag)
+    GUTIL_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag);
 
     /** Returns the time "distance" between two points in time. */
     inline TimeBreakdown GetTimeDistanceBreakdown(const DateTime &end_time, TimeBreakdownFlags f) const{
@@ -127,7 +127,7 @@ END_NAMESPACE_GUTIL2;
 
 
 GUTIL_DECLARE_FLAG_OPERATORS(GUtil::QT::DataObjects::DateTime::TimeBreakdownFlags,
-                             GUtil::QT::DataObjects::DateTime::TimeBreakdownFlag)
+                             GUtil::QT::DataObjects::DateTime::TimeBreakdownFlag);
 
 
 #endif // GDATETIME_H
