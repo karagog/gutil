@@ -62,8 +62,12 @@ public:
     {}
 
 
-    inline Version &operator =(const Version &o){
+    inline Version &operator = (const Version &o){
         new(this) Version(o);
+        return *this;
+    }
+    inline Version &operator = (const String &s){
+        new(this) Version(s);
         return *this;
     }
 
