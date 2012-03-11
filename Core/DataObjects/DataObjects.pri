@@ -23,8 +23,7 @@ HEADERS += \
 
 SOURCES += \
     DataObjects/version.cpp \
-    DataObjects/strings.cpp \
-    DataObjects/bitvector.cpp
+    DataObjects/strings.cpp
 
 
 
