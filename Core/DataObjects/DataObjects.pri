@@ -19,7 +19,8 @@ HEADERS += \
     DataObjects/range.h \
     DataObjects/nullable.h \
     DataObjects/strings.h \
-    DataObjects/bitvector.h
+    DataObjects/bitvector.h \
+    DataObjects/uuid.h
 
 SOURCES += \
     DataObjects/version.cpp \

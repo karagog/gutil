@@ -13,6 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gutil_macros.h"
+#include <cstdlib>
+#include <time.h>
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
 NAMESPACE_GUTIL;
@@ -104,6 +106,37 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
     }
     return res;
 }
+
+
+
+/** A class to take care of any library initialization code.
+
+    There is a static global instance in the core library, which means
+    that the constructor will be called when the library is loaded, and
+    its destructor will be called when the library is unloaded.
+
+    This takes care of tasks like seeding the pseudo-random number generator.
+*/
+class GUTIL_INITIALIZE
+{
+    static GUTIL_INITIALIZE GUTIL_INITIALIZER;
+public:
+
+    inline GUTIL_INITIALIZE()
+    {
+        // Seed the pseudo RNG
+        srand( time(NULL) );
+    }
+
+    inline ~GUTIL_INITIALIZE()
+    {
+
+    }
+
+};
+
+// Instantiate the initializer class, which causes the
+GUTIL_INITIALIZE GUTIL_INITIALIZE::GUTIL_INITIALIZER;
 
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
