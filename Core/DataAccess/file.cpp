@@ -123,7 +123,7 @@ void File::Write(const GBYTE *data, GUINT32 len)
 
 void File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
 {
-    GUINT32 actually_read( gMin(buffer_len, bytes_to_read) );
+    GUINT32 actually_read( Min(buffer_len, bytes_to_read) );
     if(1 != fread(buffer, actually_read, 1, m_handle))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not read from file");
     if(actually_read < bytes_to_read)

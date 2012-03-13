@@ -122,20 +122,22 @@ class GUTIL_INITIALIZE
     static GUTIL_INITIALIZE GUTIL_INITIALIZER;
 public:
 
+    /** Any library initialization code gets executed when the library is loaded. */
     inline GUTIL_INITIALIZE()
     {
-        // Seed the pseudo RNG
+        // Seed the RNG
         srand( time(NULL) );
     }
 
+    /** Any library cleanup code gets executed when the library is unloaded. */
     inline ~GUTIL_INITIALIZE()
     {
-
+        // Any library cleanup code
     }
 
 };
 
-// Instantiate the initializer class, which causes the
+// Instantiate the initializer class, which takes care of library init/takedown
 GUTIL_INITIALIZE GUTIL_INITIALIZE::GUTIL_INITIALIZER;
 
 

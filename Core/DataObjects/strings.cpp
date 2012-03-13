@@ -46,10 +46,10 @@ String::String(const Vector<char>::const_iterator &b, const Vector<char>::const_
     GINT32 len(e - b);
     if(len != INT_MAX)
     {
-        Reserve(gAbs(len) + 1);
+        Reserve(Abs(len) + 1);
 
         GINT8 inc(len >= 0 ? 1 : -1);
-        char *mine(len >= 0 ? Data() : Data() + (gAbs(len) - 1));
+        char *mine(len >= 0 ? Data() : Data() + (Abs(len) - 1));
         const char *cur( b.Current() );
         const char *end( e.Current() );
 
@@ -60,8 +60,8 @@ String::String(const Vector<char>::const_iterator &b, const Vector<char>::const_
             mine += inc;
         }
 
-        set_length(gAbs(len));
-        operator[](gAbs(len)) = '\0';
+        set_length(Abs(len));
+        operator[](Abs(len)) = '\0';
     }
 }
 
@@ -733,7 +733,7 @@ bool String::operator == (const char *s) const
 
 bool String::operator <  (const String &s) const
 {
-    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    int ret( _string_compare(*this, s, Min(s.Length(), Length())) );
     if(ret == 0)
         return Length() < s.Length();
     return ret < 0;
@@ -741,7 +741,7 @@ bool String::operator <  (const String &s) const
 
 bool String::operator <= (const String &s) const
 {
-    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    int ret( _string_compare(*this, s, Min(s.Length(), Length())) );
     if(ret == 0)
         return Length() <= s.Length();
     return ret < 0;
@@ -749,7 +749,7 @@ bool String::operator <= (const String &s) const
 
 bool String::operator >  (const String &s) const
 {
-    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    int ret( _string_compare(*this, s, Min(s.Length(), Length())) );
     if(ret == 0)
         return Length() > s.Length();
     return ret > 0;
@@ -757,7 +757,7 @@ bool String::operator >  (const String &s) const
 
 bool String::operator >= (const String &s) const
 {
-    int ret( _string_compare(*this, s, gMin(s.Length(), Length())) );
+    int ret( _string_compare(*this, s, Min(s.Length(), Length())) );
     if(ret == 0)
         return Length() >= s.Length();
     return ret > 0;

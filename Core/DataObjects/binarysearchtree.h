@@ -73,7 +73,7 @@ template<class T, class KeyType = T>class BinarySearchTree
             more than 1 node different in height.
         */
         inline bool Balanced() const{
-            return gAbs(HeightDifference()) <= 1;
+            return Abs(HeightDifference()) <= 1;
         }
 
         /** Constructs a node with the given parent. */
@@ -629,8 +629,8 @@ private:
             n->Height = 0;
         else
         {
-            n->Height = gMax(n->LChild ? n->LChild->Height : 0,
-                             n->RChild ? n->RChild->Height : 0) + 1;
+            n->Height = GUtil::Max(n->LChild ? n->LChild->Height : 0,
+                                   n->RChild ? n->RChild->Height : 0) + 1;
         }
 
         // Update the left-most and right-most child caches

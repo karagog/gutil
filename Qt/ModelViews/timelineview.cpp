@@ -383,7 +383,7 @@ void TimelineView::scrollTo(const QModelIndex &index, ScrollHint hint)
         else if (rect.right() > area.right())
         {
             horizontalScrollBar()->setValue(
-                        horizontalScrollBar()->value() + gMin(
+                        horizontalScrollBar()->value() + Min(
                             rect.right() - area.right(), rect.left() - area.left()));
         }
         if(hor != -1)
@@ -419,7 +419,7 @@ void TimelineView::scrollTo(const QModelIndex &index, ScrollHint hint)
                     (area.bottom() + area.top()) / 2;
             break;
         case PositionAtBottom:
-            ver = verticalScrollBar()->value() + gMin(rect.bottom() - area.bottom(), rect.top() - area.top());
+            ver = verticalScrollBar()->value() + Min(rect.bottom() - area.bottom(), rect.top() - area.top());
             break;
         default:
             return;
@@ -624,8 +624,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
             // If they clicked on a valid index, then we let them drag it around the timeline,
             //  or adjust the start/end date
             QRect rect( visualRect(ind) );
-            int diffTop( gAbs(pos.y() - rect.top()) );
-            int diffBottom( gAbs(pos.y() - rect.bottom()) );
+            int diffTop( Abs(pos.y() - rect.top()) );
+            int diffBottom( Abs(pos.y() - rect.bottom()) );
 
             m_draggingIndex = ind;
 
@@ -678,7 +678,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
     {
         // For convenience, we'll check if the top and bottom are too close,
         //  'cause it's annoying if you accidentally clicked it and it creates an activity
-        if(gAbs(m_dragRect->top() - m_dragRect->bottom()) > 2)
+        if(Abs(m_dragRect->top() - m_dragRect->bottom()) > 2)
         {
             QDateTime
                     st(PointToDateTime(QPoint(0, m_dragRect->top() - verticalScrollBar()->value()))),
@@ -803,8 +803,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
             rect.translate(-horizontalScrollBar()->value(),
                            -verticalScrollBar()->value());
 
-            if((gAbs(pos.y() - rect.top()) <= DRAG_ADJUSTMENT_MARGIN ||
-                gAbs(pos.y() - rect.bottom()) <= DRAG_ADJUSTMENT_MARGIN))
+            if((Abs(pos.y() - rect.top()) <= DRAG_ADJUSTMENT_MARGIN ||
+                Abs(pos.y() - rect.bottom()) <= DRAG_ADJUSTMENT_MARGIN))
             {
                 setCursor(Qt::SizeVerCursor);
             }
@@ -832,7 +832,7 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
         else
         {
             QRect rect( visualRect(ind) );
-            if(gAbs(pos.y() - rect.top()) < DRAG_ADJUSTMENT_MARGIN)
+            if(Abs(pos.y() - rect.top()) < DRAG_ADJUSTMENT_MARGIN)
             {
                 // Edit the start time
                 m_editingData = StartDate;
@@ -849,7 +849,7 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
 
                 event->ignore();
             }
-            else if(gAbs(pos.y() - rect.bottom()) < DRAG_ADJUSTMENT_MARGIN)
+            else if(Abs(pos.y() - rect.bottom()) < DRAG_ADJUSTMENT_MARGIN)
             {
                 // Edit the end time
                 m_editingData = EndDate;

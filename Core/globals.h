@@ -284,28 +284,31 @@ template<>class NullValue<GFLOAT96>{ public: inline static GFLOAT96 Value(){ ret
 template<class T>class NullValue<T *>{ public: inline static T *Value(){ return 0; } };
 
 
+
+
+
 // Here are some useful functions
 
 /** A generic absolute value function. */
-template <class T>inline T gAbs(const T &v){ return v < 0 ? -v : v; }
+template <class T>inline static T Abs(const T &v){ return v < 0 ? -v : v; }
 
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT8 gAbs<GINT8>(const GINT8 &v){
+template <>inline GINT8 Abs<GINT8>(const GINT8 &v){
     const int mask( v >> (sizeof(GINT8) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT16 gAbs<GINT16>(const GINT16 &v){
+template <>inline GINT16 Abs<GINT16>(const GINT16 &v){
     const int mask( v >> (sizeof(GINT16) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT32 gAbs<GINT32>(const GINT32 &v){
+template <>inline GINT32 Abs<GINT32>(const GINT32 &v){
     const int mask( v >> (sizeof(GINT32) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT64 gAbs<GINT64>(const GINT64 &v){
+template <>inline GINT64 Abs<GINT64>(const GINT64 &v){
     const int mask( v >> (sizeof(GINT64) * 8 - 1) );
     return (v + mask) ^ mask;
 }
@@ -313,10 +316,10 @@ template <>inline GINT64 gAbs<GINT64>(const GINT64 &v){
 /** A compare function for floats.
     Returns -1 if f1 is less than f2, 0 if they're equal, 1 if the f2 is less than f1
 */
-inline int gFuzzyCompare32(GFLOAT32 f1, GFLOAT32 f2){
+inline static int FuzzyCompare32(GFLOAT32 f1, GFLOAT32 f2){
     int ret;
     GFLOAT32 diff(f2 - f1);
-    if(gAbs(diff) < 0.00001)
+    if(Abs(diff) < 0.00001)
         ret = 0;
     else if(diff > 0)
         ret = -1;
@@ -328,10 +331,10 @@ inline int gFuzzyCompare32(GFLOAT32 f1, GFLOAT32 f2){
 /** A compare function for floats.
     Returns -1 if f1 is less than f2, 0 if they're equal, 1 if the f2 is less than f1
 */
-inline int gFuzzyCompare64(GFLOAT64 f1, GFLOAT64 f2){
+inline static int FuzzyCompare64(GFLOAT64 f1, GFLOAT64 f2){
     int ret;
     GFLOAT64 diff(f2 - f1);
-    if(gAbs(diff) < 0.00000000001)
+    if(Abs(diff) < 0.00000000001)
         ret = 0;
     else if(diff > 0)
         ret = -1;
@@ -343,10 +346,10 @@ inline int gFuzzyCompare64(GFLOAT64 f1, GFLOAT64 f2){
 /** A compare function for floats.
     Returns -1 if f1 is less than f2, 0 if they're equal, 1 if the f2 is less than f1
 */
-inline int gFuzzyCompare96(GFLOAT96 f1, GFLOAT96 f2){
+inline static int FuzzyCompare96(GFLOAT96 f1, GFLOAT96 f2){
     int ret;
     GFLOAT96 diff(f2 - f1);
-    if(gAbs(diff) < 0.000000000000001)
+    if(Abs(diff) < 0.000000000000001)
         ret = 0;
     else if(diff > 0)
         ret = -1;
@@ -356,12 +359,12 @@ inline int gFuzzyCompare96(GFLOAT96 f1, GFLOAT96 f2){
 }
 
 /** Minimum value function.  Use as an alternate to qMin. */
-template <class T> inline T gMin(const T &one, const T &two){
+template <class T> inline static T Min(const T &one, const T &two){
     return one < two ? one : two;
 }
 
 /** Maximum value function.  Use as an alternate to qMax(). */
-template <class T> inline T gMax(const T &one, const T &two){
+template <class T> inline static T Max(const T &one, const T &two){
     return one < two ? two : one;
 }
 
@@ -380,7 +383,7 @@ template <class T> inline T gMax(const T &one, const T &two){
     Use this version to copy by bytes; this is not efficient for large memory blocks.
     \sa gSwapWord32
 */
-inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
+inline static void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     GBYTE *b1(reinterpret_cast<GBYTE *>(one));
     GBYTE *b2(reinterpret_cast<GBYTE *>(two));
     while(--size_in_bytes >= 0){
@@ -394,7 +397,7 @@ inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     large memory blocks to swap.
     \sa gSwapByte, gSwapWord64
 */
-inline void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
+inline static void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
     GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
     while(--size_in_ints >= 0){
@@ -408,7 +411,7 @@ inline void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     large memory blocks to swap.
     \sa gSwapByte, gSwapWord32
 */
-inline void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
+inline static void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     GUINT64 *b1(reinterpret_cast<GUINT64 *>(one));
     GUINT64 *b2(reinterpret_cast<GUINT64 *>(two));
     while(--size_in_ints >= 0){
@@ -421,7 +424,7 @@ inline void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     Use this version to automatically run the function that is most appropriate,
     given whether the size is a multiple of four.
 */
-inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
+inline static void gSwap(void *one, void *two, GINT32 size_in_bytes)
 {
     if(size_in_bytes & 0b0011)
         // If the size is not a multiple of 4
@@ -455,7 +458,7 @@ inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
     use the macro GMALLOC.
 */
 template<class T>
-inline T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
+inline static T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
     T *ret( reinterpret_cast<T *>(malloc( N * sizeof(T) )) );
     if(!ret) throw GUtil::BadAllocationException<>(file, line);
     return ret;
@@ -479,8 +482,33 @@ enum SortTypeEnum
 
 
 /** Returns a full word of the given type with all bits initialized to init_val */
-template<class INT_TYPE> inline INT_TYPE BitMask(bool init_val){
+template<class INT_TYPE> inline static INT_TYPE BitMask(bool init_val){
     return init_val ? ((INT_TYPE)-1) : ((INT_TYPE)0);
+}
+
+
+/** Returns a random integer with the first NUM_BITS randomized.
+
+    It is implemented by iteratively calling the C rand() function and
+    building a word of sufficient size from the random bits.
+
+    \tparam INT_TYPE The type of the return value.  Note that this integer
+        must be able to support the given number of bits.
+    \param NUM_BITS The number of random bits you want in the return value.
+        The default is the same number of bits as in the return value.
+*/
+template<class INT_TYPE>
+inline INT_TYPE Rand(GUINT32 NUM_BITS = (8 * sizeof(INT_TYPE))){
+    GASSERT(NUM_BITS <= (sizeof(INT_TYPE) * 8));
+    const int size_of_rand( FSB32(RAND_MAX + 1) );
+
+    INT_TYPE ret(0);
+    int cnt;
+    for(int bits_remaining = NUM_BITS; bits_remaining > 0; bits_remaining -= cnt){
+        cnt = Min(bits_remaining, size_of_rand);
+        ret |= ((INT_TYPE)(rand() & ((1 << cnt) - 1))) << (NUM_BITS - bits_remaining);
+    }
+    return ret;
 }
 
 

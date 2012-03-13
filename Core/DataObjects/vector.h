@@ -307,7 +307,7 @@ public:
             }
 
             // And on the items at the end we call the destructor
-            for(GUINT32 i(gMax(len - num, indx + num)); i < len; ++i)
+            for(GUINT32 i(GUtil::Max(len - num, indx + num)); i < len; ++i)
                 (m_begin + i)->~T();
         }
 
