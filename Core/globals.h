@@ -31,7 +31,7 @@ limitations under the License.*/
 
 
 #ifdef GUTIL_DEBUG
-    #include <stdio.h>
+    #include <iostream>
     /** Special output method for debug mode. */
     #define GDEBUG(x)       std::cout << x << std::endl
 
@@ -491,6 +491,9 @@ template<class INT_TYPE> inline static INT_TYPE BitMask(bool init_val){
 
     It is implemented by iteratively calling the C rand() function and
     building a word of sufficient size from the random bits.
+
+    \note The rand() function is seeded automatically whenever the GUtil library
+    is loaded, so you do not have to call srand() yourself when using this function.
 
     \tparam INT_TYPE The type of the return value.  Note that this integer
         must be able to support the given number of bits.

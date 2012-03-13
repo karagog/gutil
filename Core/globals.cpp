@@ -138,7 +138,7 @@ public:
     /** Any library initialization code gets executed when the library is loaded. */
     inline void Initialize()
     {
-        // Seed the RNG
+        // Seed the pseudo-RNG
         srand( time(NULL) );
     }
 
@@ -150,7 +150,7 @@ public:
 
 };
 
-/** Instantiate the initializer class, which takes care of library init/takedown */
+// Instantiate the initializer class, which takes care of library init/takedown
 LOADER LOADER::LDR;
 
 

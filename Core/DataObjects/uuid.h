@@ -17,6 +17,10 @@ limitations under the License.*/
 
 #include "gutil_strings.h"
 
+#ifndef GUTIL_NO_CRYPTOPP
+#include "ThirdParty/cryptopp-5.6.1/osrng.h"
+#endif
+
 NAMESPACE_GUTIL1(DataObjects);
 
 
@@ -25,6 +29,14 @@ NAMESPACE_GUTIL1(DataObjects);
     This implementation guarantees uniqueness of generated UUIDS.  It allows
     you to configure how many bytes to represent the unique value
     uses 32 random bytes of data (256 random bits), which is larger than most
+
+    \note You can control the way random data is acquired, and subsequently the library
+    dependencies.  By default the implementation depends on CryptoPP's OS random
+    number generator, which is a really good one.  However, if you don't want
+    to depend on the cryptopp dll, you can disable this implementation with the
+    GUTIL_NO_CRYPTOPP build switch.  Without cryptopp, it will get random data
+    from C's rand() function, which is not nearly as good, but if you don't care
+    about the quality of the random data then this may be a fine solution for you.
 
     \tparam NUM_WORDS The number of random 32-bit words used to represent the unique value.
     This is 1/8 the size of the UUID when converted to an ASCII string.
@@ -57,6 +69,9 @@ public:
         Uuid<NUM_WORDS> ret;  _initialize_data(ret.m_data);  return ret;
     }
 
+    /** Causes the Uuid to initialize its value. */
+    inline void Initialize(){ _initialize_data(m_data); }
+
     /** Turns the Uuid object into an ASCII string */
     inline ::GUtil::DataObjects::String ToString() const{ return m_data.ToBase16(); }
 
@@ -76,10 +91,22 @@ public:
 private:
 
     inline static void _initialize_data(::GUtil::DataObjects::String &d){
-        d.Reserve(NUM_WORDS * 4);
-        for(int i = 0; i < NUM_WORDS; i++){
-            GINT32 tmpval(GUtil::Rand<GINT32>());
-            d.Append((const char *)&tmpval, 4);
+        d.Resize(NUM_WORDS * 4);
+        GINT32 tmp;
+        char *cur(d.Data());
+
+#ifndef GUTIL_NO_CRYPTOPP
+        ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > rng;
+#endif
+
+        for(int i = 0; i < NUM_WORDS; ++i, cur += 4)
+        {
+#ifdef GUTIL_NO_CRYPTOPP
+            tmp = GUtil::Rand<GINT32>();
+#else
+            rng.GenerateBlock((byte *)&tmp, 4);
+#endif
+            memcpy(cur, &tmp, 4);
         }
     }
 
