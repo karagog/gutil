@@ -78,7 +78,7 @@ private:
     inline static void _initialize_data(::GUtil::DataObjects::String &d){
         d.Reserve(NUM_WORDS * 4);
         for(int i = 0; i < NUM_WORDS; i++){
-            GINT32 tmpval(rand());
+            GINT32 tmpval(GUtil::Rand<GINT32>());
             d.Append((const char *)&tmpval, 4);
         }
     }

@@ -511,6 +511,9 @@ inline INT_TYPE Rand(GUINT32 NUM_BITS = (8 * sizeof(INT_TYPE))){
     return ret;
 }
 
+/** Find this instantiation in globals.cpp */
+extern template GINT32 Rand<GINT32>(GUINT32);
+
 
 END_NAMESPACE_GUTIL;
 

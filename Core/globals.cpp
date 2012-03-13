@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "gutil_globals.h"
 #include "gutil_macros.h"
 #include <cstdlib>
 #include <time.h>
@@ -24,23 +25,23 @@ NAMESPACE_GUTIL;
 /** A lookup table for quickly determining the first set bit of an integer */
 static GBYTE const _MSB_LUT[] =
 {
-    #define _MSB_LT2(n) n, n
-    #define _MSB_LT3(n) _MSB_LT2(n), _MSB_LT2(n)
-    #define _MSB_LT4(n) _MSB_LT3(n), _MSB_LT3(n)
-    #define _MSB_LT5(n) _MSB_LT4(n), _MSB_LT4(n)
-    #define _MSB_LT6(n) _MSB_LT5(n), _MSB_LT5(n)
-    #define _MSB_LT7(n) _MSB_LT6(n), _MSB_LT6(n)
-    #define _MSB_LT8(n) _MSB_LT7(n), _MSB_LT7(n)
+    #define _MSB_LUT2(n) n, n
+    #define _MSB_LUT3(n) _MSB_LUT2(n), _MSB_LUT2(n)
+    #define _MSB_LUT4(n) _MSB_LUT3(n), _MSB_LUT3(n)
+    #define _MSB_LUT5(n) _MSB_LUT4(n), _MSB_LUT4(n)
+    #define _MSB_LUT6(n) _MSB_LUT5(n), _MSB_LUT5(n)
+    #define _MSB_LUT7(n) _MSB_LUT6(n), _MSB_LUT6(n)
+    #define _MSB_LUT8(n) _MSB_LUT7(n), _MSB_LUT7(n)
 
     -1, // Returns error if no bits are set
     0,
-    _MSB_LT2(1),
-    _MSB_LT3(2),
-    _MSB_LT4(3),
-    _MSB_LT5(4),
-    _MSB_LT6(5),
-    _MSB_LT7(6),
-    _MSB_LT8(7)
+    _MSB_LUT2(1),
+    _MSB_LUT3(2),
+    _MSB_LUT4(3),
+    _MSB_LUT5(4),
+    _MSB_LUT6(5),
+    _MSB_LUT7(6),
+    _MSB_LUT8(7)
 };
 
 
@@ -109,36 +110,48 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
 
 
 
+/** Instantiate this specialization, which code will be widely used */
+template GINT32 Rand<GINT32>(GUINT32);
+
+
+
 /** A class to take care of any library initialization code.
 
     There is a static global instance in the core library, which means
     that the constructor will be called when the library is loaded, and
     its destructor will be called when the library is unloaded.
 
-    This takes care of tasks like seeding the pseudo-random number generator.
+    This takes care of tasks like seeding the pseudo-random number generator,
+    for example.
+
+    \note This is a private class, designed to be used only by the library
+    developers.  You should not have to modify it in any way for your daily
+    programming needs.
 */
-class GUTIL_INITIALIZE
+class LOADER
 {
-    static GUTIL_INITIALIZE GUTIL_INITIALIZER;
+    static LOADER LDR;
+    inline LOADER(){ Initialize(); }
+    inline ~LOADER(){ Uninitialize(); }
 public:
 
     /** Any library initialization code gets executed when the library is loaded. */
-    inline GUTIL_INITIALIZE()
+    inline void Initialize()
     {
         // Seed the RNG
         srand( time(NULL) );
     }
 
     /** Any library cleanup code gets executed when the library is unloaded. */
-    inline ~GUTIL_INITIALIZE()
+    inline void Uninitialize()
     {
         // Any library cleanup code
     }
 
 };
 
-// Instantiate the initializer class, which takes care of library init/takedown
-GUTIL_INITIALIZE GUTIL_INITIALIZE::GUTIL_INITIALIZER;
+/** Instantiate the initializer class, which takes care of library init/takedown */
+LOADER LOADER::LDR;
 
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
