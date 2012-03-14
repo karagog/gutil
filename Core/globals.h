@@ -23,6 +23,10 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <malloc.h>
 
+#ifndef GUTIL_NO_CRYPTOPP
+#include "ThirdParty/cryptopp-5.6.1/osrng.h"
+#endif
+
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
@@ -503,14 +507,23 @@ template<class INT_TYPE> inline static INT_TYPE BitMask(bool init_val){
 template<class INT_TYPE>
 inline INT_TYPE Rand(GUINT32 NUM_BITS = (8 * sizeof(INT_TYPE))){
     GASSERT(NUM_BITS <= (sizeof(INT_TYPE) * 8));
-    const int size_of_rand( FSB32(RAND_MAX + 1) );
-
     INT_TYPE ret(0);
+
+#ifdef GUTIL_NO_CRYPTOPP
+    const int size_of_rand( FSB32(RAND_MAX + 1) );
     int cnt;
     for(int bits_remaining = NUM_BITS; bits_remaining > 0; bits_remaining -= cnt){
         cnt = Min(bits_remaining, size_of_rand);
         ret |= ((INT_TYPE)(rand() & ((1 << cnt) - 1))) << (NUM_BITS - bits_remaining);
     }
+#else
+    CryptoPP::AutoSeededX917RNG<CryptoPP::AES>().GenerateBlock(
+                (byte *)&ret,
+                Min(((NUM_BITS - 1) / 8) + 1, sizeof(INT_TYPE)));
+    if(NUM_BITS < (sizeof(INT_TYPE) * 8))
+        ret &= ((((INT_TYPE)1) << NUM_BITS) - 1);
+#endif
+
     return ret;
 }
 

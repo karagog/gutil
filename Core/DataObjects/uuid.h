@@ -16,10 +16,7 @@ limitations under the License.*/
 #define GUTIL_UUID_H
 
 #include "gutil_strings.h"
-
-#ifndef GUTIL_NO_CRYPTOPP
-#include "ThirdParty/cryptopp-5.6.1/osrng.h"
-#endif
+#include "gutil_globals.h"
 
 NAMESPACE_GUTIL1(DataObjects);
 
@@ -95,17 +92,8 @@ private:
         GINT32 tmp;
         char *cur(d.Data());
 
-#ifndef GUTIL_NO_CRYPTOPP
-        ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > rng;
-#endif
-
-        for(int i = 0; i < NUM_WORDS; ++i, cur += 4)
-        {
-#ifdef GUTIL_NO_CRYPTOPP
+        for(int i = 0; i < NUM_WORDS; ++i, cur += 4){
             tmp = GUtil::Rand<GINT32>();
-#else
-            rng.GenerateBlock((byte *)&tmp, 4);
-#endif
             memcpy(cur, &tmp, 4);
         }
     }

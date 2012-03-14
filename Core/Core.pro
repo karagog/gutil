@@ -7,7 +7,9 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
-INCLUDEPATH += ../include
+INCLUDEPATH += ../include ..
+LIBS += -L../lib \
+    -lcryptopp
 
 #DEFINES += GUTIL_COM_EXPORTS
 
