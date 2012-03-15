@@ -194,7 +194,7 @@ public:
 
 
     /** Removes the number of bytes starting at byte index 'indx'. */
-    inline String &RemoveBytesAt(GUINT32 byte_indx, GUINT32 len_in_bytes){
+    inline String &RemoveBytesAt(GUINT32 byte_indx, GUINT32 len_in_bytes = 1){
         Vector<char>::RemoveAt(byte_indx, len_in_bytes);
         *(Data() + Length()) = '\0';
         return *this;
@@ -206,7 +206,7 @@ public:
         \note In the worst case this is O(N), because it must evaluate each start byte to determine
         how many bytes are in the multibyte character.
     */
-    String &RemoveAt(GUINT32 char_indx, GUINT32 len_in_chars);
+    String &RemoveAt(GUINT32 char_indx, GUINT32 len_in_chars = 1);
 
     /** Removes all instances of the given byte. */
     inline String &RemoveAll(GBYTE b){ Vector<char>::RemoveAll(b); return *this; }

@@ -38,65 +38,72 @@ NAMESPACE_GUTIL1(DataObjects);
     \tparam NUM_WORDS The number of random 32-bit words used to represent the unique value.
     This is 1/8 the size of the UUID when converted to an ASCII string.
 */
-template<int NUM_WORDS = 8>class Uuid
+class Uuid
 {
-    ::GUtil::DataObjects::String m_data;
+    GBYTE m_data[16];
 public:
 
     /** Constructs a null Uuid */
-    inline Uuid(){}
+    inline Uuid(){ Clear(); }
 
-    /** Constructs a Uuid, and optionally initializes its value*/
-    inline explicit Uuid(bool initialize){
-        if(initialize) _initialize_data(m_data);
+    /** Constructs a Uuid, and optionally generates its value */
+    inline explicit Uuid(bool generate_id){
+        if(generate_id)
+            Generate();
+        else
+            Clear();
     }
 
-    /** Constructs Uuid from an ascii string.  The string must have been
-        created by the ToString() function, or matching this format.
-
-        There is no automatic checking if this value is valid or not.  You can
-        call IsValid() after construction to verify that you created a valid
-        Uuid.
+    /** Constructs Uuid from an ascii hex string.
+        \sa FromString(), ToString()
     */
-    inline Uuid(const ::GUtil::DataObjects::String &id)
-        :m_data(id.FromBase16()) {}
+    Uuid(const ::GUtil::DataObjects::String &id);
+
+    /** Copy constructor*/
+    Uuid(const Uuid &);
+
+    /** Assignment operator */
+    inline Uuid &operator = (const Uuid &other){ new(this) Uuid(other); return *this; }
 
     /** A static constructor of a Uuid */
-    inline static Uuid<NUM_WORDS> CreateUuid(){
-        Uuid<NUM_WORDS> ret;  _initialize_data(ret.m_data);  return ret;
-    }
+    inline static Uuid CreateUuid(){ return Uuid(true); }
 
-    /** Causes the Uuid to initialize its value. */
-    inline void Initialize(){ _initialize_data(m_data); }
+    /** Returns a Uuid equal to Nil (all zeros).
+        \note The default constructor has the same behavior
+    */
+    inline static Uuid Nil(){ return Uuid(); }
 
-    /** Turns the Uuid object into an ASCII string */
-    inline ::GUtil::DataObjects::String ToString() const{ return m_data.ToBase16(); }
+    /** Returns a new Uuid which has been constructed from a string
+        \sa ToString()
+    */
+    inline static Uuid FromString(const ::GUtil::DataObjects::String &s){ return Uuid(s); }
 
-    /** Returns true if the Uuid doesn't have a value */
-    inline bool IsNull() const{ return m_data.IsEmpty(); }
+    /** Turns the Uuid object into an ASCII hex string.
+        \sa FromString()
+    */
+    ::GUtil::DataObjects::String ToString() const;
 
-    /** Returns true if the Uuid has a value, and it is a valid length */
-    inline bool IsValid() const{ return !m_data.IsEmpty() && (NUM_WORDS * 4) == m_data.Length(); }
+    /** Causes the Uuid to generate a new value. */
+    void Generate();
+
+    /** After clearing the Uuid will equal Nil (all bits set to 0) */
+    void Clear();
+
+    /** Returns true if the Uuid is equal to Nil (all data set to 0)
+        \sa IsNil()
+    */
+    bool IsNull() const;
+
+    /** Returns true if the Uuid is equal to Nil (all data set to 0)
+        \sa IsNull()
+    */
+    inline bool IsNil() const{ return IsNull(); }
 
     /** Equality comparator */
-    inline bool operator == (const Uuid<NUM_WORDS> &other) const{ return m_data == other.m_data; }
+    bool operator == (const Uuid &other) const;
 
     /** Inequality comparator */
-    inline bool operator != (const Uuid<NUM_WORDS> &other) const{ return m_data != other.m_data; }
-
-
-private:
-
-    inline static void _initialize_data(::GUtil::DataObjects::String &d){
-        d.Resize(NUM_WORDS * 4);
-        GINT32 tmp;
-        char *cur(d.Data());
-
-        for(int i = 0; i < NUM_WORDS; ++i, cur += 4){
-            tmp = GUtil::Rand<GINT32>();
-            memcpy(cur, &tmp, 4);
-        }
-    }
+    bool operator != (const Uuid &other) const;
 
 };
 

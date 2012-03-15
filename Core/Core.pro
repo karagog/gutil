@@ -12,6 +12,7 @@ LIBS += -L../lib \
     -lcryptopp
 
 #DEFINES += GUTIL_COM_EXPORTS
+#DEFINES += GUTIL_NO_CRYPTOPP
 
 HEADERS += \
     exception.h \

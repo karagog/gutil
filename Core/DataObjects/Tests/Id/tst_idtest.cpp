@@ -14,44 +14,39 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "gutil_uuid.h"
+#include "gutil_id.h"
+
 USING_NAMESPACE_GUTIL1(DataObjects);
 
-class UuidTest : public QObject
+class IdTest : public QObject
 {
     Q_OBJECT
     
 public:
-    UuidTest();
+    IdTest();
     
 private Q_SLOTS:
     void test_basic_function();
 };
 
-UuidTest::UuidTest()
+IdTest::IdTest()
 {
 }
 
-void UuidTest::test_basic_function()
+void IdTest::test_basic_function()
 {
-    Uuid uid;
+    Id<32> id;
+    QVERIFY(id.IsNull());
+    qDebug(id.ToString());
 
-    QVERIFY(uid.IsNull());
+    id.Generate();
+    QVERIFY(!id.IsNull());
+    qDebug(id.ToString());
 
-    uid.Generate();
-    QVERIFY(!uid.IsNull());
-
-    qDebug(uid.ToString());
-
-
-    Uuid uid_short(true);
-    qDebug(uid_short.ToString());
-
-    // Can it parse capitals and lower case, and strip the leading and ending brackets?
-    uid_short = Uuid::FromString("{abcdef12-3456-4123-a212-ABCDEFABABAB}");
-    qDebug(uid_short.ToString());
+    Id<8> id_short(true);
+    qDebug(id_short.ToString());
 }
 
-QTEST_APPLESS_MAIN(UuidTest)
+QTEST_APPLESS_MAIN(IdTest)
 
-#include "tst_uuidtest.moc"
+#include "tst_idtest.moc"

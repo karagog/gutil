@@ -20,11 +20,13 @@ HEADERS += \
     DataObjects/nullable.h \
     DataObjects/strings.h \
     DataObjects/bitvector.h \
-    DataObjects/uuid.h
+    DataObjects/uuid.h \
+    DataObjects/id.h
 
 SOURCES += \
     DataObjects/version.cpp \
-    DataObjects/strings.cpp
+    DataObjects/strings.cpp \
+    DataObjects/uuid.cpp
 
 
 

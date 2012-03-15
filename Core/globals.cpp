@@ -12,7 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_globals.h"
 #include "gutil_macros.h"
 #include <cstdlib>
 #include <time.h>
@@ -107,11 +106,6 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
     }
     return res;
 }
-
-
-
-/** Instantiate this specialization, which code will be widely used */
-template GINT32 Rand<GINT32>(GUINT32);
 
 
 

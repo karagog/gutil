@@ -23,10 +23,6 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <malloc.h>
 
-#ifndef GUTIL_NO_CRYPTOPP
-#include "ThirdParty/cryptopp-5.6.1/osrng.h"
-#endif
-
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     /** Switch on debug features when building in debug mode. */
@@ -491,46 +487,6 @@ template<class INT_TYPE> inline static INT_TYPE BitMask(bool init_val){
 }
 
 
-/** Returns a random integer with the first NUM_BITS randomized.
-
-    It is implemented by iteratively calling the C rand() function and
-    building a word of sufficient size from the random bits.
-
-    \note The rand() function is seeded automatically whenever the GUtil library
-    is loaded, so you do not have to call srand() yourself when using this function.
-
-    \tparam INT_TYPE The type of the return value.  Note that this integer
-        must be able to support the given number of bits.
-    \param NUM_BITS The number of random bits you want in the return value.
-        The default is the same number of bits as in the return value.
-*/
-template<class INT_TYPE>
-inline INT_TYPE Rand(GUINT32 NUM_BITS = (8 * sizeof(INT_TYPE))){
-    GASSERT(NUM_BITS <= (sizeof(INT_TYPE) * 8));
-    INT_TYPE ret(0);
-
-#ifdef GUTIL_NO_CRYPTOPP
-    const int size_of_rand( FSB32(RAND_MAX + 1) );
-    int cnt;
-    for(int bits_remaining = NUM_BITS; bits_remaining > 0; bits_remaining -= cnt){
-        cnt = Min(bits_remaining, size_of_rand);
-        ret |= ((INT_TYPE)(rand() & ((1 << cnt) - 1))) << (NUM_BITS - bits_remaining);
-    }
-#else
-    CryptoPP::AutoSeededX917RNG<CryptoPP::AES>().GenerateBlock(
-                (byte *)&ret,
-                Min(((NUM_BITS - 1) / 8) + 1, sizeof(INT_TYPE)));
-    if(NUM_BITS < (sizeof(INT_TYPE) * 8))
-        ret &= ((((INT_TYPE)1) << NUM_BITS) - 1);
-#endif
-
-    return ret;
-}
-
-/** Find this instantiation in globals.cpp */
-extern template GINT32 Rand<GINT32>(GUINT32);
-
-
 END_NAMESPACE_GUTIL;
 
 
@@ -577,15 +533,23 @@ END_NAMESPACE_GUTIL;
 /** The suffix you find on the end of shared libraries in Linux */
 #define GUTIL_LIBRARY_SUFFIX_LINUX ".so.1"
 
-#if defined(Q_OS_WIN)
+#if defined(__WIN32)
 #define GUTIL_LIBRARY_SUFFIX GUTIL_LIBRARY_SUFFIX_WINDOWS
-#elif defined(Q_OS_LINUX)
+#elif defined(linux)
 #define GUTIL_LIBRARY_SUFFIX GUTIL_LIBRARY_SUFFIX_LINUX
 #else
 /** A platform-independent definition for the suffix of shared libraries */
 #define GUTIL_LIBRARY_SUFFIX
 #endif
 
+
+
+#ifdef GUTIL_NO_CRYPTOPP
+
+// Since our RNG is implemented by CryptoPP, we also have to disable this.
+#define GUTIL_NO_RNG
+
+#endif
 
 
 #endif // GUTIL_GLOBALS_H
