@@ -47,30 +47,6 @@ public:
         else        this->Clear();
     }
 
-    /** Constructs an Id from an ASCII string.
-
-        If the conversion was unsuccessful, the Id will be set to null.
-    */
-    inline Id(const String &s){
-        bool success(true);
-
-        if(s.Length() == (2 * NUM_BYTES)){
-            try{
-                String cpy( s.FromBase16() );
-                memcpy(m_data, cpy.ConstData(), sizeof(m_data));
-            }
-            catch(...){
-                success = false;
-            }
-        }
-        else{
-            success = false;
-        }
-
-        if(!success)
-            Clear();
-    }
-
     /** Copy constructor */
     inline Id(const Id<NUM_BYTES> &other){
         memcpy(m_data, other.m_data, sizeof(m_data));
@@ -96,13 +72,35 @@ public:
     inline void Generate(){ ::GUtil::Utils::RandomData::Fill(m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with hex digits */
-    inline String ToString() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }
+    inline String ToString16() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }
 
-    /** You can cast an Id seamlessly into a string */
-    inline operator String () const{ return ToString(); }
+    /** Returns an ASCII string representation of the Id with base 64 digits */
+    inline String ToString64() const{ return String::ToBase64((const char *)m_data, sizeof(m_data)); }
 
-    /** Convenience function constructs an Id from an ASCII hex string */
-    inline static Id<NUM_BYTES> FromString(const String &s){ return Id(s); }
+    /** Constructs an Id from an ASCII hex string */
+    inline static Id<NUM_BYTES> FromString16(const String &s){
+        Id<NUM_BYTES> ret;
+        if(s.Length() == (2 * NUM_BYTES)){
+            try{
+                String cpy( s.FromBase16() );
+                memcpy(ret.m_data, cpy.ConstData(), sizeof(ret.m_data));
+            }
+            catch(...){}
+        }
+        return ret;
+    }
+
+    /** Constructs an Id from an ASCII base-64 string */
+    inline static Id<NUM_BYTES> FromString64(const String &s){
+        Id<NUM_BYTES> ret;
+        try{
+            String cpy( s.FromBase64() );
+            if(sizeof(ret.m_data) == cpy.Length())
+                memcpy(ret.m_data, cpy.ConstData(), sizeof(ret.m_data));
+        }
+        catch(...){}
+        return ret;
+    }
 
     inline bool operator == (const Id &other) const{ return 0 == memcmp(m_data, other.m_data, sizeof(m_data)); }
     inline bool operator != (const Id &other) const{ return 0 != memcmp(m_data, other.m_data, sizeof(m_data)); }

@@ -35,16 +35,31 @@ IdTest::IdTest()
 
 void IdTest::test_basic_function()
 {
-    Id<32> id;
+    Id<30> id;
     QVERIFY(id.IsNull());
-    qDebug(id.ToString());
+    //qDebug(id.ToString64());
+    //qDebug(id.ToString16());
 
     id.Generate();
     QVERIFY(!id.IsNull());
-    qDebug(id.ToString());
+    qDebug(id.ToString64());
+    //qDebug(id.ToString16());
 
-    Id<8> id_short(true);
-    qDebug(id_short.ToString());
+    Id<9> id_short(true);
+    qDebug(id_short.ToString64());
+
+
+    String s = id.ToString64();
+    Id<30> cpy;
+    QVERIFY(cpy != id);
+
+    cpy = Id<30>::FromString64(s);
+    QVERIFY(cpy == id);
+
+
+    s = id.ToString16();
+    cpy = Id<30>::FromString16(s);
+    QVERIFY(cpy == id);
 }
 
 QTEST_APPLESS_MAIN(IdTest)

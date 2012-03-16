@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gutil_random.h"
+#include "gutil_smartpointer.h"
 
 // We have to include this, for the correct sourcing of the preprocessor
 //  macro GUTIL_NO_RNG
@@ -26,7 +27,7 @@ limitations under the License.*/
 /** We allocate a global static RNG from CryptoPP, so we don't
     have to allocate one every time we need random data.
 */
-static ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > _rng;
+static ::GUtil::Utils::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > _rng;
 
 #endif  // GUTIL_NO_CRYPTOPP
 
@@ -37,7 +38,8 @@ NAMESPACE_GUTIL1(Utils);
 void RandomData::Fill(GBYTE *buffer, GUINT32 size)
 {
 #ifndef GUTIL_NO_RNG
-    _rng.GenerateBlock(buffer, size);
+    if(_rng.IsNull()) _rng = new ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES >;
+    _rng->GenerateBlock(buffer, size);
 #else
     GBYTE const *e( buffer + size );
     while(buffer != e)

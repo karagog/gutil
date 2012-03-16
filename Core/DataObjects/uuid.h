@@ -21,22 +21,8 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(DataObjects);
 
 
-/** A Universally Unique Identifier implementation.
-
-    This implementation guarantees uniqueness of generated UUIDS.  It allows
-    you to configure how many bytes to represent the unique value
-    uses 32 random bytes of data (256 random bits), which is larger than most
-
-    \note You can control the way random data is acquired, and subsequently the library
-    dependencies.  By default the implementation depends on CryptoPP's OS random
-    number generator, which is a really good one.  However, if you don't want
-    to depend on the cryptopp dll, you can disable this implementation with the
-    GUTIL_NO_CRYPTOPP build switch.  Without cryptopp, it will get random data
-    from C's rand() function, which is not nearly as good, but if you don't care
-    about the quality of the random data then this may be a fine solution for you.
-
-    \tparam NUM_WORDS The number of random 32-bit words used to represent the unique value.
-    This is 1/8 the size of the UUID when converted to an ASCII string.
+/** A Universally Unique Identifier implementation, which conforms to the
+    UUID standard.
 */
 class Uuid
 {
