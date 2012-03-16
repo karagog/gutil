@@ -9,7 +9,6 @@ SUBDIRS += \
     Core \
     Qt \
     QtPlugins \
-    CryptoPP \
     Test
 
 CONFIG += ordered

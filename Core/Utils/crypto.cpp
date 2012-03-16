@@ -12,30 +12,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifndef GUTIL_NO_CRYPTOPP
+
+
 /** To disable warnings, because we're exposing some weak algorithms (MD4-5) */
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "gutil_encryptionutils.h"
+#include "gutil_crypto.h"
 #include "gutil_smartpointer.h"
-#include "cryptopp-5.6.1/cryptlib.h"
-#include "cryptopp-5.6.1/filters.h"
-#include "cryptopp-5.6.1/gzip.h"
-#include "cryptopp-5.6.1/randpool.h"
-#include "cryptopp-5.6.1/osrng.h"
-#include "cryptopp-5.6.1/default.h"
-#include "cryptopp-5.6.1/pwdbased.h"
-#include "cryptopp-5.6.1/md4.h"
-#include "cryptopp-5.6.1/md5.h"
-#include "gutil_stringsink.h"
+#include "ThirdParty/cryptopp-5.6.1/cryptlib.h"
+#include "ThirdParty/cryptopp-5.6.1/filters.h"
+#include "ThirdParty/cryptopp-5.6.1/gzip.h"
+#include "ThirdParty/cryptopp-5.6.1/randpool.h"
+#include "ThirdParty/cryptopp-5.6.1/osrng.h"
+#include "ThirdParty/cryptopp-5.6.1/default.h"
+#include "ThirdParty/cryptopp-5.6.1/pwdbased.h"
+#include "ThirdParty/cryptopp-5.6.1/md4.h"
+#include "ThirdParty/cryptopp-5.6.1/md5.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(Utils);
 using namespace CryptoPP;
 
-NAMESPACE_GUTIL1(CryptoPP);
+NAMESPACE_GUTIL1(Utils);
 
 
-String EncryptionUtils::CompressString(const GBYTE *data, GUINT32 data_len,
-                                       EncryptionUtils::CompressionLevelEnum level)
+String Crypto::CompressString(const GBYTE *data, GUINT32 data_len,
+                                       Crypto::CompressionLevelEnum level)
 {
     String ret(data_len + 1);   // Preallocate space for the return string
     bool skip_compression = data_len > 10000000;
@@ -63,7 +65,7 @@ String EncryptionUtils::CompressString(const GBYTE *data, GUINT32 data_len,
     return ret;
 }
 
-String EncryptionUtils::DecompressString(const GBYTE *data, GUINT32 data_len)
+String Crypto::DecompressString(const GBYTE *data, GUINT32 data_len)
 {
     String ret(data_len);
 
@@ -106,7 +108,7 @@ String EncryptionUtils::DecompressString(const GBYTE *data, GUINT32 data_len)
 
 #define ENCRYPTED_MESSAGE_STAMP 0xAAAAAAAAAAAAAAAAULL
 
-String EncryptionUtils::EncryptString(const GBYTE *data, GUINT32 data_len,
+String Crypto::EncryptString(const GBYTE *data, GUINT32 data_len,
                                       const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
 {
     byte padded_key[SHA256::DIGESTSIZE];
@@ -183,7 +185,7 @@ String EncryptionUtils::EncryptString(const GBYTE *data, GUINT32 data_len,
     return ret;
 }
 
-String EncryptionUtils::DecryptString(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
+String Crypto::DecryptString(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
 {
     String ret(data_len);
     if(len == UINT_MAX)
@@ -244,7 +246,7 @@ String EncryptionUtils::DecryptString(const GBYTE *data, GUINT32 data_len, const
     return ret;
 }
 
-String EncryptionUtils::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e)
+String Crypto::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e)
 {
     GUINT32 str_len;
     SmartPointer<HashTransformation> h;
@@ -287,20 +289,15 @@ String EncryptionUtils::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmE
         break;
     }
 
-
-    String ret(str_len);
-    ret.set_length(str_len);
-    ret[str_len] = '\0';
-
-    h->CalculateDigest(reinterpret_cast<byte *>(ret.Data()), data, data_len);
+    String ret((char)0, str_len);
+    h->CalculateDigest((byte *)ret.Data(), data, data_len);
     return ret;
 }
 
-String EncryptionUtils::RandomString(GUINT32 num_bytes, GUINT32 seed)
+String Crypto::RandomString(GUINT32 num_bytes, GUINT32 seed)
 {
     bool autoseed( seed == UINT_MAX );
-    String ret(num_bytes);
-    ret.set_length(num_bytes);
+    String ret((char)0, num_bytes);
 
     AutoSeededX917RNG<AES> rng(false, autoseed);
     if(!autoseed)
@@ -312,3 +309,6 @@ String EncryptionUtils::RandomString(GUINT32 num_bytes, GUINT32 seed)
 
 
 END_NAMESPACE_GUTIL1;
+
+
+#endif // GUTIL_NO_CRYPTOPP

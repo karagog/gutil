@@ -1,32 +1,62 @@
-/*Copyright 2010-2012 George Karagoulis
-
+/*Copyright 2012 George Karagoulis
+  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-
+    
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_CRYPTOPP_UTILS_H
-#define GUTIL_CRYPTOPP_UTILS_H
+/** \file
+
+    Describes the GUtil encryption functionality.
+
+    By default, most functionality is implemented by calls to Crypto++.  You can
+    disable this with the build switch GUTIL_NO_CRYPTOPP.
+*/
+
+
+#ifndef GUTIL_NO_CRYPTOPP
+
+#ifndef GUTIL_CRYPTO_H
+#define GUTIL_CRYPTO_H
 
 #include "gutil_strings.h"
+#include "ThirdParty/cryptopp-5.6.1/simple.h"
 
-NAMESPACE_GUTIL1(CryptoPP);
+NAMESPACE_GUTIL1(Utils);
 
 
-/** A static class to hold useful cryptographic functions.
-
-    Here you can find encryption, hash and compression algorithms built on Crypto++
+/** A static class to encapsulate certain cryptographic functionality
 */
-class EncryptionUtils
+class Crypto
 {
 public:
+
+
+    /** Used to adapt the GUtil String into CryptoPP Sink. */
+    class StringSink :
+            public ::CryptoPP::Bufferless< ::CryptoPP::Sink >
+    {
+        GUtil::DataObjects::String &sref;
+    public:
+
+        /** Just give it a string reference, and it will append all the data to it */
+        inline StringSink(GUtil::DataObjects::String &s) :sref(s){}
+
+        /** Overridden from ::CryptoPP::Bufferless */
+        virtual size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking){
+            sref.Append(reinterpret_cast<const char *>(inString), length);
+            return 0;
+        }
+
+    };
+
 
     /** Declares various types of encryption methods for use in the encryption function. */
     enum EncryptionTypeEnum
@@ -163,4 +193,6 @@ public:
 
 END_NAMESPACE_GUTIL1;
 
-#endif // GUTIL_CRYPTOPP_UTILS_H
+#endif // GUTIL_CRYPTO_H
+
+#endif // GUTIL_NO_CRYPTOPP

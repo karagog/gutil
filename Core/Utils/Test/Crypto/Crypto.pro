@@ -14,11 +14,14 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../.. ../../../.. ../../..
-LIBS += -L../../../lib -lGUtil -lGUtilCryptoPP
+INCLUDEPATH += ../.. ../../../.. ../../../../include ../../..
+LIBS += -L../../../../lib \
+    -lGUtil
+
 
 unix: LIBS += -Wl,-rpath,../../../../lib
 
 
-SOURCES += tst_encryptionutilstest.cpp
+SOURCES += \
+    tst_cryptotest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"

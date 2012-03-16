@@ -49,17 +49,15 @@ exists($$DOCS_PATH/$$DOCS_ZIP_TARGET){
 docs_gen.commands = $$DOCS_COMMAND
 docs_zip.commands = cd $$DOCS_PATH; $$ZIP_CMD $$DOCS_ZIP_TARGET -r $$DOCS_DIR
 
-PRE_TARGETDEPS = \
-    headers \
-    docs_clean \
-    docs_gen \
-    docs_zip
+PRE_TARGETDEPS =  headers
+PRE_TARGETDEPS += docs_clean
+PRE_TARGETDEPS += docs_gen
+PRE_TARGETDEPS += docs_zip
 
-QMAKE_EXTRA_TARGETS = \
-    headers \
-    docs_clean \
-    docs_gen \
-    docs_zip
+QMAKE_EXTRA_TARGETS =  headers
+QMAKE_EXTRA_TARGETS += docs_clean
+QMAKE_EXTRA_TARGETS += docs_gen
+QMAKE_EXTRA_TARGETS += docs_zip
 
 OTHER_FILES += \
     Doxyfile
