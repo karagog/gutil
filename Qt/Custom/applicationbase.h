@@ -30,7 +30,7 @@ limitations under the License.*/
     This is similar to qApp, but returns ApplicationBase instead.  It is done as a dynamic
     cast, because ApplicationBase is not derived from QApplication, but since Application is
     derived from both we can cross-cast if we do a dynamic cast.  It will return NULL if you
-    did not instantiate a Application or GCoreApplication
+    did not instantiate a Application or CoreApplication
     \sa qApp
 */
 #define gApp   dynamic_cast<GUtil::QT::Custom::ApplicationBase *>(qApp)
@@ -40,7 +40,7 @@ limitations under the License.*/
 NAMESPACE_GUTIL2(QT, Custom);
 
 
-/** Used as a base class for the common functionality of Application and GCoreApplication.
+/** Used as a base class for the common functionality of Application and CoreApplication.
 
     Provides a memory management stack, onto which
     you can push any kind of memory, and it will be deleted in FILO order when you call

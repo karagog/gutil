@@ -22,20 +22,20 @@ namespace GUtil{ namespace QT{ namespace Custom {
 
 
 /** A customized QCoreApplication, which implements the Application functionality */
-class GCoreApplication :
+class CoreApplication :
         public QCoreApplication,
         public ApplicationBase
 {
     Q_OBJECT
 public:
 
-    /** Constructs a GCoreApplication with a null application name and version */
-    inline GCoreApplication(int &argc, char **argv)
+    /** Constructs a CoreApplication with a null application name and version */
+    inline CoreApplication(int &argc, char **argv)
         :QCoreApplication(argc, argv)
     {}
 
-    /** Constructs a GCoreApplication with the given application version and name */
-    inline GCoreApplication(int &argc, char **argv,
+    /** Constructs a CoreApplication with the given application version and name */
+    inline CoreApplication(int &argc, char **argv,
                               const QString &application_name = QString::null,
                               const QString &application_version = QString::null)
         :QCoreApplication(argc, argv)
@@ -46,7 +46,7 @@ public:
             setApplicationVersion(application_version);
     }
 
-    virtual ~GCoreApplication(){}
+    virtual ~CoreApplication(){}
 
     virtual bool notify(QObject *o, QEvent *ev){
         bool ret(false);
@@ -80,13 +80,13 @@ public slots:
     #undef gApp
 #endif
 
-/** A reference to the global instance of GCoreApplication.
+/** A reference to the global instance of CoreApplication.
 
-    This is similar to qApp, but returns GCoreApplication instead.  It is done as a dynamic
-    cast, so in case you didn't actually instantiate a GCoreApplication it will return NULL.
+    This is similar to qApp, but returns CoreApplication instead.  It is done as a dynamic
+    cast, so in case you didn't actually instantiate a CoreApplication it will return NULL.
     \sa qApp
 */
-#define gApp   dynamic_cast<GUtil::Custom::GCoreApplication *>(qApp)
+#define gApp   dynamic_cast<GUtil::Custom::CoreApplication *>(qApp)
 
 
 #endif // GUTIL_COREAPPLICATION_H
