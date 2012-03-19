@@ -109,8 +109,7 @@ void Uuid::Generate()
 
 String Uuid::ToString() const
 {
-    String s( (const char *)m_data, sizeof(m_data) );
-    s = s.ToBase16();
+    String s( String::ToBase16((const char *)m_data, sizeof(m_data)) );
     s.Insert("-", 1, 8);
     s.Insert("-", 1, 13);
     s.Insert("-", 1, 18);
