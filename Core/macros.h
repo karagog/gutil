@@ -217,8 +217,8 @@ protected: \
 */
 #define GUTIL_DISABLE_COPY(cls) \
     private: \
-        cls(const cls &){} \
-        cls &operator =(const cls &){return *this;}
+        inline cls(const cls &){} \
+        inline cls &operator =(const cls &){return *this;}
 
 
 #ifndef NULL

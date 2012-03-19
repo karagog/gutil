@@ -126,7 +126,7 @@ public slots:
     */
     static void AboutGUtil(QWidget *dialog_parent = 0){
         // Have to load the about plugin
-        QPluginLoader pl("GUtilAboutPlugin" GUTIL_LIBRARY_SUFFIX);
+        QPluginLoader pl("GUtilAboutPlugin" GUTIL_SHAREDLIBRARY_SUFFIX);
         QString error_msg;
         if(pl.load()){
             GUtil::QT::Plugins::IAboutGUtil *about =

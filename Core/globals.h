@@ -528,18 +528,18 @@ END_NAMESPACE_GUTIL;
 
 
 /** The suffix you find on the end of shared libraries in Windows */
-#define GUTIL_LIBRARY_SUFFIX_WINDOWS ".dll"
+#define GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS ".dll"
 
 /** The suffix you find on the end of shared libraries in Linux */
-#define GUTIL_LIBRARY_SUFFIX_LINUX ".so.1"
+#define GUTIL_SHAREDLIBRARY_SUFFIX_LINUX ".so.1"
 
 #if defined(__WIN32)
-#define GUTIL_LIBRARY_SUFFIX GUTIL_LIBRARY_SUFFIX_WINDOWS
+#define GUTIL_SHAREDLIBRARY_SUFFIX GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS
 #elif defined(linux)
-#define GUTIL_LIBRARY_SUFFIX GUTIL_LIBRARY_SUFFIX_LINUX
+#define GUTIL_SHAREDLIBRARY_SUFFIX GUTIL_SHAREDLIBRARY_SUFFIX_LINUX
 #else
 /** A platform-independent definition for the suffix of shared libraries */
-#define GUTIL_LIBRARY_SUFFIX
+#define GUTIL_SHAREDLIBRARY_SUFFIX
 #endif
 
 
