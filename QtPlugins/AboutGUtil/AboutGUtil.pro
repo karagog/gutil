@@ -20,5 +20,6 @@ RESOURCES += \
     aboutgutil.qrc
 
 OTHER_FILES += \
-    abouttext.txt
+    abouttext.txt \
+    licensetext.txt
 

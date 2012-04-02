@@ -18,9 +18,11 @@ limitations under the License.*/
 #include "gutil_about.h"
 #include "gutil_macros.h"
 #include "gutil_application.h"
+#include "gutil_licensewindow.h"
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
+#include <QtPlugin>
 
 NAMESPACE_GUTIL2(QT, UI);
 
@@ -28,50 +30,108 @@ NAMESPACE_GUTIL2(QT, UI);
 
 #define PUSH_BUTTON_WIDTH 100
 
-About::About(QWidget *parent, bool show_about_gutil)
-    :QDialog(parent)
+void AboutLogic::ShowAbout()
+{
+    // There is no default implementation
+    THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+}
+
+void AboutLogic::ShowAboutQt()
+{
+    if(qApp) qApp->aboutQt();
+}
+
+void AboutLogic::ShowAboutGUtil(QWidget *parent)
+{
+    // Have to load the about plugin
+    QPluginLoader pl("GUtilAboutPlugin" GUTIL_SHAREDLIBRARY_SUFFIX);
+    QString error_msg;
+    if(pl.load()){
+        GUtil::QT::Plugins::IAboutGUtil *about =
+                qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance());
+        if(about)
+            about->ShowAboutGUtil(parent);
+        else
+            error_msg = "Unable to cast plugin as expected type";
+        pl.unload();
+    }
+    else{
+        error_msg = QString("Unable to load about plugin: %1\n\n"
+                            "Make sure it is located in the working directory in which the application is executing")
+                    .arg(pl.fileName());
+    }
+
+    if(!error_msg.isEmpty())
+        QMessageBox::critical(0, "ERROR", error_msg, QMessageBox::Ok);
+}
+
+void AboutLogic::ShowLicense(QWidget *parent)
+{
+    LicenseWindow( get_license_text(), parent ).exec();
+}
+
+QString AboutLogic::get_license_text()
+{
+    return QString();
+}
+
+
+
+About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_button)
+    :AboutLogic(parent),
+      _dialog(parent),
+      m_imageFrame(new QWidget(&_dialog)),
+      m_buttonWidget(new QWidget(&_dialog))
 {
     // Prepare the dialog layout
-    resize(400, 300);
+    _dialog.resize(400, 300);
 
-    Title.setAlignment(Qt::AlignHCenter);
-    BuildInfo.setAlignment(Qt::AlignHCenter);
+    _title.setAlignment(Qt::AlignHCenter);
+    _buildinfo.setAlignment(Qt::AlignHCenter);
     {
         QFont f;
         f.setBold(true);
         f.setPixelSize(20);
-        Title.setFont(f);
-        Title.setFixedHeight(TITLE_HEIGHT);
+        _title.setFont(f);
+        _title.setFixedHeight(TITLE_HEIGHT);
     }
 
     QHBoxLayout *top_level_layout(new QHBoxLayout);
-    _imageFrame.hide();
-    top_level_layout->addWidget(&_imageFrame);
-    top_level_layout->setAlignment(&_imageFrame, Qt::AlignTop);
+    m_imageFrame->hide();
+    top_level_layout->addWidget(m_imageFrame);
+    top_level_layout->setAlignment(m_imageFrame, Qt::AlignTop);
 
     QVBoxLayout *vbl( new QVBoxLayout );
     top_level_layout->addLayout(vbl);
-    vbl->addWidget(&Title);
-    vbl->addWidget(&BuildInfo);
-    vbl->addWidget(&Text);
+    vbl->addWidget(&_title);
+    vbl->addWidget(&_buildinfo);
+    vbl->addWidget(&_text);
     {
         // Set up the buttons at the bottom of the widget
-        m_buttonWidget = new QWidget(this);
+        m_buttonWidget = new QWidget(&_dialog);
         QHBoxLayout *hbl( new QHBoxLayout );
         hbl->setContentsMargins(0,0,0,0);
-        QPushButton *aboutQt( new QPushButton("About Qt", this) );
+        QPushButton *aboutQt( new QPushButton("About Qt", &_dialog) );
         m_buttonList.append(aboutQt);
         aboutQt->setMinimumWidth(PUSH_BUTTON_WIDTH);
         QPushButton *aboutGUtil( 0 );
-        if(show_about_gutil)
+        if(show_about_gutil_button)
         {
-            aboutGUtil = new QPushButton("About GUtil", this);
+            aboutGUtil = new QPushButton("About GUtil", &_dialog);
             m_buttonList.append(aboutGUtil);
             aboutGUtil->setMinimumWidth(PUSH_BUTTON_WIDTH);
             connect(aboutGUtil, SIGNAL(clicked()),
-                    gApp, SLOT(AboutGUtil()));
+                    this, SLOT(ShowAboutGUtil()));
         }
-        QPushButton *ok( new QPushButton("Ok", this) );
+        QPushButton *btnLicense( 0 );
+        if(show_license_button)
+        {
+            btnLicense = new QPushButton("Show License", &_dialog);
+            m_buttonList.append(btnLicense);
+            btnLicense->setMinimumWidth(PUSH_BUTTON_WIDTH);
+            connect(btnLicense, SIGNAL(clicked()), this, SLOT(ShowLicense()));
+        }
+        QPushButton *ok( new QPushButton("Ok", &_dialog) );
         m_buttonList.append(ok);
 
         hbl->addWidget(aboutQt);
@@ -81,34 +141,39 @@ About::About(QWidget *parent, bool show_about_gutil)
             hbl->addWidget(aboutGUtil);
             hbl->addStretch(1);
         }
+        if(btnLicense)
+        {
+            hbl->addWidget(btnLicense);
+            hbl->addStretch(1);
+        }
         hbl->addWidget(ok);
         m_buttonWidget->setLayout(hbl);
 
-        connect(aboutQt, SIGNAL(clicked()), qApp, SLOT(aboutQt()));
-        connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
+        connect(aboutQt, SIGNAL(clicked()), this, SLOT(ShowAboutQt()));
+        connect(ok, SIGNAL(clicked()), &_dialog, SLOT(accept()));
 
         vbl->addWidget(m_buttonWidget);
 
         ok->setFocus();
     }
-    setLayout(top_level_layout);
+    _dialog.setLayout(top_level_layout);
 
-    Text.setReadOnly(true);
+    _text.setReadOnly(true);
 }
 
 void About::SetImage(const QString &filename)
 {
     if(filename.isNull())
     {
-        _imageFrame.hide();
-        setWindowIcon(QIcon());
+        m_imageFrame->hide();
+        _dialog.setWindowIcon(QIcon());
     }
     else
     {
-        _imageFrame.setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
-        _imageFrame.setStyleSheet(QString("image: url(%1);").arg(filename));
-        _imageFrame.show();
-        setWindowIcon(QIcon(filename));
+        m_imageFrame->setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
+        m_imageFrame->setStyleSheet(QString("image: url(%1);").arg(filename));
+        m_imageFrame->show();
+        _dialog.setWindowIcon(QIcon(filename));
     }
 }
 
@@ -128,6 +193,11 @@ void About::AddPushButton(QPushButton *pb)
         if(i < (m_buttonList.count() - 1))
             hbl->addStretch(1);
     }
+}
+
+void About::ShowAbout()
+{
+    _dialog.exec();
 }
 
 

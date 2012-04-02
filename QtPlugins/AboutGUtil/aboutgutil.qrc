@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/GUtil/About">
         <file>abouttext.txt</file>
+        <file>licensetext.txt</file>
     </qresource>
 </RCC>

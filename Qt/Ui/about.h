@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
+#include "gutil_exception.h"
 #include <QDialog>
 #include <QLabel>
 #include <QTextEdit>
@@ -24,23 +25,86 @@ limitations under the License.*/
 namespace GUtil{ namespace QT{ namespace UI{
 
 
-/** A generic about window that you can use to quickly set your own */
+/** The business logic of the about window. */
+class AboutLogic :
+        public QObject
+{
+    Q_OBJECT
+public slots:
+
+    /** Tells this object to show its about content.
+
+        By default this throws a NotImplementedException.
+        Derived classes must override this if they want the about
+        window to do something interesting
+    */
+    virtual void ShowAbout();
+
+    /** Shows the application's license info.  You can override get_license_text()
+        to customize your own text.
+    */
+    void ShowLicense(QWidget *parent = 0);
+
+    /** Shows GUtil's about window. */
+    static void ShowAboutGUtil(QWidget *parent = 0);
+
+    /** Shows Qt's about window. */
+    static void ShowAboutQt();
+
+
+public:
+
+    /** Constructor an AboutLogic instance. */
+    inline explicit AboutLogic(QObject *parent = 0)
+        :QObject(parent)
+    {}
+
+    /** Virtual destructor for dynamic type casting. */
+    virtual ~AboutLogic() {}
+
+
+protected:
+
+    /** Returns the license text for the program.
+
+        By default it returns nothing.  You can override it to customize
+        your own license text.
+
+        \note This function is not const, because it makes no assertions
+        about the state of the about window.
+    */
+    virtual QString get_license_text();
+
+};
+
+
+/** A generic about window that you can use to quickly set your own. */
 class About :
-        public QDialog
+        public AboutLogic
 {
     Q_OBJECT
 public:
 
-    explicit About(QWidget *parent = 0, bool show_about_gutil = true);
+    /** Creates a new About instance.
 
-    /** Controls the title of the window */
-    QLabel Title;
+        \param parent The widget which you would like to set as the About dialog's parent
+        \param show_about_gutil_button Controls whether to show the button for "AboutGUtil"
+        in the normal window.
+        \param show_license_button Controls whether to show a license info button.  The implementation
+        of the button click calls the virtual function get_license_text() as a content sourse for the
+        license window.
+    */
+    explicit About(QWidget *parent = 0, bool show_about_gutil_button = true, bool show_license_button = false);
 
-    /** Gives information about the version and/or date */
-    QLabel BuildInfo;
+    /** Returns the title of the about window. */
+    inline QString GetTitle() const{ return _title.text(); }
 
-    /** Controls the text content of the window */
-    QTextEdit Text;
+    /** Returns the build info string. */
+    inline QString GetBuildInfo() const{ return _buildinfo.text(); }
+
+    /** Returns the about window's text attribute as plaintext */
+    inline QString GetAboutText() const{ return _text.toPlainText(); }
+
 
     /** Sets an image to display in the window
         \param path_to_resource Can be a resource or a file path
@@ -54,10 +118,32 @@ public:
     void AddPushButton(QPushButton *);
 
 
+public slots:
+
+    /** Shows the about window.  Overridden from AboutLogic. */
+    virtual void ShowAbout();
+
+
+protected:
+
+    // Derived classes get control over the members of the about window
+
+    /** The dialog window instance. */
+    QDialog _dialog;
+
+    /** Controls the title of the window */
+    QLabel _title;
+
+    /** Gives information about the version and/or date */
+    QLabel _buildinfo;
+
+    /** Controls the text content of the window */
+    QTextEdit _text;
+
+
 private:
 
-    QWidget _imageFrame;
-
+    QWidget *m_imageFrame;
     QWidget *m_buttonWidget;
     QWidgetList m_buttonList;
 

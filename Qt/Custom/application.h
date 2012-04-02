@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "gutil_processstatusindicator.h"
 #include "gutil_aboutgutil.h"
 #include "gutil_smartpointer.h"
+#include "gutil_about.h"
 #include <QApplication>
 #include <QPluginLoader>
 #include <QMessageBox>
@@ -124,27 +125,8 @@ public slots:
 
         \param dialog_parent The parent widget for the about dialog (can also be left empty)
     */
-    static void AboutGUtil(QWidget *dialog_parent = 0){
-        // Have to load the about plugin
-        QPluginLoader pl("GUtilAboutPlugin" GUTIL_SHAREDLIBRARY_SUFFIX);
-        QString error_msg;
-        if(pl.load()){
-            GUtil::QT::Plugins::IAboutGUtil *about =
-                    qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance());
-            if(about)
-                about->ShowAboutGUtil(dialog_parent);
-            else
-                error_msg = "Unable to cast plugin as expected type";
-            pl.unload();
-        }
-        else{
-            error_msg = QString("Unable to load about plugin: %1\n\n"
-                                "Make sure it is located in the working directory in which the application is executing")
-                    .arg(pl.fileName());
-        }
-
-        if(!error_msg.isEmpty())
-            QMessageBox::critical(0, "ERROR", error_msg, QMessageBox::Ok);
+    inline static void AboutGUtil(QWidget *dialog_parent = 0){
+        ::GUtil::QT::UI::About::ShowAboutGUtil(dialog_parent);
     }
 
 

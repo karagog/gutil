@@ -21,6 +21,7 @@ limitations under the License.*/
     plugin.  You can see the about gutil plugin for an example.
 */
 
+#include "gutil_macros.h"
 #include <QtPlugin>
 
 class QWidget;
