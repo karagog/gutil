@@ -7,16 +7,16 @@ HEADERS += \
     Utils/pubsubsystem.h \
     Utils/flexibletypecomparer.h \
     Utils/commandlinemenu.h \
-    Utils/random.h \
-    Utils/crypto.h
+    Utils/crypto.h \
+    Utils/rng.h
 
 SOURCES += \
     Utils/commandlineargs.cpp \
     Utils/environment.cpp \
     Utils/atomic.cpp \
     Utils/commandlinemenu.cpp \
-    Utils/random.cpp \
-    Utils/crypto.cpp
+    Utils/crypto.cpp \
+    Utils/rng.cpp
 
 
 

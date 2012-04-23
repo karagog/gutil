@@ -3,9 +3,9 @@ QT       -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
-QMAKE_CXXFLAGS += -w
+QMAKE_CXXFLAGS += -w -O3
 
-DEFINES += _IEEE_LIBM
+DEFINES += _IEEE_MODE
 
 SOURCES += \
     e_acos.c \
@@ -37,7 +37,7 @@ SOURCES += \
     k_sin.c \
     k_standard.c \
     k_tan.c \
-    libm-dllversion.c \
+#    libm-dllversion.c \
     s_asinh.c \
     s_atan.c \
     s_cbrt.c \
@@ -95,5 +95,8 @@ HEADERS += fdlibm.h
 
 DESTDIR = ../../lib
 TARGET = m
+
+OTHER_FILES += \
+    readme
 
 

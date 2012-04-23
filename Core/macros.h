@@ -55,14 +55,14 @@ limitations under the License.*/
 /** A 32 bit integer. */
 #define GINT32      int
 /** The max value of a GINT32 */
-#define GINT32_MAX      (0x7FFFFFFF)
+#define GINT32_MAX      ((GINT32)0x7FFFFFFF)
 /** The min value of a GINT32 */
-#define GINT32_MIN      (0X80000000)
+#define GINT32_MIN      ((GINT32)0X80000000)
 
 /** A 32 bit unsigned integer. */
 #define GUINT32     unsigned int
 /** The max value of a GUINT32 */
-#define GUINT32_MAX     (0xFFFFFFFF)
+#define GUINT32_MAX     ((GUINT32)0xFFFFFFFF)
 
 /** A 64 bit integer. */
 #define GINT64      long long

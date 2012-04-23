@@ -219,6 +219,16 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32);
 */
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64);
 
+/** Returns true if the two objects are equal to within the given tolerance.
+
+    For example, the numbers 5 and 6 are approximately equal within a tolerance of 1.
+
+    This is especially useful for floating point comparisons.
+*/
+template<class T>inline bool ApproximatelyEqual(const T &lhs, const T &rhs, const T &tolerance){
+    return Abs(rhs - lhs) <= tolerance;
+}
+
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
 END_NAMESPACE_GUTIL
@@ -495,8 +505,8 @@ END_NAMESPACE_GUTIL;
 #ifdef PI
 #undef PI
 #endif
-/** The number PI, to 19 decimals. */
-#define PI      3.1415926535897931160E+00
+/** The number PI, approximately */
+#define PI      ((GFLOAT64)3.14159265358979311600e+00)
 
 
 // Some useful time constants

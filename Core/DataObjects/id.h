@@ -1,11 +1,11 @@
 /*Copyright 2012 George Karagoulis
-  
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_ID_H
 #define GUTIL_ID_H
 
-#include "gutil_random.h"
+#include "gutil_rng.h"
 #include "gutil_strings.h"
 #include <cstring>
 
@@ -69,7 +69,7 @@ public:
         return ret;
     }
 
-    inline void Generate(){ ::GUtil::Utils::RandomData::Fill(m_data, sizeof(m_data)); }
+    inline void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with hex digits */
     inline String ToString16() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }

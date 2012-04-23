@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gutil_uuid.h"
-#include "gutil_random.h"
+#include "gutil_rng.h"
 #include <cstring>
 
 #ifndef GUTIL_NO_CRYPTOPP
@@ -89,7 +89,7 @@ void Uuid::Clear()
 void Uuid::Generate()
 {
     // Fill with random data
-    RandomData::Fill(m_data, sizeof(m_data));
+    RNG::Fill(m_data, sizeof(m_data));
 
     // Then set the reserved and version bits to conform with the UUID standard
 
