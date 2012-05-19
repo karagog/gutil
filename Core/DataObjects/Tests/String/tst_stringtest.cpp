@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <iostream>
 #include "gutil_strings.h"
 #include "gutil_extendedexception.h"
-#include "gutil_encryptionutils.h"
+#include "gutil_crypto.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(CryptoPP);
 USING_NAMESPACE_GUTIL;
