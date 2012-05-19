@@ -45,6 +45,11 @@ limitations under the License.*/
     (i.e. container classes like List or Map)
 
 
+    \namespace GUtil::Games Classes related to games.
+
+    Dice, cards, etc...  Business objects relating to games, but not dependent on Qt.
+
+
     \namespace GUtil::Interfaces Holds interface classes.
 
     The GUtil library does not have a strict interface convention.  Interfaces

@@ -29,7 +29,7 @@ HEADERGEN_WORKING_DIR = ..
 # Directory patterns for which we want to ignore all headers
 IGNORE_PATHS = Test
 
-HEADERGEN_TARGET_DIRS = Core,Qt,QtPlugins
+HEADERGEN_TARGET_DIRS = Core,Qt,QtPlugins,Games
 
 
 headers.commands = $$HEADER_CMD \

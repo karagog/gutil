@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "rng.h"
 #include "gutil_smartpointer.h"
 #include <math.h>
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 #ifndef GUTIL_NO_RNG
 
@@ -23,9 +24,19 @@ limitations under the License.*/
 /** We allocate a global static RNG from CryptoPP, so we don't
     have to allocate one every time we need random data.
 */
-static ::GUtil::Utils::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > _rng;
+static ::GUtil::Utils::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > __rng;
 
 #endif  // GUTIL_NO_RNG
+
+
+
+/** Scales down an integer in the range [0, GUINT32_MAX] to a
+    floating point number in the range (0, 1).
+*/
+static GFLOAT64 __rng_int_to_unit_float(GUINT32 i);
+
+/** Generates two integers with one call to Generate(). */
+static Pair<GUINT32> __rng_generate_two_numbers();
 
 
 
@@ -35,8 +46,8 @@ NAMESPACE_GUTIL1(Utils);
 void RNG::Initialize()
 {
 #ifndef GUTIL_NO_RNG
-    if(_rng.IsNull())
-        _rng = new ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES >;
+    if(__rng.IsNull())
+        __rng = new ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES >;
 #else
     // The rand() function is automatically seeded in the GUtil library initializer,
     //  so there is no setup necessary
@@ -46,7 +57,7 @@ void RNG::Initialize()
 void RNG::Uninitialize()
 {
 #ifndef GUTIL_NO_RNG
-    _rng.Clear();
+    __rng.Clear();
 #endif
 }
 
@@ -54,9 +65,9 @@ void RNG::Fill(GBYTE *buffer, GUINT32 size)
 {
 #ifndef GUTIL_NO_RNG
     // In release mode we don't want to check every time if it's initialized
-    GASSERT( !_rng.IsNull() );
+    GASSERT( !__rng.IsNull() );
 
-    _rng->GenerateBlock(buffer, size);
+    __rng->GenerateBlock(buffer, size);
 #else
     GBYTE const *e( buffer + size );
     while(buffer != e)
@@ -64,47 +75,118 @@ void RNG::Fill(GBYTE *buffer, GUINT32 size)
 #endif
 }
 
-GFLOAT64 RNG::Uniform()
+GFLOAT64 RNG::U(GFLOAT64 lower_bound, GFLOAT64 upper_bound)
 {
-    return (static_cast<GFLOAT64>(RNG::Generate<GUINT32>()) + 1.0) /
-           (static_cast<GFLOAT64>(GUINT32_MAX) + 2.0);
+    GASSERT(lower_bound <= upper_bound);
+
+    return lower_bound + __rng_int_to_unit_float(Generate<GUINT32>()) * (upper_bound - lower_bound);
 }
 
-GINT32 RNG::UniformIntegerBetween(GINT32 lower_bound, GINT32 upper_bound)
+GINT32 RNG::U_Discrete(GINT32 lower_bound, GINT32 upper_bound)
 {
-    return floor( UniformBetween(lower_bound, upper_bound + 1) );
+    return floor( U(lower_bound, upper_bound + 1) );
 }
 
 
 
-GFLOAT64 RNG::Normal()
+GFLOAT64 RNG::N(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
     // I use the Box-Muller method due to the ease of implementation
-    //  and the quality of the normally-distributed random data.
-    return sqrt(-2.0 * log(Uniform())) * sin( 2.0 * PI * Uniform() );
+    //  and the quality of the normally-distributed random data, but
+    //  not for its efficiency.
+
+    // Generate two independent U(0, 1) values (optimized)
+    const Pair<GUINT32> p( __rng_generate_two_numbers() );
+    const GFLOAT64 u( __rng_int_to_unit_float(p.First) );
+    const GFLOAT64 v( __rng_int_to_unit_float(p.Second) );
+
+    return mean + standard_deviation * sqrt(-2.0 * log(u) ) * sin( 2.0 * PI * v );
 }
 
-void RNG::Normal2(GFLOAT64 &n1, GFLOAT64 &n2)
+Pair<GFLOAT64> RNG::N2(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
-    GFLOAT64 U(Uniform()), V(Uniform());
-    GFLOAT64 C( sqrt(-2.0 * log(U)) );
-    GFLOAT64 A( 2.0 * PI * V );
-    n1 = C * sin(A);
-    n2 = C * cos(A);
+    // Generate two independent U(0, 1) values (optimized)
+    const Pair<GUINT32> p( __rng_generate_two_numbers() );
+    const GFLOAT64 u( __rng_int_to_unit_float(p.First) );
+    const GFLOAT64 v( __rng_int_to_unit_float(p.Second) );
+
+    // Using those two random values between 0 and 1, we can
+    //  generate two normally distributed variates.
+    const GFLOAT64 C( sqrt(-2.0 * log(u)) );
+    const GFLOAT64 A( 2.0 * PI * v );
+
+    return Pair<GFLOAT64>(mean + standard_deviation * C * sin(A), mean + standard_deviation * C * cos(A));
 }
 
-GINT32 RNG::NormalInteger(const GFLOAT64 &mean, const GFLOAT64 &standard_deviation)
+GINT32 RNG::N_Discrete(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
-   return floor( Normal(mean + 0.5, standard_deviation) );
+   return floor( N(mean + 0.5, standard_deviation) );
 }
 
-void RNG::NormalInteger2(int &n1, int &n2, const double &mean, const double &standard_deviation)
+Pair<GINT32> RNG::N_Discrete2(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
-    GFLOAT64 f1, f2;
-    Normal2(f1, f2, mean + 0.5, standard_deviation);
-    n1 = floor(f1);
-    n2 = floor(f2);
+    Pair<GINT32> ret;
+    Pair<GFLOAT64> f( N2(mean + 0.5, standard_deviation) );
+    ret.First = floor(f.First);
+    ret.Second = floor(f.Second);
+    return ret;
+}
+
+GINT32 RNG::Poisson(GFLOAT32 expected_value)
+{
+    // This algorithm was taken from Wikipedia.  I honestly don't know why it works, but you
+    //  can validate it by studying the output of the function.
+    GINT32 ret( -1 );
+
+    if(0.0 < expected_value)
+    {
+        GFLOAT64 p( 1.0 );
+        const GFLOAT64 L( exp( -expected_value ) );
+
+        while(p > L)
+        {
+            p *= U(0, 1);
+            ret += 1;
+        }
+    }
+
+    return ret;
+}
+
+GINT32 RNG::Geometric(GFLOAT32 expected_value)
+{
+    GINT32 ret(-1);
+    if(0.0 <= expected_value)
+        for( ret = 0;
+               ret != GINT32_MAX && !Succeed(1.0 / (expected_value + 1.0));
+               ret += 1 );
+    return ret;
+}
+
+GFLOAT64 RNG::Exponential(GFLOAT64 lambda)
+{
+    GFLOAT64 ret(-1.0);
+    if(0.0 < lambda)
+        ret = -log( U(0, 1) ) / lambda;
+    return ret;
 }
 
 
 END_NAMESPACE_GUTIL1;
+
+
+
+GFLOAT64 __rng_int_to_unit_float(GUINT32 i)
+{
+    // NOTE: The addition of 1 in the numerator and 2 in the denominator
+    //  are intended so the result never equals the lower or upper bounds,
+    //  but the difference is so small that it doesn't measurably affect
+    //  the probability distribution
+    return (1.0 + i) / (2.0 + GUINT32_MAX);
+}
+
+Pair<GUINT32> __rng_generate_two_numbers()
+{
+    GUINT64 L( GUtil::Utils::RNG::Generate<GUINT64>() );
+    return Pair<GUINT32>(*reinterpret_cast<GUINT32 *>(&L), *(reinterpret_cast<GUINT32 *>(&L) + 1));
+}

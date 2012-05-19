@@ -155,6 +155,13 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
         for(var = *cont.iter ;; __extension__({ break; }))
 
 
+/** Loops N times.
+
+    \param N The number of times to loop.  Interpreted as an unsigned integer.
+*/
+#define G_LOOP( N )       for(GUINT32 ___i(N); ___i != 0; --___i)
+
+
 /** Assigns the source to destination, but only after checking that they are not equal
 
     \note Requires at least 2 instructions, comparison and assignment.  More instructions
@@ -218,16 +225,6 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32);
     \note O(1).  This is computed in 9 cpu instructions on average using a lookup table
 */
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64);
-
-/** Returns true if the two objects are equal to within the given tolerance.
-
-    For example, the numbers 5 and 6 are approximately equal within a tolerance of 1.
-
-    This is especially useful for floating point comparisons.
-*/
-template<class T>inline bool ApproximatelyEqual(const T &lhs, const T &rhs, const T &tolerance){
-    return Abs(rhs - lhs) <= tolerance;
-}
 
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
@@ -323,45 +320,29 @@ template <>inline GINT64 Abs<GINT64>(const GINT64 &v){
     return (v + mask) ^ mask;
 }
 
-/** A compare function for floats.
-    Returns -1 if f1 is less than f2, 0 if they're equal, 1 if the f2 is less than f1
-*/
-inline static int FuzzyCompare32(GFLOAT32 f1, GFLOAT32 f2){
-    int ret;
-    GFLOAT32 diff(f2 - f1);
-    if(Abs(diff) < 0.00001)
-        ret = 0;
-    else if(diff > 0)
-        ret = -1;
-    else
-        ret = 1;
-    return ret;
-}
+/** Compares two values to see if they are equal to within a
+    specified tolerance.
 
-/** A compare function for floats.
-    Returns -1 if f1 is less than f2, 0 if they're equal, 1 if the f2 is less than f1
+    \param lhs The Left Hand Side of the comparison
+    \param rhs The Right Hand Side of the comparison
+    \param tolerance The tolerance within which the lhs and rhs are
+    considered equal.
+    
+    \tparam T The type of the compared object must be comparable
+    with 0 for this to work.   That means probably POD types like
+    ints or floats, but you're not limited to those as long as you can
+    compare if it's less than 0 for the Absolute Value function to work.
+    
+    \return 0 if the lhs and rhs are equal within the given tolerance.
+    Otherwise it will be non-zero: -1 if lhs is less than rhs, and 1
+    if lhs is greater than rhs.
 */
-inline static int FuzzyCompare64(GFLOAT64 f1, GFLOAT64 f2){
+template<class T>inline int FuzzyCompare(const T &lhs, const T &rhs, const T &tolerance)
+{
     int ret;
-    GFLOAT64 diff(f2 - f1);
-    if(Abs(diff) < 0.00000000001)
+    if( Abs<T>(rhs - lhs) <= tolerance )
         ret = 0;
-    else if(diff > 0)
-        ret = -1;
-    else
-        ret = 1;
-    return ret;
-}
-
-/** A compare function for floats.
-    Returns -1 if f1 is less than f2, 0 if they're equal, 1 if the f2 is less than f1
-*/
-inline static int FuzzyCompare96(GFLOAT96 f1, GFLOAT96 f2){
-    int ret;
-    GFLOAT96 diff(f2 - f1);
-    if(Abs(diff) < 0.000000000000001)
-        ret = 0;
-    else if(diff > 0)
+    else if(lhs < rhs)
         ret = -1;
     else
         ret = 1;

@@ -99,12 +99,8 @@ public:
 */
 class SharedData
 {
-    Utils::AtomicInt m_references;
     GUTIL_DISABLE_COPY(SharedData)
     template<class T>friend class SharedSmartPointer;
-protected:
-
-    inline SharedData(){}
 
     /** Counts another reference to the shared data */
     inline bool AddReference(){ return m_references.Increment(); }
@@ -113,6 +109,13 @@ protected:
 
     /** Returns the current reference count to the shared data */
     inline GINT32 ReferenceCount() const{ return m_references; }
+
+    Utils::AtomicInt m_references;
+
+
+protected:
+
+    inline SharedData(){}
 
 };
 
@@ -127,7 +130,6 @@ protected:
 */
 template<class T>class SharedSmartPointer
 {
-protected:
     T *m_data;
 public:
 

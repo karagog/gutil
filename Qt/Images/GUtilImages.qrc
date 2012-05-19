@@ -1,3 +1,7 @@
 <RCC>
-    <qresource prefix="/GUtil/Images"/>
+    <qresource prefix="/GUtil/Images">
+        <file>leftarrow.png</file>
+        <file>rightarrow.png</file>
+        <file>star.png</file>
+    </qresource>
 </RCC>

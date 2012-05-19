@@ -8,7 +8,8 @@ HEADERS += \
     Utils/flexibletypecomparer.h \
     Utils/commandlinemenu.h \
     Utils/crypto.h \
-    Utils/rng.h
+    Utils/rng.h \
+    Utils/circularint.h
 
 SOURCES += \
     Utils/commandlineargs.cpp \

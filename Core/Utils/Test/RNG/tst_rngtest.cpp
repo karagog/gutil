@@ -1,11 +1,11 @@
 /*Copyright 2012 George Karagoulis
-  
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,14 +22,17 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 
 #define NUM_TRIES 1000000U
 
+// Control whether to dump debug output to the command line
+bool OUTPUT_ENABLED = false;
+
 
 class RNGTest : public QObject
 {
     Q_OBJECT
-    
+
 public:
     RNGTest();
-    
+
 private Q_SLOTS:
     void test_CoinToss();
 
@@ -39,6 +42,11 @@ private Q_SLOTS:
 
     void test_Normal();
     void test_NormalInteger();
+
+    void test_Poisson();
+
+    void test_Geometric();
+    void test_Exponential();
 };
 
 RNGTest::RNGTest()
@@ -56,8 +64,10 @@ void RNGTest::test_CoinToss()
             cnt++;
     }
 
-    printf("After %i coin tosses, %f percent were Heads", NUM_TRIES, ((double)cnt)/NUM_TRIES);
-    QVERIFY(GUtil::ApproximatelyEqual(0.5, ((double)cnt)/NUM_TRIES, 0.001));
+    if(OUTPUT_ENABLED)
+        printf("After %i coin tosses, %2.4f%% percent were Heads", NUM_TRIES, ((double)cnt)/NUM_TRIES * 100);
+        
+    QVERIFY(0 == GUtil::FuzzyCompare(0.5, ((double)cnt)/NUM_TRIES, 0.01));
 }
 
 void RNGTest::test_PercentSuccess()
@@ -71,8 +81,10 @@ void RNGTest::test_PercentSuccess()
             cnt++;
     }
 
-    printf("After %i generated variables, %f percent were 'Successful', and %f probability was desired", NUM_TRIES, ((double)cnt)/NUM_TRIES, percentage);
-    QVERIFY(GUtil::ApproximatelyEqual(percentage, ((double)cnt)/NUM_TRIES, 0.001));
+    if(OUTPUT_ENABLED)
+        printf("After %i generated variables, %2.4f percent were 'Successful', and %2.4f probability was desired", NUM_TRIES, ((double)cnt)/NUM_TRIES*100, percentage*100);
+        
+    QVERIFY(0 == GUtil::FuzzyCompare(percentage, ((double)cnt)/NUM_TRIES, 0.001));
 }
 
 void RNGTest::test_UniformInteger()
@@ -80,19 +92,21 @@ void RNGTest::test_UniformInteger()
     const int range(10);
     int cnt[range] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     for(int i = 0; i < NUM_TRIES; ++i){
-        GINT32 val = RNG::UniformIntegerBetween(1, 10);
+        GINT32 val = RNG::U_Discrete(1, 10);
         GASSERT2(0 < val && 11 > val, String::Format("After %i tries I got %i", i, val).ConstData());
         cnt[val - 1] += 1;
     }
 
 
-    printf("\n\n");
-    for(int i = 0; i < range; ++i)
-        printf("%i: %f\n", i + 1, static_cast<GFLOAT64>(cnt[i]) / NUM_TRIES);
+    if(OUTPUT_ENABLED){
+        printf("\n\n");
+        for(int i = 0; i < range; ++i)
+            printf("%i: %2.4f%%\n", i + 1, static_cast<GFLOAT64>(cnt[i]) / NUM_TRIES * 100);
+    }
 
     for(int i = 0; i < range; ++i)
-        QVERIFY2(GUtil::ApproximatelyEqual(static_cast<GFLOAT64>(cnt[i]) / NUM_TRIES,
-                                          1.0 / range, 0.001),
+        QVERIFY2(0 == GUtil::FuzzyCompare(static_cast<GFLOAT64>(cnt[i]) / NUM_TRIES,
+                                          1.0 / range, 0.01),
                  String::Format("%d", i).ConstData());
 }
 
@@ -105,11 +119,10 @@ void RNGTest::test_Normal()
     GFLOAT64 sum(0);
 
     for(GUINT32 i = 0; i < NUM_TRIES; i += 2){
-        GFLOAT64 val1, val2;
-        RNG::Normal2(val1, val2, desired_mean, desired_stdev);
-        mem.PushBack(val1);
-        mem.PushBack(val2);
-        sum += val1 + val2;
+        Pair<GFLOAT64> val( RNG::N2(desired_mean, desired_stdev) );
+        mem.PushBack(val.First);
+        mem.PushBack(val.Second);
+        sum += val.First + val.Second;
     }
 
     GFLOAT64 empirical_mean( sum / NUM_TRIES );
@@ -124,12 +137,13 @@ void RNGTest::test_Normal()
     empirical_stdev = empirical_stdev / (NUM_TRIES - 1);
     empirical_stdev = sqrt(empirical_stdev);
 
-    printf("The mean (calculated empirically) is %f\n", empirical_mean);
+    if(OUTPUT_ENABLED){
+        printf("The mean (calculated empirically) is %f\n", empirical_mean);
+        printf("The standard deviation (calculated empirically) is %f\n", empirical_stdev);
+    }
 
-    printf("The standard deviation (calculated empirically) is %f\n", empirical_stdev);
-
-    QVERIFY(GUtil::ApproximatelyEqual(empirical_mean, desired_mean, 0.1));
-    QVERIFY(GUtil::ApproximatelyEqual(empirical_stdev, desired_stdev, 0.1));
+    QVERIFY(0 == GUtil::FuzzyCompare(empirical_mean, desired_mean, 0.1));
+    QVERIFY(0 == GUtil::FuzzyCompare(empirical_stdev, desired_stdev, 0.1));
 }
 
 void RNGTest::test_NormalInteger()
@@ -141,11 +155,10 @@ void RNGTest::test_NormalInteger()
     GINT32 sum(0);
 
     for(GUINT32 i = 0; i < NUM_TRIES; i += 2){
-        GINT32 val1, val2;
-        RNG::NormalInteger2(val1, val2, desired_mean, desired_stdev);
-        mem.PushBack(val1);
-        mem.PushBack(val2);
-        sum += val1 + val2;
+        Pair<GINT32> val( RNG::N_Discrete2(desired_mean, desired_stdev) );
+        mem.PushBack(val.First);
+        mem.PushBack(val.Second);
+        sum += val.First + val.Second;
     }
 
     GFLOAT64 empirical_mean( static_cast<GFLOAT64>(sum) / NUM_TRIES );
@@ -160,13 +173,100 @@ void RNGTest::test_NormalInteger()
     empirical_stdev = empirical_stdev / (NUM_TRIES - 1);
     empirical_stdev = sqrt(empirical_stdev);
 
-    printf("The mean (calculated empirically) is %f\n", empirical_mean);
+    if(OUTPUT_ENABLED){
+        printf("The mean (calculated empirically) is %f\n", empirical_mean);
+        printf("The standard deviation (calculated empirically) is %f\n", empirical_stdev);
+    }
 
-    printf("The standard deviation (calculated empirically) is %f\n", empirical_stdev);
-
-    QVERIFY(GUtil::ApproximatelyEqual(empirical_mean, desired_mean, 0.5));
-    QVERIFY(GUtil::ApproximatelyEqual(empirical_stdev, desired_stdev, 0.5));
+    QVERIFY(0 == GUtil::FuzzyCompare(empirical_mean, desired_mean, 0.5));
+    QVERIFY(0 == GUtil::FuzzyCompare(empirical_stdev, desired_stdev, 0.5));
 }
+
+void RNGTest::test_Poisson()
+{
+    GINT32 sum(0);
+    GINT32 num_tries(10000);
+    GFLOAT64 empirical_mean(0);
+    GFLOAT64 desired_mean( 40 );
+
+    for(int i = 0; i < num_tries; ++i)
+    {
+        GINT32 p = RNG::Poisson(desired_mean);
+        sum += p;
+        //printf("Poisson: %d\n", p);
+    }
+
+    empirical_mean = static_cast<GFLOAT64>(sum) / num_tries;
+    
+    if(OUTPUT_ENABLED)
+        printf("The average of the Poisson variables is %f", empirical_mean);
+
+    QVERIFY(0 == GUtil::FuzzyCompare(empirical_mean, desired_mean, 1.0));
+}
+
+void RNGTest::test_Geometric()
+{
+    const int num_tries( NUM_TRIES );
+    GFLOAT64 mean(0.0);
+    const GFLOAT64 expected_value(4);
+    const GFLOAT64 trial_probability( 1.0 / (expected_value + 1) );
+    GINT32 max(-1);
+    GINT32 zero_count( 0 );
+    GFLOAT64 zero_percent;
+
+    for(int i = 0; i < num_tries; ++i)
+    {
+        GINT32 T = RNG::Geometric(expected_value);
+        mean += T;
+        if(max < T)
+            max = T;
+
+        if( T == 0 )
+            zero_count++;
+
+        //printf("Geometric: %d\n", T);
+    }
+
+    mean = mean / num_tries;
+    zero_percent = ((GFLOAT64)zero_count) / num_tries;
+
+    if(OUTPUT_ENABLED){
+        printf("The average of the Geometric variates is: %f \n", mean);
+        printf("The maximum variate produced was: %d \n", max);
+        printf("%2.4f%% of the variates produced were 0\n", zero_percent * 100);
+    }
+
+    QVERIFY(0 == GUtil::FuzzyCompare(expected_value, mean, 0.1));
+    QVERIFY(0 == GUtil::FuzzyCompare(zero_percent, trial_probability, 0.1));
+}
+
+void RNGTest::test_Exponential()
+{
+    const int num_tries( NUM_TRIES );
+    GFLOAT64 mean(0.0);
+    const GFLOAT64 rate(2);
+    GFLOAT64 max(-1);
+
+    for(int i = 0; i < num_tries; ++i)
+    {
+        GFLOAT64 T = RNG::Exponential(rate);
+        mean += T;
+        if(max < T)
+            max = T;
+        //printf("Exponential: %d\n", T);
+    }
+
+    mean = mean / num_tries;
+
+    if(OUTPUT_ENABLED){
+        printf("The average of the Exponential variates is: %f \n", mean);
+        printf("The maximum variate produced was: %f \n", max);
+    }
+
+    QVERIFY(0 == GUtil::FuzzyCompare(1.0 / rate, mean, 0.1));
+}
+
+
 
 QTEST_APPLESS_MAIN(RNGTest)
 

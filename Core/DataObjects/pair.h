@@ -23,7 +23,7 @@ NAMESPACE_GUTIL1(DataObjects);
     The items are not guarded by accessor functions; this is just basically a data container
     to hold two disparate pieces of data.
 */
-template<class T1, class T2>
+template<class T1, class T2 = T1>
 class Pair
 {
 public:

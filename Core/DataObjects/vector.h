@@ -621,9 +621,18 @@ public:
     /** Returns true if we hold a matching item */
     inline bool Contains(const T &i) const{ return UINT_MAX != IndexOf(i); }
 
-    /** Sorts the vector using the given sorting algorithm. */
-    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
-        switch(e)
+    /** Sorts the vector using the given sorting algorithm.
+
+        \param ascending The results are sorted ascendingly or descendingly
+        according to this flag.
+
+        \param comparer You can supply your own compare function, in case
+        the less-than operator is not good enough for you.
+
+        \param sort_type The sorting algorithm to use.
+    */
+    inline void Sort(bool ascending = true, const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
+        switch(sort_type)
         {
         case GUtil::MergeSort:
         {
@@ -811,6 +820,20 @@ public:
 
     /** Pops the top item from a logical stack and copies it into the given variable */
     inline Vector<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
+
+    /** Does a constant-time data swap between vectors.
+
+        After calling this, lhs will own rhs' data, and vice versa.  It is
+        simply a pointer swap.
+
+        \note After calling, all iterators for both vectors will still be valid,
+        they will only reference the opposite Vector's data.
+    */
+    inline static void Swap(Vector<T> &lhs, Vector<T> &rhs){
+        T *tmp( lhs.m_begin );
+        lhs.m_begin = rhs.m_begin;
+        rhs.m_begin = tmp;
+    }
 
 
 protected:

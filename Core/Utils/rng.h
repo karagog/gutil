@@ -16,6 +16,7 @@ limitations under the License.*/
 #define GUTIL_RNG_H
 
 #include "gutil_globals.h"
+#include "gutil_pair.h"
 
 NAMESPACE_GUTIL1(Utils);
 
@@ -40,6 +41,9 @@ public:
 
         You must call this before using any RNG-dependent functions!
 
+        \note This does nothing if the RNG was already initialized, so it
+        doesn't hurt to call it.
+
         \sa Uninitialize()
     */
     static void Initialize();
@@ -57,94 +61,144 @@ public:
     */
     static void Uninitialize();
 
-    /** Returns a uniformly distributed number between 0 and 1, EXCLUSIVE.
-        The range of the return value is (0, 1).
+    /** Returns a uniformly distributed random number between the two bounds, EXCLUSIVE.
 
-        \note The return value will never be exactly 0 or 1, which simplifies
+        \return A floating point number in the range (lower_bound, upper_bound)
+
+        \note The return value will never be exactly the lower or upper bound, which simplifies
         some algorithms without sacrificing any quality.  For example,
         the Box-Muller method for generating normal distributions requires
         a log() operation,  which fails in the case of 0 input.  This Uniform convention is also
         arguably compliant with probabilistic theory, because the probability
-        of getting a 0 or 1 exactly is 0%.
+        of getting either bound in a continuous distribution is 0%.
 
-        \note The resolution of the random return value is about 1/2^32
+        \note The resolution of the random return value is about (upper_bound - lower_bound)/2^32
     */
-    static GFLOAT64 Uniform();
-
-    /** Returns a uniformly distributed random number between the two bounds, EXCLUSIVE.
-        The range of the return value is (lower_bound, upper_bound).
-    */
-    static inline GFLOAT64 UniformBetween(const GFLOAT64 &lower_bound, const GFLOAT64 &upper_bound){
-        GASSERT(lower_bound <= upper_bound);
-        return (Uniform() * (upper_bound - lower_bound)) + lower_bound;
-    }
+    static GFLOAT64 U(GFLOAT64 lower_bound = 0.0, GFLOAT64 upper_bound = 1.0);
 
     /** Returns a uniformly distributed integer value between the given
         lower and upper bounds, INCLUSIVE.  Each integer in the return range
         is equally likely to be returned.
 
-        The range of the return value is [lower_bound, upper_bound].
+        \return An integer value in the range [lower_bound, upper_bound].
     */
-    static GINT32 UniformIntegerBetween(GINT32 lower_bound, GINT32 upper_bound);
-
-    /** Returns a (approximate) standard normal random number
-        with a mean of 0 and standard deviation of 1.
-
-        \note The resolution of the random return value is about 1/2^32
-    */
-    static GFLOAT64 Normal();
+    static GINT32 U_Discrete(GINT32 lower_bound, GINT32 upper_bound);
 
     /** Returns a normally distributed random number with the given mean
         and standard deviation.
 
-        \param mean The desired mean of the normal variable.
+        \param mean The desired mean of the normal variable.  The default is 0.
         \param standard_deviation The desired standard deviation of the normal variable.
+        The default is 1.
 
-        \note The resolution of the random return value is about standard_deviation/(2^32 - 1)
+        \note The resolution of the random return value is about standard_deviation/2^32
     */
-    static inline GFLOAT64 Normal(const GFLOAT64 &mean, const GFLOAT64 &standard_deviation){
-        return (Normal() * standard_deviation) + mean;
-    }
+    static GFLOAT64 N(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
 
     /** A special version of Normal that produces 2 values instead of 1.
 
         Use this version if you will be generating lots of random values,
         because the regular implementation practically generates two values anyways.
     */
-    static void Normal2(GFLOAT64 &n1, GFLOAT64 &n2);
-
-    /** A special version of Normal that produces 2 values instead of 1,
-        with the given mean and standard deviation.
-
-        Use this version if you will be generating lots of random values,
-        because the regular implementation practically generates two values anyways.
-    */
-    static inline void Normal2(GFLOAT64 &n1, GFLOAT64 &n2,
-                               const GFLOAT64 &mean, const GFLOAT64 &standard_deviation){
-       Normal2(n1, n2);
-       n1 = (n1 * standard_deviation) + mean;
-       n2 = (n2 * standard_deviation) + mean;
-    }
+    static GUtil::DataObjects::Pair<GFLOAT64> N2(GFLOAT64 mean = 0.0,
+                                                   GFLOAT64 standard_deviation = 1.0);
 
     /** Returns a normally distributed integer with the given mean and standard deviation. */
-    static GINT32 NormalInteger(const GFLOAT64 &mean, const GFLOAT64 &standard_deviation);
+    static GINT32 N_Discrete(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
 
     /** Returns two normally distributed integers with the given mean and standard deviation.
 
         Use this version if you will be generating lots of random values,
         because the regular implementation practically generates two values anyways.
     */
-    static void NormalInteger2(GINT32 &n1, GINT32 &n2, const GFLOAT64 &mean, const GFLOAT64 &standard_deviation);
+    static GUtil::DataObjects::Pair<GINT32> N_Discrete2(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
+
+
+    /** Generates a Poisson-distributed random variable.
+
+        \param expected_value The mean value of the random variable.
+        This value must be strictly > 0, otherwise the function returns -1.
+        This is the only parameter necessary to generate a Poisson
+        distribution from a U(0, 1) distribution.  It describes the
+        rate at which the event  occurs.
+
+        \return A discrete random variable with a Poisson distribution, and
+        a mean value of expected_value.
+
+        \note The complexity of the implementation is O(expected_value),
+        so be careful when calling with large numbers
+    */
+    static GINT32 Poisson( GFLOAT32 expected_value );
+
+
+    /** Generates a discrete, Geometrically-distributed random variable
+        with the given expected value.
+
+        The definition of a Geometric random variable used here is:
+        Given a random trial that is successful with a certain probability,
+        and is independent of all other trials in the sequence,
+        the geometric random variable is the number of failed trials before
+        the first success.
+
+        \param expected_value The mean value of the generated
+        random variable.   This value must be greater-than or equal
+        to 0, otherwise the function returns -1.
+
+        \return A positive, discrete geometrically-distributed random variable.
+        In the case of an invalid input (expected_value less than 0)
+        -1 is returned.
+        The range of a valid return value is [0, GINT32_MAX].  This is a hard
+        upper limit, so if the random variable would be larger, it is capped
+        at GINT32_MAX.
+
+        \note This implementation has complexity O(expected_value).
+        You should be aware that the implementation makes an iteration
+        for every count  in the return value.  So if your expected value is
+        1,000 you can bet that the average case is going to make one
+        thousand iterations before it returns.  This is, practically speaking,
+        why you can't possibly overflow the return value, because
+        it would require more than 2 billion iterations to return a value,
+        which would cause extreme runtime overhead and prompt you
+        to rethink your use of the Geometric variate generator.
+    */
+    static GINT32 Geometric( GFLOAT32 expected_value );
+
+
+    /** Generates an Exponentially distributed random variable
+          with the rate parameter lambda.
+
+          The probability density function is P(x; x > 0) = lambda * exp(-lambda*x)
+
+          This probability distribution can be used to simulate potential
+          event occurrences which happen randomly over time, but
+          at a known average rate.  For example, if you know that
+          100 meteors strike the earth every year on average, then
+          you can simulate the amount of time that passes between
+          meteor strikes by generating variates from this distribution
+          with 100 as the rate parameter (The unit of the return value
+          would then be a fraction of 1 year; the unit being defined
+          by the unit of the rate parameter).
+
+          \param lambda Describes the rate of the exponential process.
+          This parameter must be strictly greater than 0.
+
+          \return A positive number with an exponential distribution
+          and mean value 1/lambda.  The variance is 1/(lambda^2).
+          If the input parameter is invalid (less than or equal to 0),
+          then the return value is -1.
+    */
+    static GFLOAT64 Exponential( GFLOAT64 lambda );
 
 
 
     /** Returns a random data object, whose type is specified by the
         template parameter.
 
-        \tparam T The type of the return value.
+        \tparam T The type of the return value.  This must be a
+        Plain-Old-Data (POD) type, like an Int or Float, because the
+        object's memory will be randomly generated.
     */
-    template<class T>
-    static inline T Generate(){
+    template<class T> static inline T Generate(){
         T ret;
         Fill(reinterpret_cast<GBYTE *>(&ret), sizeof(T));
         return ret;
@@ -155,22 +209,31 @@ public:
 
 
 
-    /** Returns true with the given probability.
+    /** A discrete random variable which is 1 with the given probability
+        and 0 otherwise.
 
         \param probability_of_success The probability that this function
-        will return true, given as a percentage between 0 and 1.
+        will return 1, given as a decimal value between 0 and 1.
+        The value given may be outside the range [0, 1], but if it is
+        then the return value will always be either a 0 or a 1, depending
+        on which bound is being violated.
 
-        \note If the given probability of success is negative, this function
-        will always return false.  Conversely, if the probability is greater
-        than or equal to 1, this function will always return true.
+        \return 1 with the given probability  and 0 otherwise.
     */
-    static inline bool Succeed(const GFLOAT64 &probability_of_success){
-        return Uniform() < probability_of_success;
+    static inline int Succeed(GFLOAT64 probability_of_success){
+        return U(0, 1) < probability_of_success ? 1 : 0;
     }
 
-    /** Optimized version of Succeed() that returns True with a 50% probability. */
-    static inline bool CoinToss(){
-        return Generate<GINT8>() < 0;
+    /** Optimized version of Succeed() that returns 1 with a 50% probability.
+
+        In the case of a coin toss, you do not need a random value
+        with such a great resolution as the normal Succeed() function;
+        just generating one random byte is sufficient.
+
+        \return 1 with 50% probability, otherwise 0.
+    */
+    static inline int CoinToss(){
+        return Generate<GINT8>() < 0 ? 1 : 0;
     }
 
 };

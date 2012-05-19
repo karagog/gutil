@@ -7,7 +7,7 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
-INCLUDEPATH += ../include .. ../ThirdParty/fdlibm-5.2
+INCLUDEPATH += ../include ..
 LIBS += -L../lib \
     -lcryptopp
 
