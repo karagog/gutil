@@ -47,6 +47,9 @@ public:
         else        this->Clear();
     }
 
+    /** Generates a new id.  Use as an alternative to the constructor. */
+    static inline Id<NUM_BYTES> NewId(){ return Id(true); }
+
     /** Copy constructor */
     inline Id(const Id<NUM_BYTES> &other){
         memcpy(m_data, other.m_data, sizeof(m_data));
@@ -78,7 +81,7 @@ public:
     inline String ToString64() const{ return String::ToBase64((const char *)m_data, sizeof(m_data)); }
 
     /** Constructs an Id from an ASCII hex string */
-    inline static Id<NUM_BYTES> FromString16(const String &s){
+    static inline Id<NUM_BYTES> FromString16(const String &s){
         Id<NUM_BYTES> ret;
         if(s.Length() == (2 * NUM_BYTES)){
             try{
@@ -91,7 +94,7 @@ public:
     }
 
     /** Constructs an Id from an ASCII base-64 string */
-    inline static Id<NUM_BYTES> FromString64(const String &s){
+    static inline Id<NUM_BYTES> FromString64(const String &s){
         Id<NUM_BYTES> ret;
         try{
             String cpy( s.FromBase64() );
