@@ -33,7 +33,7 @@ public:
         return GetMajorVersion() == -1 && GetMinorVersion() == -1 && GetReleaseVersion() == -1;
     }
     inline String ToString() const{
-        return String::Format("%s.%s.%s",
+        return String::Format("%d.%d.%d",
                               GetMajorVersion(),
                               GetMinorVersion(),
                               GetReleaseVersion());
