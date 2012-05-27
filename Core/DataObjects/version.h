@@ -52,7 +52,9 @@ public:
         return !(*this == o);
     }
 
-    inline Version(int major = 0, int minor = 0, int release = 0)
+    inline Version()
+        :_p_MajorVersion(-1), _p_MinorVersion(-1), _p_ReleaseVersion(-1) {}
+    inline Version(int major, int minor, int release = 0)
         :_p_MajorVersion(major), _p_MinorVersion(minor), _p_ReleaseVersion(release){}
     Version(const String &version_string);
     inline Version(const Version &o)

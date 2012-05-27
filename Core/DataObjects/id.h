@@ -30,6 +30,9 @@ NAMESPACE_GUTIL1(DataObjects);
     as a template parameter.
 
     \tparam NUM_BYTES The size of the Id object, in bytes
+
+    \note If you are using the CryptoPP random number generator, you must initialize
+    the RNG before using this class.
 */
 template<int NUM_BYTES>
 
@@ -72,6 +75,7 @@ public:
         return ret;
     }
 
+    /** Generates a random new value for this id. */
     inline void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with hex digits */

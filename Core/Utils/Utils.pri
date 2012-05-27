@@ -18,23 +18,3 @@ SOURCES += \
     Utils/commandlinemenu.cpp \
     Utils/crypto.cpp \
     Utils/rng.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

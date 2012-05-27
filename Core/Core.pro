@@ -13,6 +13,7 @@ LIBS += -L../lib \
 
 #DEFINES += GUTIL_COM_EXPORTS
 #DEFINES += GUTIL_NO_CRYPTOPP
+#DEFINES += GUTIL_DEBUG
 
 HEADERS += \
     exception.h \
