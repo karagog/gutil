@@ -56,7 +56,10 @@ public:
         :_p_MajorVersion(-1), _p_MinorVersion(-1), _p_ReleaseVersion(-1) {}
     inline Version(int major, int minor, int release = 0)
         :_p_MajorVersion(major), _p_MinorVersion(minor), _p_ReleaseVersion(release){}
+
     Version(const String &version_string);
+    Version(const char *version_string);
+
     inline Version(const Version &o)
         :_p_MajorVersion(o._p_MajorVersion),
           _p_MinorVersion(o._p_MinorVersion),

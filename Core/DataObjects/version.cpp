@@ -14,39 +14,23 @@ limitations under the License.*/
 
 #include "version.h"
 
+
+/** Constructs a new Version object with the given string */
+static void __init_with_string(::GUtil::DataObjects::Version *,
+                               const ::GUtil::DataObjects::String &);
+
+
 NAMESPACE_GUTIL1(DataObjects);
 
 
 Version::Version(const String &version_string)
-    :_p_MajorVersion(-1),
-      _p_MinorVersion(-1),
-      _p_ReleaseVersion(-1)
 {
-    if(!version_string.IsEmpty())
-    {
-        int tmp;
-        bool ok(false);
-        Vector<String> lst( version_string.Split('.') );
-        SetMajorVersion(0);
-        SetMinorVersion(0);
-        SetReleaseVersion(0);
+    __init_with_string(this, version_string);
+}
 
-        if(lst.Count() > 0)
-        {
-            tmp = lst[0].ToInt(&ok);
-            if(ok) SetMajorVersion(tmp);
-        }
-        if(lst.Count() > 1)
-        {
-            tmp = lst[1].ToInt(&ok);
-            if(ok) SetMinorVersion(tmp);
-        }
-        if(lst.Count() > 2)
-        {
-            tmp = lst[2].ToInt(&ok);
-            if(ok) SetReleaseVersion(tmp);
-        }
-    }
+Version::Version(const char *version_string)
+{
+    __init_with_string(this, String(version_string));
 }
 
 bool Version::operator <(const Version &o) const
@@ -69,3 +53,39 @@ bool Version::operator >(const Version &o) const
 
 
 END_NAMESPACE_GUTIL1;
+
+
+void __init_with_string(::GUtil::DataObjects::Version *v,
+                        const ::GUtil::DataObjects::String &s)
+{
+    v->SetMajorVersion(-1);
+    v->SetMinorVersion(-1);
+    v->SetReleaseVersion(-1);
+
+    // If s is not an empty string
+    if(!s.IsEmpty())
+    {
+        int tmp;
+        bool ok(false);
+        ::GUtil::DataObjects::Vector< ::GUtil::DataObjects::String > lst( s.Split('.') );
+        v->SetMajorVersion(0);
+        v->SetMinorVersion(0);
+        v->SetReleaseVersion(0);
+
+        if(lst.Count() > 0)
+        {
+            tmp = lst[0].ToInt(&ok);
+            if(ok) v->SetMajorVersion(tmp);
+        }
+        if(lst.Count() > 1)
+        {
+            tmp = lst[1].ToInt(&ok);
+            if(ok) v->SetMinorVersion(tmp);
+        }
+        if(lst.Count() > 2)
+        {
+            tmp = lst[2].ToInt(&ok);
+            if(ok) v->SetReleaseVersion(tmp);
+        }
+    }
+}
