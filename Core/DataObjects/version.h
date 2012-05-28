@@ -75,6 +75,10 @@ public:
         new(this) Version(s);
         return *this;
     }
+    inline Version &operator = (const char *s){
+        new(this) Version(s);
+        return *this;
+    }
 
     inline operator String () const{ return ToString(); }
 
