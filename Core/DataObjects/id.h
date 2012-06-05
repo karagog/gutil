@@ -33,6 +33,8 @@ NAMESPACE_GUTIL1(DataObjects);
 
     \note If you are using the CryptoPP random number generator, you must initialize
     the RNG before using this class.
+    
+    \sa InitializeRNG()
 */
 template<int NUM_BYTES>
 
@@ -40,6 +42,16 @@ class Id
 {
     GBYTE m_data[NUM_BYTES];
 public:
+
+    /** A convenience function that initializes the RNG, in case it needs to be.
+
+        You must call this before using any Id object, because the RNG is used
+        to generate its value.
+
+        You can call this function as many times as you want, but it must be called
+        at least once before you start using Id's!
+    */
+    inline static void InitializeRNG(){ ::GUtil::Utils::RNG::Initialize(); }
 
     /** Constructs a null Id, which has all bytes set to 0. */
     inline Id(){ Clear(); }

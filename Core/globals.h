@@ -101,7 +101,13 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 };
 
 
-/** A syntactically concise iteration loop.
+/** A syntactically concise iteration loop.  
+
+    This version of it retains the const-ness of the input container.
+    
+    \note Depending on the implementation of the container iterators, 
+    the individual elements may or may not be modifiable.  You set the desired
+    const-ness of the element reference in the declaration, and if it compiles then it must work.
 
     This is better than Qt's foreach loop, because it doesn't make a copy of the
     container.  Use this version when you DON'T need to modify the container elements.
@@ -130,12 +136,18 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 
 /** A syntactically concise iteration loop that starts at the back of the container.
 
+    This version of it retains the const-ness of the input container.
+    
+    \note Depending on the implementation of the container iterators, 
+    the individual elements may or may not be modifiable.  You set the desired
+    const-ness of the element reference in the declaration, and if it compiles then it must work.
+
     This is better than Qt's foreach loop, because it doesn't make a copy of the
     container.  Use this version when you DON'T need to modify the container elements.
 
     \param var A variable declaration for the foreach body.  Use const-references whenever possible.
     \param container An STL-like container, which must implement an iterator class
-            and begin()/end() functions
+            and rbegin()/rend() functions
 */
 #define G_FOREACH_CONST_REVERSE(var, container) \
     for(GUtilForeachContainer<__typeof__(container), true, false> cont(container); cont.iter != cont.end; --cont.iter) \
@@ -148,7 +160,7 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 
     \param var A variable declaration for the foreach body.  Use references whenever possible.
     \param container An STL-like container, which must implement an iterator class
-            and begin()/end() functions
+            and rbegin()/rend() functions
 */
 #define G_FOREACH_REVERSE(var, container) \
     for(GUtilForeachContainer<__typeof__(container), false, false> cont(container); cont.iter != cont.end; --cont.iter) \
