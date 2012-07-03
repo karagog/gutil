@@ -30,7 +30,7 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
     {
         DataTransportException<true> ex(q.lastError().text().toAscii().constData());
 
-        ex.SetData("query_text", q.executedQuery().toAscii().constData());
+        ex.SetData("query_text", q.lastQuery().toAscii().constData());
 
         QMap<QString, QVariant> bound_values( q.boundValues() );
         int cnt(1);

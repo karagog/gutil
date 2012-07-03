@@ -41,7 +41,7 @@ void AbstractLogger::LogException(const Exception<false> &ex)
     if(!should_log_message(MessageLevel_Error))
         return;
 
-    const Exception<true> *ex_ptr( dynamic_cast<const Exception<true> *>(&ex) );
+    ExtendedException const *ex_ptr( dynamic_cast<ExtendedException const *>(&ex) );
 
     if(ex_ptr)
     {
@@ -73,7 +73,7 @@ void AbstractLogger::LogException(const Exception<false> &ex)
             }
         }
 
-        Log(String::Format("%s%s", ex_ptr->GetMessage(), data_string.ConstData()),
+        Log(String::Format("%s%s", ex.GetMessage(), data_string.ConstData()),
 
             String::Format("%s caught from line %d of file '%s'%s:",
             ex.What ? ex.What : "[ null ]",
@@ -89,10 +89,11 @@ void AbstractLogger::LogException(const Exception<false> &ex)
     else
     {
         Log("",
-            String::Format("%s caught from line %d of file '%s':",
+            String::Format("%s caught from line %d of file '%s':\n%s",
                            ex.What ? ex.What : "[ null ]",
                            ex.Line,
-                           ex.File ? ex.File : "[ no file ]"),
+                           ex.File ? ex.File : "[ no file ]",
+                           ex.GetMessage() ? ex.GetMessage() : ""),
             MessageLevel_Error);
     }
 }
