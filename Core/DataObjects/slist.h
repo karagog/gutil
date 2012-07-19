@@ -130,6 +130,18 @@ public:
     /** Pops the top item from a logical stack and copies it into the given variable */
     inline SList<T> &operator >> (T &cpy){ cpy = *begin(); PopFront(); return *this; }
 
+    /** Returns a reference to the first item in the list. */
+    inline T &Front(){ return m_first->Data; }
+
+    /** Returns a reference to the first item in the list. */
+    inline const T &Front() const{ return m_first->Data; }
+
+    /** Returns a reference to the last item in the list. */
+    inline T &Back(){ return m_last->Data; }
+
+    /** Returns a reference to the last item in the list. */
+    inline const T &Back() const{ return m_last->Data; }
+
     /** Empties the slist and clears all memory.
         \note O(N)
     */
