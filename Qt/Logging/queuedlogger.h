@@ -52,6 +52,8 @@ class QueuedLogger :
 
     QMutex m_lock;
     QWaitCondition m_forActivity;
+    
+    ::GUtil::Utils::SharedSmartPointer< ::GUtil::Logging::AbstractLogger > m_logger;
 
     // The following variables should be protected by the mutex lock
     ::GUtil::DataObjects::SList< _log_item > m_queue;
@@ -60,19 +62,25 @@ class QueuedLogger :
 
 public:
 
-    inline explicit QueuedLogger(::GUtil::DataAccess::OutputInterface *o,
-                                 QObject *parent = 0)
-        :QThread(parent),
-          ::GUtil::Logging::AbstractLogger(o),
+    /** Constructs a queued logger.
+            You must pass a valid pointer to another logger for this to work,
+            and the class will manage the memory for you.
+    */
+    inline explicit QueuedLogger(::GUtil::Logging::AbstractLogger *l)
+        :GUtil::Logging::AbstractLogger(NULL),
+          m_logger(l),
           m_cancel(false),
           m_flushQueueOnCancel(true)
     {}
 
-    inline QueuedLogger(::GUtil::DataAccess::OutputInterface *o,
-                        const LoggingOptionsFlags &f,
-                        QObject *parent = 0)
-        :QThread(parent),
-          ::GUtil::Logging::AbstractLogger(o, f),
+    /** Constructs a queued logger.
+            You must pass a valid pointer to another logger for this to work,
+            and the class will manage the memory for you.
+    */
+    inline QueuedLogger(::GUtil::Logging::AbstractLogger *l,
+                        const LoggingOptionsFlags &f)
+        :GUtil::Logging::AbstractLogger(NULL, f),
+          m_logger(l),
           m_cancel(false),
           m_flushQueueOnCancel(true)
     {}

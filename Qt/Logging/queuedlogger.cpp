@@ -52,7 +52,7 @@ void QueuedLogger::run()
         m_lock.unlock();
 
         // Call the base logger implementation to actually log the data
-        AbstractLogger::log_protected(tmp_item.s1, tmp_item.s2, tmp_item.lvl);
+        m_logger->Log(tmp_item.s1, tmp_item.s2, tmp_item.lvl);
 
         // Pick up the lock again before continuing the loop
         m_lock.lock();

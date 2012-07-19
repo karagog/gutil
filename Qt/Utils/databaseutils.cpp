@@ -21,8 +21,23 @@ limitations under the License.*/
 #include <QSqlError>
 #include <QSqlDatabase>
 #include <QVariant>
+USING_NAMESPACE_GUTIL1(DataObjects);
 
 NAMESPACE_GUTIL2(QT, Utils);
+
+
+::GUtil::DataObjects::String DatabaseUtils::InfoString(const QSqlQuery &q)
+{
+    int cnt(0);
+    String tmp("");
+    G_FOREACH_CONST(const QVariant &v, q.boundValues().values())
+    {
+        ++cnt;
+        tmp.Append( String::Format("  Bound value %d: %s\n", cnt, v.toByteArray().constData()) );
+    }
+
+    return String::Format("Query String:    \"%s\"\n\n%s", q.lastQuery().toAscii().constData(), tmp.ConstData());
+}
 
 void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 {

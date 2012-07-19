@@ -102,6 +102,7 @@ END_NAMESPACE_GUTIL1;
     class flags_name : public GUtil::DataObjects::Flags<enum_type, int_type>{ \
     public: \
         inline flags_name(){} \
+        inline flags_name(enum_type e) :GUtil::DataObjects::Flags<enum_type, int_type>(e){}  \
         inline explicit flags_name(int_type i) :GUtil::DataObjects::Flags<enum_type, int_type>(i){} \
         inline flags_name(const GUtil::DataObjects::Flags<enum_type, int_type> &o) :GUtil::DataObjects::Flags<enum_type, int_type>(o){} \
         inline flags_name &operator = (enum_type e){ GUtil::DataObjects::Flags<enum_type, int_type>::operator = (e); return *this; } \

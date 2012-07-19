@@ -136,7 +136,8 @@ public:
                     const DataObjects::String &title = DataObjects::String(),
                     MessageLevelEnum ml = MessageLevel_Info)
     {
-        if(should_log_message(ml))  log_protected(message, title, ml);
+        if(should_log_message(ml))
+            log_protected(message, title, ml);
     }
 
     /** Returns the logging options */

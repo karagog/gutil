@@ -31,14 +31,17 @@ public:
 
     inline MessageBoxLogger() :AbstractLogger(NULL){}
 
+    virtual ~MessageBoxLogger(){}
+    
+    
+protected:
+
     /** Displays a modal dialog box with the title and message, with the
         appropriate severity.
     */
-    virtual void Log(const DataObjects::String &message,
-                     const DataObjects::String &title,
-                     MessageLevelEnum ml);
-
-    virtual ~MessageBoxLogger(){}
+    virtual void log_protected(const DataObjects::String &message,
+                                         const DataObjects::String &title,
+                                         MessageLevelEnum ml);
 
 };
 

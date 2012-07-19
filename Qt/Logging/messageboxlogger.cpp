@@ -22,9 +22,9 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 NAMESPACE_GUTIL2(QT, Logging);
 
 
-void MessageBoxLogger::Log(const String &message,
-                           const String &title,
-                           MessageLevelEnum ml)
+void MessageBoxLogger::log_protected(const String &message,
+                                                       const String &title,
+                                                       MessageLevelEnum ml)
 {
     switch(ml)
     {
