@@ -30,10 +30,10 @@ NAMESPACE_GUTIL2(QT, Utils);
 {
     int cnt(0);
     String tmp("");
-    G_FOREACH_CONST(const QVariant &v, q.boundValues().values())
+    foreach(QVariant v, q.boundValues().values())
     {
         ++cnt;
-        tmp.Append( String::Format("  Bound value %d: %s\n", cnt, v.toByteArray().constData()) );
+        tmp.Append( String::Format("  Bound value %d: %s\n", cnt, v.toString().toAscii().constData()) );
     }
 
     return String::Format("Query String:    \"%s\"\n\n%s", q.lastQuery().toAscii().constData(), tmp.ConstData());
