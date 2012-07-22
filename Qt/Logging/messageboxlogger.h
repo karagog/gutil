@@ -40,8 +40,9 @@ protected:
         appropriate severity.
     */
     virtual void log_protected(const DataObjects::String &message,
-                                         const DataObjects::String &title,
-                                         MessageLevelEnum ml);
+                               const DataObjects::String &title,
+                               MessageLevelEnum ml,
+                               time_t);
 
 };
 

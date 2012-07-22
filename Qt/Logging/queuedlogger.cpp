@@ -52,7 +52,7 @@ void QueuedLogger::run()
         m_lock.unlock();
 
         // Call the base logger implementation to actually log the data
-        m_logger->Log(tmp_item.s1, tmp_item.s2, tmp_item.lvl);
+        m_logger->Log(tmp_item.s1, tmp_item.s2, tmp_item.lvl, tmp_item.tm);
 
         // Pick up the lock again before continuing the loop
         m_lock.lock();
@@ -82,12 +82,13 @@ void QueuedLogger::Cancel(bool flush_queue, bool block)
 
 void QueuedLogger::log_protected(const DataObjects::String &s1,
                                  const DataObjects::String &s2,
-                                 MessageLevelEnum ml)
+                                 MessageLevelEnum ml,
+                                 time_t t)
 {
     m_lock.lock();
     {
         // Push the job on the queue
-        m_queue.PushBack(_log_item(s1, s2, ml));
+        m_queue.PushBack(_log_item(s1, s2, ml, t));
 
         // Wake up the background thread 'cause there's work to do
         m_forActivity.wakeOne();

@@ -85,27 +85,4 @@ Exception<false>::Exception(const char *file, int line, const char *name, const 
 {}
 
 
-/** For instantiating exceptions for export */
-#define GUTIL_EXCEPTION_INSTANTIATE(EX_TYPE)  template class EX_TYPE<false>
-
-GUTIL_EXCEPTION_INSTANTIATE(Exception);
-GUTIL_EXCEPTION_INSTANTIATE(NotImplementedException);
-GUTIL_EXCEPTION_INSTANTIATE(BadAllocationException);
-GUTIL_EXCEPTION_INSTANTIATE(ReadOnlyException);
-GUTIL_EXCEPTION_INSTANTIATE(ArgumentException);
-GUTIL_EXCEPTION_INSTANTIATE(ConversionException);
-GUTIL_EXCEPTION_INSTANTIATE(DataTransportException);
-GUTIL_EXCEPTION_INSTANTIATE(XmlException);
-GUTIL_EXCEPTION_INSTANTIATE(EndOfFileException);
-GUTIL_EXCEPTION_INSTANTIATE(LockException);
-GUTIL_EXCEPTION_INSTANTIATE(NullReferenceException);
-GUTIL_EXCEPTION_INSTANTIATE(IndexOutOfRangeException);
-GUTIL_EXCEPTION_INSTANTIATE(ValidationException);
-GUTIL_EXCEPTION_INSTANTIATE(InvalidCastException);
-GUTIL_EXCEPTION_INSTANTIATE(NotFoundException);
-GUTIL_EXCEPTION_INSTANTIATE(DivideByZeroException);
-GUTIL_EXCEPTION_INSTANTIATE(UniqueKeyException);
-GUTIL_EXCEPTION_INSTANTIATE(BuildException);
-
-
 END_NAMESPACE_GUTIL

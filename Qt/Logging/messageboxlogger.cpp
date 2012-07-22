@@ -23,8 +23,9 @@ NAMESPACE_GUTIL2(QT, Logging);
 
 
 void MessageBoxLogger::log_protected(const String &message,
-                                                       const String &title,
-                                                       MessageLevelEnum ml)
+                                     const String &title,
+                                     MessageLevelEnum ml,
+                                     time_t)
 {
     switch(ml)
     {

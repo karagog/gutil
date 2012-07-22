@@ -15,7 +15,6 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include "gutil_abstractlogger.h"
 #include "gutil_map.h"
-#include <time.h>
 USING_NAMESPACE_GUTIL1(DataAccess);
 USING_NAMESPACE_GUTIL1(DataObjects);
 
@@ -98,9 +97,9 @@ void AbstractLogger::LogException(const Exception<false> &ex)
     }
 }
 
-void AbstractLogger::log_protected(const String &msg, const String &title, MessageLevelEnum message_level)
+void AbstractLogger::log_protected(const String &msg, const String &title, MessageLevelEnum message_level, time_t t)
 {
-    String log_message( prepare_log_message(msg, title, message_level) );
+    String log_message( prepare_log_message(msg, title, message_level, t) );
     try
     {
         _io->WriteBytes(reinterpret_cast<GBYTE const *>(log_message.ConstData()),
@@ -116,7 +115,8 @@ void AbstractLogger::log_protected(const String &msg, const String &title, Messa
 String AbstractLogger::prepare_log_message(
         const String &msg,
         const String &title,
-        MessageLevelEnum message_type)
+        MessageLevelEnum message_type,
+        time_t current_time)
 {
     char const *msg_id;
     switch(message_type)
@@ -135,8 +135,6 @@ String AbstractLogger::prepare_log_message(
                                     "Invalid Message Type" );
     }
 
-    // Find the current time
-    time_t current_time( time(NULL) );
     char tm_buf[30] = {'I', '\0'};
     strftime(tm_buf, 30, "%Y-%m-%d %H:%M:%S", localtime(&current_time));
 

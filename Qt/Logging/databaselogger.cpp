@@ -71,7 +71,7 @@ void DatabaseLogger::_open_and_validate_connection(QSqlDatabase &db) const
     }
 }
 
-void DatabaseLogger::Log(const String &message, const String &title, MessageLevelEnum ml)
+void DatabaseLogger::Log(const String &message, const String &title, MessageLevelEnum ml, time_t)
 {
     QSqlQuery q(QString("INSERT INTO %1"
                         " (Date, Severity, Title, Message)"

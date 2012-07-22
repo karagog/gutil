@@ -41,12 +41,14 @@ class QueuedLogger :
         inline _log_item(){}
         inline _log_item(::GUtil::DataObjects::String _s1,
                          ::GUtil::DataObjects::String _s2,
-                         MessageLevelEnum _lvl)
-            :s1(_s1), s2(_s2), lvl(_lvl)
+                         MessageLevelEnum _lvl,
+                         time_t t)
+            :s1(_s1), s2(_s2), lvl(_lvl), tm(t)
         {}
 
         ::GUtil::DataObjects::String s1, s2;
         MessageLevelEnum lvl;
+        time_t tm;
     };
 
 
@@ -115,7 +117,8 @@ protected:
     */
     virtual void log_protected(const DataObjects::String &,
                                const DataObjects::String &,
-                               MessageLevelEnum ml);
+                               MessageLevelEnum ml,
+                               time_t);
     
 };
 

@@ -104,8 +104,7 @@ public: \
         :Exception<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
     inline ex_name(const Exception<false> &ex) \
         :Exception<false>(ex) {} \
-}; \
-extern template class ex_name<false>
+};
 
 
 // Here are the other types of exceptions (all derived from Exception)
@@ -162,6 +161,9 @@ GUTIL_EXCEPTION_DECLARE( UniqueKeyException );
     and probably means the developer used the wrong preprocessor definitions or something.
 */
 GUTIL_EXCEPTION_DECLARE( BuildException );
+
+/** Means that someone tried an invalid state transition. */
+GUTIL_EXCEPTION_DECLARE( InvalidStateTransitionException );
 
 
 

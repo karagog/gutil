@@ -66,7 +66,8 @@ public:
     /** Overridden from AbstractLogger to log to the database. */
     virtual void Log(const GUtil::DataObjects::String &message,
                      const GUtil::DataObjects::String &title,
-                     MessageLevelEnum ml);
+                     MessageLevelEnum ml,
+                     time_t);
 
 
 private:

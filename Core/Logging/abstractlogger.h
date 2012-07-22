@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include "gutil_smartpointer.h"
 #include "gutil_flags.h"
-
+#include <time.h>
 NAMESPACE_GUTIL1(Logging);
 
 
@@ -134,10 +134,11 @@ public:
     */
     inline void Log(const DataObjects::String &message,
                     const DataObjects::String &title = DataObjects::String(),
-                    MessageLevelEnum ml = MessageLevel_Info)
+                    MessageLevelEnum ml = MessageLevel_Info,
+                    time_t current_time = time(NULL))
     {
         if(should_log_message(ml))
-            log_protected(message, title, ml);
+            log_protected(message, title, ml, current_time);
     }
 
     /** Returns the logging options */
@@ -170,7 +171,8 @@ protected:
     /** You can customize your own logging format here */
     virtual DataObjects::String prepare_log_message(const DataObjects::String &,
                                                     const DataObjects::String &,
-                                                    MessageLevelEnum ml);
+                                                    MessageLevelEnum ml,
+                                                    time_t);
 
     /** You can customize logging behavior by overriding this function.
         It is called on every log operation, assuming that the operation
@@ -178,7 +180,8 @@ protected:
     */
     virtual void log_protected(const DataObjects::String &,
                                const DataObjects::String &,
-                               MessageLevelEnum ml);
+                               MessageLevelEnum ml,
+                               time_t);
 
     /** Derived classes may use this accessor to access the io device */
     inline DataAccess::OutputInterface *io_device(){ return _io.Data(); }
