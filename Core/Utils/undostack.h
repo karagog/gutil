@@ -31,6 +31,7 @@ public:
     /** Undoes the command. */
     virtual void Undo() = 0;
 
+    /** So the implementation class can be deleted by the interface. */
     virtual ~IUndoableAction(){}
 
 };
@@ -48,12 +49,15 @@ public:
     The stack is guaranteed to be exception-safe, so you can throw exceptions
     during your command and they will safely propagate out without messing up
     the UndoStack.  When this happens, you can expect the logical behavior,
-    which is that when you Push() a new command, if an exception is thrown it
+    which is that when you "push" a new command, if an exception is thrown it
     won't be added to the stack.  Also when you undo a command and an exception
     is thrown, it will be treated as if the command was never undone.
 
     All of the member functions are virtual, to allow you to build on the functionality
     and add interesting behavior to derived classes.
+
+    \note The member functions are verbose (besides Undo() and Redo()) intentionally,
+    because the class is designed to be inherited from, and this avoids naming collisions.
 */
 class UndoStack
 {
@@ -64,16 +68,16 @@ class UndoStack
 public:
 
     inline UndoStack() :m_ptr(-1){}
-    virtual ~UndoStack(){ UndoStack::Clear(); }
+    virtual ~UndoStack(){ UndoStack::ClearUndoStack(); }
 
     /** Executes a command and pushes it onto the stack.
 
         Afterwards, its memory will belong to the UndoStack, assuming no exception is thrown.
     */
-    virtual void Push(IUndoableAction *);
+    virtual void PushUndoableAction(IUndoableAction *);
 
     /** Removes all commands from the stack without executing them. */
-    virtual void Clear();
+    virtual void ClearUndoStack();
 
     /** Undoes the item at the top of the stack, and decrements the stack pointer.
         \note Does nothing if the stack is empty

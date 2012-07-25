@@ -17,7 +17,7 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(Utils);
 
 
-void UndoStack::Push(IUndoableAction *cmd)
+void UndoStack::PushUndoableAction(IUndoableAction *cmd)
 {
     cmd->Do();
 
@@ -41,7 +41,7 @@ void UndoStack::Push(IUndoableAction *cmd)
     }
 }
 
-void UndoStack::Clear()
+void UndoStack::ClearUndoStack()
 {
     G_FOREACH(IUndoableAction *cmd, m_stack)
         delete cmd;
