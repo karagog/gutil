@@ -21,7 +21,7 @@ NAMESPACE_GUTIL1(Utils);
 
 
 /** An interface you must implement to give commands to the UndoStack. */
-class IUndoableCommand
+class IUndoableAction
 {
 public:
 
@@ -31,7 +31,7 @@ public:
     /** Undoes the command. */
     virtual void Undo() = 0;
 
-    virtual ~IUndoableCommand(){}
+    virtual ~IUndoableAction(){}
 
 };
 
@@ -40,7 +40,7 @@ public:
 
 /** Manages a stack of commands that can be undone and redone.
 
-    You implement "command classes" that derive from IUndoableCommand,
+    You implement "command classes" that derive from IUndoableAction,
     and override the virtual functions.
 
     This class will manage the command class memory after you push it on the stack.
@@ -57,7 +57,7 @@ public:
 */
 class UndoStack
 {
-    ::GUtil::DataObjects::Vector<IUndoableCommand *> m_stack;
+    ::GUtil::DataObjects::Vector<IUndoableAction *> m_stack;
     int m_ptr;
 
     GUTIL_DISABLE_COPY(UndoStack);
@@ -70,7 +70,7 @@ public:
 
         Afterwards, its memory will belong to the UndoStack, assuming no exception is thrown.
     */
-    virtual void Push(IUndoableCommand *);
+    virtual void Push(IUndoableAction *);
 
     /** Removes all commands from the stack without executing them. */
     virtual void Clear();

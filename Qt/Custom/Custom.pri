@@ -7,7 +7,6 @@ HEADERS += \
     Custom/coreapplication.h \
     Custom/thread.h \
     Custom/treeview.h \
-    Custom/undostack.h \
     Custom/widget.h
 
 SOURCES += \

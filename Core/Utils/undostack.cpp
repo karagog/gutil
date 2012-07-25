@@ -17,7 +17,7 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(Utils);
 
 
-void UndoStack::Push(IUndoableCommand *cmd)
+void UndoStack::Push(IUndoableAction *cmd)
 {
     cmd->Do();
 
@@ -43,7 +43,7 @@ void UndoStack::Push(IUndoableCommand *cmd)
 
 void UndoStack::Clear()
 {
-    G_FOREACH(IUndoableCommand *cmd, m_stack)
+    G_FOREACH(IUndoableAction *cmd, m_stack)
         delete cmd;
 
     m_stack.Clear();
@@ -60,10 +60,11 @@ void UndoStack::Undo()
 
 void UndoStack::Redo()
 {
-    if(m_ptr < (int)m_stack.Length())
+    int new_ptr( m_ptr + 1 );
+    if(0 <= new_ptr && new_ptr < (int)m_stack.Length())
     {
-        m_stack[m_ptr]->Do();
-        m_ptr++;
+        m_stack[new_ptr]->Do();
+        m_ptr = new_ptr;
     }
 }
 
