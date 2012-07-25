@@ -9,7 +9,8 @@ HEADERS += \
     Utils/commandlinemenu.h \
     Utils/crypto.h \
     Utils/rng.h \
-    Utils/circularint.h
+    Utils/circularint.h \
+    Utils/undostack.h
 
 SOURCES += \
     Utils/commandlineargs.cpp \
@@ -17,4 +18,5 @@ SOURCES += \
     Utils/atomic.cpp \
     Utils/commandlinemenu.cpp \
     Utils/crypto.cpp \
-    Utils/rng.cpp
+    Utils/rng.cpp \
+    Utils/undostack.cpp

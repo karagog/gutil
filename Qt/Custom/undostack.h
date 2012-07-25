@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_UNDOSTACK_H
-#define GUTIL_UNDOSTACK_H
+#ifndef GUTIL_GUTIL_UNDOSTACK_H
+#define GUTIL_GUTIL_UNDOSTACK_H
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
@@ -53,4 +53,4 @@ public slots:
 
 #endif // GUI_FUNCTIONALITY
 
-#endif // GUTIL_UNDOSTACK_H
+#endif // GUTIL_GUTIL_UNDOSTACK_H
