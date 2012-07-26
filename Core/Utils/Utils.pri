@@ -4,7 +4,6 @@ HEADERS += \
     Utils/environment.h \
     Utils/atomic.h \
     Utils/smartpointer.h \
-    Utils/pubsubsystem.h \
     Utils/flexibletypecomparer.h \
     Utils/commandlinemenu.h \
     Utils/crypto.h \
