@@ -47,6 +47,7 @@ void UndoStack::ClearUndoStack()
         delete cmd;
 
     m_stack.Clear();
+    m_ptr = -1;
 }
 
 void UndoStack::Undo()
