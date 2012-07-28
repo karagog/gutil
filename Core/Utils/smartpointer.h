@@ -146,10 +146,18 @@ public:
         m_data->AddReference();
         return *this;
     }
-    inline ~SharedSmartPointer(){ if(m_data && !m_data->RemoveReference()) delete m_data; }
+    inline ~SharedSmartPointer(){ Clear(); }
 
     inline T *Data(){ return m_data; }
     inline const T *ConstData() const{ return m_data; }
+
+    /** Resets the pointer to 0 and dereferences the object, deleting it if necessary. */
+    inline void Clear(){
+        if(m_data && !m_data->RemoveReference()){
+            delete m_data;
+            m_data = 0;
+        }
+    }
 
     inline operator T *(){ return m_data; }
     inline operator T const *() const{ return m_data; }
