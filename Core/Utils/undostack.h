@@ -25,11 +25,18 @@ class IUndoableAction
 {
 public:
 
-    /** Carries out the command. */
+    /** Carries out the command for the first time.  After the first time, it is
+        never executed again by the undo stack.
+    */
     virtual void Do() = 0;
 
-    /** Undoes the command. */
+    /** Undoes the command, after having done it with Do() or Redo(). */
     virtual void Undo() = 0;
+    
+    /** Redoes the Undo() function.  This is called only after Do() was called
+        the first time, and you undid it and now you want to do it again.
+    */
+    virtual void Redo() = 0;
 
     /** So the implementation class can be deleted by the interface. */
     virtual ~IUndoableAction(){}
@@ -74,7 +81,7 @@ public:
 
         Afterwards, its memory will belong to the UndoStack, assuming no exception is thrown.
     */
-    virtual void PushUndoableAction(IUndoableAction *);
+    virtual void Do(IUndoableAction *);
 
     /** Removes all commands from the stack without executing them. */
     virtual void ClearUndoStack();
