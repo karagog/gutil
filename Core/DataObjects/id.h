@@ -87,6 +87,9 @@ public:
         return ret;
     }
 
+    /** Returns a null id (all bits set to 0). */
+    static inline Id<NUM_BYTES> Null(){ return Id<NUM_BYTES>(false); }
+
     /** Generates a random new value for this id. */
     inline void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
 
