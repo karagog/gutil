@@ -23,7 +23,7 @@ limitations under the License.*/
 namespace GUtil{ namespace QT{ namespace Utils{
 
 
-// This class behaves like a stopwatch.  It is thread safe.
+/** This class behaves like a stopwatch.  It is thread safe. */
 class StopwatchEngine :
         public QObject
 {
@@ -32,21 +32,25 @@ public:
     explicit StopwatchEngine(QObject *parent = 0);
     virtual ~StopwatchEngine();
 
-    // Controls how many marks to remember.  Default is 1
+    /** Controls how many marks to remember.  Default is 1 */
     PROPERTY( MarkMemoryMaxLength, int );
 
-    // If you want the stopwatch to automatically refresh, set this time value
-    //  (in milliseconds) to how often you want it to refresh.  Default is 0
-    // This property will take effect the next time you call Start()
+    /** If you want the stopwatch to automatically refresh, set this time value
+        (in milliseconds) to how often you want it to refresh.  Default is 0
+        This property will take effect the next time you call Start()
+    */
     PROPERTY( AutoRefreshTime, int );
 
     bool IsRunning();
     bool WasStarted();
 
+    /** The date and time the stopwatch was started. */
     QDateTime TimeStart();
+
+    /** The date and time the stopwatch was stopped. */
     QDateTime TimeStopped();
 
-    // Returns the time index's current value
+    /** Returns the time index's current value */
     QDateTime TimeCurrent();
 
     QDateTime TimeMark(int mark_index = 0);
@@ -56,23 +60,28 @@ signals:
 
     void NotifyStartedStopped(bool started);
 
-    // Called every time the internal state was updated
+    /** Called every time the internal time was updated */
     void NotifyRefreshed(QDateTime current = QDateTime());
 
 
 public slots:
 
-    // Refresh the internal state of the stopwatch; i.e. Update the current date
+    /** Refresh the internal state of the stopwatch; i.e. Update the current date */
     void Refresh();
 
+    /** Starts the stopwatch. */
     void Start();
+
+    /** Stops the stopwatch. */
     void Stop();
+
+    /** Optionally starts/stops the stopwatch with the boolean parameter. */
     void StartStop(bool start);
 
-    // Records the current datetime and logs it in a list without stopping the timer
+    /** Records the current datetime and logs it in a list without stopping the timer */
     void Mark();
 
-    // Reset stops the timer if its running, or clears the times to null if not.
+    /** Reset stops the timer if its running, or clears the times to null if not. */
     void Reset();
 
 
