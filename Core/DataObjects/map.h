@@ -26,6 +26,8 @@ NAMESPACE_GUTIL1(DataObjects);
 */
 template<class K, class V>class Map
 {
+public:
+
     /** Describes one mapping of a key to a stack of values. */
     class Page
     {
@@ -60,8 +62,7 @@ template<class K, class V>class Map
         Vector<V> values;
 
     };
-
-public:
+    
 
     /** Constructs an empty map with the default compare function. */
     inline Map()

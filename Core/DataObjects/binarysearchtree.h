@@ -113,6 +113,117 @@ template<class T, class KeyType = T>class BinarySearchTree
 
     };
 
+public:
+
+    /** A class which converts one type to another, using a function pointer
+        so you can change how the conversion works.
+
+        The default conversion is a direct translation; object in equals object out
+
+        This is useful for a search tree which compares a member of an
+        object, rather than the object itself, as is the case in the Map
+        implementation.
+    */
+    class Converter
+    {
+    public:
+        /** \note You can only use this constructor if KeyType == T, otherwise you must provide
+            your own conversion from T to the KeyType.
+        */
+        inline Converter(){
+            m_convert = &default_convert;
+        }
+        /** Here you can specify your own conversion from the contained type
+            to the key type
+        */
+        inline Converter(KeyType const &(*convert)(T const &)){
+            m_convert = convert;
+        }
+
+        /** Use the parenthesis operator to dereference the conversion function. */
+        inline KeyType const &operator()(T const &t) const{ return m_convert(t); }
+
+
+    private:
+
+        KeyType const &(*m_convert)(T const &);
+
+        static KeyType const &default_convert(T const &o){ return o; }
+
+    };
+
+    /** Constructs a default binary search tree, which uses the less-than
+        operator for comparisons, and sorts things ascendingly
+    */
+    inline BinarySearchTree()
+        :m_size(0),
+          root(0)
+    {}
+
+    /** Constructs a binary search tree, which uses your own comparison
+        function and sorts things ascendingly, according to the return
+        value of your comparison function (i.e. if you want it to arrange
+        items in reverse order, then reverse your comparison function)
+    */
+    inline explicit BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &c)
+        :m_size(0),
+          root(0),
+          compare(c)
+    {}
+
+    /** Constructs a binary search tree which uses a custom conversion
+        function.  You must implement your own conversion whenever the
+        KeyType is different than the contained type
+
+        The tree still uses the less-than
+        operator for comparisons, and sorts things ascendingly
+    */
+    inline explicit BinarySearchTree(const Converter &c)
+        :m_size(0),
+          root(0),
+          convert(c)
+    {}
+
+    /** Constructs a binary search tree which uses a custom conversion
+        function and comparison function.
+
+        The tree still uses the less-than
+        operator for comparisons, and sorts things ascendingly
+    */
+    inline explicit BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &c,
+                                     const Converter &conv)
+        :m_size(0),
+          root(0),
+          compare(c),
+          convert(conv)
+    {}
+
+    /** Performs a deep copy of the other tree.
+        \note O(N Log(N))
+    */
+    inline BinarySearchTree(const BinarySearchTree<T, KeyType> &o)
+        :m_size(0),
+          root(0),
+          compare(o.compare),
+          convert(o.convert)
+    {
+        BinarySearchTree<T, KeyType>::const_iterator iter(o.begin());
+        while(iter)
+        {
+            Add(*iter);
+            ++iter;
+        }
+    }
+    inline BinarySearchTree<T, KeyType> &operator =(const BinarySearchTree<T, KeyType> &o){
+        Clear();
+        new(this) BinarySearchTree<T, KeyType>(o);
+        return *this;
+    }
+
+    inline ~BinarySearchTree(){ Clear(); }
+    
+    
+    /** Declares base functionality for both const and non-const iterators. */
     class iterator_base
     {
     public:
@@ -239,115 +350,7 @@ template<class T, class KeyType = T>class BinarySearchTree
         }
 
     };
-
-public:
-
-    /** A class which converts one type to another, using a function pointer
-        so you can change how the conversion works.
-
-        The default conversion is a direct translation; object in equals object out
-
-        This is useful for a search tree which compares a member of an
-        object, rather than the object itself, as is the case in the Map
-        implementation.
-    */
-    class Converter
-    {
-    public:
-        /** \note You can only use this constructor if KeyType == T, otherwise you must provide
-            your own conversion from T to the KeyType.
-        */
-        inline Converter(){
-            m_convert = &default_convert;
-        }
-        /** Here you can specify your own conversion from the contained type
-            to the key type
-        */
-        inline Converter(KeyType const &(*convert)(T const &)){
-            m_convert = convert;
-        }
-
-        /** Use the parenthesis operator to dereference the conversion function. */
-        inline KeyType const &operator()(T const &t) const{ return m_convert(t); }
-
-
-    private:
-
-        KeyType const &(*m_convert)(T const &);
-
-        static KeyType const &default_convert(T const &o){ return o; }
-
-    };
-
-    /** Constructs a default binary search tree, which uses the less-than
-        operator for comparisons, and sorts things ascendingly
-    */
-    inline BinarySearchTree()
-        :m_size(0),
-          root(0)
-    {}
-
-    /** Constructs a binary search tree, which uses your own comparison
-        function and sorts things ascendingly, according to the return
-        value of your comparison function (i.e. if you want it to arrange
-        items in reverse order, then reverse your comparison function)
-    */
-    inline explicit BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &c)
-        :m_size(0),
-          root(0),
-          compare(c)
-    {}
-
-    /** Constructs a binary search tree which uses a custom conversion
-        function.  You must implement your own conversion whenever the
-        KeyType is different than the contained type
-
-        The tree still uses the less-than
-        operator for comparisons, and sorts things ascendingly
-    */
-    inline explicit BinarySearchTree(const Converter &c)
-        :m_size(0),
-          root(0),
-          convert(c)
-    {}
-
-    /** Constructs a binary search tree which uses a custom conversion
-        function and comparison function.
-
-        The tree still uses the less-than
-        operator for comparisons, and sorts things ascendingly
-    */
-    inline explicit BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &c,
-                                     const Converter &conv)
-        :m_size(0),
-          root(0),
-          compare(c),
-          convert(conv)
-    {}
-
-    /** Performs a deep copy of the other tree.
-        \note O(N Log(N))
-    */
-    inline BinarySearchTree(const BinarySearchTree<T, KeyType> &o)
-        :m_size(0),
-          root(0),
-          compare(o.compare),
-          convert(o.convert)
-    {
-        BinarySearchTree<T, KeyType>::const_iterator iter(o.begin());
-        while(iter)
-        {
-            Add(*iter);
-            ++iter;
-        }
-    }
-    inline BinarySearchTree<T, KeyType> &operator =(const BinarySearchTree<T, KeyType> &o){
-        Clear();
-        new(this) BinarySearchTree<T, KeyType>(o);
-        return *this;
-    }
-
-    inline ~BinarySearchTree(){ Clear(); }
+    
 
     /** For iterating depth-first through the BST. */
     class iterator :
