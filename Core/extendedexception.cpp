@@ -61,8 +61,6 @@ void ExtendedException::SetInnerException(const Exception<false> &ex)
 }
 
 
-#define GUTIL_EXTENDED_EXCEPTION_INSTANTIATE(EX_TYPE) template class EX_TYPE<true>
-
 GUTIL_EXTENDED_EXCEPTION_INSTANTIATE( Exception );
 GUTIL_EXTENDED_EXCEPTION_INSTANTIATE( NotImplementedException );
 GUTIL_EXTENDED_EXCEPTION_INSTANTIATE( BadAllocationException );

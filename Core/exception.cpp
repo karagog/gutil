@@ -85,13 +85,6 @@ Exception<false>::Exception(const char *file, int line, const char *name, const 
 {}
 
 
-/** For instantiating exceptions for export.
-
-    This decreases the size of all dependent libraries/executables, because
-    the exception code doesn't have to be repeated
-*/
-#define GUTIL_EXCEPTION_INSTANTIATE(EX_TYPE)  template class EX_TYPE<false>
-
 GUTIL_EXCEPTION_INSTANTIATE(Exception);
 GUTIL_EXCEPTION_INSTANTIATE(NotImplementedException);
 GUTIL_EXCEPTION_INSTANTIATE(BadAllocationException);

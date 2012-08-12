@@ -26,6 +26,48 @@ limitations under the License.*/
 #include "gutil_map.h"
 #include "gutil_strings.h"
 
+
+#define STRINGIFY( something )  #something
+
+/** An exception class that stores more data.
+
+    This is a template specialization from the regular (non-extended) exception
+    to an extended exception, which stores more complex data, including a message
+    and a string-string map.
+
+    \note You must have already declared the non-extended version of the exception
+*/
+#define GUTIL_EXCEPTION_DECLARE_EXTENDED( ex_name ) \
+template<>class ex_name<true> : \
+    public ex_name<false>, \
+    public ::GUtil::ExtendedException \
+{ \
+    public: \
+\
+        inline ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
+        inline ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
+        inline ex_name(const char *file, int line) \
+            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>") {} \
+        inline ex_name(const char *file, \
+                         int line, \
+                         const char *message, \
+                         const Exception<> &inner_exception) \
+            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
+                ExtendedException(inner_exception) {} \
+}; \
+extern template class ex_name<true>
+
+/** For instantiating exceptions for export.  You put this in the C file to
+ *  instantiate the code there.  You must also declare GUTIL_EXCEPTION_DECLARE
+ *  in the header for this to be useful
+
+    This decreases the size of all dependent libraries/executables, because
+    the exception code doesn't have to be repeated.
+*/
+#define GUTIL_EXTENDED_EXCEPTION_INSTANTIATE(EX_TYPE) template class EX_TYPE<true>
+
+
+
 NAMESPACE_GUTIL
 
 
@@ -65,35 +107,6 @@ private:
     Exception<false> *_inner_exception;
 
 };
-
-
-#define STRINGIFY( something )  #something
-
-/** An exception class that stores more data.
-
-    This is a template specialization from the regular (non-extended) exception
-    to an extended exception, which stores more complex data, including a message
-    and a string-string map.
-*/
-#define GUTIL_EXCEPTION_DECLARE_EXTENDED( ex_name ) \
-template<>class ex_name<true> : \
-    public ex_name<false>, \
-    public ExtendedException \
-{ \
-    public: \
-\
-        inline ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
-        inline ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
-        inline ex_name(const char *file, int line) \
-            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>") {} \
-        inline ex_name(const char *file, \
-                         int line, \
-                         const char *message, \
-                         const Exception<> &inner_exception) \
-            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
-                ExtendedException(inner_exception) {} \
-}; \
-extern template class ex_name<true>
 
 
 GUTIL_EXCEPTION_DECLARE_EXTENDED( Exception );

@@ -17,6 +17,54 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
+
+#define STRINGIFY( something )  #something
+
+/** Use this to declare any new exceptions */
+#define GUTIL_EXCEPTION_DECLARE( ex_name ) \
+template<bool extended = false>class ex_name : public ::GUtil::Exception<false> \
+{ \
+public: \
+    inline ex_name() \
+        :Exception<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
+    inline ex_name(const char *message, const char *name = 0) \
+        :Exception<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+    inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
+        :Exception<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+    inline ex_name(const Exception<false> &ex) \
+        :Exception<false>(ex) {} \
+}; \
+extern template class ex_name<false>
+
+
+/** Use this to declare any new exceptions, which derive from other types of exceptions */
+#define GUTIL_EXCEPTION_DECLARE2( ex_name, ex_subclass_name ) \
+template<bool extended = false>class ex_name : public ex_subclass_name<false> \
+{ \
+public: \
+    inline ex_name() \
+        :ex_subclass_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
+    inline ex_name(const char *message, const char *name = 0) \
+        :ex_subclass_name<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+    inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
+        :ex_subclass_name<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+    inline ex_name(const Exception<false> &ex) \
+        :ex_subclass_name<false>(ex) {} \
+}; \
+extern template class ex_name<false>
+
+
+/** For instantiating exceptions for export.  You put this in the C file to
+ *  instantiate the code there.  You must also declare GUTIL_EXCEPTION_DECLARE
+ *  in the header for this to be useful
+
+    This decreases the size of all dependent libraries/executables, because
+    the exception code doesn't have to be repeated
+*/
+#define GUTIL_EXCEPTION_INSTANTIATE(EX_TYPE)  template class EX_TYPE<false>
+
+
+
 NAMESPACE_GUTIL
 
 
@@ -87,25 +135,6 @@ public:
     Exception(const char *file, int line, const char *name = 0, const char *message = 0);
 };
 
-
-
-#define STRINGIFY( something )  #something
-
-/** Use this to declare any new exceptions */
-#define GUTIL_EXCEPTION_DECLARE( ex_name ) \
-template<bool extended = false>class ex_name : public Exception<false> \
-{ \
-public: \
-    inline ex_name() \
-        :Exception<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
-    inline ex_name(const char *message, const char *name = 0) \
-        :Exception<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-    inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
-        :Exception<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-    inline ex_name(const Exception<false> &ex) \
-        :Exception<false>(ex) {} \
-}; \
-extern template class ex_name<false>
 
 
 // Here are the other types of exceptions (all derived from Exception)
