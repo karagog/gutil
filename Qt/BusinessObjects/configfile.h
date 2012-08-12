@@ -164,6 +164,11 @@ protected:
     /** IUpdatable interface */
     virtual void commit_reject_changes(bool commit);
 
+    /** This constructor should never be used, and is only declared to allow
+     *  forbidden constructor definitions, such as used in GUTIL_DISABLE_COPY.
+    */
+    inline ConfigFile(){ THROW_NEW_GUTIL_EXCEPTION(NotImplementedException); }
+
 
 private slots:
 
