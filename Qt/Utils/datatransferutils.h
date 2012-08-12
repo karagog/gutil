@@ -21,11 +21,6 @@ limitations under the License.*/
 class QString;
 class QByteArray;
 
-NAMESPACE_GUTIL1(Utils);
-class PubSubSystem;
-END_NAMESPACE_GUTIL1;
-
-
 NAMESPACE_GUTIL2(QT, Utils);
 
 
@@ -42,19 +37,13 @@ public:
     */
     static void WriteDataToFileInChunks(const QString &filename,
                                         const QByteArray &data,
-                                        GUtil::Utils::PubSubSystem *pss = 0,
-                                        int progress_id = -1,
                                         bool *cancel_flag = 0);
 
     static void CopyFileInChunks(const QString &source,
                                  const QString &dest,
-                                 GUtil::Utils::PubSubSystem *pss = 0,
-                                 int progress_id = -1,
                                  bool *cancel_flag = 0);
 
     static QByteArray ReadDataFromFileInChunks(const QString &filename,
-                                               GUtil::Utils::PubSubSystem *pss = 0,
-                                               int progress_id = -1,
                                                bool *cancel_flag = 0);
 };
 

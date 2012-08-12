@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "gutil_datatransferutils.h"
 #include "gutil_extendedexception.h"
-#include "gutil_pubsubsystem.h"
 #include <QFile>
 USING_NAMESPACE_GUTIL1(Utils);
 
@@ -25,8 +24,6 @@ NAMESPACE_GUTIL2(QT, Utils);
 
 void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
                                                 const QByteArray &data,
-                                                GUtil::Utils::PubSubSystem *PubSub,
-                                                int progress_id,
                                                 bool *cancel_flag)
 {
     bool tmp(false);
@@ -52,10 +49,10 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
 
         bytes_written += this_run;
 
-        if(PubSub)
-            PubSub->PublishProgressUpdated(
-                        PubSubSystem::ProgressMessage(
-                            (100 * bytes_written) / data.length(), progress_id));
+//        if(PubSub)
+//            PubSub->PublishProgressUpdated(
+//                        PubSubSystem::ProgressMessage(
+//                            (100 * bytes_written) / data.length(), progress_id));
     }
 
     if(bytes_written != data.length())
@@ -71,8 +68,6 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
 
 void DataTransferUtils::CopyFileInChunks(const QString &source,
                       const QString &dest,
-                      GUtil::Utils::PubSubSystem *PubSub,
-                      int progress_id,
                       bool *cancel_flag)
 {
     bool tmp(false);
@@ -108,10 +103,10 @@ void DataTransferUtils::CopyFileInChunks(const QString &source,
 
         bytes_written += dat.length();
 
-        if(PubSub)
-            PubSub->PublishProgressUpdated(
-                        PubSubSystem::ProgressMessage(
-                            (100 * bytes_written) / dat.length(), progress_id));
+//        if(PubSub)
+//            PubSub->PublishProgressUpdated(
+//                        PubSubSystem::ProgressMessage(
+//                            (100 * bytes_written) / dat.length(), progress_id));
 
         if(this_run != dat.length())
             break;
@@ -134,8 +129,6 @@ void DataTransferUtils::CopyFileInChunks(const QString &source,
 }
 
 QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
-                                                       GUtil::Utils::PubSubSystem *PubSub,
-                                                       int progress_id,
                                                        bool *cancel_flag)
 {
     bool tmp(false);
@@ -163,10 +156,10 @@ QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
 
         bytes_read += this_run;
 
-        if(PubSub)
-            PubSub->PublishProgressUpdated(
-                        PubSubSystem::ProgressMessage(
-                            (100 * bytes_read) / bytes_to_read, progress_id));
+//        if(PubSub)
+//            PubSub->PublishProgressUpdated(
+//                        PubSubSystem::ProgressMessage(
+//                            (100 * bytes_read) / bytes_to_read, progress_id));
     }
 
     if(bytes_read != bytes_to_read)
