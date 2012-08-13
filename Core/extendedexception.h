@@ -51,9 +51,12 @@ template<>class ex_name<true> : \
         inline ex_name(const char *file, \
                          int line, \
                          const char *message, \
-                         const Exception<> &inner_exception) \
+                         const ::GUtil::Exception<> &inner_exception) \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
-                ExtendedException(inner_exception) {} \
+                ::GUtil::ExtendedException(inner_exception) {} \
+        inline ex_name(const ex_name<true> &ex) \
+            : ex_name<false>(ex), ::GUtil::ExtendedException(static_cast<const ::GUtil::ExtendedException &>(ex)) {} \
+        virtual ~ex_name(){} \
 }; \
 extern template class ex_name<true>
 
