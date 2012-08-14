@@ -62,20 +62,27 @@ public:
 
     All of the member functions are virtual, to allow you to build on the functionality
     and add interesting behavior to derived classes.
+    
+    You can make macro commands
 
     \note The member functions are verbose (besides Undo() and Redo()) intentionally,
     because the class is designed to be inherited from, and this avoids naming collisions.
+    
+    \todo Write a test application that validates the undo stack, including macro generation.
 */
 class UndoStack
 {
-    ::GUtil::DataObjects::Vector<IUndoableAction *> m_stack;
-    int m_ptr;
-
     GUTIL_DISABLE_COPY(UndoStack);
+    
+    ::GUtil::DataObjects::Vector<IUndoableAction *> m_stack;
+    ::GUtil::DataObjects::Vector<void *> m_macros;
+    int m_ptr;
+    
+    
 public:
 
-    inline UndoStack() :m_ptr(-1){}
-    virtual ~UndoStack(){ UndoStack::ClearUndoStack(); }
+    UndoStack();
+    virtual ~UndoStack();
 
     /** Executes a command and pushes it onto the stack.
 
@@ -88,13 +95,45 @@ public:
 
     /** Undoes the item at the top of the stack, and decrements the stack pointer.
         \note Does nothing if the stack is empty
+        \note Does nothing if a macro is being generated
     */
     virtual void Undo();
 
     /** Redoes the item that was just popped off the stack, and adds it back on top of the stack.
         \note Does nothing if there are no more commands to be redone.
+        \note Does nothing if a macro is being generated
     */
     virtual void Redo();
+    
+    
+    
+    /** Begins a macro command, which consists of multiple commands executed
+        sequentially.  When you undo a macro command, the constituend commands
+        are undone in LIFO order (like a stack, rather than a queue).
+        
+        You may call BeginMacro() in a nested way, as long as every call to Begin
+        corresponds to another call of End.
+        
+        \note Undoing an Redoing do nothing while composing a macro command
+        
+        \sa EndMacro()
+    */
+    void BeginMacro();
+    
+    /** Ends a macro command.
+    
+        You must call this once per every call to BeginMacro().
+    
+        \sa BeginMacro()
+    */
+    void EndMacro();
+    
+    /** Returns true if we're in the middle of generating a macro.
+    
+        If you are making nested macros, then the top-most macro must be ended
+        before this function returns false.
+    */
+    bool IsMakingMacro();
 
 };
 
