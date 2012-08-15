@@ -127,6 +127,13 @@ public:
     inline bool operator == (const Id &other) const{ return 0 == memcmp(m_data, other.m_data, sizeof(m_data)); }
     inline bool operator != (const Id &other) const{ return 0 != memcmp(m_data, other.m_data, sizeof(m_data)); }
 
+    /** A less-than operator is defined, to support sorted indexes. */
+    inline bool operator < (const Id &other) const{ return 0 > memcmp(m_data, other.m_data, sizeof(m_data)); }
+    inline bool operator > (const Id &other) const{ return 0 < memcmp(m_data, other.m_data, sizeof(m_data)); }
+
+    inline bool operator <= (const Id &other) const{ return 0 >= memcmp(m_data, other.m_data, sizeof(m_data)); }
+    inline bool operator >= (const Id &other) const{ return 0 <= memcmp(m_data, other.m_data, sizeof(m_data)); }
+
 };
 
 
