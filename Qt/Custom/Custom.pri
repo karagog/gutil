@@ -11,7 +11,8 @@ HEADERS += \
 
 SOURCES += \
     Custom/thread.cpp \
-    Custom/widget.cpp
+    Custom/widget.cpp \
+    Custom/treeview.cpp
 
 
 

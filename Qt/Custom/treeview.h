@@ -12,12 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GTREEVIEW_H
-#define GTREEVIEW_H
+#ifndef GUTIL_TREEVIEW_H
+#define GUTIL_TREEVIEW_H
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
+#include "gutil_smartpointer.h"
 #include <QTreeView>
+#include <QMenu>
 
 namespace GUtil{ namespace QT{ namespace Custom{
 
@@ -29,64 +31,47 @@ class TreeView :
         public QTreeView
 {
     Q_OBJECT
+
+    ::GUtil::Utils::SmartPointer<QMenu> m_contextMenu;
+
 public:
 
     inline explicit TreeView(QWidget *parent = 0)
         :QTreeView(parent){}
 
-    /** Selects all the children recursively using the provided selection flags */
-    void SelectChildrenOfIndex(QModelIndex ind, QItemSelectionModel::SelectionFlags fl){
-        QItemSelection sel;
-        if(ind.isValid()) ind = model()->index(ind.row(), 0, ind.parent());
-        _append_children(ind, sel, fl);
-        selectionModel()->select(sel, fl);
-    }
+
+    /** Sets the context menu to be shown when the user right-clicks the treeview.
+        The view takes ownership of the menu, and deletes it when finished.
+    */
+    inline void SetContextMenu(QMenu *m){ m_contextMenu = m; }
+
+    /** Returns the context menu which has been set, or 0 if none has been set. */
+    inline QMenu *GetContextMenu(){ return m_contextMenu; }
 
 
 public slots:
 
     /** Expands all parents in the tree until this index is visible */
-    void ExpandToIndex(const QModelIndex &ind){
-        if(ind.parent().isValid()){
-            // Expand my parent's parent before expanding my parent
-            ExpandToIndex(ind.parent());
-            expand(ind.parent());
-        }
-    }
+    void ExpandToIndex(const QModelIndex &ind);
 
     /** Collapses the index and all its parents recursively */
-    void CollapseWithParents(const QModelIndex &ind){
-        if(ind.isValid()){
-            collapse(ind);
-            CollapseWithParents(ind.parent());
-        }
-    }
+    void CollapseWithParents(const QModelIndex &ind);
 
-    /** Clears the current selection and selects the row (current index will be
-        on the row's first cell
-    */
-    void SelectRow(const QModelIndex &r){
-        selectionModel()->select(r, QItemSelectionModel::Rows | QItemSelectionModel::ClearAndSelect);
-        selectionModel()->setCurrentIndex(r, QItemSelectionModel::Select);
-    }
+    /** Selects all the children recursively using the provided selection flags */
+    void SelectChildrenOfIndex(QModelIndex ind,
+                               int selection_flags = QItemSelectionModel::Select |
+                                                     QItemSelectionModel::Rows);
 
-    /** Selects all the child rows recursively */
-    void SelectChildrenOfIndex(const QModelIndex &ind){
-        SelectChildrenOfIndex(ind,
-                              QItemSelectionModel::Select |
-                              QItemSelectionModel::Rows);
-    }
+
+protected:
+
+    /** Overridden to show the context menu, if one has been set. */
+    virtual void contextMenuEvent(QContextMenuEvent *);
 
 
 private:
 
-    void _append_children(const QModelIndex &ind, QItemSelection &sel, QItemSelectionModel::SelectionFlags fl){
-        if(model()->canFetchMore(ind)) model()->fetchMore(ind);
-        sel.merge(QItemSelection(model()->index(0, 0, ind),
-                                 model()->index(model()->rowCount(ind) - 1, 0, ind)), fl);
-        for(int i = 0; i < model()->rowCount(ind); i++)
-            _append_children(model()->index(i, 0, ind), sel, fl);
-    }
+    void _append_children(const QModelIndex &, QItemSelection &, int);
 
 };
 
@@ -96,4 +81,4 @@ private:
 
 #endif // GUI_FUNCTIONALITY
 
-#endif // GTREEVIEW_H
+#endif // GUTIL_TREEVIEW_H
