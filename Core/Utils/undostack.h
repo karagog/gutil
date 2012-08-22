@@ -91,7 +91,7 @@ public:
     virtual void Do(IUndoableAction *);
 
     /** Removes all commands from the stack without executing them. */
-    virtual void ClearUndoStack();
+    virtual void Clear();
 
     /** Undoes the item at the top of the stack, and decrements the stack pointer.
         \note Does nothing if the stack is empty
@@ -116,17 +116,23 @@ public:
         
         \note Undoing an Redoing do nothing while composing a macro command
         
-        \sa EndMacro()
+        \sa CommitMacro(), RollbackMacro()
     */
     void BeginMacro();
     
-    /** Ends a macro command.
+    /** Ends a macro command, and commits it to the undo stack.
     
-        You must call this once per every call to BeginMacro().
-    
-        \sa BeginMacro()
+        \sa BeginMacro(), RollbackMacro()
     */
-    void EndMacro();
+    inline void CommitMacro(){ _end_macro(true); }
+    
+    /** Ends a macro command, rolling it back and not pushing it on the stack.
+    
+        The effect should be that nothing changed since the start of the macro.
+    
+        \sa BeginMacro(), CommitMacro()
+    */
+    inline void RollbackMacro(){ _end_macro(false); }
     
     /** Returns true if we're in the middle of generating a macro.
     
@@ -134,6 +140,11 @@ public:
         before this function returns false.
     */
     bool IsMakingMacro();
+    
+    
+private:
+
+    void _end_macro(bool commit);
 
 };
 

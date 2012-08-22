@@ -62,7 +62,7 @@ UndoStack::UndoStack()
 
 UndoStack::~UndoStack()
 {
-     ClearUndoStack();
+     Clear();
 }
 
 void UndoStack::Do(IUndoableAction *cmd)
@@ -94,7 +94,7 @@ void UndoStack::Do(IUndoableAction *cmd)
     vec->PushBack(cmd);
 }
 
-void UndoStack::ClearUndoStack()
+void UndoStack::Clear()
 {
     G_FOREACH(IUndoableAction *cmd, m_stack)
         delete cmd;
@@ -146,7 +146,7 @@ void UndoStack::BeginMacro()
     m_macros.PushBack(new __undoable_macro_command);
 }
 
-void UndoStack::EndMacro()
+void UndoStack::_end_macro(bool commit)
 {
     // If this is called outside of macro generation, that must be a bug
     GASSERT(IsMakingMacro());
@@ -157,9 +157,7 @@ void UndoStack::EndMacro()
     __undoable_macro_command *c( reinterpret_cast<__undoable_macro_command *>(m_macros.Back()) );
     m_macros.PopBack();
 
-    if(0 == c->Commands.Count())
-        delete c;
-    else
+    if(0 < c->Commands.Count())
     {
         Vector<IUndoableAction *> *vec;
 
@@ -168,10 +166,25 @@ void UndoStack::EndMacro()
         else
         {
             vec = &m_stack;
-            ++m_ptr;
+            if(commit)
+                ++m_ptr;
         }
 
-        vec->PushBack(c);
+        if(commit)
+            vec->PushBack(c);
+        else
+        {
+            // If we are rolling back the macro, then undo all the previously-
+            //  executed commands, starting at the end.
+            G_FOREACH_REVERSE(IUndoableAction *a, *vec){
+                a->Undo();
+            }
+            delete c;
+        }
+    }
+    else
+    {
+        delete c;
     }
 }
 
