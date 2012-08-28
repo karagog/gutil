@@ -159,24 +159,22 @@ void UndoStack::_end_macro(bool commit)
 
     if(0 < c->Commands.Count())
     {
-        Vector<IUndoableAction *> *vec;
-
-        if(IsMakingMacro())
-            vec = &reinterpret_cast<__undoable_macro_command *>(m_macros.Back())->Commands;
-        else
-        {
-            vec = &m_stack;
-            if(commit)
-                ++m_ptr;
-        }
-
         if(commit)
+        {
+            Vector<IUndoableAction *> *vec;
+            if(IsMakingMacro())
+                vec = &reinterpret_cast<__undoable_macro_command *>(m_macros.Back())->Commands;
+            else{
+                vec = &m_stack;
+                ++m_ptr;
+            }
             vec->PushBack(c);
+        }
         else
         {
             // If we are rolling back the macro, then undo all the previously-
             //  executed commands, starting at the end.
-            G_FOREACH_REVERSE(IUndoableAction *a, *vec){
+            G_FOREACH_REVERSE(IUndoableAction *a, c->Commands){
                 a->Undo();
             }
             delete c;
