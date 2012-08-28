@@ -29,11 +29,14 @@ NAMESPACE_GUTIL1(DataObjects);
     put, it is a random ID generator, for which you specify the length
     as a template parameter.
 
+    It should be noted that a Null Id never equals any other Id, even another
+    null Id.  You should compensate for this in your logic.
+
     \tparam NUM_BYTES The size of the Id object, in bytes
 
     \note If you are using the CryptoPP random number generator, you must initialize
     the RNG before using this class.
-    
+
     \sa InitializeRNG()
 */
 template<int NUM_BYTES>
@@ -124,8 +127,19 @@ public:
         return ret;
     }
 
-    inline bool operator == (const Id &other) const{ return 0 == memcmp(m_data, other.m_data, sizeof(m_data)); }
-    inline bool operator != (const Id &other) const{ return 0 != memcmp(m_data, other.m_data, sizeof(m_data)); }
+    /** Compares two ids for equality.
+        \note Null ids do not equal each other
+    */
+    inline bool operator == (const Id &other) const{
+        return !this->IsNull() && !other.IsNull() &&
+                    0 == memcmp(m_data, other.m_data, sizeof(m_data));
+    }
+    /** Compares two ids for inequality.
+        \note Null ids do not equal each other
+    */
+    inline bool operator != (const Id &other) const{
+        return this->IsNull() || other.IsNull() || 0 != memcmp(m_data, other.m_data, sizeof(m_data));
+    }
 
     /** A less-than operator is defined, to support sorted indexes. */
     inline bool operator < (const Id &other) const{ return 0 > memcmp(m_data, other.m_data, sizeof(m_data)); }
