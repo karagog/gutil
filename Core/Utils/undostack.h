@@ -75,8 +75,8 @@ class UndoStack
     GUTIL_DISABLE_COPY(UndoStack);
     
     ::GUtil::DataObjects::Vector<IUndoableAction *> m_stack;
-    ::GUtil::DataObjects::Vector<void *> m_macros;
     int m_ptr;
+    void *m_macro;
     
     
 public:
@@ -90,7 +90,9 @@ public:
     */
     virtual void Do(IUndoableAction *);
 
-    /** Removes all commands from the stack without executing them. */
+    /** Removes all commands from the stack without executing them. 
+        This also deletes a macro if you were building one.
+    */
     virtual void Clear();
 
     /** Undoes the item at the top of the stack, and decrements the stack pointer.
@@ -110,11 +112,11 @@ public:
     /** Begins a macro command, which consists of multiple commands executed
         sequentially.  When you undo a macro command, the constituend commands
         are undone in LIFO order (like a stack, rather than a queue).
-        
-        You may call BeginMacro() in a nested way, as long as every call to Begin
-        corresponds to another call of End.
-        
-        \note Undoing an Redoing do nothing while composing a macro command
+       
+       You may not nest calls to BeginMacro().  You can call it once, and then
+       commit it or roll it back.
+       
+       You cannot Undo() or Redo() while composing a macro.
         
         \sa CommitMacro(), RollbackMacro()
     */

@@ -57,7 +57,7 @@ public:
 
 
 UndoStack::UndoStack()
-    :m_ptr(-1)
+    :m_ptr(-1), m_macro(NULL)
 {}
 
 UndoStack::~UndoStack()
@@ -72,7 +72,7 @@ void UndoStack::Do(IUndoableAction *cmd)
     cmd->Do();
 
     if(IsMakingMacro())
-        vec = &reinterpret_cast<__undoable_macro_command *>(m_macros.Back())->Commands;
+        vec = &reinterpret_cast<__undoable_macro_command *>(m_macro)->Commands;
     else
     {
         vec = &m_stack;
@@ -103,12 +103,7 @@ void UndoStack::Clear()
     m_ptr = -1;
 
     if(IsMakingMacro())
-    {
-        G_FOREACH(void *v, m_macros)
-            delete reinterpret_cast<__undoable_macro_command *>(v);
-
-        m_macros.Clear();
-    }
+        delete reinterpret_cast<__undoable_macro_command *>(m_macro);
 }
 
 void UndoStack::Undo()
@@ -143,7 +138,11 @@ void UndoStack::Redo()
 
 void UndoStack::BeginMacro()
 {
-    m_macros.PushBack(new __undoable_macro_command);
+    if(IsMakingMacro()){
+        GDEBUG("Cannot make nested macros...doing nothing instead");
+    }
+    else
+        m_macro = new __undoable_macro_command;
 }
 
 void UndoStack::_end_macro(bool commit)
@@ -154,21 +153,15 @@ void UndoStack::_end_macro(bool commit)
     if(!IsMakingMacro())
         return;
 
-    __undoable_macro_command *c( reinterpret_cast<__undoable_macro_command *>(m_macros.Back()) );
-    m_macros.PopBack();
+    __undoable_macro_command *c( reinterpret_cast<__undoable_macro_command *>(m_macro) );
+    m_macro = NULL;
 
     if(0 < c->Commands.Count())
     {
         if(commit)
         {
-            Vector<IUndoableAction *> *vec;
-            if(IsMakingMacro())
-                vec = &reinterpret_cast<__undoable_macro_command *>(m_macros.Back())->Commands;
-            else{
-                vec = &m_stack;
-                ++m_ptr;
-            }
-            vec->PushBack(c);
+            m_stack.PushBack(c);
+            m_ptr++;
         }
         else
         {
@@ -188,7 +181,7 @@ void UndoStack::_end_macro(bool commit)
 
 bool UndoStack::IsMakingMacro()
 {
-    return 0 < m_macros.Count();
+    return m_macro;
 }
 
 
