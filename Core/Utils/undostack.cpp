@@ -18,6 +18,18 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 NAMESPACE_GUTIL1(Utils);
 
 
+/** Helper function truncates the stack at the given index. */
+static void __truncate_stack(Vector<IUndoableAction *> &s, int ind)
+{
+    if(0 > ind || ind >= (int)s.Length())
+        return;
+        
+    for(int i = ind; i < (int)s.Length(); ++i)
+        delete s[i];
+    s.Resize(ind);
+}
+
+
 /** A private command class for executing macros. */
 class __undoable_macro_command : public IUndoableAction
 {
@@ -78,16 +90,8 @@ void UndoStack::Do(IUndoableAction *cmd)
         vec = &m_stack;
         m_ptr++;
 
-        if(m_ptr < (int)m_stack.Length())
-        {
-            // Erase the subsequent commands
-            for(int i = m_ptr; i < (int)m_stack.Length(); ++i)
-                delete m_stack[i];
-
-            m_stack.Resize(m_ptr);
-        }
-
-        GASSERT(m_ptr == (int)m_stack.Length());
+        // Erase the subsequent commands
+        __truncate_stack(m_stack, m_ptr);
     }
 
     // Push the item on the end of the list
@@ -112,8 +116,10 @@ void UndoStack::Undo()
 
     if(!IsMakingMacro())
     {
-        if(m_ptr >= 0)
+        if(0 <= m_ptr)
         {
+            GASSERT(m_ptr < (int)m_stack.Count());
+            
             m_stack[m_ptr]->Undo();
             m_ptr--;
         }
@@ -127,8 +133,10 @@ void UndoStack::Redo()
     if(!IsMakingMacro())
     {
         int new_ptr( m_ptr + 1 );
-        if(0 <= new_ptr && new_ptr < (int)m_stack.Length())
+        if(new_ptr < (int)m_stack.Count())
         {
+            GASSERT(0 <= new_ptr);
+            
             m_stack[new_ptr]->Redo();
             m_ptr = new_ptr;
         }
@@ -160,8 +168,20 @@ void UndoStack::_end_macro(bool commit)
     {
         if(commit)
         {
-            m_stack.PushBack(c);
-            m_ptr++;
+            IUndoableAction *tmp = c;
+            
+            // If there is only one command in the macro, then only remember the one command
+            if(1 == c->Commands.Count()){
+                tmp = c->Commands[0];
+                c->Commands.Clear();
+                delete c;
+            }
+            
+            m_ptr += 1;
+            
+            __truncate_stack(m_stack, m_ptr);
+            
+            m_stack.PushBack(tmp);
         }
         else
         {
