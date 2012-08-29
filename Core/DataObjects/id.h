@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_rng.h"
 #include "gutil_strings.h"
+#include "gutil_smartpointer.h"
 #include <cstring>
 
 NAMESPACE_GUTIL1(DataObjects);
@@ -44,6 +45,11 @@ template<int NUM_BYTES>
 class Id
 {
     GBYTE m_data[NUM_BYTES];
+
+    /** A cached null id for fast null comparisons. */
+    static ::GUtil::Utils::SmartPointer< Id<NUM_BYTES> > s_null;
+
+
 public:
 
     /** A convenience function that initializes the RNG, in case it needs to be.
@@ -57,10 +63,14 @@ public:
     inline static void InitializeRNG(){ ::GUtil::Utils::RNG::Initialize(); }
 
     /** Constructs a null Id, which has all bytes set to 0. */
-    inline Id(){ Clear(); }
+    inline Id(){
+        _init_cache();
+        Clear();
+    }
 
     /** Optionally initializes the random ID */
     inline explicit Id(bool init){
+        _init_cache();
         if(init)    this->Generate();
         else        this->Clear();
     }
@@ -78,20 +88,15 @@ public:
         new(this) Id(other); return *this;
     }
 
+    /** Returns a null id (all bits set to 0). */
+    static inline const Id<NUM_BYTES> &Null(){ _init_cache(); return *s_null; }
+
+
     /** Sets all bytes of the Id to 0. */
     inline void Clear(){ memset(m_data, 0, sizeof(m_data)); }
 
     /** Returns true if the Id is null (all bytes are 0). */
-    inline bool IsNull() const{
-        bool ret(true);
-        GBYTE const *cur( m_data ), *end( m_data + NUM_BYTES );
-        while(ret && cur != end)
-            if(*(cur++) != 0) ret = false;
-        return ret;
-    }
-
-    /** Returns a null id (all bits set to 0). */
-    static inline Id<NUM_BYTES> Null(){ return Id<NUM_BYTES>(false); }
+    inline bool IsNull() const{ _init_cache(); return 0 == Compare(*s_null, *this); }
 
     /** Generates a random new value for this id. */
     inline void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
@@ -131,24 +136,41 @@ public:
         \note Null ids do not equal each other
     */
     inline bool operator == (const Id &other) const{
-        return !this->IsNull() && !other.IsNull() &&
-                    0 == memcmp(m_data, other.m_data, sizeof(m_data));
+        return !this->IsNull() && !other.IsNull() && 0 == Compare(*this, other);
     }
     /** Compares two ids for inequality.
         \note Null ids do not equal each other
     */
     inline bool operator != (const Id &other) const{
-        return this->IsNull() || other.IsNull() || 0 != memcmp(m_data, other.m_data, sizeof(m_data));
+        return this->IsNull() || other.IsNull() || 0 != Compare(*this, other);
+    }
+
+    /** A compare function that simply compares ID's bitwise.  i.e. Nulls are equal.
+        \returns 0 if the ID's bits match.  1 if the lhs is greater, -1 if the rhs is greater.
+    */
+    static inline int Compare(const Id &lhs, const Id &rhs){
+        return memcmp(lhs.m_data, rhs.m_data, sizeof(Id<NUM_BYTES>::m_data));
     }
 
     /** A less-than operator is defined, to support sorted indexes. */
-    inline bool operator < (const Id &other) const{ return 0 > memcmp(m_data, other.m_data, sizeof(m_data)); }
-    inline bool operator > (const Id &other) const{ return 0 < memcmp(m_data, other.m_data, sizeof(m_data)); }
+    inline bool operator < (const Id &other) const{ return 0 > Compare(*this, other); }
+    inline bool operator > (const Id &other) const{ return 0 < Compare(*this, other); }
 
-    inline bool operator <= (const Id &other) const{ return 0 >= memcmp(m_data, other.m_data, sizeof(m_data)); }
-    inline bool operator >= (const Id &other) const{ return 0 <= memcmp(m_data, other.m_data, sizeof(m_data)); }
+    inline bool operator <= (const Id &other) const{ return 0 >= Compare(*this, other); }
+    inline bool operator >= (const Id &other) const{ return 0 <= Compare(*this, other); }
+
+
+private:
+
+    /** A dummy constructor which is only used to initialize the static null cache. */
+    inline explicit Id(void *){ Clear(); }
+
+    static inline void _init_cache(){ if(!s_null) s_null = new Id((void*)0); }
 
 };
+
+
+template<int NUM_BYTES> ::GUtil::Utils::SmartPointer< Id<NUM_BYTES> > Id<NUM_BYTES>::s_null;
 
 
 END_NAMESPACE_GUTIL1;
