@@ -29,8 +29,9 @@ public:
     inline FileLogger(const char *filename)
         :AbstractLogger(new DataAccess::File(filename))
     {
-        static_cast<DataAccess::File *>(io_device())
-                ->Open(DataAccess::File::OpenAppend);
+        DataAccess::File *f(static_cast<DataAccess::File *>(io_device()));
+        f->SetBufferedWrites(false);    // A log file must not delay writing
+        f->Open(DataAccess::File::OpenAppend);
     }
 
     /** Erases the contents of the logfile. */

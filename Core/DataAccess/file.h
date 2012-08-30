@@ -35,10 +35,10 @@ class File :
 public:
 
     /** Creates an empty file object.  You must use SetFilename before calling open. */
-    inline File() :m_handle(NULL){}
+    inline File() :_p_BufferedWrites(true), m_handle(NULL){}
     /** Creates a file object with the given filename. */
     inline explicit File(const char *filename)
-        :m_filename(filename), m_handle(NULL){}
+        :_p_BufferedWrites(true), m_filename(filename), m_handle(NULL){}
     virtual ~File();
 
     /** Closes the file if it was open and changes the filename*/
@@ -133,6 +133,14 @@ public:
     virtual void ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
         Read(buffer, buffer_len, bytes_to_read);
     }
+    
+    
+    /** Controls whether to buffer write outputs.  The default is true. 
+        If there is a write buffer, then data is not written to the file immediately,
+        but when it's convenient.  If there is no buffer, then data is written
+        immediately.
+    */
+    PROPERTY(BufferedWrites, bool);
 
 
 private:

@@ -117,7 +117,11 @@ GUINT32 File::Pos() const
 
 void File::Write(const GBYTE *data, GUINT32 len)
 {
-    if(1 != fwrite(data, len, 1, m_handle))
+    if(1 == fwrite(data, len, 1, m_handle)){
+        if(!GetBufferedWrites())
+            fflush(m_handle);
+    }
+    else
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not written to file");
 }
 
