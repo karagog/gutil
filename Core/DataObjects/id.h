@@ -46,7 +46,7 @@ class Id
     GBYTE m_data[NUM_BYTES];
 
     /** A cached null id for fast null comparisons. */
-    static Id s_null;
+    static const Id s_null;
 
 
 public:
@@ -157,7 +157,7 @@ public:
 };
 
 
-template<int NUM_BYTES> Id<NUM_BYTES> Id<NUM_BYTES>::s_null(false);
+template<int NUM_BYTES> const Id<NUM_BYTES> Id<NUM_BYTES>::s_null(false);
 
 
 END_NAMESPACE_GUTIL1;
