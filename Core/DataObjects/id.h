@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include "gutil_rng.h"
 #include "gutil_strings.h"
-#include "gutil_smartpointer.h"
 #include <cstring>
 
 NAMESPACE_GUTIL1(DataObjects);
@@ -47,7 +46,7 @@ class Id
     GBYTE m_data[NUM_BYTES];
 
     /** A cached null id for fast null comparisons. */
-    static ::GUtil::Utils::SmartPointer< Id<NUM_BYTES> > s_null;
+    static Id s_null;
 
 
 public:
@@ -63,14 +62,10 @@ public:
     inline static void InitializeRNG(){ ::GUtil::Utils::RNG::Initialize(); }
 
     /** Constructs a null Id, which has all bytes set to 0. */
-    inline Id(){
-        _init_cache();
-        Clear();
-    }
+    inline Id(){ Clear(); }
 
     /** Optionally initializes the random ID */
     inline explicit Id(bool init){
-        _init_cache();
         if(init)    this->Generate();
         else        this->Clear();
     }
@@ -89,14 +84,14 @@ public:
     }
 
     /** Returns a null id (all bits set to 0). */
-    static inline const Id<NUM_BYTES> &Null(){ _init_cache(); return *s_null; }
+    static inline const Id<NUM_BYTES> &Null(){ return s_null; }
 
 
     /** Sets all bytes of the Id to 0. */
     inline void Clear(){ memset(m_data, 0, sizeof(m_data)); }
 
     /** Returns true if the Id is null (all bytes are 0). */
-    inline bool IsNull() const{ _init_cache(); return 0 == Compare(*s_null, *this); }
+    inline bool IsNull() const{ return 0 == Compare(Null(), *this); }
 
     /** Generates a random new value for this id. */
     inline void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
@@ -159,18 +154,10 @@ public:
     inline bool operator <= (const Id &other) const{ return 0 >= Compare(*this, other); }
     inline bool operator >= (const Id &other) const{ return 0 <= Compare(*this, other); }
 
-
-private:
-
-    /** A dummy constructor which is only used to initialize the static null cache. */
-    inline explicit Id(void *){ Clear(); }
-
-    static inline void _init_cache(){ if(!s_null) s_null = new Id((void*)0); }
-
 };
 
 
-template<int NUM_BYTES> ::GUtil::Utils::SmartPointer< Id<NUM_BYTES> > Id<NUM_BYTES>::s_null;
+template<int NUM_BYTES> Id<NUM_BYTES> Id<NUM_BYTES>::s_null(false);
 
 
 END_NAMESPACE_GUTIL1;
