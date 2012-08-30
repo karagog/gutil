@@ -50,32 +50,16 @@ class ApplicationBase
 {
 public:
 
-    inline ApplicationBase() :m_exiting(0){}
-
     /** Use this function to quit the application, instead of QApplication::quit()
 
         This will call the virtual function 'application_exiting()' which you can
         override to put cleanup code in.
     */
-    static inline void Exit(int return_code = 0){
-        ApplicationBase *g( gApp );
-
-        // We're allowing exactly one call to this function.  Multiple calls would technically
-        //  point to an error in the application code, but the end result is the same (the app exits)
-        //  and it will save the programmer some headaches hopefully.  For convenience it is
-        //  an int, so you can at least see how many times it was called.
-        if(g && g->m_exiting++)
-            return;
-
-        // Derived classes will execute their own cleanup code when the application exits
-        g->application_exiting();
-
-        QCoreApplication::exit(return_code);
-    }
+    static void Exit(int return_code = 0);
 
 
     /** Get convenient access to the command line arguments. */
-    GUtil::Utils::CommandLineArgs Args() const{
+    inline GUtil::Utils::CommandLineArgs Args() const{
         return GUtil::Utils::CommandLineArgs(qApp->argc(), qApp->argv());
     }
 
@@ -96,26 +80,21 @@ public:
     /** Pushes a cleanup object on the cleanup stack, to be cleaned up at the end of program execution.
         \sa application_exiting()
     */
-    void AddCleanupObject(CleanupObject *o){
-        if(_cleanup_objects.Contains(o))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                       "Already going to cleanup that object");
-        else
-            _cleanup_objects << o;
-    }
+    void AddCleanupObject(CleanupObject *o);
 
 
     /** Removes a specified cleanup object from the cleanup stack. */
-    inline void RemoveCleanupObject(CleanupObject *o){ _cleanup_objects.RemoveAll(o); }
-
-
-    /** The stack of objects to be cleaned up at the end of program execution. */
-    inline const GUtil::DataObjects::Vector<CleanupObject *> &CleanupObjects() const{
-        return _cleanup_objects;
-    }
+    void RemoveCleanupObject(CleanupObject *o);
 
 
 protected:
+
+    /** The constructor is protected to prevent you from instantiating one
+        without the rest of the GUtil application.
+    */
+    ApplicationBase();
+    virtual ~ApplicationBase();
+
 
     /** Subclasses can override this to make their own cleanup code, which will be
         executed on a call to the public static function Exit().
@@ -129,18 +108,7 @@ protected:
         \note You must call the base implementation, which does the actual cleanup of the CleanupObjects.
         \sa Exit() QCoreApplication::exit()
     */
-    virtual void application_exiting(){
-        // We put this here, rather than in Exit(), because we force the use to call the base
-        //  implementation of this function, which is necessary to conduct the cleanup of the
-        //  cleanup objects.  We want every level of subclassing of this class to have the
-        //  opportunity to cleanup their own memory, so for correctness of the implementation
-        //  everybody must call the base implementation.
-        CleanupObject *t;
-        while(!_cleanup_objects.IsEmpty()){
-            _cleanup_objects >> t;
-            delete t;
-        }
-    }
+    virtual void application_exiting();
 
 
     /** You can override this method, which are called in the event of an exception
@@ -148,9 +116,7 @@ protected:
 
         Don't call the base implementation, as it will only throw the exception again.
     */
-    virtual void handle_exception(const Exception<> &ex){
-        throw ex;
-    }
+    virtual void handle_exception(const Exception<> &);
 
 
     /** You can override this method, which are called in the event of a std::exception
@@ -158,15 +124,77 @@ protected:
 
         Don't call the base implementation, as it will only throw the exception again.
     */
-    virtual void handle_std_exception(const std::exception &ex){
-        throw ex;
-    }
+    virtual void handle_std_exception(const std::exception &);
 
+
+
+    /** \name Operating System Signal Handlers
+
+        You can override these functions to handle specific operating system signals.
+
+        \{
+    */
+
+
+    /** The master signal routing function.  You could override it if you need to,
+        but generally you should override the specific signal handler you are interested in.
+    */
+    virtual void handle_os_signal(int sig_num);
+
+    
+    /** Handles SIGINT (defined in <signals.h>).
+        This handles the Ctrl-C event from the user.
+    */
+    virtual void handle_signal_Interrupt();
+    
+    /** Handles SIGABRT (defined in <signals.h>).
+        This means the process called abort() somewhere (debug assertion?)
+    */
+    virtual void handle_signal_Abort();
+    
+    /** Handles SIGFPE (defined in <signals.h>).
+        There was an error with an arithmetic calculation, like an overflow.
+    */
+    virtual void handle_signal_FloatingPointError();
+    
+    /** Handles SIGILL (defined in <signals.h>).
+        This means that the program tried to execute an illegal instruction.
+    */
+    virtual void handle_signal_IllegalInstruction();
+    
+    /** Handles SIGSEGV (defined in <signals.h>).
+        This means there was a memory segmentation fault.
+    */
+    virtual void handle_signal_SegmentationFault();
+    
+    /** Handles SIGTERM (defined in <signals.h>).
+        This handles the termination signal.
+    */
+    virtual void handle_signal_Terminate();
+    
+    /** Handles SIGHUP (defined in <signals.h>).
+        This signal means that the calling process is terminating.
+        \note This is only available on POSIX systems.
+    */
+    virtual void handle_signal_Hangup();
+
+
+    /** \} */
+    
 
 private:
 
     GUtil::DataObjects::Vector<CleanupObject *> _cleanup_objects;
     int m_exiting;
+
+
+    /** Registers the signal handler function for various OS signals. */
+    static bool _initialize_os_signal_handlers();
+
+    /** The actual signal handler function, which delivers the signals to the
+        global application object, if it's defined.
+    */
+    static void _handle_os_signal(int);
 
 };
 

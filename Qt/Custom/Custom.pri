@@ -10,6 +10,7 @@ HEADERS += \
     Custom/widget.h
 
 SOURCES += \
+    Custom/applicationbase.cpp \
     Custom/thread.cpp \
     Custom/widget.cpp \
     Custom/treeview.cpp
