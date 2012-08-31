@@ -131,6 +131,9 @@ protected:
     /** \name Operating System Signal Handlers
 
         You can override these functions to handle specific operating system signals.
+        
+        \note If the operating system does not use signals, then these handlers
+        may never be called.  This is mostly for Unix systems.
 
         \{
     */

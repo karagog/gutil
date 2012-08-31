@@ -13,7 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "applicationbase.h"
+
+#ifdef Q_OS_LINUX
 #include <signal.h>
+#endif
 
 NAMESPACE_GUTIL2(QT, Custom);
 
@@ -82,18 +85,14 @@ void ApplicationBase::handle_std_exception(const std::exception &ex)
     throw ex;
 }
 
-void ApplicationBase::handle_signal_Interrupt(){}
-void ApplicationBase::handle_signal_Abort(){}
-void ApplicationBase::handle_signal_FloatingPointError(){}
-void ApplicationBase::handle_signal_IllegalInstruction(){}
-void ApplicationBase::handle_signal_SegmentationFault(){}
-void ApplicationBase::handle_signal_Terminate(){}
-void ApplicationBase::handle_signal_Hangup(){}
-
 void ApplicationBase::handle_os_signal(int sig_num)
 {
     switch(sig_num)
     {
+    
+    
+#ifdef Q_OS_LINUX
+
     case SIGINT:
         this->handle_signal_Interrupt();
         break;
@@ -112,11 +111,13 @@ void ApplicationBase::handle_os_signal(int sig_num)
     case SIGTERM:
         this->handle_signal_Terminate();
         break;
-#ifdef Q_OS_LINUX
     case SIGHUP:
         this->handle_signal_Hangup();
         break;
+        
 #endif
+
+
     default:
         break;
     }
@@ -136,12 +137,13 @@ static bool __os_signal_handlers_initialized(false);
 
 bool ApplicationBase::_initialize_os_signal_handlers()
 {
-    bool ret(true);
+    bool ret(false);
     
-    if(__os_signal_handlers_initialized)
-        ret = false;
-    else
+    if(!__os_signal_handlers_initialized)
     {
+        ret = true;
+        
+#ifdef Q_OS_LINUX
         /** \todo Potentially add more signals to handle. */
         if(SIG_ERR == signal(SIGINT, &ApplicationBase::_handle_os_signal)) ret = false;
         if(SIG_ERR == signal(SIGABRT, &ApplicationBase::_handle_os_signal)) ret = false;
@@ -149,9 +151,6 @@ bool ApplicationBase::_initialize_os_signal_handlers()
         if(SIG_ERR == signal(SIGILL, &ApplicationBase::_handle_os_signal)) ret = false;
         if(SIG_ERR == signal(SIGSEGV, &ApplicationBase::_handle_os_signal)) ret = false;
         if(SIG_ERR == signal(SIGTERM, &ApplicationBase::_handle_os_signal)) ret = false;
-
-        // We can only handle these signals on Posix systems
-#ifdef Q_OS_LINUX
         if(SIG_ERR == signal(SIGHUP, &ApplicationBase::_handle_os_signal)) ret = false;
 #endif
 
@@ -160,6 +159,16 @@ bool ApplicationBase::_initialize_os_signal_handlers()
     
     return ret;
 }
+
+
+// Default handlers do nothing
+void ApplicationBase::handle_signal_Interrupt(){}
+void ApplicationBase::handle_signal_Abort(){}
+void ApplicationBase::handle_signal_FloatingPointError(){}
+void ApplicationBase::handle_signal_IllegalInstruction(){}
+void ApplicationBase::handle_signal_SegmentationFault(){}
+void ApplicationBase::handle_signal_Terminate(){}
+void ApplicationBase::handle_signal_Hangup(){}
 
 
 END_NAMESPACE_GUTIL2;
