@@ -35,6 +35,8 @@ AbstractLogger::AbstractLogger(OutputInterface *io, const AbstractLogger::Loggin
       m_truncate_limit(DEFAULT_TRUNCATE_LIMIT)
 {}
 
+void AbstractLogger::Clear(){}
+
 void AbstractLogger::LogException(const Exception<false> &ex)
 {
     if(!should_log_message(MessageLevel_Error))

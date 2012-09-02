@@ -101,6 +101,12 @@ public:
     */
     AbstractLogger(DataAccess::OutputInterface *, const LoggingOptionsFlags &);
 
+    /** Clears the contents of the log, if applicable.
+        The default implementation does nothing.
+    */
+    virtual void Clear();
+
+
     /** Logs a message with the lowest severity */
     inline void LogInfo(const DataObjects::String &message, const DataObjects::String &title){
         Log(message, title, MessageLevel_Info);

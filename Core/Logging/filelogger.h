@@ -35,10 +35,10 @@ public:
     }
 
     /** Erases the contents of the logfile. */
-    inline void Clear(){
+    virtual void Clear(){
         DataAccess::File *f( static_cast<DataAccess::File *>(io_device()) );
         f->Close();
-        f->Open(DataAccess::File::OpenWrite);
+        f->Open(DataAccess::File::OpenAppend);
     }
 };
 
