@@ -130,13 +130,28 @@ public:
     /** Returns the value corresponding to the key.  If the key does not exist, it throws an
         IndexOutOfRangeException.
         If more than one value exist then you get the last one which was inserted.
+        \sa Find()
     */
     const V &At(const K &) const;
     /** Returns the value corresponding to the key.  If the key does not exist, it throws an
         IndexOutOfRangeException.
         If more than one value exist then you get the last one which was inserted.
+        \sa Find()
     */
     V &At(const K &);
+
+    /** Returns a pointer to the value referenced by the key, or a NULL value if the key does not
+        exist in the map.
+        If more than one value exist then you get the last one which was inserted.
+        \sa At()
+    */
+    V const *Find(const K &) const;
+    /** Returns a pointer to the value referenced by the key, or a NULL value if the key does not
+        exist in the map.
+        If more than one value exist then you get the last one which was inserted.
+        \sa At()
+    */
+    V *Find(const K &);
 
     /** Returns the value corresponding to the key.  If the key does not exist in the map, it
         will be inserted with a blank value.
@@ -205,6 +220,18 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
     return iter->Value();
+}
+
+template<class K, class V>V const *Map<K, V>::Find(const K &k) const
+{
+    iterator iter(_index.Search(k));
+    return iter ? &iter->Value() : 0;
+}
+
+template<class K, class V>V *Map<K, V>::Find(const K &k)
+{
+    iterator iter(_index.Search(k));
+    return iter ? &iter->Value() : 0;
 }
 
 template<class K, class V>V &Map<K, V>::operator [](const K &k)
