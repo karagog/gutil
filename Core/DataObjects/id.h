@@ -164,7 +164,7 @@ END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil{
-    template<int NUM_BYTES>struct IsMovableType< DataObjects::Id<NUM_BYTES>{ enum{ Value = 1 }; };
+    template<int NUM_BYTES>struct IsMovableType< ::GUtil::DataObjects::Id<NUM_BYTES> >{ enum{ Value = 1 }; };
 }
 
 #endif // GUTIL_ID_H
