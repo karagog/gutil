@@ -22,7 +22,6 @@ NAMESPACE_GUTIL2(QT, Custom);
 
 
 ApplicationBase::ApplicationBase()
-    :m_exiting(0)
 {
     if(!_initialize_os_signal_handlers())
         GDEBUG("Some OS signal handlers not registered");
@@ -32,48 +31,13 @@ ApplicationBase::~ApplicationBase(){}
 
 void ApplicationBase::Exit(int return_code)
 {
-    ApplicationBase *g( gApp );
-
-    // We're allowing exactly one call to this function.  Multiple calls would technically
-    //  point to an error in the application code, but the end result is the same (the app exits)
-    //  and it will save the programmer some headaches hopefully.  For convenience it is
-    //  an int, so you can at least see how many times it was called.
-    if(g && g->m_exiting++)
-        return;
-
-    // Derived classes will execute their own cleanup code when the application exits
-    g->application_exiting();
+    // Derived applications will execute their own cleanup code when the application exits
+    if(gApp) gApp->application_exiting();
 
     QCoreApplication::exit(return_code);
 }
 
-void ApplicationBase::AddCleanupObject(CleanupObject *o)
-{
-    if(_cleanup_objects.Contains(o))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   "Already going to cleanup that object");
-    else
-        _cleanup_objects << o;
-}
-
-void ApplicationBase::RemoveCleanupObject(CleanupObject *o)
-{ 
-    _cleanup_objects.RemoveAll(o);
-}
-
-void ApplicationBase::application_exiting()
-{
-    // We put this here, rather than in Exit(), because we force the use to call the base
-    //  implementation of this function, which is necessary to conduct the cleanup of the
-    //  cleanup objects.  We want every level of subclassing of this class to have the
-    //  opportunity to cleanup their own memory, so for correctness of the implementation
-    //  everybody must call the base implementation.
-    CleanupObject *t;
-    while(!_cleanup_objects.IsEmpty()){
-        _cleanup_objects >> t;
-        delete t;
-    }
-}
+void ApplicationBase::application_exiting(){}
 
 void ApplicationBase::handle_exception(const Exception<> &ex)
 {

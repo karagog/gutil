@@ -64,29 +64,6 @@ public:
     }
 
 
-    /** Derive from this class to enable yourself to be deleted on the application cleanup stack.
-        \sa application_exiting()
-    */
-    class CleanupObject{
-    public:
-        /** The virtual destructor allows your derived instance to be deleted by a
-            reference to a CleanupObject.
-            \sa application_exiting()
-        */
-        virtual ~CleanupObject(){}
-    };
-
-
-    /** Pushes a cleanup object on the cleanup stack, to be cleaned up at the end of program execution.
-        \sa application_exiting()
-    */
-    void AddCleanupObject(CleanupObject *o);
-
-
-    /** Removes a specified cleanup object from the cleanup stack. */
-    void RemoveCleanupObject(CleanupObject *o);
-
-
 protected:
 
     /** The constructor is protected to prevent you from instantiating one
@@ -187,7 +164,6 @@ protected:
 
 private:
 
-    GUtil::DataObjects::Vector<CleanupObject *> _cleanup_objects;
     int m_exiting;
 
 
