@@ -13,25 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "extendedexception.h"
+#include <new>
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 NAMESPACE_GUTIL
 
 
 ExtendedException::ExtendedException(const Exception<> &inner_exception)
-    :_inner_exception(0)
 {
     SetInnerException(inner_exception);
 }
 
-ExtendedException::~ExtendedException()
-{
-    delete _inner_exception;
-}
+ExtendedException::~ExtendedException(){}
 
 ExtendedException::ExtendedException(const ExtendedException &o)
-    :_data(o._data),
-      _inner_exception(0)
+    :_data(o._data)
 {
     if(o.GetInnerException())
         SetInnerException(*o.GetInnerException());
@@ -39,25 +35,20 @@ ExtendedException::ExtendedException(const ExtendedException &o)
 
 ExtendedException &ExtendedException::operator = (const ExtendedException &o)
 {
-    _data = o._data;
-    if(o.GetInnerException())
-        SetInnerException(*o.GetInnerException());
+    this->~ExtendedException();
+    new(this) ExtendedException(o);
     return *this;
 }
 
 void ExtendedException::SetInnerException(const Exception<false> &ex)
 {
-    delete _inner_exception;
+    m_innerException.Clear();
 
     Exception<true> const *extended( dynamic_cast<Exception<true> const *>(&ex) );
     if(extended)
-    {
-        _inner_exception = new Exception<true>(*extended);
-    }
+        m_innerException = new Exception<true>(*extended);
     else
-    {
-        _inner_exception = new Exception<false>(ex);
-    }
+        m_innerException = new Exception<false>(ex);
 }
 
 

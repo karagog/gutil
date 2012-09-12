@@ -15,73 +15,44 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <cstring>
 #include <malloc.h>
+#include <new>
 
 NAMESPACE_GUTIL
 
 BaseException::BaseException(const char *name, const char *message, const char *file, int line)
     :m_message(0), What(name), File(file), Line(line)
 {
-    if(message)
-    {
-        unsigned int len( strlen(message) );
-        m_message = reinterpret_cast<char *>(malloc(len + 1));
-        memcpy(m_message, message, len);
-        m_message[len] = '\0';
+    if(message){
+        m_message = (char *)malloc(1 + strlen(message));
+        strcpy(m_message, message);
     }
 }
 
 BaseException::BaseException(const BaseException &o)
     :m_message(0), What(o.What), File(o.File), Line(o.Line)
 {
-    if(o.m_message)
-    {
-        unsigned int len( strlen(o.m_message) );
-        m_message = reinterpret_cast<char *>(malloc(len + 1));
-        memcpy(m_message, o.m_message, len);
-        m_message[len] = '\0';
+    if(o.m_message){
+        m_message = (char *)malloc(1 + strlen(o.m_message));
+        strcpy(m_message, o.m_message);
     }
 }
 
 BaseException &BaseException::operator = (const BaseException &o)
 {
-    What = o.What;
-    File = o.File;
-    Line = o.Line;
-    if(m_message)
-    {
-        free(m_message);
-        m_message = 0;
-    }
-    if(o.m_message)
-    {
-        unsigned int len( strlen(o.m_message) );
-        m_message = reinterpret_cast<char *>(malloc(len + 1));
-        memcpy(m_message, o.m_message, len);
-        m_message[len] = '\0';
-    }
+    this->~BaseException();
+    new(this) BaseException(o);
     return *this;
 }
 
 BaseException::~BaseException()
 {
-    if(m_message)
-        free(m_message);
+    free(m_message);
 }
 
 
 
-#define EXCEPTION_STRING  "GUtil::Exception<false>"
-
-Exception<false>::Exception()
-    :BaseException(EXCEPTION_STRING)
-{}
-
-Exception<false>::Exception(const char *message, const char *name)
-    :BaseException(name == 0 ? EXCEPTION_STRING : name, message)
-{}
-
 Exception<false>::Exception(const char *file, int line, const char *name, const char *message)
-    :BaseException(name == 0 ? EXCEPTION_STRING : name, message, file, line)
+    :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message, file, line)
 {}
 
 

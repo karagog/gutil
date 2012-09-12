@@ -131,11 +131,24 @@ template<>
 class Exception<false> :
         public BaseException
 {
+    /** You're not able to construct a null exception. */
+    inline Exception():BaseException(0){}
 public:
-    Exception();
     virtual ~Exception(){}
-    explicit Exception(const char *message, const char *name = 0);
-    Exception(const char *file, int line, const char *name = 0, const char *message = 0);
+
+    /** Constructs an exception.  Normally you don't construct one directly, you use
+        THROW_NEW_GUTIL_EXCEPTION for convenience.
+
+        \param file The file name for which the exception is thrown.  This MUST be a literal string.
+                        You are supposed to use the __FILE__ preprocessor macro.
+        \param line The line on which the exception was thrown.  You are supposed to use __LINE__
+        \param name A name for the type of exception being thrown.  This identifies the type of exception to a human.
+                        Like the file parameter, this MUST be a string literal.
+        \param message A message for the exception.  Unlike the other string parameters, this one
+                        does not need to be a literal string, as it is deep-copied into the exception.
+    */
+    Exception(const char *file, int line, const char *what = 0, const char *message = 0);
+
 };
 
 

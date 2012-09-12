@@ -25,6 +25,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_map.h"
 #include "gutil_strings.h"
+#include "gutil_smartpointer.h"
 
 
 #define STRINGIFY( something )  #something
@@ -43,19 +44,16 @@ template<>class ex_name<true> : \
     public ::GUtil::ExtendedException \
 { \
     public: \
-\
         inline ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
-        inline ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
+        inline explicit ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
         inline ex_name(const char *file, int line) \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>") {} \
         inline ex_name(const char *file, \
                          int line, \
                          const char *message, \
-                         const ::GUtil::Exception<> &inner_exception) \
+                         const ::GUtil::Exception<false> &inner_exception) \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
                 ::GUtil::ExtendedException(inner_exception) {} \
-        inline ex_name(const ex_name<true> &ex) \
-            : ex_name<false>(ex), ::GUtil::ExtendedException(static_cast<const ::GUtil::ExtendedException &>(ex)) {} \
         virtual ~ex_name(){} \
 }; \
 extern template class ex_name<true>
@@ -79,7 +77,7 @@ class ExtendedException
 {
 public:
 
-    inline ExtendedException() :_inner_exception(0){}
+    inline ExtendedException(){}
     ExtendedException(const Exception<> &inner_exception);
 
     ExtendedException(const ExtendedException &);
@@ -101,13 +99,13 @@ public:
     { return _data; }
 
     void SetInnerException(const Exception<> &ex);
-    inline Exception<false> *GetInnerException() const{ return _inner_exception; }
+    inline Exception<false> *GetInnerException() const{ return m_innerException; }
 
 
 private:
 
     DataObjects::Map<DataObjects::String, DataObjects::String> _data;
-    Exception<false> *_inner_exception;
+    ::GUtil::Utils::SmartPointer< Exception<> > m_innerException;
 
 };
 
