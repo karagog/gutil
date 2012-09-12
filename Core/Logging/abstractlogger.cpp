@@ -76,11 +76,12 @@ void AbstractLogger::LogException(const Exception<false> &ex)
 
         Log(String::Format("%s%s", ex.GetMessage(), data_string.ConstData()),
 
-            String::Format("%s caught from line %d of file '%s'%s:",
-            ex.What ? ex.What : "[ null ]",
-            ex.Line,
-            ex.File ? ex.File : "[ no file ]",
-            ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : ""),
+            String::Format("%s caught from line %d of file '%s'%s:\n%s",
+                           ex.What ? ex.What : "[ null ]",
+                           ex.Line,
+                           ex.File ? ex.File : "[ no file ]",
+                           ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : "",
+                           ex.GetMessage() ? ex.GetMessage() : ""),
 
             MessageLevel_Error);
 
