@@ -38,7 +38,7 @@ public:
     virtual void Clear(){
         DataAccess::File *f( static_cast<DataAccess::File *>(io_device()) );
         f->Close();
-        f->Open(DataAccess::File::OpenAppend);
+        f->Open(DataAccess::File::OpenReadWriteTruncate);
     }
 };
 
