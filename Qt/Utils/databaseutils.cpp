@@ -109,16 +109,20 @@ QString DatabaseUtils::ConvertDateToString(const QDateTime &d, DateResolution dr
 QDateTime DatabaseUtils::ConvertStringToDate(const QString &s)
 {
     QDateTime d;
-    QStringList splitted = s.split('_');
 
-    if(splitted.size() < 5)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   QString("Invalid date string: %1").arg(s).toAscii().constData());
+    if(!s.isEmpty())
+    {
+        QStringList splitted = s.split('_');
 
-    d.setDate(QDate(splitted[0].toInt(), splitted[1].toInt(), splitted[2].toInt()));
+        if(splitted.size() < 5)
+            THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                       QString("Invalid date string: %1").arg(s).toAscii().constData());
 
-    d.setTime(QTime(splitted[3].toInt(), splitted[4].toInt(),
-                    splitted.length() > 5 ? splitted[5].toInt() : 0));
+        d.setDate(QDate(splitted[0].toInt(), splitted[1].toInt(), splitted[2].toInt()));
+
+        d.setTime(QTime(splitted[3].toInt(), splitted[4].toInt(),
+                        splitted.length() > 5 ? splitted[5].toInt() : 0));
+    }
 
     return d;
 }
