@@ -23,6 +23,11 @@ limitations under the License.*/
 #include <QVariant>
 USING_NAMESPACE_GUTIL1(DataObjects);
 
+#ifdef GUTIL_DEBUG
+#include "gutil_console.h"
+#endif
+
+
 NAMESPACE_GUTIL2(QT, Utils);
 
 
@@ -56,6 +61,23 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 
         THROW_GUTIL_EXCEPTION(ex);
     }
+}
+
+void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
+{
+#ifdef GUTIL_DEBUG
+    ::GUtil::DataAccess::Console::WriteLine(InfoString(q));
+#endif
+
+    if(!q.exec())
+        ThrowQueryException(q);
+        
+#ifdef GUTIL_DEBUG
+    if(q.isSelect())
+        ::GUtil::DataAccess::Console::WriteLine(String::Format("Last Query returned %d results. \n\n", q.size()));
+    else
+        ::GUtil::DataAccess::Console::WriteLine(String::Format("Last Query modified %d rows. \n\n", q.numRowsAffected()));
+#endif
 }
 
 void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)

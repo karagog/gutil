@@ -41,6 +41,9 @@ public:
 
     /** Throws an exception with all the important query info */
     static void ThrowQueryException(const QSqlQuery &);
+    
+    /** Executes the query, throwing a detailed exception if it fails. */
+    static void ExecuteQuery(QSqlQuery &);
 
     /** This will execute a sql script one line at a time,
         where each line is terminated by a semi-colon
