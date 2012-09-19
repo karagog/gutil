@@ -202,8 +202,7 @@ void VectorTest::test_non_movable_class()
     {
         const nonmovable &probe1( *iter );
         const nonmovable *probe2( vec.ConstData() + cnt );
-        QVERIFY2(probe1.this_ptr == &vec[cnt], QString("%1 != %2")
-                 .arg((int)iter->this_ptr).arg((int)&vec[cnt]).toAscii());
+        QVERIFY(probe1.this_ptr == &vec[cnt]);
         ++cnt;
     }
     QVERIFY(cnt == vec.Size());

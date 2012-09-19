@@ -48,11 +48,11 @@ public:
     class const_iterator;
 
     /** Constructs an empty vector. */
-    inline Vector() :m_begin(NULL) {}
+    inline Vector() :m_begin(NULL), m_size(0), m_capacity(0) {}
 
     /** Constructs an empty vector capable of holding the given number of items. */
     inline explicit Vector(GUINT32 capacity)
-        :m_begin(NULL)
+        :m_begin(NULL), m_size(0), m_capacity(0)
     {
         if(capacity != 0)
             Reserve(capacity);
@@ -61,7 +61,7 @@ public:
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
     inline explicit Vector(const T &o, GUINT32 size = 1)
-        :m_begin(NULL)
+        :m_begin(NULL), m_size(0), m_capacity(0)
     {
         Reserve(size);
         set_length(size);
@@ -73,7 +73,7 @@ public:
 
     /**  Constructs a vector from the array of data. */
     inline Vector(T const*arr, GUINT32 size)
-        :m_begin(NULL)
+        :m_begin(NULL), m_size(0), m_capacity(0)
     {
         if(size > 0)
         {
@@ -91,7 +91,7 @@ public:
     */
     inline Vector(const typename Vector<T>::const_iterator &iter_begin,
                         const typename Vector<T>::const_iterator &iter_end)
-        :m_begin(NULL)
+        :m_begin(NULL), m_size(0), m_capacity(0)
     {
         const GUINT32 sz( iter_end - iter_begin );
         if(sz > 0)
@@ -104,13 +104,12 @@ public:
 
     /** The copy constructor conducts a deep copy, invoking the copy constructors on each item. */
     Vector(const Vector<T> &o)
-        :m_begin(NULL)
+        :m_begin(NULL), m_size(0), m_capacity(0)
     {
-        const GUINT32 sz( o.Length() );
         if(o.Capacity() > 0)
         {
             Reserve(o.Capacity());
-            set_length(sz);
+            set_length(o.Length());
         }
 
         // Call the copy constructor for each item to initialize the memory
@@ -367,11 +366,10 @@ public:
     /** Reserves room for exactly this number of items. */
     void ReserveExactly(GUINT32 new_capacity)
     {
-        const GUINT32 len( Length() );
         if(new_capacity < Capacity())
         {
             // Need to call the destructors on the items we're (potentially) deleting
-            if(new_capacity < len)
+            if(new_capacity < Length())
             {
                 for(T *targ( m_begin + new_capacity ); targ != DataEnd(); ++targ)
                     targ->~T();
@@ -382,66 +380,56 @@ public:
             // No need to reallocate
             return;
 
-        GUINT32 new_size_in_bytes(new_capacity * sizeof(T));
-        if(new_capacity > 0)
-            new_size_in_bytes += sizeof(GUINT32) + sizeof(T*);
+        const GUINT32 new_size_in_bytes(new_capacity * sizeof(T));
 
-        void *real_begin(m_begin);
-        if(m_begin)
-            real_begin = reinterpret_cast<T **>(real_begin) - 2;
-
-        if(IsMovableType<T>::Value)
+        if(0 < new_size_in_bytes)
         {
-            // As an optimization for primitive types (ones that are not affected by binary moves)
-            //  we call realloc, because a hidden memory relocation doesn't affect our type.
-            real_begin = realloc(real_begin, new_size_in_bytes);
+            if(IsMovableType<T>::Value)
+            {
+                // As an optimization for primitive types (ones that are not affected by binary moves)
+                //  we call realloc, because a hidden memory relocation doesn't affect our type.
+                T *tmp = (T *)realloc(m_begin, new_size_in_bytes);
 
-            if(new_size_in_bytes > 0 && real_begin == NULL)
-                THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+                if(new_size_in_bytes > 0 && tmp == NULL)
+                    THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
 
-            if(real_begin == NULL)
-                m_begin = NULL;
+                m_begin = tmp;
+            }
             else
-                m_begin = reinterpret_cast<T *>( reinterpret_cast<T **>(real_begin) + 2 );
-        }
-        else
-        {
-            if(new_size_in_bytes > 0)
             {
                 // Have to manually reallocate and call the copy constructors, because a complex
                 //  type may be dependent on their memory locations (self-pointers are one example)
                 T *backup( m_begin );
-                const GUINT32 len( Length() );
                 void *new_begin( malloc(new_size_in_bytes) );
 
                 if(new_begin == NULL)
                     THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
 
-                T *cur( m_begin = reinterpret_cast<T *>( reinterpret_cast<GUINT32 *>(new_begin) + 2) );
+                T *cur( (T*)new_begin );
                 if(backup)
                 {
                     // Copy the items from the backup copy to the new vector
-                    for(GUINT32 i(0); i < len; ++i)
+                    for(GUINT32 i(0); i < Length(); ++i)
                         new(cur++) T(*(backup + i));
 
                     // Have to destruct the items from the backup vector
-                    for(GUINT32 i(0); i < len; ++i)
+                    for(GUINT32 i(0); i < Length(); ++i)
                         (backup++)->~T();
-                }
-            }
 
-            if(real_begin)
-                free(real_begin);
-            if(new_size_in_bytes == 0)
-                m_begin = NULL;
+                    free(m_begin);
+                }
+                
+                m_begin = (T *)new_begin;
+            }
+        }
+        else
+        {
+            free(m_begin);
+            m_begin = (T*)NULL;
+            set_length(0);
         }
 
-        if(new_capacity > 0)
-            _set_capacity( new_capacity );
-
-        // We have to do this every time, because the end pointer changes with
-        //  the start pointer
-        set_length( len );
+        m_capacity = new_capacity;
     }
 
     /** Resizes the vector.  If the new size is larger than the current, then the default
@@ -482,15 +470,6 @@ public:
     */
     inline T &operator [](GINT32 i){ return m_begin[i]; }
 
-    /** Returns a pointer to the item at the given offset. */
-    inline const T *operator + (GUINT32 offset) const{ return m_begin + offset; }
-    /** Returns a pointer to the item at the given offset. */
-    inline const T *operator + (GINT32 offset) const{ return m_begin + offset; }
-    /** Returns a pointer to the item at the given offset. */
-    inline T *operator + (GUINT32 offset){ return m_begin + offset; }
-    /** Returns a pointer to the item at the given offset. */
-    inline T *operator + (GINT32 offset){ return m_begin + offset; }
-
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
@@ -517,18 +496,10 @@ public:
         the last item in the vector.  Do not dereference this pointer, it
         is only to allow quick iteration through the list.
     */
-    inline T *DataEnd() const{ return DataEnd(m_begin); }
-
-    /** Returns a pointer to the end of the vector, which is 1 past
-        the last item in the vector.  Do not dereference this pointer, it
-        is only to allow quick iteration through the list.
-        \param begin Must be a pointer to an array managed by the Vector class,
-        otherwise it will certainly crash your program.
-    */
-    inline static T *DataEnd(T *begin){ return begin ? *(reinterpret_cast<T**>(begin) - 1) : NULL; }
+    inline T *DataEnd() const{ return m_begin ? m_begin + m_size : NULL; }
 
     /** Clears all items and frees all memory. */
-    inline void Clear(){ Reserve(0); }
+    inline void Clear(){ ReserveExactly(0); }
 
     /** Clears all items but retains the same capacity. */
     inline void Empty(){
@@ -545,15 +516,7 @@ public:
     }
 
     /** The current length of the vector. */
-    inline GUINT32 Length() const{ return Length(m_begin); }
-
-    /** The current length of an array which was allocated by the vector.
-        \note This only works because the Vector class stores the length of the
-        array just before the 0 index.  So you can't pass just any old array into it.
-    */
-    static inline GUINT32 Length(T *vec){
-        return vec ? *(reinterpret_cast<T **>(vec) - 1) - vec : 0;
-    }
+    inline GUINT32 Length() const{ return m_size; }
 
     /** The current length of the vector. */
     inline GUINT32 Size() const{ return Length(); }
@@ -561,17 +524,7 @@ public:
     inline GUINT32 Count() const{ return Length(); }
 
     /** How many items of type T we are capable of holding. */
-    inline GUINT32 Capacity() const{ return Capacity(m_begin); }
-
-    /** How many items of type T the array is capable of holding.
-        \param begin A pointer to the base of an array managed by a Vector
-    */
-    inline static GUINT32 Capacity(T *begin){
-        return begin ?
-                    *(reinterpret_cast<GUINT32 *>(
-                          reinterpret_cast<GINT8 *>(begin) - sizeof(T *) - sizeof(GUINT32)))
-                  : 0;
-    }
+    inline GUINT32 Capacity() const{ return m_capacity; }
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
@@ -661,10 +614,10 @@ public:
               m_begin(0),
               m_end(0)
         {}
-        inline iterator(T *begin, T *cur)
+        inline iterator(T *begin, T *end, T *cur)
             :current(cur),
               m_begin(begin),
-              m_end(Vector<T>::DataEnd(begin))
+              m_end(end)
         {}
 
         inline T &operator *() const{ return *current; }
@@ -713,10 +666,10 @@ public:
               m_begin(0),
               m_end(0)
         {}
-        inline const_iterator(T *begin, T *cur)
+        inline const_iterator(T *begin, T *end, T *cur)
             :current(cur),
               m_begin(begin),
-              m_end(Vector<T>::DataEnd(begin))
+              m_end(end)
         {}
         inline const_iterator(const const_iterator &iter)
             :current(iter.current),
@@ -763,15 +716,15 @@ public:
         inline operator bool() const{ return current && m_begin <= current && current < m_end;; }
     };
 
-    inline iterator begin(){ return iterator(m_begin, m_begin); }
-    inline const_iterator begin() const{ return const_iterator(m_begin, m_begin); }
-    inline iterator end(){ return iterator(m_begin, DataEnd()); }
-    inline const_iterator end() const{ return const_iterator(m_begin, DataEnd()); }
+    inline iterator begin(){ return iterator(m_begin, DataEnd(), m_begin); }
+    inline const_iterator begin() const{ return const_iterator(m_begin, DataEnd(), m_begin); }
+    inline iterator end(){ return iterator(m_begin, DataEnd(), DataEnd()); }
+    inline const_iterator end() const{ return const_iterator(m_begin, DataEnd(), DataEnd()); }
 
-    inline iterator rbegin(){ return iterator(m_begin, DataEnd() - 1); }
-    inline const_iterator rbegin() const{ return const_iterator(m_begin, DataEnd() - 1); }
-    inline iterator rend(){ return iterator(m_begin, m_begin - 1); }
-    inline const_iterator rend() const{ return const_iterator(m_begin, m_begin - 1); }
+    inline iterator rbegin(){ return iterator(m_begin, DataEnd(), DataEnd() - 1); }
+    inline const_iterator rbegin() const{ return const_iterator(m_begin, DataEnd(), DataEnd() - 1); }
+    inline iterator rend(){ return iterator(m_begin, DataEnd(), m_begin - 1); }
+    inline const_iterator rend() const{ return const_iterator(m_begin, DataEnd(), m_begin - 1); }
 
     /** Returns the item at the front of the list */
     inline T &Front(){ return *m_begin; }
@@ -842,18 +795,14 @@ protected:
         \note You should only manually use this with POD types, because if you
         have a vector of more complex classes then some of their destructors may not get called.
     */
-    inline void set_length(GUINT32 len){
-        // Remembers a pointer to the end of the vector
-        if(m_begin)
-            *(reinterpret_cast<T **>(m_begin) - 1) = m_begin + len;
-    }
+    inline void set_length(GUINT32 len){ m_size = len; }
 
 
 private:
 
     T *m_begin;
-
-    inline void _set_capacity(GUINT32 cap){ *(reinterpret_cast<GUINT32 *>(m_begin) - 2) = cap; }
+    GUINT32 m_size;
+    GUINT32 m_capacity;
 
     inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
 
