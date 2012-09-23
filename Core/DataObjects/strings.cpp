@@ -287,9 +287,11 @@ void String::ToUpper(char *dest, const char *c)
     }
 }
 
-String String::vFormat(const char *fmt, va_list args)
+String String::Format(const char *fmt, ...)
 {
     String ret;
+    va_list args;
+    va_start(args, fmt);
 
     // Call vsnprintf with a 0 length string, so that it tells us how large the
     //  string would be.  This is a design decision NOT to use a heuristic to
@@ -311,6 +313,9 @@ String String::vFormat(const char *fmt, va_list args)
         // +1 to account for the terminating null character
         ret.Reserve(new_len + 1);
         ret.set_length(new_len);
+
+        // Reset the varargs 'cause we're calling vsnprintf a second time
+        va_end(args); va_start(args, fmt);
 
         vsnprintf(ret.Data(), new_len + 1, fmt, args);
     }

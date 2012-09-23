@@ -127,6 +127,9 @@ public:
     /** The number of bytes we're capable of holding. */
     inline GUINT32 Capacity() const{ return Vector<char>::Capacity(); }
 
+    /** Reserves space for the given size string (including a null terminator. */
+    inline void Reserve(GUINT32 n){ Vector<char>::Reserve(n + 1); }
+
     /** The number of UTF-8 characters (may differ from the actual byte length of the string).
         \note This returns the number of valid UTF-8 characters plus the invalid bytes, read
         until the terminating null.
@@ -172,6 +175,12 @@ public:
             Insert(String(c, cnt), Length());
         return *this;
     }
+
+    /** Appends the string to this string and returns this. */
+    inline String &operator << (const char *s){ Append(s); return *this; }
+
+    /** Appends the string to this string and returns this. */
+    inline String &operator << (const String &s){ Append(s); return *this; }
 
     /** Prepends the string to this one and returns this. */
     inline String &Prepend(const String &s){ Insert(s, 0); return *this; }
@@ -347,16 +356,7 @@ public:
         \return The formatted string.  If the formatting fails for some reason
         then the format string itself is returned.
     */
-    inline static String Format(const char *fmt, ...){
-        va_list args;
-        va_start(args, fmt);
-        return vFormat(fmt, args);
-    }
-
-    /** The same as Format() except it takes a va_list as an argument.
-        \note This calls va_end for you
-    */
-    static String vFormat(const char *fmt, va_list);
+    static String Format(const char *fmt, ...);
 
 
     /** Returns a copy of this string, which has been parsed linearly to replace
