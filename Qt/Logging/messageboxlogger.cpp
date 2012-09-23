@@ -30,13 +30,13 @@ void MessageBoxLogger::log_protected(const String &message,
     switch(ml)
     {
     case MessageLevel_Info:
-        QMessageBox::information(0, title.ToQString(), message.ToQString());
+        QMessageBox::information(m_parent, title.ToQString(), message.ToQString());
         break;
     case MessageLevel_Warning:
-        QMessageBox::warning(0, title.ToQString(), message.ToQString());
+        QMessageBox::warning(m_parent, title.ToQString(), message.ToQString());
         break;
     case MessageLevel_Error:
-        QMessageBox::critical(0, title.ToQString(), message.ToQString());
+        QMessageBox::critical(m_parent, title.ToQString(), message.ToQString());
         break;
     default:
         THROW_NEW_GUTIL_EXCEPTION( NotImplementedException );

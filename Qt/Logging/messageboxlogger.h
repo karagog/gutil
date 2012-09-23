@@ -19,6 +19,8 @@ limitations under the License.*/
 
 #include "gutil_abstractlogger.h"
 
+class QWidget;
+
 NAMESPACE_GUTIL2(QT, Logging);
 
 
@@ -27,9 +29,10 @@ NAMESPACE_GUTIL2(QT, Logging);
 class MessageBoxLogger :
         public GUtil::Logging::AbstractLogger
 {
+    QWidget *m_parent;
 public:
 
-    inline MessageBoxLogger() :AbstractLogger(NULL){}
+    inline explicit MessageBoxLogger(QWidget *parent = 0) :AbstractLogger(NULL), m_parent(parent){}
 
     virtual ~MessageBoxLogger(){}
     
