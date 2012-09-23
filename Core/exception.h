@@ -131,8 +131,6 @@ template<>
 class Exception<false> :
         public BaseException
 {
-    /** You're not able to construct a null exception. */
-    inline Exception():BaseException(0){}
 public:
     virtual ~Exception(){}
 
@@ -148,6 +146,9 @@ public:
                         does not need to be a literal string, as it is deep-copied into the exception.
     */
     Exception(const char *file, int line, const char *what = 0, const char *message = 0);
+
+    /** Do not ever construct a null exception.  This is only here for the Qt signals/slots requirement. */
+    inline Exception():BaseException(0){}
 
 };
 
