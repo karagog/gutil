@@ -99,10 +99,10 @@ public:
         try{
             ret = QApplication::notify(o, ev);
         }
-        catch(Exception<> &ex){
+        catch(const Exception<> &ex){
             handle_exception(ex);
         }
-        catch(std::exception &ex){
+        catch(const std::exception &ex){
             handle_std_exception(ex);
         }
         return ret;
