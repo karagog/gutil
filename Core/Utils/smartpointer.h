@@ -56,7 +56,7 @@ public:
     inline void Clear(){ delete ptr; ptr = 0; }
 
     /** Returns the naked pointer */
-    T *Data(){ return ptr; }
+    T *Data() const{ return ptr; }
     /** Returns the naked pointer */
     T const *ConstData() const{ return ptr; }
 
