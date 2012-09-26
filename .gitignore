@@ -36,3 +36,6 @@ qrc_*.cpp
 *.sqlite
 *.log
 *.txt
+
+# Doxygen files
+*.tag
