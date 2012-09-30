@@ -2,12 +2,12 @@
 HEADERS += \
     BusinessObjects/processstatusindicator.h \
     BusinessObjects/processstatusserver.h \
-    BusinessObjects/configfile.h \
-    BusinessObjects/binarydatastore.h
+    BusinessObjects/binarydatastore.h \
+    BusinessObjects/persistentdata.h
 
 SOURCES += \
     BusinessObjects/processstatusindicator.cpp \
     BusinessObjects/processstatusserver.cpp \
-    BusinessObjects/configfile.cpp \
-    BusinessObjects/binarydatastore.cpp
+    BusinessObjects/binarydatastore.cpp \
+    BusinessObjects/persistentdata.cpp
 

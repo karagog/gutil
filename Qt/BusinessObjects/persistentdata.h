@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#ifndef GUTIL_CONFIGFILE_H
-#define GUTIL_CONFIGFILE_H
+#ifndef GUTIL_PERSISTENTDATA_H
+#define GUTIL_PERSISTENTDATA_H
 
 #include "gutil_fileiodevice.h"
 #include "gutil_iupdatable.h"
@@ -26,7 +26,7 @@ limitations under the License.*/
 
 
 /** Derived classes can make convenient property accessors with this macro */
-#define CONFIGFILE_PROPERTY( name, type ) \
+#define PERSISTENT_PROPERTY( name, type ) \
     inline type Get##name(){ return Value(#name).value<type>(); } \
     inline void Set##name(const type &value){ SetValue( #name, value ); } \
     inline bool Has##name(){ return Contains(#name); } \
@@ -45,16 +45,16 @@ namespace GUtil{ namespace QT{ namespace BusinessObjects{
    into base64 before writing them to disk.
 */
 
-class ConfigFile :
+class PersistentData :
         public QObject,
         public GUtil::Interfaces::IUpdatable
 {
     Q_OBJECT
 public:
 
-    explicit ConfigFile(const GUtil::DataObjects::String &, const GUtil::DataObjects::String &modifier = "",
+    explicit PersistentData(const GUtil::DataObjects::String &, const GUtil::DataObjects::String &modifier = "",
                         QObject *parent = 0);
-    explicit ConfigFile(const ConfigFile &);
+    explicit PersistentData(const PersistentData &);
 
     /** You must call this before you use the object.  It may throw
         an exception, which is why this is not automatically called
@@ -167,7 +167,7 @@ protected:
     /** This constructor should never be used, and is only declared to allow
      *  forbidden constructor definitions, such as used in GUTIL_DISABLE_COPY.
     */
-    inline ConfigFile(){ THROW_NEW_GUTIL_EXCEPTION(NotImplementedException); }
+    inline PersistentData(){ THROW_NEW_GUTIL_EXCEPTION(NotImplementedException); }
 
 
 private slots:
@@ -200,6 +200,6 @@ private:
 
 }}}
 
-#endif // GUTIL_CONFIGFILE_H
+#endif // GUTIL_PERSISTENTDATA_H
 
 #endif // GUI_FUNCTIONALITY

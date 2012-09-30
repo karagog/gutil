@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_configfile.h"
+#include "persistentdata.h"
 #include "gutil_varianttable.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -30,7 +30,7 @@ USING_NAMESPACE_GUTIL2(QT, DataAccess);
 NAMESPACE_GUTIL2(QT, BusinessObjects);
 
 
-ConfigFile::ConfigFile(const String &identifier,
+PersistentData::PersistentData(const String &identifier,
                        const String &modifier,
                        QObject *parent)
     :QObject(parent),
@@ -40,7 +40,7 @@ ConfigFile::ConfigFile(const String &identifier,
       _modifier(modifier)
 {}
 
-ConfigFile::ConfigFile(const ConfigFile &other)
+PersistentData::PersistentData(const PersistentData &other)
     :QObject(other.parent()),
       IUpdatable(),
       _p_IsHumanReadable(other._p_IsHumanReadable),
@@ -49,7 +49,7 @@ ConfigFile::ConfigFile(const ConfigFile &other)
       _modifier(other._modifier)
 {}
 
-void ConfigFile::_init(const String &identity, const String &modifier)
+void PersistentData::_init(const String &identity, const String &modifier)
 {
     _iodevice = new FileIODevice(QString("%1%2%3.config.xml")
                                   .arg(get_file_location(identity))
@@ -64,7 +64,7 @@ void ConfigFile::_init(const String &identity, const String &modifier)
     if(!Reload());
 }
 
-bool ConfigFile::Reload()
+bool PersistentData::Reload()
 {
     FailIfNotInitialized();
     bool ret(true);
@@ -119,7 +119,7 @@ bool ConfigFile::Reload()
 
 #endif
 
-void ConfigFile::_preprocess_outgoing_data(QByteArray &ba) const
+void PersistentData::_preprocess_outgoing_data(QByteArray &ba) const
 {
     if(!GetIsHumanReadable())
     {
@@ -129,7 +129,7 @@ void ConfigFile::_preprocess_outgoing_data(QByteArray &ba) const
     }
 }
 
-void ConfigFile::_preprocess_incoming_data(QByteArray &data) const
+void PersistentData::_preprocess_incoming_data(QByteArray &data) const
 {
     // try to decompress it,
     try
@@ -142,14 +142,14 @@ void ConfigFile::_preprocess_incoming_data(QByteArray &data) const
     }
 }
 
-void ConfigFile::new_input_data_arrived()
+void PersistentData::new_input_data_arrived()
 {
     if(Reload())
         emit NotifyConfigurationUpdate();
 }
 
 
-QVariant ConfigFile::Value(const String &key) const
+QVariant PersistentData::Value(const String &key) const
 {
     FailIfNotInitialized();
     QVariant ret;
@@ -158,7 +158,7 @@ QVariant ConfigFile::Value(const String &key) const
     return ret;
 }
 
-Map<String, QVariant> ConfigFile::Values(const StringList &keys) const
+Map<String, QVariant> PersistentData::Values(const StringList &keys) const
 {
     FailIfNotInitialized();
     Map<String, QVariant> ret;
@@ -171,7 +171,7 @@ Map<String, QVariant> ConfigFile::Values(const StringList &keys) const
     return ret;
 }
 
-QString ConfigFile::get_file_location(QString id)
+QString PersistentData::get_file_location(QString id)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
@@ -187,7 +187,7 @@ QString ConfigFile::get_file_location(QString id)
             .arg(id);
 }
 
-void ConfigFile::commit_reject_changes(bool commit)
+void PersistentData::commit_reject_changes(bool commit)
 {
     if(commit)
     {

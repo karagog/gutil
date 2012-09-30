@@ -18,7 +18,7 @@ limitations under the License.*/
 #ifndef GUTIL_PROCESSSTATUSINDICATOR_H
 #define GUTIL_PROCESSSTATUSINDICATOR_H
 
-#include "gutil_configfile.h"
+#include "gutil_persistentdata.h"
 #include "gutil_usermachinelocks.h"
 #include <QRunnable>
 #include <QThreadPool>
@@ -96,7 +96,7 @@ signals:
 private:
 
     ProcessStatusServer *_server;
-    ConfigFile _status_data;
+    PersistentData _status_data;
     Utils::UserMachineReadWriteLock _status_lock;
 
 
