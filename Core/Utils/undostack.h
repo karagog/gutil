@@ -38,6 +38,11 @@ public:
     */
     virtual void Redo() = 0;
 
+    /** An optional field to provide a textual description of the action.
+     *  The default implementation returns a null string.
+    */
+    virtual const char *Text() const;
+
     /** So the implementation class can be deleted by the interface. */
     virtual ~IUndoableAction(){}
 
@@ -96,6 +101,17 @@ public:
     
     /** Returns true if you can redo a command on the stack. */
     inline bool CanRedo() const{ return CurrentIndex() < CurrentSize() - 1; }
+
+
+    /** Returns a textual description of the current action to be undone.
+     *  \note The undoable action must have implemented a text description.
+    */
+    const char *GetUndoText() const;
+
+    /** Returns a textual description of the current action to be redone.
+     *  \note The undoable action must have implemented a text description.
+    */
+    const char *GetRedoText() const;
     
 
     /** Executes a command and pushes it onto the stack.

@@ -65,6 +65,10 @@ public:
 
 };
 
+const char *IUndoableAction::Text() const
+{
+    return "";
+}
 
 
 
@@ -75,6 +79,16 @@ UndoStack::UndoStack()
 UndoStack::~UndoStack()
 {
      Clear();
+}
+
+const char *UndoStack::GetUndoText() const
+{
+    return CanUndo() ? m_stack[m_ptr]->Text() : "";
+}
+
+const char *UndoStack::GetRedoText() const
+{
+    return CanRedo() ? m_stack[m_ptr + 1]->Text() : "";
 }
 
 void UndoStack::Do(IUndoableAction *cmd)
