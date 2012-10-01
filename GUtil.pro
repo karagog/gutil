@@ -9,9 +9,8 @@ SUBDIRS += \
     Core \
     Qt \
     QtPlugins \
-    Test \
-    lib \
-    Games
+    Games \
+    Test
 
 CONFIG += ordered
 
