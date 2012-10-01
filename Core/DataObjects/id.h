@@ -78,13 +78,26 @@ public:
         memcpy(m_data, other.m_data, sizeof(m_data));
     }
 
+    /** Constructs an Id from an arbitrary byte array.  The array must
+     *  be at least NUM_BYTES large, otherwise it will seg fault.
+    */
+    inline explicit Id(const GBYTE *d){
+        memcpy(m_data, d, sizeof(m_data));
+    }
+
     /** Assignment operator */
     inline Id<NUM_BYTES> &operator = (const Id<NUM_BYTES> &other){
-        new(this) Id(other); return *this;
+        this->~Id(); new(this) Id(other); return *this;
     }
 
     /** Returns a null id (all bits set to 0). */
     static inline const Id<NUM_BYTES> &Null(){ return s_null; }
+
+    /** Returns the number of bytes used in the Id.  This is a fixed constant. */
+    static inline int Size(){ return NUM_BYTES; }
+
+    /** Returns the base of the data array, which has a size of Size(). */
+    inline char const *ConstData() const{ return (char const *)m_data; }
 
 
     /** Sets all bytes of the Id to 0. */
