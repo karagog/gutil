@@ -67,8 +67,6 @@ public:
 
     \note The member functions are verbose (besides Undo() and Redo()) intentionally,
     because the class is designed to be inherited from, and this avoids naming collisions.
-    
-    \todo Write a test application that validates the undo stack, including macro generation.
 */
 class UndoStack
 {
@@ -78,11 +76,27 @@ class UndoStack
     int m_ptr;
     void *m_macro;
     
-    
 public:
 
     UndoStack();
     virtual ~UndoStack();
+    
+    
+    /** Returns the current index of the undo stack. */
+    inline int CurrentIndex() const{ return m_ptr; }
+    
+    /** Returns the current size of the undo stack (i.e. The total number of
+        commands which have been pushed on the stack.)
+    */
+    inline int CurrentSize() const{ return (int)m_stack.Size(); }
+    
+    
+    /** Returns true if you can undo a command on the stack. */
+    inline bool CanUndo() const{ return 0 <= CurrentIndex(); }
+    
+    /** Returns true if you can redo a command on the stack. */
+    inline bool CanRedo() const{ return CurrentIndex() < CurrentSize() - 1; }
+    
 
     /** Executes a command and pushes it onto the stack.
 
