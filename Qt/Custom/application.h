@@ -32,8 +32,7 @@ namespace GUtil{ namespace QT{ namespace Custom{
 /** My derived version of QApplication.
 
     It derives from QApplication, so you can use it instead of one when
-    running your Qt application.  It provides several benefits, including
-    ipc functionality right out of the box.
+    running your Qt application.
 */
 class Application :
         public QApplication,
@@ -62,31 +61,8 @@ public:
             setApplicationName(application_name);
         if(!application_version.isEmpty())
             setApplicationVersion(application_version);
-
-        #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
-        // Initialize this after setting the application name and version
-        m_psi = new BusinessObjects::ProcessStatusIndicator;
-        #endif
     }
-
-
-    #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
-
-    /** To facilitate Inter-process communication between application instances.
-
-        This is useful when the application is already running when the user tries
-        to run another instance.  You can have the newly-started process hail the
-        the already-running process and send control signals to it.
-
-        \note You must define NETWORK_FUNCTIONALITY to use this feature, which creates
-        a link dependency on QtNetwork
-    */
-    inline GUtil::QT::BusinessObjects::ProcessStatusIndicator &GlobalApplicationStatusIndicator(){
-        return *m_psi;
-    }
-
-    #endif
-
+    
 
     /** Overridden from QApplication::notify(), in order to catch exceptions incurred
         during QApplication events, mainly execution of slots.
@@ -111,6 +87,16 @@ public:
 
 public slots:
 
+    /** Shows the application's about window under the given parent widget.
+        By default it shows a minimal window with the application name.  
+        You are supposed to override it with your own informative about window.
+    */
+    virtual void About(QWidget *parent = 0){ 
+        QMessageBox::information(parent, 
+            QString("About %1").arg(applicationName()), 
+            QString("Version: %1").arg(applicationVersion()));
+    }
+
     /** A slot to quit the application and execute custom application cleanup code.
       \sa ApplicationBase::Exit()
     */
@@ -128,24 +114,6 @@ public slots:
     inline static void AboutGUtil(QWidget *dialog_parent = 0){
         ::GUtil::QT::UI::About::ShowAboutGUtil(dialog_parent);
     }
-
-
-protected:
-
-    #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
-    /** We have to delete the status indicator in the cleanup handler. */
-    virtual void application_exiting(){
-        m_psi.Clear();
-        ApplicationBase::application_exiting();
-    }
-    #endif // NETWORK_FUNCTIONALITY
-
-
-private:
-
-    #ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
-    GUtil::Utils::SmartPointer<GUtil::QT::BusinessObjects::ProcessStatusIndicator> m_psi;
-    #endif // NETWORK_FUNCTIONALITY
 
 };
 
