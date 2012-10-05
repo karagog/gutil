@@ -20,8 +20,8 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\" \
 
 #HEADERS +=
 
-INCLUDEPATH += ../../..
-LIBS += -L../../../lib \
+INCLUDEPATH += ../../../../include
+LIBS += -L../../../../lib \
     -lGUtil \
-    -lGUtilLogging \
-    -lGUtilBusinessObjects
+    -lGUtilQt \
+    -lcryptopp

@@ -16,160 +16,180 @@ limitations under the License.*/
 
 
 #include "binarydatastore.h"
-#include "gutil_extendedexception.h"
-#include <QDesktopServices>
+#include "gutil_databaseutils.h"
+#include "gutil_variant.h"
 #include <QFile>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 #include <QVariant>
-#include <QMutex>
-#include <QReadWriteLock>
-#include <QMap>
-#include <QMessageBox>
 #include <QByteArray>
 #include <QSqlDatabase>
-USING_NAMESPACE_GUTIL2(QT, DataAccess);
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <QSqlError>
 USING_NAMESPACE_GUTIL2(QT, DataObjects);
+USING_NAMESPACE_GUTIL2(QT, Utils);
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(Utils);
 
 NAMESPACE_GUTIL2(QT, BusinessObjects);
 
 
-#define BS_TABLE_NAME "data"
+#define BDS_TABLE_NAME "data"
 
-BinaryDataStore::BinaryDataStore(const QString &id)
-    :dbio(new DatabaseIODevice(QString("%1_database").arg(id))),
-      _file_location(_get_file_loc(id)),
-      _max_id(0)
-{}
-
-int BinaryDataStore::AddFile(const QByteArray &data, int id)
+BinaryDataStore::BinaryDataStore()
 {
-    int ret(id);
-    DatabaseValueParameters params(
-            dbio->GetBlankValueParameters(BS_TABLE_NAME));
+    // Nothing to do until you call Initialize()
+}
 
-    if(id <= 0 || !HasFile(id))
+BinaryDataStore::~BinaryDataStore()
+{
+    Uninitialize();
+}
+
+#define BDS_ID_COLUMN   "id INTEGER PRIMARY KEY"
+#define BDS_SIZE_COLUMN "size INTEGER NOT NULL"
+#define BDS_DATA_COLUMN "data BLOB"
+
+void BinaryDataStore::Initialize(const QString &filename)
+{
+    if(IsInitialized())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Object already initialized");
+
+    QString new_conn_string( QUuid::createUuid().toString() );
+    bool db_existed( QFile::exists(filename) );
+
+    try
     {
-        // Insert a new record
-        VariantTable t(dbio->GetBlankTable(BS_TABLE_NAME));
-        {
-            SharedSmartPointer< DataRow<QVariant> > r(t.AddRow());
-            (*r)["size"] = data.length();
-            (*r)["data"] = data;
+        QSqlDatabase db( QSqlDatabase::addDatabase("QSQLITE", new_conn_string) );
+        if(!db.isValid())
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to use SQLite functionality");
+
+        db.setDatabaseName(filename);
+        if(!db.open()){
+            THROW_NEW_GUTIL_EXCEPTION2(
+                        Exception,
+                        String::Format("Cannot open database: %s",
+                                       String::FromQString(db.lastError().text()).ConstData()));
         }
 
-        if(id <= 0)
-            id = GetFreeId();
+        if(db_existed)
+        {
+            // Check to make sure the existing database is in the expected format
+            QStringList tables( db.tables() );
+            if(1 != tables.count() || tables[0] != BDS_TABLE_NAME)
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
 
-        t[0]["id"] = id;
+            QSqlQuery q(db);
+            q.prepare("SELECT sql FROM sqlite_master WHERE tbl_name = '" BDS_TABLE_NAME "'");
+            DatabaseUtils::ExecuteQuery(q);
 
-        dbio->Insert(t);
-        ret = dbio->LastInsertId();
-
-        _ids.Insert(ret);
+            q.next();
+            QString table_sql(q.record().value(0).toString());
+            if(-1 == table_sql.indexOf(BDS_ID_COLUMN) ||
+                    -1 == table_sql.indexOf(BDS_SIZE_COLUMN) ||
+                    -1 == table_sql.indexOf(BDS_DATA_COLUMN))
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
+        }
+        else
+        {
+            // Initialize a new database
+            QSqlQuery q(db);
+            q.prepare("CREATE TABLE IF NOT EXISTS " BDS_TABLE_NAME " ("
+                      BDS_ID_COLUMN ","
+                      BDS_SIZE_COLUMN ","
+                      BDS_DATA_COLUMN
+                      ");");
+            DatabaseUtils::ExecuteQuery(q);
+        }
     }
-    else
+    catch(...)
     {
-        // Update an existing record
-        DatabaseSelectionParameters select(
-                dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
-        select.FilterValues()["id"] = id;
-        params.Values()["size"] = data.length();
-        params.Values()["data"] = data;
-
-        dbio->Update(select, params);
+        QSqlDatabase::removeDatabase(new_conn_string);
+        throw;
     }
+    
+    // If everything was successful we set initialize our internal data
+    m_connString = new_conn_string;
+    m_fileName = filename;
+}
+
+void BinaryDataStore::Uninitialize()
+{
+    if(!IsInitialized())
+        return;
+        
+    QSqlDatabase::removeDatabase(m_connString);
+
+    m_fileName.clear();
+    m_connString.clear();
+}
+
+int BinaryDataStore::AddData(const QByteArray &data)
+{
+    QSqlQuery q(QSqlDatabase::database(m_connString));
+    q.prepare("INSERT INTO " BDS_TABLE_NAME " (size, data) VALUES (?,?)");
+    q.addBindValue(data.length());
+    q.addBindValue(data, QSql::Binary);
+    DatabaseUtils::ExecuteQuery(q);
+    return q.lastInsertId().toInt();
+}
+
+void BinaryDataStore::RemoveData(int id)
+{
+    QSqlQuery q(QSqlDatabase::database(m_connString));
+    q.prepare("DELETE FROM " BDS_TABLE_NAME " WHERE id=?");
+    q.addBindValue(id);
+    DatabaseUtils::ExecuteQuery(q);
+}
+
+QByteArray BinaryDataStore::GetData(int id) const
+{
+    QByteArray ret;
+
+    QSqlQuery q(QSqlDatabase::database(m_connString));
+    q.prepare("SELECT data FROM " BDS_TABLE_NAME " WHERE id=?");
+    q.addBindValue(id);
+    DatabaseUtils::ExecuteQuery(q);
+
+    if(q.next())
+        ret = q.record().value(0).toByteArray();
 
     return ret;
 }
 
-void BinaryDataStore::RemoveFile(int id)
+int BinaryDataStore::GetSize(int id) const
 {
-    DatabaseSelectionParameters s(
-            dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
+    int ret(-1);
 
-    s.FilterValues()["id"] = id;
-    dbio->Delete(s);
+    QSqlQuery q(QSqlDatabase::database(m_connString));
+    q.prepare("SELECT size FROM " BDS_TABLE_NAME " WHERE id=?");
+    q.addBindValue(id);
+    DatabaseUtils::ExecuteQuery(q);
 
-    _ids.RemoveAll(id);
-}
+    if(q.next())
+        ret = q.record().value(0).toInt();
 
-QByteArray BinaryDataStore::GetFile(int id)
-{
-    DatabaseSelectionParameters s(
-            dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
-    s.FilterValues()["id"] = id;
-
-    VariantTable t(dbio->Select(s, QStringList("data")));
-
-    if(t.RowCount() == 0)
-        THROW_NEW_GUTIL_EXCEPTION2( Exception, "File not found" );
-
-    return t[0]["data"].Value().toByteArray();
-}
-
-int BinaryDataStore::GetSize(int id)
-{
-    DatabaseSelectionParameters s(
-            dbio->GetBlankSelectionParameters(BS_TABLE_NAME));
-    s.FilterValues()["id"] = id;
-
-    VariantTable t(dbio->Select(s, QStringList("size")));
-
-    if(t.RowCount() == 0)
-        THROW_NEW_GUTIL_EXCEPTION2( Exception, "File not found" );
-
-    return t[0]["size"].Value().toInt();
-}
-
-void BinaryDataStore::Initialize()
-{
-    if(QFile::exists(_file_location))
-        QFile::remove(_file_location);
-
-    QSqlDatabase::addDatabase(
-            "QSQLITE",
-            dbio->GetIdentity())
-            .setDatabaseName(_file_location);
-
-    dbio->OpenDatabaseConnection();
-
-    // Create a table with two columns, an integer primary key and blob,
-    //  dropping the table if it already exists
-    PairList<QString, QString> pl;
-    pl
-            << Pair<QString, QString>("id", "INTEGER")
-            << Pair<QString, QString>("size", "INTEGER")
-            << Pair<QString, QString> ("data", "BLOB");
-    dbio->CreateTable(BS_TABLE_NAME, pl, 0, true);
+    return ret;
 }
 
 void BinaryDataStore::Clear()
 {
-    _ids.Clear();
-    dbio->CloseDatabaseConnection();
-
-    if(QFile::exists(_file_location))
-        QFile::remove(_file_location);
+    QSqlQuery q(QSqlDatabase::database(m_connString));
+    q.prepare("DELETE FROM " BDS_TABLE_NAME);
+    DatabaseUtils::ExecuteQuery(q);
 }
 
-QString BinaryDataStore::_get_file_loc(const QString &id)
+Vector<int> BinaryDataStore::GetIds() const
 {
-    return QDesktopServices::storageLocation(QDesktopServices::TempLocation)
-            + QString("/%1.GUTIL.sqlite").arg(id);
-}
+    Vector<int> ret;
 
-int BinaryDataStore::GetFreeId()
-{
-    while(_ids.Contains(++_max_id))
-    {
-        // Once we hit 4 billion we could roll over into negatives
-        if(_max_id < 0)
-            _max_id = 1;
-    }
-    return _max_id;
+    QSqlQuery q(QSqlDatabase::database(m_connString));
+    q.prepare("SELECT id FROM " BDS_TABLE_NAME);
+    DatabaseUtils::ExecuteQuery(q);
+
+    while(q.next())
+        ret.PushBack(q.record().value(0).toInt());
+
+    return ret;
 }
 
 

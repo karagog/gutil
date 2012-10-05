@@ -12,12 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "BusinessObjects/BinaryDataStore.h"
+#include "gutil_binarydatastore.h"
 #include "gutil_exception.h"
-#include "Logging/debuglogger.h"
+#include "gutil_consolelogger.h"
 #include <QTest>
 using namespace GUtil;
-USING_NAMESPACE_GUTIL2( BusinessObjects );
+USING_NAMESPACE_GUTIL1(Logging);
+USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL2(QT, BusinessObjects );
 
 
 class file_manager_test : public QObject
@@ -26,13 +28,14 @@ class file_manager_test : public QObject
 public:
     explicit file_manager_test();
     virtual ~file_manager_test(){
-        delete fm;
+        QString filename( fm.GetFileName() );
+        fm.Uninitialize();
+        QFile::remove(filename);
     }
 
 private Q_SLOTS:
     void simple_startup_test();
     void test_binary_dat();
-    void test_Reset();
     void test_second_object();
     //void test_large_files();
     void test_GetIds();
@@ -41,38 +44,40 @@ private Q_SLOTS:
     void test_remove();
 
 private:
-    BinaryDataStore *fm;
+    BinaryDataStore fm;
 
 };
 
 
+#define BINARYDATASTORE_TEST_FILENAME   "test_binarydatastore.sqlite"
+
 file_manager_test::file_manager_test()// :
     //QObject(parent)
 {
-    fm = new BinaryDataStore("filemanagertest");
+    fm.Initialize(BINARYDATASTORE_TEST_FILENAME);
 }
 
 void file_manager_test::simple_startup_test()
 {
-    qDebug(fm->FileName().toStdString().c_str());
+    qDebug(fm.GetFileName().toStdString().c_str());
 
     QString probe;
     try
     {
         QString teststr = "Hello World!";
-        int id = fm->AddFile(teststr.toAscii());
-        probe = fm->GetFile(id);
+        int id = fm.AddData(teststr.toAscii());
+        probe = fm.GetData(id);
         QVERIFY(teststr == probe);
 
         QString teststr2 = "Next data";
-        int id2 = fm->AddFile(teststr2.toAscii());
+        int id2 = fm.AddData(teststr2.toAscii());
         QVERIFY(id != id2);
-        probe = fm->GetFile(id2);
+        probe = fm.GetData(id2);
         QVERIFY(teststr2 == probe);
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
+        GUtil::Logging::ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
@@ -86,38 +91,12 @@ void file_manager_test::test_binary_dat()
         teststr.append(QChar(0x00));
         teststr.append('a');
 
-        int id = fm->AddFile(teststr);
-        QVERIFY(teststr == fm->GetFile(id));
+        int id = fm.AddData(teststr);
+        QVERIFY(teststr == fm.GetData(id));
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
-        QFAIL("Exception");
-    }
-}
-
-void file_manager_test::test_Reset()
-{
-    try
-    {
-        QVERIFY(fm->HasFile(1));
-
-        fm->Reset();
-
-        bool exception_hit = false;
-        try
-        {
-            fm->GetFile(1);
-        }
-        catch(Exception)
-        {
-            exception_hit = true;
-        }
-        QVERIFY(exception_hit);
-    }
-    catch(Exception &ex)
-    {
-        dLogException(ex);
+        ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
@@ -126,16 +105,17 @@ void file_manager_test::test_second_object()
 {
     try
     {
-        fm->Reset();
-        BinaryDataStore *fm2 = new BinaryDataStore("filemanagertest");
-        QVERIFY(fm->AddFile("test1") == 1);
-        QVERIFY(fm2->AddFile("test2") == 2);
-        QVERIFY(fm->AddFile("test3") == 3);
-        delete fm2;
+        fm.Clear();
+        BinaryDataStore fm2;
+        fm2.Initialize(BINARYDATASTORE_TEST_FILENAME);
+
+        QVERIFY(fm.AddData("test1") == 1);
+        QVERIFY(fm2.AddData("test2") == 2);
+        QVERIFY(fm.AddData("test3") == 3);
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
+        ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
@@ -145,12 +125,12 @@ void file_manager_test::test_second_object()
 //    try
 //    {
 //        QString dat(10000000, 'a');
-//        int id = fm->AddFile(dat);
-//        QVERIFY(dat == fm->GetFile(id));
+//        int id = fm.AddData(dat);
+//        QVERIFY(dat == fm.GetData(id));
 //    }
-//    catch(Exception &ex)
+//    catch(const Exception<> &ex)
 //    {
-//        dLogException(ex);
+//        ConsoleLogger().LogException(ex);
 //        QFAIL("Exception");
 //    }
 //}
@@ -159,22 +139,22 @@ void file_manager_test::test_GetIds()
 {
     try
     {
-        fm->Reset();
+        fm.Clear();
 
-        QList<int> l;
-        l.append(fm->AddFile("HI"));
-        l.append(fm->AddFile(""));
-        l.append(fm->AddFile("hi"));
+        Vector<int> l;
+        l.PushBack(fm.AddData("HI"));
+        l.PushBack(fm.AddData(""));
+        l.PushBack(fm.AddData("hi"));
 
-        QSet<int> l2 = fm->GetIds();
+        Vector<int> l2 = fm.GetIds();
 
-        QVERIFY(l2.count() == l.count());
-        for(int i = l2.count() - 1; i >= 0; i--)
-            QVERIFY(l2.contains(l[i]));
+        QVERIFY(l2.Count() == l.Count());
+        for(int i = l2.Count() - 1; i >= 0; i--)
+            QVERIFY(l2.Contains(l[i]));
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
+        ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
@@ -183,31 +163,31 @@ void file_manager_test::test_file_queuing()
 {
     try
     {
-        fm->Reset();
-        fm->AddFile("file1");
-        fm->AddFile("file2");
+        fm.Clear();
+        fm.AddData("file1");
+        fm.AddData("file2");
 
-        fm->AddFile("file3");
-        fm->AddFile("file4");
-        fm->AddFile("file5");
+        fm.AddData("file3");
+        fm.AddData("file4");
+        fm.AddData("file5");
 
-        QVERIFY(fm->GetFile(1) == "file1");
-        QVERIFY(fm->GetFile(2) == "file2");
-        QVERIFY(fm->GetFile(3) == "file3");
-        QVERIFY(fm->GetFile(4) == "file4");
-        QVERIFY(fm->GetFile(5) == "file5");
+        QVERIFY(fm.GetData(1) == "file1");
+        QVERIFY(fm.GetData(2) == "file2");
+        QVERIFY(fm.GetData(3) == "file3");
+        QVERIFY(fm.GetData(4) == "file4");
+        QVERIFY(fm.GetData(5) == "file5");
 
-        QSet<int> idList = fm->GetIds();
-        QVERIFY(idList.count() == 5);
-        QVERIFY(idList.contains(1));
-        QVERIFY(idList.contains(2));
-        QVERIFY(idList.contains(3));
-        QVERIFY(idList.contains(4));
-        QVERIFY(idList.contains(5));
+        Vector<int> idList = fm.GetIds();
+        QVERIFY(idList.Count() == 5);
+        QVERIFY(idList.Contains(1));
+        QVERIFY(idList.Contains(2));
+        QVERIFY(idList.Contains(3));
+        QVERIFY(idList.Contains(4));
+        QVERIFY(idList.Contains(5));
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
+        ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
@@ -216,16 +196,16 @@ void file_manager_test::test_HasFile()
 {
     try
     {
-        fm->Reset();
-        fm->AddFile("HI");
-        fm->AddFile("HI");
-        QVERIFY(fm->HasFile(1));
-        QVERIFY(fm->HasFile(2));
-        QVERIFY(!fm->HasFile(3));
+        fm.Clear();
+        fm.AddData("HI");
+        fm.AddData("HI");
+        QVERIFY(fm.HasData(1));
+        QVERIFY(fm.HasData(2));
+        QVERIFY(!fm.HasData(3));
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
+        ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
@@ -234,25 +214,25 @@ void file_manager_test::test_remove()
 {
     try
     {
-        fm->Reset();
-        QVERIFY(!fm->HasFile(1));
+        fm.Clear();
+        QVERIFY(!fm.HasData(1));
 
-        fm->AddFile("HI");
-        fm->AddFile("HI2");
-        QVERIFY(fm->HasFile(1));
+        fm.AddData("HI");
+        fm.AddData("HI2");
+        QVERIFY(fm.HasData(1));
 
-        fm->RemoveFile(1);
-        QVERIFY(!fm->HasFile(1));
+        fm.RemoveData(1);
+        QVERIFY(!fm.HasData(1));
 
-        QVERIFY(fm->HasFile(2));
-        QVERIFY(fm->GetFile(2) == "HI2");
+        QVERIFY(fm.HasData(2));
+        QVERIFY(fm.GetData(2) == "HI2");
 
-        fm->RemoveFile(2);
-        QVERIFY(!fm->HasFile(2));
+        fm.RemoveData(2);
+        QVERIFY(!fm.HasData(2));
     }
-    catch(Exception &ex)
+    catch(const Exception<> &ex)
     {
-        dLogException(ex);
+        ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }
