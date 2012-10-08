@@ -21,7 +21,8 @@ HEADERS += \
     DataObjects/strings.h \
     DataObjects/bitvector.h \
     DataObjects/uuid.h \
-    DataObjects/id.h
+    DataObjects/id.h \
+    DataObjects/trio.h
 
 SOURCES += \
     DataObjects/version.cpp \
