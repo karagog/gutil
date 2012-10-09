@@ -46,6 +46,10 @@ public:
 
     explicit ProcessStatusIndicator(QObject *parent = 0);
     ~ProcessStatusIndicator();
+    
+    void Initialize();
+    void Uninitialize();
+    inline bool IsInitialized() const{ return _status_data.IsInitialized(); }
 
     /** Describes different statuses (implementation specific) */
     enum StatusTypeEnum

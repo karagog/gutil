@@ -18,13 +18,12 @@ USING_NAMESPACE_GUTIL2(QT, BusinessObjects);
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    cfile("Test_App")
+    ui(new Ui::MainWindow)
 {
-    cfile.Initialize();
+    cfile.Initialize("Test_App");
     ui->setupUi(this);
 
-    connect(&cfile, SIGNAL(NotifyConfigurationUpdate()),
+    connect(&cfile, SIGNAL(DataChanged()),
             this, SLOT(config_updated()));
 }
 
@@ -36,7 +35,8 @@ MainWindow::~MainWindow()
 void MainWindow::submitChanges()
 {
     bool checked(ui->checkBox->isChecked());
-    cfile.SetValue("chk", checked);
+    if(checked != cfile.Value("chk").toBool())
+        cfile.SetValue("chk", checked);
 }
 
 void MainWindow::config_updated()

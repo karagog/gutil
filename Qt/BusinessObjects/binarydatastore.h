@@ -18,7 +18,9 @@ limitations under the License.*/
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
 #include "gutil_vector.h"
+#include "gutil_pair.h"
 #include <QString>
+#include <QUuid>
 
 NAMESPACE_GUTIL2(QT, BusinessObjects);
 
@@ -69,10 +71,17 @@ public:
 
 
     /** Add a file to storage.  Adds the byte array to the on-disk cache.
-        \returns The integer id assigned to the data cache.  You will use this
-        id to access the data via GetData().  If the addition fails, then -1 is returned.
+     *
+        \returns A pair of data describing the new cache.
+        The integer is the id assigned to the data cache.  You will use this
+        id to access the data via GetData().
+        The QUuid is the version id of the data.  This is how you will know if
+        the value ever changes from behind your back.  Other instances will update
+        the version number and you can detect this change.
+
+        Throws an exception if something fails.
     */
-    int AddData(const QByteArray &);
+    ::GUtil::DataObjects::Pair<int, QUuid> AddData(const QByteArray &);
 
 
     /** Remove a file from storage. The size of the cache file will shrink about the size of the file.
@@ -92,6 +101,12 @@ public:
     */
     QByteArray GetData(int id) const;
 
+    /** Sets the data at the given id.  Nothing happens if the id doesn't exist.
+     *  \returns The new version id for the data.  You can store this value and
+     *  compare with future values to know if the data changed.
+    */
+    QUuid SetData(int id, const QByteArray &data);
+
 
     /** Returns whether the cache contains data with that id.  */
     inline bool HasData(int id) const{ return -1 != GetSize(id); }
@@ -103,8 +118,15 @@ public:
     */
     int GetSize(int id) const;
 
-    /** Returns the list of ids contained by the database cache. */
-    GUtil::DataObjects::Vector<int> GetIds() const;
+    /** Returns the version id of the given data referenced by id.
+     *  If the id wasn't found, then a null QUuid is returned.
+    */
+    QUuid GetVersion(int id) const;
+
+    /** Returns the list of ids contained by the database cache, paired with
+     *  that item's version id.
+    */
+    GUtil::DataObjects::Vector< GUtil::DataObjects::Pair<int, QUuid> > GetIds() const;
 
 };
 

@@ -19,13 +19,15 @@ limitations under the License.*/
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    MainWindow w1;
+    w1.show();
 
     if(argc == 1)
     {
         QProcess *p = new QProcess(&a);
         p->start(argv[0], QStringList("-n"));
+
+        (new MainWindow)->show();
     }
 
     return a.exec();

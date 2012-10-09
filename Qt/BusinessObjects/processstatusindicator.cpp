@@ -29,10 +29,9 @@ NAMESPACE_GUTIL2(QT, BusinessObjects);
 ProcessStatusIndicator::ProcessStatusIndicator(QObject *parent)
     :QObject(parent),
       _server(0),
-      _status_data(IDENTITY_FORMAT),
       _status_lock(IDENTITY_FORMAT, "")
 {
-    connect(&_status_data, SIGNAL(NotifyConfigurationUpdate()),
+    connect(&_status_data, SIGNAL(DataChanged()),
             this, SLOT(_status_data_changed()));
 }
 
@@ -43,6 +42,22 @@ ProcessStatusIndicator::~ProcessStatusIndicator()
         SetStatus(NotRunning);
         _status_lock.UnlockForMachine();
     }
+}
+
+void ProcessStatusIndicator::Initialize()
+{
+    if(IsInitialized())
+        return;
+
+    _status_data.Initialize(IDENTITY_FORMAT);
+}
+
+void ProcessStatusIndicator::Uninitialize()
+{
+    if(!IsInitialized())
+        return;
+
+    _status_data.Uninitialize();
 }
 
 void ProcessStatusIndicator::SetStatus(int newStatus)

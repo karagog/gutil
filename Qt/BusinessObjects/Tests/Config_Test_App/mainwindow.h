@@ -16,7 +16,7 @@ limitations under the License.*/
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "BusinessObjects/configfile.h"
+#include "gutil_persistentdata.h"
 
 namespace Ui {
     class MainWindow;
@@ -40,7 +40,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    GUtil::QT::BusinessObjects::ConfigFile cfile;
+    GUtil::QT::BusinessObjects::PersistentData cfile;
 };
 
 #endif // MAINWINDOW_H

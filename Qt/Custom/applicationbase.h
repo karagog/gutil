@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_commandlineargs.h"
 #include "gutil_extendedexception.h"
+#include "gutil_abstractlogger.h"
 #include <QCoreApplication>
 
 
@@ -48,7 +49,13 @@ NAMESPACE_GUTIL2(QT, Custom);
 */
 class ApplicationBase
 {
+    ::GUtil::Logging::AbstractLogger *m_logger;
 public:
+
+    /** If this property is set to true, then exceptions handled by this object
+        will not be propagated (they will be trapped).  By default this is false.
+    */
+    PROPERTY(TrapExceptions, bool);
 
     /** Use this function to quit the application, instead of QApplication::quit()
 
@@ -68,8 +75,10 @@ protected:
 
     /** The constructor is protected to prevent you from instantiating one
         without the rest of the GUtil application.
+        \param An optional logger that the application will use to log messages.
+        The application will not own the logger's memory.
     */
-    ApplicationBase();
+    explicit ApplicationBase(::GUtil::Logging::AbstractLogger *logger = 0);
     virtual ~ApplicationBase();
 
 
@@ -91,15 +100,19 @@ protected:
     /** You can override this method, which are called in the event of an exception
         during an application event.
 
-        Don't call the base implementation, as it will only throw the exception again.
+        In the base implementation, the exception is automatically logged to the
+        logger given in the constructor.  The exception will either be rethrown or
+        trapped, depending on the 'TrapExceptions' property.
     */
     virtual void handle_exception(const Exception<> &);
 
 
     /** You can override this method, which are called in the event of a std::exception
         during an application event.
-
-        Don't call the base implementation, as it will only throw the exception again.
+        
+        In the base implementation, the exception is automatically logged to the
+        logger given in the constructor.  The exception will either be rethrown or
+        trapped, depending on the 'TrapExceptions' property.
     */
     virtual void handle_std_exception(const std::exception &);
 

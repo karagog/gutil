@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
+#ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
 #ifndef GUTIL_PERSISTENTDATA_H
 #define GUTIL_PERSISTENTDATA_H
@@ -21,8 +22,9 @@ limitations under the License.*/
 #include "gutil_iupdatable.h"
 #include "gutil_smartpointer.h"
 #include "gutil_map.h"
-#include <QObject>
+#include "gutil_binarydatastore.h"
 #include <QVariant>
+#include <QFileSystemWatcher>
 
 
 /** Derived classes can make convenient property accessors with this macro */
@@ -44,97 +46,82 @@ namespace GUtil{ namespace QT{ namespace BusinessObjects{
    binary data as well as normal string data, because it translates strings
    into base64 before writing them to disk.
 */
-
 class PersistentData :
         public QObject,
         public GUtil::Interfaces::IUpdatable
 {
     Q_OBJECT
+    GUTIL_DISABLE_COPY(PersistentData);
+
+    /** Describes a piece of persistent data, along with relevavent metadata. */
+    class data_t
+    {
+    public:
+        QVariant Data;
+        QUuid Version;
+        ::GUtil::DataObjects::String Key;
+        int Id;
+        bool Dirty;
+
+        inline data_t(const ::GUtil::DataObjects::String &k,
+                      const QVariant &d,
+                      int id = -1,
+                      const QUuid &version = QUuid())
+            :Data(d), Version(version), Key(k), Id(id), Dirty(version.isNull() ? true : false) {}
+    };
+
+    ::GUtil::DataObjects::String m_identity;
+    ::GUtil::DataObjects::String m_modifier;
+    ::GUtil::DataObjects::Map< ::GUtil::DataObjects::String, data_t * > m_data;
+    ::GUtil::DataObjects::Map<int, data_t *> m_index;
+
+    ::GUtil::QT::BusinessObjects::BinaryDataStore m_bds;
+    QFileSystemWatcher m_watcher;
+
 public:
 
-    explicit PersistentData(const GUtil::DataObjects::String &, const GUtil::DataObjects::String &modifier = "",
-                        QObject *parent = 0);
-    explicit PersistentData(const PersistentData &);
+    explicit PersistentData(QObject *parent = 0);
+    virtual ~PersistentData();
 
     /** You must call this before you use the object.  It may throw
-        an exception, which is why this is not automatically called
-        in the constructor
+        an exception.
+        \param identifier A string identifier to distinguish this object from others.
+        \param modifier A string modifier to distinguish this object from others within the application.
     */
-    inline void Initialize(){ _init(_identity, _modifier); }
+    void Initialize(const GUtil::DataObjects::String &identifier, const GUtil::DataObjects::String &modifier = "");
+    
+    /** Uninitializes the object. */
+    void Uninitialize();
 
     /** Returns whether the settings object was initialized */
-    inline bool IsInitialized() const{ return _iodevice; }
+    inline bool IsInitialized() const{ return !m_identity.IsEmpty(); }
 
     /** A convenience function that throws an exception if we're not initialized */
     inline void FailIfNotInitialized() const{
-        if(!IsInitialized()) THROW_NEW_GUTIL_EXCEPTION2(Exception, "You must first call Initialize()");
+        if(!IsInitialized()) THROW_NEW_GUTIL_EXCEPTION(Exception);
     }
 
     /** Returns a null variant if the key does not exist */
     QVariant Value(const GUtil::DataObjects::String &key) const;
-    GUtil::DataObjects::Map<GUtil::DataObjects::String, QVariant> Values(
-            const GUtil::DataObjects::StringList &keys = GUtil::DataObjects::StringList()) const;
 
     /** Sets the data at the given key to the given value */
-    inline void SetValue(const GUtil::DataObjects::String &key, const QVariant &value){
-        FailIfNotInitialized();
-        m_data[key] = value;
-        _value_changed();
-    }
-    /** Sets several data key values at once */
-    inline void SetValues(const GUtil::DataObjects::Map<GUtil::DataObjects::String, QVariant> &values){
-        FailIfNotInitialized();
-        for(GUtil::DataObjects::Map<GUtil::DataObjects::String, QVariant>::iterator iter(values.begin()); iter != values.end(); ++iter)
-            m_data[iter->Key()] = iter->Value();
-        if(values.Size() != 0) _value_changed();
-    }
+    void SetValue(const GUtil::DataObjects::String &key, const QVariant &value);
 
     /** Remove a specific key */
-    inline void RemoveValue(const GUtil::DataObjects::String &key){
-        FailIfNotInitialized();
-        m_data.Remove(key);
-        _value_changed();
-    }
-
-    /** Remove a list of keys */
-    void RemoveValues(const GUtil::DataObjects::StringList &keys){
-        FailIfNotInitialized();
-        for(GUtil::DataObjects::StringList::const_iterator iter(keys.begin()); iter != keys.end(); ++iter)
-            m_data.Remove(*iter);
-        if(keys.Count() != 0) _value_changed();
-    }
+    void RemoveValue(const GUtil::DataObjects::String &key);
 
     /** Returns whether the key is in the config settings. */
-    inline bool Contains(const GUtil::DataObjects::String &key){
-        FailIfNotInitialized();
-        return m_data.Contains(key);
-    }
+    inline bool Contains(const GUtil::DataObjects::String &key){ return m_data.Contains(key); }
 
-    /** Clears all config parameters. */
-    inline void Clear(){
-        FailIfNotInitialized();
-        m_data.Clear();
-        _value_changed();
-    }
+    /** Returns the file name of the file which is storing the cached data. */
+    inline const QString &GetFileName() const{ return m_bds.GetFileName(); }
 
-    /** Reloads the config from the file on disk */
-    bool Reload();
+    /** Returns the identity string you passed in the constructor. */
+    inline GUtil::DataObjects::String const &GetIdentity() const{ return m_identity; }
 
-    inline QString FileName() const{ return FileTransport().FileName(); }
+    /** Returns the modifier string you passed in the constructor. */
+    inline GUtil::DataObjects::String const &GetModifier() const{ return m_modifier; }
 
-    inline GUtil::DataObjects::String const &GetIdentity() const{ return _identity; }
-    inline GUtil::DataObjects::String const &GetModifier() const{ return _modifier; }
-
-    /** Controls whether to format the configxml in a human-readable way.
-
-        If the configuration is supposed to be interfaced with humans,
-        then set this to true.  It not, then the configuration will be
-        in a compressed and unformatted xml file that only the application can read.
-
-        \note You must define GUTIL_CRYPTOPP in the preprocessor
-        and link with libcryptopp.a to benefit from compression.
-    */
-    PROPERTY(IsHumanReadable, bool);
 
     /** Controls whether to commit changes right away, or wait until a manual
         call of CommitChanges().
@@ -142,64 +129,66 @@ public:
     PROPERTY(AutoCommitChanges, bool);
 
 
+public slots:
+
+    /** Reloads the config from the file on disk */
+    void Reload();
+
+    /** Clears all config parameters. */
+    void Clear();
+
+    
 signals:
 
-    /** Notifies that the configuration has been updated, either by this instance
-        directly, or someone else updated the file on disk
+    /** This signal is emitted whenever the persistent data changes, either spontaneously or
+        initiated by this object itself.
     */
-    void NotifyConfigurationUpdate();
-
+    void DataChanged();
+    
 
 protected:
 
-    /** Returns our file transport */
-    inline DataAccess::FileIODevice &FileTransport(){
-        return *_iodevice;
-    }
-    /** Returns our file transport */
-    inline const DataAccess::FileIODevice &FileTransport() const{
-        return *_iodevice;
-    }
+    /** This function is provided so that subclasses can operate on the data before
+     *  it is saved to disk.
+     *
+     *  One could compress or encrypt the data, if they want.
+     *
+     *  By default there is no compression or encryption.  You must implement
+     *  that in your application code.
+    */
+    virtual void preprocess_outgoing_data(QByteArray &);
+
+    /** This function is provided so that subclasses can operate on the data after
+     *  it is read from disk.
+     *
+     *  One could decompress or decrypt the data, if they want.
+     *
+     *  By default there is no compression or encryption.  You must implement
+     *  that in your application code.
+    */
+    virtual void preprocess_incoming_data(QByteArray &);
+
 
     /** IUpdatable interface */
     virtual void commit_reject_changes(bool commit);
 
-    /** This constructor should never be used, and is only declared to allow
-     *  forbidden constructor definitions, such as used in GUTIL_DISABLE_COPY.
-    */
-    inline PersistentData(){ THROW_NEW_GUTIL_EXCEPTION(NotImplementedException); }
-
-
-private slots:
-
-    void new_input_data_arrived();
-
 
 private:
 
-    GUtil::DataObjects::String _identity, _modifier;
-    GUtil::DataObjects::Map<GUtil::DataObjects::String, QVariant> m_data;
-    GUtil::Utils::SmartPointer<DataAccess::FileIODevice> _iodevice;
+    static QString _get_file_location(QString id);
 
-    static QString get_file_location(QString id);
+    /** Reusable function to clear the indexes and reclaim memory. */
+    static void _clear_data_index(::GUtil::DataObjects::Map< ::GUtil::DataObjects::String, data_t *> &,
+                                  ::GUtil::DataObjects::Map<int, data_t *> &);
 
-    void _init(const GUtil::DataObjects::String &identifier,
-               const GUtil::DataObjects::String &modifier);
-
-    // In case you want to do encryption/compression
-    void _preprocess_outgoing_data(QByteArray &) const;
-    void _preprocess_incoming_data(QByteArray &) const;
-
-    inline void _value_changed(){
-        if(GetAutoCommitChanges())
-            CommitChanges();
-    }
+    void _value_changed();
 
 };
 
 
 }}}
 
+#endif // GUTIL_NO_DATABASE_FUNCTIONALITY
 #endif // GUTIL_PERSISTENTDATA_H
 
 #endif // GUI_FUNCTIONALITY

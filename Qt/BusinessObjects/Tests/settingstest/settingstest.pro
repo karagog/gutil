@@ -22,6 +22,6 @@ DEFINES += \
 
 HEADERS +=
 
-INCLUDEPATH += ../../.. ../../../..
+INCLUDEPATH += ../../.. ../../../../include
 LIBS += -L../../../../lib \
-    -lGUtilQt -lGUtil
+    -lGUtilQt -lGUtil -lcryptopp

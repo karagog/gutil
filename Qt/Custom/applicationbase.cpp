@@ -18,15 +18,19 @@ limitations under the License.*/
 #include <signal.h>
 #endif
 
+USING_NAMESPACE_GUTIL1(Logging);
+
 NAMESPACE_GUTIL2(QT, Custom);
 
 
-ApplicationBase::ApplicationBase()
+ApplicationBase::ApplicationBase(AbstractLogger *logger)
+    :m_logger(logger),
+     _p_TrapExceptions(false)
 {
     if(!_initialize_os_signal_handlers())
         GDEBUG("Some OS signal handlers not registered");
 }
-    
+
 ApplicationBase::~ApplicationBase(){}
 
 void ApplicationBase::Exit(int return_code)
@@ -41,20 +45,25 @@ void ApplicationBase::application_exiting(){}
 
 void ApplicationBase::handle_exception(const Exception<> &ex)
 {
-    throw ex;
+    if(m_logger)
+        m_logger->LogException(ex);
+
+    if(!GetTrapExceptions())
+        throw ex;
 }
 
 void ApplicationBase::handle_std_exception(const std::exception &ex)
 {
-    throw ex;
+    if(!GetTrapExceptions())
+        throw ex;
 }
 
 void ApplicationBase::handle_os_signal(int sig_num)
 {
     switch(sig_num)
     {
-    
-    
+
+
 #ifdef Q_OS_LINUX
 
     case SIGINT:
@@ -78,7 +87,7 @@ void ApplicationBase::handle_os_signal(int sig_num)
     case SIGHUP:
         this->handle_signal_Hangup();
         break;
-        
+
 #endif
 
 
@@ -102,11 +111,11 @@ static bool __os_signal_handlers_initialized(false);
 bool ApplicationBase::_initialize_os_signal_handlers()
 {
     bool ret(false);
-    
+
     if(!__os_signal_handlers_initialized)
     {
         ret = true;
-        
+
 #ifdef Q_OS_LINUX
         /** \todo Potentially add more signals to handle. */
         if(SIG_ERR == signal(SIGINT, &ApplicationBase::_handle_os_signal)) ret = false;
@@ -120,7 +129,7 @@ bool ApplicationBase::_initialize_os_signal_handlers()
 
         __os_signal_handlers_initialized = true;
     }
-    
+
     return ret;
 }
 

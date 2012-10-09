@@ -18,7 +18,8 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-INCLUDEPATH += ../../../.. ../../..
+INCLUDEPATH += ../../../../include ../../..
 LIBS += -L../../../../lib \
     -lGUtilQt \
-    -lGUtil
+    -lGUtil \
+    -lcryptopp
