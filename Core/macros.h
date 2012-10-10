@@ -222,17 +222,22 @@ protected: \
 
 
 /** Declares a class to be static, by making the assignment operator,
-    default and copy constructors private.
+    default and copy constructors protected.
 
     If you have not defined any other constructors, then this essentially makes
     it impossible for anyone to instantiate the class.
+
+    \note The defined constructors are protected, to allow static classes to derive
+    from one another without compiler errors.
 
     \note Do not use this if the class is not actually static, because none of its
     members will be initialized in the constructor.
 */
 #define GUTIL_STATIC_CLASS(cls) \
-    GUTIL_DISABLE_COPY(cls) \
-    inline cls(){}
+    protected: \
+        inline cls(const cls &){} \
+        inline cls &operator =(const cls &){return *this;} \
+        inline cls(){}
 
 
 #ifndef NULL
