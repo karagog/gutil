@@ -56,25 +56,8 @@ Exception<false>::Exception(const char *file, int line, const char *name, const 
 {}
 
 
-GUTIL_EXCEPTION_INSTANTIATE(Exception);
-GUTIL_EXCEPTION_INSTANTIATE(NotImplementedException);
-GUTIL_EXCEPTION_INSTANTIATE(BadAllocationException);
-GUTIL_EXCEPTION_INSTANTIATE(ReadOnlyException);
-GUTIL_EXCEPTION_INSTANTIATE(ArgumentException);
-GUTIL_EXCEPTION_INSTANTIATE(ConversionException);
-GUTIL_EXCEPTION_INSTANTIATE(DataTransportException);
-GUTIL_EXCEPTION_INSTANTIATE(XmlException);
-GUTIL_EXCEPTION_INSTANTIATE(EndOfFileException);
-GUTIL_EXCEPTION_INSTANTIATE(LockException);
-GUTIL_EXCEPTION_INSTANTIATE(NullReferenceException);
-GUTIL_EXCEPTION_INSTANTIATE(IndexOutOfRangeException);
-GUTIL_EXCEPTION_INSTANTIATE(ValidationException);
-GUTIL_EXCEPTION_INSTANTIATE(InvalidCastException);
-GUTIL_EXCEPTION_INSTANTIATE(NotFoundException);
-GUTIL_EXCEPTION_INSTANTIATE(DivideByZeroException);
-GUTIL_EXCEPTION_INSTANTIATE(UniqueKeyException);
-GUTIL_EXCEPTION_INSTANTIATE(BuildException);
-GUTIL_EXCEPTION_INSTANTIATE(InvalidStateTransitionException);
+// Instantiate the code for the base exception, to reduce application code size
+template class Exception<false>;
 
 
 END_NAMESPACE_GUTIL

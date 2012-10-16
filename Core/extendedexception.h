@@ -55,18 +55,7 @@ template<>class ex_name<true> : \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
                 ::GUtil::ExtendedException(inner_exception) {} \
         virtual ~ex_name(){} \
-}; \
-extern template class ex_name<true>
-
-/** For instantiating exceptions for export.  You put this in the C file to
- *  instantiate the code there.  You must also declare GUTIL_EXCEPTION_DECLARE
- *  in the header for this to be useful
-
-    This decreases the size of all dependent libraries/executables, because
-    the exception code doesn't have to be repeated.
-*/
-#define GUTIL_EXTENDED_EXCEPTION_INSTANTIATE(EX_TYPE) template class EX_TYPE<true>
-
+}
 
 
 NAMESPACE_GUTIL
@@ -75,6 +64,8 @@ NAMESPACE_GUTIL
 /** Implements extended features for exception classes. */
 class ExtendedException
 {
+    ::GUtil::DataObjects::Map< ::GUtil::DataObjects::String, ::GUtil::DataObjects::String> _data;
+    ::GUtil::Utils::SmartPointer< Exception<> > m_innerException;
 public:
 
     inline ExtendedException(){}
@@ -101,16 +92,15 @@ public:
     void SetInnerException(const Exception<> &ex);
     inline Exception<false> *GetInnerException() const{ return m_innerException; }
 
-
-private:
-
-    DataObjects::Map<DataObjects::String, DataObjects::String> _data;
-    ::GUtil::Utils::SmartPointer< Exception<> > m_innerException;
-
 };
 
 
 GUTIL_EXCEPTION_DECLARE_EXTENDED( Exception );
+
+// The code instantiation can be found in the code file
+extern template class Exception<true>;
+
+
 GUTIL_EXCEPTION_DECLARE_EXTENDED( NotImplementedException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( BadAllocationException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( ReadOnlyException );

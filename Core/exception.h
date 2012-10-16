@@ -34,8 +34,7 @@ public: \
     inline ex_name(const ex_name<false> &ex) \
         : ::GUtil::Exception<false>(ex) {} \
     virtual ~ex_name(){} \
-}; \
-extern template class ex_name<false>
+}
 
 
 /** Use this to declare any new exceptions, which derive from other types of exceptions */
@@ -52,19 +51,7 @@ public: \
     inline ex_name(const ex_name<false> &ex) \
         :ex_subclass_name<false>(ex) {} \
     virtual ~ex_name(){} \
-}; \
-extern template class ex_name<false>
-
-
-/** For instantiating exceptions for export.  You put this in the C file to
- *  instantiate the code there.  You must also declare GUTIL_EXCEPTION_DECLARE
- *  in the header for this to be useful
-
-    This decreases the size of all dependent libraries/executables, because
-    the exception code doesn't have to be repeated
-*/
-#define GUTIL_EXCEPTION_INSTANTIATE(EX_TYPE)  template class EX_TYPE<false>
-
+}
 
 
 NAMESPACE_GUTIL
@@ -152,6 +139,8 @@ public:
 
 };
 
+// The base exception class code is instantiated in the code file
+extern template class Exception<false>;
 
 
 // Here are the other types of exceptions (all derived from Exception)
