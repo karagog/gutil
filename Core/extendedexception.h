@@ -96,11 +96,6 @@ public:
 
 
 GUTIL_EXCEPTION_DECLARE_EXTENDED( Exception );
-
-// The code instantiation can be found in the code file
-extern template class Exception<true>;
-
-
 GUTIL_EXCEPTION_DECLARE_EXTENDED( NotImplementedException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( BadAllocationException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( ReadOnlyException );

@@ -56,8 +56,4 @@ Exception<false>::Exception(const char *file, int line, const char *name, const 
 {}
 
 
-// Instantiate the code for the base exception, to reduce application code size
-template class Exception<false>;
-
-
 END_NAMESPACE_GUTIL

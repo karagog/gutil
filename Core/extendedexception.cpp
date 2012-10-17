@@ -52,8 +52,4 @@ void ExtendedException::SetInnerException(const Exception<false> &ex)
 }
 
 
-// Instantiate the code for the base exception
-template class Exception<true>;
-
-
 END_NAMESPACE_GUTIL

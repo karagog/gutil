@@ -139,9 +139,6 @@ public:
 
 };
 
-// The base exception class code is instantiated in the code file
-extern template class Exception<false>;
-
 
 // Here are the other types of exceptions (all derived from Exception)
 
