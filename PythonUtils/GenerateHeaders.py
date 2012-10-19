@@ -36,7 +36,7 @@ import fnmatch
 import datetime
 
 parser = argparse.ArgumentParser(description='Generates a top-level header file to include all headers in a directory tree')
-parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Switches on verbose output')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Switches on verbosity output')
 parser.add_argument('--output-prefix', dest='prefix', default='', help='A prefix to put on the front of the generated headers (ex. prefix_header.h).  There is no prefix by default.')
 parser.add_argument('--input-dirs', dest='dirs', default='.', help='The directories to parse (relative or absolute path)')
 parser.add_argument('--ignore-path', dest='ignores', default='', help='Path patterns to ignore (does not work with wildcards)')
@@ -51,7 +51,12 @@ runtime = datetime.datetime.now().isoformat(' ')
 file_patterns = args.pattern.split(',')
 ignore_patterns = args.ignore_patterns.split(',')
 
+verbosity = 0
 if args.verbose:
+    verbosity = 1
+
+if 1 == verbosity:
+    print
     print 'Looking for patterns like ', file_patterns
     print 'Ignoring patterns like ', ignore_patterns
 
@@ -79,7 +84,7 @@ ignorelist.append(args.outdir)
 dirlist = args.dirs.split(',')
 
 
-if args.verbose:
+if 1 == verbosity:
     print 'Searching in the following directories:'
     for dir in dirlist:
         print '\t', dir
@@ -98,22 +103,30 @@ for dir in dirlist:
 
     for curpath, dirs, files in os.walk(dir):
         # Search the current directory for headers
-        if args.verbose:
+        if 1 == verbosity:
             print '\tSearching ', curpath
 
         # Filter the list of files so the results match the given input patterns,
         #   and ignore the given ignore file patterns
         file_list = []
         ignore_files = []
+        
+        # Get a list of all the files that match the input patterns
         for fp in file_patterns:
             for tmp in fnmatch.filter(files, fp):
-                file_list.append(tmp)
+                if 0 == file_list.count(tmp):
+                    file_list.append(tmp)
+            
+        # Get a list of all the files that match the ignore patterns
         for ip in ignore_patterns:
             for tmp in fnmatch.filter(files, ip):
-                ignore_files.append(tmp)
+                if 0 == ignore_files.count(tmp):
+                    ignore_files.append(tmp)
+            
+        # Remove the ignored files from the file list
         for i_f in ignore_files:
             while 0 < file_list.count(i_f):
-                if args.verbose:
+                if 1 == verbosity:
                     print '\tIgnoring file because it matches the ignore pattern: ', i_f
                 file_list.remove(i_f)
 
@@ -136,13 +149,13 @@ for dir in dirlist:
             outputfile.close()
             
         # Check if we should ignore any subdirectories before descending into them
-        if args.verbose:
+        if 1 == verbosity:
             print 'Subdirectories: ', dirs
 
         for d_index in xrange(len(dirs) - 1, -1, -1):
             for ig in ignorelist:
                 if -1 != dirs[d_index].lower().find(ig.lower()):
-                    if args.verbose:
+                    if 1 == verbosity:
                         print '\tIgnoring ', dirs[d_index]
                     dirs.pop(d_index)
                     break;
