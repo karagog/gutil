@@ -57,8 +57,8 @@ if args.verbose:
 
 if 1 == verbosity:
     print
-    print 'Looking for patterns like ', file_patterns
-    print 'Ignoring patterns like ', ignore_patterns
+    print("Looking for patterns like %s" %  file_patterns)
+    print("Ignoring patterns like %s" % ignore_patterns)
 
 # Change our current working directory first
 if(os.path.exists(args.cwd)):
@@ -85,13 +85,13 @@ dirlist = args.dirs.split(',')
 
 
 if 1 == verbosity:
-    print 'Searching in the following directories:'
+    print('Searching in the following directories:')
     for dir in dirlist:
-        print '\t', dir
+        print('\t%s' % dir)
 
-    print '\nIgnoring the following directories:'
+    print('\nIgnoring the following directories:')
     for ig in ignorelist:
-        print '\t', ig
+        print('\t%s' % ig)
 
     print
 
@@ -104,7 +104,7 @@ for dir in dirlist:
     for curpath, dirs, files in os.walk(dir):
         # Search the current directory for headers
         if 1 == verbosity:
-            print '\tSearching ', curpath
+            print('\tSearching %s' % curpath)
 
         # Filter the list of files so the results match the given input patterns,
         #   and ignore the given ignore file patterns
@@ -127,7 +127,7 @@ for dir in dirlist:
         for i_f in ignore_files:
             while 0 < file_list.count(i_f):
                 if 1 == verbosity:
-                    print '\tIgnoring file because it matches the ignore pattern: ', i_f
+                    print('\tIgnoring file because it matches the ignore pattern: %s' % i_f)
                 file_list.remove(i_f)
 
         for f in file_list:
@@ -150,13 +150,13 @@ for dir in dirlist:
             
         # Check if we should ignore any subdirectories before descending into them
         if 1 == verbosity:
-            print 'Subdirectories: ', dirs
+            print('Subdirectories: %s' % dirs)
 
-        for d_index in xrange(len(dirs) - 1, -1, -1):
+        for d_index in range(len(dirs) - 1, -1, -1):
             for ig in ignorelist:
                 if -1 != dirs[d_index].lower().find(ig.lower()):
                     if 1 == verbosity:
-                        print '\tIgnoring ', dirs[d_index]
+                        print('\tIgnoring %s' % dirs[d_index])
                     dirs.pop(d_index)
                     break;
 
