@@ -456,7 +456,7 @@ public:
     }
     DataRow<T> const &operator [](const String &col_name) const{
         if(!column_map.Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::operator [](column_map[col_name]);
+        return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::operator [](column_map.At(col_name));
     }
 
 

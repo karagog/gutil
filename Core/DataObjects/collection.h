@@ -87,8 +87,7 @@ public:
 
     inline const T &operator[](GINT32 index) const{ return _collection[index]; }
     inline ItemReference operator[](GINT32 index){ return ItemReference(this, index); }
-    inline const T &operator[](GUINT32 index) const{ return _collection[index]; }
-    inline ItemReference operator[](GUINT32 index){ return ItemReference(this, index); }
+    inline T &operator[](GUINT32 index){ return _collection[index]; }
 
     inline const T &At(GINT32 index) const{ return _collection.At(index); }
     inline ItemReference At(GINT32 index){
