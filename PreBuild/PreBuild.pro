@@ -47,7 +47,12 @@ exists($$DOCS_PATH/$$DOCS_ZIP_TARGET){
 }
 
 docs_gen.commands = $$DOCS_COMMAND
-docs_zip.commands = cd $$DOCS_PATH; $$ZIP_CMD $$DOCS_ZIP_TARGET -r $$DOCS_DIR
+win32{
+    docs_zip.commands = docs_zip.bat
+}
+unix{
+    docs_zip.commands = docs_zip.bash
+}
 
 PRE_TARGETDEPS =  headers
 PRE_TARGETDEPS += docs_clean
@@ -60,4 +65,6 @@ QMAKE_EXTRA_TARGETS += docs_gen
 QMAKE_EXTRA_TARGETS += docs_zip
 
 OTHER_FILES += \
-    Doxyfile
+    Doxyfile \
+    docs_zip.bat \
+    docs_zip.bash
