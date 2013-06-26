@@ -51,7 +51,7 @@ win32{
     docs_zip.commands = docs_zip.bat
 }
 unix{
-    docs_zip.commands = docs_zip.bash
+    docs_zip.commands = ./docs_zip.bash
 }
 
 PRE_TARGETDEPS =  headers
