@@ -18,4 +18,5 @@ HEADERS += \
     gutil.h
 
 OTHER_FILES += \
-    PythonUtils/GenerateHeaders.py
+    PythonUtils/GenerateHeaders.py \
+    PythonUtils/MakeSymlinksToLibs.py
