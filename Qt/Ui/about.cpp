@@ -24,6 +24,7 @@ limitations under the License.*/
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
+#include <QDir>
 #include <QtPlugin>
 #include <QResource>
 #include <QPluginLoader>
@@ -76,7 +77,9 @@ QString AboutLogic::_load_about_gutil_plugin()
     QString error_msg;
     if(NULL == si_ag)
     {
-        QPluginLoader pl(GUTIL_SHAREDLIBRARY_NAME GUTIL_SHAREDLIBRARY_SUFFIX);
+        QPluginLoader pl(QDir::toNativeSeparators(QString("%1/%2")
+            .arg(QCoreApplication::applicationDirPath())
+            .arg(GUTIL_SHAREDLIBRARY_NAME GUTIL_SHAREDLIBRARY_SUFFIX)));
         if(pl.load()){
             Plugins::IAboutGUtil *iface( qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance()) );
             if(iface){
