@@ -19,16 +19,33 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_application.h"
 #include "gutil_licensewindow.h"
+#include "gutil_aboutgutil.h"
+#include "gutil_atomic.h"
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
 #include <QtPlugin>
+#include <QResource>
+#include <QPluginLoader>
+USING_NAMESPACE_GUTIL1(QT);
 
 NAMESPACE_GUTIL2(QT, UI);
 
 #define TITLE_HEIGHT 40
 
 #define PUSH_BUTTON_WIDTH 100
+
+/** A reference to the about plugin instance.  This is lazy-loaded when the user
+ *   opens the first about window.
+ */
+static Plugins::IAboutGUtil *si_ag( 0 );
+
+AboutLogic::AboutLogic(QObject *parent)
+    :QObject(parent)
+{}
+
+AboutLogic::~AboutLogic()
+{}
 
 void AboutLogic::ShowAbout()
 {
@@ -43,26 +60,41 @@ void AboutLogic::ShowAboutQt()
 
 void AboutLogic::ShowAboutGUtil(QWidget *parent)
 {
-    // Have to load the about plugin
-    QPluginLoader pl("GUtilAboutPlugin" GUTIL_SHAREDLIBRARY_SUFFIX);
-    QString error_msg;
-    if(pl.load()){
-        GUtil::QT::Plugins::IAboutGUtil *about =
-                qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance());
-        if(about)
-            about->ShowAboutGUtil(parent);
-        else
-            error_msg = "Unable to cast plugin as expected type";
-        pl.unload();
+    // Make sure the gutil about plugin is loaded
+    _load_about_gutil_plugin();
+
+    if(NULL != si_ag){
+        si_ag->ShowAboutGUtil(parent);
     }
     else{
-        error_msg = QString("Unable to load about plugin: %1\n\n"
-                            "Make sure it is located in the working directory in which the application is executing")
-                    .arg(pl.fileName());
+        QMessageBox::critical(0, "ERROR", "Unable to show About GUtil", QMessageBox::Ok);
     }
+}
 
-    if(!error_msg.isEmpty())
-        QMessageBox::critical(0, "ERROR", error_msg, QMessageBox::Ok);
+QString AboutLogic::_load_about_gutil_plugin()
+{
+    QString error_msg;
+    if(NULL == si_ag)
+    {
+        QPluginLoader pl(GUTIL_SHAREDLIBRARY_NAME GUTIL_SHAREDLIBRARY_SUFFIX);
+        if(pl.load()){
+            Plugins::IAboutGUtil *iface( qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance()) );
+            if(iface){
+                si_ag = iface;
+            }
+            else
+            {
+                error_msg = "Unable to cast plugin as expected type";
+                pl.unload();
+            }
+        }
+        else{
+            error_msg = QString("Unable to load about plugin: %1\n\n"
+                                "Make sure it is located in the working directory in which the application is executing")
+                    .arg(pl.fileName());
+        }
+    }
+    return error_msg;
 }
 
 void AboutLogic::ShowLicense(QWidget *parent)
@@ -72,7 +104,25 @@ void AboutLogic::ShowLicense(QWidget *parent)
 
 QString AboutLogic::get_license_text()
 {
-    return QString();
+    QString ret;
+
+    // Make sure the gutil about plugin is loaded
+    QString err( _load_about_gutil_plugin() );
+
+    // If the gutil about plugin has been successfully loaded
+    if(si_ag)
+    {
+        // fetch the license info from the plugin's resources
+        QResource r(":GUtil/About/licensetext.txt");
+        if(r.isValid()){
+            ret = r.isCompressed() ? qUncompress(r.data(), r.size()) :
+                                     QByteArray((const char *)r.data(), r.size());
+        }
+    }
+    else
+        ret = QString("(Unable to load resource: %1)").arg(err);
+
+    return ret;
 }
 
 
@@ -86,14 +136,14 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
     // Prepare the dialog layout
     _dialog.resize(400, 300);
 
-    _title.setAlignment(Qt::AlignHCenter);
+    _header.setAlignment(Qt::AlignHCenter);
     _buildinfo.setAlignment(Qt::AlignHCenter);
     {
         QFont f;
         f.setBold(true);
         f.setPixelSize(20);
-        _title.setFont(f);
-        _title.setFixedHeight(TITLE_HEIGHT);
+        _header.setFont(f);
+        _header.setFixedHeight(TITLE_HEIGHT);
     }
 
     QHBoxLayout *top_level_layout(new QHBoxLayout);
@@ -103,7 +153,7 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
 
     QVBoxLayout *vbl( new QVBoxLayout );
     top_level_layout->addLayout(vbl);
-    vbl->addWidget(&_title);
+    vbl->addWidget(&_header);
     vbl->addWidget(&_buildinfo);
     vbl->addWidget(&_text);
     {

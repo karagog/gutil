@@ -22,7 +22,12 @@ limitations under the License.*/
 #include <QLabel>
 #include <QTextEdit>
 
-namespace GUtil{ namespace QT{ namespace UI{
+namespace GUtil{ namespace QT{
+namespace Plugins{
+    class IAboutGUtil;
+}
+
+namespace UI{
 
 
 /** The business logic of the about window. */
@@ -55,25 +60,31 @@ public slots:
 public:
 
     /** Constructor an AboutLogic instance. */
-    inline explicit AboutLogic(QObject *parent = 0)
-        :QObject(parent)
-    {}
+    explicit AboutLogic(QObject *parent = 0);
 
     /** Virtual destructor for dynamic type casting. */
-    virtual ~AboutLogic() {}
+    virtual ~AboutLogic();
 
 
 protected:
 
     /** Returns the license text for the program.
 
-        By default it returns nothing.  You can override it to customize
-        your own license text.
+        By default it returns the Apache License v2.0, because we assume anyone
+        using this GUtil library is writing open-source applications.
 
-        \note This function is not const, because it makes no assertions
-        about the state of the about window.
+        You can override the virtual function to customize your own license text if you need to.
     */
     virtual QString get_license_text();
+
+
+private:
+
+    /** Attempts to load the about GUtil plugin so you can use the About plugin and associated resources.
+     *
+     *  This does nothing if the plugin has already been loaded.
+    */
+    static QString _load_about_gutil_plugin();
 
 };
 
@@ -97,7 +108,7 @@ public:
     explicit About(QWidget *parent = 0, bool show_about_gutil_button = true, bool show_license_button = false);
 
     /** Returns the title of the about window. */
-    inline QString GetTitle() const{ return _title.text(); }
+    inline QString GetTitle() const{ return _header.text(); }
 
     /** Returns the build info string. */
     inline QString GetBuildInfo() const{ return _buildinfo.text(); }
@@ -106,10 +117,14 @@ public:
     inline QString GetAboutText() const{ return _text.toPlainText(); }
 
 
+    /** Sets the window title for the about dialog. */
+    inline void SetWindowTitle(const QString &t){ _dialog.setWindowTitle(t); }
+
     /** Sets an image to display in the window
         \param path_to_resource Can be a resource or a file path
     */
     void SetImage(const QString &path_to_resource);
+
 
     /** Adds your own custom pushbutton to the interface.
         This extends the window's functionality, because the button
@@ -131,8 +146,8 @@ protected:
     /** The dialog window instance. */
     QDialog _dialog;
 
-    /** Controls the title of the window */
-    QLabel _title;
+    /** Controls the header of the about window */
+    QLabel _header;
 
     /** Gives information about the version and/or date */
     QLabel _buildinfo;

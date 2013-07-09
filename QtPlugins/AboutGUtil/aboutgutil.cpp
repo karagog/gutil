@@ -31,7 +31,7 @@ public:
         // Set up the about window
         _dialog.setWindowTitle("About GUtil");
 
-        _title.setText("GUtil Libraries - " GUTIL_VERSION);
+        _header.setText("GUtil Libraries - " GUTIL_VERSION);
 
         _buildinfo.setText(QString("Built on %1").arg(GUtil::BUILD_TIME));
 
@@ -43,22 +43,6 @@ public:
                                   QByteArray(reinterpret_cast<const char *>(r.data()), r.size()));
         else
             _text.setPlainText("No Text");
-    }
-
-
-protected:
-
-    virtual QString get_license_text()
-    {
-        QString ret;
-
-        // fetch the license info from a resource
-        QResource r(":GUtil/About/licensetext.txt");
-        if(r.isValid())
-            ret = r.isCompressed() ? qUncompress(r.data(), r.size()) :
-                                     QByteArray((const char *)r.data(), r.size());
-
-        return ret;
     }
 
 };

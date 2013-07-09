@@ -101,11 +101,11 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 };
 
 
-/** A syntactically concise iteration loop.  
+/** A syntactically concise iteration loop.
 
     This version of it retains the const-ness of the input container.
-    
-    \note Depending on the implementation of the container iterators, 
+
+    \note Depending on the implementation of the container iterators,
     the individual elements may or may not be modifiable.  You set the desired
     const-ness of the element reference in the declaration, and if it compiles then it must work.
 
@@ -137,8 +137,8 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 /** A syntactically concise iteration loop that starts at the back of the container.
 
     This version of it retains the const-ness of the input container.
-    
-    \note Depending on the implementation of the container iterators, 
+
+    \note Depending on the implementation of the container iterators,
     the individual elements may or may not be modifiable.  You set the desired
     const-ness of the element reference in the declaration, and if it compiles then it must work.
 
@@ -339,12 +339,12 @@ template <>inline GINT64 Abs<GINT64>(const GINT64 &v){
     \param rhs The Right Hand Side of the comparison
     \param tolerance The tolerance within which the lhs and rhs are
     considered equal.
-    
+
     \tparam T The type of the compared object must be comparable
     with 0 for this to work.   That means probably POD types like
     ints or floats, but you're not limited to those as long as you can
     compare if it's less than 0 for the Absolute Value function to work.
-    
+
     \return 0 if the lhs and rhs are equal within the given tolerance.
     Otherwise it will be non-zero: -1 if lhs is less than rhs, and 1
     if lhs is greater than rhs.
@@ -531,14 +531,18 @@ END_NAMESPACE_GUTIL;
 
 
 /** The suffix you find on the end of shared libraries in Windows */
+#define GUTIL_SHAREDLIBRARY_NAME_WINDOWS   "GUtilAboutPlugin"
 #define GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS ".dll"
 
 /** The suffix you find on the end of shared libraries in Linux */
+#define GUTIL_SHAREDLIBRARY_NAME_LINUX "lib" GUTIL_SHAREDLIBRARY_NAME_WINDOWS
 #define GUTIL_SHAREDLIBRARY_SUFFIX_LINUX ".so"
 
 #if defined(__WIN32)
+#define GUTIL_SHAREDLIBRARY_NAME   GUTIL_SHAREDLIBRARY_NAME_WINDOWS
 #define GUTIL_SHAREDLIBRARY_SUFFIX GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS
 #elif defined(linux)
+#define GUTIL_SHAREDLIBRARY_NAME   GUTIL_SHAREDLIBRARY_NAME_LINUX
 #define GUTIL_SHAREDLIBRARY_SUFFIX GUTIL_SHAREDLIBRARY_SUFFIX_LINUX
 #else
 /** A platform-independent definition for the suffix of shared libraries */
