@@ -17,9 +17,7 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_smartpointer.h"
 #include <QTreeView>
-#include <QMenu>
 
 namespace GUtil{ namespace QT{ namespace Custom{
 
@@ -32,22 +30,10 @@ class TreeView :
 {
     Q_OBJECT
 
-    ::GUtil::Utils::SmartPointer<QMenu> m_contextMenu;
-
 public:
 
     inline explicit TreeView(QWidget *parent = 0)
         :QTreeView(parent){}
-
-
-    /** Sets the context menu to be shown when the user right-clicks the treeview.
-        The view takes ownership of the menu, and deletes it when finished.
-    */
-    inline void SetContextMenu(QMenu *m){ m_contextMenu = m; }
-
-    /** Returns the context menu which has been set, or 0 if none has been set. */
-    inline QMenu *GetContextMenu(){ return m_contextMenu; }
-
 
 public slots:
 
@@ -63,15 +49,9 @@ public slots:
                                                      QItemSelectionModel::Rows);
 
 
-protected:
-
-    /** Overridden to show the context menu, if one has been set. */
-    virtual void contextMenuEvent(QContextMenuEvent *);
-
-
 private:
 
-    void _append_children(const QModelIndex &, QItemSelection &, int);
+    void _append_children_to_selection(const QModelIndex &, QItemSelection &, int);
 
 };
 
