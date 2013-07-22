@@ -16,6 +16,7 @@ limitations under the License.*/
 #define GUTIL_UNDOSTACK_H
 
 #include "gutil_vector.h"
+#include "gutil_strings.h"
 
 NAMESPACE_GUTIL1(Utils);
 
@@ -38,10 +39,8 @@ public:
     */
     virtual void Redo() = 0;
 
-    /** An optional field to provide a textual description of the action.
-     *  The default implementation returns a null string.
-    */
-    virtual const char *Text() const;
+    /** A field to provide a textual description of the action. */
+    virtual ::GUtil::DataObjects::String Text() const = 0;
 
     /** So the implementation class can be deleted by the interface. */
     virtual ~IUndoableAction(){}
@@ -106,12 +105,12 @@ public:
     /** Returns a textual description of the current action to be undone.
      *  \note The undoable action must have implemented a text description.
     */
-    const char *GetUndoText() const;
+    virtual ::GUtil::DataObjects::String GetUndoText() const;
 
     /** Returns a textual description of the current action to be redone.
      *  \note The undoable action must have implemented a text description.
     */
-    const char *GetRedoText() const;
+    virtual ::GUtil::DataObjects::String GetRedoText() const;
     
 
     /** Executes a command and pushes it onto the stack.

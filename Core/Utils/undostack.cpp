@@ -56,6 +56,12 @@ public:
         G_FOREACH(IUndoableAction *a, Commands)
             a->Redo();
     }
+    
+    virtual String Text() const
+    {
+        /** \todo Return a list of the commands contained within this macro. */
+        return "";
+    }
 
     virtual ~__undoable_macro_command()
     {
@@ -64,11 +70,6 @@ public:
     }
 
 };
-
-const char *IUndoableAction::Text() const
-{
-    return "";
-}
 
 
 
@@ -81,12 +82,12 @@ UndoStack::~UndoStack()
      Clear();
 }
 
-const char *UndoStack::GetUndoText() const
+String UndoStack::GetUndoText() const
 {
     return CanUndo() ? m_stack[m_ptr]->Text() : "";
 }
 
-const char *UndoStack::GetRedoText() const
+String UndoStack::GetRedoText() const
 {
     return CanRedo() ? m_stack[m_ptr + 1]->Text() : "";
 }
