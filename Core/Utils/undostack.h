@@ -1,11 +1,11 @@
 /*Copyright 2012 George Karagoulis
-  
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ public:
 
     /** Undoes the command, after having done it with Do() or Redo(). */
     virtual void Undo() = 0;
-    
+
     /** Redoes the Undo() function.  This is called only after Do() was called
         the first time, and you undid it and now you want to do it again.
     */
@@ -66,7 +66,7 @@ public:
 
     All of the member functions are virtual, to allow you to build on the functionality
     and add interesting behavior to derived classes.
-    
+
     You can make macro commands
 
     \note The member functions are verbose (besides Undo() and Redo()) intentionally,
@@ -75,31 +75,31 @@ public:
 class UndoStack
 {
     GUTIL_DISABLE_COPY(UndoStack);
-    
+
     ::GUtil::DataObjects::Vector<IUndoableAction *> m_stack;
     int m_ptr;
     void *m_macro;
-    
+
 public:
 
     UndoStack();
     virtual ~UndoStack();
-    
-    
+
+
     /** Returns the current index of the undo stack. */
     inline int CurrentIndex() const{ return m_ptr; }
-    
+
     /** Returns the current size of the undo stack (i.e. The total number of
         commands which have been pushed on the stack.)
     */
-    inline int CurrentSize() const{ return (int)m_stack.Size(); }
-    
-    
+    inline int Size() const{ return (int)m_stack.Size(); }
+
+
     /** Returns true if you can undo a command on the stack. */
     inline bool CanUndo() const{ return 0 <= CurrentIndex(); }
-    
+
     /** Returns true if you can redo a command on the stack. */
-    inline bool CanRedo() const{ return CurrentIndex() < CurrentSize() - 1; }
+    inline bool CanRedo() const{ return CurrentIndex() < Size() - 1; }
 
 
     /** Returns a textual description of the current action to be undone.
@@ -111,7 +111,7 @@ public:
      *  \note The undoable action must have implemented a text description.
     */
     virtual ::GUtil::DataObjects::String GetRedoText() const;
-    
+
 
     /** Executes a command and pushes it onto the stack.
 
@@ -119,7 +119,7 @@ public:
     */
     virtual void Do(IUndoableAction *);
 
-    /** Removes all commands from the stack without executing them. 
+    /** Removes all commands from the stack without executing them.
         This also deletes a macro if you were building one.
     */
     virtual void Clear();
@@ -135,44 +135,44 @@ public:
         \note Does nothing if a macro is being generated
     */
     virtual void Redo();
-    
-    
-    
+
+
+
     /** Begins a macro command, which consists of multiple commands executed
         sequentially.  When you undo a macro command, the constituend commands
         are undone in LIFO order (like a stack, rather than a queue).
-       
+
        You may not nest calls to BeginMacro().  You can call it once, and then
        commit it or roll it back.
-       
+
        You cannot Undo() or Redo() while composing a macro.
-        
+
         \sa CommitMacro(), RollbackMacro()
     */
     void BeginMacro();
-    
+
     /** Ends a macro command, and commits it to the undo stack.
-    
+
         \sa BeginMacro(), RollbackMacro()
     */
     inline void CommitMacro(){ _end_macro(true); }
-    
+
     /** Ends a macro command, rolling it back and not pushing it on the stack.
-    
+
         The effect should be that nothing changed since the start of the macro.
-    
+
         \sa BeginMacro(), CommitMacro()
     */
     inline void RollbackMacro(){ _end_macro(false); }
-    
+
     /** Returns true if we're in the middle of generating a macro.
-    
+
         If you are making nested macros, then the top-most macro must be ended
         before this function returns false.
     */
     bool IsMakingMacro();
-    
-    
+
+
 private:
 
     void _end_macro(bool commit);
