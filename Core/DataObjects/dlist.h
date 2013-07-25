@@ -616,7 +616,9 @@ private:
 
                     ++i1;
                 }
-                else GASSERT(false);
+                else{
+                    GASSERT(false);
+                }
 
                 if(NULL == b.m_current)
                     b.m_current = *list_start;
