@@ -2,6 +2,7 @@ QT       -= gui core
 
 TEMPLATE = lib
 #CONFIG += staticlib
+CONFIG += warn_off
 
 QMAKE_CXXFLAGS += -w -O3
 

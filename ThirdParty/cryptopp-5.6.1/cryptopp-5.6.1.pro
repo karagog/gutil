@@ -7,8 +7,11 @@ TEMPLATE = lib
 # Add this to build the static library
 #CONFIG += staticlib
 
+# Disable warnings, because we don't develop this library anyways
+CONFIG += warn_off
+
 INCLUDEPATH += ..
-QMAKE_CXXFLAGS += -pipe -w
+QMAKE_CXXFLAGS += -pipe
 
 win32{
   QMAKE_CXXFLAGS += -mthreads

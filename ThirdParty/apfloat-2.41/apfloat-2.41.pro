@@ -4,10 +4,11 @@ TARGET = apfloat
 TEMPLATE = lib
 
 CONFIG += staticlib
+CONFIG += warn_off
 
 INCLUDEPATH +=
 QMAKE_CXXFLAGS =
-QMAKE_CXXFLAGS += -lm -ffast-math -w -DBIN=binary
+QMAKE_CXXFLAGS += -lm -ffast-math -DBIN=binary
 
 OTHER_FILES += \
     legal.txt

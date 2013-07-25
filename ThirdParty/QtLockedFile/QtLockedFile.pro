@@ -5,6 +5,7 @@ TARGET = GUtilThirdPartyQtLockedFile
 
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += warn_off
 
 HEADERS += \
     qtlockedfile.h
