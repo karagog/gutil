@@ -22,6 +22,9 @@ NAMESPACE_GUTIL2(QT, DataObjects);
 
 #define GVARIANT_XML_ID "GV"
 
+Variant::~Variant()
+{}
+
 QUuid Variant::toUuid() const
 {
     QUuid ret;

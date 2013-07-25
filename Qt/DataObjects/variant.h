@@ -72,6 +72,9 @@ public:
     inline Variant(const QVariantList &i) :QVariant(i) {}
     inline Variant(const QVariantMap &i) :QVariant(i) {}
     inline Variant(const QUuid &i) :QVariant(qVariantFromValue(i)) {}
+    
+    /** Destructs the Variant. */
+    virtual ~Variant();
 
     /** Converts this Variant's contents to a QUuid. */
     QUuid toUuid() const;
