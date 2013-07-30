@@ -1,6 +1,7 @@
 QT -= gui core
 DESTDIR = ../../lib
 TARGET = apfloat
+VERSION = 0.0.0
 TEMPLATE = lib
 
 CONFIG += staticlib

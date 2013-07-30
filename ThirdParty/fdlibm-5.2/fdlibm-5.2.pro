@@ -96,6 +96,7 @@ HEADERS += fdlibm.h
 
 DESTDIR = ../../lib
 TARGET = m
+VERSION = 0.0.0
 
 OTHER_FILES += \
     readme

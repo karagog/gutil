@@ -1,7 +1,10 @@
 
 QT -= gui core
 DESTDIR = ../../lib
+
 TARGET = cryptopp
+VERSION = 0.0.0
+
 TEMPLATE = lib
 
 # Add this to build the static library

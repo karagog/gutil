@@ -1,7 +1,9 @@
 
 QT -= gui
 DESTDIR = ../../lib
+
 TARGET = GUtilThirdPartyQtLockedFile
+VERSION = 0.0.0
 
 TEMPLATE = lib
 CONFIG += staticlib

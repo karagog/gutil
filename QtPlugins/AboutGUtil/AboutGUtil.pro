@@ -1,5 +1,7 @@
 
 TARGET = GUtilAboutPlugin
+VERSION = 0.0.0
+
 TEMPLATE = lib
 CONFIG += plugin
 
