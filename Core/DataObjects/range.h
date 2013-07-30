@@ -333,7 +333,7 @@ public:
         everyone uses in the Range/Region implementation
     */
     inline static int CompareValues(const T &lhs, const T &rhs){
-        return Utils::FlexibleTypeComparer<T>::CompareDefault(lhs, rhs);
+        return Utils::FlexibleTypeComparer<T>::DefaultCompare(lhs, rhs);
     }
 
     /** Compares the two lower bounds (neither can be null) */
