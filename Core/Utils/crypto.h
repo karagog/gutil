@@ -1,11 +1,11 @@
 /*Copyright 2012 George Karagoulis
-  
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ limitations under the License.*/
 #define GUTIL_CRYPTO_H
 
 #include "gutil_strings.h"
-#include "ThirdParty/cryptopp-5.6.1/simple.h"
+#include "crypto++/simple.h"
 
 NAMESPACE_GUTIL1(Utils);
 
@@ -49,8 +49,8 @@ public:
         /** Just give it a string reference, and it will append all the data to it */
         inline StringSink(GUtil::DataObjects::String &s) :sref(s){}
 
-        /** Overridden from ::CryptoPP::Bufferless */
-        virtual size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking){
+        /** Overridden from ::CryptoPP::Sink*/
+        virtual size_t Put2(const byte *inString, size_t length, int, bool){
             sref.Append(reinterpret_cast<const char *>(inString), length);
             return 0;
         }

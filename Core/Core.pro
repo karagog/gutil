@@ -10,7 +10,7 @@ TEMPLATE = lib
 
 INCLUDEPATH += ../include ..
 LIBS += -L../lib \
-    -lcryptopp
+    -lcrypto++
 
 #DEFINES += GUTIL_COM_EXPORTS
 #DEFINES += GUTIL_NO_CRYPTOPP

@@ -19,7 +19,7 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 
 #ifndef GUTIL_NO_RNG
 
-#include "ThirdParty/cryptopp-5.6.1/osrng.h"
+#include "crypto++/osrng.h"
 
 /** We allocate a global static RNG from CryptoPP, so we don't
     have to allocate one every time we need random data.

@@ -2,8 +2,8 @@
 QT -= gui core
 DESTDIR = ../../lib
 
-TARGET = cryptopp
-VERSION = 0.0.0
+TARGET = crypto++
+VERSION = 5.6.1
 
 TEMPLATE = lib
 
