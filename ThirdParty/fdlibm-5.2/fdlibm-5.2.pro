@@ -2,6 +2,7 @@ QT       -= gui core
 
 TEMPLATE = lib
 #CONFIG += staticlib
+VERSION = 5.2
 CONFIG += warn_off
 
 QMAKE_CXXFLAGS += -w -O3
@@ -96,7 +97,7 @@ HEADERS += fdlibm.h
 
 DESTDIR = ../../lib
 TARGET = m
-VERSION = 0.0.0
+#VERSION = 0.0.0
 
 OTHER_FILES += \
     readme

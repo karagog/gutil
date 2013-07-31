@@ -1,7 +1,7 @@
 DESTDIR = ../lib
 
 TARGET = GUtilQt
-VERSION = 0.0.0
+#VERSION = 0.0.0
 
 TEMPLATE = lib
 

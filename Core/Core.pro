@@ -1,7 +1,7 @@
 DESTDIR = ../lib
 
 TARGET = GUtil
-VERSION = 0.0.0
+#VERSION = 0.0.0
 
 QT -= gui core
 

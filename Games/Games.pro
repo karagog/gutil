@@ -7,7 +7,7 @@
 QT       -= core gui
 
 TARGET = GUtilGames
-VERSION = 0.0.0
+#VERSION = 0.0.0
 
 DESTDIR = ../lib
 TEMPLATE = lib
