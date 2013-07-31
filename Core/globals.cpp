@@ -32,7 +32,7 @@ static GBYTE const _MSB_LUT[] =
     #define _MSB_LUT7(n) _MSB_LUT6(n), _MSB_LUT6(n)
     #define _MSB_LUT8(n) _MSB_LUT7(n), _MSB_LUT7(n)
 
-    -1, // Returns error if no bits are set
+    0xFF, // Returns error if no bits are set
     0,
     _MSB_LUT2(1),
     _MSB_LUT3(2),

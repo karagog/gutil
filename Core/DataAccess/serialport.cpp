@@ -158,34 +158,38 @@ void SerialPort::Close()
     }
 }
 
-void SerialPort::ReadBytes(GBYTE *buf, GUINT32 buf_len, GUINT32 to_read)
+GUINT32 SerialPort::ReadBytes(GBYTE *buf, GUINT32 buf_len, GUINT32 to_read)
 {
 #ifdef _WIN32
-    DWORD dwBytesRead = 0;
+    DWORD bytesread = 0;
 #else
-    int bytesread = 0;
+    GUINT32 bytesread = 0;
 #endif
+
     char tempchar;
     for(GUINT32 i = 0; i < to_read && i < buf_len; i++)
     {
 #ifdef linux
-        bytesread = read(m_handle,&tempchar,1);
+        GUINT32 tmp_bytes_read = read(m_handle,&tempchar,1);
 #else
-        dwBytesRead = 0;
-        ReadFile(m_handle, &tempchar, 1, &dwBytesRead, NULL);
+        DWORD tmp_bytes_read = 0;
+        ReadFile(m_handle, &tempchar, 1, &tmp_bytes_read, NULL);
 #endif
         memcpy(buf, &tempchar, 1);
 
         buf += 1;
+        bytesread += tmp_bytes_read;
     }
+
+    return bytesread;
 }
 
-void SerialPort::WriteBytes(const GBYTE *bytes, GUINT32 len)
+GUINT32 SerialPort::WriteBytes(const GBYTE *bytes, GUINT32 len)
 {
 #ifdef _WIN32
-    DWORD dwBytesWritten = 0;
+    DWORD byteswritten = 0;
 #else
-    int byteswritten = 0;
+    GUINT32 byteswritten = 0;
 #endif
 
     // Write the data one byte at a time
@@ -195,12 +199,16 @@ void SerialPort::WriteBytes(const GBYTE *bytes, GUINT32 len)
     for(GUINT32 i = 0; i < len; i++)
     {
 #ifdef linux
-        byteswritten = write(m_handle, bytes++, 1);
+        GUINT32 tmp_bytes = write(m_handle, bytes++, 1);
 #else
-        WriteFile(m_handle, bytes++, 1, &dwBytesWritten, NULL);
-        dwBytesWritten = 0;
+        DWORD tmp_bytes = 0;
+        WriteFile(m_handle, bytes++, 1, &tmp_bytes, NULL);
 #endif
+
+        byteswritten += tmp_bytes;
     }
+
+    return byteswritten;
 }
 
 

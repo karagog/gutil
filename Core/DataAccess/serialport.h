@@ -53,9 +53,9 @@ public:
     void Close();
 
     /** Returns 0 on successful write */
-    virtual void WriteBytes(const GBYTE *, GUINT32 len);
+    virtual GUINT32 WriteBytes(const GBYTE *, GUINT32 len);
     /** Returns 0 on successful read */
-    virtual void ReadBytes(GBYTE *buf, GUINT32 buf_len, GUINT32 to_read);
+    virtual GUINT32 ReadBytes(GBYTE *buf, GUINT32 buf_len, GUINT32 to_read);
 
 
 private:

@@ -17,7 +17,15 @@ limitations under the License.*/
 
 #include "gutil_exception.h"
 #include <limits.h>
-NAMESPACE_GUTIL1(DataAccess);
+
+namespace GUtil{
+
+/** Throw this exception from the ReadBytes and WriteBytes functions, and
+ *  provide the correct number of bytes
+*/
+GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( IOException, int Bytes );
+
+namespace DataAccess{
 
 
 /** An abstract interface that says you implement a way of receiving data
@@ -28,21 +36,24 @@ class InputInterface
 public:
     /** Attempts to read data from the device.
 
-        Derived classes should throw an exception upon error
+        Derived classes should throw an IOException upon error, with the
+        number of bytes read.
+
+        If no exception is thrown, it should return the number of bytes read.
 
         \param buffer A buffer into which to read data
         \param buffer_len The length (in bytes) of the buffer
         \param bytes_to_read The number of bytes you want to read.  You can
         pass UINT_MAX to have it read all available data.
     */
-    virtual void ReadBytes(GBYTE *buffer,
+    virtual GUINT32 ReadBytes(GBYTE *buffer,
                            GUINT32 buffer_len,
                            GUINT32 bytes_to_read = UINT_MAX) = 0;
 
     /** Should return the number of bytes available to be read.
         Classes can override the base implementation, which always return -1.
     */
-    virtual int BytesAvailable() const{ return -1; }
+    virtual GUINT32 BytesAvailable() const{ return -1; }
 
     virtual ~InputInterface(){}
 };
@@ -56,10 +67,12 @@ class OutputInterface
 public:
     /** Writes the data to the IO device.
 
-        Derived classes should throw an exception upon error, and include whatever
-        information you want to therein.
+        Derived classes should throw an exception upon error, with the number
+        of bytes written.
+
+        If no exception is thrown, it should return the number of bytes written.
     */
-    virtual void WriteBytes(const GBYTE *data, GUINT32 len) = 0;
+    virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len) = 0;
     virtual ~OutputInterface(){}
 };
 
@@ -76,6 +89,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+}}
 
 #endif // GUTIL_IOINTERFACE_H

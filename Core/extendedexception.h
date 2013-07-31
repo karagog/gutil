@@ -28,8 +28,6 @@ limitations under the License.*/
 #include "gutil_smartpointer.h"
 
 
-#define STRINGIFY( something )  #something
-
 /** An exception class that stores more data.
 
     This is a template specialization from the regular (non-extended) exception

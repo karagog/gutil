@@ -115,23 +115,25 @@ GUINT32 File::Pos() const
     return m_handle ? ftell(m_handle) : 0;
 }
 
-void File::Write(const GBYTE *data, GUINT32 len)
+GUINT32 File::Write(const GBYTE *data, GUINT32 len)
 {
+    GUINT32 ret = 0;
     if(1 == fwrite(data, len, 1, m_handle)){
         if(!GetBufferedWrites())
             fflush(m_handle);
+        ret = len;
     }
-    else
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not written to file");
+    return ret;
 }
 
-void File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
+GUINT32 File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
 {
     GUINT32 actually_read( Min(buffer_len, bytes_to_read) );
     if(1 != fread(buffer, actually_read, 1, m_handle))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not read from file");
     if(actually_read < bytes_to_read)
         Seek(Pos() + (bytes_to_read - actually_read));
+    return actually_read;
 }
 
 String File::Read(GUINT32 bytes)

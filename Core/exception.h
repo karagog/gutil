@@ -18,40 +18,37 @@ limitations under the License.*/
 #include "gutil_macros.h"
 
 
-#define STRINGIFY( something )  #something
+#define STRINGIFY( str )  #str
 
-/** Use this to declare any new exceptions */
-#define GUTIL_EXCEPTION_DECLARE( ex_name ) \
-template<bool extended = false>class ex_name : public ::GUtil::Exception<false> \
-{ \
-public: \
-    inline ex_name() \
-        : ::GUtil::Exception<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
-    inline ex_name(const char *message, const char *name = 0) \
-        : ::GUtil::Exception<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-    inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
-        : ::GUtil::Exception<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-    inline ex_name(const ex_name<false> &ex) \
-        : ::GUtil::Exception<false>(ex) {} \
-    virtual ~ex_name(){} \
-}
+/** The full form macro to declare an exception class, with all options.
+ *  You can make an exception derived from a specified exception class and with custom members.
+*/
+#define GUTIL_EXCEPTION_DECLARE3(ex_name, ex_subclass_name, members) \
+    template<bool extended = false>class ex_name : public ex_subclass_name<false> \
+    { \
+    public: \
+        inline ex_name() \
+            : ex_subclass_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
+        inline ex_name(const char *message, const char *name = 0) \
+            : ex_subclass_name<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+        inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
+            : ex_subclass_name<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+        inline ex_name(const ex_name<false> &ex) \
+            : ex_subclass_name<false>(ex) {} \
+        virtual ~ex_name(){} \
+        members ; \
+    }
+
+/** You can use this to declare exceptions with public data members. */
+#define GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( ex_name, members ) GUTIL_EXCEPTION_DECLARE3(ex_name, ::GUtil::Exception, members)
 
 
-/** Use this to declare any new exceptions, which derive from other types of exceptions */
-#define GUTIL_EXCEPTION_DECLARE2( ex_name, ex_subclass_name ) \
-template<bool extended = false>class ex_name : public ex_subclass_name<false> \
-{ \
-public: \
-    inline ex_name() \
-        :ex_subclass_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
-    inline ex_name(const char *message, const char *name = 0) \
-        :ex_subclass_name<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-    inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
-        :ex_subclass_name<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-    inline ex_name(const ex_name<false> &ex) \
-        :ex_subclass_name<false>(ex) {} \
-    virtual ~ex_name(){} \
-}
+/** Use this to declare simple exception types with no extra public members. */
+#define GUTIL_EXCEPTION_DECLARE( ex_name ) GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS(ex_name, private:)
+
+
+/** Use this to declare exceptions, which derive from other types of exceptions. */
+#define GUTIL_EXCEPTION_DECLARE2( ex_name, ex_subclass_name ) GUTIL_EXCEPTION_DECLARE3(ex_name, ex_subclass_name, private:)
 
 
 NAMESPACE_GUTIL
@@ -217,6 +214,19 @@ GUTIL_EXCEPTION_DECLARE( InvalidStateTransitionException );
 */
 #define THROW_NEW_GUTIL_EXCEPTION2( ex_type, msg ) \
     throw ex_type<false>(__FILE__, __LINE__, 0, msg)
+
+
+/** You can use this to instantiate a new exception with the correct line and file information,
+ *  thus allowing you to modify it before throwing it.
+*/
+#define INSTANTIATE_GUTIL_EXCEPTION(ex_type, var_name) \
+    ex_type<false> var_name(__FILE_, __LINE__)
+
+/** You can use this to instantiate a new exception with a message and the correct line and file information,
+ *  thus allowing you to modify it before throwing it.
+*/
+#define INSTANTIATE_GUTIL_EXCEPTION2(ex_type, var_name, msg) \
+    ex_type<false> var_name(__FILE_, __LINE__, 0, msg)
 
 
 END_NAMESPACE_GUTIL

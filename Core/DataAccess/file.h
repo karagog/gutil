@@ -103,19 +103,19 @@ public:
     inline GUINT32 Size() const{ return Length(); }
 
     /** Write data to the file. */
-    void Write(const GBYTE *data, GUINT32 len);
+    GUINT32 Write(const GBYTE *data, GUINT32 len);
     /** Write data to the file. */
-    inline void Write(const char *data, GUINT32 len = UINT_MAX){
-        Write(reinterpret_cast<GBYTE const *>(data),
-              len == UINT_MAX ? strlen(data) : len);
+    inline GUINT32 Write(const char *data, GUINT32 len = UINT_MAX){
+        return Write(reinterpret_cast<GBYTE const *>(data),
+                     len == UINT_MAX ? strlen(data) : len);
     }
     /** Write data to the file. */
-    inline void Write(const DataObjects::String &data){
-        Write(data.ConstData(), data.Length());
+    inline GUINT32 Write(const DataObjects::String &data){
+        return Write(data.ConstData(), data.Length());
     }
 
-    /** Read data from the file. */
-    void Read(GBYTE *buffer, GUINT32 buf_len, GUINT32 bytes_to_read = UINT_MAX);
+    /** Read data from the file.  Return the number of bytes read. */
+    GUINT32 Read(GBYTE *buffer, GUINT32 buf_len, GUINT32 bytes_to_read = UINT_MAX);
     /** Read data from the file and returns it in a string object. */
     DataObjects::String Read(GUINT32 bytes = UINT_MAX);
 
@@ -125,17 +125,18 @@ public:
     GUINT32 Pos() const;
 
     /** Satisfies the InputOutputInterface abstract interface. */
-    virtual void WriteBytes(const GBYTE *data, GUINT32 len){
+    virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
         Write(data, len);
+        return len;
     }
 
     /** Satisfies the InputOutputInterface abstract interface. */
-    virtual void ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
-        Read(buffer, buffer_len, bytes_to_read);
+    virtual GUINT32 ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
+        return Read(buffer, buffer_len, bytes_to_read);
     }
-    
-    
-    /** Controls whether to buffer write outputs.  The default is true. 
+
+
+    /** Controls whether to buffer write outputs.  The default is true.
         If there is a write buffer, then data is not written to the file immediately,
         but when it's convenient.  If there is no buffer, then data is written
         immediately.

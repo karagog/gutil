@@ -90,12 +90,13 @@ public:
 
 
     /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */
-    virtual void WriteBytes(const GBYTE *data, GUINT32){
+    virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
         Write(reinterpret_cast<const char *>(data), GetOutputStream());
+        return len;
     }
     /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */
-    virtual void ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
-        Read(buffer, buffer_len, bytes_to_read);
+    virtual GUINT32 ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
+        return Read(buffer, buffer_len, bytes_to_read);
     }
 
 
