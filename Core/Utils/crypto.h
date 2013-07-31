@@ -27,7 +27,7 @@ limitations under the License.*/
 #define GUTIL_CRYPTO_H
 
 #include "gutil_strings.h"
-#include "crypto++/simple.h"
+#include "cryptopp/simple.h"
 
 NAMESPACE_GUTIL1(Utils);
 

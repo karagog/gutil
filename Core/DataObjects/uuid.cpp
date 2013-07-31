@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <cstring>
 
 #ifndef GUTIL_NO_CRYPTOPP
-#include "crypto++/osrng.h"
+#include "cryptopp/osrng.h"
 #endif
 
 USING_NAMESPACE_GUTIL1(Utils);

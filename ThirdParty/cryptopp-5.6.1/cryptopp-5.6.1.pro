@@ -2,13 +2,16 @@
 QT -= gui core
 DESTDIR = ../../lib
 
-TARGET = crypto++
+TARGET = cryptopp
 VERSION = 5.6.1
 
 TEMPLATE = lib
 
+# Always build the release version (we're not debugging crypto++)
+CONFIG += release
+
 # Add this to build the static library
-#CONFIG += staticlib
+CONFIG += staticlib
 
 # Disable warnings, because we don't develop this library anyways
 CONFIG += warn_off

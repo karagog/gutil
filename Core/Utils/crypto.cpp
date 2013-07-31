@@ -20,15 +20,15 @@ limitations under the License.*/
 
 #include "gutil_crypto.h"
 #include "gutil_smartpointer.h"
-#include "crypto++/cryptlib.h"
-#include "crypto++/filters.h"
-#include "crypto++/gzip.h"
-#include "crypto++/randpool.h"
-#include "crypto++/osrng.h"
-#include "crypto++/default.h"
-#include "crypto++/pwdbased.h"
-#include "crypto++/md4.h"
-#include "crypto++/md5.h"
+#include "cryptopp/cryptlib.h"
+#include "cryptopp/filters.h"
+#include "cryptopp/gzip.h"
+#include "cryptopp/randpool.h"
+#include "cryptopp/osrng.h"
+#include "cryptopp/default.h"
+#include "cryptopp/pwdbased.h"
+#include "cryptopp/md4.h"
+#include "cryptopp/md5.h"
 USING_NAMESPACE_GUTIL1(DataObjects);
 USING_NAMESPACE_GUTIL1(Utils);
 using namespace CryptoPP;
