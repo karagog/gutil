@@ -39,7 +39,9 @@ void AbstractLogger::Clear(){}
 
 void AbstractLogger::LogException(const Exception<false> &ex)
 {
-    if(!should_log_message(MessageLevel_Error))
+    LoggingData d;
+    d.MessageLevel = MessageLevel_Error;
+    if(!should_log_message(d))
         return;
 
     ExtendedException const *ex_ptr( dynamic_cast<ExtendedException const *>(&ex) );
@@ -74,51 +76,61 @@ void AbstractLogger::LogException(const Exception<false> &ex)
             }
         }
 
-        Log(String::Format("%s%s", ex.GetMessage(), data_string.ConstData()),
-            String::Format("%s caught from line %d of file '%s'%s:",
-                           ex.What ? ex.What : "[ null ]",
-                           ex.Line,
-                           ex.File ? ex.File : "[ no file ]",
-                           ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : ""),
-            MessageLevel_Error);
+        d.Message = String::Format("%s%s", ex.GetMessage(), data_string.ConstData());
+        d.Title = String::Format("%s caught from line %d of file '%s'%s:",
+                                 ex.What ? ex.What : "[ null ]",
+                                 ex.Line,
+                                 ex.File ? ex.File : "[ no file ]",
+                                 ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : "");
+        this->Log(d);
 
         if(ex_ptr->GetInnerException())
-            LogException(*ex_ptr->GetInnerException());
+            AbstractLogger::LogException(*ex_ptr->GetInnerException());
     }
     else
     {
-        Log(ex.GetMessage() ? ex.GetMessage() : "",
-            String::Format("%s caught from line %d of file '%s':",
-                           ex.What ? ex.What : "[ null ]",
-                           ex.Line,
-                           ex.File ? ex.File : "[ no file ]"),
-            MessageLevel_Error);
+        d.Message = ex.GetMessage() ? ex.GetMessage() : "";
+        d.Title = String::Format("%s caught from line %d of file '%s':",
+                                 ex.What ? ex.What : "[ null ]",
+                                 ex.Line,
+                                 ex.File ? ex.File : "[ no file ]");
+        this->Log(d);
     }
 }
 
-void AbstractLogger::log_protected(const String &msg, const String &title, MessageLevelEnum message_level, time_t t)
+void AbstractLogger::Log(const LoggingData &d)
 {
-    String log_message( prepare_log_message(msg, title, message_level, t) );
-    try
+    if(this->should_log_message(d))
+        this->log_protected(d);
+}
+
+void AbstractLogger::log_protected(const LoggingData &d)
+{
+    if(_io)
     {
-        _io->WriteBytes(reinterpret_cast<GBYTE const *>(log_message.ConstData()),
-                        log_message.Length());
-    }
-    catch(...)
-    {
-        // Quietly absorb any exceptions.
-        // We're just a logger, so we want to be sure we're stable
+        String log_message( prepare_log_message(d) );
+        try
+        {
+            _io->WriteBytes(reinterpret_cast<GBYTE const *>(log_message.ConstData()),
+                            log_message.Length());
+        }
+        catch(...)
+        {
+            // Quietly absorb any exceptions.
+            // We're just a logger, so we want to be sure we're stable
+        }
     }
 }
 
-String AbstractLogger::prepare_log_message(
-        const String &msg,
-        const String &title,
-        MessageLevelEnum message_type,
-        time_t current_time)
+bool AbstractLogger::should_log_message(const LoggingData &d)
+{
+    return m_options.TestFlag((LoggingOptionsEnum)d.MessageLevel);
+}
+
+String AbstractLogger::prepare_log_message(const LoggingData &d)
 {
     char const *msg_id;
-    switch(message_type)
+    switch(d.MessageLevel)
     {
     case MessageLevel_Info:
         msg_id = "Info";
@@ -135,12 +147,12 @@ String AbstractLogger::prepare_log_message(
     }
 
     char tm_buf[30] = {'I', '\0'};
-    strftime(tm_buf, 30, "%Y-%m-%d %H:%M:%S", localtime(&current_time));
+    strftime(tm_buf, 30, "%Y-%m-%d %H:%M:%S", localtime(&d.LogTime));
 
     return String::Format("%s  %s: %s%s\n\n\n",
                           tm_buf, msg_id,
-                          title.Length() == 0 ? "" : title.ConstData(),
-                          msg.Length() == 0 ? "" : String(1 + msg.Length()).Append("\n").Append(msg).ConstData());
+                          d.Title.Length() == 0 ? "" : d.Title.ConstData(),
+                          d.Message.Length() == 0 ? "" : String(1 + d.Message.Length()).Append("\n").Append(d.Message).ConstData());
 }
 
 

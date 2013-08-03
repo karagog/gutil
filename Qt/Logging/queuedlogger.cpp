@@ -1,11 +1,11 @@
 /*Copyright 2012 George Karagoulis
-  
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ QueuedLogger::~QueuedLogger()
 
 void QueuedLogger::run()
 {
-    _log_item tmp_item;
+    LoggingData tmp_item;
 
     m_lock.lock();
 
@@ -52,7 +52,7 @@ void QueuedLogger::run()
         m_lock.unlock();
 
         // Call the base logger implementation to actually log the data
-        m_logger->Log(tmp_item.s1, tmp_item.s2, tmp_item.lvl, tmp_item.tm);
+        m_logger->Log(tmp_item);
 
         // Pick up the lock again before continuing the loop
         m_lock.lock();
@@ -80,15 +80,12 @@ void QueuedLogger::Cancel(bool flush_queue, bool block)
         wait();
 }
 
-void QueuedLogger::log_protected(const DataObjects::String &s1,
-                                 const DataObjects::String &s2,
-                                 MessageLevelEnum ml,
-                                 time_t t)
+void QueuedLogger::log_protected(const LoggingData &d)
 {
     m_lock.lock();
     {
         // Push the job on the queue
-        m_queue.PushBack(_log_item(s1, s2, ml, t));
+        m_queue.PushBack(d);
 
         // Wake up the background thread 'cause there's work to do
         m_forActivity.wakeOne();

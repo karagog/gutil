@@ -146,8 +146,12 @@ private:
         _translate_logger_id(logger_id, false);
         if(m_loggers.Contains(logger_id))
         {
+            AbstractLogger::LoggingData d;
+            d.Message = msg;
+            d.Title = title;
+            d.MessageLevel = ml;
             try{
-                m_loggers[logger_id]->Log(msg, title, ml);
+                m_loggers[logger_id]->Log(d);
             }catch(...){}
         }
     }

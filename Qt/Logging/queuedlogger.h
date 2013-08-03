@@ -1,11 +1,11 @@
 /*Copyright 2012 George Karagoulis
-  
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,31 +34,13 @@ class QueuedLogger :
 {
     Q_OBJECT
 
-
-    class _log_item
-    {
-    public:
-        inline _log_item(){}
-        inline _log_item(::GUtil::DataObjects::String _s1,
-                         ::GUtil::DataObjects::String _s2,
-                         MessageLevelEnum _lvl,
-                         time_t t)
-            :s1(_s1), s2(_s2), lvl(_lvl), tm(t)
-        {}
-
-        ::GUtil::DataObjects::String s1, s2;
-        MessageLevelEnum lvl;
-        time_t tm;
-    };
-
-
     QMutex m_lock;
     QWaitCondition m_forActivity;
-    
+
     ::GUtil::Utils::SharedSmartPointer< ::GUtil::Logging::AbstractLogger > m_logger;
 
     // The following variables should be protected by the mutex lock
-    ::GUtil::DataObjects::SList< _log_item > m_queue;
+    ::GUtil::DataObjects::SList< LoggingData > m_queue;
     bool m_cancel;
     bool m_flushQueueOnCancel;
 
@@ -115,11 +97,8 @@ protected:
     /** Overridden from AbstractLogger, queues a message for
         writing on a background thread.
     */
-    virtual void log_protected(const DataObjects::String &,
-                               const DataObjects::String &,
-                               MessageLevelEnum ml,
-                               time_t);
-    
+    virtual void log_protected(const LoggingData &);
+
 };
 
 

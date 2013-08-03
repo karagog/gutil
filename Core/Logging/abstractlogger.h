@@ -88,12 +88,28 @@ public:
     };
 
 
-    /** You must inject an IO object, and this class will take ownership
-        of the instance.
+    /** Something to be logged.  Contains all the information needed to log an event. */
+    struct LoggingData
+    {
+        DataObjects::String Message;
+        DataObjects::String Title;
+        MessageLevelEnum MessageLevel;
+        time_t LogTime;
+
+        inline LoggingData()
+            :MessageLevel(MessageLevel_Info),
+              LogTime(time(NULL))
+        {}
+    };
+
+
+    /** If you inject an IO object, this class will take ownership
+        of the instance.  If you pass a NULL pointer then it won't
+        log anything.
 
         All available logger options are enabled by default
     */
-    explicit AbstractLogger(DataAccess::OutputInterface *);
+    AbstractLogger(DataAccess::OutputInterface *);
 
     /** You must inject an IO object, and this class will take ownership
         of the instance.  With this constructor you can also initialize the
@@ -108,18 +124,33 @@ public:
 
 
     /** Logs a message with the lowest severity */
-    inline void LogInfo(const DataObjects::String &message, const DataObjects::String &title){
-        Log(message, title, MessageLevel_Info);
+    inline void LogInfo(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    {
+        LoggingData d;
+        d.Message = message;
+        d.Title = title;
+        d.MessageLevel = MessageLevel_Info;
+        this->Log(d);
     }
 
     /** Logs a warning */
-    inline void LogWarning(const DataObjects::String &message, const DataObjects::String &title){
-        Log(message, title, MessageLevel_Warning);
+    inline void LogWarning(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    {
+        LoggingData d;
+        d.Message = message;
+        d.Title = title;
+        d.MessageLevel = MessageLevel_Warning;
+        this->Log(d);
     }
 
     /** Logs an error */
-    inline void LogError(const DataObjects::String &message, const DataObjects::String &title){
-        Log(message, title, MessageLevel_Error);
+    inline void LogError(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    {
+        LoggingData d;
+        d.Message = message;
+        d.Title = title;
+        d.MessageLevel = MessageLevel_Error;
+        this->Log(d);
     }
 
     /** Logs a GUtil exception with all of its details.
@@ -127,25 +158,18 @@ public:
         options, all of the exception data will also be logged,
         including inner exceptions recursively.
     */
-    void LogException(const GUtil::Exception<false> &);
+    virtual void LogException(const GUtil::Exception<false> &);
 
     /** The base logging function.  Every other log function ends up calling this one.
 
         If the message makes it through the log filters, then the virtual function
         log_protected() is called to conduct the actual logging.
 
-        If you want to customize logging behavior, you can either override
-        log_protected() or prepare_log_message(), depending on what you need
+        You can customize this function on several levels.  Since it is virtual, you may
+        override it, or  you can override log_protected() or prepare_log_message(), depending on what you need
         to customize
     */
-    inline void Log(const DataObjects::String &message,
-                    const DataObjects::String &title = DataObjects::String(),
-                    MessageLevelEnum ml = MessageLevel_Info,
-                    time_t current_time = time(NULL))
-    {
-        if(should_log_message(ml))
-            log_protected(message, title, ml, current_time);
-    }
+    virtual void Log(const LoggingData &);
 
     /** Returns the logging options */
     inline const LoggingOptionsFlags &Options() const{ return m_options; }
@@ -175,32 +199,25 @@ public:
 protected:
 
     /** You can customize your own logging format here */
-    virtual DataObjects::String prepare_log_message(const DataObjects::String &,
-                                                    const DataObjects::String &,
-                                                    MessageLevelEnum ml,
-                                                    time_t);
+    virtual DataObjects::String prepare_log_message(const LoggingData &);
+
+    /** Defines the filter applied to log messages.  The default implementation
+     *  filters based on the message level.
+     *  Derived classes can override this to customize filter behavior.
+    */
+    virtual bool should_log_message(const LoggingData &);
 
     /** You can customize logging behavior by overriding this function.
         It is called on every log operation, assuming that the operation
         was permitted by the logging options.
     */
-    virtual void log_protected(const DataObjects::String &,
-                               const DataObjects::String &,
-                               MessageLevelEnum ml,
-                               time_t);
+    virtual void log_protected(const LoggingData &);
+
 
     /** Derived classes may use this accessor to access the io device */
     inline DataAccess::OutputInterface *io_device(){ return _io.Data(); }
     /** Derived classes may use this accessor to access the io device */
     inline DataAccess::OutputInterface const *io_device() const{ return _io.ConstData(); }
-
-    /** Based solely on the message severity, should we log this message?
-        Derived classes can use this function to inherit the same logic
-        for which messages to log, and which to ignore.
-    */
-    inline bool should_log_message(MessageLevelEnum ml) const{
-        return m_options.TestFlag((LoggingOptionsEnum)ml);
-    }
 
 
 private:

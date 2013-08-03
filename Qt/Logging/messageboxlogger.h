@@ -35,8 +35,8 @@ public:
     inline explicit MessageBoxLogger(QWidget *parent = 0) :AbstractLogger(NULL), m_parent(parent){}
 
     virtual ~MessageBoxLogger(){}
-    
-    
+
+
 protected:
 
     /** Displays a modal dialog box with the title and message, with the
