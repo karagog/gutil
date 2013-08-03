@@ -113,7 +113,9 @@ public:
     }
 
 
-    /** Iterates through the bits */
+    /** Iterates through the bits
+     *  \todo Implement the iterator
+    */
     class iterator
     {
     public:
