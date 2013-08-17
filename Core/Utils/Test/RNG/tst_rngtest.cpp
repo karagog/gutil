@@ -23,7 +23,7 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 #define NUM_TRIES 1000000U
 
 // Control whether to dump debug output to the command line
-bool OUTPUT_ENABLED = false;
+bool OUTPUT_ENABLED = true;
 
 
 class RNGTest : public QObject
@@ -66,7 +66,7 @@ void RNGTest::test_CoinToss()
 
     if(OUTPUT_ENABLED)
         printf("After %i coin tosses, %2.4f%% percent were Heads", NUM_TRIES, ((double)cnt)/NUM_TRIES * 100);
-        
+
     QVERIFY(0 == GUtil::FuzzyCompare(0.5, ((double)cnt)/NUM_TRIES, 0.01));
 }
 
@@ -83,7 +83,7 @@ void RNGTest::test_PercentSuccess()
 
     if(OUTPUT_ENABLED)
         printf("After %i generated variables, %2.4f percent were 'Successful', and %2.4f probability was desired", NUM_TRIES, ((double)cnt)/NUM_TRIES*100, percentage*100);
-        
+
     QVERIFY(0 == GUtil::FuzzyCompare(percentage, ((double)cnt)/NUM_TRIES, 0.001));
 }
 
@@ -197,47 +197,64 @@ void RNGTest::test_Poisson()
     }
 
     empirical_mean = static_cast<GFLOAT64>(sum) / num_tries;
-    
+
     if(OUTPUT_ENABLED)
-        printf("The average of the Poisson variables is %f", empirical_mean);
+        printf("The average of the Poisson variables is %f\n", empirical_mean);
 
     QVERIFY(0 == GUtil::FuzzyCompare(empirical_mean, desired_mean, 1.0));
 }
 
 void RNGTest::test_Geometric()
 {
-    const int num_tries( NUM_TRIES );
+    // Check that invalid inputs give the invalid return value
+    QVERIFY(0 == RNG::Geometric(-1));
+    QVERIFY(0 == RNG::Geometric(-241553));
+    QVERIFY(0 == RNG::Geometric(0));
+    QVERIFY(0 == RNG::Geometric(0.999999));
+
+    // This is a special case to try and trip up the implementation.  Log of 0 is undefined,
+    //  so if they use logs in the implementation this case needs to be handled separately.
+    QVERIFY(1 == RNG::Geometric(1));
+
+    // A value just barely above one is valid and should return 1 most of the time
+    QVERIFY(1 <= RNG::Geometric(1.00001));
+
+
+    // Generate N geometric random variables and see if they actually match our expected value
     GFLOAT64 mean(0.0);
-    const GFLOAT64 expected_value(4);
-    const GFLOAT64 trial_probability( 1.0 / (expected_value + 1) );
-    GINT32 max(-1);
-    GINT32 zero_count( 0 );
+    const GFLOAT64 expected_value(3.458);
+    GUINT64 max(1);
+    GUINT64 next_max(1);
+    GUINT64 zero_count( 0 );
     GFLOAT64 zero_percent;
 
-    for(int i = 0; i < num_tries; ++i)
+    for(int i = 0; i < NUM_TRIES; ++i)
     {
-        GINT32 T = RNG::Geometric(expected_value);
+        GUINT64 T = RNG::Geometric(expected_value);
         mean += T;
-        if(max < T)
+        if(max < T){
+            next_max = max;
             max = T;
+        }
 
+        // Count the number of invalid return values.  There should be none
         if( T == 0 )
             zero_count++;
 
-        //printf("Geometric: %d\n", T);
+        //printf("%d\n", T);
     }
 
-    mean = mean / num_tries;
-    zero_percent = ((GFLOAT64)zero_count) / num_tries;
+    mean = mean / NUM_TRIES;
+    zero_percent = ((GFLOAT64)zero_count) / NUM_TRIES;
 
     if(OUTPUT_ENABLED){
-        printf("The average of the Geometric variates is: %f \n", mean);
-        printf("The maximum variate produced was: %d \n", max);
+        printf("The average of the Geometric variates is %f, and we were expecting %f \n", mean, expected_value);
+        printf("The maximum variate produced was %llu, and the next largest was %llu \n", max, next_max);
         printf("%2.4f%% of the variates produced were 0\n", zero_percent * 100);
     }
 
-    QVERIFY(0 == GUtil::FuzzyCompare(expected_value, mean, 0.1));
-    QVERIFY(0 == GUtil::FuzzyCompare(zero_percent, trial_probability, 0.1));
+    QVERIFY(0 == GUtil::FuzzyCompare(expected_value, mean, expected_value / 100));
+    QVERIFY(0 == zero_count);
 }
 
 void RNGTest::test_Exponential()

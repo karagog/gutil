@@ -135,33 +135,35 @@ public:
         with the given expected value.
 
         The definition of a Geometric random variable used here is:
-        Given a random trial that is successful with a certain probability,
+
+        P(X = n) = (1 − p)^(n−1) * p
+
+        ...which means that given a random trial that is successful with a certain probability,
         and is independent of all other trials in the sequence,
-        the geometric random variable is the number of failed trials before
-        the first success.
+        the geometric random variable is the number of trials until your first success.
 
         \param expected_value The mean value of the generated
         random variable.   This value must be greater-than or equal
-        to 0, otherwise the function returns -1.
+        to 0, otherwise the function returns -1.  For example, a coin-toss would
+        have an expected value of 2, because with a probability of success of 50%
+        it is expected it will take 2 tosses to get a win.
 
         \return A positive, discrete geometrically-distributed random variable.
-        In the case of an invalid input (expected_value less than 0)
-        -1 is returned.
-        The range of a valid return value is [0, GINT32_MAX].  This is a hard
-        upper limit, so if the random variable would be larger, it is capped
-        at GINT32_MAX.
+        In the case of an invalid input (expected_value less than 1) then 0 is returned.
+        The range of valid return values are [1, GUINT64_MAX], but if you have
+        a really large expected value (super low probability of success) then you should
+        know that there is no overflow in the return value, and if the value generated was
+        larger than the max then it will be capped at the max value of the return type.
 
-        \note This implementation has complexity O(expected_value).
-        You should be aware that the implementation makes an iteration
-        for every count  in the return value.  So if your expected value is
-        1,000 you can bet that the average case is going to make one
-        thousand iterations before it returns.  This is, practically speaking,
-        why you can't possibly overflow the return value, because
-        it would require more than 2 billion iterations to return a value,
-        which would cause extreme runtime overhead and prompt you
-        to rethink your use of the Geometric variate generator.
+        \note This implementation has complexity O(1).  I borrowed the
+        mathematical concept from a paper I found online.  Open source is
+        great, isn't it??  You scratch my back, I'll scratch yours.
+        Without proving it (I'll leave that as an exercise for the reader),
+        here is the algorithm:
+        Int( log(U)/log(1-p) ) + 1
+        Where Int(Y) is the integer part of Y.
     */
-    static GINT32 Geometric( GFLOAT32 expected_value );
+    static GUINT64 Geometric( GFLOAT32 expected_value );
 
 
     /** Generates an Exponentially distributed random variable

@@ -154,13 +154,25 @@ GINT32 RNG::Poisson(GFLOAT32 expected_value)
     return ret;
 }
 
-GINT32 RNG::Geometric(GFLOAT32 expected_value)
+GUINT64 RNG::Geometric(GFLOAT32 e)
 {
-    GINT32 ret(-1);
-    if(0.0 <= expected_value)
-        for( ret = 0;
-               ret != GINT32_MAX && !Succeed(1.0 / (expected_value + 1.0));
-               ret += 1 );
+    GUINT64 ret;
+    if(1.0 < e)
+    {
+        // Valid input, and no special case to worry about, so generate value
+        ret = (GUINT64)( log(U(0,1)) / log(1.0 - 1.0 / e) ) + 1;
+    }
+    else if(1.0 > e)
+    {
+        // Invalid input, return 0
+        ret = 0;
+    }
+    else
+    {
+        // Special case where expected value == 1, because log(0) is undefined
+        // The probability in this case is 100%, so just return 1
+        ret = 1;
+    }
     return ret;
 }
 
