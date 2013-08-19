@@ -41,10 +41,10 @@ class Application :
     Q_OBJECT
 public:
 
-    /** Constructs an instance of Application. 
+    /** Constructs an instance of Application.
         \param logger An optional logger.
     */
-    inline Application(int &argc, char **argv, ::GUtil::Logging::AbstractLogger *logger = 0) 
+    inline Application(int &argc, char **argv, ::GUtil::Logging::AbstractLogger *logger = 0)
         :QApplication(argc, argv), ApplicationBase(logger) {}
 
     /** Constructs an instance of Application.
@@ -67,7 +67,9 @@ public:
         if(!application_version.isEmpty())
             setApplicationVersion(application_version);
     }
-    
+
+    virtual ~Application(){}
+
 
     /** Overridden from QApplication::notify(), in order to catch exceptions incurred
         during QApplication events, mainly execution of slots.
@@ -93,12 +95,12 @@ public:
 public slots:
 
     /** Shows the application's about window under the given parent widget.
-        By default it shows a minimal window with the application name.  
+        By default it shows a minimal window with the application name.
         You are supposed to override it with your own informative about window.
     */
-    virtual void About(QWidget *parent = 0){ 
-        QMessageBox::information(parent, 
-            QString("About %1").arg(applicationName()), 
+    virtual void About(QWidget *parent = 0){
+        QMessageBox::information(parent,
+            QString("About %1").arg(applicationName()),
             QString("Version: %1").arg(applicationVersion()));
     }
 
