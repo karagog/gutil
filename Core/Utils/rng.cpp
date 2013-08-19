@@ -116,6 +116,8 @@ Pair<GFLOAT64> RNG::N2(GFLOAT64 mean, GFLOAT64 standard_deviation)
     const GFLOAT64 C( sqrt(-2.0 * log(u)) );
     const GFLOAT64 A( 2.0 * PI * v );
 
+    //printf("%8X %8X\n", p.First, p.Second);
+
     return Pair<GFLOAT64>(mean + standard_deviation * C * sin(A), mean + standard_deviation * C * cos(A));
 }
 
@@ -201,5 +203,5 @@ GFLOAT64 __rng_int_to_unit_float(GUINT32 i)
 Pair<GUINT32> __rng_generate_two_numbers()
 {
     GUINT64 L( GUtil::Utils::RNG::Generate<GUINT64>() );
-    return Pair<GUINT32>(*reinterpret_cast<GUINT32 *>(&L), *(reinterpret_cast<GUINT32 *>(&L) + 1));
+    return Pair<GUINT32>(L >> 32, L);
 }
