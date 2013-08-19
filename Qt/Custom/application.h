@@ -42,10 +42,9 @@ class Application :
 public:
 
     /** Constructs an instance of Application.
-        \param logger An optional logger.
     */
-    inline Application(int &argc, char **argv, ::GUtil::Logging::AbstractLogger *logger = 0)
-        :QApplication(argc, argv), ApplicationBase(logger) {}
+    inline Application(int &argc, char **argv)
+        :QApplication(argc, argv) {}
 
     /** Constructs an instance of Application.
         \param argc The number of command line parameters, as passed to main()
@@ -53,14 +52,12 @@ public:
         \param application_name The name of the application, which determines, among other things,
         the directory paths to the various storage locations.
         \param application_version The current version of the application
-        \param logger An optional logger.
         \sa QDesktopServices::storageLocation()
     */
     inline Application(int &argc, char **argv,
                           const QString &application_name,
-                          const QString &application_version = QString::null,
-                          ::GUtil::Logging::AbstractLogger *logger = 0)
-        :QApplication(argc, argv), ApplicationBase(logger)
+                          const QString &application_version = QString::null)
+        :QApplication(argc, argv)
     {
         if(!application_name.isEmpty())
             setApplicationName(application_name);

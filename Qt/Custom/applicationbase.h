@@ -31,7 +31,8 @@ limitations under the License.*/
     This is similar to qApp, but returns ApplicationBase instead.  It is done as a dynamic
     cast, because ApplicationBase is not derived from QApplication, but since Application is
     derived from both we can cross-cast if we do a dynamic cast.  It will return NULL if you
-    did not instantiate a Application or CoreApplication
+    did not instantiate a Application or CoreApplication.
+    \note You need to compile with RTTI for this to work.
     \sa qApp
 */
 #define gApp   dynamic_cast<GUtil::QT::Custom::ApplicationBase *>(qApp)
@@ -43,13 +44,12 @@ NAMESPACE_GUTIL2(QT, Custom);
 
 /** Used as a base class for the common functionality of Application and CoreApplication.
 
-    Provides a memory management stack, onto which
-    you can push any kind of memory, and it will be deleted in FILO order when you call
-    Exit() instead of QApplication::exit().
+    In Linux, it will provide signal handlers which you can override to react to them.
+    
+    In Windows, so far this class provides very little extra functionality
 */
 class ApplicationBase
 {
-    ::GUtil::Logging::AbstractLogger *m_logger;
 public:
 
     /** If this property is set to true, then exceptions handled by this object
@@ -75,10 +75,8 @@ protected:
 
     /** The constructor is protected to prevent you from instantiating one
         without the rest of the GUtil application.
-        \param An optional logger that the application will use to log messages.
-        The application will not own the logger's memory.
     */
-    explicit ApplicationBase(::GUtil::Logging::AbstractLogger *logger = 0);
+    ApplicationBase();
     virtual ~ApplicationBase();
 
 
@@ -91,7 +89,6 @@ protected:
         which is especially apparent in Linux.  By executing cleanup code in this handler,
         you do so while the application is still fully functional, from a Qt events standpoint.
 
-        \note You must call the base implementation, which does the actual cleanup of the CleanupObjects.
         \sa Exit() QCoreApplication::exit()
     */
     virtual void application_exiting();

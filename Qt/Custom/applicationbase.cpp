@@ -23,9 +23,8 @@ USING_NAMESPACE_GUTIL1(Logging);
 NAMESPACE_GUTIL2(QT, Custom);
 
 
-ApplicationBase::ApplicationBase(AbstractLogger *logger)
-    :m_logger(logger),
-     _p_TrapExceptions(false)
+ApplicationBase::ApplicationBase()
+    :_p_TrapExceptions(false)
 {
     if(!_initialize_os_signal_handlers())
         GDEBUG("Some OS signal handlers not registered");
@@ -35,8 +34,8 @@ ApplicationBase::~ApplicationBase(){}
 
 void ApplicationBase::Exit(int return_code)
 {
-    // Derived applications will execute their own cleanup code when the application exits
-    if(gApp) gApp->application_exiting();
+    if(gApp)
+        gApp->application_exiting();
 
     QCoreApplication::exit(return_code);
 }
@@ -45,9 +44,6 @@ void ApplicationBase::application_exiting(){}
 
 void ApplicationBase::handle_exception(const Exception<> &ex)
 {
-    if(m_logger)
-        m_logger->LogException(ex);
-
     if(!GetTrapExceptions())
         throw ex;
 }
