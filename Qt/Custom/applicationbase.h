@@ -45,7 +45,7 @@ NAMESPACE_GUTIL2(QT, Custom);
 /** Used as a base class for the common functionality of Application and CoreApplication.
 
     In Linux, it will provide signal handlers which you can override to react to them.
-    
+
     In Windows, so far this class provides very little extra functionality
 */
 class ApplicationBase
@@ -58,9 +58,14 @@ public:
     PROPERTY(TrapExceptions, bool);
 
     /** Use this function to quit the application, instead of QApplication::quit()
-
-        This will call the virtual function 'application_exiting()' which you can
-        override to put cleanup code in.
+     *
+     *  This calls the virtual function application_exiting() which you can
+     *  override to put cleanup code in.  The reason you put cleanup code there instead of the destructor,
+     *  is because you need to clean up QObjects while the main event loop is running, and if the
+     *  application is being destructed then there is no event loop, so your object cleanup can screw up.
+     *
+     *  If you want to prevent your application from exiting, then override application_exiting() and throw
+     *  an exception (with a helpful message, hopefully).
     */
     static void Exit(int return_code = 0);
 
@@ -82,6 +87,8 @@ protected:
 
     /** Subclasses can override this to make their own cleanup code, which will be
         executed on a call to the public static function Exit().
+
+        If you throw an exception, it will effectively prevent the application from exiting.
 
         You should have the application cleanup memory in the cleanup handler
         rather than the destructor, because the QObject event loops end after QApplication::exec()
@@ -106,7 +113,7 @@ protected:
 
     /** You can override this method, which are called in the event of a std::exception
         during an application event.
-        
+
         In the base implementation, the exception is automatically logged to the
         logger given in the constructor.  The exception will either be rethrown or
         trapped, depending on the 'TrapExceptions' property.
@@ -118,7 +125,7 @@ protected:
     /** \name Operating System Signal Handlers
 
         You can override these functions to handle specific operating system signals.
-        
+
         \note If the operating system does not use signals, then these handlers
         may never be called.  This is mostly for Unix systems.
 
@@ -131,37 +138,37 @@ protected:
     */
     virtual void handle_os_signal(int sig_num);
 
-    
+
     /** Handles SIGINT (defined in <signals.h>).
         This handles the Ctrl-C event from the user.
     */
     virtual void handle_signal_Interrupt();
-    
+
     /** Handles SIGABRT (defined in <signals.h>).
         This means the process called abort() somewhere (debug assertion?)
     */
     virtual void handle_signal_Abort();
-    
+
     /** Handles SIGFPE (defined in <signals.h>).
         There was an error with an arithmetic calculation, like an overflow.
     */
     virtual void handle_signal_FloatingPointError();
-    
+
     /** Handles SIGILL (defined in <signals.h>).
         This means that the program tried to execute an illegal instruction.
     */
     virtual void handle_signal_IllegalInstruction();
-    
+
     /** Handles SIGSEGV (defined in <signals.h>).
         This means there was a memory segmentation fault.
     */
     virtual void handle_signal_SegmentationFault();
-    
+
     /** Handles SIGTERM (defined in <signals.h>).
         This handles the termination signal.
     */
     virtual void handle_signal_Terminate();
-    
+
     /** Handles SIGHUP (defined in <signals.h>).
         This signal means that the calling process is terminating.
         \note This is only available on POSIX systems.
@@ -170,7 +177,7 @@ protected:
 
 
     /** \} */
-    
+
 
 private:
 

@@ -34,8 +34,13 @@ ApplicationBase::~ApplicationBase(){}
 
 void ApplicationBase::Exit(int return_code)
 {
-    if(gApp)
-        gApp->application_exiting();
+    ApplicationBase *a = gApp;
+    if(a)
+        a->application_exiting();
+    else{
+        GDEBUG("WARNING:  Exit() called in non-GUtil Application!"
+               "  This is not inherently dangerous, but it is probably not intended.");
+    }
 
     QCoreApplication::exit(return_code);
 }

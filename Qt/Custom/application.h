@@ -18,9 +18,6 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_applicationbase.h"
-#include "gutil_processstatusindicator.h"
-#include "gutil_aboutgutil.h"
-#include "gutil_smartpointer.h"
 #include "gutil_about.h"
 #include <QApplication>
 #include <QPluginLoader>
