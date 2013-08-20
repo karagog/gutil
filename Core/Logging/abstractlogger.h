@@ -217,7 +217,7 @@ protected:
     /** Derived classes may use this accessor to access the io device */
     inline DataAccess::OutputInterface *io_device(){ return _io.Data(); }
     /** Derived classes may use this accessor to access the io device */
-    inline DataAccess::OutputInterface const *io_device() const{ return _io.ConstData(); }
+    inline DataAccess::OutputInterface const *io_device() const{ return _io.Data(); }
 
 
 private:

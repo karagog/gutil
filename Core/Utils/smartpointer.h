@@ -38,9 +38,9 @@ public:
     inline SmartPointer() :ptr(0){}
 
     /** Initializes the pointer to p
-        \note p may be of type T, or a type derived from T
+        \note p may be of type T, or a type derived from T.  In this case it must have a virtual destructor
     */
-    template<class U>inline SmartPointer(U *p) :ptr(static_cast<T *>(p)){}
+    template<class U>inline SmartPointer(U *p) :ptr(dynamic_cast<T *>(p)){}
 
     /** Assignment operator deletes our current pointer, then looks at another one. */
     template<class U>inline SmartPointer &operator = (U *p){
@@ -56,9 +56,7 @@ public:
     inline void Clear(){ delete ptr; ptr = 0; }
 
     /** Returns the naked pointer */
-    T *Data() const{ return ptr; }
-    /** Returns the naked pointer */
-    T const *ConstData() const{ return ptr; }
+    inline T *Data() const{ return ptr; }
 
     /** Dereference the pointer */
     inline T const &operator *() const{ return *ptr; }
@@ -79,9 +77,9 @@ public:
     inline bool IsNull() const{ return !operator bool(); }
 
     /** Returns if this smart pointer equals the other. */
-    inline bool operator == (const SmartPointer<T> &o) const{ return ConstData() == o.ConstData(); }
+    inline bool operator == (const SmartPointer<T> &o) const{ return Data() == o.Data(); }
     /** Returns if this smart pointer does not equal the other. */
-    inline bool operator != (const SmartPointer<T> &o) const{ return ConstData() != o.ConstData(); }
+    inline bool operator != (const SmartPointer<T> &o) const{ return Data() != o.Data(); }
 
 };
 
