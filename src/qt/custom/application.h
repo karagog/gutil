@@ -25,15 +25,16 @@ namespace GUtil{ namespace QT{ namespace Custom{
 
 /** My derived version of QApplication.
 
-    It derives from QApplication, so you can use it instead of one when
-    running your Qt application.
+    It has protected constructors, so you have to subclass it.  Then you can
+    override the virtual functions to customize exception handling, cleanup logic
+    and about logic.
 */
 class Application :
         public QApplication,
         public ApplicationBase
 {
     Q_OBJECT
-public:
+protected:
 
     /** Constructs an instance of Application. */
     Application(int &argc, char **argv);
@@ -49,6 +50,9 @@ public:
     Application(int &argc, char **argv,
                           const QString &application_name,
                           const QString &application_version = QString::null);
+
+
+public:
 
     virtual ~Application();
 

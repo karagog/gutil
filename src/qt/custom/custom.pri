@@ -14,7 +14,8 @@ SOURCES += \
     custom/thread.cpp \
     custom/widget.cpp \
     custom/treeview.cpp \
-    custom/application.cpp
+    custom/application.cpp \
+    custom/coreapplication.cpp
 
 
 
