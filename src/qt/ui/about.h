@@ -37,13 +37,8 @@ class AboutLogic :
     Q_OBJECT
 public slots:
 
-    /** Tells this object to show its about content.
-
-        By default this throws a NotImplementedException.
-        Derived classes must override this if they want the about
-        window to do something interesting
-    */
-    virtual void ShowAbout();
+    /** Tells this object to show its about content. */
+    virtual void ShowAbout() = 0;
 
     /** Shows the application's license info.  You can override get_license_text()
         to customize your own text.

@@ -28,6 +28,7 @@ limitations under the License.*/
 #include <QtPlugin>
 #include <QResource>
 #include <QPluginLoader>
+#include <QMessageBox>
 USING_NAMESPACE_GUTIL1(QT);
 
 NAMESPACE_GUTIL2(QT, UI);
@@ -47,12 +48,6 @@ AboutLogic::AboutLogic(QObject *parent)
 
 AboutLogic::~AboutLogic()
 {}
-
-void AboutLogic::ShowAbout()
-{
-    // There is no default implementation
-    THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-}
 
 void AboutLogic::ShowAboutQt()
 {
@@ -92,9 +87,7 @@ QString AboutLogic::_load_about_gutil_plugin()
             }
         }
         else{
-            error_msg = QString("Unable to load about plugin: %1\n\n"
-                                "Make sure it is located in the working directory in which the application is executing")
-                    .arg(pl.fileName());
+            error_msg = QString("Unable to load about plugin: %1\n\n").arg(pl.fileName());
         }
     }
     return error_msg;
