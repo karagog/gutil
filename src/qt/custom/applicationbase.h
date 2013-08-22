@@ -91,9 +91,11 @@ protected:
      *
      *  Do not put cleanup code here.  Put that code in Application::about_to_quit().
      *
+     *  \param code The return code we are trying to exit with.  Its meaning is application-specific.
+     *
      *  \sa Exit(), Application::about_to_quit(), QCoreApplication::exit()
     */
-    virtual void try_exiting();
+    virtual void try_exiting(int code);
 
 
     /** You can override this method, which are called in the event of an exception
