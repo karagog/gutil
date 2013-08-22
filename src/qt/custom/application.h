@@ -18,10 +18,7 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_applicationbase.h"
-#include "gutil_about.h"
 #include <QApplication>
-#include <QPluginLoader>
-#include <QMessageBox>
 
 namespace GUtil{ namespace QT{ namespace Custom{
 
@@ -38,10 +35,8 @@ class Application :
     Q_OBJECT
 public:
 
-    /** Constructs an instance of Application.
-    */
-    inline Application(int &argc, char **argv)
-        :QApplication(argc, argv) {}
+    /** Constructs an instance of Application. */
+    Application(int &argc, char **argv);
 
     /** Constructs an instance of Application.
         \param argc The number of command line parameters, as passed to main()
@@ -51,18 +46,11 @@ public:
         \param application_version The current version of the application
         \sa QDesktopServices::storageLocation()
     */
-    inline Application(int &argc, char **argv,
+    Application(int &argc, char **argv,
                           const QString &application_name,
-                          const QString &application_version = QString::null)
-        :QApplication(argc, argv)
-    {
-        if(!application_name.isEmpty())
-            setApplicationName(application_name);
-        if(!application_version.isEmpty())
-            setApplicationVersion(application_version);
-    }
+                          const QString &application_version = QString::null);
 
-    virtual ~Application(){}
+    virtual ~Application();
 
 
     /** Overridden from QApplication::notify(), in order to catch exceptions incurred
@@ -71,19 +59,7 @@ public:
         You can handle the exception by overriding ApplicationBase::handle_exception()
         \sa ApplicationBase::handle_exception()
     */
-    virtual bool notify(QObject *o, QEvent *ev){
-        bool ret(false);
-        try{
-            ret = QApplication::notify(o, ev);
-        }
-        catch(const Exception<> &ex){
-            handle_exception(ex);
-        }
-        catch(const std::exception &ex){
-            handle_std_exception(ex);
-        }
-        return ret;
-    }
+    virtual bool notify(QObject *o, QEvent *ev);
 
 
 public slots:
@@ -92,16 +68,12 @@ public slots:
         By default it shows a minimal window with the application name.
         You are supposed to override it with your own informative about window.
     */
-    virtual void About(QWidget *parent = 0){
-        QMessageBox::information(parent,
-            QString("About %1").arg(applicationName()),
-            QString("Version: %1").arg(applicationVersion()));
-    }
+    virtual void About(QWidget *parent = 0);
 
     /** A slot to quit the application and execute custom application cleanup code.
       \sa ApplicationBase::Exit()
     */
-    inline static void Quit(){ Exit(); }
+    static void Quit();
 
 
     /** Show an about window for GUtil.
@@ -112,9 +84,28 @@ public slots:
 
         \param dialog_parent The parent widget for the about dialog (can also be left empty)
     */
-    inline static void AboutGUtil(QWidget *dialog_parent = 0){
-        ::GUtil::QT::UI::About::ShowAboutGUtil(dialog_parent);
-    }
+    static void AboutGUtil(QWidget *dialog_parent = 0);
+
+
+protected slots:
+
+    /** Subclasses can override this to make their own cleanup code, which will be
+        executed when the underlying QApplication emits the signal aboutToQuit().
+
+        You should have the application cleanup memory in the cleanup handler
+        rather than the destructor, because the QObject event loops end after QApplication::exec()
+        returns, so if you cleanup memory in the destructor you lose the signal/slots functionality,
+        which is especially apparent in Linux.  By executing cleanup code in this handler,
+        you do so while the application is still fully functional, from a Qt events standpoint.
+
+        If you throw an exception, you can handle it in the handle_exception() function.
+    */
+    virtual void about_to_quit();
+
+
+private:
+
+    void _init();
 
 };
 

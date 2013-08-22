@@ -59,12 +59,12 @@ public:
 
     /** Use this function to quit the application, instead of QApplication::quit()
      *
-     *  This calls the virtual function application_exiting() which you can
+     *  This calls the virtual function try_exiting() which you can
      *  override to put cleanup code in.  The reason you put cleanup code there instead of the destructor,
      *  is because you need to clean up QObjects while the main event loop is running, and if the
      *  application is being destructed then there is no event loop, so your object cleanup can screw up.
      *
-     *  If you want to prevent your application from exiting, then override application_exiting() and throw
+     *  If you want to prevent your application from exiting, then override try_exiting() and throw
      *  an exception (with a helpful message, hopefully).
     */
     static void Exit(int return_code = 0);
@@ -85,20 +85,15 @@ protected:
     virtual ~ApplicationBase();
 
 
-    /** Subclasses can override this to make their own cleanup code, which will be
-        executed on a call to the public static function Exit().
-
-        If you throw an exception, it will effectively prevent the application from exiting.
-
-        You should have the application cleanup memory in the cleanup handler
-        rather than the destructor, because the QObject event loops end after QApplication::exec()
-        returns, so if you cleanup memory in the destructor you lose the signal/slots functionality,
-        which is especially apparent in Linux.  By executing cleanup code in this handler,
-        you do so while the application is still fully functional, from a Qt events standpoint.
-
-        \sa Exit() QCoreApplication::exit()
+    /** Subclasses can override this to implement their own logic for when it's okay to quit.
+     *  This is called when you call the Exit() function, and if you throw an exception,
+     *  it will effectively prevent the application from exiting.
+     *
+     *  Do not put cleanup code here.  Put that code in Application::about_to_quit().
+     *
+     *  \sa Exit(), Application::about_to_quit(), QCoreApplication::exit()
     */
-    virtual void application_exiting();
+    virtual void try_exiting();
 
 
     /** You can override this method, which are called in the event of an exception

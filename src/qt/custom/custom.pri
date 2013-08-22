@@ -13,7 +13,8 @@ SOURCES += \
     custom/applicationbase.cpp \
     custom/thread.cpp \
     custom/widget.cpp \
-    custom/treeview.cpp
+    custom/treeview.cpp \
+    custom/application.cpp
 
 
 
