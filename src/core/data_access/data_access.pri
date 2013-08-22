@@ -1,14 +1,14 @@
 
 HEADERS += \
-    DataAccess/serialport.h \
-    DataAccess/iointerface.h \
-    DataAccess/file.h \
-    DataAccess/console.h
+    data_access/serialport.h \
+    data_access/iointerface.h \
+    data_access/file.h \
+    data_access/console.h
 
 SOURCES += \
-    DataAccess/serialport.cpp \
-    DataAccess/file.cpp \
-    DataAccess/console.cpp
+    data_access/serialport.cpp \
+    data_access/file.cpp \
+    data_access/console.cpp
 
 
 

@@ -1,4 +1,3 @@
-
 TARGET = GUtil
 #VERSION = 0.0.0
 
@@ -6,6 +5,8 @@ QT -= gui core
 
 TEMPLATE = lib
 #CONFIG += staticlib
+
+CONFIG += warn_off
 
 TOP_DIR = ../..
 
@@ -29,11 +30,11 @@ SOURCES += \
     exception.cpp \
     globals.cpp
 
-include(DataAccess/DataAccess.pri)
-include(DataObjects/DataObjects.pri)
-include(Interfaces/Interfaces.pri)
-include(Logging/Logging.pri)
-include(Utils/Utils.pri)
+include(data_access/data_access.pri)
+include(data_objects/data_objects.pri)
+include(interfaces/interfaces.pri)
+include(logging/logging.pri)
+include(utils/utils.pri)
 
 
 

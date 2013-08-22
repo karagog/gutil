@@ -1,16 +1,16 @@
 
 HEADERS += \
-    Interfaces/ixmlserializable.h \
-    Interfaces/iupdatable.h \
-    Interfaces/ireadonlyobject.h \
-    Interfaces/iequatable.h \
-    Interfaces/iequalitycomparer.h \
-    Interfaces/iconvertable.h \
-    Interfaces/icomparer.h \
-    Interfaces/icomparable.h \
-    Interfaces/iclonable.h \
-    Interfaces/imatrix.h \
-    Interfaces/imemoryusagereporter.h
+    interfaces/ixmlserializable.h \
+    interfaces/iupdatable.h \
+    interfaces/ireadonlyobject.h \
+    interfaces/iequatable.h \
+    interfaces/iequalitycomparer.h \
+    interfaces/iconvertable.h \
+    interfaces/icomparer.h \
+    interfaces/icomparable.h \
+    interfaces/iclonable.h \
+    interfaces/imatrix.h \
+    interfaces/imemoryusagereporter.h
 
 SOURCES +=
 

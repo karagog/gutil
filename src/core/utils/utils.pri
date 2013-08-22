@@ -1,21 +1,21 @@
 
 HEADERS += \
-    Utils/commandlineargs.h \
-    Utils/environment.h \
-    Utils/atomic.h \
-    Utils/smartpointer.h \
-    Utils/flexibletypecomparer.h \
-    Utils/commandlinemenu.h \
-    Utils/crypto.h \
-    Utils/rng.h \
-    Utils/circularint.h \
-    Utils/undostack.h
+    utils/commandlineargs.h \
+    utils/environment.h \
+    utils/atomic.h \
+    utils/smartpointer.h \
+    utils/flexibletypecomparer.h \
+    utils/commandlinemenu.h \
+    utils/crypto.h \
+    utils/rng.h \
+    utils/circularint.h \
+    utils/undostack.h
 
 SOURCES += \
-    Utils/commandlineargs.cpp \
-    Utils/environment.cpp \
-    Utils/atomic.cpp \
-    Utils/commandlinemenu.cpp \
-    Utils/crypto.cpp \
-    Utils/rng.cpp \
-    Utils/undostack.cpp
+    utils/commandlineargs.cpp \
+    utils/environment.cpp \
+    utils/atomic.cpp \
+    utils/commandlinemenu.cpp \
+    utils/crypto.cpp \
+    utils/rng.cpp \
+    utils/undostack.cpp

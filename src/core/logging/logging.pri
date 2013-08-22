@@ -1,15 +1,15 @@
 HEADERS += \
-    Logging/abstractlogger.h \
-    Logging/filelogger.h \
-    Logging/consolelogger.h \
-    Logging/grouplogger.h \
-    Logging/globallogger.h \
-    Logging/debuglogger.h
+    logging/abstractlogger.h \
+    logging/filelogger.h \
+    logging/consolelogger.h \
+    logging/grouplogger.h \
+    logging/globallogger.h \
+    logging/debuglogger.h
 
 SOURCES += \
-    Logging/abstractlogger.cpp \
-    Logging/globallogger.cpp \
-    Logging/debuglogger.cpp
+    logging/abstractlogger.cpp \
+    logging/globallogger.cpp \
+    logging/debuglogger.cpp
 
 
 

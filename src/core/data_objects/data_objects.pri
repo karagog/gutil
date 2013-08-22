@@ -1,33 +1,33 @@
 HEADERS += \
-    DataObjects/slist.h \
-    DataObjects/map.h \
-    DataObjects/list.h \
-    DataObjects/dlist.h \
-    DataObjects/heap.h \
-    DataObjects/binarysearchtree.h \
-    DataObjects/set.h \
-    DataObjects/interfaces.h \
-    DataObjects/vector.h \
-    DataObjects/flags.h \
-    DataObjects/collection.h \
-    DataObjects/version.h \
-    DataObjects/sharedobject.h \
-    DataObjects/datatable.h \
-    DataObjects/pair.h \
-    DataObjects/pairlist.h \
-    DataObjects/symmetricmatrix.h \
-    DataObjects/range.h \
-    DataObjects/nullable.h \
-    DataObjects/strings.h \
-    DataObjects/bitvector.h \
-    DataObjects/uuid.h \
-    DataObjects/id.h \
-    DataObjects/trio.h
+    data_objects/slist.h \
+    data_objects/map.h \
+    data_objects/list.h \
+    data_objects/dlist.h \
+    data_objects/heap.h \
+    data_objects/binarysearchtree.h \
+    data_objects/set.h \
+    data_objects/interfaces.h \
+    data_objects/vector.h \
+    data_objects/flags.h \
+    data_objects/collection.h \
+    data_objects/version.h \
+    data_objects/sharedobject.h \
+    data_objects/datatable.h \
+    data_objects/pair.h \
+    data_objects/pairlist.h \
+    data_objects/symmetricmatrix.h \
+    data_objects/range.h \
+    data_objects/nullable.h \
+    data_objects/strings.h \
+    data_objects/bitvector.h \
+    data_objects/uuid.h \
+    data_objects/id.h \
+    data_objects/trio.h
 
 SOURCES += \
-    DataObjects/version.cpp \
-    DataObjects/strings.cpp \
-    DataObjects/uuid.cpp
+    data_objects/version.cpp \
+    data_objects/strings.cpp \
+    data_objects/uuid.cpp
 
 
 
