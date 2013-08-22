@@ -10,7 +10,8 @@ SUBDIRS += \
     qt \
     qt_plugins \
     games \
-    test
+    test \
+    doc
 
 CONFIG += ordered
 
