@@ -34,7 +34,7 @@ protected:
 
     /** Constructs a CoreApplication with the given application version and name */
     CoreApplication(int &argc, char **argv,
-                    const QString &application_name = QString::null,
+                    const QString &application_name,
                     const QString &application_version = QString::null);
 
 

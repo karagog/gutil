@@ -76,6 +76,39 @@ public:
     }
 
 
+    /** This function only works on unix systems, and tells the application to handle the signal number
+     *  given.  If you handle a signal, then the protected function handle_os_signal() is called with the signal
+     *  number whenever the signal is received.  Some signals cannot be handled (SIG_KILL and SIG_STOP).
+     *
+     *  \param sig_num The signal identifier, defined in signal.h (see 'man signal')
+     *  \returns false if we could not connect to the signal.
+     *
+     *  \sa IgnoreSignalFromOS(), RestoreDefaultSignalFromOS()
+    */
+    bool HandleSignalFromOS(int sig_num);
+
+    /** This function only works on unix systems, and tells the application to ignore the signal number
+     *  given.  Some signals cannot be ignored (SIG_KILL and SIG_STOP).
+     *
+     *  \param sig_num The signal identifier, defined in signal.h (see 'man signal')
+     *  \returns false if we could not set the disposition of the signal
+     *
+     *  \sa HandleSignalFromOS(), RestoreDefaultSignalFromOS()
+    */
+    bool IgnoreSignalFromOS(int sig_num);
+
+    /** This function only works on unix systems, and tells the application to restore the default behavior
+     *  for the handling of the given signal.  You would only need to call this to undo a call to either
+     *  HandleSignalFromOS() or IgnoreSignalFromOS().
+     *
+     *  \param sig_num The signal identifier, defined in signal.h (see 'man signal')
+     *  \returns false if we could not set the disposition of the signal
+     *
+     *  \sa HandleSignalFromOS(), IgnoreSignalFromOS()
+    */
+    bool RestoreDefaultSignalFromOS(int sig_num);
+
+
 protected:
 
     /** The constructor is protected to prevent you from instantiating one
@@ -118,71 +151,16 @@ protected:
     virtual void handle_std_exception(const std::exception &);
 
 
-
-    /** \name Operating System Signal Handlers
-
-        You can override these functions to handle specific operating system signals.
-
-        \note If the operating system does not use signals, then these handlers
-        may never be called.  This is mostly for Unix systems.
-
-        \{
-    */
-
-
-    /** The master signal routing function.  You could override it if you need to,
-        but generally you should override the specific signal handler you are interested in.
+    /** The signal handling function. You can override it to handle os signals (Unix only).
+     *
+     *  The base implementation does nothing.
+     *
+     *  See the signal man page for documentation.
     */
     virtual void handle_os_signal(int sig_num);
 
 
-    /** Handles SIGINT (defined in <signals.h>).
-        This handles the Ctrl-C event from the user.
-    */
-    virtual void handle_signal_Interrupt();
-
-    /** Handles SIGABRT (defined in <signals.h>).
-        This means the process called abort() somewhere (debug assertion?)
-    */
-    virtual void handle_signal_Abort();
-
-    /** Handles SIGFPE (defined in <signals.h>).
-        There was an error with an arithmetic calculation, like an overflow.
-    */
-    virtual void handle_signal_FloatingPointError();
-
-    /** Handles SIGILL (defined in <signals.h>).
-        This means that the program tried to execute an illegal instruction.
-    */
-    virtual void handle_signal_IllegalInstruction();
-
-    /** Handles SIGSEGV (defined in <signals.h>).
-        This means there was a memory segmentation fault.
-    */
-    virtual void handle_signal_SegmentationFault();
-
-    /** Handles SIGTERM (defined in <signals.h>).
-        This handles the termination signal.
-    */
-    virtual void handle_signal_Terminate();
-
-    /** Handles SIGHUP (defined in <signals.h>).
-        This signal means that the calling process is terminating.
-        \note This is only available on POSIX systems.
-    */
-    virtual void handle_signal_Hangup();
-
-
-    /** \} */
-
-
 private:
-
-    int m_exiting;
-
-
-    /** Registers the signal handler function for various OS signals. */
-    static bool _initialize_os_signal_handlers();
 
     /** The actual signal handler function, which delivers the signals to the
         global application object, if it's defined.

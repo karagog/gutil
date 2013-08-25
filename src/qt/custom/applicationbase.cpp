@@ -25,11 +25,7 @@ NAMESPACE_GUTIL2(QT, Custom);
 
 ApplicationBase::ApplicationBase()
     :_p_TrapExceptions(false)
-{
-    if(!_initialize_os_signal_handlers()){
-        GDEBUG("Some OS signal handlers not registered");
-    }
-}
+{}
 
 ApplicationBase::~ApplicationBase(){}
 
@@ -60,43 +56,7 @@ void ApplicationBase::handle_std_exception(const std::exception &ex)
         throw ex;
 }
 
-void ApplicationBase::handle_os_signal(int sig_num)
-{
-    switch(sig_num)
-    {
-
-
-#ifdef Q_OS_LINUX
-
-    case SIGINT:
-        this->handle_signal_Interrupt();
-        break;
-    case SIGABRT:
-        this->handle_signal_Abort();
-        break;
-    case SIGFPE:
-        this->handle_signal_FloatingPointError();
-        break;
-    case SIGILL:
-        this->handle_signal_IllegalInstruction();
-        break;
-    case SIGSEGV:
-        this->handle_signal_SegmentationFault();
-        break;
-    case SIGTERM:
-        this->handle_signal_Terminate();
-        break;
-    case SIGHUP:
-        this->handle_signal_Hangup();
-        break;
-
-#endif
-
-
-    default:
-        break;
-    }
-}
+void ApplicationBase::handle_os_signal(int){}
 
 void ApplicationBase::_handle_os_signal(int sig_num)
 {
@@ -108,42 +68,41 @@ void ApplicationBase::_handle_os_signal(int sig_num)
 
 
 
-static bool __os_signal_handlers_initialized(false);
-
-bool ApplicationBase::_initialize_os_signal_handlers()
+bool ApplicationBase::HandleSignalFromOS(int sig_num)
 {
-    bool ret(false);
-
-    if(!__os_signal_handlers_initialized)
-    {
-        ret = true;
+    bool ret = false;
 
 #ifdef Q_OS_LINUX
-        /** \todo Potentially add more signals to handle. */
-        if(SIG_ERR == signal(SIGINT, &ApplicationBase::_handle_os_signal)) ret = false;
-        if(SIG_ERR == signal(SIGABRT, &ApplicationBase::_handle_os_signal)) ret = false;
-        if(SIG_ERR == signal(SIGFPE, &ApplicationBase::_handle_os_signal)) ret = false;
-        if(SIG_ERR == signal(SIGILL, &ApplicationBase::_handle_os_signal)) ret = false;
-        if(SIG_ERR == signal(SIGSEGV, &ApplicationBase::_handle_os_signal)) ret = false;
-        if(SIG_ERR == signal(SIGTERM, &ApplicationBase::_handle_os_signal)) ret = false;
-        if(SIG_ERR == signal(SIGHUP, &ApplicationBase::_handle_os_signal)) ret = false;
+    if(SIG_ERR != signal(sig_num, &ApplicationBase::_handle_os_signal))
+        ret = true;
 #endif
-
-        __os_signal_handlers_initialized = true;
-    }
 
     return ret;
 }
 
+bool ApplicationBase::IgnoreSignalFromOS(int sig_num)
+{
+    bool ret = false;
 
-// Default handlers do nothing
-void ApplicationBase::handle_signal_Interrupt(){}
-void ApplicationBase::handle_signal_Abort(){}
-void ApplicationBase::handle_signal_FloatingPointError(){}
-void ApplicationBase::handle_signal_IllegalInstruction(){}
-void ApplicationBase::handle_signal_SegmentationFault(){}
-void ApplicationBase::handle_signal_Terminate(){}
-void ApplicationBase::handle_signal_Hangup(){}
+#ifdef Q_OS_LINUX
+    if(SIG_ERR != signal(sig_num, SIG_IGN))
+        ret = true;
+#endif
+
+    return ret;
+}
+
+bool ApplicationBase::RestoreDefaultSignalFromOS(int sig_num)
+{
+    bool ret = false;
+
+#ifdef Q_OS_LINUX
+    if(SIG_ERR != signal(sig_num, SIG_DFL))
+        ret = true;
+#endif
+
+    return ret;
+}
 
 
 END_NAMESPACE_GUTIL2;
