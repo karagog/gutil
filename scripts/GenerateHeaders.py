@@ -63,6 +63,8 @@ if 1 == verbosity:
 # Change our current working directory first
 if(os.path.exists(args.cwd)):
     dest_path = os.path.abspath(args.cwd)
+    if 1 == verbosity:
+        print("\nWorking Directory: %s\n" % dest_path)
     os.chdir(dest_path)
     if os.getcwd() != dest_path:
         print("Unable to change directories to \"%s\"" % args.cwd)
@@ -146,7 +148,7 @@ for dir in dirlist:
             ap_src, file_name  = os.path.split(os.path.abspath(file_path))
             p_dest = ""
             p_src  = ""
-            
+
             # Find the point where the paths deviate
             ind_first_difference = 0
             diff_found = 0
@@ -157,7 +159,7 @@ for dir in dirlist:
                 elif ap_dest[i] != ap_src[i]:
                     diff_found = 1
                     break
-            
+
             # The number of '..' we need to include in the header file
             updir_cnt = 0
 
@@ -165,15 +167,15 @@ for dir in dirlist:
                 p_dest = ap_dest[ind_first_difference:]
                 p_src  = ap_src[ind_first_difference:]
                 updir_cnt = len(p_dest.split('/'))
-            
+
             rel_path = ""
             for i in range(updir_cnt):
                 rel_path = os.path.join(rel_path, "..")
             rel_path = os.path.join(rel_path, p_src)
-            
+
             #print("\n\nAbs:  %s\nAbs:  %s" % (ap_src, ap_dest))
             #print("\nDiff: %s\nDiff: %s\n%s" % (p_src, p_dest, rel_path))
-            
+
 
             print("Discovered: %s" % file_path)
 
