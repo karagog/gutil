@@ -4,6 +4,9 @@ debug
 doc
 include
 
+build-*-Debug
+build-*-Release
+
 *.[oa]
 *~
 *.lib
