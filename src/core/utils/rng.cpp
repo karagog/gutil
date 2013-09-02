@@ -49,8 +49,7 @@ void RNG::Initialize()
     if(__rng.IsNull())
         __rng = new ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES >;
 #else
-    // The rand() function is automatically seeded in the GUtil library initializer,
-    //  so there is no setup necessary
+    srand(time(NULL));
 #endif
 }
 

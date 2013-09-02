@@ -29,7 +29,11 @@ NAMESPACE_GUTIL1(Utils);
     GUTIL_NO_CRYPTOPP. Your random data won't be nearly as good,
     but at least you won't depend on the cryptopp library.
 
-    \sa Initialize()
+    \note The RNG is automatically initialized when the GUtil core library is loaded,
+    so simply by linking with this library you have already initialized the RNG.  Therefore
+    this just works "out of the box".
+
+    \sa globals.cpp
 */
 class RNG
 {
@@ -238,29 +242,6 @@ public:
         return Generate<GINT8>() < 0 ? 1 : 0;
     }
 
-};
-
-
-/** A special class to automatically initialize the RNG when a library is loaded.
- *
- *  By instantiating this class statically in a .c file in your library, it will take care of
- *  initializing the RNG immediately first thing when your library is loaded.
- *
- *  You don't have to use this class; you can always initialize the RNG manually whenever you want,
- *  but this makes sure to initialize the RNG without you having to worry about it.
-*/
-class RNG_Initializer
-{
-public:
-    /** The constructor initializes the RNG.
-     *  \param init Pass false if you don't want to initialize the RNG.  This is useful if you want
-     *  the RNG functionality to be controlled VIA a compile-time switch.
-    */
-    inline RNG_Initializer(bool init = true){
-        if(init){
-            RNG::Initialize();
-        }
-    }
 };
 
 
