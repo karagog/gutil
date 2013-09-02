@@ -55,21 +55,32 @@ static char const * __card_suit_LUT [] =
 NAMESPACE_GUTIL1(Games);
 
 
-Deck::Deck(GUINT32 number_of_hands)
+Deck::Deck(GUINT32 number_of_hands, DeckTypeEnum dt)
     :m_hands(number_of_hands)
 {
-    // Make sure the RNG is initialized
-    RNG::Initialize();
-
     SetNumberHands(number_of_hands);
+
+    switch(dt)
+    {
+    case Deck_Standard52Card:
+        append_standard_52_cards();
+        break;
+    case Deck_Standard52CardWithJokers:
+        append_standard_52_cards();
+        append_2_jokers();
+        break;
+    case Deck_Euchre:
+        append_euchre();
+        break;
+    case Deck_Empty:
+        // add no cards to the deck, same behavior as default
+    default:
+        // Do nothing, because it must be a user-defined deck type
+        break;
+    }
 }
 
 Deck::~Deck()
-{
-    Clear();
-}
-
-void Deck::Clear()
 {
     Collect();
 
@@ -80,29 +91,7 @@ void Deck::Clear()
     m_cards.Empty();
 }
 
-void Deck::Initialize(Deck::InitializationEnum e)
-{
-    if(IsInitialized())
-        Clear();
-
-    switch(e)
-    {
-    case Init_Standard52Card:
-        _append_standard_52_cards();
-        break;
-    case Init_Standard52CardWithJokers:
-        _append_standard_52_cards();
-        _append_2_jokers();
-        break;
-    case Init_Euchre:
-        _append_euchre();
-        break;
-    default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
-    }
-}
-
-void Deck::_append_standard_52_cards()
+void Deck::append_standard_52_cards()
 {
     m_cards.Reserve(m_cards.Count() + 52);
 
@@ -111,7 +100,7 @@ void Deck::_append_standard_52_cards()
             m_cards.PushBack(new Card(value, suit));
 }
 
-void Deck::_append_2_jokers()
+void Deck::append_2_jokers()
 {
     m_cards.Reserve(m_cards.Count() + 2);
 
@@ -119,7 +108,7 @@ void Deck::_append_2_jokers()
         m_cards.PushBack(new Card(Card::Joker, Card::Wild));
 }
 
-void Deck::_append_euchre()
+void Deck::append_euchre()
 {
     m_cards.Reserve(m_cards.Count() + 24);
 

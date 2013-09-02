@@ -25,9 +25,6 @@ Dice::Dice(GUINT32 n, GUINT8 s)
 {
     // Initialize all dice to 0, which means they have not yet been rolled
     m_dice.Resize(n, 0);
-
-    // The RNG must be initialized before this class does anything useful
-    RNG::Initialize();
 }
 
 void Dice::Roll()

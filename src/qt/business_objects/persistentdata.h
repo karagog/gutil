@@ -80,26 +80,22 @@ class PersistentData :
 
 public:
 
-    explicit PersistentData(QObject *parent = 0);
+    /** Constructs a persistent data object.
+     *
+     *  \param identifier A string identifier to distinguish this object from others
+     *  \param modifier A string modifier to distinguish this object from others within the application.
+    */
+    explicit PersistentData(const GUtil::DataObjects::String &identifier,
+                            const GUtil::DataObjects::String &modifier = "",
+                            QObject *parent = 0);
+
+    /** You should never call this, but it is provided to allow you to create dummy constructors.
+     *  It will throw an exception.
+    */
+    PersistentData();
+
     virtual ~PersistentData();
 
-    /** You must call this before you use the object.  It may throw
-        an exception.
-        \param identifier A string identifier to distinguish this object from others.
-        \param modifier A string modifier to distinguish this object from others within the application.
-    */
-    void Initialize(const GUtil::DataObjects::String &identifier, const GUtil::DataObjects::String &modifier = "");
-    
-    /** Uninitializes the object. */
-    void Uninitialize();
-
-    /** Returns whether the settings object was initialized */
-    inline bool IsInitialized() const{ return !m_identity.IsEmpty(); }
-
-    /** A convenience function that throws an exception if we're not initialized */
-    inline void FailIfNotInitialized() const{
-        if(!IsInitialized()) THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
 
     /** Returns a null variant if the key does not exist */
     QVariant Value(const GUtil::DataObjects::String &key) const;
@@ -137,14 +133,14 @@ public slots:
     /** Clears all config parameters. */
     void Clear();
 
-    
+
 signals:
 
     /** This signal is emitted whenever the persistent data changes, either spontaneously or
         initiated by this object itself.
     */
     void DataChanged();
-    
+
 
 protected:
 

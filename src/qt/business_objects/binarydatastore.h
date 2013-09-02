@@ -39,33 +39,27 @@ class BinaryDataStore
     QString m_connString;
 public:
 
-    /** Constructs an empty BinaryDataStore.  You must call Initialize() before using. */
+    /** Constructs an empty BinaryDataStore.  It may throw an exception.
+     *   \param filename The filename of the database file accessed by this instance.
+     *  If the file does not exist it is created by this object.
+    */
+    explicit BinaryDataStore(const QString &filename);
+
+    /** You should never call this, but it is provided to allow you to create dummy constructors.
+     *  It will throw an exception.
+    */
     BinaryDataStore();
 
     /** Deconstructs the BDS. */
     ~BinaryDataStore();
 
-    /** Initializes a BinaryDataStore.
-     *
-     *  Throws an exception with a helpful message if something goes wrong.
-     *
-     *  \param filename The filename of the database file accessed by this instance.
-     *  If the file does not exist it is created by this object.
-    */
-    void Initialize(const QString &filename);
-
-    /** Uninitializes the BDS.  You must call Initialize again after calling this. */
-    void Uninitialize();
-
-    /** Returns true if the BDS has been initialized. */
-    inline bool IsInitialized() const{ return !m_connString.isEmpty(); }
 
     /** Removes all values from the database. */
     void Clear();
 
     /** Returns the file location of the data cache. */
     inline const QString &GetFileName() const{ return m_fileName; }
-    
+
     /** Returns the number of pieces of data this object is caching. */
     int CountData() const;
 

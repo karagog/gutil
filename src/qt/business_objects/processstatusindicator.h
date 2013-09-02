@@ -42,14 +42,14 @@ class ProcessStatusIndicator :
         public QObject
 {
     Q_OBJECT
+
+    ::GUtil::QT::Utils::UserMachineReadWriteLock _status_lock;
+    PersistentData _status_data;
+    ::GUtil::Utils::SmartPointer<ProcessStatusServer> _server;
 public:
 
     explicit ProcessStatusIndicator(QObject *parent = 0);
     ~ProcessStatusIndicator();
-    
-    void Initialize();
-    void Uninitialize();
-    inline bool IsInitialized() const{ return _status_data.IsInitialized(); }
 
     /** Describes different statuses (implementation specific) */
     enum StatusTypeEnum
@@ -97,18 +97,9 @@ signals:
     void NewMessageReceived(QByteArray);
 
 
-private:
-
-    ProcessStatusServer *_server;
-    PersistentData _status_data;
-    Utils::UserMachineReadWriteLock _status_lock;
-
-
 private slots:
 
-    void _status_data_changed(){
-        emit StatusChanged(GetStatus());
-    }
+    void _status_data_changed();
 
 };
 

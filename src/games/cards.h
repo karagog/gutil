@@ -232,12 +232,8 @@ private:
     with several common decks already implemented in the library.  It is easily
     extensible so you can implement your own special decks on a case-by-case basis.
 
-    Before using, you must call Initialize().  This prepares the deck with
-    all the cards it will need for the object's lifetime.  You pass an enum
-    into the Initialize() function, to declare what kind of deck should be created.
-
-    After calling Initialize(), the deck is ready for use.  All the cards are
-    in sorted order until you call Shuffle().  After shuffling, you can call
+    After construction, the deck is ready for use.  All the cards are
+    in sorted order (like a new pack of cards) until you call Shuffle().  After shuffling, you can call
     Deal() with the proper parameters to create a list of Hands.  By default
     dealing happens one card at a time, sequentially from Hand #1 to Hand #4
     (assuming a 4 hand game).  You can modify this behavior to deal in
@@ -253,57 +249,37 @@ class Deck
 public:
 
     /** Declares several options for initializing the deck. */
-    enum InitializationEnum
+    enum DeckTypeEnum
     {
+        /** Makes an empty deck with no cards.  This is useful if you're making a
+         *  custom deck type.
+         *  \sa Deck_UserDefined
+        */
+        Deck_Empty = 0,
+
         /** Makes a standard 52-card deck. */
-        Init_Standard52Card = 0,
+        Deck_Standard52Card,
 
         /** Makes a standard 52-card deck plus 2 jokers. */
-        Init_Standard52CardWithJokers,
+        Deck_Standard52CardWithJokers,
 
         /** Makes a traditional Euchre deck. */
-        Init_Euchre,
+        Deck_Euchre,
 
         /** Any enum values higher than or equal to this are user-defined. */
-        Init_UserDefined = 100
+        Deck_UserDefined = 100
     };
 
 
     /** Creates a deck object.
 
-        You must call Initialize() with the type of deck before using.
-
         \param number_of_hands The number of hands to which cards will be dealt.
+        \param deck_type The type of deck to generate.  The default will create an empty deck.
     */
-    explicit Deck(GUINT32 number_of_hands);
+    Deck(GUINT32 number_of_hands, DeckTypeEnum deck_type = Deck_Empty);
 
     /** Frees all memory associated with the deck, including all the cards and hands. */
     virtual ~Deck();
-
-
-    /** Causes the deck to be initialized.
-
-        This function is virtual so you can conduct your own special
-        routine if need be.  You can also define your own InitializationEnum
-        starting from Init_UserDefined, if you need to declare a special
-        kind of initialization.
-
-        The base implementation clears the deck before adding cards to it
-        via the protected functions _append_xxxxx()
-
-        \sa _append_standard_52_cards(), _append_2_jokers(), _append_euchre()
-    */
-    virtual void Initialize( InitializationEnum e = Init_Standard52Card );
-
-    /** Returns true if the deck has already been initialized (i.e. there
-        are already cards in it).
-    */
-    inline bool IsInitialized() const{
-        return !IsCollected() || 0 < m_cards.Count();
-    }
-
-    /** Removes all the cards from the deck. */
-    void Clear();
 
 
     /** Returns the number of cards remaining in the deck.  That means it
@@ -428,17 +404,17 @@ protected:
     /** Appends a standard 52 card deck to our list of cards.
         Used for deck initialization.
     */
-    void _append_standard_52_cards();
+    void append_standard_52_cards();
 
     /** Appends 2 jokers to our list of cards.
         Used for deck initialization.
     */
-    void _append_2_jokers();
+    void append_2_jokers();
 
     /** Appends a euchre deck to our list of cards.
         Used for deck initialization.
     */
-    void _append_euchre();
+    void append_euchre();
 
     /** Selects a card from the deck.  The default implementation simply
         grabs a card at the bottom of the deck and removes it.

@@ -41,47 +41,32 @@ void PersistentData::_clear_data_index(Map<String, data_t *> &data, Map<int, dat
 }
 
 
-PersistentData::PersistentData(QObject *parent)
+PersistentData::PersistentData()
+{
+    THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+}
+
+PersistentData::PersistentData(const String &identifier, const String &modifier, QObject *parent)
     :QObject(parent),
+      m_bds(QString("%1%2%3.GUtilPersistentData.sqlite")
+            .arg(_get_file_location(identifier))
+            .arg(modifier.IsEmpty() ? "" : ".")
+            .arg(modifier.IsEmpty() ? "" : modifier.ConstData())),
       _p_AutoCommitChanges(true)
 {
     connect(&m_watcher, SIGNAL(fileChanged(const QString &)),
         this, SLOT(Reload()));
+
+    m_identity = identifier;
+    m_modifier = modifier;
+    Reload();
+
+    m_watcher.addPath(m_bds.GetFileName());
 }
 
 PersistentData::~PersistentData()
 {
-    Uninitialize();
-}
-
-void PersistentData::Initialize(const String &identity, const String &modifier)
-{
-    if(IsInitialized())
-        return;
-
-    m_bds.Initialize(QString("%1%2%3.GUtilPersistentData.sqlite")
-                     .arg(_get_file_location(identity))
-                     .arg(modifier.IsEmpty() ? "" : ".")
-                     .arg(modifier.IsEmpty() ? "" : modifier.ConstData()));
-
-    m_identity = identity;
-    m_modifier = modifier;
-    Reload();
-    
-    m_watcher.addPath(m_bds.GetFileName());
-}
-
-void PersistentData::Uninitialize()
-{
-    if(!IsInitialized())
-        return;
-
-    m_watcher.removePath(m_bds.GetFileName());
-    m_bds.Uninitialize();
-
     _clear_data_index(m_data, m_index);
-    m_identity.Clear();
-    m_modifier.Clear();
 }
 
 void PersistentData::Clear()
@@ -92,8 +77,6 @@ void PersistentData::Clear()
 
 void PersistentData::Reload()
 {
-    FailIfNotInitialized();
-
     bool something_changed(false);
     Vector< Pair<int, QUuid> > ids( m_bds.GetIds() );
 
@@ -112,14 +95,14 @@ void PersistentData::Reload()
 
             // Do some pre-processing on the raw data
             preprocess_incoming_data(ba);
-            
+
             int split_index( ba.indexOf(':') );
             if(-1 == split_index)
                 THROW_NEW_GUTIL_EXCEPTION(Exception);
-                
+
             QVariant v( Variant::ConvertFromXmlQString(ba.right(ba.length() - split_index - 1)) );
             QByteArray ba_key( ba.left(split_index) );
-            
+
             if(d){
                 d->Data = v;
                 d->Version = iter->Second;
@@ -127,7 +110,7 @@ void PersistentData::Reload()
             else{
                 String key(ba_key.constData(), ba_key.length());
                 key = key.FromBase64();
-                
+
                 d = new data_t(key, v, iter->First, iter->Second);
                 m_data.Insert(key, d);
                 m_index.Insert(iter->First, d);
@@ -150,7 +133,7 @@ void PersistentData::Reload()
         delete d;
     }
 
-    
+
     if(something_changed)
         emit DataChanged();
 }
@@ -164,7 +147,6 @@ void PersistentData::preprocess_incoming_data(QByteArray &)
 
 QVariant PersistentData::Value(const String &key) const
 {
-    FailIfNotInitialized();
     QVariant ret;
     data_t* const *tmp = m_data.Find(key);
     if(tmp) ret = (*tmp)->Data;
@@ -228,8 +210,6 @@ QString PersistentData::_get_file_location(QString id)
 
 void PersistentData::commit_reject_changes(bool commit)
 {
-    FailIfNotInitialized();
-    
     if(commit)
     {
         // Commit changes to the object

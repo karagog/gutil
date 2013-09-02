@@ -34,17 +34,6 @@ NAMESPACE_GUTIL2(QT, BusinessObjects);
 
 
 #define BDS_TABLE_NAME "data"
-
-BinaryDataStore::BinaryDataStore()
-{
-    // Nothing to do until you call Initialize()
-}
-
-BinaryDataStore::~BinaryDataStore()
-{
-    Uninitialize();
-}
-
 #define BDS_ID_COLUMN           "id"
 #define BDS_ID_COLUMN_SQL       BDS_ID_COLUMN " INTEGER PRIMARY KEY"
 #define BDS_SIZE_COLUMN         "size"
@@ -54,17 +43,21 @@ BinaryDataStore::~BinaryDataStore()
 #define BDS_DATA_COLUMN         "data"
 #define BDS_DATA_COLUMN_SQL     BDS_DATA_COLUMN " BLOB"
 
-void BinaryDataStore::Initialize(const QString &filename)
-{
-    if(IsInitialized())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Object already initialized");
 
-    QString new_conn_string( QUuid::createUuid().toString() );
+BinaryDataStore::BinaryDataStore()
+{
+    THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+}
+
+BinaryDataStore::BinaryDataStore(const QString &filename)
+    :m_fileName(filename),
+      m_connString(QUuid::createUuid().toString())
+{
     bool db_existed( QFile::exists(filename) );
 
     try
     {
-        QSqlDatabase db( QSqlDatabase::addDatabase("QSQLITE", new_conn_string) );
+        QSqlDatabase db( QSqlDatabase::addDatabase("QSQLITE", m_connString) );
         if(!db.isValid())
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to use SQLite functionality");
 
@@ -89,7 +82,7 @@ void BinaryDataStore::Initialize(const QString &filename)
 
             if(!q.next())
                 THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
-                
+
             QString table_sql(q.record().value(0).toString());
             if(-1 == table_sql.indexOf(BDS_ID_COLUMN_SQL) ||
                     -1 == table_sql.indexOf(BDS_SIZE_COLUMN_SQL) ||
@@ -112,25 +105,16 @@ void BinaryDataStore::Initialize(const QString &filename)
     }
     catch(...)
     {
-        QSqlDatabase::removeDatabase(new_conn_string);
+        QSqlDatabase::removeDatabase(m_connString);
         throw;
     }
-
-    // If everything was successful we set initialize our internal data
-    m_connString = new_conn_string;
-    m_fileName = filename;
 }
 
-void BinaryDataStore::Uninitialize()
+BinaryDataStore::~BinaryDataStore()
 {
-    if(!IsInitialized())
-        return;
-
     QSqlDatabase::removeDatabase(m_connString);
-
-    m_fileName.clear();
-    m_connString.clear();
 }
+
 
 Pair<int, QUuid> BinaryDataStore::AddData(const QByteArray &data)
 {
