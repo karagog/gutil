@@ -37,9 +37,9 @@ class Application :
 {
     Q_OBJECT
 
-    Utils::SmartPointer<QAction> a_quit;
-    Utils::SmartPointer<QAction> a_aboutGUtil;
-    Utils::SmartPointer<QAction> a_about;
+    ::GUtil::Utils::SmartPointer<QAction> a_quit;
+    ::GUtil::Utils::SmartPointer<QAction> a_aboutGUtil;
+    ::GUtil::Utils::SmartPointer<QAction> a_about;
 
 public:
 
