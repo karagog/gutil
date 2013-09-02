@@ -274,9 +274,9 @@ public:
     /** Creates a deck object.
 
         \param number_of_hands The number of hands to which cards will be dealt.
-        \param deck_type The type of deck to generate.  The default will create an empty deck.
+        \param deck_type The type of deck to generate.  The default will create a standard 52-card deck.
     */
-    Deck(GUINT32 number_of_hands, DeckTypeEnum deck_type = Deck_Empty);
+    Deck(GUINT32 number_of_hands, DeckTypeEnum deck_type = Deck_Standard52Card);
 
     /** Frees all memory associated with the deck, including all the cards and hands. */
     virtual ~Deck();
