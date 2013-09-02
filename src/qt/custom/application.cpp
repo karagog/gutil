@@ -72,16 +72,13 @@ void Application::About(QWidget *p)
         a->show_about(p);
 }
 
-QAction *Application::GetActionQuit()
+QAction *Application::CreateActionQuit(QObject *p)
 {
     QAction *ret = NULL;
     Application *a = gApp;
     if(a){
-        if(!a->a_quit){
-            a->a_quit = new QAction(tr("&Quit"), a);
-            connect(a->a_quit, SIGNAL(triggered()), a, SLOT(Quit()));
-        }
-        ret = a->a_quit;
+        ret = new QAction(tr("&Quit"), p);
+        connect(ret, SIGNAL(triggered()), a, SLOT(Quit()));
     }
     return ret;
 }
@@ -93,30 +90,24 @@ void Application::show_about(QWidget *parent)
         QString("Version: %1").arg(applicationVersion()));
 }
 
-QAction *Application::GetActionAbout()
+QAction *Application::CreateActionAbout(QObject *p)
 {
     QAction *ret = NULL;
     Application *a = gApp;
     if(a){
-        if(!a->a_about){
-            a->a_about = new QAction(tr("&About"), a);
-            connect(a->a_about, SIGNAL(triggered()), a, SLOT(About()));
-        }
-        ret = a->a_about;
+        ret = new QAction(tr("&About"), p);
+        connect(ret, SIGNAL(triggered()), a, SLOT(About()));
     }
     return ret;
 }
 
-QAction *Application::GetActionAboutGUtil()
+QAction *Application::CreateActionAboutGUtil(QObject *p)
 {
     QAction *ret = NULL;
     Application *a = gApp;
     if(a){
-        if(!a->a_aboutGUtil){
-            a->a_aboutGUtil = new QAction(tr("About GUtil"), a);
-            connect(a->a_aboutGUtil, SIGNAL(triggered()), a, SLOT(AboutGUtil()));
-        }
-        ret = a->a_aboutGUtil;
+        ret = new QAction(tr("About GUtil"), p);
+        connect(ret, SIGNAL(triggered()), a, SLOT(AboutGUtil()));
     }
     return ret;
 }
@@ -126,13 +117,7 @@ void Application::AboutGUtil(QWidget *dialog_parent)
     ::GUtil::QT::UI::About::ShowAboutGUtil(dialog_parent);
 }
 
-void Application::about_to_quit()
-{
-    // If you forget to call the base implementation, these will get cleaned up in the destructor as well
-    a_about.Clear();
-    a_aboutGUtil.Clear();
-    a_quit.Clear();
-}
+void Application::about_to_quit(){}
 
 
 END_NAMESPACE_GUTIL2;

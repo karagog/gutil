@@ -36,11 +36,6 @@ class Application :
         public ApplicationBase
 {
     Q_OBJECT
-
-    ::GUtil::Utils::SmartPointer<QAction> a_quit;
-    ::GUtil::Utils::SmartPointer<QAction> a_aboutGUtil;
-    ::GUtil::Utils::SmartPointer<QAction> a_about;
-
 public:
 
     /** Constructs an instance of Application. */
@@ -72,21 +67,21 @@ public:
 
     /** Returns an action that will trigger the application to quit.
      *  \returns NULL if you did not instantiate an Application object, otherwise
-     *  a pointer to a QAction.  You do NOT own this memory.
+     *  a pointer to a QAction.  You will own this memory.
     */
-    static QAction *GetActionQuit();
+    static QAction *CreateActionQuit(QObject * = 0);
 
     /** Returns an action that will trigger the showing of the about window.
      *  \returns NULL if you did not instantiate an Application object, otherwise
-     *  a pointer to a QAction.  You do NOT own this memory.
+     *  a pointer to a QAction.  You will own this memory.
     */
-    static QAction *GetActionAbout();
+    static QAction *CreateActionAbout(QObject * = 0);
 
     /** Returns an action that will trigger the showing of the about GUtil window.
      *  \returns NULL if you did not instantiate an Application object, otherwise
-     *  a pointer to a QAction.  You do NOT own this memory.
+     *  a pointer to a QAction.  You will own this memory.
     */
-    static QAction *GetActionAboutGUtil();
+    static QAction *CreateActionAboutGUtil(QObject * = 0);
 
 
 public slots:
