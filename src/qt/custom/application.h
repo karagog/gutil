@@ -20,6 +20,8 @@ limitations under the License.*/
 #include "gutil_applicationbase.h"
 #include <QApplication>
 
+class QAction;
+
 namespace GUtil{ namespace QT{ namespace Custom{
 
 
@@ -34,7 +36,12 @@ class Application :
         public ApplicationBase
 {
     Q_OBJECT
-protected:
+
+    Utils::SmartPointer<QAction> a_quit;
+    Utils::SmartPointer<QAction> a_aboutGUtil;
+    Utils::SmartPointer<QAction> a_about;
+
+public:
 
     /** Constructs an instance of Application. */
     Application(int &argc, char **argv);
@@ -51,9 +58,6 @@ protected:
                           const QString &application_name,
                           const QString &application_version = QString::null);
 
-
-public:
-
     virtual ~Application();
 
 
@@ -66,13 +70,32 @@ public:
     virtual bool notify(QObject *o, QEvent *ev);
 
 
+    /** Returns an action that will trigger the application to quit.
+     *  \returns NULL if you did not instantiate an Application object, otherwise
+     *  a pointer to a QAction.  You do NOT own this memory.
+    */
+    static QAction *GetActionQuit();
+
+    /** Returns an action that will trigger the showing of the about window.
+     *  \returns NULL if you did not instantiate an Application object, otherwise
+     *  a pointer to a QAction.  You do NOT own this memory.
+    */
+    static QAction *GetActionAbout();
+
+    /** Returns an action that will trigger the showing of the about GUtil window.
+     *  \returns NULL if you did not instantiate an Application object, otherwise
+     *  a pointer to a QAction.  You do NOT own this memory.
+    */
+    static QAction *GetActionAboutGUtil();
+
+
 public slots:
 
     /** Shows the application's about window under the given parent widget.
-        By default it shows a minimal window with the application name.
-        You are supposed to override it with your own informative about window.
+     *  You can customize the about window implementation by overriding the protected
+     *  function show_about()
     */
-    virtual void About(QWidget *parent = 0);
+    static void About(QWidget *parent = 0);
 
     /** A slot to quit the application and execute custom application cleanup code.
       \sa ApplicationBase::Exit()
@@ -105,6 +128,16 @@ protected slots:
         If you throw an exception, you can handle it in the handle_exception() function.
     */
     virtual void about_to_quit();
+
+
+protected:
+
+    /** The implementation for the about window.  You must override it to customize
+     *  your about window.
+     *
+     *  By default it shows a minimal window with the application name.
+    */
+    virtual void show_about(QWidget *);
 
 
 private:

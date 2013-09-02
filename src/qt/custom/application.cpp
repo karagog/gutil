@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "gutil_about.h"
 #include <QPluginLoader>
 #include <QMessageBox>
+#include <QAction>
 NAMESPACE_GUTIL2(QT, Custom);
 
 
@@ -64,11 +65,60 @@ void Application::Quit()
     Exit();
 }
 
-void Application::About(QWidget *parent)
+void Application::About(QWidget *p)
+{
+    Application *a = gApp;
+    if(a)
+        a->show_about(p);
+}
+
+QAction *Application::GetActionQuit()
+{
+    QAction *ret = NULL;
+    Application *a = gApp;
+    if(a){
+        if(!a->a_quit){
+            a->a_quit = new QAction(tr("&Quit"), a);
+            connect(a->a_quit, SIGNAL(triggered()), a, SLOT(Quit()));
+        }
+        ret = a->a_quit;
+    }
+    return ret;
+}
+
+void Application::show_about(QWidget *parent)
 {
     QMessageBox::information(parent,
         QString("About %1").arg(applicationName()),
         QString("Version: %1").arg(applicationVersion()));
+}
+
+QAction *Application::GetActionAbout()
+{
+    QAction *ret = NULL;
+    Application *a = gApp;
+    if(a){
+        if(!a->a_about){
+            a->a_about = new QAction(tr("&About"), a);
+            connect(a->a_about, SIGNAL(triggered()), a, SLOT(About()));
+        }
+        ret = a->a_about;
+    }
+    return ret;
+}
+
+QAction *Application::GetActionAboutGUtil()
+{
+    QAction *ret = NULL;
+    Application *a = gApp;
+    if(a){
+        if(!a->a_aboutGUtil){
+            a->a_aboutGUtil = new QAction(tr("About GUtil"), a);
+            connect(a->a_aboutGUtil, SIGNAL(triggered()), a, SLOT(AboutGUtil()));
+        }
+        ret = a->a_aboutGUtil;
+    }
+    return ret;
 }
 
 void Application::AboutGUtil(QWidget *dialog_parent)
@@ -76,7 +126,13 @@ void Application::AboutGUtil(QWidget *dialog_parent)
     ::GUtil::QT::UI::About::ShowAboutGUtil(dialog_parent);
 }
 
-void Application::about_to_quit(){}
+void Application::about_to_quit()
+{
+    // If you forget to call the base implementation, these will get cleaned up in the destructor as well
+    a_about.Clear();
+    a_aboutGUtil.Clear();
+    a_quit.Clear();
+}
 
 
 END_NAMESPACE_GUTIL2;

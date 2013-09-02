@@ -27,7 +27,7 @@ class CoreApplication :
         public ApplicationBase
 {
     Q_OBJECT
-protected:
+public:
 
     /** Constructs a CoreApplication with a null application name and version */
     CoreApplication(int &argc, char **argv);
@@ -37,8 +37,7 @@ protected:
                     const QString &application_name,
                     const QString &application_version = QString::null);
 
-
-public:
+    virtual ~CoreApplication();
 
     /** Overridden from QCoreApplication::notify(), in order to catch exceptions incurred
         during events, mainly execution of slots.
@@ -47,8 +46,6 @@ public:
         \sa ApplicationBase::handle_exception()
     */
     virtual bool notify(QObject *o, QEvent *ev);
-
-    virtual ~CoreApplication();
 
 
 public slots:
