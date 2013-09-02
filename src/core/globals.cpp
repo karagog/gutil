@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gutil_macros.h"
+#include "gutil_rng.h"
 #include <cstdlib>
 #include <time.h>
 
@@ -124,28 +125,25 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
 */
 class LOADER
 {
-    static LOADER LDR;
-    inline LOADER(){ Initialize(); }
-    inline ~LOADER(){ Uninitialize(); }
 public:
 
     /** Any library initialization code gets executed when the library is loaded. */
-    inline void Initialize()
-    {
-        // Seed the pseudo-RNG
-        srand( time(NULL) );
+    LOADER(){
+        GDEBUG("Initializing GUtil Core Library...");
+
+        // Initialize the RNG
+        ::GUtil::Utils::RNG::Initialize();
     }
 
     /** Any library cleanup code gets executed when the library is unloaded. */
-    inline void Uninitialize()
-    {
-        // Any library cleanup code
+    ~LOADER(){
+        GDEBUG("Uninitializing GUtil Core Library...");
     }
 
 };
 
 // Instantiate the initializer class, which takes care of library init/takedown
-LOADER LOADER::LDR;
+static LOADER LDR;
 
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
