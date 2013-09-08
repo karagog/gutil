@@ -427,7 +427,7 @@ public:
         inline void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if((GUINT32)++m_pageIndex >= m_pages->Size())
+                if((GUINT32)++m_pageIndex >= m_pages->Length())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -536,7 +536,7 @@ public:
         inline void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if((GUINT32)++m_pageIndex >= m_pages->Size())
+                if((GUINT32)++m_pageIndex >= m_pages->Length())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;

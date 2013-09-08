@@ -15,11 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_VECTOR_H
 #define GUTIL_VECTOR_H
 
-#include "gutil_macros.h"
 #include "gutil_globals.h"
-#include "gutil_exception.h"
-#include "gutil_interfaces.h"
 #include "gutil_flexibletypecomparer.h"
+#include "gutil_Icollections.h"
 #include <new>
 #include <limits.h>
 #include <malloc.h>
@@ -27,59 +25,76 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(DataObjects);
 
 
-/** Manages a simple vector of memory, which grows exponentially with powers of two.
+/** This is the implementation for the Vector class.
+
+    Manages a simple vector of memory, which grows exponentially with powers of two.
     You call reserve() with the number of items you want to have, and it will reserve
     at least as many, only conducting memory reallocations when necessary.
 
-    The Vector stores its total capacity, and also a pointer to the end of the array,
+    The VectorImp stores its total capacity, and also a pointer to the end of the array,
     in the memory locations directly preceding the base of the array.  You interact
     with these values via the Capacity(), Length() and DataEnd() functions.  If you
-    have a pointer to an array of data managed by a Vector, then you can use the
+    have a pointer to an array of data managed by a VectorImp, then you can use the
     static versions of these functions to access this meta-data.
 
-    \note The size of a Vector on the stack is only 4 bytes, the same as an int or
+    \note The size of a VectorImp on the stack is only 4 bytes, the same as an int or
     a pointer.  This was a design choice, to allocate the necessary meta-data
     at runtime only when you actually start putting things in the vector.
 */
-template<class T>class Vector
+template<class T>class VectorImp
 {
+    /** The layout of the data pointer is as follows:
+     *  {
+     *                  GUINT32 capacity;
+     *                  GUINT32 size;
+     *      m_data ->   T pointer[size];
+     *  }
+     *
+     *  So the pointer is actually pointing to the start of the array, and the size/capacity memory
+     *  is just before the pointer.  This is an optimization, based on the assumption that the most-often
+     *  referenced data will be the array pointer.
+     *
+     *  The size of the memory on the heap is  (2 * sizeof(GUINT32)) + (capacity * sizeof(T))
+    */
+    void *m_data;
+
 public:
     class iterator;
     class const_iterator;
 
     /** Constructs an empty vector. */
-    inline Vector() :m_begin(NULL), m_size(0), m_capacity(0) {}
+    inline VectorImp() :m_data(NULL) {}
 
     /** Constructs an empty vector capable of holding the given number of items. */
-    inline explicit Vector(GUINT32 capacity)
-        :m_begin(NULL), m_size(0), m_capacity(0)
+    inline explicit VectorImp(GUINT32 capacity)
+        :m_data(NULL)
     {
-        if(capacity != 0)
+        if(0 < capacity)
             Reserve(capacity);
     }
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    inline explicit Vector(const T &o, GUINT32 size = 1)
-        :m_begin(NULL), m_size(0), m_capacity(0)
+    inline explicit VectorImp(const T &o, GUINT32 size = 1)
+        :m_data(NULL)
     {
         Reserve(size);
         set_length(size);
-        T *cur(m_begin);
+        T *cur(Data());
         for(GUINT32 i(0); i < size; ++i, ++cur)
             new(cur) T(o);
     }
 
 
     /**  Constructs a vector from the array of data. */
-    inline Vector(T const*arr, GUINT32 size)
-        :m_begin(NULL), m_size(0), m_capacity(0)
+    inline VectorImp(T const*arr, GUINT32 size)
+        :m_data(NULL)
     {
         if(size > 0)
         {
             Reserve(size);
             set_length(size);
-            T *cur(m_begin);
+            T *cur(Data());
             for(GUINT32 i(0); i < size; ++i)
                 new(cur++) T(*(arr++));
         }
@@ -89,48 +104,53 @@ public:
     /** Creates a vector with the elements from another vector, taken by iterating from
         iter_begin to iter_end.
     */
-    inline Vector(const typename Vector<T>::const_iterator &iter_begin,
-                        const typename Vector<T>::const_iterator &iter_end)
-        :m_begin(NULL), m_size(0), m_capacity(0)
+    inline VectorImp(const typename VectorImp<T>::const_iterator &iter_begin,
+                        const typename VectorImp<T>::const_iterator &iter_end)
+        :m_data(NULL)
     {
         const GUINT32 sz( iter_end - iter_begin );
         if(sz > 0)
             Reserve(sz);
-        T *ptr(m_begin);
-        for(Vector<T>::const_iterator cur(iter_begin); cur != iter_end;)
+        T *ptr(Data());
+        for(VectorImp<T>::const_iterator cur(iter_begin); cur != iter_end;)
             new(ptr++) T(*(cur++));
     }
 
 
     /** The copy constructor conducts a deep copy, invoking the copy constructors on each item. */
-    Vector(const Vector<T> &o)
-        :m_begin(NULL), m_size(0), m_capacity(0)
+    VectorImp(const VectorImp<T> &o)
+        :m_data(NULL)
     {
-        if(o.Capacity() > 0)
+        if(0 < o.Capacity())
         {
             Reserve(o.Capacity());
             set_length(o.Length());
-        }
 
-        // Call the copy constructor for each item to initialize the memory
-        T *cur( m_begin );
-        T *ocur( o.m_begin );
-        for(GUINT32 i(0); i < Length(); ++i)
-            new(cur++) T(*(ocur++));
+            // Call the copy constructor for each item to initialize the memory
+            T *cur( Data() );
+            T const *ocur( o.ConstData() );
+            for(GUINT32 i(0); i < Length(); ++i)
+                new(cur++) T(*(ocur++));
+        }
     }
+
+    ~VectorImp(){ Clear(); }
+
     /** Assignment operator invokes our copy constructor after clearing the container. */
-    Vector &operator = (const Vector<T> &o){
+    VectorImp &operator = (const VectorImp<T> &o){
         Empty();
         Insert(o, 0);
         return *this;
     }
-    inline ~Vector(){ Clear(); }
 
     /** Returns whether the vector is null (has not yet been initialized). */
-    inline bool IsNull() const{ return !m_begin; }
+    inline bool IsNull() const{ return !(m_data && ConstData()); }
 
     /** Returns whether the vector is empty (has no items in it, but the capacity may have been initialized). */
-    inline bool IsEmpty() const{ return IsNull() || Size() == 0; }
+    inline bool IsEmpty() const{ return IsNull() || Length() == 0; }
+
+    /** Inserts the item at the end of the vector. */
+    inline void Insert(const T &item){ Insert(item, Length()); }
 
     /** Insert the item at the position before the iterator.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
@@ -150,7 +170,7 @@ public:
         if(len == Capacity())
             Reserve(len + 1);
 
-        T *dest( m_begin + indx );
+        T *dest( Data() + indx );
 
         // Move the destination out of the way, if they're inserting anywhere but the end
         if(indx < len)
@@ -162,10 +182,10 @@ public:
             }
             else
             {
-                T *cur(m_begin + len - 1);
+                T *cur(Data() + len - 1);
 
                 // Call the constructor on the memory location at the end
-                new(m_begin + len) T(*cur);
+                new(Data() + len) T(*cur);
 
                 if(len > 0)
                 {
@@ -174,7 +194,7 @@ public:
                 }
 
                 // Then assign the item to the proper location
-                m_begin[indx] = item;
+                Data()[indx] = item;
             }
         }
         else
@@ -190,15 +210,15 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    inline void Insert(const Vector<T> &vec, GUINT32 indx){
-        Insert(vec.ConstData(), vec.Size(), indx);
+    inline void Insert(const VectorImp<T> &vec, GUINT32 indx){
+        Insert(vec.ConstData(), vec.Length(), indx);
     }
 
     /** Insert the array at the index position.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(const T *vec, GUINT32 size, GUINT32 indx)
+    void Insert(T const *vec, GUINT32 size, GUINT32 indx)
     {
         const GUINT32 len( Length() );
 
@@ -206,7 +226,7 @@ public:
         if((len + size) > Capacity())
             Reserve(Length() + size);
 
-        T *dest( m_begin + indx );
+        T *dest( Data() + indx );
 
         // Move the destination out of the way, if they're inserting anywhere but the end
         if(indx < len)
@@ -221,9 +241,9 @@ public:
             {
                 // Call the constructors on the memory location at the end
                 for(GUINT32 i(1); i <= len && i <= size; ++i)
-                    new(m_begin + len + size - i) T(*(m_begin + len - i));
+                    new(Data() + len + size - i) T(*(Data() + len - i));
 
-                T *cur(m_begin + len - 1);
+                T *cur(Data() + len - 1);
                 if(len > 0)
                 {
                     for(GUINT32 i(len - 1); i > (indx + size); --i, --cur)
@@ -234,9 +254,9 @@ public:
                 for(GUINT32 i(0); i < size; ++i)
                 {
                     if(i < len)
-                        m_begin[indx + i] = vec[i];
+                        Data()[indx + i] = vec[i];
                     else
-                        new(m_begin + indx + i) T(vec[i]);
+                        new(Data() + indx + i) T(vec[i]);
                 }
             }
         }
@@ -249,6 +269,36 @@ public:
 
         set_length(len + size);
     }
+
+    /** Adds the item to the end of the vector. */
+    inline void PushBack(const T &item){ Insert(item, Length()); }
+
+    /** Adds the item to the start of the vector. */
+    inline void PushFront(const T &item){ Insert(item, 0); }
+
+    /** Removes the item at the back of the vector. */
+    inline void PopBack(){ RemoveAt(Length() - 1); }
+
+    /** Removes the item at the front of the vector. */
+    inline void PopFront(){ RemoveAt(0); }
+
+    /** Returns the item at the back of the vector. */
+    inline const T &Back() const{ return ConstData()[Length() - 1]; }
+
+    /** Returns the item at the back of the vector. */
+    inline T &Back(){ return Data()[Length() - 1]; }
+
+    /** Returns the item at the front of the vector. */
+    inline const T &Front() const{ return *ConstData(); }
+
+    /** Returns the item at the front of the vector. */
+    inline T &Front(){ *Data(); }
+
+    /** Convenient operator that appends to the end of the vector, and returns a reference to this. */
+    inline VectorImp<T> &operator << (const T &item){ PushBack(item); return *this; }
+
+    /** Convenient operator that removes the last item in the vector and copies it to the given reference. */
+    inline void operator >> (T &cpy){ cpy = Back(); PopBack(); }
 
     /** Remove the item pointed to by the iterator.
 
@@ -277,7 +327,7 @@ public:
         if(len == 0 || indx + num > len)
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
-        T *const targ( m_begin + indx );
+        T *const targ( Data() + indx );
 
         // Call the destructors on the items
         for(GUINT32 i(0); i < num; ++i)
@@ -307,7 +357,7 @@ public:
 
             // And on the items at the end we call the destructor
             for(GUINT32 i(GUtil::Max(len - num, indx + num)); i < len; ++i)
-                (m_begin + i)->~T();
+                (Data() + i)->~T();
         }
 
         set_length(len - num);
@@ -349,63 +399,56 @@ public:
                 Remove(iter);
     }
 
-    /** Pushes the item on the back of the vector */
-    inline void PushBack(const T &o){ Insert(o, Length()); }
-
-    /** Pushes the other vector on the back of this one */
-    inline void PushBack(const Vector<T> &v){ Insert(v, Length()); }
-
-    /** Removes the item on the back of the list. */
-    inline void PopBack(){ RemoveAt(Length() - 1); }
-
     /** Reserves room for at least this many items.
         Pass 0 to free all memory.
     */
-    inline void Reserve(GUINT32 n){ ReserveExactly( _capacity(n) ); }
+    inline void Reserve(GUINT32 n){ ReserveExactly( _compute_capacity(n) ); }
 
     /** Reserves room for exactly this number of items. */
     void ReserveExactly(GUINT32 new_capacity)
     {
+        if(new_capacity == Capacity())
+            return;
+
         if(new_capacity < Capacity())
         {
             // Need to call the destructors on the items we're (potentially) deleting
             if(new_capacity < Length())
             {
-                for(T *targ( m_begin + new_capacity ); targ != DataEnd(); ++targ)
+                for(T *targ( Data() + new_capacity ); targ != DataEnd(); ++targ)
                     targ->~T();
                 set_length( new_capacity );
             }
         }
-        else if(new_capacity == Capacity())
-            // No need to reallocate
-            return;
 
-        const GUINT32 new_size_in_bytes(new_capacity * sizeof(T));
+        const GUINT32 new_size_in_bytes(sizeof(GUINT32) + sizeof(GUINT32) + new_capacity * sizeof(T));
+        const GUINT32 length_bak = Length();
 
-        if(0 < new_size_in_bytes)
+        if(0 < new_capacity)
         {
             if(IsMovableType<T>::Value)
             {
                 // As an optimization for primitive types (ones that are not affected by binary moves)
                 //  we call realloc, because a hidden memory relocation doesn't affect our type.
-                T *tmp = (T *)realloc(m_begin, new_size_in_bytes);
+                void *tmp = realloc(m_data ? reinterpret_cast<GBYTE *>(m_data) - 2 * sizeof(GUINT32) : NULL, new_size_in_bytes);
 
-                if(new_size_in_bytes > 0 && tmp == NULL)
+                if(NULL == tmp)
                     THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
 
-                m_begin = tmp;
+                m_data = reinterpret_cast<GBYTE *>(tmp) + 2 * sizeof(GUINT32);
             }
             else
             {
                 // Have to manually reallocate and call the copy constructors, because a complex
                 //  type may be dependent on their memory locations (self-pointers are one example)
-                T *backup( m_begin );
-                void *new_begin( malloc(new_size_in_bytes) );
+                T *backup( Data() );
+                void *new_data( malloc(new_size_in_bytes) );
 
-                if(new_begin == NULL)
+                if(NULL == new_data)
                     THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
 
-                T *cur( (T*)new_begin );
+                new_data = reinterpret_cast<GBYTE *>(new_data) + 2 * sizeof(GUINT32);
+                T *cur( reinterpret_cast<T *>(new_data) );
                 if(backup)
                 {
                     // Copy the items from the backup copy to the new vector
@@ -416,20 +459,25 @@ public:
                     for(GUINT32 i(0); i < Length(); ++i)
                         (backup++)->~T();
 
-                    free(m_begin);
+                    free(reinterpret_cast<GBYTE *>(m_data) - 2 * sizeof(GUINT32));
                 }
-                
-                m_begin = (T *)new_begin;
+
+                m_data = new_data;
             }
+
+            // Initialize the meta-data at the newly allocated pointer
+            *_length() = length_bak;
+            *_capacity() = new_capacity;
         }
         else
         {
-            free(m_begin);
-            m_begin = (T*)NULL;
-            set_length(0);
+            // Free the pointer because 0 capacity was requested
+            if(m_data)
+            {
+                free(reinterpret_cast<GBYTE *>(m_data) - 2 * sizeof(GUINT32));
+                m_data = NULL;
+            }
         }
-
-        m_capacity = new_capacity;
     }
 
     /** Resizes the vector.  If the new size is larger than the current, then the default
@@ -440,13 +488,13 @@ public:
             Reserve(new_size);
         if(new_size < Length())
         {
-            const Vector<T>::iterator iter( begin() + new_size );
+            const VectorImp<T>::iterator iter( begin() + new_size );
             for(GUINT32 i(Length()); i > new_size; --i)
                 Remove(iter);
         }
         else if(new_size > Length())
         {
-            T *cur(m_begin + Length());
+            T *cur(Data() + Length());
             for(GUINT32 i(Length()); i < new_size; ++i)
                 new(cur++) T(default_object);
         }
@@ -456,57 +504,67 @@ public:
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline const T &operator [](GUINT32 i) const{ return m_begin[i]; }
+    inline T const &operator [](GUINT32 i) const{ return ConstData()[i]; }
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline const T &operator [](GINT32 i) const{ return m_begin[i]; }
+    inline T const &operator [](GINT32 i) const{ return ConstData()[i]; }
+
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T &operator [](GUINT32 i){ return m_begin[i]; }
+    inline T &operator [](GUINT32 i){ return Data()[i]; }
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T &operator [](GINT32 i){ return m_begin[i]; }
+    inline T &operator [](GINT32 i){ return Data()[i]; }
 
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
     inline T &At(GUINT32 i){
-        if(Length() == 0 || i >= Length())
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return m_begin[i];
+        return const_cast<T &>(const_cast<VectorImp<T> const *>(this)->At(i));
     }
+
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline const T &At(GUINT32 i) const{
-        if(Length() == 0 || i >= Length())
+    inline T const &At(GUINT32 i) const{
+        if(i >= Length())
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return m_begin[i];
+        return ConstData()[i];
     }
 
+
     /** Returns a pointer to the start of the array. */
-    inline const T *ConstData() const{ return m_begin; }
+    inline T *Data(){ return const_cast<T *>(ConstData()); }
+
     /** Returns a pointer to the start of the array. */
-    inline T *Data(){ return m_begin; }
+    inline T const *ConstData() const{ return reinterpret_cast<T const *>(m_data); }
 
     /** Returns a pointer to the end of the vector, which is 1 past
         the last item in the vector.  Do not dereference this pointer, it
         is only to allow quick iteration through the list.
     */
-    inline T *DataEnd() const{ return m_begin ? m_begin + m_size : NULL; }
+    inline T *DataEnd(){ return const_cast<T *>(ConstDataEnd()); }
+
+    /** Returns a pointer to the end of the vector, which is 1 past
+        the last item in the vector.  Do not dereference this pointer, it
+        is only to allow quick iteration through the list.
+    */
+    inline T const *ConstDataEnd() const{
+        return ConstData() ? ConstData() + *_length() : NULL;
+    }
 
     /** Clears all items and frees all memory. */
     inline void Clear(){ ReserveExactly(0); }
 
     /** Clears all items but retains the same capacity. */
     inline void Empty(){
-        if(m_begin)
+        if(m_data)
         {
-            T *cur( m_begin );
-            T *e( m_begin + Length() );
+            T *cur( Data() );
+            T *e( DataEnd() );
             while(cur != e){
                 cur->~T();
                 ++cur;
@@ -516,15 +574,12 @@ public:
     }
 
     /** The current length of the vector. */
-    inline GUINT32 Length() const{ return m_size; }
-
-    /** The current length of the vector. */
-    inline GUINT32 Size() const{ return Length(); }
-    /** The current length of the vector. */
-    inline GUINT32 Count() const{ return Length(); }
+    inline GUINT32 Length() const{
+        return m_data ? *_length() : 0;
+    }
 
     /** How many items of type T we are capable of holding. */
-    inline GUINT32 Capacity() const{ return m_capacity; }
+    inline GUINT32 Capacity() const{ return m_data ? *_capacity() : 0; }
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
@@ -532,13 +587,13 @@ public:
     */
     inline GUINT32 IndexOf(const T &item, GUINT32 start = 0) const{
         GUINT32 ret( UINT_MAX );
-        T *cur( m_begin + start );
-        T *const e( m_begin + Length() );
+        T const *cur( ConstData() + start );
+        T const *e( ConstDataEnd() );
         while(cur < e)
         {
             if(*cur == item)
             {
-                ret = cur - m_begin;
+                ret = cur - ConstData();
                 break;
             }
             ++cur;
@@ -556,13 +611,13 @@ public:
         {
             if(start == UINT_MAX)
                 start = Length() - 1;
-            T *cur( m_begin + start );
-            T *const e( m_begin - 1 );
+            T const *cur( ConstData() + start );
+            T const *e( ConstData() - 1 );
             while(cur < e)
             {
                 if(*cur == item)
                 {
-                    ret = cur - m_begin;
+                    ret = cur - ConstData();
                     break;
                 }
                 --cur;
@@ -589,7 +644,7 @@ public:
         {
         case GUtil::MergeSort:
         {
-            Vector<T> buffer;
+            VectorImp<T> buffer;
             buffer.ReserveExactly(Length());
             _merge_sort(begin(), end(), ascending, buffer, comparer);
         }
@@ -657,16 +712,16 @@ public:
     {
         friend class iterator;
     protected:
-        T *current;
-        T *m_begin;
-        T *m_end;
+        T const *current;
+        T const *m_begin;
+        T const *m_end;
     public:
         inline const_iterator()
             :current(0),
               m_begin(0),
               m_end(0)
         {}
-        inline const_iterator(T *begin, T *end, T *cur)
+        inline const_iterator(T const *begin, T const *end, T const *cur)
             :current(cur),
               m_begin(begin),
               m_end(end)
@@ -682,9 +737,7 @@ public:
               m_end(iter.m_end)
         {}
 
-        inline T &operator *(){ return *current; }
         inline T const &operator *() const{ return *current; }
-        inline T *operator ->(){ return current; }
         inline T const*operator ->() const{ return current; }
 
         inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
@@ -716,39 +769,30 @@ public:
         inline operator bool() const{ return current && m_begin <= current && current < m_end;; }
     };
 
-    inline iterator begin(){ return iterator(m_begin, DataEnd(), m_begin); }
-    inline const_iterator begin() const{ return const_iterator(m_begin, DataEnd(), m_begin); }
-    inline iterator end(){ return iterator(m_begin, DataEnd(), DataEnd()); }
-    inline const_iterator end() const{ return const_iterator(m_begin, DataEnd(), DataEnd()); }
+    inline iterator begin(){ return iterator(Data(), DataEnd(), Data()); }
+    inline const_iterator begin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData()); }
+    inline iterator end(){ return iterator(Data(), DataEnd(), DataEnd()); }
+    inline const_iterator end() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd()); }
 
-    inline iterator rbegin(){ return iterator(m_begin, DataEnd(), DataEnd() - 1); }
-    inline const_iterator rbegin() const{ return const_iterator(m_begin, DataEnd(), DataEnd() - 1); }
-    inline iterator rend(){ return iterator(m_begin, DataEnd(), m_begin - 1); }
-    inline const_iterator rend() const{ return const_iterator(m_begin, DataEnd(), m_begin - 1); }
-
-    /** Returns the item at the front of the list */
-    inline T &Front(){ return *m_begin; }
-    /** Returns the item at the front of the list */
-    inline T const &Front() const{ return *m_begin; }
-
-    /** Returns the item at the back of the list */
-    inline T &Back(){ return *(DataEnd() - 1); }
-    /** Returns the item at the back of the list */
-    inline T const &Back() const{ return *(DataEnd() - 1); }
+    inline iterator rbegin(){ return iterator(Data(), DataEnd(), DataEnd() - 1); }
+    inline const_iterator rbegin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd() - 1); }
+    inline iterator rend(){ return iterator(Data(), DataEnd(), Data() - 1); }
+    inline const_iterator rend() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData() - 1); }
 
     /** Returns true if the vectors are equal.
-        Vector equality is established by checking each individual element from
+        VectorImp equality is established by checking each individual element from
         this vector with the corresponding element in the other vector and evaluating
         the class' own == operator.
         \note O(N)
     */
-    bool operator == (const Vector<T> &o) const{
+    bool operator == (const VectorImp<T> &o) const{
         bool res(false);
-        const T *cur1(ConstData()), *cur2(o.ConstData());
+        T const *cur1(ConstData()), *cur2(o.ConstData());
+        T const *e = ConstDataEnd();
         if(Length() == o.Length() && static_cast<bool>(cur1) == static_cast<bool>(cur2))
         {
             res = true;
-            while(cur1 != DataEnd())
+            while(cur1 != e)
             {
                 if(*cur1 != *cur2)
                 {
@@ -761,18 +805,12 @@ public:
         return res;
     }
     /** Returns true if the vectors are not equal.
-        Vector equality is established by checking each individual element from
+        VectorImp equality is established by checking each individual element from
         this vector with the corresponding element in the other vector and evaluating
         the class' own == operator.
         \note O(N)
     */
-    inline bool operator != (const Vector<T> &o) const{ return !operator == (o); }
-
-    /** Pushes an item on a logical stack, with appealing syntax. */
-    inline Vector<T> &operator << (const T &item){ PushBack(item); return *this; }
-
-    /** Pops the top item from a logical stack and copies it into the given variable */
-    inline Vector<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
+    inline bool operator != (const VectorImp<T> &o) const{ return !operator == (o); }
 
     /** Does a constant-time data swap between vectors.
 
@@ -780,12 +818,12 @@ public:
         simply a pointer swap.
 
         \note After calling, all iterators for both vectors will still be valid,
-        they will only reference the opposite Vector's data.
+        they will only reference the opposite VectorImp's data.
     */
-    inline static void Swap(Vector<T> &lhs, Vector<T> &rhs){
-        T *tmp( lhs.m_begin );
-        lhs.m_begin = rhs.m_begin;
-        rhs.m_begin = tmp;
+    inline static void Swap(VectorImp<T> &lhs, VectorImp<T> &rhs){
+        void *tmp( lhs.m_data );
+        lhs.m_data = rhs.m_data;
+        rhs.m_data = tmp;
     }
 
 
@@ -794,19 +832,20 @@ protected:
     /** Subclasses can use this convenience function as a setter for the length variable.
         \note You should only manually use this with POD types, because if you
         have a vector of more complex classes then some of their destructors may not get called.
+        \note You must have already allocated the data pointer, otherwise this will dereference a null pointer.
     */
-    inline void set_length(GUINT32 len){ m_size = len; }
+    inline void set_length(GUINT32 len){ *_length() = len; }
 
 
 private:
 
-    T *m_begin;
-    GUINT32 m_size;
-    GUINT32 m_capacity;
+    inline static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
 
-    inline static int _capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
+    // Be careful when calling these; they do not check if the pointer is valid
+    inline GUINT32 *_length() const{ return reinterpret_cast<GUINT32 *>(m_data) - 1; }
+    inline GUINT32 *_capacity() const{ return reinterpret_cast<GUINT32 *>(m_data) - 2; }
 
-    void _merge_sort(const iterator &b, const iterator &e, bool ascending, Vector<T> &buffer, const Interfaces::IComparer<T> &cmp){
+    void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const Interfaces::IComparer<T> &cmp){
         GUINT32 diff( e - b );
         if(diff == UINT_MAX);
         else if(diff == 2)
@@ -835,23 +874,23 @@ private:
                 if((ascending && 0 < cmp(*i1, *i2)) ||
                    (!ascending && 0 > cmp(*i1, *i2)))
                 {
-                    buffer.PushBack(*i2);
+                    buffer.Insert(*i2);
                     ++i2;
                 }
                 else
                 {
-                    buffer.PushBack(*i1);
+                    buffer.Insert(*i1);
                     ++i1;
                 }
             }
             while(i1 != m)
             {
-                buffer.PushBack(*i1);
+                buffer.Insert(*i1);
                 ++i1;
             }
             while(i2 != e)
             {
-                buffer.PushBack(*i2);
+                buffer.Insert(*i2);
                 ++i2;
             }
 
@@ -872,189 +911,75 @@ private:
 };
 
 
-/** Provides an "attachable" stack interface to the vector. */
-template<class T>class VectorStack : public Stack<T>
+
+/** This is used to define all the same constructors as the base vector class so you don't have to
+ *  repeat so much code.
+ *
+ *  \param class_name The name of top-level vector class for which to define constructors.
+ *  \param base_class The base vector class to whose constructors you will forward parameters.
+*/
+#define GUTIL_VECTOR_CONSTRUCTORS(class_name, base_class) \
+    public: \
+    inline class_name() {} \
+    inline explicit class_name(GUINT32 capacity) :base_class(capacity){} \
+    inline explicit class_name(const T &o, GUINT32 size = 1) :base_class(o, size){} \
+    inline class_name(T const*arr, GUINT32 size) :base_class(arr, size){} \
+    inline class_name(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
+    inline class_name(const VectorImp<T> &o) :base_class(o) {}
+
+
+
+
+/** Defines the basic vector type without any interfaces.
+ *
+ *  Use this as the most memory efficient version.
+*/
+template<class T, CollectionInterfaceTypeEnum = CI_None> class Vector : public VectorImp<T>
+{ GUTIL_VECTOR_CONSTRUCTORS(Vector, VectorImp<T>) };
+
+
+/** Defines a template specialization of the Vector class, with a random access container interface. */
+template<class T> class Vector<T, CI_RandomAccess> :
+        public Vector<T, CI_None>,
+        public IRandomAccessContainer<T>
 {
-    GUTIL_DISABLE_COPY(VectorStack<T>)
+    typedef Vector<T, CI_None> BasicVector;
+    GUTIL_VECTOR_CONSTRUCTORS(Vector, BasicVector)
 public:
 
-    /** Attaches the stack interface to the vector.
-        We will not delete your vector; that is up to you, because you may attach multiple
-        interfaces to the same vector.
-    */
-    inline VectorStack(Vector<T> *vec) :m_vector(vec), m_delete(false){}
+    virtual ~Vector(){}
 
-    /** Creates a new Vector with a stack interface.
-        Use this if you don't want to supply a pre-existing vector object.
-    */
-    inline VectorStack() :m_vector(new Vector<T>), m_delete(true){}
+    virtual T &At(GUINT32 i){ return VectorImp<T>::At(i); }
+    virtual T const &At(GUINT32 i) const{ return VectorImp<T>::At(i); }
 
-    inline ~VectorStack(){ if(m_delete) delete m_vector; }
+    virtual void Insert(const T &item, GUINT32 i){ VectorImp<T>::Insert(item, i); }
+    virtual void Remove(GUINT32 i){ VectorImp<T>::RemoveAt(i); }
 
-
-    /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ m_vector->PushBack(i); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Pop(){ m_vector->PopBack(); }
-
-    /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return (*m_vector)[m_vector->Length() - 1]; }
-
-    /** Satisfies the Stack abstract interface. */
-    T &Top(){ return (*m_vector)[m_vector->Length() - 1]; }
-
-    /** Satisfies the Stack abstract interface. */
-    GUINT32 CountStackItems() const{ return m_vector->Length(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ m_vector->Clear(); }
-
-
-private:
-
-    Vector<T> *m_vector;
-    bool m_delete;
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual void Clear(){ VectorImp<T>::Empty(); }
 
 };
 
 
-template<class T>class VectorQueue : public Queue<T>
+
+/** Defines a template specialization of the Vector class, with a stack interface. */
+template<class T> class Vector<T, CI_Stack> :
+        public Vector<T, CI_None>,
+        public IStack<T>
 {
-    GUTIL_DISABLE_COPY(VectorQueue<T>)
+    typedef Vector<T, CI_None> BasicVector;
+    GUTIL_VECTOR_CONSTRUCTORS(Vector, BasicVector)
 public:
 
-    /** Attaches the Queue interface to the vector.
-        We will not delete your vector; that is up to you, because you may attach multiple
-        interfaces to the same vector.
-    */
-    inline VectorQueue(Vector<T> *vec) :m_vector(vec), m_delete(false){}
+    virtual ~Vector(){}
 
-    /** Creates a new Vector with a queue interface.
-        Use this if you don't want to supply a pre-existing vector object.
-    */
-    inline VectorQueue() :m_vector(new Vector<T>), m_delete(true){}
+    virtual T &Push(const T &item){ VectorImp<T>::Insert(item); }
+    virtual void Pop(){ VectorImp<T>::RemoveAt(VectorImp<T>::Length() - 1); }
+    virtual T &Top(){ return VectorImp<T>::Data()[VectorImp<T>::Length() - 1]; }
+    virtual T const &Top() const{ return VectorImp<T>::ConstData()[VectorImp<T>::Length() - 1]; }
 
-    inline ~VectorQueue(){ if(m_delete) delete m_vector; }
-
-    /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ m_vector->PushBack(i); }
-
-    /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ m_vector->RemoveAt(0); }
-
-    /** Satisfies the Queue abstract interface. */
-    T &Front(){ return (*m_vector)[0]; }
-
-    /** Satisfies the Queue abstract interface. */
-    const T &Front() const{ return (*m_vector)[0]; }
-
-    /** Satisfies the Queue abstract interface. */
-    GUINT32 CountQueueItems() const{ return m_vector->Length(); }
-
-    /** Satisfies the Queue abstract interface. */
-    void FlushQueue(){ m_vector->Clear(); }
-
-
-private:
-
-    Vector<T> *m_vector;
-    bool m_delete;
-
-};
-
-
-template<class T>class VectorDeque : public Deque<T>
-{
-    GUTIL_DISABLE_COPY(VectorDeque<T>)
-public:
-
-    /** Attaches the Deque interface to the vector.
-        We will not delete your vector; that is up to you, because you may attach multiple
-        interfaces to the same vector.
-    */
-    inline VectorDeque(Vector<T> *vec) :m_vector(vec), m_delete(false){}
-
-    /** Creates a new Vector with a queue interface.
-        Use this if you don't want to supply a pre-existing vector object.
-    */
-    inline VectorDeque() :m_vector(new Vector<T>), m_delete(true){}
-
-    inline ~VectorDeque(){ if(m_delete) delete m_vector; }
-
-    /** Satisfies the Deque abstract interface. */
-    void PushBack(const T &i){ m_vector->PushBack(i); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PopBack(){ m_vector->PopBack(); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PushFront(const T &i){ m_vector->Insert(i, 0); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PopFront(){ m_vector->RemoveAt(0); }
-
-    /** Satisfies the Deque abstract interface. */
-    T &Front(){ return (*m_vector)[0]; }
-
-    /** Satisfies the Deque abstract interface. */
-    const T &Front() const{ return (*m_vector)[0]; }
-
-    /** Satisfies the Deque abstract interface. */
-    T &Back(){ return (*m_vector)[m_vector->Length() - 1]; }
-
-    /** Satisfies the Deque abstract interface. */
-    const T &Back() const{ return (*m_vector)[m_vector->Length() - 1]; }
-
-    /** Satisfies the Deque abstract interface. */
-    GUINT32 CountDequeItems() const{ return m_vector->Length(); }
-
-    /** Satisfies the Deque abstract interface. */
-    void FlushDeque(){ m_vector->Clear(); }
-
-
-private:
-
-    Vector<T> *m_vector;
-    bool m_delete;
-
-};
-
-
-template<class T>class VectorRandomAccessContainer : public RandomAccessContainer<T>
-{
-    GUTIL_DISABLE_COPY(VectorRandomAccessContainer<T>)
-public:
-
-    inline VectorRandomAccessContainer(Vector<T> *vec) :m_vector(vec), m_delete(false){}
-
-    inline VectorRandomAccessContainer() :m_vector(new Vector<T>), m_delete(true){}
-
-    inline ~VectorRandomAccessContainer(){ if(m_delete) delete m_vector; }
-
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    T &At(GUINT32 i){ return (*m_vector)[i]; }
-
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    const T &At(GUINT32 i) const{ return (*m_vector)[i]; }
-
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    void InsertAt(const T &i, GUINT32 indx){ m_vector->Insert(i, indx); }
-
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    void RemoveAt(GUINT32 indx){ m_vector->RemoveAt(indx); }
-
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    GUINT32 CountContainerItems() const{ return m_vector->Length(); }
-
-    /** Satisfies the RandomAccessContainer abstract interface. */
-    void FlushContainer(){ m_vector->Clear(); }
-
-
-private:
-
-    Vector<T> *m_vector;
-    bool m_delete;
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual void Clear(){ VectorImp<T>::Clear(); }
 
 };
 
@@ -1065,11 +990,11 @@ END_NAMESPACE_GUTIL1;
 namespace GUtil
 {
 
-template<class T>struct IsMovableType< DataObjects::Vector<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::VectorStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::VectorQueue<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::VectorDeque<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::VectorRandomAccessContainer<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::VectorImp<T> >{ enum{ Value = 1 }; };
+//template<class T>struct IsMovableType< DataObjects::VectorStack<T> >{ enum{ Value = 1 }; };
+//template<class T>struct IsMovableType< DataObjects::VectorQueue<T> >{ enum{ Value = 1 }; };
+//template<class T>struct IsMovableType< DataObjects::VectorDeque<T> >{ enum{ Value = 1 }; };
+//template<class T>struct IsMovableType< DataObjects::VectorRandomAccessContainer<T> >{ enum{ Value = 1 }; };
 
 }
 

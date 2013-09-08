@@ -188,7 +188,7 @@ public:
     inline Hand() { SetCompareFunction(&default_compare); }
 
     /** Returns the number of cards left in the hand which have not yet been played. */
-    inline GUINT32 CardCount() const{ return m_cards.Count() + m_cardsPlayed.Count(); }
+    inline GUINT32 CardCount() const{ return m_cards.Length() + m_cardsPlayed.Length(); }
 
     /** Returns the list of cards in the hand. */
     inline const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
@@ -288,7 +288,7 @@ public:
 
         If the deck is not yet initialized, the number of cards is 0.
     */
-    GUINT32 CardCount() const{ return m_cards.Count(); }
+    GUINT32 CardLength() const{ return m_cards.Length(); }
 
 
     /** Collects all the hands which have been dealt and returns them to
@@ -322,7 +322,7 @@ public:
     void SetNumberHands(GUINT32);
 
     /** Returns the number of hands. */
-    inline GUINT32 NumberHands() const{ return m_hands.Count(); }
+    inline GUINT32 NumberHands() const{ return m_hands.Length(); }
 
     /** Returns our list of hands for use by the card players.
 

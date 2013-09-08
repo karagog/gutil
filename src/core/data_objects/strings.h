@@ -156,7 +156,7 @@ public:
     /** Returns a pointer to the const start of the string. */
     inline const char *ConstData() const{ return Vector<char>::ConstData(); }
     /** Returns a pointer to one char past end of the string. */
-    inline const char *DataEnd() const{ return Vector<char>::DataEnd(); }
+    inline const char *DataEnd() const{ return Vector<char>::ConstDataEnd(); }
 
 
     /** Appends the string to this one and returns this. */

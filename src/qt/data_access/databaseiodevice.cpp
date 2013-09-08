@@ -64,7 +64,7 @@ DatabaseIODevice::DatabaseIODevice(const QString &db_connection_id,
                     DatabaseUtils::ThrowQueryException(q);
 
                 while(c.next())
-                    columns.PushBack(String::FromQString(c.value(1).toString()));
+                    columns.Insert(String::FromQString(c.value(1).toString()));
 
                 _tables.insert(table_name, DataObjects::VariantTable(columns));
             }
@@ -705,7 +705,7 @@ QByteArray DatabaseIODevice::receive_data()
                 if(_columns_requested.isEmpty())
                 {
                     for(int i = 0; i < _selection_parameters->ColumnCount(); i++)
-                        lst.PushBack(query.value(i));
+                        lst.Insert(query.value(i));
                 }
                 else
                 {

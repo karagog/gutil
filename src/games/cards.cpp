@@ -93,7 +93,7 @@ Deck::~Deck()
 
 void Deck::append_standard_52_cards()
 {
-    m_cards.Reserve(m_cards.Count() + 52);
+    m_cards.Reserve(m_cards.Length() + 52);
 
     for(Card::SuitEnum suit = Card::Clubs; suit <= Card::Spades; suit = (Card::SuitEnum)(suit + 1))
         for(Card::ValueEnum value = Card::Ace; value <= Card::King; value = (Card::ValueEnum)(value + 1))
@@ -102,7 +102,7 @@ void Deck::append_standard_52_cards()
 
 void Deck::append_2_jokers()
 {
-    m_cards.Reserve(m_cards.Count() + 2);
+    m_cards.Reserve(m_cards.Length() + 2);
 
     for(int i = 0; i < 2; ++i)
         m_cards.PushBack(new Card(Card::Joker, Card::Wild));
@@ -110,7 +110,7 @@ void Deck::append_2_jokers()
 
 void Deck::append_euchre()
 {
-    m_cards.Reserve(m_cards.Count() + 24);
+    m_cards.Reserve(m_cards.Length() + 24);
 
     for(Card::SuitEnum suit = Card::Clubs; suit <= Card::Spades; suit = (Card::SuitEnum)(suit + 1))
     {
@@ -123,14 +123,14 @@ void Deck::append_euchre()
 
 void Deck::Shuffle()
 {
-    if(0 < m_cards.Count())
+    if(0 < m_cards.Length())
     {
-        Vector<Card *> tmp( m_cards.Count() );
+        Vector<Card *> tmp( m_cards.Length() );
 
         // Deal each card randomly into the tmp vector
-        while(1 < m_cards.Count())
+        while(1 < m_cards.Length())
         {
-            GINT32 index( RNG::U_Discrete(0, m_cards.Count() - 1) );
+            GINT32 index( RNG::U_Discrete(0, m_cards.Length() - 1) );
 
             tmp.PushBack( m_cards[index] );
             m_cards.RemoveAt(index);
@@ -145,12 +145,12 @@ void Deck::Shuffle()
 
 void Deck::Deal(GUINT32 starting_hand, GUINT32 num_cards)
 {
-    if(starting_hand >= m_hands.Count())
+    if(starting_hand >= m_hands.Length())
         THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
-    CircularInt tmp(0, m_hands.Count() - 1, starting_hand);
-    while(num_cards-- != 0 && 0 < m_cards.Count())
-        for(GUINT32 i(0); 0 < m_cards.Count() && i < m_hands.Count(); ++i, ++tmp)
+    CircularInt tmp(0, m_hands.Length() - 1, starting_hand);
+    while(num_cards-- != 0 && 0 < m_cards.Length())
+        for(GUINT32 i(0); 0 < m_cards.Length() && i < m_hands.Length(); ++i, ++tmp)
             m_hands[tmp].m_cards.PushBack( pick_one() );
 }
 
@@ -181,8 +181,8 @@ void Deck::Collect()
 {
     G_FOREACH(Hand &h, m_hands)
     {
-        m_cards.PushBack(h.m_cards);
-        m_cards.PushBack(h.m_cardsPlayed);
+        m_cards.Insert(h.m_cards, m_cards.Length());
+        m_cards.Insert(h.m_cardsPlayed, m_cards.Length());
 
         clear_hand(h);
     }
@@ -235,7 +235,7 @@ char const *Card::SuitString(Card::SuitEnum s)
 Card *InfiniteDeck::pick_one()
 {
     // Pick a card at random and don't remove it from the deck
-    return m_cards[ RNG::U_Discrete(0, m_cards.Count() - 1) ];
+    return m_cards[ RNG::U_Discrete(0, m_cards.Length() - 1) ];
 }
 
 void InfiniteDeck::Collect()

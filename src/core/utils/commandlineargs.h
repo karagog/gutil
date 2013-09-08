@@ -49,7 +49,7 @@ public:
 
     /** Get the program name argument, or the element at argument 0 */
     inline DataObjects::String ProgramArgument() const{
-        return 0 < Count() ? operator[](0) : "";
+        return 0 < Length() ? operator[](0) : "";
     }
 
 };

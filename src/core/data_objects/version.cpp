@@ -72,17 +72,17 @@ void __init_with_string(::GUtil::DataObjects::Version *v,
         v->SetMinorVersion(0);
         v->SetReleaseVersion(0);
 
-        if(lst.Count() > 0)
+        if(lst.Length() > 0)
         {
             tmp = lst[0].ToInt(&ok);
             if(ok) v->SetMajorVersion(tmp);
         }
-        if(lst.Count() > 1)
+        if(lst.Length() > 1)
         {
             tmp = lst[1].ToInt(&ok);
             if(ok) v->SetMinorVersion(tmp);
         }
-        if(lst.Count() > 2)
+        if(lst.Length() > 2)
         {
             tmp = lst[2].ToInt(&ok);
             if(ok) v->SetReleaseVersion(tmp);

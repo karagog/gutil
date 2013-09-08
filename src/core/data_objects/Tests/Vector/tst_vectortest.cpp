@@ -31,6 +31,17 @@ private Q_SLOTS:
     void test_vector_of_vector();
     void test_non_movable_class();
     void test_sorting();
+
+    void test_interfaces();
+
+
+private:
+
+    void _test_irandomaccess(IRandomAccessContainer<int> *);
+    void _test_iqueue(IQueue<int> *);
+    void _test_ideque(IDeque<int> *);
+    void _test_istack(IStack<int> *);
+
 };
 
 
@@ -68,6 +79,10 @@ void VectorTest::test_basic_function()
            .arg(sizeof(std::vector<int>))
            .toAscii().constData());
 
+    qDebug(QString("An empty vector with a random access interface uses %1 bytes.")
+           .arg(sizeof(Vector<int, CI_RandomAccess>))
+           .toAscii().constData());
+
     for(int i(0); i < 100; ++i)
     {
         vec.Insert(i, vec.end());
@@ -81,22 +96,22 @@ void VectorTest::test_basic_function()
         QVERIFY(*iter == cnt);
         ++cnt;
     }
-    QVERIFY(cnt == vec.Size());
+    QVERIFY(cnt == vec.Length());
 
     vec.Remove(vec.begin());
-    QVERIFY(vec.Size() == 99);
+    QVERIFY(vec.Length() == 99);
     QVERIFY(vec[0] == 1);
     QVERIFY(vec[1] == 2);
     QVERIFY(vec[98] == 99);
 
     vec.Insert(0, vec.begin());
-    QVERIFY(vec.Size() == 100);
+    QVERIFY(vec.Length() == 100);
     QVERIFY(vec[0] == 0);
     QVERIFY(vec[1] == 1);
     QVERIFY(vec[99] == 99);
 
     vec.Clear();
-    QVERIFY(vec.Size() == 0);
+    QVERIFY(vec.Length() == 0);
 
     vec.Insert(2, vec.end());
     vec.Insert(3, vec.end());
@@ -115,15 +130,15 @@ void VectorTest::test_removal()
     vec.Insert(2, vec.end());
     vec.Insert(3, vec.end());
     vec.Insert(4, vec.end());
-    QVERIFY(vec.Size() == 5);
+    QVERIFY(vec.Length() == 5);
 
     vec.Remove(vec.begin());
-    QVERIFY(vec.Size() == 4);
+    QVERIFY(vec.Length() == 4);
     for(int i(1); i < 5; i++)
         QVERIFY(vec[i - 1] == i);
 
     vec.Remove(vec.begin() + 2);
-    QVERIFY(vec.Size() == 3);
+    QVERIFY(vec.Length() == 3);
     QVERIFY(vec[0] == 1);
     QVERIFY(vec[1] == 2);
     QVERIFY(vec[2] == 4);
@@ -131,16 +146,16 @@ void VectorTest::test_removal()
 
     // Remove a range of items
     vec.Clear();
-    vec.PushBack(1);
-    vec.PushBack(2);
-    vec.PushBack(3);
-    vec.PushBack(4);
-    vec.PushBack(5);
-    vec.PushBack(6);
-    vec.PushBack(7);
-    vec.PushBack(8);
-    vec.PushBack(9);
-    vec.PushBack(10);
+    vec.Insert(1);
+    vec.Insert(2);
+    vec.Insert(3);
+    vec.Insert(4);
+    vec.Insert(5);
+    vec.Insert(6);
+    vec.Insert(7);
+    vec.Insert(8);
+    vec.Insert(9);
+    vec.Insert(10);
     vec.RemoveAt(1, 8);
     QVERIFY(vec.Length() == 2);
     QVERIFY(vec[0] == 1);
@@ -151,12 +166,12 @@ void VectorTest::test_removal()
     Vector<nonmovable> nmvec(10);
     nmvec.Resize(10);
     nmvec.RemoveAt(2, 2);
-    QVERIFY(nmvec.Size() == 8);
+    QVERIFY(nmvec.Length() == 8);
 
     nmvec.Clear();
     nmvec.Resize(10);
     nmvec.RemoveAt(1, 8);
-    QVERIFY(nmvec.Size() == 2);
+    QVERIFY(nmvec.Length() == 2);
 }
 
 void VectorTest::test_vector_of_vector()
@@ -195,32 +210,32 @@ void VectorTest::test_non_movable_class()
 {
     Vector<nonmovable> vec;
     for(int i(0); i < 100; ++i)
-        vec.PushBack(nonmovable());
+        vec.Insert(nonmovable());
 
     int cnt(0);
     for(Vector<nonmovable>::const_iterator iter(vec.begin()); iter; ++iter)
     {
         const nonmovable &probe1( *iter );
-        const nonmovable *probe2( vec.ConstData() + cnt );
+        const nonmovable *probe2( vec.Data() + cnt );
         QVERIFY(probe1.this_ptr == &vec[cnt]);
         ++cnt;
     }
-    QVERIFY(cnt == vec.Size());
+    QVERIFY(cnt == vec.Length());
 
     vec.Remove(vec.begin());
-    QVERIFY(vec.Size() == 99);
+    QVERIFY(vec.Length() == 99);
     QVERIFY(vec[0].this_ptr == &vec[0]);
     QVERIFY(vec[1].this_ptr == &vec[1]);
     QVERIFY(vec[98].this_ptr == &vec[98]);
 
     vec.Insert(nonmovable(), vec.begin());
-    QVERIFY(vec.Size() == 100);
+    QVERIFY(vec.Length() == 100);
     QVERIFY(vec[0].this_ptr == &vec[0]);
     QVERIFY(vec[1].this_ptr == &vec[1]);
     QVERIFY(vec[99].this_ptr == &vec[99]);
 
     vec.Clear();
-    QVERIFY(vec.Size() == 0);
+    QVERIFY(vec.Length() == 0);
 
     vec.Insert(nonmovable(), vec.end());
     vec.Insert(nonmovable(), vec.end());
@@ -234,17 +249,17 @@ void VectorTest::test_non_movable_class()
 void VectorTest::test_sorting()
 {
     Vector<int> v;
-    v.PushBack(10);
-    v.PushBack(9);
-    v.PushBack(8);
-    v.PushBack(7);
-    v.PushBack(6);
-    v.PushBack(5);
-    v.PushBack(4);
-    v.PushBack(3);
-    v.PushBack(2);
-    v.PushBack(1);
-    v.PushBack(0);
+    v.Insert(10);
+    v.Insert(9);
+    v.Insert(8);
+    v.Insert(7);
+    v.Insert(6);
+    v.Insert(5);
+    v.Insert(4);
+    v.Insert(3);
+    v.Insert(2);
+    v.Insert(1);
+    v.Insert(0);
     v.Sort(true, GUtil::DefaultComparer<int>(), GUtil::MergeSort);
 
 //    for(int i = 0; i < 11; ++i)
@@ -264,7 +279,7 @@ void VectorTest::test_sorting()
 
     const int cnt(10000);
     for(int i = 0; i < cnt; ++i)
-        v.PushBack(qrand());
+        v.Insert(qrand());
 
     v.Sort();
 //    for(int i = 0; i < cnt; ++i)
@@ -278,6 +293,48 @@ void VectorTest::test_sorting()
         mem = v[i];
     }
 }
+
+void VectorTest::test_interfaces()
+{
+    Vector<int, CI_RandomAccess> vec_randomAccess;
+
+    _test_irandomaccess(&vec_randomAccess);
+}
+
+void VectorTest::_test_irandomaccess(IRandomAccessContainer<int> *rac)
+{
+    rac->Clear();
+    QVERIFY(0 == rac->Size());
+
+    rac->Insert(2, 0);
+    QVERIFY(1 == rac->Size());
+    QVERIFY(2 == rac->At(0));
+
+    rac->Insert(0, 0);
+    QVERIFY(2 == rac->Size());
+    QVERIFY(0 == rac->At(0));
+    QVERIFY(2 == rac->At(1));
+
+    rac->Insert(1, 1);
+    QVERIFY(3 == rac->Size());
+    QVERIFY(0 == rac->At(0));
+    QVERIFY(1 == rac->At(1));
+    QVERIFY(2 == rac->At(2));
+
+    rac->Insert(3, 3);
+    QVERIFY(4 == rac->Size());
+    QVERIFY(0 == rac->At(0));
+    QVERIFY(1 == rac->At(1));
+    QVERIFY(2 == rac->At(2));
+    QVERIFY(3 == rac->At(3));
+
+    rac->Remove(0);
+    QVERIFY(3 == rac->Size());
+    QVERIFY(1 == rac->At(0));
+    QVERIFY(2 == rac->At(1));
+    QVERIFY(3 == rac->At(2));
+}
+
 
 QTEST_APPLESS_MAIN(VectorTest);
 

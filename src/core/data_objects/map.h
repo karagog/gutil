@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_vector.h"
 #include "gutil_binarysearchtree.h"
+#include "gutil_interfaces.h"
 NAMESPACE_GUTIL1(DataObjects);
 
 
@@ -47,7 +48,7 @@ public:
         inline K &Key(){ return key; }
 
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
-        inline V &Value(){ return values[values.Size() - 1]; }
+        inline V &Value(){ return values[values.Length() - 1]; }
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
         inline const V &Value() const{ return values[values.Size() - 1]; }
 
@@ -259,7 +260,7 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
     {
         if(overwrite)
             iter->values.Clear();
-        iter->values.Insert(value, iter->values.Size());
+        iter->values.Insert(value, iter->values.Length());
     }
     else
     {

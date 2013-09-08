@@ -148,7 +148,7 @@ void UndoStack::Redo()
     if(!IsMakingMacro())
     {
         int new_ptr( m_ptr + 1 );
-        if(new_ptr < (int)m_stack.Count())
+        if(new_ptr < (int)m_stack.Length())
         {
             GASSERT(0 <= new_ptr);
             
@@ -179,14 +179,14 @@ void UndoStack::_end_macro(bool commit)
     __undoable_macro_command *c( reinterpret_cast<__undoable_macro_command *>(m_macro) );
     m_macro = NULL;
 
-    if(0 < c->Commands.Count())
+    if(0 < c->Commands.Length())
     {
         if(commit)
         {
             IUndoableAction *tmp = c;
             
             // If there is only one command in the macro, then only remember the one command
-            if(1 == c->Commands.Count()){
+            if(1 == c->Commands.Length()){
                 tmp = c->Commands[0];
                 c->Commands.Clear();
                 delete c;

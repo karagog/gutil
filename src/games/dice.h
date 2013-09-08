@@ -50,7 +50,7 @@ public:
     inline void SetNumberDice(GUINT32 number_of_dice){ m_dice.Resize(number_of_dice, 0); }
 
     /** Returns the number of dice in the bunch. */
-    inline GUINT32 GetNumberDice() const{ return m_dice.Size(); }
+    inline GUINT32 GetNumberDice() const{ return m_dice.Length(); }
 
     /** Sets the number of sides for the dice.
 

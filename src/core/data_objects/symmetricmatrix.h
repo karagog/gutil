@@ -42,9 +42,9 @@ public:
     {
         for(GUINT32 i = 0; i < size; i++)
         {
-            m_matrix.PushBack(Vector<T>(i + 1));
+            m_matrix.Insert(Vector<T>(i + 1));
             for(GUINT32 j = 0; j < i + 1; j++)
-                m_matrix.Back()[j] = initial_value;
+                m_matrix[m_matrix.Length() - 1][j] = initial_value;
         }
     }
 

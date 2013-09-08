@@ -232,7 +232,7 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
         Vector<T> &v(iter.values());
         if(!allow_multiples)
         {
-            m_size -= v.Count();
+            m_size -= v.Length();
             v.Clear();
         }
         v.PushBack(i);
@@ -252,9 +252,9 @@ template<class T>void Set<T>::_remove(const T &i, bool all)
         Vector<T> &v(iter.values());
         v.PopBack();
         --m_size;
-        if(all || v.Count() == 0)
+        if(all || v.Length() == 0)
         {
-            m_size -= v.Count();
+            m_size -= v.Length();
             data.Remove(iter);
         }
     }

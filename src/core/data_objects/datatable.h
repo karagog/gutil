@@ -61,7 +61,7 @@ public:
             Add(String::FromInt(i));
     }
     inline explicit DataColumnCollection(const Vector<String> &col_names)
-        :Collection<DataColumn>(col_names.Count())
+        :Collection<DataColumn>(col_names.Length())
     {
         for(Vector<String>::const_iterator iter(col_names.begin()); iter != col_names.end(); ++iter)
             Add(*iter);

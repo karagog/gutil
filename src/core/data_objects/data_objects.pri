@@ -22,7 +22,8 @@ HEADERS += \
     data_objects/bitvector.h \
     data_objects/uuid.h \
     data_objects/id.h \
-    data_objects/trio.h
+    data_objects/trio.h \
+    data_objects/Icollections.h
 
 SOURCES += \
     data_objects/version.cpp \

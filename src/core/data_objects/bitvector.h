@@ -100,7 +100,7 @@ public:
     /** Adds the bit to the end of the vector */
     inline void PushBack(bool val){
         GUINT32 old_size( m_size++ );
-        if((old_size >> 5) > m_data.Size())
+        if((old_size >> 5) > m_data.Length())
             m_data.PushBack(0);
         Set(old_size, val);
     }
@@ -108,7 +108,7 @@ public:
     /** Removes the bit from the end of the vector */
     inline void PopBack(){
         --m_size;
-        if(((m_size - 1) >> 5) < m_data.Size())
+        if(((m_size - 1) >> 5) < m_data.Length())
             m_data.PopBack();
     }
 

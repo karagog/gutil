@@ -20,7 +20,7 @@ CommandLineArgs::CommandLineArgs(int argc, char **argv)
     :Vector<String>(argc)
 {
     for(int i = 0; i < argc; i++)
-        PushBack(argv[i]);
+        Insert(argv[i]);
 }
 
 int CommandLineArgs::FindArgument(const String &f, bool case_sensitive) const

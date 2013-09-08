@@ -92,7 +92,7 @@ public:
     /** Returns the current size of the undo stack (i.e. The total number of
         commands which have been pushed on the stack.)
     */
-    inline int Size() const{ return (int)m_stack.Size(); }
+    inline int Size() const{ return (int)m_stack.Length(); }
 
 
     /** Returns true if you can undo a command on the stack. */
