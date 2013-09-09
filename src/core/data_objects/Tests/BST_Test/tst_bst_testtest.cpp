@@ -14,9 +14,10 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "binarysearchtree.h"
+#include "gutil_binarysearchtree.h"
 #include <iostream>
 #include <vector>
+USING_NAMESPACE_GUTIL1(Utils);
 USING_NAMESPACE_GUTIL1(DataObjects);
 using namespace std;
 
@@ -212,7 +213,7 @@ int BST_Test::backwards_compare(const int &lhs, const int &rhs)
 
 void BST_Test::test_compare()
 {
-    BinarySearchTree<int> backwards_tree(&backwards_compare);
+    BinarySearchTree<int> backwards_tree(FlexibleTypeComparer<int>(&backwards_compare));
     for(int i(1); i < 10; i++)
         backwards_tree.Add(i);
 
@@ -486,7 +487,7 @@ int BST_Test::pointer_compare(int *const&lhs, int *const&rhs)
 
 void BST_Test::test_pointers()
 {
-    BinarySearchTree<int *> pointer_tree(&pointer_compare);
+    BinarySearchTree<int *> pointer_tree(FlexibleTypeComparer<int *>(&pointer_compare));
     int a(1), b(2), c(3);
     pointer_tree.Add(&a);
     pointer_tree.Add(&b);
