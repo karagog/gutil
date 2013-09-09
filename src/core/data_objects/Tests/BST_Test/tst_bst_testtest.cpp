@@ -189,6 +189,10 @@ void BST_Test::test_basic_function()
     }
     verify_tree(bst);
 
+    Vector<int> sorted = bst.SortedList();
+//    for(int i = 0; i < sorted.Length(); i++)
+//        cout<<sorted[i]<<endl;
+
     //show_depth_first_tree(bst);
 
     // Add numbers in reverse order
@@ -213,7 +217,7 @@ int BST_Test::backwards_compare(const int &lhs, const int &rhs)
 
 void BST_Test::test_compare()
 {
-    BinarySearchTree<int> backwards_tree(FlexibleTypeComparer<int>(&backwards_compare));
+    BinarySearchTree<int> backwards_tree(&backwards_compare);
     for(int i(1); i < 10; i++)
         backwards_tree.Add(i);
 
@@ -487,7 +491,7 @@ int BST_Test::pointer_compare(int *const&lhs, int *const&rhs)
 
 void BST_Test::test_pointers()
 {
-    BinarySearchTree<int *> pointer_tree(FlexibleTypeComparer<int *>(&pointer_compare));
+    BinarySearchTree<int *> pointer_tree(&pointer_compare);
     int a(1), b(2), c(3);
     pointer_tree.Add(&a);
     pointer_tree.Add(&b);

@@ -35,7 +35,7 @@ public:
     inline FlexibleTypeComparer(){ _init(&DefaultCompare); }
 
     /** Constructs a type comparer with a compare function you supply. */
-    inline explicit FlexibleTypeComparer(int (*cmp)(const T &, const T &)){ _init(cmp); }
+    inline FlexibleTypeComparer(int (*cmp)(const T &, const T &)){ _init(cmp); }
     
     /** This instance will take on the compare behavior of the given argument. */
     inline FlexibleTypeComparer<T> &operator = (const FlexibleTypeComparer<T> &ftc){

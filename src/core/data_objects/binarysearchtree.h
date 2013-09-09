@@ -43,25 +43,24 @@ public:
     inline TypeMapper(){
         f_map = &default_convert;
     }
-    
+
     /** The copy constructor. */
     inline TypeMapper(const TypeMapper &o){
         f_map = o.f_map;
     }
-    
+
     /** Here you can specify your own conversion from the contained type
         to the key type
         \param mapping_function A function that maps the source type to the target type.
     */
-    inline explicit TypeMapper(TargetType const &(*mapping_function)(SourceType const &)){
+    inline TypeMapper(TargetType const &(*mapping_function)(SourceType const &)){
         f_map = mapping_function;
     }
 
-    /** Use the parenthesis operator to dereference the conversion function. */
-    inline TargetType const &operator()(SourceType const &t) const{ return f_map(t); }
+    /** Maps the source type to the target type. */
+    inline TargetType const &operator () (SourceType const &t) const{ return f_map(t); }
 
 };
-
 
 
 /** Implements an AVL-balanced binary search tree.
@@ -175,10 +174,10 @@ public:
         value of your comparison function (i.e. if you want it to arrange
         items in reverse order, then reverse your comparison function)
     */
-    inline explicit BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &c)
+    inline BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp)
         :root(NULL),
           m_size(0),
-          f_cmp(c)
+          f_cmp(cmp)
     {}
 
     /** Constructs a binary search tree which uses a custom conversion
@@ -188,10 +187,10 @@ public:
         The tree still uses the less-than
         operator for comparisons, and sorts things ascendingly
     */
-    inline explicit BinarySearchTree(const TypeMapper<T, KeyType> &c)
+    inline BinarySearchTree(const TypeMapper<T, KeyType> &map)
         :root(NULL),
           m_size(0),
-          f_map(c)
+          f_map(map)
     {}
 
     /** Constructs a binary search tree which uses a custom conversion
@@ -200,12 +199,12 @@ public:
         The tree still uses the less-than
         operator for comparisons, and sorts things ascendingly
     */
-    inline explicit BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &c,
-                                     const TypeMapper<T, KeyType> &conv)
+    inline BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp,
+                                     const TypeMapper<T, KeyType> &map)
         :root(NULL),
           m_size(0),
-          f_cmp(c),
-          f_map(conv)
+          f_cmp(cmp),
+          f_map(map)
     {}
 
     /** Performs a deep copy of the other tree.
@@ -270,7 +269,7 @@ public:
             m_parent = current;
             current = current->RChild;
         }
-        inline bool CanMoveRight() const{ return current ? current->RChild : false; }
+        inline bool CanMoveRight() const{ return current ? (bool)current->RChild : false; }
         /** Manipulates the iterator manually, moving it to its left-child.
             This is useful for iterating breadth-first.
         */
@@ -278,7 +277,7 @@ public:
             m_parent = current;
             current = current->LChild;
         }
-        inline bool CanMoveLeft() const{ return current ? current->LChild : false; }
+        inline bool CanMoveLeft() const{ return current ? (bool)current->LChild : false; }
         inline void MoveUp(){
             current = m_parent;
             m_parent = current->Parent;
@@ -465,7 +464,7 @@ public:
         const_iterator ret(root);
         while(ret)
         {
-            const int cmp_res( f_cmp(f_map(object), f_map(ret.current->Data)) );
+            const int cmp_res( f_cmp.Compare(f_map(object), f_map(ret.current->Data)) );
             if(cmp_res < 0)         ret.MoveLeft();
             else if(cmp_res > 0)    ret.MoveRight();
             else break;
@@ -481,7 +480,7 @@ public:
         iterator ret(root);
         while(ret)
         {
-            const int cmp_res( f_cmp(f_map(object), f_map(ret.current->Data)) );
+            const int cmp_res( f_cmp.Compare(f_map(object), f_map(ret.current->Data)) );
             if(cmp_res < 0)         ret.MoveLeft();
             else if(cmp_res > 0)    ret.MoveRight();
             else break;
@@ -500,7 +499,7 @@ public:
         iterator ret( root );
         while(ret)
         {
-            const int cmp_res( f_cmp(object, f_map(ret.current->Data)) );
+            const int cmp_res( f_cmp.Compare(object, f_map(ret.current->Data)) );
             if(cmp_res < 0)         ret.MoveLeft();
             else if(cmp_res > 0)    ret.MoveRight();
             else break;
@@ -512,7 +511,7 @@ public:
         const_iterator ret( root );
         while(ret)
         {
-            const int cmp_res( f_cmp(object, f_map(ret.current->Data)) );
+            const int cmp_res( f_cmp.Compare(object, f_map(ret.current->Data)) );
             if(cmp_res < 0)         ret.MoveLeft();
             else if(cmp_res > 0)    ret.MoveRight();
             else break;
@@ -596,11 +595,10 @@ public:
         This function works in linear O(N) time, so with it you can sort a collection of items
         in O(log(N)) time simply by inserting them all into the BST, and then calling SortedList().
     */
-    Vector<T> SortedList() const{
+    inline Vector<T> SortedList() const{
         Vector<T> ret(m_size);
-        Vector<T> iter = ret.begin();
         G_FOREACH_CONST(const T &item, *this)
-            ret.insert(item, ++iter);
+            ret.PushBack(item);
         return ret;
     }
 
@@ -871,7 +869,7 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
 
         node *new_node( new node(object, iter.m_parent) );
 
-        const int cmp_res( f_cmp(f_map(object), f_map(iter.m_parent->Data)) );
+        const int cmp_res( f_cmp.Compare(f_map(object), f_map(iter.m_parent->Data)) );
         if(cmp_res < 0)
             new_node->Parent->LChild = new_node;
         else if(cmp_res > 0)
