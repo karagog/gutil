@@ -14,9 +14,10 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "binarysearchtree.h"
+#include "gutil_binarysearchtree.h"
 #include <iostream>
 #include <vector>
+USING_NAMESPACE_GUTIL1(Utils);
 USING_NAMESPACE_GUTIL1(DataObjects);
 using namespace std;
 
@@ -187,6 +188,10 @@ void BST_Test::test_basic_function()
         //show_breadth_first_tree(bst);
     }
     verify_tree(bst);
+
+    Vector<int> sorted = bst.SortedList();
+//    for(int i = 0; i < sorted.Length(); i++)
+//        cout<<sorted[i]<<endl;
 
     //show_depth_first_tree(bst);
 
