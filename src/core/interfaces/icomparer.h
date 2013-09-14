@@ -27,6 +27,11 @@ public:
     /** Return -1 if lhs is less than rhs, 0 if equal, or 1 if lhs greater than rhs */
     virtual int Compare(const T &lhs, const U &rhs) const = 0;
 
+    /** Convenience parenthesis operator that allows you to treat this like a function object. */
+    inline int operator ()(const T &lhs, const U &rhs) const{
+        return Compare(lhs, rhs);
+    }
+
     /** So you can be deleted by this interface. */
     virtual ~IComparerDifferent(){}
 };

@@ -133,7 +133,7 @@ void UndoStack::Undo()
     {
         if(0 <= m_ptr)
         {
-            GASSERT(m_ptr < (int)m_stack.Count());
+            GASSERT(m_ptr < (int)m_stack.Length());
             
             m_stack[m_ptr]->Undo();
             m_ptr--;
