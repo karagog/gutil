@@ -43,8 +43,8 @@ SListTest::SListTest()
 
 void SListTest::test_stack()
 {
-    SList<int> lst;
-    SListStack<int> stk(&lst);
+    SList<int, IStack<int> > lst;
+    IStack<int> &stk(lst);
 
     for(int i = 0; i < 10; i++)
         stk.Push(i);
@@ -52,16 +52,16 @@ void SListTest::test_stack()
     for(int i = 9; i >= 0; i--)
     {
         QVERIFY(stk.Top() == i);
-        QVERIFY(stk.CountStackItems() == i + 1);
+        QVERIFY(stk.Size() == i + 1);
         stk.Pop();
     }
 
     stk.Push(1);
     stk.Push(2);
-    QVERIFY(stk.CountStackItems() == 2);
+    QVERIFY(stk.Size() == 2);
 
-    stk.FlushStack();
-    QVERIFY(stk.CountStackItems() == 0);
+    stk.Clear();
+    QVERIFY(stk.Size() == 0);
 }
 
 void SListTest::test_iterators()
@@ -85,33 +85,33 @@ void SListTest::test_removal()
     for(int i = 0; i < 10; i++)
         lst.PushFront(i);
 
-    QVERIFY(lst.Count() == 10);
+    QVERIFY(lst.Length() == 10);
 
     // Test from the top of the stack
     SList<int>::iterator iter(lst.begin());
     lst.Remove(iter);
 
-    QVERIFY(lst.Count() == 9);
+    QVERIFY(lst.Length() == 9);
     QVERIFY2(*iter == 8, QString("%1").arg(*iter).toAscii());
 
 
     // Test removal from the middle of the stack
     iter++; iter++; iter++; iter++; iter++;
     lst.Remove(iter);
-    QVERIFY(lst.Count() == 8);
+    QVERIFY(lst.Length() == 8);
 
     // Test removal from the end of the stack
     SList<int>::iterator tmp(iter);
     while(++iter != lst.end())
         tmp = iter;
     lst.Remove(tmp);
-    QVERIFY(lst.Count() == 7);
+    QVERIFY(lst.Length() == 7);
 }
 
 void SListTest::test_queue()
 {
-    SList<int> lst;
-    SListQueue<int> q( &lst );
+    SList<int, IQueue<int> > lst;
+    IQueue<int> &q(lst);
 
     q.Enqueue(0);
     q.Enqueue(1);
@@ -119,20 +119,20 @@ void SListTest::test_queue()
     q.Enqueue(3);
     q.Enqueue(4);
     q.Enqueue(5);
-    QVERIFY(q.CountQueueItems() == 6);
+    QVERIFY(q.Size() == 6);
     for(int i(0); i < 6; ++i)
     {
         QVERIFY2(q.Front() == i, QString("%1 != %2").arg(q.Front()).arg(i).toAscii());
-        QVERIFY(q.CountQueueItems() == 6 - i);
+        QVERIFY(q.Size() == 6 - i);
         q.Dequeue();
     }
 
     q.Enqueue(1);
     q.Enqueue(2);
-    QVERIFY(q.CountQueueItems() == 2);
+    QVERIFY(q.Size() == 2);
 
-    q.FlushQueue();
-    QVERIFY(q.CountQueueItems() == 0);
+    q.Clear();
+    QVERIFY(q.Size() == 0);
 }
 
 void SListTest::test_sorting()

@@ -37,8 +37,13 @@ public:
     /** Initializes the pointer to NULL */
     inline SmartPointer() :ptr(0){}
 
-    /** Initializes the pointer to p
-        \note p may be of type T, or a type derived from T.  In this case it must have a virtual destructor
+    /** Initializes the pointer to p. */
+    inline SmartPointer(T *p) :ptr(p){}
+
+    /** Initializes the pointer to p.
+     *
+     *  \note U must be a type derived from T, and MUST have a virtual destructor to allow
+     *  us to delete it.
     */
     template<class U>inline SmartPointer(U *p) :ptr(dynamic_cast<T *>(p)){}
 

@@ -47,7 +47,7 @@ template<class T>class VectorImp
      *  {
      *                  GUINT32 capacity;
      *                  GUINT32 size;
-     *      m_data ->   T pointer[size];
+     *      m_data ->   T array[size];
      *  }
      *
      *  So the pointer is actually pointing to the start of the array, and the size/capacity memory
@@ -150,21 +150,24 @@ public:
     inline bool IsEmpty() const{ return IsNull() || Length() == 0; }
 
     /** Inserts the item at the end of the vector. */
-    inline void Insert(const T &item){ Insert(item, Length()); }
+    inline T &Insert(const T &item){ return Insert(item, Length()); }
 
     /** Insert the item at the position before the iterator.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    inline void Insert(const T &item, const iterator &iter){ Insert(item, iter.Index()); }
+    inline T &Insert(const T &item, const iterator &iter){ return Insert(item, iter.Index()); }
 
-    /** Insert the item at the index position.
+    /** Insert the item at the index position.  It will throw an exception if the index is out of bounds.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(const T &item, GUINT32 indx)
+    T &Insert(const T &item, GUINT32 indx)
     {
         const GUINT32 len( Length() );
+
+        if(len < indx)
+            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
         // Allocate more memory if we have to
         if(len == Capacity())
@@ -204,6 +207,8 @@ public:
         }
 
         set_length( len + 1 );
+
+        return this->operator [](indx);
     }
 
     /** Insert the vector at the index position.
@@ -214,13 +219,16 @@ public:
         Insert(vec.ConstData(), vec.Length(), indx);
     }
 
-    /** Insert the array at the index position.
+    /** Insert the array at the index position.  It will throw an exception if the index is out of bounds.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
     void Insert(T const *vec, GUINT32 size, GUINT32 indx)
     {
         const GUINT32 len( Length() );
+
+        if(len < indx)
+            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
         // Allocate more memory if we have to
         if((len + size) > Capacity())
@@ -912,11 +920,11 @@ private:
 
 
 
-/** This is used to define all the same constructors as the base vector class so you don't have to
+/** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
  *  repeat so much code.
  *
- *  \param class_name The name of top-level vector class for which to define constructors.
- *  \param base_class The base vector class to whose constructors you will forward parameters.
+ *  \param class_name The name of top-level class for which to define constructors.
+ *  \param base_class The base class to whose constructors you will forward parameters.
 */
 #define GUTIL_VECTOR_CONSTRUCTORS(class_name, base_class) \
     public: \
@@ -925,7 +933,8 @@ private:
     inline explicit class_name(const T &o, GUINT32 size = 1) :base_class(o, size){} \
     inline class_name(T const*arr, GUINT32 size) :base_class(arr, size){} \
     inline class_name(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
-    inline class_name(const VectorImp<T> &o) :base_class(o) {}
+    inline class_name(const VectorImp<T> &o) :base_class(o) {} \
+    virtual ~class_name(){}
 
 
 
@@ -948,12 +957,10 @@ template<class T> class Vector<T, IRandomAccessContainer<T> > :
 {
     GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
 
-    virtual ~Vector(){}
-
     virtual T &At(GUINT32 i){ return VectorImp<T>::At(i); }
     virtual T const &At(GUINT32 i) const{ return VectorImp<T>::At(i); }
 
-    virtual void Insert(const T &item, GUINT32 i){ VectorImp<T>::Insert(item, i); }
+    virtual T &Insert(const T &item, GUINT32 i){ return VectorImp<T>::Insert(item, i); }
     virtual void Remove(GUINT32 i){ VectorImp<T>::RemoveAt(i); }
 
     virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
@@ -970,15 +977,53 @@ template<class T> class Vector<T, IStack<T> > :
 {
     GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
 
-    virtual ~Vector(){}
-
-    virtual T &Push(const T &item){ VectorImp<T>::Insert(item); }
+    virtual T &Push(const T &item){ return VectorImp<T>::Insert(item); }
     virtual void Pop(){ VectorImp<T>::RemoveAt(VectorImp<T>::Length() - 1); }
     virtual T &Top(){ return VectorImp<T>::Data()[VectorImp<T>::Length() - 1]; }
     virtual T const &Top() const{ return VectorImp<T>::ConstData()[VectorImp<T>::Length() - 1]; }
 
     virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
-    virtual void Clear(){ VectorImp<T>::Clear(); }
+    virtual void Clear(){ VectorImp<T>::Empty(); }
+
+};
+
+
+/** Defines a template specialization of the Vector class, with a queue interface. */
+template<class T> class Vector<T, IQueue<T> > :
+        public Vector<T>,
+        public IQueue<T>
+{
+    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
+
+    virtual T &Enqueue(const T &item){ return VectorImp<T>::PushBack(item); }
+    virtual void Dequeue(){ VectorImp<T>::PopFront(); }
+    virtual T &Front(){ return VectorImp<T>::Front(); }
+    virtual T const &Front() const{ return VectorImp<T>::Front(); }
+
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual void Clear(){ VectorImp<T>::Empty(); }
+
+};
+
+
+/** Defines a template specialization of the Vector class, with a deque interface. */
+template<class T> class Vector<T, IDeque<T> > :
+        public Vector<T>,
+        public IDeque<T>
+{
+    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
+
+    virtual T &EnqueueFront(const T &item){ return VectorImp<T>::PushFront(item); }
+    virtual T &EnqueueBack(const T &item){ return VectorImp<T>::PushBack(item); }
+    virtual void DequeueFront(){ VectorImp<T>::PopFront(); }
+    virtual void DequeueBack(){ VectorImp<T>::PopBack(); }
+    virtual T &Front(){ return VectorImp<T>::Front(); }
+    virtual T const &Front() const{ return VectorImp<T>::Front(); }
+    virtual T &Back(){ return VectorImp<T>::Back(); }
+    virtual T const &Back() const{ return VectorImp<T>::Back(); }
+
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual void Clear(){ VectorImp<T>::Empty(); }
 
 };
 

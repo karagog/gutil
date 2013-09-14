@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_SLIST_H
 
 #include "gutil_exception.h"
-#include "gutil_interfaces.h"
+#include "gutil_Icollections.h"
 #include "gutil_globals.h"
 #include "gutil_flexibletypecomparer.h"
 NAMESPACE_GUTIL1(DataObjects);
@@ -29,7 +29,7 @@ NAMESPACE_GUTIL1(DataObjects);
     so that you can push items on the back, but you can't use this cache to access list items.
     In this way, it is flexible enough to represent a queue.
 */
-template<class T>class SList
+template<class T>class SListImp
 {
 
     /** One node of data. */
@@ -50,14 +50,14 @@ public:
     class const_iterator;
 
     /** Creates an empty slist. */
-    inline SList(): m_first(0), m_last(0), m_count(0){}
+    inline SListImp(): m_first(0), m_last(0), m_count(0){}
 
     /** Creates a new slist with the item at the front of the list. */
-    inline explicit SList(const T &item): m_first(0), m_last(0), m_count(0)
+    inline explicit SListImp(const T &item): m_first(0), m_last(0), m_count(0)
     { iterator i(begin()); Insert(item, i); }
 
     /** Conducts a deep copy of the slist */
-    inline SList(const SList<T> &o)
+    inline SListImp(const SListImp<T> &o)
         :m_first(0), m_last(0), m_count(0)
     {
         node *n(o.m_first);
@@ -69,12 +69,12 @@ public:
         }
     }
     /** Conducts a deep copy of the slist */
-    SList<T> &operator =(const SList<T> &o){
+    SListImp<T> &operator =(const SListImp<T> &o){
         Clear();
-        new(this) SList<T>(o);
+        new(this) SListImp<T>(o);
         return *this;
     }
-    inline ~SList(){ Clear(); }
+    inline ~SListImp(){ Clear(); }
 
     /** Removes the item pointed to by the iterator.
 
@@ -89,7 +89,7 @@ public:
     */
     inline void Remove(iterator &iter){ _remove(iter); }
 
-    /** Insert an item into the list.
+    /** Insert an item into the list, and returns a reference to the new item.
 
         The iterator stays valid after insertion.  It will point to the same item as before, which
         has been shifted 1 place in the list, due to the insertion.
@@ -98,8 +98,9 @@ public:
         override it to provide custom insertion behavior.
         \note O(1)
     */
-    inline void Insert(const T &i, iterator &iter){
-        node *new_node( reinterpret_cast<node *>(malloc(sizeof(node))) );
+    inline T &Insert(const T &i, iterator &iter){
+        // We use malloc so we can handle a bad allocation event ourselves
+        node *new_node( (node *)malloc(sizeof(node)) );
         if(new_node == NULL)
             THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
         new(new_node) node(i, iter.current);
@@ -113,22 +114,24 @@ public:
         ++m_count;
 
         iter.parent = new_node;
+
+        return new_node->Data;
     }
 
     /** Prepends an item on the list. */
-    inline void PushFront(const T &i){ iterator iter(begin()); Insert(i, iter); }
+    inline T &PushFront(const T &i){ iterator iter(begin()); return Insert(i, iter); }
 
     /** Appends an item on the list. */
-    inline void PushBack(const T &i){ iterator iter(end()); Insert(i, iter); }
+    inline T &PushBack(const T &i){ iterator iter(end()); return Insert(i, iter); }
 
     /** Removes the front of the list. */
     inline void PopFront(){ iterator iter(begin()); Remove(iter); }
 
     /** Pushes an item on a logical stack, with appealing syntax. */
-    inline SList<T> &operator << (const T &item){ PushFront(item); return *this; }
+    inline SListImp<T> &operator << (const T &item){ PushFront(item); return *this; }
 
     /** Pops the top item from a logical stack and copies it into the given variable */
-    inline SList<T> &operator >> (T &cpy){ cpy = *begin(); PopFront(); return *this; }
+    inline SListImp<T> &operator >> (T &cpy){ cpy = *begin(); PopFront(); return *this; }
 
     /** Returns a reference to the first item in the list. */
     inline T &Front(){ return m_first->Data; }
@@ -151,9 +154,7 @@ public:
     inline bool IsEmpty() const{ return !m_count; }
 
 
-    /** How many items in the SList. */
-    inline GUINT32 Count() const{ return m_count; }
-    /** How many items in the SList. */
+    /** How many items in the SListImp. */
     inline GUINT32 Length() const{ return m_count; }
 
 
@@ -178,7 +179,7 @@ public:
 
     class iterator
     {
-        friend class SList;
+        friend class SListImp;
     public:
         inline iterator(node *n, node *p) :current(n), parent(p) {}
         inline explicit iterator(node *n) :current(n), parent(0) {}
@@ -224,7 +225,7 @@ public:
     /** An iterator that won't modify the list, but it can still modify the values in the list. */
     class const_iterator
     {
-        friend class SList;
+        friend class SListImp;
     public:
         inline const_iterator(node *n, node *p) :current(n), parent(p) {}
         inline explicit const_iterator(node *n) :current(n), parent(0) {}
@@ -299,7 +300,9 @@ private:
         else
             m_first = n;
 
-        delete iter.current;
+        iter.current->~node();
+        free(iter.current);
+
         iter.current = n;
         --m_count;
     }
@@ -410,78 +413,63 @@ private:
 };
 
 
-template<class T>class SListStack : public Stack<T>
+
+/** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
+ *  repeat so much code.
+ *
+ *  \param class_name The name of top-level class for which to define constructors.
+ *  \param base_class The base class to whose constructors you will forward parameters.
+*/
+#define GUTIL_SLIST_CONSTRUCTORS(class_name, base_class) \
+    public: \
+    inline class_name(){} \
+    inline explicit class_name(const T &item):base_class(item){} \
+    inline class_name(const base_class &o) :base_class(o){} \
+    virtual ~class_name(){}
+
+
+/** Defines the basic SList type without any interfaces.
+ *
+ *  Use this as the most memory efficient version.
+ *
+ *  \tparam T The type contained.
+ *  \tparam IFace The interface class, or void if no interface.
+*/
+template<class T, typename IFace = void>class SList : public SListImp<T>
+{ GUTIL_SLIST_CONSTRUCTORS(SList, SListImp<T>) };
+
+
+
+/** Defines a template specialization of the SList class, with a Stack interface. */
+template<class T>class SList<T, IStack<T> > :
+        public SList<T>,
+        public IStack<T>
 {
-    GUTIL_DISABLE_COPY(SListStack<T>)
-public:
+    GUTIL_SLIST_CONSTRUCTORS(SList, SList<T>)
 
-    inline SListStack(SList<T> *lst) :m_list(lst), m_delete(false){}
-
-    inline SListStack() :m_list(new SList<T>), m_delete(true){}
-
-    inline ~SListStack(){ if(m_delete) delete m_list; }
-
-    /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ m_list->PushFront(i); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Pop(){ m_list->PopFront(); }
-
-    /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return *m_list->begin(); }
-
-    /** Satisfies the Stack abstract interface. */
-    T &Top(){ return *m_list->begin(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ return m_list->Clear(); }
-
-    /** Satisfies the Stack abstract interface. */
-    GUINT32 CountStackItems() const{ return m_list->Count(); }
-
-
-private:
-
-    SList<T> *m_list;
-    bool m_delete;
+    virtual T &Push(const T &item){ return SListImp<T>::PushFront(item); }
+    virtual void Pop(){ SListImp<T>::PopFront(); }
+    virtual T &Top(){ return SListImp<T>::Front(); }
+    virtual T const &Top() const{ return SListImp<T>::Front(); }
+    virtual GUINT32 Size() const{ return SListImp<T>::Length(); }
+    virtual void Clear(){ SListImp<T>::Clear(); }
 
 };
 
 
-template<class T>class SListQueue : public Queue<T>
+/** Defines a template specialization of the SList class, with a Queue interface. */
+template<class T>class SList<T, IQueue<T> > :
+        public SList<T>,
+        public IQueue<T>
 {
-    GUTIL_DISABLE_COPY(SListQueue<T>)
-public:
+    GUTIL_SLIST_CONSTRUCTORS(SList, SList<T>)
 
-    inline SListQueue(SList<T> *lst) :m_list(lst), m_delete(false){}
-
-    inline SListQueue() :m_list(new SList<T>), m_delete(true){}
-
-    inline ~SListQueue(){ if(m_delete) delete m_list; }
-
-    /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ m_list->PushBack(i); }
-
-    /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ m_list->PopFront(); }
-
-    /** Satisfies the Queue abstract interface. */
-    const T &Front() const{ return *m_list->begin(); }
-
-    /** Satisfies the Queue abstract interface. */
-    T &Front(){ return *m_list->begin(); }
-
-    /** Satisfies the Queue abstract interface. */
-    void FlushQueue(){ return m_list->Clear(); }
-
-    /** Satisfies the Queue abstract interface. */
-    GUINT32 CountQueueItems() const{ return m_list->Count(); }
-
-
-private:
-
-    SList<T> *m_list;
-    bool m_delete;
+    virtual T &Enqueue(const T &item){ return SListImp<T>::PushBack(item); }
+    virtual void Dequeue(){ SListImp<T>::PopFront(); }
+    virtual T &Front(){ return SListImp<T>::Front(); }
+    virtual T const &Front() const{ return SListImp<T>::Front(); }
+    virtual GUINT32 Size() const{ return SListImp<T>::Length(); }
+    virtual void Clear(){ SListImp<T>::Clear(); }
 
 };
 
@@ -492,10 +480,8 @@ END_NAMESPACE_GUTIL1;
 namespace GUtil
 {
 
-// Both SList types can be binary-moved
-template<class T>struct IsMovableType< DataObjects::SList<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::SListStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::SListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DataObjects::SListImp<T> >{ enum{ Value = 1 }; };
+template<class T, class U>struct IsMovableType< DataObjects::SList<T, U> >{ enum{ Value = 1 }; };
 
 }
 
