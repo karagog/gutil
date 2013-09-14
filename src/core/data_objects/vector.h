@@ -933,19 +933,20 @@ private:
 /** Defines the basic vector type without any interfaces.
  *
  *  Use this as the most memory efficient version.
+ *
+ *  \tparam T The type contained by the vector.
+ *  \tparam IFace The interface class, or void if no interface.
 */
-template<class T, CollectionInterfaceTypeEnum = CI_None> class Vector : public VectorImp<T>
+template<class T, typename IFace = void> class Vector : public VectorImp<T>
 { GUTIL_VECTOR_CONSTRUCTORS(Vector, VectorImp<T>) };
 
 
 /** Defines a template specialization of the Vector class, with a random access container interface. */
-template<class T> class Vector<T, CI_RandomAccess> :
-        public Vector<T, CI_None>,
+template<class T> class Vector<T, IRandomAccessContainer<T> > :
+        public Vector<T>,
         public IRandomAccessContainer<T>
 {
-    typedef Vector<T, CI_None> BasicVector;
-    GUTIL_VECTOR_CONSTRUCTORS(Vector, BasicVector)
-public:
+    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
 
     virtual ~Vector(){}
 
@@ -963,13 +964,11 @@ public:
 
 
 /** Defines a template specialization of the Vector class, with a stack interface. */
-template<class T> class Vector<T, CI_Stack> :
-        public Vector<T, CI_None>,
+template<class T> class Vector<T, IStack<T> > :
+        public Vector<T>,
         public IStack<T>
 {
-    typedef Vector<T, CI_None> BasicVector;
-    GUTIL_VECTOR_CONSTRUCTORS(Vector, BasicVector)
-public:
+    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
 
     virtual ~Vector(){}
 
@@ -991,10 +990,7 @@ namespace GUtil
 {
 
 template<class T>struct IsMovableType< DataObjects::VectorImp<T> >{ enum{ Value = 1 }; };
-//template<class T>struct IsMovableType< DataObjects::VectorStack<T> >{ enum{ Value = 1 }; };
-//template<class T>struct IsMovableType< DataObjects::VectorQueue<T> >{ enum{ Value = 1 }; };
-//template<class T>struct IsMovableType< DataObjects::VectorDeque<T> >{ enum{ Value = 1 }; };
-//template<class T>struct IsMovableType< DataObjects::VectorRandomAccessContainer<T> >{ enum{ Value = 1 }; };
+template<class T, typename U>struct IsMovableType< DataObjects::Vector<T, U> >{ enum{ Value = 1 }; };
 
 }
 

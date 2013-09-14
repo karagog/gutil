@@ -19,27 +19,6 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(DataObjects);
 
 
-/** Defines an enum to indicate several types of collection interfaces. */
-enum CollectionInterfaceTypeEnum
-{
-    /** Has no interface. */
-    CI_None,
-
-    /** Has a random access interface. */
-    CI_RandomAccess,
-
-    /** Has a stack interface. */
-    CI_Stack,
-
-    /** Has a queue interface. */
-    CI_Queue,
-
-    /** Has a double-ended queue interface. */
-    CI_Deque
-};
-
-
-
 /** Defines some base functions common to most data containers. */
 class IDataContainer
 {

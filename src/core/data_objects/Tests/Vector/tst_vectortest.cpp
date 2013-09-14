@@ -80,7 +80,7 @@ void VectorTest::test_basic_function()
            .toAscii().constData());
 
     qDebug(QString("An empty vector with a random access interface uses %1 bytes.")
-           .arg(sizeof(Vector<int, CI_RandomAccess>))
+           .arg(sizeof(Vector<int, IRandomAccessContainer<int> >))
            .toAscii().constData());
 
     for(int i(0); i < 100; ++i)
@@ -296,7 +296,7 @@ void VectorTest::test_sorting()
 
 void VectorTest::test_interfaces()
 {
-    Vector<int, CI_RandomAccess> vec_randomAccess;
+    Vector<int, IRandomAccessContainer<int> > vec_randomAccess;
 
     _test_irandomaccess(&vec_randomAccess);
 }
