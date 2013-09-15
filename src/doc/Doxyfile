@@ -324,7 +324,7 @@ INLINE_GROUPED_CLASSES = NO
 
 # When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and
 # unions with only public data fields or simple typedef fields will be shown
-# inline in the documentation of the scope in which they are defined (i.e. file,
+# in the documentation of the scope in which they are defined (i.e. file,
 # namespace, or group documentation), provided this scope is documented. If set
 # to NO (the default), structs, classes, and unions are shown on a separate
 # page (for HTML and Man pages) or section (for LaTeX and RTF).
@@ -462,7 +462,7 @@ SHOW_INCLUDE_FILES     = YES
 FORCE_LOCAL_INCLUDES   = YES
 
 # If the INLINE_INFO tag is set to YES (the default) then a tag [inline]
-# is inserted in the documentation for inline members.
+# is inserted in the documentation for members.
 
 INLINE_INFO            = YES
 

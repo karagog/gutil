@@ -50,7 +50,7 @@ template <class T> class DefaultEqualityComparer
 {
 public:
 
-    virtual inline bool Equal(const T &lhs, const T &rhs) const{
+    virtual bool Equal(const T &lhs, const T &rhs) const{
         return lhs == rhs;
     }
 

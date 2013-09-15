@@ -24,7 +24,7 @@ class IUpdatable
     GUTIL_DISABLE_COPY(IUpdatable);
 public:
 
-    inline explicit IUpdatable(bool dirty = false)
+    explicit IUpdatable(bool dirty = false)
         :m_dirty(dirty),
           m_update_cnt(0),
           m_backup_update_count(0)
@@ -37,7 +37,7 @@ public:
         return m_dirty;
     }
 
-    inline void MakeDirty(){
+    void MakeDirty(){
         m_update_cnt++;
 
         if(!m_dirty)
@@ -48,7 +48,7 @@ public:
     }
 
     /** Commits changes to the object (implementation specific) and resets dirty state to "clean" */
-    inline void CommitChanges(bool commit = true){
+    void CommitChanges(bool commit = true){
         commit_reject_changes(commit);
         m_dirty = false;
 
@@ -59,11 +59,11 @@ public:
     }
 
     /** Rejects changes to the object (implementation specific) and resets dirty state to "clean" */
-    inline void RejectChanges(){
+    void RejectChanges(){
         CommitChanges(false);
     }
 
-    inline int UpdateCount() const{
+    int UpdateCount() const{
         return m_update_cnt;
     }
 

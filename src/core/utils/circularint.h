@@ -40,75 +40,75 @@ public:
     /** Creates a new CircularInt with the given min and max values.
         \note Nothing prevents you from setting nonsensical values.
     */
-    inline CircularInt(GINT32 min, GINT32 max, GINT32 starting_val)
+    CircularInt(GINT32 min, GINT32 max, GINT32 starting_val)
     { Reset(min, max, starting_val); }
 
     /** Resets the bounds and the value on the fly.
         \note Nothing prevents you from setting nonsensical values.
     */
-    inline void Reset(GINT32 min, GINT32 max, GINT32 start_val){
+    void Reset(GINT32 min, GINT32 max, GINT32 start_val){
         m_value = start_val;
         m_min = min;
         m_max = max;
     }
 
     /** Returns the minimum value of the integer. */
-    inline GINT32 MinimumValue() const{ return m_min; }
+    GINT32 MinimumValue() const{ return m_min; }
 
     /** Returns the maximum value of the integer. */
-    inline GINT32 MaximumValue() const{ return m_max; }
+    GINT32 MaximumValue() const{ return m_max; }
 
     /** Increments the value and rolls it over if greater than the max. */
-    inline void Increment(){
+    void Increment(){
         if(++m_value > m_max)
             m_value = m_min;
     }
 
     /** Decrements the value and rolls it over if less than the min. */
-    inline void Decrement(){
+    void Decrement(){
         if(--m_value < m_min)
             m_value = m_max;
     }
 
 
     /** Prefix increment. */
-    inline GINT32 operator ++(){
+    GINT32 operator ++(){
         Increment();
         return m_value;
     }
     /** Postfix increment. */
-    inline GINT32 operator ++(int){
+    GINT32 operator ++(int){
         GINT32 ret(m_value);
         Increment();
         return ret;
     }
 
     /** Prefix decrement. */
-    inline GINT32 operator --(){
+    GINT32 operator --(){
         Decrement();
         return m_value;
     }
     /** Postfix decrement. */
-    inline GINT32 operator --(int){
+    GINT32 operator --(int){
         GINT32 ret(m_value);
         Decrement();
         return ret;
     }
 
     /** Increments the specified number of times. */
-    inline GINT32 operator += (GUINT32 n){
+    GINT32 operator += (GUINT32 n){
         G_LOOP( n ){ Increment(); }
         return m_value;
     }
 
     /** Decrements the specified number of times. */
-    inline GINT32 operator -= (GUINT32 n){
+    GINT32 operator -= (GUINT32 n){
         G_LOOP( n ){ Decrement(); }
         return m_value;
     }
 
     /** Casts us as an integer. */
-    inline operator GINT32 () const{ return m_value; }
+    operator GINT32 () const{ return m_value; }
 
 };
 

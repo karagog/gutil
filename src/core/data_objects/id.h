@@ -59,64 +59,64 @@ public:
         You can call this function as many times as you want, but it must be called
         at least once before you start using Id's!
     */
-    inline static void InitializeRNG(){ ::GUtil::Utils::RNG::Initialize(); }
+    static void InitializeRNG(){ ::GUtil::Utils::RNG::Initialize(); }
 
     /** Constructs a null Id, which has all bytes set to 0. */
-    inline Id(){ Clear(); }
+    Id(){ Clear(); }
 
     /** Optionally initializes the random ID */
-    inline explicit Id(bool init){
+    explicit Id(bool init){
         if(init)    this->Generate();
         else        this->Clear();
     }
 
     /** Generates a new id.  Use as an alternative to the constructor. */
-    static inline Id<NUM_BYTES> NewId(){ return Id(true); }
+    static Id<NUM_BYTES> NewId(){ return Id(true); }
 
     /** Copy constructor */
-    inline Id(const Id<NUM_BYTES> &other){
+    Id(const Id<NUM_BYTES> &other){
         memcpy(m_data, other.m_data, sizeof(m_data));
     }
 
     /** Constructs an Id from an arbitrary byte array.  The array must
      *  be at least NUM_BYTES large, otherwise it will seg fault.
     */
-    inline explicit Id(const GBYTE *d){
+    explicit Id(const GBYTE *d){
         memcpy(m_data, d, sizeof(m_data));
     }
 
     /** Assignment operator */
-    inline Id<NUM_BYTES> &operator = (const Id<NUM_BYTES> &other){
+    Id<NUM_BYTES> &operator = (const Id<NUM_BYTES> &other){
         this->~Id(); new(this) Id(other); return *this;
     }
 
     /** Returns a null id (all bits set to 0). */
-    static inline const Id<NUM_BYTES> &Null(){ return s_null; }
+    static const Id<NUM_BYTES> &Null(){ return s_null; }
 
     /** Returns the number of bytes used in the Id.  This is a fixed constant. */
-    static inline int Size(){ return NUM_BYTES; }
+    static int Size(){ return NUM_BYTES; }
 
     /** Returns the base of the data array, which has a size of Size(). */
-    inline char const *ConstData() const{ return (char const *)m_data; }
+    char const *ConstData() const{ return (char const *)m_data; }
 
 
     /** Sets all bytes of the Id to 0. */
-    inline void Clear(){ memset(m_data, 0, sizeof(m_data)); }
+    void Clear(){ memset(m_data, 0, sizeof(m_data)); }
 
     /** Returns true if the Id is null (all bytes are 0). */
-    inline bool IsNull() const{ return 0 == Compare(Null(), *this); }
+    bool IsNull() const{ return 0 == Compare(Null(), *this); }
 
     /** Generates a random new value for this id. */
-    inline void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
+    void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with hex digits */
-    inline String ToString16() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }
+    String ToString16() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with base 64 digits */
-    inline String ToString64() const{ return String::ToBase64((const char *)m_data, sizeof(m_data)); }
+    String ToString64() const{ return String::ToBase64((const char *)m_data, sizeof(m_data)); }
 
     /** Constructs an Id from an ASCII hex string */
-    static inline Id<NUM_BYTES> FromString16(const String &s){
+    static Id<NUM_BYTES> FromString16(const String &s){
         Id<NUM_BYTES> ret;
         if(s.Length() == (2 * NUM_BYTES)){
             try{
@@ -129,7 +129,7 @@ public:
     }
 
     /** Constructs an Id from an ASCII base-64 string */
-    static inline Id<NUM_BYTES> FromString64(const String &s){
+    static Id<NUM_BYTES> FromString64(const String &s){
         Id<NUM_BYTES> ret;
         try{
             String cpy( s.FromBase64() );
@@ -143,29 +143,29 @@ public:
     /** Compares two ids for equality.
         \note Null ids do not equal each other
     */
-    inline bool operator == (const Id &other) const{
+    bool operator == (const Id &other) const{
         return !this->IsNull() && !other.IsNull() && 0 == Compare(*this, other);
     }
     /** Compares two ids for inequality.
         \note Null ids do not equal each other
     */
-    inline bool operator != (const Id &other) const{
+    bool operator != (const Id &other) const{
         return this->IsNull() || other.IsNull() || 0 != Compare(*this, other);
     }
 
     /** A compare function that simply compares ID's bitwise.  i.e. Nulls are equal.
         \returns 0 if the ID's bits match.  1 if the lhs is greater, -1 if the rhs is greater.
     */
-    static inline int Compare(const Id &lhs, const Id &rhs){
+    static int Compare(const Id &lhs, const Id &rhs){
         return memcmp(lhs.m_data, rhs.m_data, sizeof(Id<NUM_BYTES>::m_data));
     }
 
     /** A less-than operator is defined, to support sorted indexes. */
-    inline bool operator < (const Id &other) const{ return 0 > Compare(*this, other); }
-    inline bool operator > (const Id &other) const{ return 0 < Compare(*this, other); }
+    bool operator < (const Id &other) const{ return 0 > Compare(*this, other); }
+    bool operator > (const Id &other) const{ return 0 < Compare(*this, other); }
 
-    inline bool operator <= (const Id &other) const{ return 0 >= Compare(*this, other); }
-    inline bool operator >= (const Id &other) const{ return 0 <= Compare(*this, other); }
+    bool operator <= (const Id &other) const{ return 0 >= Compare(*this, other); }
+    bool operator >= (const Id &other) const{ return 0 <= Compare(*this, other); }
 
 };
 

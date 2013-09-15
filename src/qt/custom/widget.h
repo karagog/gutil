@@ -33,7 +33,7 @@ class Widget :
 public:
 
     /** Creates a new Widget */
-    inline explicit Widget(QWidget *parent = 0) :QWidget(parent){}
+    explicit Widget(QWidget *parent = 0) :QWidget(parent){}
 
 
     /** Center the second widget over the first one

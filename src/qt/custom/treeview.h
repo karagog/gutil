@@ -32,7 +32,7 @@ class TreeView :
 
 public:
 
-    inline explicit TreeView(QWidget *parent = 0)
+    explicit TreeView(QWidget *parent = 0)
         :QTreeView(parent){}
 
 public slots:

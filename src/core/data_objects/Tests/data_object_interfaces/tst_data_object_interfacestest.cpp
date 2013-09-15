@@ -31,7 +31,7 @@ public:
     explicit MemoryLeakChecker(int value): Data(new int(value)){}
     MemoryLeakChecker(const MemoryLeakChecker &o) :Data(new int(*o.Data)){}
 
-    MemoryLeakChecker &operator = (const MemoryLeakChecker &o){ Data = new int(*o.Data); }
+    MemoryLeakChecker &operator = (const MemoryLeakChecker &o){ *Data = *o.Data; return *this; }
 
 };
 
@@ -76,18 +76,22 @@ void Data_object_interfacesTest::testStack()
 {
     // Run the POD tests
     Vector<int, IStack<int> > vec;
+    List<int, IStack<int> > list;
     SList<int, IStack<int> > slist;
 
     testStack(vec);
+    testStack(list);
     testStack(slist);
 
 
     // Now check a more complex type, that allocates memory and must have its destructor called.
     //  This will validate that the container correctly calls the destructor on all items where necessary.
     Vector<MemoryLeakChecker, IStack<MemoryLeakChecker> > m_vec;
+    List<MemoryLeakChecker, IStack<MemoryLeakChecker> > m_list;
     SList<MemoryLeakChecker, IStack<MemoryLeakChecker> > m_slist;
 
     testStack(m_vec);
+    testStack(m_list);
     testStack(m_slist);
 }
 
@@ -159,16 +163,16 @@ void Data_object_interfacesTest::testStack(IStack<int> &stack)
 
 void Data_object_interfacesTest::testStack(IStack<MemoryLeakChecker> &stack)
 {
-    MemoryLeakChecker tmp(0);
+    int tmp;
 
     stack.Clear();
     QVERIFY(0 == stack.Size());
 
     for(int i = 1; i <= 4; i++)
     {
-        tmp = stack.Push(MemoryLeakChecker(i));
+        tmp = *stack.Push(MemoryLeakChecker(i)).Data;
         QVERIFY(i == stack.Size());
-        QVERIFY(i == *tmp.Data);
+        QVERIFY(i == tmp);
         QVERIFY(i == *stack.Top().Data);
         QVERIFY(i == *const_cast<IStack<MemoryLeakChecker> const &>(stack).Top().Data);
     }
@@ -194,9 +198,9 @@ void Data_object_interfacesTest::testStack(IStack<MemoryLeakChecker> &stack)
 
     for(int i = 1; i <= 10000; i++)
     {
-        tmp = stack.Push(MemoryLeakChecker(i));
+        tmp = *stack.Push(MemoryLeakChecker(i)).Data;
         QVERIFY(i == stack.Size());
-        QVERIFY(i == *tmp.Data);
+        QVERIFY(i == tmp);
         QVERIFY(i == *stack.Top().Data);
         QVERIFY(i == *const_cast<IStack<MemoryLeakChecker> const &>(stack).Top().Data);
     }

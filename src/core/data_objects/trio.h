@@ -35,10 +35,10 @@ public:
     T3 Third;
 
     /** Declare a default constructor if you don't care about initialization. */
-    inline Trio(){}
+    Trio(){}
 
     /** Initialize all three members of the trio. */
-    inline Trio(const T1 &f, const T2 &s, const T3 &t)
+    Trio(const T1 &f, const T2 &s, const T3 &t)
         :First(f), Second(s), Third(t) {}
 
 };
@@ -52,10 +52,10 @@ template<class T> class Trio : public Trio<T, T, T>
 public:
 
     /** Declare a default constructor if you don't care about initialization. */
-    inline Trio(){}
+    Trio(){}
 
     /** Initialize all three members of the trio. */
-    inline Trio(const T &f, const T &s, const T &t)
+    Trio(const T &f, const T &s, const T &t)
         :Trio<T, T, T>(f, s, t) {}
 
 };

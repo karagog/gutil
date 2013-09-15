@@ -58,7 +58,7 @@ public:
     void Clear();
 
     /** Returns the file location of the data cache. */
-    inline const QString &GetFileName() const{ return m_fileName; }
+    const QString &GetFileName() const{ return m_fileName; }
 
     /** Returns the number of pieces of data this object is caching. */
     int CountData() const;
@@ -103,7 +103,7 @@ public:
 
 
     /** Returns whether the cache contains data with that id.  */
-    inline bool HasData(int id) const{ return -1 != GetSize(id); }
+    bool HasData(int id) const{ return -1 != GetSize(id); }
 
 
     /** Get the size (number of bytes) of a cached piece of data.

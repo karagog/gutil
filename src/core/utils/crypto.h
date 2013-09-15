@@ -47,7 +47,7 @@ public:
     public:
 
         /** Just give it a string reference, and it will append all the data to it */
-        inline StringSink(GUtil::DataObjects::String &s) :sref(s){}
+        StringSink(GUtil::DataObjects::String &s) :sref(s){}
 
         /** Overridden from ::CryptoPP::Sink*/
         virtual size_t Put2(const byte *inString, size_t length, int, bool){
@@ -105,26 +105,26 @@ public:
 
 
     /** Returns an encrypted copy of the data, using the given string as an encryption string */
-    inline static DataObjects::String EncryptString(const DataObjects::String &str,
+    static DataObjects::String EncryptString(const DataObjects::String &str,
                                                     const DataObjects::String &key,
                                                     EncryptionTypeEnum e = DefaultEncryption){
         return EncryptString((const GBYTE *)str.ConstData(), str.Length(), key, e);
     }
     /** Returns a decrypted copy of the data, using the given string as an encryption string */
-    inline static DataObjects::String DecryptString(const DataObjects::String &str,
+    static DataObjects::String DecryptString(const DataObjects::String &str,
                                                     const DataObjects::String &key,
                                                     EncryptionTypeEnum e = DefaultEncryption){
         return DecryptString((const GBYTE *)str.ConstData(), str.Length(), key, e);
     }
 
     /** Returns an encrypted copy of the data, using the given string as an encryption string */
-    inline static DataObjects::String EncryptString(const GBYTE *data, GUINT32 length,
+    static DataObjects::String EncryptString(const GBYTE *data, GUINT32 length,
                                                     const DataObjects::String &key,
                                                     EncryptionTypeEnum e = DefaultEncryption){
         return EncryptString(data, length, (const GBYTE *)key.ConstData(), key.Length(), e);
     }
     /** Returns a decrypted copy of the data, using the given string as an encryption string */
-    inline static DataObjects::String DecryptString(const GBYTE *data, GUINT32 length,
+    static DataObjects::String DecryptString(const GBYTE *data, GUINT32 length,
                                                     const DataObjects::String &key,
                                                     EncryptionTypeEnum e = DefaultEncryption){
         return DecryptString(data, length, (const GBYTE *)key.ConstData(), key.Length(), e);
@@ -149,11 +149,11 @@ public:
         recognize when the string actually grows from compression, and doesn't compress it
         in this case.
     */
-    inline static DataObjects::String CompressString(const DataObjects::String &data, CompressionLevelEnum c = DefaultCompression){
+    static DataObjects::String CompressString(const DataObjects::String &data, CompressionLevelEnum c = DefaultCompression){
         return CompressString((const GBYTE *)data.ConstData(), data.Length(), c);
     }
     /** Returns a copy of the compressed string after it has been inflated */
-    inline static DataObjects::String DecompressString(const DataObjects::String &data){
+    static DataObjects::String DecompressString(const DataObjects::String &data){
         return DecompressString((const GBYTE *)data.ConstData(), data.Length());
     }
 
@@ -172,11 +172,11 @@ public:
 
 
     /** Returns a hash of the string */
-    inline static DataObjects::String Hash(const DataObjects::String &data, HashAlgorithmEnum e = DefaultHash){
+    static DataObjects::String Hash(const DataObjects::String &data, HashAlgorithmEnum e = DefaultHash){
         return Hash((const GBYTE *)data.ConstData(), data.Length(), e);
     }
     /** Returns a hash of the provided data */
-    inline static DataObjects::String Hash(const char *data, GUINT32 data_len = UINT_MAX, HashAlgorithmEnum e = DefaultHash){
+    static DataObjects::String Hash(const char *data, GUINT32 data_len = UINT_MAX, HashAlgorithmEnum e = DefaultHash){
         return Hash((const GBYTE *)data, data_len, e);
     }
     /** Returns a hash of the provided data */

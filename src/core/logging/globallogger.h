@@ -58,7 +58,7 @@ public:
         after the logger is inserted.  You will then use this ID to
         reference this now-global logger.
     */
-    inline static int SetupLogger(AbstractLogger *l, int logger_id = NewId){
+    static int SetupLogger(AbstractLogger *l, int logger_id = NewId){
         _translate_logger_id(logger_id, true);
         _takedown_logger(logger_id);
         m_loggers.Insert(logger_id, l);
@@ -66,30 +66,30 @@ public:
     }
 
     /** Sets up the logger with the default ID. */
-    inline static int SetupDefaultLogger(AbstractLogger *l){
+    static int SetupDefaultLogger(AbstractLogger *l){
         return SetupLogger(l, DefaultId);
     }
 
     /** Removes the logger from the global set and deletes it. */
-    inline static void TakeDownLogger(int logger_id = DefaultId){
+    static void TakeDownLogger(int logger_id = DefaultId){
         _translate_logger_id(logger_id, false);
         _takedown_logger(logger_id);
     }
 
     /** Changes the default logger ID, so all future messages go to a different logger. */
-    inline static void SetDefaultLoggerID(int new_id){
+    static void SetDefaultLoggerID(int new_id){
         _translate_logger_id(new_id, false);
         if(m_loggers.Contains(new_id))
             m_default_logger_id = new_id;
     }
 
     /** Returns the current default logger id. */
-    inline static int GetDefaultLoggerID(){ return m_default_logger_id; }
+    static int GetDefaultLoggerID(){ return m_default_logger_id; }
 
 
 
     /** Logs a message. */
-    inline static void LogMessage(const DataObjects::String &msg,
+    static void LogMessage(const DataObjects::String &msg,
                                   const DataObjects::String &title = DataObjects::String(),
                                   int logger_id = DefaultId)
     {
@@ -97,7 +97,7 @@ public:
     }
 
     /** Logs a message with a severity of "warning". */
-    inline static void LogWarning(const DataObjects::String &msg,
+    static void LogWarning(const DataObjects::String &msg,
                            const DataObjects::String &title = DataObjects::String(),
                            int logger_id = DefaultId)
     {
@@ -105,7 +105,7 @@ public:
     }
 
     /** Logs a message with a severity of "error". */
-    inline static void LogError(const DataObjects::String &msg,
+    static void LogError(const DataObjects::String &msg,
                                 const DataObjects::String &title = DataObjects::String(),
                                 int logger_id = DefaultId)
     {
@@ -113,7 +113,7 @@ public:
     }
 
     /** Logs an exception. */
-    inline static void LogException(const Exception<false> &ex, int logger_id = DefaultId){
+    static void LogException(const Exception<false> &ex, int logger_id = DefaultId){
         _translate_logger_id(logger_id, false);
         if(m_loggers.Contains(logger_id))
         {
@@ -132,13 +132,13 @@ private:
 
     static void _translate_logger_id(int &, bool allow_new_id);
 
-    inline static void _takedown_logger(int logger_id){
+    static void _takedown_logger(int logger_id){
         if(m_loggers.Contains(logger_id)){
             m_loggers.Remove(logger_id);
         }
     }
 
-    inline static void _log(const DataObjects::String &msg,
+    static void _log(const DataObjects::String &msg,
                             const DataObjects::String &title,
                             int logger_id,
                             AbstractLogger::MessageLevelEnum ml)

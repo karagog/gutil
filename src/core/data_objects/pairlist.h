@@ -26,8 +26,8 @@ class PairList :
         public List< Pair<T1, T2> >
 {
 public:
-    inline PairList(){}
-    inline PairList(GUINT32 capacity) : List< Pair<T1, T2> >(capacity){}
+    PairList(){}
+    PairList(GUINT32 capacity) : List< Pair<T1, T2> >(capacity){}
 };
 
 

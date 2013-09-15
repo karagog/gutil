@@ -44,34 +44,34 @@ class Variant :
         public Interfaces::IQXmlSerializable
 {
 public:
-    inline Variant() {}
-    inline Variant(const QVariant &i) :QVariant(i) {}
-    inline Variant(Type i) :QVariant(i) {}
-    inline Variant(const std::string &i) :QVariant(QString::fromStdString(i)) {}
-    inline Variant(const QString &i) :QVariant(i) {}
-    inline Variant(const QByteArray &i) :QVariant(i) {}
-    inline Variant(const QChar &i) :QVariant(i) {}
-    inline Variant(int i) :QVariant(i) {}
-    inline Variant(uint i) :QVariant(i) {}
-    inline Variant(long long i) :QVariant(i) {}
-    inline Variant(unsigned long long i) :QVariant(i) {}
-    inline Variant(char *i) :QVariant(i) {}
-    inline Variant(const char *i) :QVariant(i) {}
-    inline Variant(bool i) :QVariant(i) {}
-    inline Variant(double i) :QVariant(i) {}
-    inline Variant(float i) :QVariant(i) {}
-    inline Variant(const QDate &i) :QVariant(i) {}
-    inline Variant(const QTime &i) :QVariant(i) {}
-    inline Variant(const QDateTime &i) :QVariant(i) {}
-    inline Variant(const QBitArray &i) :QVariant(i) {}
-    inline Variant(const QRegExp &i) :QVariant(i) {}
-    inline Variant(const QUrl &i) :QVariant(i) {}
-    inline Variant(const QRect &i) :QVariant(i) {}
-    inline Variant(const QSize &i) :QVariant(i) {}
-    inline Variant(const QStringList &i) :QVariant(i) {}
-    inline Variant(const QVariantList &i) :QVariant(i) {}
-    inline Variant(const QVariantMap &i) :QVariant(i) {}
-    inline Variant(const QUuid &i) :QVariant(qVariantFromValue(i)) {}
+    Variant() {}
+    Variant(const QVariant &i) :QVariant(i) {}
+    Variant(Type i) :QVariant(i) {}
+    Variant(const std::string &i) :QVariant(QString::fromStdString(i)) {}
+    Variant(const QString &i) :QVariant(i) {}
+    Variant(const QByteArray &i) :QVariant(i) {}
+    Variant(const QChar &i) :QVariant(i) {}
+    Variant(int i) :QVariant(i) {}
+    Variant(uint i) :QVariant(i) {}
+    Variant(long long i) :QVariant(i) {}
+    Variant(unsigned long long i) :QVariant(i) {}
+    Variant(char *i) :QVariant(i) {}
+    Variant(const char *i) :QVariant(i) {}
+    Variant(bool i) :QVariant(i) {}
+    Variant(double i) :QVariant(i) {}
+    Variant(float i) :QVariant(i) {}
+    Variant(const QDate &i) :QVariant(i) {}
+    Variant(const QTime &i) :QVariant(i) {}
+    Variant(const QDateTime &i) :QVariant(i) {}
+    Variant(const QBitArray &i) :QVariant(i) {}
+    Variant(const QRegExp &i) :QVariant(i) {}
+    Variant(const QUrl &i) :QVariant(i) {}
+    Variant(const QRect &i) :QVariant(i) {}
+    Variant(const QSize &i) :QVariant(i) {}
+    Variant(const QStringList &i) :QVariant(i) {}
+    Variant(const QVariantList &i) :QVariant(i) {}
+    Variant(const QVariantMap &i) :QVariant(i) {}
+    Variant(const QUuid &i) :QVariant(qVariantFromValue(i)) {}
     
     /** Destructs the Variant. */
     virtual ~Variant();
@@ -84,10 +84,10 @@ public:
     /** Satisfies the IQXmlSerializeable interface. */
     virtual void ReadXml(QXmlStreamReader &);
 
-    inline static void ToXml(const Variant &g, QXmlStreamWriter &sw){
+    static void ToXml(const Variant &g, QXmlStreamWriter &sw){
         g.WriteXml(sw);
     }
-    inline static Variant FromXml(QXmlStreamReader &sr){
+    static Variant FromXml(QXmlStreamReader &sr){
         Variant ret;
         ret.ReadXml(sr);
         return ret;
@@ -97,7 +97,7 @@ public:
     static Variant ConvertFromXmlQString(const QString &);
 
     bool operator == (const Variant &) const;
-    inline bool operator != (const Variant &o) const{ return !operator == (o); }
+    bool operator != (const Variant &o) const{ return !operator == (o); }
 
 };
 

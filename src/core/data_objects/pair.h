@@ -33,10 +33,10 @@ public:
     /** The type of the second item. */
     typedef T2 SecondType;
 
-    inline Pair(){}
-    inline Pair(const T1 &first)
+    Pair(){}
+    Pair(const T1 &first)
         :First(first){}
-    inline Pair(const T1 &first, const T2 &second)
+    Pair(const T1 &first, const T2 &second)
         :First(first), Second(second){}
 
     /** The first piece of data. */

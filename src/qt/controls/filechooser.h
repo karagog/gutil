@@ -34,21 +34,21 @@ class FileChooser :
     Q_OBJECT
 public:
 
-    inline explicit FileChooser(QWidget *parent = 0)
+    explicit FileChooser(QWidget *parent = 0)
         :LineEditWithButton(parent), _p_SelectionType( ChooseOpenFile )
     { connect(&PushButton(), SIGNAL(clicked()), this, SLOT(_button_clicked())); }
 
     /** Open the file dialog and ask for a new file */
-    inline void GetFileSelection(){ _button_clicked(); }
+    void GetFileSelection(){ _button_clicked(); }
 
     /** Sets the currently selected file to the given filepath */
-    inline void SetSelectedFile(const QString &s){
+    void SetSelectedFile(const QString &s){
         _selected_file = s;
         LineEdit().setText(s);
     }
 
     /** Returns the currently selected file */
-    inline QString GetSelectedFile() const{ return _selected_file; }
+    QString GetSelectedFile() const{ return _selected_file; }
 
 
     PROPERTY( DialogCaption, QString );

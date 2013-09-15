@@ -34,28 +34,28 @@ public:
     {
         friend class Map;
     public:
-        inline explicit Page(const K &k, const V &val)
+        explicit Page(const K &k, const V &val)
             :key(k), values(val, 1)
         {}
 
-        inline Page(const Page &o)
+        Page(const Page &o)
             :key(o.key), values(o.values)
         {}
 
         /** The key of this mapping. */
-        inline const K &Key() const{ return key; }
+        const K &Key() const{ return key; }
         /** The key of this mapping. */
-        inline K &Key(){ return key; }
+        K &Key(){ return key; }
 
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
-        inline V &Value(){ return values[values.Length() - 1]; }
+        V &Value(){ return values[values.Length() - 1]; }
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
-        inline const V &Value() const{ return values[values.Size() - 1]; }
+        const V &Value() const{ return values[values.Size() - 1]; }
 
         /** Returns the stack of values associated with Key.
             You cannot modify the stack, but you can modify the values in it.
         */
-        inline const Vector<V> &Values() const{ return values; }
+        const Vector<V> &Values() const{ return values; }
 
     protected:
 
@@ -66,7 +66,7 @@ public:
     
 
     /** Constructs an empty map with the default compare function. */
-    inline Map()
+    Map()
         :_index(&get_key_value)
     {}
 
@@ -78,11 +78,11 @@ public:
         \param cmp A compare function to use when comparing keys.  Return -1
         if lhs < rhs, return 1 if rhs < lhs and 0 if they're equal.
     */
-    inline Map(int (*cmp)(const K &lhs, const K &rhs))
+    Map(int (*cmp)(const K &lhs, const K &rhs))
         :_index(cmp, &get_key_value)
     {}
 
-    inline Map(const Map<K, V> &o)
+    Map(const Map<K, V> &o)
         :_index(o._index)
     {}
 
@@ -92,8 +92,8 @@ public:
             public BinarySearchTree<Page, K>::iterator
     {
     public:
-        inline iterator(){}
-        inline iterator(const typename BinarySearchTree<Page, K>::iterator &o)
+        iterator(){}
+        iterator(const typename BinarySearchTree<Page, K>::iterator &o)
             :BinarySearchTree<Page, K>::iterator(o)
         {}
     };
@@ -105,28 +105,28 @@ public:
             public BinarySearchTree<Page, K>::const_iterator
     {
     public:
-        inline const_iterator(){}
-        inline const_iterator(const typename BinarySearchTree<Page, K>::const_iterator &o)
+        const_iterator(){}
+        const_iterator(const typename BinarySearchTree<Page, K>::const_iterator &o)
             :BinarySearchTree<Page, K>::const_iterator(o)
         {}
     };
 
-    inline iterator begin(){ return _index.begin(); }
-    inline const_iterator begin() const{ return _index.begin(); }
-    inline iterator end(){ return _index.end(); }
-    inline const_iterator end() const{ return _index.end(); }
-    inline iterator preBegin(){ return _index.preBegin(); }
-    inline const_iterator preBegin() const{ return _index.preBegin(); }
+    iterator begin(){ return _index.begin(); }
+    const_iterator begin() const{ return _index.begin(); }
+    iterator end(){ return _index.end(); }
+    const_iterator end() const{ return _index.end(); }
+    iterator preBegin(){ return _index.preBegin(); }
+    const_iterator preBegin() const{ return _index.preBegin(); }
 
-    inline iterator Search(const K &k){ return _index.Search(k); }
-    inline const_iterator Search(const K &k) const{ return _index.Search(k); }
+    iterator Search(const K &k){ return _index.Search(k); }
+    const_iterator Search(const K &k) const{ return _index.Search(k); }
 
 
     /** Returns whether the map contains this key. */
-    inline bool Contains(const K &k) const{ return _index.Search(k); }
+    bool Contains(const K &k) const{ return _index.Search(k); }
 
     /** How many unique keys are in the map. */
-    inline int Size() const{ return _index.Size(); }
+    int Size() const{ return _index.Size(); }
 
     /** Returns the value corresponding to the key.  If the key does not exist, it throws an
         IndexOutOfRangeException.
@@ -158,7 +158,7 @@ public:
         will be inserted with a blank value.
         \sa At()
     */
-    inline V &operator [](const K &k);
+    V &operator [](const K &k);
 
     /** Returns the stack of values corresponding to the key. */
     const Stack<V> &Values(const K &) const;
@@ -168,7 +168,7 @@ public:
         If a value (or values) already exists for that key then they will be overwritten.
         \returns An iterator pointing to the inserted item
     */
-    inline void Insert(const K &key, const V &value){ _insert(key, value, true); }
+    void Insert(const K &key, const V &value){ _insert(key, value, true); }
 
     /** Inserts an item into the map.
 
@@ -176,19 +176,19 @@ public:
         collection of values corresponding to that key.
         \returns An iterator pointing to the inserted item
     */
-    inline void InsertMulti(const K &key, const V &value){ _insert(key, value, false); }
+    void InsertMulti(const K &key, const V &value){ _insert(key, value, false); }
 
     /** Removes all values corresponding to the key. */
-    inline void Remove(const K &k){
+    void Remove(const K &k){
         _index.Remove(_index.Search(k));
     }
 
     /** Removes all values in the map and cleans up memory.
         \note O(N)
     */
-    inline void Clear(){ _index.Clear(); }
+    void Clear(){ _index.Clear(); }
 
-    inline Vector<K> Keys() const{
+    Vector<K> Keys() const{
         Vector<K> ret(Size());
         for(const_iterator iter(begin()); iter != end(); ++iter)
             ret.PushBack(iter->Key());

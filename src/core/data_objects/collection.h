@@ -28,9 +28,9 @@ template <typename T> class Collection
 {
 public:
 
-    inline explicit Collection(int capacity = 0) :_collection(capacity){}
-    inline Collection(const Collection<T> &c) :_collection(c._collection){}
-    inline Collection(const DataObjects::List<T> &l) :_collection(l){}
+    explicit Collection(int capacity = 0) :_collection(capacity){}
+    Collection(const Collection<T> &c) :_collection(c._collection){}
+    Collection(const DataObjects::List<T> &l) :_collection(l){}
 
     /** \note It is important that we don't remove items manually,
         to avoid calling the virtual functions in the destructor.
@@ -39,7 +39,7 @@ public:
     virtual ~Collection(){}
 
     /** Adds the item to the collection, at the end. */
-    inline void Add(const T &value){ Insert(value, Count()); }
+    void Add(const T &value){ Insert(value, Count()); }
     void Insert(const T &value, int index);
 
 
@@ -51,24 +51,24 @@ public:
         GUINT32 m_indx;
     public:
 
-        inline const T &Value() const{ return const_cast<const Collection &>(*m_collection)[m_indx]; }
-        inline operator const T &() const{ return Value(); }
-        inline const T &operator *() const{ return Value(); }
-        inline const T *operator ->() const{ return &Value(); }
+        const T &Value() const{ return const_cast<const Collection &>(*m_collection)[m_indx]; }
+        operator const T &() const{ return Value(); }
+        const T &operator *() const{ return Value(); }
+        const T *operator ->() const{ return &Value(); }
 
-        inline ItemReference &operator = (const T &v){
+        ItemReference &operator = (const T &v){
             SetValue(v); return *this;
         }
 
 
-        template<class U>inline bool operator == (const U &v) const{
+        template<class U>bool operator == (const U &v) const{
             return const_cast<const Collection *>(m_collection)->operator [](m_indx) == v;
         }
-        template<class U>inline bool operator != (const U &v) const{
+        template<class U>bool operator != (const U &v) const{
             return const_cast<const Collection *>(m_collection)->operator [](m_indx) != v;
         }
 
-        inline void SetValue(const T &v){
+        void SetValue(const T &v){
             T before(Value());
             m_collection->pre_item_changed(before, v, m_indx);
             m_collection->value_at(m_indx) = v;
@@ -78,29 +78,29 @@ public:
 
     protected:
 
-        inline ItemReference(Collection *c, GUINT32 indx)
+        ItemReference(Collection *c, GUINT32 indx)
             :m_collection(c),
               m_indx(indx)
         {}
 
     };
 
-    inline const T &operator[](GINT32 index) const{ return _collection[index]; }
-    inline ItemReference operator[](GINT32 index){ return ItemReference(this, index); }
-    inline T &operator[](GUINT32 index){ return _collection[index]; }
+    const T &operator[](GINT32 index) const{ return _collection[index]; }
+    ItemReference operator[](GINT32 index){ return ItemReference(this, index); }
+    T &operator[](GUINT32 index){ return _collection[index]; }
 
-    inline const T &At(GINT32 index) const{ return _collection.At(index); }
-    inline ItemReference At(GINT32 index){
+    const T &At(GINT32 index) const{ return _collection.At(index); }
+    ItemReference At(GINT32 index){
         if(index < 0 || index >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return ItemReference(this, index);
     }
-    inline const T &At(GUINT32 index) const{ return _collection.At(index); }
-    inline ItemReference At(GUINT32 index){
+    const T &At(GUINT32 index) const{ return _collection.At(index); }
+    ItemReference At(GUINT32 index){
         if(index < 0 || index >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return ItemReference(this, index);
     }
 
-    inline void Remove(int index){
+    void Remove(int index){
         if(0 > index || index >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
         pre_remove(_collection[index], index);
@@ -109,7 +109,7 @@ public:
         post_remove(cpy, index);
     }
 
-    inline void RemoveOne(const T &i){
+    void RemoveOne(const T &i){
         int ind = IndexOf(i);
         if(-1 != ind)
             Remove(ind);
@@ -121,20 +121,20 @@ public:
             Remove(ind);
     }
 
-    inline void Clear(){
+    void Clear(){
         int indx(Count());
         while(indx-- > 0)
             Remove(indx);
     }
 
-    inline int Count() const{ return _collection.Count(); }
-    inline int Size() const{ return Count(); }
+    int Count() const{ return _collection.Count(); }
+    int Size() const{ return Count(); }
 
-    inline bool Contains(const T &i) const{ return -1 != IndexOf(i); }
+    bool Contains(const T &i) const{ return -1 != IndexOf(i); }
     int IndexOf(const T &i, int from = 0) const;
 
 
-    inline Collection<T> &operator << (const T &o){
+    Collection<T> &operator << (const T &o){
         Add(o); return *this;
     }
 
@@ -150,15 +150,15 @@ public:
         Collection *m_collection;
     public:
 
-        inline iterator(const iterator &iter)
+        iterator(const iterator &iter)
             :List<T>::iterator(iter),
               m_collection(iter.m_collection)
         {}
 
         /** You can access const member functions with this. */
-        inline T const &operator *() const{ return List<T>::iterator::operator *(); }
+        T const &operator *() const{ return List<T>::iterator::operator *(); }
         /** You can access const member functions with this. */
-        inline T const *operator ->() const{ return List<T>::iterator::operator ->(); }
+        T const *operator ->() const{ return List<T>::iterator::operator ->(); }
 
         /** The only way to modify a value is by assigning to it. */
         void SetValue(const T &v){
@@ -168,14 +168,14 @@ public:
 
     protected:
 
-        inline iterator(const typename List<T>::iterator &iter, Collection<T> *c)
+        iterator(const typename List<T>::iterator &iter, Collection<T> *c)
             :List<T>::iterator(iter),
               m_collection(c)
         {}
 
         // Hide these functions, because they could modify an item
-        inline T &operator *() { return List<T>::iterator::operator *(); }
-        inline T *operator ->() { return List<T>::iterator::operator ->(); }
+        T &operator *() { return List<T>::iterator::operator *(); }
+        T *operator ->() { return List<T>::iterator::operator ->(); }
 
     };
 
@@ -185,27 +185,27 @@ public:
         friend class Collection;
     public:
 
-        inline const_iterator(const const_iterator &iter)
+        const_iterator(const const_iterator &iter)
             :List<T>::const_iterator(iter)
         {}
 
     protected:
 
-        inline const_iterator(const typename List<T>::const_iterator &iter)
+        const_iterator(const typename List<T>::const_iterator &iter)
             :List<T>::const_iterator(iter)
         {}
 
     };
 
-    inline iterator begin(){ return iterator(_collection.begin(), this); }
-    inline iterator end(){ return iterator(_collection.end(), this); }
-    inline const_iterator begin() const{ return _collection.begin(); }
-    inline const_iterator end() const{ return _collection.end(); }
+    iterator begin(){ return iterator(_collection.begin(), this); }
+    iterator end(){ return iterator(_collection.end(), this); }
+    const_iterator begin() const{ return _collection.begin(); }
+    const_iterator end() const{ return _collection.end(); }
 
-    inline iterator rbegin(){ return iterator(_collection.rbegin(), this); }
-    inline iterator rend(){ return iterator(_collection.rend(), this); }
-    inline const_iterator rbegin() const{ return _collection.rbegin(); }
-    inline const_iterator rend() const{ return _collection.rend(); }
+    iterator rbegin(){ return iterator(_collection.rbegin(), this); }
+    iterator rend(){ return iterator(_collection.rend(), this); }
+    const_iterator rbegin() const{ return _collection.rbegin(); }
+    const_iterator rend() const{ return _collection.rend(); }
 
 
 protected:
@@ -243,7 +243,7 @@ protected:
     /** Friends use this accessor function to get at the values without using
         an ItemReference.
     */
-    inline T &value_at(GINT32 indx){ return _collection[indx]; }
+    T &value_at(GINT32 indx){ return _collection[indx]; }
 
 
 private:
@@ -262,17 +262,17 @@ template <class T> class ResizableCollection :
 {
 public:
 
-    inline explicit ResizableCollection(int capacity = 0)
+    explicit ResizableCollection(int capacity = 0)
         :Collection<T>(capacity) {}
 
-    inline ResizableCollection(const DataObjects::List<T> &v)
+    ResizableCollection(const DataObjects::List<T> &v)
         : Collection<T>(v){}
 
-    inline ResizableCollection(const ResizableCollection<T> &v)
+    ResizableCollection(const ResizableCollection<T> &v)
         : Collection<T>(v){}
 
 
-    inline void Resize(int size)
+    void Resize(int size)
     {
         if(size < 0)
             return;
@@ -299,8 +299,8 @@ template<class T> class ObservableCollection :
 {
 public:
 
-    inline explicit ObservableCollection(int capacity) :ResizableCollection<T>(capacity){}
-    inline ObservableCollection(const ObservableCollection &o)
+    explicit ObservableCollection(int capacity) :ResizableCollection<T>(capacity){}
+    ObservableCollection(const ObservableCollection &o)
         :ResizableCollection<T>(o){}
 
 
@@ -322,8 +322,8 @@ public:
 
     };
 
-    inline void AddCollectionObserver(Observer *o){ m_observers.PushBack(o); }
-    inline void RemoveCollectionObserver(Observer *o){ m_observers.RemoveAll(o); }
+    void AddCollectionObserver(Observer *o){ m_observers.PushBack(o); }
+    void RemoveCollectionObserver(Observer *o){ m_observers.RemoveAll(o); }
 
 
 protected:

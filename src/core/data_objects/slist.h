@@ -31,18 +31,22 @@ NAMESPACE_GUTIL1(DataObjects);
 */
 template<class T>class SListImp
 {
+    struct node;
+
+    node *m_first;
+    node *m_last;
+    GUINT32 m_count;
 
     /** One node of data. */
-    class node
+    struct node
     {
-    public:
-        inline node(const T &i, node *next = 0)
+        node *NextNode;
+        T Data;
+
+        explicit node(const T &i, node *next = NULL)
             :NextNode(next),
               Data(i)
         {}
-
-        node *NextNode;
-        T Data;
     };
 
 public:
@@ -50,14 +54,14 @@ public:
     class const_iterator;
 
     /** Creates an empty slist. */
-    inline SListImp(): m_first(0), m_last(0), m_count(0){}
+    SListImp(): m_first(0), m_last(0), m_count(0){}
 
     /** Creates a new slist with the item at the front of the list. */
-    inline explicit SListImp(const T &item): m_first(0), m_last(0), m_count(0)
+    explicit SListImp(const T &item): m_first(0), m_last(0), m_count(0)
     { iterator i(begin()); Insert(item, i); }
 
     /** Conducts a deep copy of the slist */
-    inline SListImp(const SListImp<T> &o)
+    SListImp(const SListImp<T> &o)
         :m_first(0), m_last(0), m_count(0)
     {
         node *n(o.m_first);
@@ -74,7 +78,8 @@ public:
         new(this) SListImp<T>(o);
         return *this;
     }
-    inline ~SListImp(){ Clear(); }
+
+    ~SListImp(){ Clear(); }
 
     /** Removes the item pointed to by the iterator.
 
@@ -87,7 +92,7 @@ public:
         If you are removing a lot from within the stack (aka not the top) then you should
         think about using another class like a linked list.
     */
-    inline void Remove(iterator &iter){ _remove(iter); }
+    void Remove(iterator &iter){ _remove(iter); }
 
     /** Insert an item into the list, and returns a reference to the new item.
 
@@ -98,7 +103,7 @@ public:
         override it to provide custom insertion behavior.
         \note O(1)
     */
-    inline T &Insert(const T &i, iterator &iter){
+    T &Insert(const T &i, iterator &iter){
         // We use malloc so we can handle a bad allocation event ourselves
         node *new_node( (node *)malloc(sizeof(node)) );
         if(new_node == NULL)
@@ -119,47 +124,47 @@ public:
     }
 
     /** Prepends an item on the list. */
-    inline T &PushFront(const T &i){ iterator iter(begin()); return Insert(i, iter); }
+    T &PushFront(const T &i){ iterator iter(begin()); return Insert(i, iter); }
 
     /** Appends an item on the list. */
-    inline T &PushBack(const T &i){ iterator iter(end()); return Insert(i, iter); }
+    T &PushBack(const T &i){ iterator iter(end()); return Insert(i, iter); }
 
     /** Removes the front of the list. */
-    inline void PopFront(){ iterator iter(begin()); Remove(iter); }
+    void PopFront(){ iterator iter(begin()); Remove(iter); }
 
     /** Pushes an item on a logical stack, with appealing syntax. */
-    inline SListImp<T> &operator << (const T &item){ PushFront(item); return *this; }
+    SListImp<T> &operator << (const T &item){ PushFront(item); return *this; }
 
     /** Pops the top item from a logical stack and copies it into the given variable */
-    inline SListImp<T> &operator >> (T &cpy){ cpy = *begin(); PopFront(); return *this; }
+    SListImp<T> &operator >> (T &cpy){ cpy = *begin(); PopFront(); return *this; }
 
     /** Returns a reference to the first item in the list. */
-    inline T &Front(){ return m_first->Data; }
+    T &Front(){ return m_first->Data; }
 
     /** Returns a reference to the first item in the list. */
-    inline const T &Front() const{ return m_first->Data; }
+    const T &Front() const{ return m_first->Data; }
 
     /** Returns a reference to the last item in the list. */
-    inline T &Back(){ return m_last->Data; }
+    T &Back(){ return m_last->Data; }
 
     /** Returns a reference to the last item in the list. */
-    inline const T &Back() const{ return m_last->Data; }
+    const T &Back() const{ return m_last->Data; }
 
     /** Empties the slist and clears all memory.
         \note O(N)
     */
-    inline void Clear(){ iterator iter(begin()); while(iter) _remove(iter); }
+    void Clear(){ iterator iter(begin()); while(iter) _remove(iter); }
 
     /** Is the container empty? */
-    inline bool IsEmpty() const{ return !m_count; }
+    bool IsEmpty() const{ return !m_count; }
 
 
     /** How many items in the SListImp. */
-    inline GUINT32 Length() const{ return m_count; }
+    GUINT32 Length() const{ return m_count; }
 
 
     /** Sorts the list with the given sorting algorithm. */
-    inline void Sort(bool ascending = true,
+    void Sort(bool ascending = true,
                      GUtil::SortTypeEnum e = GUtil::MergeSort,
                      const Interfaces::IComparer<T> &comparer = DefaultComparer<T>())
     {
@@ -181,33 +186,33 @@ public:
     {
         friend class SListImp;
     public:
-        inline iterator(node *n, node *p) :current(n), parent(p) {}
-        inline explicit iterator(node *n) :current(n), parent(0) {}
-        inline iterator() :current(0), parent(0) {}
+        iterator(node *n, node *p) :current(n), parent(p) {}
+        explicit iterator(node *n) :current(n), parent(0) {}
+        iterator() :current(0), parent(0) {}
 
         /** Return a reference to the data. */
-        inline T &operator*() const{ return current->Data; }
+        T &operator*() const{ return current->Data; }
 
         /** Return a pointer to the data. */
-        inline T *operator->() const{ return current->Data; }
+        T *operator->() const{ return current->Data; }
 
         /** Advances the iterator */
-        inline iterator &operator++(){ advance(); return *this; }
+        iterator &operator++(){ advance(); return *this; }
 
         /** Advances the iterator */
-        inline iterator operator++(int){iterator ret(*this); advance(); return ret; }
+        iterator operator++(int){iterator ret(*this); advance(); return ret; }
 
         /** Advances the iterator the specified number of items */
-        inline iterator &operator+=(int n){ while(n-- > 0) advance(); return *this; }
+        iterator &operator+=(int n){ while(n-- > 0) advance(); return *this; }
 
         /** Returns a copy of the iterator advanced the specified number of times. */
-        inline iterator operator+(int n){ iterator r(*this); while(n-- > 0) r.advance(); return r; }
+        iterator operator+(int n){ iterator r(*this); while(n-- > 0) r.advance(); return r; }
 
-        inline bool operator == (const iterator &o) const{ return current == o.current; }
-        inline bool operator != (const iterator &o) const{ return current != o.current; }
+        bool operator == (const iterator &o) const{ return current == o.current; }
+        bool operator != (const iterator &o) const{ return current != o.current; }
 
         /** Returns if the iterator is valid. */
-        inline operator bool() const{ return current; }
+        operator bool() const{ return current; }
 
 
     private:
@@ -218,7 +223,7 @@ public:
         /** The parent of the current node.  This allows us to have constant time insertions. */
         node *parent;
 
-        inline void advance(){ if(current){ parent = current; current = current->NextNode; } }
+        void advance(){ if(current){ parent = current; current = current->NextNode; } }
 
     };
 
@@ -227,33 +232,33 @@ public:
     {
         friend class SListImp;
     public:
-        inline const_iterator(node *n, node *p) :current(n), parent(p) {}
-        inline explicit const_iterator(node *n) :current(n), parent(0) {}
-        inline const_iterator() :current(0), parent(0) {}
+        const_iterator(node *n, node *p) :current(n), parent(p) {}
+        explicit const_iterator(node *n) :current(n), parent(0) {}
+        const_iterator() :current(0), parent(0) {}
 
         /** Return a const reference to the data. */
-        inline const T &operator*() const { return current->Data; }
+        const T &operator*() const { return current->Data; }
 
         /** Return a const pointer to the data. */
-        inline const T *operator->() const { return current->Data; }
+        const T *operator->() const { return current->Data; }
 
         /** Advances the iterator */
-        inline const_iterator &operator++(){ advance(); return *this; }
+        const_iterator &operator++(){ advance(); return *this; }
 
         /** Advances the iterator */
-        inline const_iterator operator++(int){const_iterator ret(*this); advance(); return ret; }
+        const_iterator operator++(int){const_iterator ret(*this); advance(); return ret; }
 
         /** Advances the iterator the specified number of items */
-        inline const_iterator &operator+=(int n){ while(n-- > 0) advance(); return *this; }
+        const_iterator &operator+=(int n){ while(n-- > 0) advance(); return *this; }
 
         /** Returns a copy of the iterator advanced the specified number of times. */
-        inline const_iterator operator+(int n){ const_iterator r(*this); while(n-- > 0) r.advance(); return r; }
+        const_iterator operator+(int n){ const_iterator r(*this); while(n-- > 0) r.advance(); return r; }
 
-        inline bool operator == (const const_iterator &o) const{ return current == o.current; }
-        inline bool operator != (const const_iterator &o) const{ return current != o.current; }
+        bool operator == (const const_iterator &o) const{ return current == o.current; }
+        bool operator != (const const_iterator &o) const{ return current != o.current; }
 
         /** Returns if the iterator is valid. */
-        inline operator bool() const{ return current; }
+        operator bool() const{ return current; }
 
 
     private:
@@ -264,30 +269,26 @@ public:
         /** The parent of the current node.  This allows us to have constant time insertions. */
         node *parent;
 
-        inline void advance(){ if(current){ parent = current; current = current->NextNode; } }
+        void advance(){ if(current){ parent = current; current = current->NextNode; } }
 
     };
 
     /** Returns an iterator starting at the top of the stack. */
-    inline iterator begin(){ return iterator(m_first); }
+    iterator begin(){ return iterator(m_first); }
 
     /** Returns an iterator starting at the top of the stack. */
-    inline const_iterator begin() const{ return const_iterator(m_first); }
+    const_iterator begin() const{ return const_iterator(m_first); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    inline const_iterator end() const{ return const_iterator(0, m_last); }
+    const_iterator end() const{ return const_iterator(0, m_last); }
 
     /** Returns an invalid iterator that you hit when you iterate to the end of the stack. */
-    inline iterator end(){ return iterator(0, m_last); }
+    iterator end(){ return iterator(0, m_last); }
 
 
 private:
 
-    node *m_first;
-    node *m_last;
-    GUINT32 m_count;
-
-    inline void _remove(iterator &iter){
+    void _remove(iterator &iter){
         if(!iter.current)
             return;
 
@@ -410,6 +411,7 @@ private:
             (*prev_new_list)->NextNode = e.current;
         }
     }
+
 };
 
 
@@ -422,9 +424,9 @@ private:
 */
 #define GUTIL_SLIST_CONSTRUCTORS(class_name, base_class) \
     public: \
-    inline class_name(){} \
-    inline explicit class_name(const T &item):base_class(item){} \
-    inline class_name(const base_class &o) :base_class(o){} \
+    class_name(){} \
+    explicit class_name(const T &item):base_class(item){} \
+    class_name(const base_class &o) :base_class(o){} \
     virtual ~class_name(){}
 
 

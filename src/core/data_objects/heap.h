@@ -31,17 +31,17 @@ template<class T>class Heap
 public:
 
     /** Creates an empty heap with default compare (min-heap) */
-    inline Heap(){}
+    Heap(){}
 
     /** Creates an empty heap with your own custom compare function. */
-    inline Heap(const Utils::FlexibleTypeComparer<T> &f)
+    Heap(const Utils::FlexibleTypeComparer<T> &f)
         :compare(f)
     {}
 
     /** Inserts the item into the heap.
         \note O(log(N))
     */
-    inline void Push(const T &i)
+    void Push(const T &i)
     {
         const GUINT32 indx( Count() );
         data.Insert(i, indx);
@@ -51,7 +51,7 @@ public:
     /** Removes the item at the top of the heap.
         \note O(log(N))
     */
-    inline void Pop()
+    void Pop()
     {
         if(Count() == 0) return;
 
@@ -79,24 +79,24 @@ public:
     /** Returns the item at the top of the heap.
         \note O(1)
     */
-    inline const T &Top() const{ return data[0]; }
+    const T &Top() const{ return data[0]; }
 
     /** Returns the item at the top of the heap.
         \note Be sure not to modify the sorting key!
         \note O(1)
     */
-    inline T &Top(){ return data[0]; }
+    T &Top(){ return data[0]; }
 
     /** The number of items in the heap. */
-    inline GUINT32 Count() const{ return data.Size(); }
+    GUINT32 Count() const{ return data.Size(); }
 
     /** Returns a pointer to the start of the heap array. */
-    inline const T *ConstData() const{ return data.ConstData(); }
+    const T *ConstData() const{ return data.ConstData(); }
     /** Returns a pointer to the start of the heap array.
         \warning Do not modify the sorting key for the heap, or the behavior
                     is undefined.
     */
-    inline T *Data(){ return data.Data(); }
+    T *Data(){ return data.Data(); }
 
 
 private:
@@ -119,7 +119,7 @@ template<class T>class MinHeap : public Heap<T>{};
 template<class T>class MaxHeap : public Heap<T>
 {
 public:
-    inline MaxHeap() :Heap<T>(&maxheap_compare){}
+    MaxHeap() :Heap<T>(&maxheap_compare){}
 
 private:
     static int maxheap_compare(const T &lhs, const T &rhs)

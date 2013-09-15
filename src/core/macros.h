@@ -96,8 +96,8 @@ limitations under the License.*/
 private: \
     type _p_##name; \
 public: \
-    inline const type &Get##name() const{ return _p_##name; } \
-    inline void Set##name(const type &value){ _p_##name = value; }
+    const type &Get##name() const{ return _p_##name; } \
+    void Set##name(const type &value){ _p_##name = value; }
 
 
 /** Use this to succinctly declare property accessors to a pointer.
@@ -110,8 +110,8 @@ public: \
 private: \
     ptr_type *_p_##name; \
 public: \
-    inline ptr_type *Get##name() const{ return _p_##name; } \
-    inline void Set##name(ptr_type *value){ _p_##name = value; }
+    ptr_type *Get##name() const{ return _p_##name; } \
+    void Set##name(ptr_type *value){ _p_##name = value; }
 
 
 /** Use this to succinctly declare protected property accessors.
@@ -123,8 +123,8 @@ public: \
 private: \
     type _p_##name; \
 protected: \
-    inline const type &Get##name() const{ return _p_##name; } \
-    inline void Set##name(const type &value){ _p_##name = value; }
+    const type &Get##name() const{ return _p_##name; } \
+    void Set##name(const type &value){ _p_##name = value; }
 
 
 /** Use this to succinctly declare a readonly property accessor.
@@ -136,7 +136,7 @@ protected: \
 private: \
     type _p_##name; \
 public: \
-    inline const type &Get##name() const{ return _p_##name; }
+    const type &Get##name() const{ return _p_##name; }
 
 
 /** Use this to succinctly declare a readonly property accessor to a pointer.
@@ -149,7 +149,7 @@ public: \
 private: \
     type *_p_##name; \
 public: \
-    inline type *Get##name() const{ return _p_##name; }
+    type *Get##name() const{ return _p_##name; }
 
 
 /** Use this to succinctly declare a readonly protected property accessor.
@@ -161,7 +161,7 @@ public: \
 private: \
     type _p_##name; \
 protected: \
-    inline const type &Get##name() const{ return _p_##name; }
+    const type &Get##name() const{ return _p_##name; }
 
 
 
@@ -217,8 +217,8 @@ protected: \
 */
 #define GUTIL_DISABLE_COPY(cls) \
     private: \
-        inline cls(const cls &){} \
-        inline cls &operator =(const cls &){return *this;}
+        cls(const cls &){} \
+        cls &operator =(const cls &){return *this;}
 
 
 /** Declares a class to be static, by making the assignment operator,
@@ -235,9 +235,9 @@ protected: \
 */
 #define GUTIL_STATIC_CLASS(cls) \
     protected: \
-        inline cls(const cls &){} \
-        inline cls &operator =(const cls &){return *this;} \
-        inline cls(){}
+        cls(const cls &){} \
+        cls &operator =(const cls &){return *this;} \
+        cls(){}
 
 
 #ifndef NULL

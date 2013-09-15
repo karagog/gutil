@@ -103,17 +103,17 @@ public:
     explicit About(QWidget *parent = 0, bool show_about_gutil_button = true, bool show_license_button = false);
 
     /** Returns the title of the about window. */
-    inline QString GetTitle() const{ return _header.text(); }
+    QString GetTitle() const{ return _header.text(); }
 
     /** Returns the build info string. */
-    inline QString GetBuildInfo() const{ return _buildinfo.text(); }
+    QString GetBuildInfo() const{ return _buildinfo.text(); }
 
     /** Returns the about window's text attribute as plaintext */
-    inline QString GetAboutText() const{ return _text.toPlainText(); }
+    QString GetAboutText() const{ return _text.toPlainText(); }
 
 
     /** Sets the window title for the about dialog. */
-    inline void SetWindowTitle(const QString &t){ _dialog.setWindowTitle(t); }
+    void SetWindowTitle(const QString &t){ _dialog.setWindowTitle(t); }
 
     /** Sets an image to display in the window
         \param path_to_resource Can be a resource or a file path

@@ -72,11 +72,11 @@ public:
     void Exec();
 
     /** The top-level menu. */
-    inline CommandLineMenuItem const *MenuRoot() const{
+    CommandLineMenuItem const *MenuRoot() const{
         return _root;
     }
     /** The top-level menu. */
-    inline CommandLineMenuItem *MenuRoot(){
+    CommandLineMenuItem *MenuRoot(){
         return _root;
     }
 

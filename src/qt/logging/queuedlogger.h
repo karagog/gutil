@@ -50,7 +50,7 @@ public:
             You must pass a valid pointer to another logger for this to work,
             and the class will manage the memory for you.
     */
-    inline explicit QueuedLogger(::GUtil::Logging::AbstractLogger *l)
+    explicit QueuedLogger(::GUtil::Logging::AbstractLogger *l)
         :GUtil::Logging::AbstractLogger(NULL),
           m_logger(l),
           m_cancel(false),
@@ -61,7 +61,7 @@ public:
             You must pass a valid pointer to another logger for this to work,
             and the class will manage the memory for you.
     */
-    inline QueuedLogger(::GUtil::Logging::AbstractLogger *l,
+    QueuedLogger(::GUtil::Logging::AbstractLogger *l,
                         const LoggingOptionsFlags &f)
         :GUtil::Logging::AbstractLogger(NULL, f),
           m_logger(l),

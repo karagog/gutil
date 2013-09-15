@@ -25,7 +25,7 @@ class ConsoleLogger :
         public AbstractLogger
 {
 public:
-    inline ConsoleLogger(DataAccess::Console::OutputStreamEnum e = DataAccess::Console::StandardOut)
+    ConsoleLogger(DataAccess::Console::OutputStreamEnum e = DataAccess::Console::StandardOut)
         :AbstractLogger(new DataAccess::Console(e))
     {}
 };

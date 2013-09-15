@@ -63,28 +63,28 @@ public:
 
     static void SetupLogFile(const DataObjects::String &fn);
 
-    inline static void LogMessage(const char *file, int line,
+    static void LogMessage(const char *file, int line,
                                   const DataObjects::String &msg)
     {
         _check_if_initialized();
         GlobalLogger::LogMessage(msg, _create_title(file, line), GlobalLogger::DebugId);
     }
 
-    inline static void LogWarning(const char *file, int line,
+    static void LogWarning(const char *file, int line,
                                   const DataObjects::String &msg)
     {
         _check_if_initialized();
         GlobalLogger::LogWarning( msg, _create_title(file, line), GlobalLogger::DebugId);
     }
 
-    inline static void LogError(const char *file, int line,
+    static void LogError(const char *file, int line,
                                 const DataObjects::String &msg)
     {
         _check_if_initialized();
         GlobalLogger::LogError(msg, _create_title(file, line), GlobalLogger::DebugId);
     }
 
-    inline static void LogException(const Exception<> &ex){
+    static void LogException(const Exception<> &ex){
         _check_if_initialized();
         Logging::GlobalLogger::LogException(ex, GUtil::Logging::GlobalLogger::DebugId);
     }
@@ -94,7 +94,7 @@ private:
 
     static bool _initialized;
 
-    inline static DataObjects::String _create_title(const char *file, int line){
+    static DataObjects::String _create_title(const char *file, int line){
         return DataObjects::String::Format("  File: %s    Line: %d", file, line);
     }
 

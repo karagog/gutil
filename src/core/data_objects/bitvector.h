@@ -48,18 +48,18 @@ class Vector<bool>
 public:
 
     /** Creates a null-capacity vector */
-    inline Vector()
+    Vector()
         :m_size(0)
     {}
 
     /** Capacity refers to the number of bits we are capable of representing in the bitvector. */
-    inline explicit Vector(GUINT32 capacity)
+    explicit Vector(GUINT32 capacity)
         :m_data(capacity ? ((capacity - 1) >> 5) + 1 : 0),
           m_size(0)
     {}
 
     /** Initializes the vector to the given value */
-    inline Vector(bool init_val, GUINT32 size)
+    Vector(bool init_val, GUINT32 size)
         :m_data(init_val ? 0xFFFFFFFF : 0, size),
           m_size(size)
     {}
@@ -67,21 +67,21 @@ public:
     /** Returns the value at the given index.
         Throws an exception if the index is beyond the array's end
     */
-    inline bool At(GUINT32 indx) const{
+    bool At(GUINT32 indx) const{
         if(indx >= m_size) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return operator [](indx);
     }
 
     /** Returns the value at the given index. */
-    inline bool operator [] (GINT32 indx) const{ return operator[]((GUINT32)indx); }
+    bool operator [] (GINT32 indx) const{ return operator[]((GUINT32)indx); }
 
     /** Returns the value at the given index. */
-    inline bool operator [] (GUINT32 indx) const{
+    bool operator [] (GUINT32 indx) const{
         return m_data[indx >> 5] & (1 << (indx & 0x1F));
     }
 
     /** Sets the bit to the given value */
-    inline void Set(GUINT32 indx, bool val){
+    void Set(GUINT32 indx, bool val){
         GINT32 &target(m_data[indx >> 5]);
         GINT32 mask(1 << (indx & 0x1F));
         if(val) target |= mask;
@@ -91,14 +91,14 @@ public:
     /** Sets the bit to the given value, and returns the value the bit once had
         \note This is not atomic; simply a convenience function
     */
-    inline bool FetchAndSet(GUINT32 indx, bool val){
+    bool FetchAndSet(GUINT32 indx, bool val){
         bool ret( At(indx) );
         Set(indx, val);
         return ret;
     }
 
     /** Adds the bit to the end of the vector */
-    inline void PushBack(bool val){
+    void PushBack(bool val){
         GUINT32 old_size( m_size++ );
         if((old_size >> 5) > m_data.Length())
             m_data.PushBack(0);
@@ -106,7 +106,7 @@ public:
     }
 
     /** Removes the bit from the end of the vector */
-    inline void PopBack(){
+    void PopBack(){
         --m_size;
         if(((m_size - 1) >> 5) < m_data.Length())
             m_data.PopBack();

@@ -61,7 +61,7 @@ public:
     QPoint DateTimeToPoint(const QDateTime &) const;
 
     // The amount of time (in seconds) that we'll allow the user to edit
-    inline int GetTimeResolution() const{
+    int GetTimeResolution() const{
         return _resolution_in_seconds;
     }
     void SetTimeResolution(int);
@@ -88,7 +88,7 @@ public:
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint);
     virtual void setModel(QAbstractItemModel *);
 
-    inline TimeFormatEnum GetTimeFormat() const{
+    TimeFormatEnum GetTimeFormat() const{
         return m_timeFormat;
     }
     void SetTimeFormat(TimeFormatEnum t);
@@ -169,7 +169,7 @@ private:
     QPoint _origin_point;
     QPoint _finish_point;
 
-    inline void _update_finish_point(){
+    void _update_finish_point(){
         _finish_point.setY(_scale_factor * 500);
     }
 
@@ -213,7 +213,7 @@ private:
         int Position;
         int Span;
 
-        inline ItemCache()
+        ItemCache()
             :TotalSections(1),
               Position(0),
               Span(1)

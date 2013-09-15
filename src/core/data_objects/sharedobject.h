@@ -27,17 +27,17 @@ template <class T>class SharedObject
 {
 public:
 
-    inline bool operator == (const SharedObject<T> &o) const{
+    bool operator == (const SharedObject<T> &o) const{
         return _shared_data == o._shared_data;
     }
 
-    inline bool operator != (const SharedObject<T> &o) const{
+    bool operator != (const SharedObject<T> &o) const{
         return _shared_data != o._shared_data;
     }
 
     // This function detaches the explicitly shared data and calls the copy constructor
     //  of the shared data object
-    inline void Detach(){
+    void Detach(){
         _shared_data.Detach();
     }
 
@@ -47,20 +47,20 @@ protected:
     /** Derived classes initialize this base with their own custom shared data object.
         This class will delete it on destruction
     */
-    inline explicit SharedObject(T *d)
+    explicit SharedObject(T *d)
         :_shared_data(d)
     {}
 
     /** You must call this copy constructor in your derived class */
-    inline explicit SharedObject(const SharedObject<T> &o)
+    explicit SharedObject(const SharedObject<T> &o)
         :_shared_data(o._shared_data)
     {}
 
-    inline T *GetSharedData() const{
+    T *GetSharedData() const{
         return _shared_data.data();
     }
 
-    inline void SetSharedData(T *d){
+    void SetSharedData(T *d){
         _shared_data = d;
     }
 

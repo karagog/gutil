@@ -32,7 +32,7 @@ class FlatTreeModel :
     Q_OBJECT
 public:
 
-    inline explicit FlatTreeModel(QObject *parent = 0) :QAbstractProxyModel(parent){}
+    explicit FlatTreeModel(QObject *parent = 0) :QAbstractProxyModel(parent){}
 
     virtual void setSourceModel(QAbstractItemModel *);
 
@@ -88,7 +88,7 @@ protected:
 
 private slots:
 
-    inline void source_model_about_to_be_reset(){ beginResetModel(); }
+    void source_model_about_to_be_reset(){ beginResetModel(); }
     void source_model_reset();
 
     void source_model_data_changed(const QModelIndex &ind1, const QModelIndex &ind2){

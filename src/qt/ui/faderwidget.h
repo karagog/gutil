@@ -42,14 +42,14 @@ public:
     FaderWidget(QWidget *par = 0, int fade_duration = 333, int start_delay = 0);
 
     /** The color it will fade to */
-    inline QColor fadeColor() const{ return color; }
+    QColor fadeColor() const{ return color; }
     /** The color it will fade to */
-    inline void setFadeColor(const QColor &newColor){ color = newColor; }
+    void setFadeColor(const QColor &newColor){ color = newColor; }
 
     /** How many milliseconds it takes to complete a fade operation */
-    inline int fadeDuration() const{ return duration; }
+    int fadeDuration() const{ return duration; }
     /** How many milliseconds it takes to complete a fade operation */
-    inline void setFadeDuration(int milliseconds){ duration = milliseconds; }
+    void setFadeDuration(int milliseconds){ duration = milliseconds; }
 
 
 public slots:

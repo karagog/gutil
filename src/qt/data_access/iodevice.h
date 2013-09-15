@@ -51,7 +51,7 @@ class IODevice :
 public slots:
 
     void SendData(const QByteArray &);
-    inline void Write(const QByteArray &data){ SendData(data); }
+    void Write(const QByteArray &data){ SendData(data); }
 
 
 signals:

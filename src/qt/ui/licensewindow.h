@@ -38,7 +38,7 @@ public:
     void SetLicenseText(const QString &txt);
 
     /** Returns the current license text. */
-    inline QString GetLicenseText() const;
+    QString GetLicenseText() const;
 
 };
 

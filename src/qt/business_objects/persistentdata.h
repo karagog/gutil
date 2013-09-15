@@ -29,10 +29,10 @@ limitations under the License.*/
 
 /** Derived classes can make convenient property accessors with this macro */
 #define PERSISTENT_PROPERTY( name, type ) \
-    inline type Get##name(){ return Value(#name).value<type>(); } \
-    inline void Set##name(const type &value){ SetValue( #name, value ); } \
-    inline bool Has##name(){ return Contains(#name); } \
-    inline void Remove##name(){ RemoveValue(#name); } \
+    type Get##name(){ return Value(#name).value<type>(); } \
+    void Set##name(const type &value){ SetValue( #name, value ); } \
+    bool Has##name(){ return Contains(#name); } \
+    void Remove##name(){ RemoveValue(#name); } \
     enum{}
 
 
@@ -63,7 +63,7 @@ class PersistentData :
         int Id;
         bool Dirty;
 
-        inline data_t(const ::GUtil::DataObjects::String &k,
+        data_t(const ::GUtil::DataObjects::String &k,
                       const QVariant &d,
                       int id = -1,
                       const QUuid &version = QUuid())
@@ -107,16 +107,16 @@ public:
     void RemoveValue(const GUtil::DataObjects::String &key);
 
     /** Returns whether the key is in the config settings. */
-    inline bool Contains(const GUtil::DataObjects::String &key){ return m_data.Contains(key); }
+    bool Contains(const GUtil::DataObjects::String &key){ return m_data.Contains(key); }
 
     /** Returns the file name of the file which is storing the cached data. */
-    inline const QString &GetFileName() const{ return m_bds.GetFileName(); }
+    const QString &GetFileName() const{ return m_bds.GetFileName(); }
 
     /** Returns the identity string you passed in the constructor. */
-    inline GUtil::DataObjects::String const &GetIdentity() const{ return m_identity; }
+    GUtil::DataObjects::String const &GetIdentity() const{ return m_identity; }
 
     /** Returns the modifier string you passed in the constructor. */
-    inline GUtil::DataObjects::String const &GetModifier() const{ return m_modifier; }
+    GUtil::DataObjects::String const &GetModifier() const{ return m_modifier; }
 
 
     /** Controls whether to commit changes right away, or wait until a manual

@@ -38,35 +38,35 @@ class Bound
 public:
 
     /** Creates a null bound */
-    inline Bound() :m_includeValue(true){}
+    Bound() :m_includeValue(true){}
 
     /** Creates a bound initialized to the given value, which is optionally
         included in the bound itself by the 'include_value' variable
     */
-    inline Bound(const T &value, bool include_value)
+    Bound(const T &value, bool include_value)
         :m_value(value), m_includeValue(include_value){}
 
     /** Returns the current value of the bound
         \note This value is only valid if the bound is not null
     */
-    inline const T &Value() const{ return m_value.Value(); }
+    const T &Value() const{ return m_value.Value(); }
 
     /** Returns true if the bound value is included in the bound itself */
-    inline bool ValueIncludedInBound() const{ return m_includeValue; }
+    bool ValueIncludedInBound() const{ return m_includeValue; }
 
     /** Returns true if the bound is null */
-    inline bool IsNull() const{ return m_value.IsNull(); }
+    bool IsNull() const{ return m_value.IsNull(); }
 
     /** Returns true if this bound equals the other */
-    inline bool operator == (const Bound<T> &other) const{ return m_value == other.m_value; }
+    bool operator == (const Bound<T> &other) const{ return m_value == other.m_value; }
     /** Returns true if this bound does not equal the other */
-    inline bool operator != (const Bound<T> &other) const{ return m_value != other.m_value; }
+    bool operator != (const Bound<T> &other) const{ return m_value != other.m_value; }
 
     /** Clears the bound value and sets it to null */
-    inline void Clear(){ m_value.Clear(); m_includeValue = true; }
+    void Clear(){ m_value.Clear(); m_includeValue = true; }
 
     /** Sets the value of the bound, as well as the inclusion flag */
-    inline void SetValue(const T &val, bool include_value){
+    void SetValue(const T &val, bool include_value){
         m_value = val; m_includeValue = include_value;
     }
 
@@ -107,11 +107,11 @@ public:
         \param including_value Indicates whether the bound is inclusive. Passing
         false would declare that the bound itself should not be included in the range
     */
-    inline static Range<T> CreateLowerBound(const T &lb, bool including_value = true){
+    static Range<T> CreateLowerBound(const T &lb, bool including_value = true){
         return Range<T>(lb, including_value, true);
     }
     /** Creates a single-bound range with the given lower bound */
-    inline static Range<T> CreateLowerBound(const Bound<T> &lb){ return Range<T>(lb, true); }
+    static Range<T> CreateLowerBound(const Bound<T> &lb){ return Range<T>(lb, true); }
 
     /** Creates a single-bound range with the given upper bound.
 
@@ -119,11 +119,11 @@ public:
         \param including_value Indicates whether the bound is inclusive. Passing
         false would declare that the bound itself should not be included in the range
     */
-    inline static Range<T> CreateUpperBound(const T &ub, bool including_value = true){
+    static Range<T> CreateUpperBound(const T &ub, bool including_value = true){
         return Range<T>(ub, including_value, false);
     }
     /** Creates a single-bound range with the given upper bound */
-    inline static Range<T> CreateUpperBound(const Bound<T> &ub){ return Range<T>(ub, false); }
+    static Range<T> CreateUpperBound(const Bound<T> &ub){ return Range<T>(ub, false); }
 
     /** Creates a doubly-bound range with the given lower/upper bounds.
 
@@ -132,78 +132,78 @@ public:
         \param include_lower_bound Indicates whether the lower bound is inclusive
         \param include_upper_bound Indicates whether the upper bound is inclusive
     */
-    inline static Range<T> CreateDoubleBound(const T &lb, const T &ub,
+    static Range<T> CreateDoubleBound(const T &lb, const T &ub,
                                              bool include_lower_bound = true,
                                              bool include_upper_bound = true){
         return Range<T>(lb, ub, include_lower_bound, include_upper_bound);
     }
     /** Creates a doubly-bound range with the given lower/upper bounds */
-    inline static Range<T> CreateDoubleBound(const Bound<T> &lb, const Bound<T> &ub){
+    static Range<T> CreateDoubleBound(const Bound<T> &lb, const Bound<T> &ub){
         return Range<T>(lb.Value(), ub.Value(), lb.ValueIncludedInBound(), ub.ValueIncludedInBound());
     }
 
     /** Constructs a range that represents all possible values */
-    inline static Range<T> Universe(){ return Range<T>(false); }
+    static Range<T> Universe(){ return Range<T>(false); }
 
     /** Constructs an empty range, which contains no values */
-    inline static Range<T> EmptySet(){ return Range<T>(); }
+    static Range<T> EmptySet(){ return Range<T>(); }
 
     /** Constructs an empty range, which contains no values */
-    inline Range() :m_null(true){}
+    Range() :m_null(true){}
 
 
 
     /** Returns a pointer to the lower bound value, or NULL if there is no such bound */
-    inline Bound<T> const &LowerBound() const{ return m_LowerBound; }
+    Bound<T> const &LowerBound() const{ return m_LowerBound; }
 
     /** Returns a pointer to the upper bound value, or NULL if there is no such bound */
-    inline Bound<T> const &UpperBound() const{ return m_UpperBound; }
+    Bound<T> const &UpperBound() const{ return m_UpperBound; }
 
     /** Returns whether the range has a lower bound */
-    inline bool HasLowerBound() const{ return !m_LowerBound.IsNull(); }
+    bool HasLowerBound() const{ return !m_LowerBound.IsNull(); }
     /** Returns whether the range has an upper bound */
-    inline bool HasUpperBound() const{ return !m_UpperBound.IsNull(); }
+    bool HasUpperBound() const{ return !m_UpperBound.IsNull(); }
 
     /** Sets the lower bound */
-    inline void SetLowerBound(const T &lb, bool include_value_in_bound = true){
+    void SetLowerBound(const T &lb, bool include_value_in_bound = true){
         SetLowerBound(Bound<T>(lb, include_value_in_bound));
     }
     /** Sets the lower bound */
-    inline void SetLowerBound(const Bound<T> &b){
+    void SetLowerBound(const Bound<T> &b){
         m_LowerBound = b;
         m_null = false;
     }
 
     /** Sets the upper bound */
-    inline void SetUpperBound(const T &ub, bool include_value_in_bound = true){
+    void SetUpperBound(const T &ub, bool include_value_in_bound = true){
         SetUpperBound(Bound<T>(ub, include_value_in_bound));
     }
     /** Sets the upper bound */
-    inline void SetUpperBound(const Bound<T> &b){
+    void SetUpperBound(const Bound<T> &b){
         m_UpperBound = b;
         m_null = false;
     }
 
     /** Clears both bounds and makes the range null */
-    inline void Clear(){
+    void Clear(){
         ClearLowerBound();
         ClearUpperBound();
         m_null = true;
     }
 
     /** Clears the lower bound */
-    inline void ClearLowerBound(){
+    void ClearLowerBound(){
         m_LowerBound.Clear();
     }
     /** Clears the upper bound */
-    inline void ClearUpperBound(){
+    void ClearUpperBound(){
         m_UpperBound.Clear();
     }
 
     /** Returns true if the range is bounded on both ends.
         \note This is not simply the opposite of IsUnbounded()
     */
-    inline bool IsBounded() const{
+    bool IsBounded() const{
         return IsEmpty() || (HasLowerBound() && HasUpperBound() && 0 >= CompareLowerAndUpperBounds(m_LowerBound, m_UpperBound));
     }
 
@@ -212,23 +212,23 @@ public:
         also come from the lower bound being greater than the upper bound.
         \note This is not simply the opposite of IsBounded()
     */
-    inline bool IsUnbounded() const{ return IsUniverse() || (HasLowerBound() && HasUpperBound() && 0 < CompareLowerAndUpperBounds(LowerBound(), UpperBound())); }
+    bool IsUnbounded() const{ return IsUniverse() || (HasLowerBound() && HasUpperBound() && 0 < CompareLowerAndUpperBounds(LowerBound(), UpperBound())); }
 
     /** Returns true if the range is unbounded in the positive direction (no upper bound, but may or may not have lower bound) */
-    inline bool IsUnboundedPositive() const{ return !IsEmpty() && !HasUpperBound(); }
+    bool IsUnboundedPositive() const{ return !IsEmpty() && !HasUpperBound(); }
     /** Returns true if the range is unbounded in the negative direction (no lower bound, but may or may not have upper bound) */
-    inline bool IsUnboundedNegative() const{ return !IsEmpty() && !HasLowerBound(); }
+    bool IsUnboundedNegative() const{ return !IsEmpty() && !HasLowerBound(); }
 
     /** Returns true if the range is totally unbounded (equal to its universe) */
-    inline bool IsUniverse() const{ return !IsEmpty() && !(HasLowerBound() || HasUpperBound()); }
+    bool IsUniverse() const{ return !IsEmpty() && !(HasLowerBound() || HasUpperBound()); }
 
     /** Returns true if the range has not been initialized (means it is an
         empty range; or the complement of the Universe())
     */
-    inline bool IsEmpty() const{ return m_null; }
+    bool IsEmpty() const{ return m_null; }
 
     /** Returns true if the range contains the given item */
-    inline bool Contains(const T &t) const{
+    bool Contains(const T &t) const{
         bool satisfies_lower, satisfies_upper;
         if(this->IsEmpty())
             satisfies_lower = satisfies_upper = false;
@@ -254,7 +254,7 @@ public:
     }
 
     /** Sets this range equal to its complement */
-    inline Range<T> &Complement(){
+    Range<T> &Complement(){
         if(IsEmpty()) operator = (Range<T>::Universe());
         else if(IsUniverse()) operator = (Range<T>::EmptySet());
         else
@@ -270,13 +270,13 @@ public:
     }
 
     /** Returns the complement of this range */
-    inline Range<T> Complemented() const{ Range<T> ret(*this); ret.Complement(); return ret; }
+    Range<T> Complemented() const{ Range<T> ret(*this); ret.Complement(); return ret; }
 
     /** Returns true if this is a subset of the other range */
-    inline bool IsSubset(const Range<T> &other) const{ return IsSubset(*this, other); }
+    bool IsSubset(const Range<T> &other) const{ return IsSubset(*this, other); }
 
     /** Returns true if the first is a subset of the second range */
-    inline static bool IsSubset(const Range<T> &first, const Range<T> &second){
+    static bool IsSubset(const Range<T> &first, const Range<T> &second){
         if(second.IsUniverse() || first.IsEmpty()) return true;
         else if(first.IsUniverse() || second.IsEmpty()) return false;
 
@@ -302,16 +302,16 @@ public:
     }
 
     /** Returns true if this is a superset of the other range */
-    inline bool IsSuperset(const Range<T> &other){ return IsSuperset(*this, other); }
+    bool IsSuperset(const Range<T> &other){ return IsSuperset(*this, other); }
 
     /** Returns true if the first is a superset of the second range */
-    inline bool IsSuperset(const Range<T> &first, const Range<T> &second){ return IsSubset(second, first); }
+    bool IsSuperset(const Range<T> &first, const Range<T> &second){ return IsSubset(second, first); }
 
 
     /** Returns true if the ranges are equal
         Null ranges are never equal.
     */
-    inline bool operator == (const Range<T> &o) const{
+    bool operator == (const Range<T> &o) const{
         return !IsEmpty() && !o.IsEmpty() &&
                 (HasLowerBound() ? o.HasLowerBound() && 0 == CompareLowerBounds(m_LowerBound, o.m_LowerBound) : !o.HasLowerBound()) &&
                 (HasUpperBound() ? o.HasUpperBound() && 0 == CompareUpperBounds(m_UpperBound, o.m_UpperBound) : !o.HasUpperBound());
@@ -319,35 +319,35 @@ public:
     /** Returns true if the ranges are not equal
         Null ranges are never equal.
     */
-    inline bool operator != (const Range<T> &o) const{ return !this->operator == (o); }
+    bool operator != (const Range<T> &o) const{ return !this->operator == (o); }
 
     /** Returns the complement of this range */
-    inline Range<T> operator ~ () const{ return this->Complemented(); }
+    Range<T> operator ~ () const{ return this->Complemented(); }
 
     /** Returns true if this is a subset of the other range */
-    inline bool operator <= (const Range<T> &other){ return IsSubset(*this, other); }
+    bool operator <= (const Range<T> &other){ return IsSubset(*this, other); }
     /** Returns true if this is a superset of the other range */
-    inline bool operator >= (const Range<T> &other){ return IsSuperset(*this, other); }
+    bool operator >= (const Range<T> &other){ return IsSuperset(*this, other); }
 
     /** For consistent value comparisons, this is the compare function
         everyone uses in the Range/Region implementation
     */
-    inline static int CompareValues(const T &lhs, const T &rhs){
+    static int CompareValues(const T &lhs, const T &rhs){
         return Utils::FlexibleTypeComparer<T>::DefaultCompare(lhs, rhs);
     }
 
     /** Compares the two lower bounds (neither can be null) */
-    inline static int CompareLowerBounds(const Bound<T> &lhs, const Bound<T> &rhs){ return _compare_bounds(lhs, rhs, __lower_bound); }
+    static int CompareLowerBounds(const Bound<T> &lhs, const Bound<T> &rhs){ return _compare_bounds(lhs, rhs, __lower_bound); }
 
     /** Compares the two upper bounds (neither can be null) */
-    inline static int CompareUpperBounds(const Bound<T> &lhs, const Bound<T> &rhs){ return _compare_bounds(lhs, rhs, __upper_bound); }
+    static int CompareUpperBounds(const Bound<T> &lhs, const Bound<T> &rhs){ return _compare_bounds(lhs, rhs, __upper_bound); }
 
     /** Compares the two upper bounds (neither can be null) */
-    inline static int CompareLowerAndUpperBounds(const Bound<T> &lb, const Bound<T> &ub){ return _compare_bounds(lb, ub, __lower_and_upper_bound); }
+    static int CompareLowerAndUpperBounds(const Bound<T> &lb, const Bound<T> &ub){ return _compare_bounds(lb, ub, __lower_and_upper_bound); }
 
 
     /** Returns true if this range intersects the other */
-    inline bool Intersects(const Range<T> &other) const{ return Intersects(*this, other); }
+    bool Intersects(const Range<T> &other) const{ return Intersects(*this, other); }
 
     /** Returns true if the first range intersects the second */
     static bool Intersects(const Range<T> &first, const Range<T> &second){
@@ -389,7 +389,7 @@ public:
         only one bound is inclusive.  Therefore, if you join the ranges in a Union,
         the resultant can be represented in a single range
     */
-    inline bool IsAdjacent(const Range<T> &other) const{ return IsAdjacent(*this, other); }
+    bool IsAdjacent(const Range<T> &other) const{ return IsAdjacent(*this, other); }
 
     /** Returns true if the ranges are adjacent, but not intersecting.
 
@@ -397,7 +397,7 @@ public:
         only one bound is inclusive.  Therefore, if you join the ranges in a Union,
         the resultant can be represented in a single range
     */
-    inline static bool IsAdjacent(const Range<T> &first, const Range<T> &second){
+    static bool IsAdjacent(const Range<T> &first, const Range<T> &second){
         return (first.HasUpperBound() && second.HasLowerBound() &&
                 0 == CompareValues(first.UpperBound().Value(), second.LowerBound().Value()) && (first.UpperBound().ValueIncludedInBound() ^ second.LowerBound().ValueIncludedInBound())) ||
                 (first.HasLowerBound() && second.HasUpperBound() &&
@@ -413,17 +413,17 @@ private:
 
 
     /** The outside world must use one of the static functions to construct a range */
-    inline explicit Range(bool isNull) :m_null(isNull){}
+    explicit Range(bool isNull) :m_null(isNull){}
 
     /** Used to construct single-bound ranges */
-    inline Range(const T &bound, bool inc, bool lower_bound)
+    Range(const T &bound, bool inc, bool lower_bound)
         :m_null(false){
         if(lower_bound) m_LowerBound.SetValue(bound, inc);
         else m_UpperBound.SetValue(bound, inc);
     }
 
     /** Used to construct single-bound ranges */
-    inline Range(const Bound<T> &bound, bool lower_bound)
+    Range(const Bound<T> &bound, bool lower_bound)
         :m_null(bound.IsNull()){
         if(!m_null){
             if(lower_bound) m_LowerBound = bound;
@@ -432,7 +432,7 @@ private:
     }
 
     /** Used to construct two-bound ranges */
-    inline Range(const T &lb, const T &ub, bool inc_lb, bool inc_ub)
+    Range(const T &lb, const T &ub, bool inc_lb, bool inc_ub)
         :m_LowerBound(lb, inc_lb),
           m_UpperBound(ub, inc_ub),
           m_null(false)
@@ -444,7 +444,7 @@ private:
         }
     }
 
-    inline static int _compare_bounds(const Bound<T> &lhs, const Bound<T> &rhs, __bound_type bt){
+    static int _compare_bounds(const Bound<T> &lhs, const Bound<T> &rhs, __bound_type bt){
         int cmp( CompareValues(lhs.Value(), rhs.Value()) );
 
         // If the bounds are equal, then the outcome depends on their exclusivity
@@ -485,25 +485,25 @@ class Region
 public:
 
     /** Constructs an empty region */
-    inline Region() :m_isUniverse(false){}
+    Region() :m_isUniverse(false){}
 
     /** Constructs a new region and initializes it to the range */
-    inline Region(const Range<T> &r) :m_isUniverse(r.IsUniverse()){
+    Region(const Range<T> &r) :m_isUniverse(r.IsUniverse()){
         _maybe_push_range(r);
     }
 
     /** Copies the given region */
-    inline Region(const Region<T> &o) :m_ranges(o.m_ranges), m_isUniverse(o.m_isUniverse) {}
+    Region(const Region<T> &o) :m_ranges(o.m_ranges), m_isUniverse(o.m_isUniverse) {}
 
     /** Copies the given region */
-    inline Region<T> &operator = (const Region<T> &o){
+    Region<T> &operator = (const Region<T> &o){
         m_ranges = o.m_ranges;
         m_isUniverse = o.m_isUniverse;
         return *this;
     }
 
     /** Assigns this region to be equal to the given range */
-    inline Region<T> &operator = (const Range<T> &o){
+    Region<T> &operator = (const Range<T> &o){
         m_ranges.Clear();
         m_isUniverse = o.IsUniverse();
         _maybe_push_range(o);
@@ -511,33 +511,33 @@ public:
     }
 
     /** Creates an empty region */
-    inline static Region<T> EmptySet(){ return Region<T>(); }
+    static Region<T> EmptySet(){ return Region<T>(); }
 
     /** Creates a region that covers the whole universe of values */
-    inline static Region<T> Universe(){ return Region<T>(true); }
+    static Region<T> Universe(){ return Region<T>(true); }
 
     /** Clears the region (afterwards it is null)
         \note Does not deallocate internal memory for the range.  There is no way to free the memory,
         short of deleting the Region.  This is for efficiency purposes
     */
-    inline void Clear(){ m_ranges.Empty(); m_isUniverse = false; }
+    void Clear(){ m_ranges.Empty(); m_isUniverse = false; }
 
     /** Returns true if the region is empty (contains no values) */
-    inline bool IsEmpty() const{ return !m_isUniverse && 0 == m_ranges.Size(); }
+    bool IsEmpty() const{ return !m_isUniverse && 0 == m_ranges.Size(); }
 
     /** Returns true if the region covers the whole universe of values */
-    inline bool IsUniverse() const{ return m_isUniverse; }
+    bool IsUniverse() const{ return m_isUniverse; }
 
     /** The independent ranges it takes to sum into this region.
         You can use this to iterate through the ranges, but you can't change them directly
     */
-    inline const DList< Range<T> > &Ranges() const{ return m_ranges; }
+    const DList< Range<T> > &Ranges() const{ return m_ranges; }
 
     /** Returns an iterator pointing to the range which contains the given item.
         If no range contains the value, then an iterator pointing to the end of the
         range vector is returned
     */
-    inline typename DList< Range<T> >::const_iterator RangeContaining(const T &item) const{
+    typename DList< Range<T> >::const_iterator RangeContaining(const T &item) const{
         typename DList< Range<T> >::const_iterator iter(m_ranges.begin());
         for(; iter != m_ranges.end(); ++iter)
         {
@@ -556,35 +556,35 @@ public:
     }
 
     /** Removes the range at the given index */
-    inline void RemoveRangeAt(GUINT32 indx){ m_ranges.RemoveAt(indx); }
+    void RemoveRangeAt(GUINT32 indx){ m_ranges.RemoveAt(indx); }
 
     /** Removes the range pointed to by the iterator.
         The iterator must be valid, and must belong to this region
     */
-    inline void RemoveRange(const typename DList< Range<T> >::const_iterator &iter){ RemoveRangeAt(iter.Index()); }
+    void RemoveRange(const typename DList< Range<T> >::const_iterator &iter){ RemoveRangeAt(iter.Index()); }
 
     /** Returns true if the item exists somewhere within the region */
-    inline bool Contains(const T &item){
+    bool Contains(const T &item){
         return IsUniverse() || RangeContaining(item) != m_ranges.end();
     }
 
     /** Returns true if this range equals the other */
-    inline bool Equals(const Region<T> &other) const{ return Equals(*this, other); }
+    bool Equals(const Region<T> &other) const{ return Equals(*this, other); }
     /** Returns true if the lhs range equals the rhs range */
-    inline static bool Equals(const Region<T> &lhs, const Region<T> &rhs){
+    static bool Equals(const Region<T> &lhs, const Region<T> &rhs){
         return !(lhs.IsEmpty() ^ rhs.IsEmpty()) &&
                 (lhs.IsEmpty() || Intersect(lhs, rhs.Complemented()).IsUniverse());
     }
 
     /** Returns true if this is a subset of the other */
-    inline bool IsSubset(const Region<T> &other) const{ return IsSubset(*this, other); }
+    bool IsSubset(const Region<T> &other) const{ return IsSubset(*this, other); }
     /** Returns true if one is a subset of the other */
-    inline static bool IsSubset(const Region<T> &one, const Region<T> &other){ return one.Equals(Intersect(one, other)); }
+    static bool IsSubset(const Region<T> &one, const Region<T> &other){ return one.Equals(Intersect(one, other)); }
 
     /** Returns true if this is a superset of the other range */
-    inline bool IsSuperset(const Region<T> &other) const{ return IsSuperset(*this, other); }
+    bool IsSuperset(const Region<T> &other) const{ return IsSuperset(*this, other); }
     /** Returns true if the first is a superset of the second range */
-    inline static bool IsSuperset(const Region<T> &first, const Region<T> &second){ return IsSubset(second, first); }
+    static bool IsSuperset(const Region<T> &first, const Region<T> &second){ return IsSubset(second, first); }
 
     /** Sets this equal to the union of it with the given range
         \todo Optimize so you don't have to create a new region just to Unionize the range
@@ -593,106 +593,106 @@ public:
     /** Sets this equal to the union of it with the other region */
     Region<T> &Union(const Region<T> &r);
     /** Returns the union of the two regions */
-    inline static Region<T> Union(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.Union(other); }
+    static Region<T> Union(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.Union(other); }
 
     /** Sets this equal to the intersection of this with the given range */
-    inline Region<T> &Intersect(const Range<T> &other){ return Intersect(Region<T>(other)); }
+    Region<T> &Intersect(const Range<T> &other){ return Intersect(Region<T>(other)); }
     /** Sets this equal to the intersection of this with the other region */
-    inline Region<T> &Intersect(const Region<T> &other){ return (Complement().Union(other.Complemented())).Complement(); }
+    Region<T> &Intersect(const Region<T> &other){ return (Complement().Union(other.Complemented())).Complement(); }
     /** Returns the region of intersection between one region and the other */
-    inline static Region<T> Intersect(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.Intersect(other); }
+    static Region<T> Intersect(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.Intersect(other); }
 
     /** Sets this equal to its universal complement (Universe - this) */
     Region<T> &Complement();
     /** Sets this equal to the complement of this with respect to the other region */
-    inline Region<T> &Complement(const Region<T> &r){ return r.IsUniverse() ? this->Complement() : this->operator = (Difference(r, *this)); }
+    Region<T> &Complement(const Region<T> &r){ return r.IsUniverse() ? this->Complement() : this->operator = (Difference(r, *this)); }
     /** Returns the region of complement of one with respect to the other (other - one) */
-    inline static Region<T> Complement(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.Complement(other); }
+    static Region<T> Complement(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.Complement(other); }
 
     /** Returns the complement of this region (with respect to the universe) */
-    inline Region<T> Complemented() const{ Region<T> ret(*this); return ret.Complement(); }
+    Region<T> Complemented() const{ Region<T> ret(*this); return ret.Complement(); }
 
     /** Sets this equal to the difference between it and the given range */
-    inline Region<T> &Difference(const Range<T> &other){ return this->Intersect(other.Complemented()); }
+    Region<T> &Difference(const Range<T> &other){ return this->Intersect(other.Complemented()); }
     /** Sets this equal to the difference between it and the other region */
-    inline Region<T> &Difference(const Region<T> &other){ return this->Intersect(other.Complemented()); }
+    Region<T> &Difference(const Region<T> &other){ return this->Intersect(other.Complemented()); }
     /** Returns a region that is the difference between lhs and rhs */
-    inline static Region<T> Difference(const Region<T> &lhs, const Region<T> &rhs){ Region<T> ret(lhs); return ret.Difference(rhs); }
+    static Region<T> Difference(const Region<T> &lhs, const Region<T> &rhs){ Region<T> ret(lhs); return ret.Difference(rhs); }
 
     /** Sets this equal to the symmetric difference of it with respect to the given range */
-    inline Region<T> &SymmetricDifference(const Range<T> &r){
+    Region<T> &SymmetricDifference(const Range<T> &r){
         Region<T> intersection(*this);  intersection.Intersect(r);
         return this->Union(r).Difference(intersection);
     }
     /** Sets this equal to the symmetric difference of it with respect to the other region */
-    inline Region<T> &SymmetricDifference(const Region<T> &r){
+    Region<T> &SymmetricDifference(const Region<T> &r){
         Region<T> intersection( Intersect(*this, r) );
         return this->Union(r).Difference(intersection);
     }
     /** Returns the symmetric difference of the two regions */
-    inline static Region<T> SymmetricDifference(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.SymmetricDifference(other); }
+    static Region<T> SymmetricDifference(const Region<T> &one, const Region<T> &other){ Region<T> ret(one); return ret.SymmetricDifference(other); }
 
     /** Obtain the difference between two regions */
-    inline Region<T> operator - (const Region<T> &r) const{ return Difference(*this, r); }
+    Region<T> operator - (const Region<T> &r) const{ return Difference(*this, r); }
     /** Obtain the difference between this region and the given range */
-    inline Region<T> operator - (const Range<T> &r) const{ Region<T> ret(*this); ret.Difference(r); return ret; }
+    Region<T> operator - (const Range<T> &r) const{ Region<T> ret(*this); ret.Difference(r); return ret; }
     /** Sets the current region equal to the difference of the two regions */
-    inline Region<T> &operator -= (const Region<T> &r){ return this->Difference(r); }
+    Region<T> &operator -= (const Region<T> &r){ return this->Difference(r); }
     /** Sets the current region equal to the difference of this and the given range */
-    inline Region<T> &operator -= (const Range<T> &r){ return this->Difference(r); }
+    Region<T> &operator -= (const Range<T> &r){ return this->Difference(r); }
 
     /** Obtain the union of two regions */
-    inline Region<T> operator + (const Region<T> &r) const{ return Union(*this, r); }
+    Region<T> operator + (const Region<T> &r) const{ return Union(*this, r); }
     /** Obtain the union of this region with the given range */
-    inline Region<T> operator + (const Range<T> &r) const{ Region<T> ret(*this); ret.Union(r); return ret; }
+    Region<T> operator + (const Range<T> &r) const{ Region<T> ret(*this); ret.Union(r); return ret; }
     /** Sets the current region equal to the union of the two regions */
-    inline Region<T> &operator += (const Region<T> &r){ return this->Union(r); }
+    Region<T> &operator += (const Region<T> &r){ return this->Union(r); }
     /** Sets the current region equal to the union of this and the given range */
-    inline Region<T> &operator += (const Range<T> &r){ return this->Union(r); }
+    Region<T> &operator += (const Range<T> &r){ return this->Union(r); }
 
     /** Obtain the union of two regions */
-    inline Region<T> operator | (const Region<T> &r) const{ return Union(*this, r); }
+    Region<T> operator | (const Region<T> &r) const{ return Union(*this, r); }
     /** Obtain the union of this region with the given range */
-    inline Region<T> operator | (const Range<T> &r) const{ Region<T> ret(*this); ret.Union(r); return ret; }
+    Region<T> operator | (const Range<T> &r) const{ Region<T> ret(*this); ret.Union(r); return ret; }
     /** Sets the current region equal to the union of the two regions */
-    inline Region<T> &operator |= (const Region<T> &r){ return this->Union(r); }
+    Region<T> &operator |= (const Region<T> &r){ return this->Union(r); }
     /** Sets the current region equal to the union of this and the given range */
-    inline Region<T> &operator |= (const Range<T> &r){ return this->Union(r); }
+    Region<T> &operator |= (const Range<T> &r){ return this->Union(r); }
 
     /** Obtain the intersection of two regions */
-    inline Region<T> operator & (const Region<T> &r) const{ return Intersect(*this, r); }
+    Region<T> operator & (const Region<T> &r) const{ return Intersect(*this, r); }
     /** Obtain the intersection of this region with the given range */
-    inline Region<T> operator & (const Range<T> &r) const{ Region<T> ret(*this); ret.Intersect(r); return ret; }
+    Region<T> operator & (const Range<T> &r) const{ Region<T> ret(*this); ret.Intersect(r); return ret; }
     /** Sets the current region equal to the intersection of the two regions */
-    inline Region<T> &operator &= (const Region<T> &r){ return this->Intersect(r); }
+    Region<T> &operator &= (const Region<T> &r){ return this->Intersect(r); }
     /** Sets the current region equal to the intersection of this and the given range */
-    inline Region<T> &operator &= (const Range<T> &r){ return this->Intersect(r); }
+    Region<T> &operator &= (const Range<T> &r){ return this->Intersect(r); }
 
     /** Obtain the symmetric difference of two regions */
-    inline Region<T> operator ^ (const Region<T> &r) const{ return SymmetricDifference(*this, r); }
+    Region<T> operator ^ (const Region<T> &r) const{ return SymmetricDifference(*this, r); }
     /** Obtain the symmetric difference of this with the given range */
-    inline Region<T> operator ^ (const Range<T> &r) const{ Region<T> ret(*this); ret.SymmetricDifference(r); return ret; }
+    Region<T> operator ^ (const Range<T> &r) const{ Region<T> ret(*this); ret.SymmetricDifference(r); return ret; }
     /** Sets the current region equal to the symmetric difference of the two regions */
-    inline Region<T> &operator ^= (const Region<T> &r){ return this->SymmetricDifference(r); }
+    Region<T> &operator ^= (const Region<T> &r){ return this->SymmetricDifference(r); }
     /** Sets the current region equal to the symmetric difference of this and the given range */
-    inline Region<T> &operator ^= (const Range<T> &r){ return this->SymmetricDifference(r); }
+    Region<T> &operator ^= (const Range<T> &r){ return this->SymmetricDifference(r); }
 
     /** Obtain the complement of the current region */
-    inline Region<T> operator ~ () const{ return Region<T>::Complemented(); }
+    Region<T> operator ~ () const{ return Region<T>::Complemented(); }
 
     /** Compare two sets for equality, or (A & ~B) == NULL */
-    inline bool operator == (const Region<T> &other) const{ return Equals(*this, other); }
+    bool operator == (const Region<T> &other) const{ return Equals(*this, other); }
     /** Compare two sets for inequality, or (A & ~B) != NULL */
-    inline bool operator != (const Region<T> &other) const{ return !Equals(*this, other); }
+    bool operator != (const Region<T> &other) const{ return !Equals(*this, other); }
 
     /** Returns true if this region is included in the other region */
-    inline bool operator <= (const Region<T> &other) const{ return IsSubset(*this, other); }
+    bool operator <= (const Region<T> &other) const{ return IsSubset(*this, other); }
     /** Returns true if the other region is included in this region */
-    inline bool operator >= (const Region<T> &other) const{ return IsSubset(other, this); }
+    bool operator >= (const Region<T> &other) const{ return IsSubset(other, this); }
     /** Returns true if this region is included in the given range */
-    inline bool operator <= (const Range<T> &other) const{ return IsSubset(*this, other); }
+    bool operator <= (const Range<T> &other) const{ return IsSubset(*this, other); }
     /** Returns true if the given range is included in this region */
-    inline bool operator >= (const Range<T> &other) const{ return IsSubset(other, *this); }
+    bool operator >= (const Range<T> &other) const{ return IsSubset(other, *this); }
 
 
 private:
@@ -709,7 +709,7 @@ private:
     /** Returns true if the first range is less than the second.
         \note The ranges cannot be intersecting
     */
-    inline static bool _range_less_than(const Range<T> &lhs, const Range<T> &rhs){
+    static bool _range_less_than(const Range<T> &lhs, const Range<T> &rhs){
         GASSERT(!Range<T>::Intersects(lhs, rhs));
         GASSERT(!lhs.IsUnbounded());
         GASSERT(!rhs.IsUnbounded());
@@ -719,7 +719,7 @@ private:
     }
 
     /** Runs a check on our initial range to split it into two if it's unbounded */
-    inline void _check_init_range(){
+    void _check_init_range(){
         GASSERT(m_ranges.Size() == 1);
         if(!m_ranges.Front().IsUniverse() && m_ranges.Front().IsUnbounded()){
             Bound<T> lb(m_ranges.Front().LowerBound());
@@ -731,7 +731,7 @@ private:
     }
 
     /** Adds a range to our list if it's not empty and not the universe */
-    inline void _maybe_push_range(const Range<T> &r){
+    void _maybe_push_range(const Range<T> &r){
         if(!r.IsUniverse() && !r.IsEmpty()){
             m_ranges.PushBack(r);
             _check_init_range();
@@ -739,7 +739,7 @@ private:
     }
 
     /** Constructs a region and lets you initialize it as the Universe */
-    inline explicit Region(bool universe) :m_isUniverse(universe){}
+    explicit Region(bool universe) :m_isUniverse(universe){}
 
 };
 
@@ -974,73 +974,73 @@ END_NAMESPACE_GUTIL1;
 
 
 /** Returns the region of intersection between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator * (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator * (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Range<T> &two)
 { return GUtil::DataObjects::Region<T>(one) *= two; }
 
 /** Returns the region of intersection between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator * (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator * (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Region<T> &two)
 { return GUtil::DataObjects::Region<T>(one) *= two; }
 
 /** Returns the region of intersection between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator & (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator & (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Range<T> &two)
 { return GUtil::DataObjects::Region<T>(one) &= two; }
 
 /** Returns the region of intersection between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator & (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator & (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Region<T> &two)
 { return GUtil::DataObjects::Region<T>(one) &= two; }
 
 /** Returns the region of union between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator + (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator + (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Range<T> &two)
 { return GUtil::DataObjects::Region<T>(one) += two; }
 
 /** Returns the region of union between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator + (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator + (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Region<T> &two)
 { return GUtil::DataObjects::Region<T>(one) += two; }
 
 /** Returns the region of union between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator | (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator | (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Range<T> &two)
 { return GUtil::DataObjects::Region<T>(one) |= two; }
 
 /** Returns the region of union between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator | (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator | (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Region<T> &two)
 { return GUtil::DataObjects::Region<T>(one) |= two; }
 
 /** Returns the region of the difference between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator - (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator - (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Range<T> &two)
 { return GUtil::DataObjects::Region<T>(one) -= two; }
 
 /** Returns the region of the difference between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator - (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator - (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Region<T> &two)
 { return GUtil::DataObjects::Region<T>(one) -= two; }
 
 /** Returns the region of symmetric difference between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator ^ (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator ^ (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Range<T> &two)
 { return GUtil::DataObjects::Region<T>(one) ^= two; }
 
 /** Returns the region of symmetric difference between two ranges */
-template<class T>inline GUtil::DataObjects::Region<T> operator ^ (const GUtil::DataObjects::Range<T> &one,
+template<class T>GUtil::DataObjects::Region<T> operator ^ (const GUtil::DataObjects::Range<T> &one,
                                                                   const GUtil::DataObjects::Region<T> &two)
 { return GUtil::DataObjects::Region<T>(one) ^= two; }
 
 
 /** Returns true if the range is a subset of the region */
-template<class T>inline bool operator <= (const GUtil::DataObjects::Range<T> &rng,
+template<class T>bool operator <= (const GUtil::DataObjects::Range<T> &rng,
                                           const GUtil::DataObjects::Region<T> &reg)
 { return reg.IsSuperset(rng); }
 
 /** Returns true if the range is a superset of the region */
-template<class T>inline bool operator >= (const GUtil::DataObjects::Range<T> &rng,
+template<class T>bool operator >= (const GUtil::DataObjects::Range<T> &rng,
                                           const GUtil::DataObjects::Region<T> &reg)
 { return reg.IsSubset(rng); }
 

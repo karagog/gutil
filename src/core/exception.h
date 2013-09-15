@@ -27,13 +27,13 @@ limitations under the License.*/
     template<bool extended = false>class ex_name : public ex_subclass_name<false> \
     { \
     public: \
-        inline ex_name() \
+        ex_name() \
             : ex_subclass_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
-        inline ex_name(const char *message, const char *name = 0) \
+        ex_name(const char *message, const char *name = 0) \
             : ex_subclass_name<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-        inline ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
+        ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
             : ex_subclass_name<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-        inline ex_name(const ex_name<false> &ex) \
+        ex_name(const ex_name<false> &ex) \
             : ex_subclass_name<false>(ex) {} \
         virtual ~ex_name(){} \
         members ; \
@@ -56,7 +56,7 @@ NAMESPACE_GUTIL
 
 /** We define a base class, so that the construction code is not reproduced
     for each exception declaration.  That would be useless code bloat, so in the Exception
-    class we inline all the constructors and they call the base constructors which
+    class we all the constructors and they call the base constructors which
     are defined in the lib.
 
     \note If you catch this type of exception, you will effectively catch any kind of GUtil exception.
@@ -90,7 +90,7 @@ public:
     int Line;
 
     /** You can include a null-terminated message with the exception. */
-    inline const char *GetMessage() const{ return m_message; }
+    const char *GetMessage() const{ return m_message; }
 
     /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
         This will allow you to dynamic_cast a reference to an Exception as a different
@@ -132,7 +132,7 @@ public:
     Exception(const char *file, int line, const char *what = 0, const char *message = 0);
 
     /** Do not ever construct a null exception.  This is only here for the Qt signals/slots requirement. */
-    inline Exception():BaseException(0){}
+    Exception():BaseException(0){}
 
 };
 

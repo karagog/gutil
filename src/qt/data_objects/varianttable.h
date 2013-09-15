@@ -31,11 +31,11 @@ class VariantTable :
 {
 public:
 
-    inline VariantTable(){}
-    inline VariantTable(int num_cols) :GUtil::DataObjects::DataTable<QVariant>(num_cols){}
-    inline VariantTable(const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &col_names)
+    VariantTable(){}
+    VariantTable(int num_cols) :GUtil::DataObjects::DataTable<QVariant>(num_cols){}
+    VariantTable(const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &col_names)
         :GUtil::DataObjects::DataTable<QVariant>(col_names){}
-    inline VariantTable(const GUtil::DataObjects::String &tbl_name, const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &col_names = GUtil::DataObjects::Vector<GUtil::DataObjects::String>())
+    VariantTable(const GUtil::DataObjects::String &tbl_name, const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &col_names = GUtil::DataObjects::Vector<GUtil::DataObjects::String>())
         :GUtil::DataObjects::DataTable<QVariant>(tbl_name, col_names)
     {}
 

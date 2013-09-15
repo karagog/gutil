@@ -44,16 +44,16 @@ public:
 
     void SetResolution(ResolutionEnum);
 
-    inline bool IsRunning(){
+    bool IsRunning(){
         return _stopwatch.IsRunning();
     }
-    inline QDateTime TimeStart(){
+    QDateTime TimeStart(){
         return _stopwatch.TimeStart();
     }
-    inline QDateTime TimeCurrent(){
+    QDateTime TimeCurrent(){
         return _stopwatch.TimeCurrent();
     }
-    inline QDateTime TimeStopped(){
+    QDateTime TimeStopped(){
         return _stopwatch.TimeStopped();
     }
 
@@ -61,10 +61,10 @@ public:
 public slots:
 
     /** Activates the stopwatch (starts timing) */
-    inline void Start(){ StartStop(true); }
+    void Start(){ StartStop(true); }
 
     /** Deactivates the stopwatch (stops timing) */
-    inline void Stop(){ StartStop(false); }
+    void Stop(){ StartStop(false); }
 
     /** Activates/Deactivates the stopwatch, depending on the argument */
     void StartStop(bool start){
@@ -73,7 +73,7 @@ public slots:
     }
 
     /** Resets the stopwatch back to 0 */
-    inline void Reset(){
+    void Reset(){
         if(btn_start->isChecked()) btn_start->setChecked(false);
         _stopwatch.Reset();
         _update_label();

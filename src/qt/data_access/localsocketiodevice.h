@@ -32,14 +32,14 @@ public:
     explicit LocalSocketIODevice(QLocalSocket *,
                                   QObject *parent = 0);
 
-    inline QLocalSocket &Socket(){
+    QLocalSocket &Socket(){
         return (QLocalSocket &)GetIODevice();
     }
-    inline const QLocalSocket &Socket() const{
+    const QLocalSocket &Socket() const{
         return (const QLocalSocket &)GetIODevice();
     }
 
-    inline bool IsConnected() const{
+    bool IsConnected() const{
         return Socket().state() == QLocalSocket::ConnectedState;
     }
 

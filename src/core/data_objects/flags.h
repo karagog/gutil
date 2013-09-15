@@ -39,44 +39,44 @@ class Flags
 public:
 
     /** Constructs a flags object with all bits set to 0. */
-    inline Flags() :m_flags(0){}
+    Flags() :m_flags(0){}
 
     /** This constructor initializes the entire word of data from an int. */
-    inline explicit Flags(INT_TYPE init_val) :m_flags(init_val){}
+    explicit Flags(INT_TYPE init_val) :m_flags(init_val){}
 
     /** Constructs a flags object with all bits set to 0, except the bit represented
         by init_val, which is set to 1
     */
-    inline explicit Flags(EnumType init_val) :m_flags(0){ SetFlag(init_val, true); }
+    explicit Flags(EnumType init_val) :m_flags(0){ SetFlag(init_val, true); }
 
     /** Sets all the bits to 0, except the given bit is set to 1 */
-    inline Flags<EnumType, INT_TYPE> &operator = (EnumType val){ new(this) Flags(val); return *this; }
+    Flags<EnumType, INT_TYPE> &operator = (EnumType val){ new(this) Flags(val); return *this; }
 
     /** Constructs a flags object with all bits set to init_val. */
-    inline explicit Flags(bool init_val) :m_flags(GUtil::BitMask<INT_TYPE>(init_val)) {}
+    explicit Flags(bool init_val) :m_flags(GUtil::BitMask<INT_TYPE>(init_val)) {}
 
     /** Returns true if the flag is set. */
-    inline bool TestFlag(EnumType f) const{ return m_flags & (1 << f); }
+    bool TestFlag(EnumType f) const{ return m_flags & (1 << f); }
 
     /** Sets the flag to 1 or 0, depending on the bool parameter. */
-    inline void SetFlag(EnumType f, bool b){
+    void SetFlag(EnumType f, bool b){
         INT_TYPE mask(1 << f);
         if(b)   m_flags |= mask;
         else    m_flags &= ~mask;
     }
 
     /** Toggles the flag; if it was 1 now it's 0, and vice versa. */
-    inline void ToggleFlag(EnumType f){ SetFlag(f, !TestFlag(f)); }
+    void ToggleFlag(EnumType f){ SetFlag(f, !TestFlag(f)); }
 
     /** Returns a copy of this flags object, where the specified bit has been set to 1. */
-    inline Flags<EnumType, INT_TYPE> operator | (EnumType e) const{
+    Flags<EnumType, INT_TYPE> operator | (EnumType e) const{
         Flags<EnumType, INT_TYPE> ret(*this);
         ret.SetFlag(e, true);
         return ret;
     }
 
     /** Sets the bit to a 1 and returns this. */
-    inline Flags<EnumType, INT_TYPE> &operator |= (EnumType e){
+    Flags<EnumType, INT_TYPE> &operator |= (EnumType e){
         SetFlag(e, true);
         return *this;
     }
@@ -101,11 +101,11 @@ END_NAMESPACE_GUTIL1;
 #define GUTIL_DECLARE_FLAGS2(flags_name, enum_type, int_type) \
     class flags_name : public GUtil::DataObjects::Flags<enum_type, int_type>{ \
     public: \
-        inline flags_name(){} \
-        inline flags_name(enum_type e) :GUtil::DataObjects::Flags<enum_type, int_type>(e){}  \
-        inline explicit flags_name(int_type i) :GUtil::DataObjects::Flags<enum_type, int_type>(i){} \
-        inline flags_name(const GUtil::DataObjects::Flags<enum_type, int_type> &o) :GUtil::DataObjects::Flags<enum_type, int_type>(o){} \
-        inline flags_name &operator = (enum_type e){ GUtil::DataObjects::Flags<enum_type, int_type>::operator = (e); return *this; } \
+        flags_name(){} \
+        flags_name(enum_type e) :GUtil::DataObjects::Flags<enum_type, int_type>(e){}  \
+        explicit flags_name(int_type i) :GUtil::DataObjects::Flags<enum_type, int_type>(i){} \
+        flags_name(const GUtil::DataObjects::Flags<enum_type, int_type> &o) :GUtil::DataObjects::Flags<enum_type, int_type>(o){} \
+        flags_name &operator = (enum_type e){ GUtil::DataObjects::Flags<enum_type, int_type>::operator = (e); return *this; } \
     }
 
 /** Declares all necessary operators and supplement classes to integrate
@@ -118,7 +118,7 @@ END_NAMESPACE_GUTIL1;
     \param enum_type The name of the enum that you wish to turn into flags
 */
 #define GUTIL_DECLARE_FLAG_OPERATORS(flags_name, enum_type) \
-    static inline flags_name operator | (enum_type e1, enum_type e2){ \
+    static flags_name operator | (enum_type e1, enum_type e2){ \
         flags_name ret; \
         ret.SetFlag(e1, true); ret.SetFlag(e2, true); \
         return ret; \

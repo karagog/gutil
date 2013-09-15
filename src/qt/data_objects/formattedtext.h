@@ -35,13 +35,13 @@ public:
     /** The font which should be associated with the Text (implementation defined) */
     QFont   Font;
 
-    inline FormattedText(){}
-    inline FormattedText(const QString &s) :Text(s) {}
-    inline FormattedText(const QString &s, const QFont &f)
+    FormattedText(){}
+    FormattedText(const QString &s) :Text(s) {}
+    FormattedText(const QString &s, const QFont &f)
         :Text(s), Font(f) {}
 
     /** Can convert seamlessly to a QString */
-    inline operator QString () const{ return Text; }
+    operator QString () const{ return Text; }
 
 };
 

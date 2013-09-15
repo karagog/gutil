@@ -31,13 +31,13 @@ template<class T> class Set
 public:
 
     /** Constructs an empty set. */
-    inline Set()
+    Set()
         :data(&get_list_representative),
           m_size(0)
     {}
 
     /** Constructs an empty set with the given compare function. */
-    inline Set(int (*cmp)(const T &, const T &))
+    Set(int (*cmp)(const T &, const T &))
         :data(cmp, &get_list_representative),
           m_size(0)
     {}
@@ -45,14 +45,14 @@ public:
     /** Conducts a deep copy of the set.
         \note O(N log(N))
     */
-    inline Set(const Set<T> &o)
+    Set(const Set<T> &o)
         :data(o.data),
           m_size(o.m_size)
     {}
     /** Conducts a deep copy of the set.
         \note O(N log(N))
     */
-    inline Set<T> &operator = (const Set<T> &o){
+    Set<T> &operator = (const Set<T> &o){
         Clear();
         new(this) Set<T>(o);
         return *this;
@@ -62,28 +62,28 @@ public:
     /** Inserts the item into the set.  If the item is already present it will be overwritten.
         \note O(log(N))
     */
-    inline void Insert(const T &i){ _insert(i, false); }
+    void Insert(const T &i){ _insert(i, false); }
 
     /** Inserts the item into the set.  You can have duplicate items.
         \note O(log(N))
     */
-    inline void InsertMulti(const T &i){ _insert(i, true);}
+    void InsertMulti(const T &i){ _insert(i, true);}
 
     /** Removes the last one of these that you inserted.
         \note O(log(N))
     */
-    inline void RemoveOne(const T &i){ _remove(i, false); }
+    void RemoveOne(const T &i){ _remove(i, false); }
 
     /** Removes and deletes all of those items from the set, in the reverse order you inserted them (LIFO).
         \note O(log(N) + M), where M is the number of items that will be removed from the set.  If you do
         not have duplicate items then this is O(log(N)).
     */
-    inline void RemoveAll(const T &i){ _remove(i, true); }
+    void RemoveAll(const T &i){ _remove(i, true); }
 
     /** Does the set contain at least 1 of these?
         \note O(log(N))
     */
-    inline bool Contains(const T &i) const{ return data.Search(i); }
+    bool Contains(const T &i) const{ return data.Search(i); }
 
     /** Empties the set and cleans up all memory. */
     void Clear(){ data.Clear(); m_size = 0; }
@@ -91,12 +91,12 @@ public:
     /** How many items in the set.
         \note O(1)
     */
-    inline long Size() const{ return m_size; }
+    long Size() const{ return m_size; }
 
     /** Returns the number of times this item occurs in the set.
         \note O(log(N))
     */
-    inline int Count(const T &i){
+    int Count(const T &i){
         const_iterator iter(data.Search(i), true);
         return iter ? iter.values().Count() : 0;
     }
@@ -110,8 +110,8 @@ public:
     {
         friend class Set;
     public:
-        inline const_iterator(){}
-        inline const_iterator(const const_iterator &iter)
+        const_iterator(){}
+        const_iterator(const const_iterator &iter)
             :BinarySearchTree< Vector<T>, T >::const_iterator(iter),
               siter(iter.siter)
         {}
@@ -121,7 +121,7 @@ public:
 
     protected:
 
-        inline const_iterator(const typename BinarySearchTree< Vector<T>, T >::const_iterator &iter, bool forward_direction)
+        const_iterator(const typename BinarySearchTree< Vector<T>, T >::const_iterator &iter, bool forward_direction)
             :BinarySearchTree< Vector<T>, T >::const_iterator(iter)
         {
             // Initialize our stack iterator
@@ -134,7 +134,7 @@ public:
             }
         }
 
-        inline Vector<T> &values(){ return BinarySearchTree< Vector<T>, T >::const_iterator::current->Data; }
+        Vector<T> &values(){ return BinarySearchTree< Vector<T>, T >::const_iterator::current->Data; }
 
         /** Overridden from BST */
         virtual void advance(){
@@ -167,22 +167,22 @@ public:
     /** Returns an iterator at the beginning of the set.  Items are traversed in order.
         \note O(1)
     */
-    inline const_iterator begin() const{ return const_iterator(data.begin(), true); }
+    const_iterator begin() const{ return const_iterator(data.begin(), true); }
 
     /** Returns an iterator at the end of the set.
         \note O(1)
     */
-    inline const_iterator end() const{ return const_iterator(data.end(), true); }
+    const_iterator end() const{ return const_iterator(data.end(), true); }
 
     /** Returns an iterator at the reverse-beginning of the set.  Items are traversed in reverse order.
         \note O(1)
     */
-    inline const_iterator rbegin() const{ return const_iterator(data.rbegin(), false); }
+    const_iterator rbegin() const{ return const_iterator(data.rbegin(), false); }
 
     /** Returns an iterator at the reverse-end of the set.
         \note O(1)
     */
-    inline const_iterator rend() const{ return const_iterator(data.rend(), false); }
+    const_iterator rend() const{ return const_iterator(data.rend(), false); }
 
 
 private:
@@ -207,12 +207,12 @@ template<class T>class MultiSet :
 {
 public:
 
-    inline MultiSet(){}
-    inline MultiSet(const Set<T> &o) :Set<T>(o){}
-    inline MultiSet(int (*cmp)(const T &, const T &)) :Set<T>(cmp){}
+    MultiSet(){}
+    MultiSet(const Set<T> &o) :Set<T>(o){}
+    MultiSet(int (*cmp)(const T &, const T &)) :Set<T>(cmp){}
 
     /** Overridden to call InsertMulti. */
-    inline void Insert(const T &i){ Set<T>::InsertMulti(i); }
+    void Insert(const T &i){ Set<T>::InsertMulti(i); }
 
 };
 

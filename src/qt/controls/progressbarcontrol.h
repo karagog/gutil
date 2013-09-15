@@ -40,19 +40,19 @@ public:
     void setButtonEnabled(bool which = true);
 
     /** Access to the label */
-    inline QLabel &Label(){ return _label; }
+    QLabel &Label(){ return _label; }
     /** Access to the label */
-    inline const QLabel &Label() const{ return _label; }
+    const QLabel &Label() const{ return _label; }
 
     /** Access to the progress bar */
-    inline QProgressBar &ProgressBar(){return _progressBar; }
+    QProgressBar &ProgressBar(){return _progressBar; }
     /** Access to the progress bar */
-    inline const QProgressBar &ProgressBar() const{return _progressBar; }
+    const QProgressBar &ProgressBar() const{return _progressBar; }
 
     /** Access to the push button */
-    inline QPushButton &PushButton(){ return _button; }
+    QPushButton &PushButton(){ return _button; }
     /** Access to the push button */
-    inline const QPushButton &PushButton() const{ return _button; }
+    const QPushButton &PushButton() const{ return _button; }
 
 
 private:

@@ -74,28 +74,28 @@ template<class T, bool IsConst, bool Direction>struct GUtilForeachContainer{};
 
 /** An internal struct specialization for the foreach implementation */
 template<class T>struct GUtilForeachContainer<T, true, true>{
-    inline GUtilForeachContainer(const T &container) :c(container), iter(c.begin()), end(c.end()) {}
+    GUtilForeachContainer(const T &container) :c(container), iter(c.begin()), end(c.end()) {}
     const T &c;
     typename T::const_iterator iter, end;
 };
 
 /** An internal struct specialization for the foreach implementation */
 template<class T>struct GUtilForeachContainer<T, false, true>{
-    inline GUtilForeachContainer(T &container) :c(container), iter(container.begin()), end(container.end()) {}
+    GUtilForeachContainer(T &container) :c(container), iter(container.begin()), end(container.end()) {}
     T &c;
     typename T::iterator iter, end;
 };
 
 /** An internal struct specialization for the foreach implementation */
 template<class T>struct GUtilForeachContainer<T, true, false>{
-    inline GUtilForeachContainer(const T &container) :c(container), iter(c.rbegin()), end(c.rend()) {}
+    GUtilForeachContainer(const T &container) :c(container), iter(c.rbegin()), end(c.rend()) {}
     const T &c;
     typename T::const_iterator iter, end;
 };
 
 /** An internal struct specialization for the foreach implementation */
 template<class T>struct GUtilForeachContainer<T, false, false>{
-    inline GUtilForeachContainer(T &container) :c(container), iter(container.rbegin()), end(container.rend()) {}
+    GUtilForeachContainer(T &container) :c(container), iter(container.rbegin()), end(container.rend()) {}
     T &c;
     typename T::iterator iter, end;
 };
@@ -286,21 +286,21 @@ template<class T>struct IsMovableType<T *>{ enum{ Value = 1 }; };
     as the null value, but you can specialize the template for your own
     classes to define a different null value.
 */
-template<class T>class NullValue{ public: inline static T Value(){ return T(); } };
+template<class T>class NullValue{ public: static T Value(){ return T(); } };
 
-template<>class NullValue<GINT8>{ public: inline static GINT8 Value(){ return 0; } };
-template<>class NullValue<GUINT8>{ public: inline static GUINT8 Value(){ return 0; } };
-template<>class NullValue<GINT16>{ public: inline static GINT16 Value(){ return 0; } };
-template<>class NullValue<GUINT16>{ public: inline static GUINT16 Value(){ return 0; } };
-template<>class NullValue<GINT32>{ public: inline static GINT32 Value(){ return 0; } };
-template<>class NullValue<GUINT32>{ public: inline static GUINT32 Value(){ return 0; } };
-template<>class NullValue<GINT64>{ public: inline static GINT64 Value(){ return 0; } };
-template<>class NullValue<GUINT64>{ public: inline static GUINT64 Value(){ return 0; } };
-template<>class NullValue<GFLOAT32>{ public: inline static GFLOAT32 Value(){ return 0.0; } };
-template<>class NullValue<GFLOAT64>{ public: inline static GFLOAT64 Value(){ return 0.0; } };
-template<>class NullValue<GFLOAT96>{ public: inline static GFLOAT96 Value(){ return 0.0; } };
+template<>class NullValue<GINT8>{ public: static GINT8 Value(){ return 0; } };
+template<>class NullValue<GUINT8>{ public: static GUINT8 Value(){ return 0; } };
+template<>class NullValue<GINT16>{ public: static GINT16 Value(){ return 0; } };
+template<>class NullValue<GUINT16>{ public: static GUINT16 Value(){ return 0; } };
+template<>class NullValue<GINT32>{ public: static GINT32 Value(){ return 0; } };
+template<>class NullValue<GUINT32>{ public: static GUINT32 Value(){ return 0; } };
+template<>class NullValue<GINT64>{ public: static GINT64 Value(){ return 0; } };
+template<>class NullValue<GUINT64>{ public: static GUINT64 Value(){ return 0; } };
+template<>class NullValue<GFLOAT32>{ public: static GFLOAT32 Value(){ return 0.0; } };
+template<>class NullValue<GFLOAT64>{ public: static GFLOAT64 Value(){ return 0.0; } };
+template<>class NullValue<GFLOAT96>{ public: static GFLOAT96 Value(){ return 0.0; } };
 
-template<class T>class NullValue<T *>{ public: inline static T *Value(){ return 0; } };
+template<class T>class NullValue<T *>{ public: static T *Value(){ return 0; } };
 
 
 
@@ -309,25 +309,25 @@ template<class T>class NullValue<T *>{ public: inline static T *Value(){ return 
 // Here are some useful functions
 
 /** A generic absolute value function. */
-template <class T>inline static T Abs(const T &v){ return v < 0 ? -v : v; }
+template <class T>static T Abs(const T &v){ return v < 0 ? -v : v; }
 
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT8 Abs<GINT8>(const GINT8 &v){
+template <>GINT8 Abs<GINT8>(const GINT8 &v){
     const int mask( v >> (sizeof(GINT8) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT16 Abs<GINT16>(const GINT16 &v){
+template <>GINT16 Abs<GINT16>(const GINT16 &v){
     const int mask( v >> (sizeof(GINT16) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT32 Abs<GINT32>(const GINT32 &v){
+template <>GINT32 Abs<GINT32>(const GINT32 &v){
     const int mask( v >> (sizeof(GINT32) * 8 - 1) );
     return (v + mask) ^ mask;
 }
 /** Absolute value function which doesn't use branching.  This only works for ints */
-template <>inline GINT64 Abs<GINT64>(const GINT64 &v){
+template <>GINT64 Abs<GINT64>(const GINT64 &v){
     const int mask( v >> (sizeof(GINT64) * 8 - 1) );
     return (v + mask) ^ mask;
 }
@@ -349,7 +349,7 @@ template <>inline GINT64 Abs<GINT64>(const GINT64 &v){
     Otherwise it will be non-zero: -1 if lhs is less than rhs, and 1
     if lhs is greater than rhs.
 */
-template<class T>inline int FuzzyCompare(const T &lhs, const T &rhs, const T &tolerance)
+template<class T>int FuzzyCompare(const T &lhs, const T &rhs, const T &tolerance)
 {
     int ret;
     if( Abs<T>(rhs - lhs) <= tolerance )
@@ -362,12 +362,12 @@ template<class T>inline int FuzzyCompare(const T &lhs, const T &rhs, const T &to
 }
 
 /** Minimum value function.  Use as an alternate to qMin. */
-template <class T> inline static T Min(const T &one, const T &two){
+template <class T> static T Min(const T &one, const T &two){
     return one < two ? one : two;
 }
 
 /** Maximum value function.  Use as an alternate to qMax(). */
-template <class T> inline static T Max(const T &one, const T &two){
+template <class T> static T Max(const T &one, const T &two){
     return one < two ? two : one;
 }
 
@@ -386,7 +386,7 @@ template <class T> inline static T Max(const T &one, const T &two){
     Use this version to copy by bytes; this is not efficient for large memory blocks.
     \sa gSwapWord32
 */
-inline static void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
+static void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     GBYTE *b1(reinterpret_cast<GBYTE *>(one));
     GBYTE *b2(reinterpret_cast<GBYTE *>(two));
     while(--size_in_bytes >= 0){
@@ -400,7 +400,7 @@ inline static void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     large memory blocks to swap.
     \sa gSwapByte, gSwapWord64
 */
-inline static void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
+static void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
     GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
     while(--size_in_ints >= 0){
@@ -414,7 +414,7 @@ inline static void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     large memory blocks to swap.
     \sa gSwapByte, gSwapWord32
 */
-inline static void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
+static void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     GUINT64 *b1(reinterpret_cast<GUINT64 *>(one));
     GUINT64 *b2(reinterpret_cast<GUINT64 *>(two));
     while(--size_in_ints >= 0){
@@ -427,7 +427,7 @@ inline static void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     Use this version to automatically run the function that is most appropriate,
     given whether the size is a multiple of four.
 */
-inline static void gSwap(void *one, void *two, GINT32 size_in_bytes)
+static void gSwap(void *one, void *two, GINT32 size_in_bytes)
 {
     if(size_in_bytes & 0b0011)
         // If the size is not a multiple of 4
@@ -441,7 +441,7 @@ inline static void gSwap(void *one, void *two, GINT32 size_in_bytes)
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
     \note Takes 2 instructions to generate.
 */
-inline static GUINT32 GEN_BITMASK_32(int n)
+static GUINT32 GEN_BITMASK_32(int n)
 {
     return (((GUINT32) 1) << (n + 1)) - 1;
 }
@@ -449,7 +449,7 @@ inline static GUINT32 GEN_BITMASK_32(int n)
 
 
 /** Truncate the left n bits of the word. */
-inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
+static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 {
     // If we're a multiple of 32 then it doesn't actually shift us, so we return 0
     return (!n || (n & 31)) ?
@@ -457,11 +457,11 @@ inline static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 }
 
 
-/** This is an internal inline function.  Don't use this directly, instead
+/** This is an internal function.  Don't use this directly, instead
     use the macro GMALLOC.
 */
 template<class T>
-inline static T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
+static T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
     T *ret( reinterpret_cast<T *>(malloc( N * sizeof(T) )) );
     if(!ret) throw GUtil::BadAllocationException<>(file, line);
     return ret;
@@ -485,7 +485,7 @@ enum SortTypeEnum
 
 
 /** Returns a full word of the given type with all bits initialized to init_val */
-template<class INT_TYPE> inline static INT_TYPE BitMask(bool init_val){
+template<class INT_TYPE> static INT_TYPE BitMask(bool init_val){
     return init_val ? ((INT_TYPE)-1) : ((INT_TYPE)0);
 }
 

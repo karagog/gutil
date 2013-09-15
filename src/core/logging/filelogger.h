@@ -26,7 +26,7 @@ class FileLogger :
     public AbstractLogger
 {
 public:
-    inline FileLogger(const char *filename)
+    FileLogger(const char *filename)
         :AbstractLogger(new DataAccess::File(filename))
     {
         DataAccess::File *f(static_cast<DataAccess::File *>(io_device()));

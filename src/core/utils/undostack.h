@@ -87,19 +87,19 @@ public:
 
 
     /** Returns the current index of the undo stack. */
-    inline int CurrentIndex() const{ return m_ptr; }
+    int CurrentIndex() const{ return m_ptr; }
 
     /** Returns the current size of the undo stack (i.e. The total number of
         commands which have been pushed on the stack.)
     */
-    inline int Size() const{ return (int)m_stack.Length(); }
+    int Size() const{ return (int)m_stack.Length(); }
 
 
     /** Returns true if you can undo a command on the stack. */
-    inline bool CanUndo() const{ return 0 <= CurrentIndex(); }
+    bool CanUndo() const{ return 0 <= CurrentIndex(); }
 
     /** Returns true if you can redo a command on the stack. */
-    inline bool CanRedo() const{ return CurrentIndex() < Size() - 1; }
+    bool CanRedo() const{ return CurrentIndex() < Size() - 1; }
 
 
     /** Returns a textual description of the current action to be undone.
@@ -155,7 +155,7 @@ public:
 
         \sa BeginMacro(), RollbackMacro()
     */
-    inline void CommitMacro(){ _end_macro(true); }
+    void CommitMacro(){ _end_macro(true); }
 
     /** Ends a macro command, rolling it back and not pushing it on the stack.
 
@@ -163,7 +163,7 @@ public:
 
         \sa BeginMacro(), CommitMacro()
     */
-    inline void RollbackMacro(){ _end_macro(false); }
+    void RollbackMacro(){ _end_macro(false); }
 
     /** Returns true if we're in the middle of generating a macro.
 

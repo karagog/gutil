@@ -61,7 +61,7 @@ public:
     ~DatabaseIODevice();
 
     // The database must be properly configured before using this device
-    inline QString GetDatabaseConnectionId(){ return _connection_id; }
+    QString GetDatabaseConnectionId(){ return _connection_id; }
 
     void OpenDatabaseConnection();
     void CloseDatabaseConnection();
@@ -75,7 +75,7 @@ public:
 
     bool DropTable(const QString &name);
 
-    inline QStringList GetTableList() const{ return _tables.keys(); }
+    QStringList GetTableList() const{ return _tables.keys(); }
 
     // Returns the index name of the created index (throws an exception if error)
     QString CreateIndex(const QString &table_name,
@@ -87,7 +87,7 @@ public:
     //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
     void Insert(const DataObjects::VariantTable &);
 
-    inline int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
+    int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
 
     // The 'params' variable is a row of data that matches the layout
     //  of the table, and you can set values in it that will be used
@@ -190,8 +190,8 @@ private:
 
     // Here are the overridden methods from IODevice
     //  Hide these members from the public; nobody should use this interface.
-    inline void SendData(const QByteArray &d){ IODevice::SendData(d); }
-    inline QByteArray ReceiveData(bool){ return IODevice::ReceiveData(); }
+    void SendData(const QByteArray &d){ IODevice::SendData(d); }
+    QByteArray ReceiveData(bool){ return IODevice::ReceiveData(); }
 
     void send_data(const QByteArray &);
     QByteArray receive_data();
@@ -212,7 +212,7 @@ private:
     QList<int> _columns_requested;
     DatabaseSelectionParameters *_selection_parameters;
 
-    inline void _fail_if_not_ready() const{
+    void _fail_if_not_ready() const{
         if(!IsReady())
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database IO device not read for use");
     }
@@ -232,22 +232,22 @@ public:
 
     // Use ColumnOptions to set various options on the columns, like
     //  a different compare operator, NOT/OR it, etc...
-    inline GUtil::DataObjects::ResizableCollection
+    GUtil::DataObjects::ResizableCollection
     <DatabaseIODevice::ColumnOptions> &ColumnOptions(){
         return _column_options;
     }
-    inline const GUtil::DataObjects::ResizableCollection
+    const GUtil::DataObjects::ResizableCollection
     <DatabaseIODevice::ColumnOptions> &ColumnOptions() const{
         return _column_options;
     }
 
-    inline const DataObjects::VariantTable &Table() const{
+    const DataObjects::VariantTable &Table() const{
         return static_cast<const DataObjects::VariantTable &>(_row.Table());
     }
 
-    inline int ColumnCount() const{ return _row.ColumnCount(); }
+    int ColumnCount() const{ return _row.ColumnCount(); }
 
-    inline DatabaseParametersBase(
+    DatabaseParametersBase(
             const DatabaseParametersBase &p)
         :_column_options(p._column_options),
           _row(p._row)
@@ -256,12 +256,12 @@ public:
 
 protected:
 
-    inline DatabaseParametersBase(const GUtil::DataObjects::DataRow<QVariant> &fv)
+    DatabaseParametersBase(const GUtil::DataObjects::DataRow<QVariant> &fv)
         :_column_options(fv.ColumnCount()),
           _row(fv)
     {}
 
-    inline DatabaseParametersBase(){}
+    DatabaseParametersBase(){}
 
     GUtil::DataObjects::ResizableCollection<DatabaseIODevice::ColumnOptions>
     _column_options;
@@ -284,20 +284,20 @@ public:
 
     // DataRow is an explicitly shared class, so changes to the
     //   returned object will hold
-    inline GUtil::DataObjects::DataRow<QVariant> FilterValues() const{ return _row; }
+    GUtil::DataObjects::DataRow<QVariant> FilterValues() const{ return _row; }
 
-    inline DatabaseSelectionParameters(const DatabaseParametersBase &p)
+    DatabaseSelectionParameters(const DatabaseParametersBase &p)
         :DatabaseParametersBase(p)
     {}
 
 
 protected:
 
-    inline DatabaseSelectionParameters(const GUtil::DataObjects::DataRow<QVariant> &r)
+    DatabaseSelectionParameters(const GUtil::DataObjects::DataRow<QVariant> &r)
         :DatabaseParametersBase(r)
     {}
 
-    inline DatabaseSelectionParameters(){}
+    DatabaseSelectionParameters(){}
 
 };
 
@@ -310,20 +310,20 @@ public:
 
     // DataRow is an explicitly shared class, so changes to the
     //   returned object will hold
-    inline GUtil::DataObjects::DataRow<QVariant> Values() const{ return _row; }
+    GUtil::DataObjects::DataRow<QVariant> Values() const{ return _row; }
 
-    inline DatabaseValueParameters(const DatabaseParametersBase &p)
+    DatabaseValueParameters(const DatabaseParametersBase &p)
         :DatabaseParametersBase(p)
     {}
 
 
 protected:
 
-    inline DatabaseValueParameters(const GUtil::DataObjects::DataRow<QVariant> &r)
+    DatabaseValueParameters(const GUtil::DataObjects::DataRow<QVariant> &r)
         :DatabaseParametersBase(r)
     {}
 
-    inline DatabaseValueParameters(){}
+    DatabaseValueParameters(){}
 
 };
 

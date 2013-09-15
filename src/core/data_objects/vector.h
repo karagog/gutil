@@ -63,10 +63,10 @@ public:
     class const_iterator;
 
     /** Constructs an empty vector. */
-    inline VectorImp() :m_data(NULL) {}
+    VectorImp() :m_data(NULL) {}
 
     /** Constructs an empty vector capable of holding the given number of items. */
-    inline explicit VectorImp(GUINT32 capacity)
+    explicit VectorImp(GUINT32 capacity)
         :m_data(NULL)
     {
         if(0 < capacity)
@@ -75,7 +75,7 @@ public:
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    inline explicit VectorImp(const T &o, GUINT32 size = 1)
+    explicit VectorImp(const T &o, GUINT32 size = 1)
         :m_data(NULL)
     {
         Reserve(size);
@@ -87,7 +87,7 @@ public:
 
 
     /**  Constructs a vector from the array of data. */
-    inline VectorImp(T const*arr, GUINT32 size)
+    VectorImp(T const*arr, GUINT32 size)
         :m_data(NULL)
     {
         if(size > 0)
@@ -104,7 +104,7 @@ public:
     /** Creates a vector with the elements from another vector, taken by iterating from
         iter_begin to iter_end.
     */
-    inline VectorImp(const typename VectorImp<T>::const_iterator &iter_begin,
+    VectorImp(const typename VectorImp<T>::const_iterator &iter_begin,
                         const typename VectorImp<T>::const_iterator &iter_end)
         :m_data(NULL)
     {
@@ -144,19 +144,19 @@ public:
     }
 
     /** Returns whether the vector is null (has not yet been initialized). */
-    inline bool IsNull() const{ return !(m_data && ConstData()); }
+    bool IsNull() const{ return !(m_data && ConstData()); }
 
     /** Returns whether the vector is empty (has no items in it, but the capacity may have been initialized). */
-    inline bool IsEmpty() const{ return IsNull() || Length() == 0; }
+    bool IsEmpty() const{ return IsNull() || Length() == 0; }
 
     /** Inserts the item at the end of the vector. */
-    inline T &Insert(const T &item){ return Insert(item, Length()); }
+    T &Insert(const T &item){ return Insert(item, Length()); }
 
     /** Insert the item at the position before the iterator.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    inline T &Insert(const T &item, const iterator &iter){ return Insert(item, iter.Index()); }
+    T &Insert(const T &item, const iterator &iter){ return Insert(item, iter.Index()); }
 
     /** Insert the item at the index position.  It will throw an exception if the index is out of bounds.
         \note Invalidates all iterators, because the addition may cause a resize of the internal
@@ -215,7 +215,7 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    inline void Insert(const VectorImp<T> &vec, GUINT32 indx){
+    void Insert(const VectorImp<T> &vec, GUINT32 indx){
         Insert(vec.ConstData(), vec.Length(), indx);
     }
 
@@ -279,48 +279,48 @@ public:
     }
 
     /** Adds the item to the end of the vector. */
-    inline void PushBack(const T &item){ Insert(item, Length()); }
+    void PushBack(const T &item){ Insert(item, Length()); }
 
     /** Adds the item to the start of the vector. */
-    inline void PushFront(const T &item){ Insert(item, 0); }
+    void PushFront(const T &item){ Insert(item, 0); }
 
     /** Removes the item at the back of the vector. */
-    inline void PopBack(){ RemoveAt(Length() - 1); }
+    void PopBack(){ RemoveAt(Length() - 1); }
 
     /** Removes the item at the front of the vector. */
-    inline void PopFront(){ RemoveAt(0); }
+    void PopFront(){ RemoveAt(0); }
 
     /** Returns the item at the back of the vector. */
-    inline const T &Back() const{ return ConstData()[Length() - 1]; }
+    const T &Back() const{ return ConstData()[Length() - 1]; }
 
     /** Returns the item at the back of the vector. */
-    inline T &Back(){ return Data()[Length() - 1]; }
+    T &Back(){ return Data()[Length() - 1]; }
 
     /** Returns the item at the front of the vector. */
-    inline const T &Front() const{ return *ConstData(); }
+    const T &Front() const{ return *ConstData(); }
 
     /** Returns the item at the front of the vector. */
-    inline T &Front(){ *Data(); }
+    T &Front(){ *Data(); }
 
     /** Convenient operator that appends to the end of the vector, and returns a reference to this. */
-    inline VectorImp<T> &operator << (const T &item){ PushBack(item); return *this; }
+    VectorImp<T> &operator << (const T &item){ PushBack(item); return *this; }
 
     /** Convenient operator that removes the last item in the vector and copies it to the given reference. */
-    inline void operator >> (T &cpy){ cpy = Back(); PopBack(); }
+    void operator >> (T &cpy){ cpy = Back(); PopBack(); }
 
     /** Remove the item pointed to by the iterator.
 
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
-    inline void Remove(const const_iterator &iter){ RemoveAt(iter.Index()); }
+    void Remove(const const_iterator &iter){ RemoveAt(iter.Index()); }
 
     /** Remove the item pointed to by the iterator.
 
         \note Invalidates the iterator positioned at the last element, and all other iterators
         after the input would notice their current element has shifted
     */
-    inline void Remove(const iterator &iter){ RemoveAt(iter.Index()); }
+    void Remove(const iterator &iter){ RemoveAt(iter.Index()); }
 
     /** Remove the given number of items starting at the index location.
 
@@ -374,7 +374,7 @@ public:
     /** Removes the first instance of the item.  The type T must have a comparison operator.
         \note O(n)
     */
-    inline void RemoveOne(const T &o)
+    void RemoveOne(const T &o)
     {
         for(iterator iter( begin() ); iter != end(); ++iter)
             if(o == *iter)
@@ -387,7 +387,7 @@ public:
     /** Removes the last instance of the item.  The type T must have a comparison operator.
         \note O(n)
     */
-    inline void RemoveLast(const T &o)
+    void RemoveLast(const T &o)
     {
         for(iterator iter( rbegin() ); iter != rend(); --iter)
             if(o == *iter)
@@ -400,7 +400,7 @@ public:
     /** Removes all instances of the item.  The type T must have a comparison operator.
         \note O(n)
     */
-    inline void RemoveAll(const T &o)
+    void RemoveAll(const T &o)
     {
         for(iterator iter( rbegin() ); iter != rend(); --iter)
             if(o == *iter)
@@ -410,7 +410,7 @@ public:
     /** Reserves room for at least this many items.
         Pass 0 to free all memory.
     */
-    inline void Reserve(GUINT32 n){ ReserveExactly( _compute_capacity(n) ); }
+    void Reserve(GUINT32 n){ ReserveExactly( _compute_capacity(n) ); }
 
     /** Reserves room for exactly this number of items. */
     void ReserveExactly(GUINT32 new_capacity)
@@ -512,32 +512,32 @@ public:
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T const &operator [](GUINT32 i) const{ return ConstData()[i]; }
+    T const &operator [](GUINT32 i) const{ return ConstData()[i]; }
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T const &operator [](GINT32 i) const{ return ConstData()[i]; }
+    T const &operator [](GINT32 i) const{ return ConstData()[i]; }
 
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T &operator [](GUINT32 i){ return Data()[i]; }
+    T &operator [](GUINT32 i){ return Data()[i]; }
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    inline T &operator [](GINT32 i){ return Data()[i]; }
+    T &operator [](GINT32 i){ return Data()[i]; }
 
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline T &At(GUINT32 i){
+    T &At(GUINT32 i){
         return const_cast<T &>(const_cast<VectorImp<T> const *>(this)->At(i));
     }
 
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    inline T const &At(GUINT32 i) const{
+    T const &At(GUINT32 i) const{
         if(i >= Length())
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return ConstData()[i];
@@ -545,30 +545,30 @@ public:
 
 
     /** Returns a pointer to the start of the array. */
-    inline T *Data(){ return const_cast<T *>(ConstData()); }
+    T *Data(){ return const_cast<T *>(ConstData()); }
 
     /** Returns a pointer to the start of the array. */
-    inline T const *ConstData() const{ return reinterpret_cast<T const *>(m_data); }
+    T const *ConstData() const{ return reinterpret_cast<T const *>(m_data); }
 
     /** Returns a pointer to the end of the vector, which is 1 past
         the last item in the vector.  Do not dereference this pointer, it
         is only to allow quick iteration through the list.
     */
-    inline T *DataEnd(){ return const_cast<T *>(ConstDataEnd()); }
+    T *DataEnd(){ return const_cast<T *>(ConstDataEnd()); }
 
     /** Returns a pointer to the end of the vector, which is 1 past
         the last item in the vector.  Do not dereference this pointer, it
         is only to allow quick iteration through the list.
     */
-    inline T const *ConstDataEnd() const{
+    T const *ConstDataEnd() const{
         return ConstData() ? ConstData() + *_length() : NULL;
     }
 
     /** Clears all items and frees all memory. */
-    inline void Clear(){ ReserveExactly(0); }
+    void Clear(){ ReserveExactly(0); }
 
     /** Clears all items but retains the same capacity. */
-    inline void Empty(){
+    void Empty(){
         if(m_data)
         {
             T *cur( Data() );
@@ -582,18 +582,18 @@ public:
     }
 
     /** The current length of the vector. */
-    inline GUINT32 Length() const{
+    GUINT32 Length() const{
         return m_data ? *_length() : 0;
     }
 
     /** How many items of type T we are capable of holding. */
-    inline GUINT32 Capacity() const{ return m_data ? *_capacity() : 0; }
+    GUINT32 Capacity() const{ return m_data ? *_capacity() : 0; }
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
         \return The index on success, UINT_MAX on failure
     */
-    inline GUINT32 IndexOf(const T &item, GUINT32 start = 0) const{
+    GUINT32 IndexOf(const T &item, GUINT32 start = 0) const{
         GUINT32 ret( UINT_MAX );
         T const *cur( ConstData() + start );
         T const *e( ConstDataEnd() );
@@ -613,7 +613,7 @@ public:
         starting at the given index, and using the == operator to test equality.
         \return The index on success, UINT_MAX on failure
     */
-    inline GUINT32 LastIndexOf(const T &item, GUINT32 start = UINT_MAX) const{
+    GUINT32 LastIndexOf(const T &item, GUINT32 start = UINT_MAX) const{
         GUINT32 ret(UINT_MAX);
         if(Length() > 0)
         {
@@ -635,7 +635,7 @@ public:
     }
 
     /** Returns true if we hold a matching item */
-    inline bool Contains(const T &i) const{ return UINT_MAX != IndexOf(i); }
+    bool Contains(const T &i) const{ return UINT_MAX != IndexOf(i); }
 
     /** Sorts the vector using the given sorting algorithm.
 
@@ -647,7 +647,7 @@ public:
 
         \param sort_type The sorting algorithm to use.
     */
-    inline void Sort(bool ascending = true, const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
+    void Sort(bool ascending = true, const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
         switch(sort_type)
         {
         case GUtil::MergeSort:
@@ -672,47 +672,47 @@ public:
         T *m_begin;
         T *m_end;
     public:
-        inline iterator()
+        iterator()
             :current(0),
               m_begin(0),
               m_end(0)
         {}
-        inline iterator(T *begin, T *end, T *cur)
+        iterator(T *begin, T *end, T *cur)
             :current(cur),
               m_begin(begin),
               m_end(end)
         {}
 
-        inline T &operator *() const{ return *current; }
-        inline T *operator ->() const{ return current; }
+        T &operator *() const{ return *current; }
+        T *operator ->() const{ return current; }
 
-        inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
-        inline T *Current() const{ return current; }
+        GUINT32 Index() const{ return current ? current - m_begin : 0; }
+        T *Current() const{ return current; }
 
-        inline iterator &operator ++(){ ++current; return *this; }
-        inline iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
-        inline iterator &operator +=(GUINT32 n){ current += n; return *this; }
-        inline iterator operator +(GUINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
+        iterator &operator ++(){ ++current; return *this; }
+        iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
+        iterator &operator +=(GUINT32 n){ current += n; return *this; }
+        iterator operator +(GUINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
 
-        inline iterator &operator --(){ --current; return *this; }
-        inline iterator operator --(int){ iterator ret(*this); --current; return ret;}
-        inline iterator &operator -=(GUINT32 n){ current -= n; return *this; }
-        inline iterator operator -(GUINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
+        iterator &operator --(){ --current; return *this; }
+        iterator operator --(int){ iterator ret(*this); --current; return ret;}
+        iterator &operator -=(GUINT32 n){ current -= n; return *this; }
+        iterator operator -(GUINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
-        inline GUINT32 operator - (const iterator &other) const{
+        GUINT32 operator - (const iterator &other) const{
             if(m_begin != other.m_begin || current < other.current)
                 return UINT_MAX;
             return current - other.current;
         }
 
-        inline bool operator == (const iterator &o){ return m_begin == o.m_begin && current == o.current; }
-        inline bool operator != (const iterator &o){ return !operator == (o); }
-        inline bool operator == (const const_iterator &o){ return m_begin == o.m_begin && current == o.current; }
-        inline bool operator != (const const_iterator &o){ return !operator == (o); }
+        bool operator == (const iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        bool operator != (const iterator &o){ return !operator == (o); }
+        bool operator == (const const_iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        bool operator != (const const_iterator &o){ return !operator == (o); }
 
         /** Returns whether the iterator is valid. */
-        inline operator bool() const{ return current && m_begin <= current && current < m_end; }
+        operator bool() const{ return current && m_begin <= current && current < m_end; }
     };
 
     /** Iterates through the vector, but also guarantees that it won't modify the vector. */
@@ -724,68 +724,68 @@ public:
         T const *m_begin;
         T const *m_end;
     public:
-        inline const_iterator()
+        const_iterator()
             :current(0),
               m_begin(0),
               m_end(0)
         {}
-        inline const_iterator(T const *begin, T const *end, T const *cur)
+        const_iterator(T const *begin, T const *end, T const *cur)
             :current(cur),
               m_begin(begin),
               m_end(end)
         {}
-        inline const_iterator(const const_iterator &iter)
+        const_iterator(const const_iterator &iter)
             :current(iter.current),
               m_begin(iter.m_begin),
               m_end(iter.m_end)
         {}
-        inline const_iterator(const iterator &iter)
+        const_iterator(const iterator &iter)
             :current(iter.current),
               m_begin(iter.m_begin),
               m_end(iter.m_end)
         {}
 
-        inline T const &operator *() const{ return *current; }
-        inline T const*operator ->() const{ return current; }
+        T const &operator *() const{ return *current; }
+        T const*operator ->() const{ return current; }
 
-        inline GUINT32 Index() const{ return current ? current - m_begin : 0; }
-        inline const T *Current() const{ return current; }
+        GUINT32 Index() const{ return current ? current - m_begin : 0; }
+        const T *Current() const{ return current; }
 
-        inline const_iterator &operator ++(){ ++current; return *this; }
-        inline const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
-        inline const_iterator &operator +=(GUINT32 n){ current += n; return *this; }
-        inline const_iterator operator +(GUINT32 n) const{ const_iterator ret(*this); ret.current += n; return ret; }
+        const_iterator &operator ++(){ ++current; return *this; }
+        const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
+        const_iterator &operator +=(GUINT32 n){ current += n; return *this; }
+        const_iterator operator +(GUINT32 n) const{ const_iterator ret(*this); ret.current += n; return ret; }
 
-        inline const_iterator &operator --(){ --current; return *this; }
-        inline const_iterator operator --(int){ const_iterator ret(*this); --current; return ret;}
-        inline const_iterator &operator -=(GUINT32 n){ current -= n; return *this; }
-        inline const_iterator operator -(GUINT32 n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
+        const_iterator &operator --(){ --current; return *this; }
+        const_iterator operator --(int){ const_iterator ret(*this); --current; return ret;}
+        const_iterator &operator -=(GUINT32 n){ current -= n; return *this; }
+        const_iterator operator -(GUINT32 n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
-        inline GUINT32 operator - (const const_iterator &other) const{
+        GUINT32 operator - (const const_iterator &other) const{
             if(m_begin != other.m_begin || current < other.current)
                 return UINT_MAX;
             return current - other.current;
         }
 
-        inline bool operator == (const const_iterator &o){ return m_begin == o.m_begin && current == o.current; }
-        inline bool operator != (const const_iterator &o){ return !operator == (o); }
-        inline bool operator == (const iterator &o){ return m_begin == o.m_begin && current == o.current; }
-        inline bool operator != (const iterator &o){ return !operator == (o); }
+        bool operator == (const const_iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        bool operator != (const const_iterator &o){ return !operator == (o); }
+        bool operator == (const iterator &o){ return m_begin == o.m_begin && current == o.current; }
+        bool operator != (const iterator &o){ return !operator == (o); }
 
         /** Returns whether the iterator is valid. */
-        inline operator bool() const{ return current && m_begin <= current && current < m_end;; }
+        operator bool() const{ return current && m_begin <= current && current < m_end;; }
     };
 
-    inline iterator begin(){ return iterator(Data(), DataEnd(), Data()); }
-    inline const_iterator begin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData()); }
-    inline iterator end(){ return iterator(Data(), DataEnd(), DataEnd()); }
-    inline const_iterator end() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd()); }
+    iterator begin(){ return iterator(Data(), DataEnd(), Data()); }
+    const_iterator begin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData()); }
+    iterator end(){ return iterator(Data(), DataEnd(), DataEnd()); }
+    const_iterator end() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd()); }
 
-    inline iterator rbegin(){ return iterator(Data(), DataEnd(), DataEnd() - 1); }
-    inline const_iterator rbegin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd() - 1); }
-    inline iterator rend(){ return iterator(Data(), DataEnd(), Data() - 1); }
-    inline const_iterator rend() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData() - 1); }
+    iterator rbegin(){ return iterator(Data(), DataEnd(), DataEnd() - 1); }
+    const_iterator rbegin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd() - 1); }
+    iterator rend(){ return iterator(Data(), DataEnd(), Data() - 1); }
+    const_iterator rend() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData() - 1); }
 
     /** Returns true if the vectors are equal.
         VectorImp equality is established by checking each individual element from
@@ -818,7 +818,7 @@ public:
         the class' own == operator.
         \note O(N)
     */
-    inline bool operator != (const VectorImp<T> &o) const{ return !operator == (o); }
+    bool operator != (const VectorImp<T> &o) const{ return !operator == (o); }
 
     /** Does a constant-time data swap between vectors.
 
@@ -828,7 +828,7 @@ public:
         \note After calling, all iterators for both vectors will still be valid,
         they will only reference the opposite VectorImp's data.
     */
-    inline static void Swap(VectorImp<T> &lhs, VectorImp<T> &rhs){
+    static void Swap(VectorImp<T> &lhs, VectorImp<T> &rhs){
         void *tmp( lhs.m_data );
         lhs.m_data = rhs.m_data;
         rhs.m_data = tmp;
@@ -842,16 +842,16 @@ protected:
         have a vector of more complex classes then some of their destructors may not get called.
         \note You must have already allocated the data pointer, otherwise this will dereference a null pointer.
     */
-    inline void set_length(GUINT32 len){ *_length() = len; }
+    void set_length(GUINT32 len){ *_length() = len; }
 
 
 private:
 
-    inline static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
+    static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
 
     // Be careful when calling these; they do not check if the pointer is valid
-    inline GUINT32 *_length() const{ return reinterpret_cast<GUINT32 *>(m_data) - 1; }
-    inline GUINT32 *_capacity() const{ return reinterpret_cast<GUINT32 *>(m_data) - 2; }
+    GUINT32 *_length() const{ return reinterpret_cast<GUINT32 *>(m_data) - 1; }
+    GUINT32 *_capacity() const{ return reinterpret_cast<GUINT32 *>(m_data) - 2; }
 
     void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const Interfaces::IComparer<T> &cmp){
         GUINT32 diff( e - b );
@@ -928,12 +928,12 @@ private:
 */
 #define GUTIL_VECTOR_CONSTRUCTORS(class_name, base_class) \
     public: \
-    inline class_name() {} \
-    inline explicit class_name(GUINT32 capacity) :base_class(capacity){} \
-    inline explicit class_name(const T &o, GUINT32 size = 1) :base_class(o, size){} \
-    inline class_name(T const*arr, GUINT32 size) :base_class(arr, size){} \
-    inline class_name(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
-    inline class_name(const VectorImp<T> &o) :base_class(o) {} \
+    class_name() {} \
+    explicit class_name(GUINT32 capacity) :base_class(capacity){} \
+    explicit class_name(const T &o, GUINT32 size = 1) :base_class(o, size){} \
+    class_name(T const*arr, GUINT32 size) :base_class(arr, size){} \
+    class_name(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
+    class_name(const VectorImp<T> &o) :base_class(o) {} \
     virtual ~class_name(){}
 
 

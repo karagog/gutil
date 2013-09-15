@@ -71,7 +71,7 @@ public:
 
 
     /** Get convenient access to the command line arguments. */
-    inline GUtil::Utils::CommandLineArgs Args() const{
+    GUtil::Utils::CommandLineArgs Args() const{
         return GUtil::Utils::CommandLineArgs(qApp->argc(), qApp->argv());
     }
 

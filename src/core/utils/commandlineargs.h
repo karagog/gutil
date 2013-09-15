@@ -43,12 +43,12 @@ public:
     int FindArgument(const DataObjects::String &, bool case_sensitive = true) const;
 
     /** Returns whether the given argument is present in the argument list. */
-    inline bool Contains(const DataObjects::String &arg, bool case_sensitive = true) const{
+    bool Contains(const DataObjects::String &arg, bool case_sensitive = true) const{
         return FindArgument(arg, case_sensitive) != -1;
     }
 
     /** Get the program name argument, or the element at argument 0 */
-    inline DataObjects::String ProgramArgument() const{
+    DataObjects::String ProgramArgument() const{
         return 0 < Length() ? operator[](0) : "";
     }
 
