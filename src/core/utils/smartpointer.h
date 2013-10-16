@@ -21,7 +21,8 @@ NAMESPACE_GUTIL1(Utils);
 
 
 /** Implements a smart pointer, which manages a pointer and deletes it when
-    the instance destructs.
+    the instance destructs.  You can also Relinquish() the naked pointer if you need to take
+    control away from the smart pointer.
 
     You are not allowed to copy this class, because copying would mean that the pointer
     would be deleted multiple times.
@@ -30,56 +31,65 @@ NAMESPACE_GUTIL1(Utils);
 */
 template<class T>class SmartPointer
 {
-    T *ptr;
     GUTIL_DISABLE_COPY(SmartPointer<T>);
+    T *ptr;
 public:
 
     /** Initializes the pointer to NULL */
-    inline SmartPointer() :ptr(0){}
+    SmartPointer() :ptr(NULL){}
 
     /** Initializes the pointer to p
         \note p may be of type T, or a type derived from T.  In this case it must have a virtual destructor
     */
-    template<class U>inline SmartPointer(U *p) :ptr(dynamic_cast<T *>(p)){}
+    template<class U>SmartPointer(U *p) :ptr(dynamic_cast<T *>(p)){}
 
     /** Assignment operator deletes our current pointer, then looks at another one. */
-    template<class U>inline SmartPointer &operator = (U *p){
+    template<class U>SmartPointer &operator = (U *p){
         delete ptr;
         new(this) SmartPointer(p);
         return *this;
     }
 
     /** Delete the pointer when we destruct */
-    inline ~SmartPointer(){ delete ptr; }
+    ~SmartPointer(){ delete ptr; }
 
     /** Deletes the pointer and sets it to null */
-    inline void Clear(){ delete ptr; ptr = 0; }
+    void Clear(){ delete ptr; ptr = NULL; }
+    
+    /** Relinquishes control of the naked pointer, so it will not be deleted when this
+        object destructs.  After calling this, the pointer will appear as if newly constructed
+        as a NULL pointer.
+        
+        \returns The naked pointer that once was controlled by this object.  If this was already
+        a null pointer then NULL is returned and nothing bad happens.
+    */
+    T *Relinquish(){ T *ret(ptr); ptr = NULL; return ret; }
 
     /** Returns the naked pointer */
-    inline T *Data() const{ return ptr; }
+    T *Data() const{ return ptr; }
 
     /** Dereference the pointer */
-    inline T const &operator *() const{ return *ptr; }
+    T const &operator *() const{ return *ptr; }
     /** Dereference the pointer */
-    inline T &operator *(){ return *ptr; }
+    T &operator *(){ return *ptr; }
 
     /** Access the pointer's member functions */
-    inline T const *operator ->() const{ return ptr; }
+    T const *operator ->() const{ return ptr; }
     /** Access the pointer's member functions */
-    inline T *operator ->(){ return ptr; }
+    T *operator ->(){ return ptr; }
 
     /** Cast operator to the naked pointer */
-    inline operator T *() const{ return ptr; }
+    operator T *() const{ return ptr; }
     /** Cast operator to a bool, telling you if you're null or not (false => NULL) */
-    inline operator bool() const{ return ptr; }
+    operator bool() const{ return ptr; }
 
     /** Returns true if the pointer is NULL */
-    inline bool IsNull() const{ return !operator bool(); }
+    bool IsNull() const{ return !operator bool(); }
 
     /** Returns if this smart pointer equals the other. */
-    inline bool operator == (const SmartPointer<T> &o) const{ return Data() == o.Data(); }
+    bool operator == (const SmartPointer<T> &o) const{ return Data() == o.Data(); }
     /** Returns if this smart pointer does not equal the other. */
-    inline bool operator != (const SmartPointer<T> &o) const{ return Data() != o.Data(); }
+    bool operator != (const SmartPointer<T> &o) const{ return Data() != o.Data(); }
 
 };
 
@@ -101,19 +111,19 @@ class SharedData
     template<class T>friend class SharedSmartPointer;
 
     /** Counts another reference to the shared data */
-    inline bool AddReference(){ return m_references.Increment(); }
+    bool AddReference(){ return m_references.Increment(); }
     /** Removes another reference to the shared data */
-    inline bool RemoveReference(){ return m_references.Decrement(); }
+    bool RemoveReference(){ return m_references.Decrement(); }
 
     /** Returns the current reference count to the shared data */
-    inline GINT32 ReferenceCount() const{ return m_references; }
+    GINT32 ReferenceCount() const{ return m_references; }
 
     Utils::AtomicInt m_references;
 
 
 protected:
 
-    inline SharedData(){}
+    SharedData(){}
 
 };
 
@@ -131,12 +141,12 @@ template<class T>class SharedSmartPointer
     T *m_data;
 public:
 
-    inline SharedSmartPointer() :m_data(0){}
-    inline SharedSmartPointer(T *data) :m_data(data){ m_data->AddReference(); }
-    inline SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->AddReference(); }
+    SharedSmartPointer() :m_data(NULL){}
+    SharedSmartPointer(T *data) :m_data(data){ m_data->AddReference(); }
+    SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->AddReference(); }
 
-    inline SharedSmartPointer &operator = (const SharedSmartPointer<T> &other){ return operator = (other.m_data); }
-    inline SharedSmartPointer &operator = (T *data){
+    SharedSmartPointer &operator = (const SharedSmartPointer<T> &other){ return operator = (other.m_data); }
+    SharedSmartPointer &operator = (T *data){
         if(m_data && !m_data->RemoveReference())
             delete m_data;
 
@@ -144,28 +154,28 @@ public:
         m_data->AddReference();
         return *this;
     }
-    inline ~SharedSmartPointer(){ Clear(); }
+    ~SharedSmartPointer(){ Clear(); }
 
-    inline T *Data(){ return m_data; }
-    inline const T *ConstData() const{ return m_data; }
+    T *Data(){ return m_data; }
+    const T *ConstData() const{ return m_data; }
 
     /** Resets the pointer to 0 and dereferences the object, deleting it if necessary. */
-    inline void Clear(){
+    void Clear(){
         if(m_data && !m_data->RemoveReference()){
             delete m_data;
-            m_data = 0;
+            m_data = NULL;
         }
     }
 
-    inline operator T *(){ return m_data; }
-    inline operator T const *() const{ return m_data; }
+    operator T *(){ return m_data; }
+    operator T const *() const{ return m_data; }
 
-    inline T *operator -> (){ return m_data; }
-    inline const T *operator ->() const{ return m_data; }
-    inline T &operator * (){ return *m_data; }
-    inline const T &operator * () const{ return *m_data; }
+    T *operator -> (){ return m_data; }
+    const T *operator ->() const{ return m_data; }
+    T &operator * (){ return *m_data; }
+    const T &operator * () const{ return *m_data; }
 
-    inline void Detach(){
+    void Detach(){
         if(m_data && m_data->ReferenceCount() > 1)
         {
             m_data->RemoveReference();
@@ -174,11 +184,11 @@ public:
         }
     }
 
-    inline bool IsNull() const{ return m_data == NULL; }
-    inline operator bool () const{ return m_data; }
+    bool IsNull() const{ return m_data == NULL; }
+    operator bool () const{ return m_data; }
 
-    inline bool operator == (const SharedSmartPointer<T> &o) const{ return ConstData() == o.ConstData(); }
-    inline bool operator != (const SharedSmartPointer<T> &o) const{ return ConstData() != o.ConstData(); }
+    bool operator == (const SharedSmartPointer<T> &o) const{ return ConstData() == o.ConstData(); }
+    bool operator != (const SharedSmartPointer<T> &o) const{ return ConstData() != o.ConstData(); }
 
 };
 
@@ -189,17 +199,17 @@ template<class T>class ImplicitlySharedSmartPointer :
 {
 public:
 
-    inline ImplicitlySharedSmartPointer(){}
-    inline ImplicitlySharedSmartPointer(T *data) :SharedSmartPointer<T>(data){}
-    inline ImplicitlySharedSmartPointer(const ImplicitlySharedSmartPointer<T> &other) :SharedSmartPointer<T>(other.m_data){}
+    ImplicitlySharedSmartPointer(){}
+    ImplicitlySharedSmartPointer(T *data) :SharedSmartPointer<T>(data){}
+    ImplicitlySharedSmartPointer(const ImplicitlySharedSmartPointer<T> &other) :SharedSmartPointer<T>(other.m_data){}
 
-    inline T *operator -> (){ SharedSmartPointer<T>::Detach();  return SharedSmartPointer<T>::m_data; }
-    inline const T *operator -> () const{ return SharedSmartPointer<T>::operator ->(); }
+    T *operator -> (){ SharedSmartPointer<T>::Detach();  return SharedSmartPointer<T>::m_data; }
+    const T *operator -> () const{ return SharedSmartPointer<T>::operator ->(); }
 
-    inline T &operator * (){ SharedSmartPointer<T>::Detach(); return *SharedSmartPointer<T>::m_data; }
-    inline const T &operator * () const{ return SharedSmartPointer<T>::operator *(); }
+    T &operator * (){ SharedSmartPointer<T>::Detach(); return *SharedSmartPointer<T>::m_data; }
+    const T &operator * () const{ return SharedSmartPointer<T>::operator *(); }
 
-    inline T *Data(){ SharedSmartPointer<T>::Detach(); return SharedSmartPointer<T>::m_data; }
+    T *Data(){ SharedSmartPointer<T>::Detach(); return SharedSmartPointer<T>::m_data; }
 
 };
 
