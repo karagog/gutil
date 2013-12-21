@@ -41,9 +41,9 @@ public:
     };
 
     /** Constructs a default Console object, which outputs to standard out. */
-    inline Console() :_p_OutputStream(StandardOut){}
+    Console() :_p_OutputStream(StandardOut){}
     /** Constructs a Console object with your own output specification. */
-    inline Console(OutputStreamEnum e) : _p_OutputStream(e){}
+    Console(OutputStreamEnum e) : _p_OutputStream(e){}
 
     /** Determines which output stream to which we will output*/
     PROPERTY( OutputStream, OutputStreamEnum );
@@ -65,7 +65,7 @@ public:
     static GUINT32 Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes = UINT_MAX);
 
     /** Reads from the console. */
-    inline static DataObjects::String Read(GUINT32 bytes){
+    static DataObjects::String Read(GUINT32 bytes){
         DataObjects::String ret(bytes);
         ret.Resize(bytes);
         Read(reinterpret_cast<GBYTE *>(ret.Data()), bytes, bytes);
@@ -83,7 +83,7 @@ public:
     static GFLOAT32 ReadFloat();
 
     /** Reads a string from stdin (reads until a whitespace character) */
-    inline static DataObjects::String Read(){
+    static DataObjects::String Read(){
         return _read_until_terminator(&_is_whitespace);
     }
 

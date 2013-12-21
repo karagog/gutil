@@ -33,7 +33,7 @@ class Widget :
 public:
 
     /** Creates a new Widget */
-    inline explicit Widget(QWidget *parent = 0) :QWidget(parent){}
+    explicit Widget(QWidget *parent = 0) :QWidget(parent){}
 
 
     /** Center the second widget over the first one
@@ -52,6 +52,9 @@ public:
 
 
     /** Lines up the widgets and spaces them evenly across the screen.
+
+        \param wl The list of widgets to aligna
+        \param horizontally Determines whether to align the windows horizontally
 
         \todo Implement this function when you actually want to use it.
     */

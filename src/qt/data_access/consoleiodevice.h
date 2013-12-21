@@ -31,10 +31,10 @@ public:
     explicit ConsoleIODevice(QObject *parent = 0);
     virtual ~ConsoleIODevice();
 
-    inline void Engage(){ SetEngaged(true); }
-    inline void Disengage(){ SetEngaged(false); }
+    void Engage(){ SetEngaged(true); }
+    void Disengage(){ SetEngaged(false); }
 
-    inline bool IsEngaged() const{ return _engaged; }
+    bool IsEngaged() const{ return _engaged; }
 
 
 public slots:

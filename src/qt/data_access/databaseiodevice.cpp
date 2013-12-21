@@ -117,7 +117,7 @@ void DatabaseIODevice::CreateTable(const QString &name,
         if(driver == "QSQLITE")
         {
             QString cols;
-            for(GUINT32 i = 0; i < column_names_n_types.Count(); i++)
+            for(GUINT32 i = 0; i < column_names_n_types.Length(); i++)
             {
                 cols.append(QString("%1 %2,")
                             .arg(column_names_n_types[i].First)
@@ -130,7 +130,7 @@ void DatabaseIODevice::CreateTable(const QString &name,
             if(primary_key_column == -1)
             {
                 // Remove the trailing comma
-                if(column_names_n_types.Count() > 0)
+                if(column_names_n_types.Length() > 0)
                     cols.remove(cols.length() - 1, 1);
             }
             else

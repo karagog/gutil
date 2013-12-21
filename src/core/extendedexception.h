@@ -42,11 +42,11 @@ template<>class ex_name<true> : \
     public ::GUtil::ExtendedException \
 { \
     public: \
-        inline ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
-        inline explicit ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
-        inline ex_name(const char *file, int line) \
+        ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
+        explicit ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
+        ex_name(const char *file, int line) \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>") {} \
-        inline ex_name(const char *file, \
+        ex_name(const char *file, \
                          int line, \
                          const char *message, \
                          const ::GUtil::Exception<false> &inner_exception) \
@@ -66,29 +66,29 @@ class ExtendedException
     ::GUtil::Utils::SmartPointer< Exception<> > m_innerException;
 public:
 
-    inline ExtendedException(){}
+    ExtendedException(){}
     ExtendedException(const Exception<> &inner_exception);
 
     ExtendedException(const ExtendedException &);
     ExtendedException &operator = (const ExtendedException &);
     virtual ~ExtendedException();
 
-    inline void SetData(const DataObjects::String &key, const DataObjects::String &value){
+    void SetData(const DataObjects::String &key, const DataObjects::String &value){
         _data[key] = value;
     }
-    inline DataObjects::String GetData(const DataObjects::String &key) const{
+    DataObjects::String GetData(const DataObjects::String &key) const{
         DataObjects::String ret;
         if(HasData(key)) ret = _data.At(key);
         return ret;
     }
-    inline bool HasData(const DataObjects::String &key) const{ return _data.Contains(key); }
+    bool HasData(const DataObjects::String &key) const{ return _data.Contains(key); }
 
     /** Returns the map of key-value pairs. */
     const DataObjects::Map<DataObjects::String, DataObjects::String> &GetDataMap() const
     { return _data; }
 
     void SetInnerException(const Exception<> &ex);
-    inline Exception<false> *GetInnerException() const{ return m_innerException; }
+    Exception<false> *GetInnerException() const{ return m_innerException; }
 
 };
 

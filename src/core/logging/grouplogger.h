@@ -29,7 +29,7 @@ class GroupLogger :
 {
 public:
 
-    inline GroupLogger() :AbstractLogger(0) {}
+    GroupLogger() :AbstractLogger(0) {}
 
     /** Overridden from AbstractLogger to log the message to all loggers in the group */
     virtual void Log(const DataObjects::String &message,
@@ -46,7 +46,7 @@ public:
         This class takes ownership of the memory. There is no way to remove it
         from the group.  Would that ever be useful?
     */
-    inline void AddLogger(AbstractLogger *l){ m_loggers.PushBack(l); }
+    void AddLogger(AbstractLogger *l){ m_loggers.PushBack(l); }
 
 
 private:

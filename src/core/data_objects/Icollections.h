@@ -34,6 +34,8 @@ public:
 
 
 
+
+
 /** Defines a random access container interface for type T.
  *
  *  The implementation class should throw exceptions whenever errors happen,
@@ -50,8 +52,8 @@ public:
     /** Returns the item at the given index. */
     virtual T const &At(GUINT32 index) const = 0;
 
-    /** Inserts a copy of the item at the given index. */
-    virtual void Insert(const T &item, GUINT32 index) = 0;
+    /** Inserts a copy of the item at the given index, and returns a reference to the inserted item. */
+    virtual T &Insert(const T &item, GUINT32 index) = 0;
 
     /** Removes the item at the given index. */
     virtual void Remove(GUINT32 index) = 0;

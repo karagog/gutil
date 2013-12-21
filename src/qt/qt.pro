@@ -18,6 +18,9 @@ QT += network
 # So we can interface our core classes more easily with Qt
 DEFINES += QT_ADAPTERS
 
+# Enables STL dependent functions
+#DEFINES += GUTIL_STL
+
 TOP_DIR = ../..
 
 DESTDIR = $$TOP_DIR/lib

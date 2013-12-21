@@ -57,8 +57,8 @@ protected:
     //  on your own (or make it a child QObject of this one)
     explicit QT_IODevice(QIODevice *, QObject *parent = 0);
 
-    inline QIODevice &GetIODevice(){ return *_io_device; }
-    inline const QIODevice &GetIODevice() const{ return *_io_device; }
+    QIODevice &GetIODevice(){ return *_io_device; }
+    const QIODevice &GetIODevice() const{ return *_io_device; }
 
     virtual void send_data(const QByteArray &);
     virtual QByteArray receive_data();

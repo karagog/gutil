@@ -31,34 +31,34 @@ public:
         This could be useful if you have a global boolean switch that may determine
         if items are readonly.
     */
-    inline void SetReadonlyBooleanReference(bool &readonlybool){
+    void SetReadonlyBooleanReference(bool &readonlybool){
         _readonly_bool_reference = &readonlybool;
     }
 
     /** If you had changed the readonly boolean reference, this will change it back
         to our own boolean in memory.
     */
-    inline void ClearReadonlyBooleanReference(){
+    void ClearReadonlyBooleanReference(){
         SetReadonlyBooleanReference(m_readonly);
     }
 
     /** This object's readonly state will shadow the other's */
-    inline void TrackReadonlyObject(const IReadOnlyObject &o){
+    void TrackReadonlyObject(const IReadOnlyObject &o){
         SetReadonlyBooleanReference(*o._readonly_bool_reference);
     }
 
 
     /** Returns true if we are currently in the readonly state */
-    inline bool IsReadOnly() const{ return *_readonly_bool_reference; }
+    bool IsReadOnly() const{ return *_readonly_bool_reference; }
 
     /** Marks us "Readonly" */
-    inline void SetReadOnly(bool readonly = true){
+    void SetReadOnly(bool readonly = true){
         on_set_readonly(readonly);
         *_readonly_bool_reference = readonly;
     }
 
     /** Throws an exception if we are currently readonly. */
-    inline void FailIfReadOnly() const{
+    void FailIfReadOnly() const{
         if(IsReadOnly())
             THROW_NEW_GUTIL_EXCEPTION2( ReadOnlyException, ReadonlyMessageIdentifier() );
     }
@@ -66,11 +66,11 @@ public:
 
 protected:
 
-    inline IReadOnlyObject(bool readonly = false){
+    IReadOnlyObject(bool readonly = false){
         _init_readonly_interface(readonly);
     }
 
-    inline IReadOnlyObject(const IReadOnlyObject &other){
+    IReadOnlyObject(const IReadOnlyObject &other){
         _init_readonly_interface(other.IsReadOnly());
     }
 
@@ -87,7 +87,7 @@ private:
     bool *_readonly_bool_reference;
     bool m_readonly;
 
-    inline void _init_readonly_interface(bool readonly){
+    void _init_readonly_interface(bool readonly){
         m_readonly = readonly;
         SetReadonlyBooleanReference(m_readonly);
     }

@@ -32,14 +32,14 @@ public:
     /** Creates a null database logger.  You must set the connection string
         prior to using.
     */
-    inline DatabaseLogger() :AbstractLogger(NULL), _p_TableName("LOG"){}
+    DatabaseLogger() :AbstractLogger(NULL), _p_TableName("LOG"){}
 
     /** Creates a database logger with the given database connection string.
         \param conn_str The identifier of the database in Qt's database list.
         \param table_name The name of the table in the database.  By default we log to
         the 'LOG' table
     */
-    inline explicit DatabaseLogger(const QString &conn_str, const QString &table_name = "LOG")
+    explicit DatabaseLogger(const QString &conn_str, const QString &table_name = "LOG")
         :AbstractLogger(NULL),
           _p_ConnectionString(conn_str),
           _p_TableName(table_name)

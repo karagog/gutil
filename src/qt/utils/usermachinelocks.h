@@ -43,7 +43,7 @@ public:
     void SetUserMachineLockFileName(const QString &);
 
     void UnlockForMachine();
-    inline bool IsLockedOnMachine() const{ return GetLockOwner(); }
+    bool IsLockedOnMachine() const{ return GetLockOwner(); }
 
     QString FileNameForMachineLock() const;
 
@@ -72,7 +72,7 @@ private:
     QtLockedFile *_usermachinelockfile;
 
     void _grab_lock_in_process(bool for_read, bool block);
-    inline void _release_lock(){
+    void _release_lock(){
         _get_lock_reference().unlock();
         SetLockOwner(false);
     }
@@ -80,7 +80,7 @@ private:
     void _pre_init();
     void _post_init();
 
-    inline QReadWriteLock &_get_lock_reference(){
+    QReadWriteLock &_get_lock_reference(){
         process_locks_lock.lockForRead();
 
         QString s = FileNameForMachineLock();
@@ -115,29 +115,29 @@ public:
     /** Locks using an application identifier and modifier.
         An example would be: UserMachineMutex("MyApplication", "Database");
     */
-    inline UserMachineReadWriteLock(const QString &identifier, const QString &modifier)
+    UserMachineReadWriteLock(const QString &identifier, const QString &modifier)
         :MachineLockBase("MACHINE_RW_LOCK", identifier, modifier){}
 
-    inline explicit UserMachineReadWriteLock(const QString &file_name)
+    explicit UserMachineReadWriteLock(const QString &file_name)
         :MachineLockBase("MACHINE_RW_LOCK", file_name){}
 
     /** Locks this object for read on the user's machine */
-    inline void LockForReadOnMachine(bool block = false){
+    void LockForReadOnMachine(bool block = false){
         lock(true, block);
     }
 
     /** Locks this object for write on the user's machine */
-    inline void LockForWriteOnMachine(bool block = false){
+    void LockForWriteOnMachine(bool block = false){
         lock(false, block);
     }
 
     /** Returns whether we currently hold a read lock. */
-    inline bool IsLockedForReadOnMachine() const{
+    bool IsLockedForReadOnMachine() const{
         return GetLockOwner() && GetReadLockOwner();
     }
 
     /** Returns whether we currently hold a write lock. */
-    inline bool IsLockedForWriteOnMachine() const{
+    bool IsLockedForWriteOnMachine() const{
         return GetLockOwner() && !GetReadLockOwner();
     }
 
@@ -158,14 +158,14 @@ public:
     /** Locks using an application identifier and modifier.
         An example would be: UserMachineMutex("MyApplication", "Database");
     */
-    inline UserMachineMutex(const QString &identifier, const QString &modifier)
+    UserMachineMutex(const QString &identifier, const QString &modifier)
         :MachineLockBase("MACHINE_LOCK", identifier, modifier){}
 
     /** Locks a specific file. */
-    inline explicit UserMachineMutex(const QString &file_name)
+    explicit UserMachineMutex(const QString &file_name)
         :MachineLockBase("MACHINE_LOCK", file_name){}
 
-    inline void LockMutexOnMachine(bool block = false){
+    void LockMutexOnMachine(bool block = false){
         lock(false, block);
     }
 

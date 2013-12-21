@@ -47,19 +47,19 @@ public:
 
         After calling this you must call Roll() again before the dice are valid.
     */
-    inline void SetNumberDice(GUINT32 number_of_dice){ m_dice.Resize(number_of_dice, 0); }
+    void SetNumberDice(GUINT32 number_of_dice){ m_dice.Resize(number_of_dice, 0); }
 
     /** Returns the number of dice in the bunch. */
-    inline GUINT32 GetNumberDice() const{ return m_dice.Length(); }
+    GUINT32 GetNumberDice() const{ return m_dice.Length(); }
 
     /** Sets the number of sides for the dice.
 
         After calling this you must call Roll() again before the dice are valid.
     */
-    inline void SetNumberSides(GUINT8 number_of_sides){ m_sides = number_of_sides; }
+    void SetNumberSides(GUINT8 number_of_sides){ m_sides = number_of_sides; }
 
     /** Returns the number of sides on the dice being rolled. */
-    inline GUINT8 GetNumberSides() const{ return m_sides; }
+    GUINT8 GetNumberSides() const{ return m_sides; }
 
     /** Rolls the dice, which randomly generates a value for each die in the collection.
 
@@ -79,7 +79,7 @@ public:
 
         \sa Roll()
     */
-    inline const ::GUtil::DataObjects::Vector<Die> &Inspect() const{
+    const ::GUtil::DataObjects::Vector<Die> &Inspect() const{
         return m_dice;
     }
 
@@ -87,7 +87,7 @@ public:
 
         \note If you want to clear the memory, then call SetNumberDice() with 0.
     */
-    inline void Clear(){
+    void Clear(){
         G_FOREACH(Die &d, m_dice)  d = 0;
     }
 

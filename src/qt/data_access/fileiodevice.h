@@ -54,7 +54,7 @@ public:
     PROPERTY(WriteMode, WriteModeEnum);
 
     void SetFileName(const QString &);
-    inline QString FileName() const{ return File().fileName(); }
+    QString FileName() const{ return File().fileName(); }
     QByteArray FileData();
 
     void TruncateFile();
@@ -65,8 +65,8 @@ protected:
     virtual void send_data(const QByteArray &);
     virtual QByteArray receive_data();
 
-    inline QFile &File(){ return (QFile &)GetIODevice(); }
-    inline const QFile &File() const{ return (const QFile &)GetIODevice(); }
+    QFile &File(){ return (QFile &)GetIODevice(); }
+    const QFile &File() const{ return (const QFile &)GetIODevice(); }
 
     bool has_data_available();
 

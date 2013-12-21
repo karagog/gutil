@@ -28,7 +28,7 @@ public:
     virtual int Compare(const T &lhs, const U &rhs) const = 0;
 
     /** Convenience parenthesis operator that allows you to treat this like a function object. */
-    inline int operator ()(const T &lhs, const U &rhs) const{
+    int operator ()(const T &lhs, const U &rhs) const{
         return Compare(lhs, rhs);
     }
 

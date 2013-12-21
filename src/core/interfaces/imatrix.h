@@ -30,8 +30,8 @@ public:
     {}
     virtual ~IMatrix(){}
 
-    inline int RowCount() const{ return m_rows; }
-    inline int ColumnCount() const{ return m_cols; }
+    int RowCount() const{ return m_rows; }
+    int ColumnCount() const{ return m_cols; }
 
     // Derived classes implement the accessor functions
     virtual T &Value(int row, int col) = 0;

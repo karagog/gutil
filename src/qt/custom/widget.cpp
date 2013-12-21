@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "widget.h"
-#include "gutil_macros.h"
 #include "gutil_extendedexception.h"
 #include <QApplication>
 #include <QDesktopWidget>
@@ -44,8 +43,8 @@ void Widget::CenterInScreen(QWidget *w)
 }
 
 void Widget::AlignWidgets(
-        const QList<QWidget *>&wl,
-        bool horizontally)
+        const QList<QWidget *>&,
+        bool)
 {
     THROW_NEW_GUTIL_EXCEPTION( NotImplementedException );
 }

@@ -97,36 +97,36 @@ public:
     /** Creates a card with the given value and suit.
 
         \note It is impossible to change the card's value or suit after
-        creation.  This is inline with cards in real life.  The deck is
+        creation.  This is with cards in real life.  The deck is
         created once, and the cards never change over the entire life of
         the deck.
     */
-    inline Card(ValueEnum v, SuitEnum s) :m_value(v), m_suit(s) {}
+    Card(ValueEnum v, SuitEnum s) :m_value(v), m_suit(s) {}
 
     /** Copies the other card. */
-    inline Card(const Card &other) :m_value(other.m_value), m_suit(other.m_suit) {}
+    Card(const Card &other) :m_value(other.m_value), m_suit(other.m_suit) {}
 
     /** Copies the other card. */
-    inline Card &operator = (const Card &other){ new(this) Card(other); return *this; }
+    Card &operator = (const Card &other){ new(this) Card(other); return *this; }
 
 
     /** Returns the value of the card. */
-    inline ValueEnum Value() const{ return m_value; }
+    ValueEnum Value() const{ return m_value; }
 
     /** Returns the suit of the card. */
-    inline SuitEnum Suit() const{ return m_suit; }
+    SuitEnum Suit() const{ return m_suit; }
 
     /** Returns a human-readable string for this card's value.
         (King, Queen, Seven, etc...)
     */
-    inline char const *ValueString() const{
+    char const *ValueString() const{
         return ValueString(m_value);
     }
 
     /** Returns a human-readable string for this card's suit.
         (Clubs, Diamonds, Spades, etc...)
     */
-    inline char const *SuitString() const{
+    char const *SuitString() const{
         return SuitString(m_suit);
     }
 
@@ -142,12 +142,12 @@ public:
 
 
     /** Compares the cards' values and suits for equality. */
-    inline bool operator == (const Card &c) const{
+    bool operator == (const Card &c) const{
         return m_value == c.m_value && m_suit == c.m_suit;
     }
 
     /** Compares the cards' values and suits for inequality. */
-    inline bool operator != (const Card &c) const{
+    bool operator != (const Card &c) const{
         return m_value != c.m_value || m_suit != c.m_suit;
     }
 
@@ -185,16 +185,16 @@ class Hand
 public:
 
     /** Constructs an empty hand. */
-    inline Hand() { SetCompareFunction(&default_compare); }
+    Hand() { SetCompareFunction(&default_compare); }
 
     /** Returns the number of cards left in the hand which have not yet been played. */
-    inline GUINT32 CardCount() const{ return m_cards.Length() + m_cardsPlayed.Length(); }
+    GUINT32 CardCount() const{ return m_cards.Length() + m_cardsPlayed.Length(); }
 
     /** Returns the list of cards in the hand. */
-    inline const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
+    const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
 
     /** Sorts the remaining cards in the hand, typically for display purposes. */
-    inline void Sort(){ m_cards.Sort(true, m_cardComparer); }
+    void Sort(){ m_cards.Sort(true, m_cardComparer); }
 
     /** Sets the compare function for sorting the hand.
 
@@ -203,7 +203,7 @@ public:
         \note Each hand may have its own sort order, to allow different playes
         to arrange their hands differently.
     */
-    inline void SetCompareFunction(int (*cmp)(Card * const &, Card * const &)){
+    void SetCompareFunction(int (*cmp)(Card * const &, Card * const &)){
         m_cardComparer = cmp;
     }
 
@@ -322,19 +322,19 @@ public:
     void SetNumberHands(GUINT32);
 
     /** Returns the number of hands. */
-    inline GUINT32 NumberHands() const{ return m_hands.Length(); }
+    GUINT32 NumberHands() const{ return m_hands.Length(); }
 
     /** Returns our list of hands for use by the card players.
 
         \sa SetNumberHands()
     */
-    inline ::GUtil::DataObjects::Vector<Hand> &Hands(){ return m_hands; }
+    ::GUtil::DataObjects::Vector<Hand> &Hands(){ return m_hands; }
 
     /** Returns a const-reference to our list of hands
 
         \sa SetNumberHands()
     */
-    inline const ::GUtil::DataObjects::Vector<Hand> &Hands() const{ return m_hands; }
+    const ::GUtil::DataObjects::Vector<Hand> &Hands() const{ return m_hands; }
 
 
     /** Deals the given number of cards evenly into the hands.
@@ -368,14 +368,14 @@ public:
         Just like the normal Deal() function, this also calls pick_one() to
         select a card, and then deals it to the proper hand.
     */
-    inline void DealOne(GUINT32 hand_index){
+    void DealOne(GUINT32 hand_index){
         m_hands.At(hand_index).m_cards.PushBack( pick_one() );
     }
 
     /** Collects all the hands and shuffles the cards so they are ready
         for the next deal.
     */
-    inline void CollectAndShuffle(){
+    void CollectAndShuffle(){
         Collect();
         Shuffle();
     }
@@ -390,7 +390,7 @@ public:
     bool IsCollected() const;
 
 
-    inline const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
+    const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
 
 
 protected:
@@ -427,7 +427,7 @@ protected:
     /** This function clears all the cards out of a hand.  It is protected
         so subclasses can use it if they need to.
     */
-    static inline void clear_hand(Hand &h){
+    static void clear_hand(Hand &h){
         h.m_cards.Empty();
         h.m_cardsPlayed.Empty();
     }
@@ -456,7 +456,7 @@ class InfiniteDeck :
 public:
 
     /** \sa Deck() */
-    inline InfiniteDeck(GUINT32 number_of_hands) :Deck(number_of_hands) {}
+    InfiniteDeck(GUINT32 number_of_hands) :Deck(number_of_hands) {}
 
     virtual ~InfiniteDeck();
 

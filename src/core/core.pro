@@ -16,6 +16,9 @@ INCLUDEPATH += $$TOP_DIR/include
 LIBS += -L$$TOP_DIR/lib \
     -lcryptopp
 
+# Enables STL dependent functions
+#DEFINES += GUTIL_STL
+
 #DEFINES += GUTIL_COM_EXPORTS
 #DEFINES += GUTIL_NO_CRYPTOPP
 #DEFINES += GUTIL_DEBUG

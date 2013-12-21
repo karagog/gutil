@@ -26,8 +26,8 @@ class AtomicInt
 public:
 
     /** Constructs the atomic int and initializes it to 0. */
-    inline AtomicInt() :m_value(0){}
-    inline AtomicInt(const AtomicInt &i) :m_value(i.Value()){}
+    AtomicInt() :m_value(0){}
+    AtomicInt(const AtomicInt &i) :m_value(i.Value()){}
 
     /** The integer's current value. */
     GINT32 Value() const{ return m_value; }
@@ -53,12 +53,12 @@ public:
     GINT32 AddAndFetch(GINT32 n);
 
 
-    inline bool operator == (GINT32 v) const{ return m_value == v; }
-    inline bool operator != (GINT32 v) const{ return m_value != v; }
+    bool operator == (GINT32 v) const{ return m_value == v; }
+    bool operator != (GINT32 v) const{ return m_value != v; }
 
-    inline AtomicInt &operator = (GINT32 i){ m_value = i; return *this; }
+    AtomicInt &operator = (GINT32 i){ m_value = i; return *this; }
 
-    inline operator GINT32() const{ return m_value; }
+    operator GINT32() const{ return m_value; }
 
 
 private:

@@ -32,31 +32,31 @@ class DateTime :
 {
 public:
 
-    inline DateTime(){}
-    inline DateTime(const QDateTime &other)
+    DateTime(){}
+    DateTime(const QDateTime &other)
         :QDateTime(other){}
-    explicit inline DateTime(const QDate &dt)
+    explicit DateTime(const QDate &dt)
         :QDateTime(dt){}
-    explicit inline DateTime(const QTime &dt)
+    explicit DateTime(const QTime &dt)
         :QDateTime(QDate(), dt){}
-    inline DateTime(const QDate &dt, const QTime &tm)
+    DateTime(const QDate &dt, const QTime &tm)
         :QDateTime(dt, tm){}
 
     /** The time T=0, or 0 seconds from the epoch */
-    inline static DateTime Origin(){
+    static DateTime Origin(){
         return fromMSecsSinceEpoch(0);
     }
 
     /** Adding date times is done by adding/subtracting the distance
         since the last epoch
     */
-    inline DateTime operator + (const DateTime &other) const{
+    DateTime operator + (const DateTime &other) const{
         return addMSecs(Origin().msecsTo(other));
     }
     /** Subtracting date times is done by adding/subtracting the distance
         since the last epoch
     */
-    inline DateTime operator - (const DateTime &other) const{
+    DateTime operator - (const DateTime &other) const{
         return addMSecs(-Origin().msecsTo(other));
     }
 
@@ -77,7 +77,7 @@ public:
         int Centuries;
         int Millennia;
 
-        inline TimeBreakdown()
+        TimeBreakdown()
             :MSeconds(-1),
               Seconds(-1),
               Minutes(-1),
@@ -106,7 +106,7 @@ public:
     GUTIL_DECLARE_FLAGS(TimeBreakdownFlags, TimeBreakdownFlag);
 
     /** Returns the time "distance" between two points in time. */
-    inline TimeBreakdown GetTimeDistanceBreakdown(const DateTime &end_time, TimeBreakdownFlags f) const{
+    TimeBreakdown GetTimeDistanceBreakdown(const DateTime &end_time, TimeBreakdownFlags f) const{
         return GetTimeDistanceBreakdown(*this, end_time, f);
     }
     /** Returns the time "distance" between two points in time. */

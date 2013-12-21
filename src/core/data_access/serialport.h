@@ -48,7 +48,7 @@ public:
     void Initialize(const char *com_port);
 
     /** Returns whether the serial port is currently open*/
-    inline bool IsOpen() const{ return m_handle != 0; }
+    bool IsOpen() const{ return m_handle != 0; }
     /** Closes the open serial port.  Does nothing if it's not open. */
     void Close();
 

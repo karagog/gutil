@@ -30,10 +30,10 @@ class Uuid
 public:
 
     /** Constructs a null Uuid */
-    inline Uuid(){ Clear(); }
+    Uuid(){ Clear(); }
 
     /** Constructs a Uuid, and optionally generates its value */
-    inline explicit Uuid(bool generate_id){
+    explicit Uuid(bool generate_id){
         if(generate_id)
             Generate();
         else
@@ -49,20 +49,20 @@ public:
     Uuid(const Uuid &);
 
     /** Assignment operator */
-    inline Uuid &operator = (const Uuid &other){ new(this) Uuid(other); return *this; }
+    Uuid &operator = (const Uuid &other){ new(this) Uuid(other); return *this; }
 
     /** A static constructor of a Uuid */
-    inline static Uuid CreateUuid(){ return Uuid(true); }
+    static Uuid CreateUuid(){ return Uuid(true); }
 
     /** Returns a Uuid equal to Nil (all zeros).
         \note The default constructor has the same behavior
     */
-    inline static Uuid Nil(){ return Uuid(); }
+    static Uuid Nil(){ return Uuid(); }
 
     /** Returns a new Uuid which has been constructed from a string
         \sa ToString()
     */
-    inline static Uuid FromString(const ::GUtil::DataObjects::String &s){ return Uuid(s); }
+    static Uuid FromString(const ::GUtil::DataObjects::String &s){ return Uuid(s); }
 
     /** Turns the Uuid object into an ASCII hex string.
         \sa FromString()
@@ -83,7 +83,7 @@ public:
     /** Returns true if the Uuid is equal to Nil (all data set to 0)
         \sa IsNull()
     */
-    inline bool IsNil() const{ return IsNull(); }
+    bool IsNil() const{ return IsNull(); }
 
     /** Equality comparator */
     bool operator == (const Uuid &other) const;

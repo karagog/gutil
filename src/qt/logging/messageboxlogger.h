@@ -32,7 +32,7 @@ class MessageBoxLogger :
     QWidget *m_parent;
 public:
 
-    inline explicit MessageBoxLogger(QWidget *parent = 0) :AbstractLogger(NULL), m_parent(parent){}
+    explicit MessageBoxLogger(QWidget *parent = 0) :AbstractLogger(NULL), m_parent(parent){}
 
     virtual ~MessageBoxLogger(){}
 

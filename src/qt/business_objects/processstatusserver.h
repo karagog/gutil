@@ -37,15 +37,15 @@ class ProcessStatusServer :
 public:
 
     /** Creates a new server object */
-    inline explicit ProcessStatusServer(QObject *p = 0) :QLocalServer(p){}
+    explicit ProcessStatusServer(QObject *p = 0) :QLocalServer(p){}
 
     /** Destructor waits for any remaining connections to close */
-    inline ~ProcessStatusServer(){ thread_pool.waitForDone(); }
+    ~ProcessStatusServer(){ thread_pool.waitForDone(); }
 
     /** Used to notify that a new message was received.  This is called by our
         background thread; you shouldn't have to use it manually.
     */
-    inline void PublishNewMessage(const QByteArray &ba){ emit NewMessage(ba); }
+    void PublishNewMessage(const QByteArray &ba){ emit NewMessage(ba); }
 
 
 signals:
@@ -71,7 +71,7 @@ class ProcessStatusServer_Thread :
         public QRunnable
 {
 public:
-    inline explicit ProcessStatusServer_Thread(ProcessStatusServer *server,
+    explicit ProcessStatusServer_Thread(ProcessStatusServer *server,
                                                quintptr socket_descriptor)
         :_sd(socket_descriptor),
           _server(server)

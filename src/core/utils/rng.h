@@ -204,7 +204,7 @@ public:
         Plain-Old-Data (POD) type, like an Int or Float, because the
         object's memory will be randomly generated.
     */
-    template<class T> static inline T Generate(){
+    template<class T> static T Generate(){
         T ret;
         Fill(reinterpret_cast<GBYTE *>(&ret), sizeof(T));
         return ret;
@@ -226,7 +226,7 @@ public:
 
         \return 1 with the given probability  and 0 otherwise.
     */
-    static inline int Succeed(GFLOAT64 probability_of_success){
+    static int Succeed(GFLOAT64 probability_of_success){
         return U(0, 1) < probability_of_success ? 1 : 0;
     }
 
@@ -238,7 +238,7 @@ public:
 
         \return 1 with 50% probability, otherwise 0.
     */
-    static inline int CoinToss(){
+    static int CoinToss(){
         return Generate<GINT8>() < 0 ? 1 : 0;
     }
 

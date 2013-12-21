@@ -29,10 +29,10 @@ public:
     PROPERTY( MinorVersion, int );
     PROPERTY( ReleaseVersion, int );
 
-    inline bool IsNull() const{
+    bool IsNull() const{
         return GetMajorVersion() == -1 && GetMinorVersion() == -1 && GetReleaseVersion() == -1;
     }
-    inline String ToString() const{
+    String ToString() const{
         return String::Format("%d.%d.%d",
                               GetMajorVersion(),
                               GetMinorVersion(),
@@ -43,44 +43,44 @@ public:
     bool operator < (const Version &o) const;
     bool operator > (const Version &o) const;
 
-    inline bool operator == (const Version &o) const{
+    bool operator == (const Version &o) const{
         return GetMajorVersion() == o.GetMajorVersion() &&
                 GetMinorVersion() == o.GetMinorVersion() &&
                 GetReleaseVersion() == o.GetReleaseVersion();
     }
-    inline bool operator != (const Version &o) const{
+    bool operator != (const Version &o) const{
         return !(*this == o);
     }
 
-    inline Version()
+    Version()
         :_p_MajorVersion(-1), _p_MinorVersion(-1), _p_ReleaseVersion(-1) {}
-    inline Version(int major, int minor, int release = 0)
+    Version(int major, int minor, int release = 0)
         :_p_MajorVersion(major), _p_MinorVersion(minor), _p_ReleaseVersion(release){}
 
     Version(const String &version_string);
     Version(const char *version_string);
 
-    inline Version(const Version &o)
+    Version(const Version &o)
         :_p_MajorVersion(o._p_MajorVersion),
           _p_MinorVersion(o._p_MinorVersion),
           _p_ReleaseVersion(o._p_ReleaseVersion)
     {}
 
 
-    inline Version &operator = (const Version &o){
+    Version &operator = (const Version &o){
         new(this) Version(o);
         return *this;
     }
-    inline Version &operator = (const String &s){
+    Version &operator = (const String &s){
         new(this) Version(s);
         return *this;
     }
-    inline Version &operator = (const char *s){
+    Version &operator = (const char *s){
         new(this) Version(s);
         return *this;
     }
 
-    inline operator String () const{ return ToString(); }
+    operator String () const{ return ToString(); }
 
 };
 

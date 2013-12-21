@@ -15,8 +15,7 @@ limitations under the License.*/
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "gutil_macros.h"
-#include <string>
+#include "gutil_strings.h"
 
 NAMESPACE_GUTIL1(Utils);
 
@@ -25,7 +24,7 @@ class Environment
 {
 public:
 
-    static std::string Username();
+    static GUtil::DataObjects::String Username();
 
 };
 

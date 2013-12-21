@@ -30,14 +30,14 @@ class SymmetricMatrix :
 {
 public:
 
-    inline SymmetricMatrix(GUINT32 size)
+    SymmetricMatrix(GUINT32 size)
         :Interfaces::IMatrix<T>(size, size)
     {
         for(int i = 0; i < size; i++)
             m_matrix.push_back(Vector<T>(i + 1));
     }
 
-    inline SymmetricMatrix(GUINT32 size, const T &initial_value)
+    SymmetricMatrix(GUINT32 size, const T &initial_value)
         :Interfaces::IMatrix<T>(size, size)
     {
         for(GUINT32 i = 0; i < size; i++)
@@ -48,11 +48,11 @@ public:
         }
     }
 
-    inline T& Value(int row, int col){
+    T& Value(int row, int col){
         _transform_indeces(row, col);
         return m_matrix[row][col];
     }
-    inline const T& Value(int row, int col) const{
+    const T& Value(int row, int col) const{
         _transform_indeces(row, col);
         return m_matrix[row][col];
     }
@@ -64,7 +64,7 @@ private:
 
     Vector< Vector<T> > m_matrix;
 
-    inline static void _transform_indeces(int &r, int &c){
+    static void _transform_indeces(int &r, int &c){
         // Swap row and column if they indexed the wrong side of the diagonal
         if(r < c)
         {

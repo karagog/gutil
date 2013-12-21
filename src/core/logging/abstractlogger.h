@@ -96,7 +96,7 @@ public:
         MessageLevelEnum MessageLevel;
         time_t LogTime;
 
-        inline LoggingData()
+        LoggingData()
             :MessageLevel(MessageLevel_Info),
               LogTime(time(NULL))
         {}
@@ -124,7 +124,7 @@ public:
 
 
     /** Logs a message with the lowest severity */
-    inline void LogInfo(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    void LogInfo(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
     {
         LoggingData d;
         d.Message = message;
@@ -134,7 +134,7 @@ public:
     }
 
     /** Logs a warning */
-    inline void LogWarning(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    void LogWarning(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
     {
         LoggingData d;
         d.Message = message;
@@ -144,7 +144,7 @@ public:
     }
 
     /** Logs an error */
-    inline void LogError(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    void LogError(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
     {
         LoggingData d;
         d.Message = message;
@@ -172,26 +172,26 @@ public:
     virtual void Log(const LoggingData &);
 
     /** Returns the logging options */
-    inline const LoggingOptionsFlags &Options() const{ return m_options; }
+    const LoggingOptionsFlags &Options() const{ return m_options; }
 
     /** Controls an individual logging option */
-    inline void SetOption(LoggingOptionsEnum opt, bool b){ m_options.SetFlag(opt, b); }
+    void SetOption(LoggingOptionsEnum opt, bool b){ m_options.SetFlag(opt, b); }
 
     /** Toggles an individual logging option */
-    inline void ToggleOption(LoggingOptionsEnum opt){ m_options.ToggleFlag(opt); }
+    void ToggleOption(LoggingOptionsEnum opt){ m_options.ToggleFlag(opt); }
 
     /** Controls the logging options */
-    inline void SetOptions(const LoggingOptionsEnum &o){ m_options = o; }
+    void SetOptions(const LoggingOptionsEnum &o){ m_options = o; }
 
     /** Overrides the default truncate limit
         \note The truncate option must be enabled for this to have any observable effect
     */
-    inline void SetTruncateLimit(GUINT32 limit){
+    void SetTruncateLimit(GUINT32 limit){
         m_truncate_limit = limit;
     }
 
     /** Returns the current truncate limit for the exception messages */
-    inline GUINT32 TruncateLimit() const{ return m_truncate_limit; }
+    GUINT32 TruncateLimit() const{ return m_truncate_limit; }
 
     virtual ~AbstractLogger(){}
 
@@ -215,9 +215,9 @@ protected:
 
 
     /** Derived classes may use this accessor to access the io device */
-    inline DataAccess::OutputInterface *io_device(){ return _io.Data(); }
+    DataAccess::OutputInterface *io_device(){ return _io.Data(); }
     /** Derived classes may use this accessor to access the io device */
-    inline DataAccess::OutputInterface const *io_device() const{ return _io.Data(); }
+    DataAccess::OutputInterface const *io_device() const{ return _io.Data(); }
 
 
 private:

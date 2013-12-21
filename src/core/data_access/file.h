@@ -35,28 +35,28 @@ class File :
 public:
 
     /** Creates an empty file object.  You must use SetFilename before calling open. */
-    inline File() :_p_BufferedWrites(true), m_handle(NULL){}
+    File() :_p_BufferedWrites(true), m_handle(NULL){}
     /** Creates a file object with the given filename. */
-    inline explicit File(const char *filename)
+    explicit File(const char *filename)
         :_p_BufferedWrites(true), m_filename(filename), m_handle(NULL){}
     virtual ~File();
 
     /** Closes the file if it was open and changes the filename*/
-    inline void SetFilename(const char *filename){
+    void SetFilename(const char *filename){
         if(IsOpen()) Close();
         m_filename = filename;
     }
 
     /** Returns the current filename we're set to. */
-    inline const DataObjects::String &Filename() const{ return m_filename; }
+    const DataObjects::String &Filename() const{ return m_filename; }
 
     /** Returns whether the file exists. */
-    inline bool Exists() const{ return Exists(m_filename); }
+    bool Exists() const{ return Exists(m_filename); }
     /** Returns whether the file exists. */
     static bool Exists(const char *filename);
 
     /** Closes the file and deletes it. */
-    inline void Delete(){
+    void Delete(){
         if(IsOpen()) Close();
         if(m_filename.Length() > 0) Delete(m_filename);
     }
@@ -92,7 +92,7 @@ public:
     void Open(OpenModeEnum);
 
     /** Returns whether the file is open or not*/
-    inline bool IsOpen() const{ return m_handle; }
+    bool IsOpen() const{ return m_handle; }
 
     /** Closes the file if it is open. */
     void Close();
@@ -100,17 +100,17 @@ public:
     /** The length of the file. */
     GUINT32 Length() const;
     /** The length of the file. */
-    inline GUINT32 Size() const{ return Length(); }
+    GUINT32 Size() const{ return Length(); }
 
     /** Write data to the file. */
     GUINT32 Write(const GBYTE *data, GUINT32 len);
     /** Write data to the file. */
-    inline GUINT32 Write(const char *data, GUINT32 len = UINT_MAX){
+    GUINT32 Write(const char *data, GUINT32 len = UINT_MAX){
         return Write(reinterpret_cast<GBYTE const *>(data),
                      len == UINT_MAX ? strlen(data) : len);
     }
     /** Write data to the file. */
-    inline GUINT32 Write(const DataObjects::String &data){
+    GUINT32 Write(const DataObjects::String &data){
         return Write(data.ConstData(), data.Length());
     }
 

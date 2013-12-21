@@ -96,7 +96,7 @@ private:
     bool _has_lock(bool) const;
 
     void _fail_if_locked() const;
-    inline bool _lock_file_set() const{ return _lock_file_path.length() > 0; }
+    bool _lock_file_set() const{ return _lock_file_path.length() > 0; }
 
     bool _is_locked;
 

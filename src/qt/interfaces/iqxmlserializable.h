@@ -38,7 +38,7 @@ public:
 
 
     /** Generates a QString of the class' XML data. */
-    inline QString ToXmlQString(bool human_readable = false) const{
+    QString ToXmlQString(bool human_readable = false) const{
         QString ret;
         QXmlStreamWriter w(&ret);
         w.setAutoFormatting(human_readable);

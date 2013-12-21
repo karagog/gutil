@@ -40,12 +40,12 @@ public:
     /** \note You can only use this constructor if KeyType == T, otherwise you must provide
         your own conversion from T to the KeyType.
     */
-    inline TypeMapper(){
+    TypeMapper(){
         f_map = &default_convert;
     }
 
     /** The copy constructor. */
-    inline TypeMapper(const TypeMapper &o){
+    TypeMapper(const TypeMapper &o){
         f_map = o.f_map;
     }
 
@@ -53,12 +53,12 @@ public:
         to the key type
         \param mapping_function A function that maps the source type to the target type.
     */
-    inline TypeMapper(TargetType const &(*mapping_function)(SourceType const &)){
+    TypeMapper(TargetType const &(*mapping_function)(SourceType const &)){
         f_map = mapping_function;
     }
 
     /** Maps the source type to the target type. */
-    inline TargetType const &operator () (SourceType const &t) const{ return f_map(t); }
+    TargetType const &operator () (SourceType const &t) const{ return f_map(t); }
 
 };
 
@@ -104,7 +104,7 @@ template<class T, class KeyType = T>class BinarySearchTree
         T Data;
 
         /** The difference in height of my two children (left - right) */
-        inline int HeightDifference() const{
+        int HeightDifference() const{
             int sum(0);
             if(LChild) sum += (1 + LChild->Height);
             if(RChild) sum -= (1 + RChild->Height);
@@ -114,12 +114,12 @@ template<class T, class KeyType = T>class BinarySearchTree
         /** Returns whether the node is balanced, or in other words whether its children are not
             more than 1 node different in height.
         */
-        inline bool Balanced() const{
+        bool Balanced() const{
             return Abs(HeightDifference()) <= 1;
         }
 
         /** Constructs a node with the given parent. */
-        inline node(const T &data, node *parent = 0)
+        node(const T &data, node *parent = 0)
             :Parent(parent),
               LChild(0),
               RChild(0),
@@ -142,7 +142,7 @@ template<class T, class KeyType = T>class BinarySearchTree
         };
 
         /** Returns which side of my parent I'm on.  Merely a convenience function. */
-        inline SideEnum SideOfParent() const
+        SideEnum SideOfParent() const
         {
             SideEnum ret(NoSide);
             if(Parent)
@@ -164,7 +164,7 @@ public:
     /** Constructs a default binary search tree, which uses the less-than
         operator for comparisons, and sorts things ascendingly
     */
-    inline BinarySearchTree()
+    BinarySearchTree()
         :root(NULL),
           m_size(0)
     {}
@@ -174,7 +174,7 @@ public:
         value of your comparison function (i.e. if you want it to arrange
         items in reverse order, then reverse your comparison function)
     */
-    inline BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp)
+    BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp)
         :root(NULL),
           m_size(0),
           f_cmp(cmp)
@@ -187,7 +187,7 @@ public:
         The tree still uses the less-than
         operator for comparisons, and sorts things ascendingly
     */
-    inline BinarySearchTree(const TypeMapper<T, KeyType> &map)
+    BinarySearchTree(const TypeMapper<T, KeyType> &map)
         :root(NULL),
           m_size(0),
           f_map(map)
@@ -199,7 +199,7 @@ public:
         The tree still uses the less-than
         operator for comparisons, and sorts things ascendingly
     */
-    inline BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp,
+    BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp,
                                      const TypeMapper<T, KeyType> &map)
         :root(NULL),
           m_size(0),
@@ -210,7 +210,7 @@ public:
     /** Performs a deep copy of the other tree.
         \note O(N Log(N))
     */
-    inline BinarySearchTree(const BinarySearchTree<T, KeyType> &o)
+    BinarySearchTree(const BinarySearchTree<T, KeyType> &o)
         :root(NULL),
           m_size(0),
           f_cmp(o.f_cmp),
@@ -223,13 +223,13 @@ public:
             ++iter;
         }
     }
-    inline BinarySearchTree<T, KeyType> &operator =(const BinarySearchTree<T, KeyType> &o){
+    BinarySearchTree<T, KeyType> &operator =(const BinarySearchTree<T, KeyType> &o){
         Clear();
         new(this) BinarySearchTree<T, KeyType>(o);
         return *this;
     }
 
-    inline ~BinarySearchTree(){ Clear(); }
+    ~BinarySearchTree(){ Clear(); }
     
     
     /** Declares base functionality for both const and non-const iterators. */
@@ -243,46 +243,46 @@ public:
                     ((m_begin == 0 && m_end == 0) || (o.m_begin == 0 && o.m_end == 0) ||
                      (m_begin == o.m_begin && m_end == o.m_end)));
         }
-        inline bool operator != (const iterator_base &o) const{ return !(*this == o); }
+        bool operator != (const iterator_base &o) const{ return !(*this == o); }
 
         /** Returns true if the iterator points to a valid element. */
-        inline operator bool() const{ return current; }
+        operator bool() const{ return current; }
 
         /** Dereference the iterator and return a reference to the data. */
-        inline const T &operator*() const { return current->Data; }
+        const T &operator*() const { return current->Data; }
         /** Dereference the iterator and return a pointer to the data. */
-        inline const T *operator->() const { return &current->Data; }
+        const T *operator->() const { return &current->Data; }
 
         /** Dereference the iterator and return a reference to the data.
             \warning Be careful not to modify the key data!
         */
-        inline T &operator*(){ return current->Data; }
+        T &operator*(){ return current->Data; }
         /** Dereference the iterator and return a pointer to the data.
             \warning Be careful not to modify the key data!
         */
-        inline T *operator->(){ return &current->Data; }
+        T *operator->(){ return &current->Data; }
 
         /** Manipulates the iterator manually, moving it to its right-child.
             This is useful for iterating breadth-first.
         */
-        inline void MoveRight(){
+        void MoveRight(){
             m_parent = current;
             current = current->RChild;
         }
-        inline bool CanMoveRight() const{ return current ? (bool)current->RChild : false; }
+        bool CanMoveRight() const{ return current ? (bool)current->RChild : false; }
         /** Manipulates the iterator manually, moving it to its left-child.
             This is useful for iterating breadth-first.
         */
-        inline void MoveLeft(){
+        void MoveLeft(){
             m_parent = current;
             current = current->LChild;
         }
-        inline bool CanMoveLeft() const{ return current ? (bool)current->LChild : false; }
-        inline void MoveUp(){
+        bool CanMoveLeft() const{ return current ? (bool)current->LChild : false; }
+        void MoveUp(){
             current = m_parent;
             m_parent = current->Parent;
         }
-        inline bool CanMoveUp() const{ return m_parent; }
+        bool CanMoveUp() const{ return m_parent; }
 
     protected:
 
@@ -293,9 +293,9 @@ public:
 
         node *m_parent;
 
-        inline iterator_base(node *n = 0)
+        iterator_base(node *n = 0)
             :current(n), m_begin(0), m_end(0), m_parent(0){}
-        inline iterator_base(const iterator_base &o)
+        iterator_base(const iterator_base &o)
             :current(o.current), m_begin(o.m_begin), m_end(o.m_end), m_parent(o.m_parent){}
 
         /** Advance the iterator.  Does nothing if you can't advance. */
@@ -368,27 +368,27 @@ public:
         friend class BinarySearchTree;
     public:
 
-        inline iterator(){}
-        inline iterator(const iterator_base &o) :iterator_base(o){}
+        iterator(){}
+        iterator(const iterator_base &o) :iterator_base(o){}
 
-        inline iterator &operator =(const iterator_base &o){ new(this) iterator(o); }
+        iterator &operator =(const iterator_base &o){ new(this) iterator(o); }
 
         /** Prefix ++.  \note O(1) */
-        inline iterator &operator ++(){ this->advance(); return *this; }
+        iterator &operator ++(){ this->advance(); return *this; }
 
         /** Postfix ++.  \note O(1) */
-        inline iterator operator ++(int){ iterator ret(*this); this->advance(); return ret; }
+        iterator operator ++(int){ iterator ret(*this); this->advance(); return ret; }
 
         /** Prefix --.  \note O(1) */
-        inline iterator &operator --(){ this->retreat(); return *this; }
+        iterator &operator --(){ this->retreat(); return *this; }
 
         /** Postfix --.  \note O(1) */
-        inline iterator operator --(int){ iterator ret(*this); this->retreat(); return ret; }
+        iterator operator --(int){ iterator ret(*this); this->retreat(); return ret; }
 
 
     protected:
 
-        inline iterator(node *n) :iterator_base(n) {}
+        iterator(node *n) :iterator_base(n) {}
 
     };
 
@@ -399,27 +399,27 @@ public:
         friend class BinarySearchTree;
     public:
 
-        inline const_iterator(){}
-        inline const_iterator(const iterator_base &o) :iterator_base(o){}
+        const_iterator(){}
+        const_iterator(const iterator_base &o) :iterator_base(o){}
 
-        inline const_iterator &operator =(const const_iterator &o){ new(this) const_iterator(o); }
+        const_iterator &operator =(const const_iterator &o){ new(this) const_iterator(o); }
 
         /** Prefix ++.  \note O(1) */
-        inline const_iterator &operator ++(){ this->advance(); return *this; }
+        const_iterator &operator ++(){ this->advance(); return *this; }
 
         /** Postfix ++.  \note O(1) */
-        inline const_iterator operator ++(int){ const_iterator ret(*this); this->advance(); return ret; }
+        const_iterator operator ++(int){ const_iterator ret(*this); this->advance(); return ret; }
 
         /** Prefix --.  \note O(1) */
-        inline const_iterator &operator --(){ this->retreat(); return *this; }
+        const_iterator &operator --(){ this->retreat(); return *this; }
 
         /** Postfix --.  \note O(1) */
-        inline const_iterator operator --(int){ const_iterator ret(*this); this->retreat(); return ret; }
+        const_iterator operator --(int){ const_iterator ret(*this); this->retreat(); return ret; }
 
 
     protected:
 
-        inline const_iterator(node *n) :iterator_base(n) {}
+        const_iterator(node *n) :iterator_base(n) {}
 
     };
 
@@ -434,13 +434,13 @@ public:
         \returns True if item removed
         \note O(log(N))
     */
-    inline void Remove(const T &object){ _remove( Search(object).current ); }
+    void Remove(const T &object){ _remove( Search(object).current ); }
 
     /** Removes the object from the tree.  Does nothing if object not in the tree.
         \returns True if item removed
         \note O(log(N))
     */
-    inline void Remove(const iterator &iter){ _remove(iter.current); }
+    void Remove(const iterator &iter){ _remove(iter.current); }
 
     /** Removes all items in the tree
         \note O(N)
@@ -520,61 +520,61 @@ public:
     }
 
     /** Returns an iterator starting at the root of the tree. */
-    inline iterator Root(){ return root; }
+    iterator Root(){ return root; }
     /** Returns an iterator starting at the root of the tree. */
-    inline const_iterator Root() const{ return root; }
+    const_iterator Root() const{ return root; }
 
     /** A convenience function which returns if the object exists in the tree.
         \note O(log(N))
     */
-    inline bool Contains(const T &object) const{ return Search(object); }
+    bool Contains(const T &object) const{ return Search(object); }
 
     /** Returns how many items are in the BST */
-    inline GUINT32 Size() const{ return m_size; }
+    GUINT32 Size() const{ return m_size; }
 
 
     /** Returns an iterator starting at the first element in the tree.
         \note O(1)
     */
-    inline iterator begin(){ return iterator(_first()); }
-    inline const_iterator begin() const{ return iterator(_first()); }
+    iterator begin(){ return iterator(_first()); }
+    const_iterator begin() const{ return iterator(_first()); }
 
     /** Returns an iterator starting at the end of the tree.
         \note O(1)
     */
-    inline const_iterator end() const{ return Size() > 0 ? ++const_iterator(_last()) : const_iterator(); }
+    const_iterator end() const{ return Size() > 0 ? ++const_iterator(_last()) : const_iterator(); }
 
     /** Returns an iterator starting at the end of the tree.
         \note O(1)
     */
-    inline iterator end(){ return Size() > 0 ? ++iterator(_last()) : iterator(); }
+    iterator end(){ return Size() > 0 ? ++iterator(_last()) : iterator(); }
 
     /** Returns an iterator starting at the last element in the tree.
         \note O(1)
     */
-    inline const_iterator rbegin() const{ return Size() > 0 ? const_iterator(_last()) : const_iterator(); }
+    const_iterator rbegin() const{ return Size() > 0 ? const_iterator(_last()) : const_iterator(); }
 
     /** Returns an iterator starting at the last element in the tree.
         \note O(1)
     */
-    inline iterator rbegin(){ return Size() > 0 ? iterator(_last()) : iterator(); }
+    iterator rbegin(){ return Size() > 0 ? iterator(_last()) : iterator(); }
 
     /** Returns an iterator starting before the first element in the tree.
         \note O(1)
     */
-    inline const_iterator rend() const{ return Size() > 0 ? --const_iterator(_first()) : const_iterator(); }
+    const_iterator rend() const{ return Size() > 0 ? --const_iterator(_first()) : const_iterator(); }
 
     /** Returns an iterator starting before the first element in the tree.
         \note O(1)
     */
-    inline iterator rend(){ return Size() > 0 ? --iterator(_first()) : iterator(); }
+    iterator rend(){ return Size() > 0 ? --iterator(_first()) : iterator(); }
 
 
     /** Returns the least element in the tree.  Throws an exception
         if there are no items in the tree
         \note O(1)
     */
-    inline const T &Min() const{
+    const T &Min() const{
         if(Size() == 0)
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return _first()->Data;
@@ -584,7 +584,7 @@ public:
         if there are no items in the tree.
         \note O(1)
     */
-    inline const T &Max() const{
+    const T &Max() const{
         if(Size() == 0)
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return _last()->Data;
@@ -595,7 +595,7 @@ public:
         This function works in linear O(N) time, so with it you can sort a collection of items
         in O(log(N)) time simply by inserting them all into the BST, and then calling SortedList().
     */
-    inline Vector<T> SortedList() const{
+    Vector<T> SortedList() const{
         Vector<T> ret(m_size);
         G_FOREACH_CONST(const T &item, *this)
             ret.PushBack(item);
@@ -607,8 +607,8 @@ private:
 
     void _remove(node *);
 
-    inline node *_first() const{ return root ? root->LeftmostChild : 0; }
-    inline node *_last() const{ return root ? root->RightmostChild : 0; }
+    node *_first() const{ return root ? root->LeftmostChild : 0; }
+    node *_last() const{ return root ? root->RightmostChild : 0; }
 
     static void _cleanup_memory(node *n)
     {
@@ -619,7 +619,7 @@ private:
         delete n;
     }
 
-    inline void _update_root_node()
+    void _update_root_node()
     {
         node *n(root);
         while(n && (n = n->Parent)) root = n;
