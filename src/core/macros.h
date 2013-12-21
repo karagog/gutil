@@ -217,8 +217,8 @@ protected: \
 */
 #define GUTIL_DISABLE_COPY(cls) \
     private: \
-        cls(const cls &){} \
-        cls &operator =(const cls &){return *this;}
+        cls(const cls &); \
+        cls &operator =(const cls &);
 
 
 /** Declares a class to be static, by making the assignment operator,
@@ -240,9 +240,17 @@ protected: \
         cls(){}
 
 
-#ifndef NULL
-    #define NULL ((void *)0)
+/** A Macro that removes the warning from unused variables. */
+#define GUTIL_UNUSED(x) (void)x;
+
+
+#ifdef NULL
+    #undef NULL
 #endif
+
+/** Defines the constant NULL as 0. */
+#define NULL 0
+
 
 
 

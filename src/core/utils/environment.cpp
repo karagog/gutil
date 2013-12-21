@@ -20,12 +20,14 @@ limitations under the License.*/
 #endif
 
 #include "environment.h"
+USING_NAMESPACE_GUTIL1(DataObjects);
 
-USING_NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL1(Utils);
 
-std::string Environment::Username()
+
+String Environment::Username()
 {
-    std::string ret;
+    String ret;
 
 #ifdef _WIN32
 
@@ -53,3 +55,6 @@ std::string Environment::Username()
 
     return ret;
 }
+
+
+END_NAMESPACE_GUTIL1

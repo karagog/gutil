@@ -1150,6 +1150,17 @@ char String::HexToChar(char c)
 END_NAMESPACE_GUTIL1;
 
 
+bool operator == (const char *c, const GUtil::DataObjects::String &s)
+{
+    return s == c;
+}
+
+bool operator != (const char *c, const GUtil::DataObjects::String &s)
+{
+    return s != c;
+}
+
+
 GUtil::DataObjects::String operator + (const char *c, const GUtil::DataObjects::String &s)
 {
     GUINT32 sz( strlen(c) );

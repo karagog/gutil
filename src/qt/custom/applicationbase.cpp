@@ -50,11 +50,15 @@ void ApplicationBase::handle_exception(const Exception<> &ex)
         throw ex;
 }
 
+
+#ifdef GUTIL_STL
 void ApplicationBase::handle_std_exception(const std::exception &ex)
 {
     if(!GetTrapExceptions())
         throw ex;
 }
+#endif
+
 
 void ApplicationBase::handle_os_signal(int){}
 
@@ -68,41 +72,52 @@ void ApplicationBase::_handle_os_signal(int sig_num)
 
 
 
+// Define OS-specific function implementations:
+
+#ifdef Q_OS_LINUX
+
 bool ApplicationBase::HandleSignalFromOS(int sig_num)
 {
     bool ret = false;
-
-#ifdef Q_OS_LINUX
     if(SIG_ERR != signal(sig_num, &ApplicationBase::_handle_os_signal))
         ret = true;
-#endif
-
     return ret;
 }
 
 bool ApplicationBase::IgnoreSignalFromOS(int sig_num)
 {
     bool ret = false;
-
-#ifdef Q_OS_LINUX
     if(SIG_ERR != signal(sig_num, SIG_IGN))
         ret = true;
-#endif
-
     return ret;
 }
 
 bool ApplicationBase::RestoreDefaultSignalFromOS(int sig_num)
 {
     bool ret = false;
-
-#ifdef Q_OS_LINUX
     if(SIG_ERR != signal(sig_num, SIG_DFL))
         ret = true;
-#endif
-
     return ret;
 }
+
+#else  // No OS signals functionality
+
+bool ApplicationBase::HandleSignalFromOS(int)
+{
+    return false;
+}
+
+bool ApplicationBase::IgnoreSignalFromOS(int)
+{
+    return false;
+}
+
+bool ApplicationBase::RestoreDefaultSignalFromOS(int)
+{
+    return false;
+}
+
+#endif
 
 
 END_NAMESPACE_GUTIL2;

@@ -54,9 +54,13 @@ bool Application::notify(QObject *o, QEvent *ev)
     catch(const Exception<> &ex){
         handle_exception(ex);
     }
+
+#   ifdef GUTIL_STL
     catch(const std::exception &ex){
         handle_std_exception(ex);
     }
+#   endif
+
     return ret;
 }
 

@@ -53,6 +53,9 @@ public:
 
     /** Lines up the widgets and spaces them evenly across the screen.
 
+        \param wl The list of widgets to aligna
+        \param horizontally Determines whether to align the windows horizontally
+
         \todo Implement this function when you actually want to use it.
     */
     static void AlignWidgets(const QList<QWidget *>&,

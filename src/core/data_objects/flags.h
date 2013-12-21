@@ -118,7 +118,7 @@ END_NAMESPACE_GUTIL1;
     \param enum_type The name of the enum that you wish to turn into flags
 */
 #define GUTIL_DECLARE_FLAG_OPERATORS(flags_name, enum_type) \
-    static flags_name operator | (enum_type e1, enum_type e2){ \
+    static inline flags_name operator | (enum_type e1, enum_type e2){ \
         flags_name ret; \
         ret.SetFlag(e1, true); ret.SetFlag(e2, true); \
         return ret; \

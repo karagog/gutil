@@ -127,7 +127,7 @@ public:
             Remove(indx);
     }
 
-    int Count() const{ return _collection.Count(); }
+    int Count() const{ return _collection.Length(); }
     int Size() const{ return Count(); }
 
     bool Contains(const T &i) const{ return -1 != IndexOf(i); }
@@ -213,32 +213,32 @@ protected:
     /** Called before an item is added.  You may change or validate this item.
         If you throw an exception, the adding will be prevented
     */
-    virtual void pre_add(T &item, int indx){}
+    virtual void pre_add(T &item, int indx){ GUTIL_UNUSED(item); GUTIL_UNUSED(indx); }
 
     /** Called after an item is added.  You may change this item, but validation
         must be done in the pre_add function.
     */
-    virtual void post_add(T &item, int indx){}
+    virtual void post_add(T &item, int indx){ GUTIL_UNUSED(item); GUTIL_UNUSED(indx); }
 
     /** Called before an item is removed.  You may change or validate this item's removal.
         If you throw an exception, the removal will be prevented
     */
-    virtual void pre_remove(T &item, int indx){}
+    virtual void pre_remove(T &item, int indx){ GUTIL_UNUSED(item); GUTIL_UNUSED(indx); }
 
     /** Called after an item is removed.  You are only given a copy of
         the value of the object, as it once existed in the collection,
         but now this item has been removed, so we only have a copy.
     */
-    virtual void post_remove(const T &removed_item, int indx){}
+    virtual void post_remove(const T &removed_item, int indx){ GUTIL_UNUSED(removed_item); GUTIL_UNUSED(indx); }
 
     /** Called before an item is changed.  You may validate the change
         and prevent it by throwing an exception.
     */
-    virtual void pre_item_changed(const T &value_before, const T &new_value, int indx){}
+    virtual void pre_item_changed(const T &value_before, const T &new_value, int indx){ GUTIL_UNUSED(value_before); GUTIL_UNUSED(new_value); GUTIL_UNUSED(indx); }
 
     /** Called after an item is changed.  You may update the new value if you wish.
     */
-    virtual void post_item_changed(const T &value_before, T &new_value, int indx){}
+    virtual void post_item_changed(const T &value_before, T &new_value, int indx){ GUTIL_UNUSED(value_before); GUTIL_UNUSED(new_value); GUTIL_UNUSED(indx); }
 
     /** Friends use this accessor function to get at the values without using
         an ItemReference.

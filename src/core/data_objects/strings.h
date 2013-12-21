@@ -885,9 +885,10 @@ END_NAMESPACE_GUTIL1;
 
 
 /** A convenience operator allows you to compare with const char * as a lhs value. */
-bool operator == (const char *c, const GUtil::DataObjects::String &s){ return s == c; }
+bool operator == (const char *c, const GUtil::DataObjects::String &s);
+
 /** A convenience operator allows you to compare with const char * as a lhs value. */
-bool operator != (const char *c, const GUtil::DataObjects::String &s){ return s != c; }
+bool operator != (const char *c, const GUtil::DataObjects::String &s);
 
 /** A convenience operator that allows you to create strings with the + operator. */
 GUtil::DataObjects::String operator + (const char *, const GUtil::DataObjects::String &);

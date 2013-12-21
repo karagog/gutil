@@ -290,6 +290,8 @@ public:
         :DatabaseParametersBase(p)
     {}
 
+    virtual ~DatabaseSelectionParameters(){}
+
 
 protected:
 
@@ -315,6 +317,8 @@ public:
     DatabaseValueParameters(const DatabaseParametersBase &p)
         :DatabaseParametersBase(p)
     {}
+
+    virtual ~DatabaseValueParameters() {}
 
 
 protected:

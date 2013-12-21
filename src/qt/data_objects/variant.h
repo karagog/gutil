@@ -31,6 +31,11 @@ limitations under the License.*/
 #include <QByteArray>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QString>
+
+#ifdef GUTIL_STL
+#include <string>
+#endif
 
 NAMESPACE_GUTIL2(QT, DataObjects);
 
@@ -47,7 +52,6 @@ public:
     Variant() {}
     Variant(const QVariant &i) :QVariant(i) {}
     Variant(Type i) :QVariant(i) {}
-    Variant(const std::string &i) :QVariant(QString::fromStdString(i)) {}
     Variant(const QString &i) :QVariant(i) {}
     Variant(const QByteArray &i) :QVariant(i) {}
     Variant(const QChar &i) :QVariant(i) {}
@@ -72,6 +76,10 @@ public:
     Variant(const QVariantList &i) :QVariant(i) {}
     Variant(const QVariantMap &i) :QVariant(i) {}
     Variant(const QUuid &i) :QVariant(qVariantFromValue(i)) {}
+
+#   ifdef GUTIL_STL
+    Variant(const std::string &i) :QVariant(QString::fromStdString(i)) {}
+#   endif
     
     /** Destructs the Variant. */
     virtual ~Variant();

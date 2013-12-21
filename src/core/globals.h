@@ -386,7 +386,7 @@ template <class T> static T Max(const T &one, const T &two){
     Use this version to copy by bytes; this is not efficient for large memory blocks.
     \sa gSwapWord32
 */
-static void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
+static inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     GBYTE *b1(reinterpret_cast<GBYTE *>(one));
     GBYTE *b2(reinterpret_cast<GBYTE *>(two));
     while(--size_in_bytes >= 0){
@@ -400,7 +400,7 @@ static void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     large memory blocks to swap.
     \sa gSwapByte, gSwapWord64
 */
-static void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
+static inline void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
     GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
     while(--size_in_ints >= 0){
@@ -414,7 +414,7 @@ static void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     large memory blocks to swap.
     \sa gSwapByte, gSwapWord32
 */
-static void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
+static inline void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     GUINT64 *b1(reinterpret_cast<GUINT64 *>(one));
     GUINT64 *b2(reinterpret_cast<GUINT64 *>(two));
     while(--size_in_ints >= 0){
@@ -427,7 +427,7 @@ static void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     Use this version to automatically run the function that is most appropriate,
     given whether the size is a multiple of four.
 */
-static void gSwap(void *one, void *two, GINT32 size_in_bytes)
+static inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
 {
     if(size_in_bytes & 0b0011)
         // If the size is not a multiple of 4
@@ -441,7 +441,7 @@ static void gSwap(void *one, void *two, GINT32 size_in_bytes)
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
     \note Takes 2 instructions to generate.
 */
-static GUINT32 GEN_BITMASK_32(int n)
+static inline GUINT32 GEN_BITMASK_32(int n)
 {
     return (((GUINT32) 1) << (n + 1)) - 1;
 }
@@ -449,7 +449,7 @@ static GUINT32 GEN_BITMASK_32(int n)
 
 
 /** Truncate the left n bits of the word. */
-static GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
+static inline GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
 {
     // If we're a multiple of 32 then it doesn't actually shift us, so we return 0
     return (!n || (n & 31)) ?

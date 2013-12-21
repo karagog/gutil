@@ -68,10 +68,13 @@ public:
     }
 protected:
     virtual void pre_add(DataColumn &item, int indx){
+        GUTIL_UNUSED(indx);
         if(Contains(item))
             THROW_NEW_GUTIL_EXCEPTION2(ValidationException, String::Format("The column key '%s' is already in the table", item.GetKey().ConstData()));
     }
     virtual void pre_item_changed(const DataColumn &value_before, const DataColumn &new_value, int indx){
+        GUTIL_UNUSED(value_before);
+        GUTIL_UNUSED(indx);
         if(Contains(new_value))
             THROW_NEW_GUTIL_EXCEPTION2(ValidationException,
                                        String::Format("The column key '%s' is already in the table", new_value.GetKey().ConstData()));
@@ -156,7 +159,7 @@ protected:
         ResizableCollection<T>::Resize(num_cols);
     }
 
-    virtual void pre_item_changed(const T &value_before, const T &new_value, int indx){
+    virtual void pre_item_changed(const T &, const T &, int){
         MakeDirty();
     }
 
@@ -562,7 +565,7 @@ public:
 
 protected:
 
-    virtual void pre_add(Utils::SharedSmartPointer<DataRow<T> > &item, int indx){
+    virtual void pre_add(Utils::SharedSmartPointer<DataRow<T> > &item, int){
         // Can do some validation on the row if you wish
         MakeDirty();
         item->SetTable(this);
