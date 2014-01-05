@@ -143,7 +143,7 @@ public:
 };
 
 // Instantiate the initializer class, which takes care of library init/takedown
-static LOADER LDR;
+static LOADER __ldr;
 
 
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)

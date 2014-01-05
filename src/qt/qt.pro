@@ -13,7 +13,7 @@ QT += sql
 QT += network
 #DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
 
-#DEFINES += DEBUG
+DEFINES += DEBUG
 
 # So we can interface our core classes more easily with Qt
 DEFINES += QT_ADAPTERS
@@ -40,3 +40,9 @@ include(logging/logging.pri)
 include(business_objects/business_objects.pri)
 include(controls/controls.pri)
 include(images/images.pri)
+
+SOURCES += \
+    qt_globals.cpp
+
+HEADERS += \
+    qt_globals.h
