@@ -53,7 +53,7 @@ void File::Open(OpenModeEnum e)
 
     m_handle = fopen(m_filename, options);
     if(!m_handle)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to open file");
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Unable to open file: '%s'", m_filename.ConstData()));
 }
 
 void File::Close()
