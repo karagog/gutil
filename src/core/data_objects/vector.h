@@ -300,7 +300,7 @@ public:
     const T &Front() const{ return *ConstData(); }
 
     /** Returns the item at the front of the vector. */
-    T &Front(){ *Data(); }
+    T &Front(){ return *Data(); }
 
     /** Convenient operator that appends to the end of the vector, and returns a reference to this. */
     VectorImp<T> &operator << (const T &item){ PushBack(item); return *this; }
