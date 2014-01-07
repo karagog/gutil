@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include <QContextMenuEvent>
 
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL2(QT, ModelViews);
 
 
 void TreeView::ExpandToIndex(const QModelIndex &ind)
