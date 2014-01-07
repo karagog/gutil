@@ -51,16 +51,6 @@ class Id
 
 public:
 
-    /** A convenience function that initializes the RNG, in case it needs to be.
-
-        You must call this before using any Id object, because the RNG is used
-        to generate its value.
-
-        You can call this function as many times as you want, but it must be called
-        at least once before you start using Id's!
-    */
-    static void InitializeRNG(){ ::GUtil::Utils::RNG::Initialize(); }
-
     /** Constructs a null Id, which has all bytes set to 0. */
     Id(){ Clear(); }
 
