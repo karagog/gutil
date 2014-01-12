@@ -245,6 +245,18 @@ public:
 };
 
 
+/** Create a static instance of this in any library making use of the RNG
+ *  to make sure that it is properly initialized and ready for use.
+ *
+ *  \example static RNG_Initializer __rng_init;
+*/
+class RNG_Initializer
+{
+public:
+    inline RNG_Initializer(){ RNG::Initialize(); }
+};
+
+
 END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_RNG_H

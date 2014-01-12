@@ -123,16 +123,16 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
     developers.  You should not have to modify it in any way for your daily
     programming needs.
 */
-class LOADER
+class LOADER :
+
+        // Initialize the RNG
+        public ::GUtil::Utils::RNG_Initializer
 {
 public:
 
     /** Any library initialization code gets executed when the library is loaded. */
     LOADER(){
         GDEBUG("Initializing GUtil Core Library...");
-
-        // Initialize the RNG
-        ::GUtil::Utils::RNG::Initialize();
     }
 
     /** Any library cleanup code gets executed when the library is unloaded. */
