@@ -42,10 +42,7 @@ protected:
     /** Displays a modal dialog box with the title and message, with the
         appropriate severity.
     */
-    virtual void log_protected(const DataObjects::String &message,
-                               const DataObjects::String &title,
-                               MessageLevelEnum ml,
-                               time_t);
+    virtual void log_protected(const LoggingData &);
 
 };
 

@@ -22,21 +22,18 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 NAMESPACE_GUTIL2(QT, Logging);
 
 
-void MessageBoxLogger::log_protected(const String &message,
-                                     const String &title,
-                                     MessageLevelEnum ml,
-                                     time_t)
+void MessageBoxLogger::log_protected(const LoggingData &d)
 {
-    switch(ml)
+    switch(d.MessageLevel)
     {
     case MessageLevel_Info:
-        QMessageBox::information(m_parent, title.ToQString(), message.ToQString());
+        QMessageBox::information(m_parent, d.Title.ToQString(), d.Message.ToQString());
         break;
     case MessageLevel_Warning:
-        QMessageBox::warning(m_parent, title.ToQString(), message.ToQString());
+        QMessageBox::warning(m_parent, d.Title.ToQString(), d.Message.ToQString());
         break;
     case MessageLevel_Error:
-        QMessageBox::critical(m_parent, title.ToQString(), message.ToQString());
+        QMessageBox::critical(m_parent, d.Title.ToQString(), d.Message.ToQString());
         break;
     default:
         THROW_NEW_GUTIL_EXCEPTION( NotImplementedException );
