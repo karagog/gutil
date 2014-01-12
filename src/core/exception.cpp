@@ -19,21 +19,41 @@ limitations under the License.*/
 
 NAMESPACE_GUTIL
 
-BaseException::BaseException(const char *name, const char *message, const char *file, int line)
-    :m_message(0), What(name), File(file), Line(line)
+static void __allocate_and_copy_string(char const *source, char **target)
 {
-    if(message){
-        m_message = (char *)malloc(1 + strlen(message));
-        strcpy(m_message, message);
-    }
+    *target = (char *)malloc(1 + strlen(source));
+    strcpy(*target, source);
+}
+
+
+BaseException::BaseException(const char *name, const char *message, const char *file, int line)
+    :m_what(NULL), m_file(NULL), m_message(NULL), m_line(line)
+{
+    if(name)
+        __allocate_and_copy_string(name, &m_what);
+    if(file)
+        __allocate_and_copy_string(file, &m_file);
+    if(message)
+        __allocate_and_copy_string(message, &m_message);
 }
 
 BaseException::BaseException(const BaseException &o)
-    :m_message(0), What(o.What), File(o.File), Line(o.Line)
+    :m_what(NULL), m_file(NULL), m_message(NULL), m_line(o.Line())
 {
-    if(o.m_message){
-        m_message = (char *)malloc(1 + strlen(o.m_message));
-        strcpy(m_message, o.m_message);
+    if(o.What())
+        __allocate_and_copy_string(o.What(), &m_what);
+    if(o.File())
+        __allocate_and_copy_string(o.File(), &m_file);
+    if(o.Message())
+        __allocate_and_copy_string(o.Message(), &m_message);
+}
+
+void __setExceptionFileAndLineInfo(BaseException &ex, const char *file, int line)
+{
+    ex.m_line = line;
+    if(file){
+        free(ex.m_file);
+        __allocate_and_copy_string(file, &ex.m_file);
     }
 }
 
@@ -47,6 +67,28 @@ BaseException &BaseException::operator = (const BaseException &o)
 BaseException::~BaseException()
 {
     free(m_message);
+    free(m_file);
+    free(m_what);
+}
+
+const char *BaseException::What() const
+{
+    return m_what;
+}
+
+const char *BaseException::File() const
+{
+    return m_file;
+}
+
+int BaseException::Line() const
+{
+    return m_line;
+}
+
+const char *BaseException::Message() const
+{
+    return m_message;
 }
 
 

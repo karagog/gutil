@@ -76,11 +76,11 @@ void AbstractLogger::LogException(const Exception<false> &ex)
             }
         }
 
-        d.Message = String::Format("%s%s", ex.GetMessage(), data_string.ConstData());
+        d.Message = String::Format("%s%s", ex.Message(), data_string.ConstData());
         d.Title = String::Format("%s caught from line %d of file '%s'%s:",
-                                 ex.What ? ex.What : "[ null ]",
-                                 ex.Line,
-                                 ex.File ? ex.File : "[ no file ]",
+                                 ex.What() ? ex.What() : "[ null ]",
+                                 ex.Line(),
+                                 ex.File() ? ex.File() : "[ no file ]",
                                  ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : "");
         this->Log(d);
 
@@ -89,11 +89,11 @@ void AbstractLogger::LogException(const Exception<false> &ex)
     }
     else
     {
-        d.Message = ex.GetMessage() ? ex.GetMessage() : "";
+        d.Message = ex.Message() ? ex.Message() : "";
         d.Title = String::Format("%s caught from line %d of file '%s':",
-                                 ex.What ? ex.What : "[ null ]",
-                                 ex.Line,
-                                 ex.File ? ex.File : "[ no file ]");
+                                 ex.What() ? ex.What() : "[ null ]",
+                                 ex.Line(),
+                                 ex.File() ? ex.File() : "[ no file ]");
         this->Log(d);
     }
 }

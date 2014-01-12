@@ -63,7 +63,12 @@ NAMESPACE_GUTIL
 */
 class BaseException
 {
-    char *m_message;
+    char *m_what, *m_file, *m_message;
+    int m_line;
+
+    /** We allow this function to manipulate the file and line info for this class. */
+    friend void __setExceptionFileAndLineInfo(BaseException &, const char *, int);
+
 public:
 
     /** Use this constructor to inject more information in your exception. */
@@ -75,22 +80,22 @@ public:
     /** The name of the exception, injected by the constructor.
         \note You should check that it's non-zero before using.
     */
-    const char *What;
+    const char *What() const;
 
     /** You can pass the preprocessor macro __FILE__ into the constructor and it
         will be stored here.
         \note You should check that it's non-zero before using.
     */
-    const char *File;
+    const char *File() const;
 
     /** You can pass the preprocessor macro __LINE__ into the constructor and it
         will be stored here.
         \note Will be -1 if not specified
     */
-    int Line;
+    int Line() const;
 
     /** You can include a null-terminated message with the exception. */
-    const char *GetMessage() const{ return m_message; }
+    const char *Message() const;
 
     /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
         This will allow you to dynamic_cast a reference to an Exception as a different
@@ -197,10 +202,14 @@ GUTIL_EXCEPTION_DECLARE( InvalidStateTransitionException );
 
 
 
+/** This friend of the exception class is used to override the file and line
+ *  info for an exception after instantiation.  You should use the
+*/
+void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
+
 /** Use this convenient macro to insert the file/line data in the exception */
 #define THROW_GUTIL_EXCEPTION( except ) \
-    except.File = __FILE__; \
-    except.Line = __LINE__; \
+    ::GUtil::__setExceptionFileAndLineInfo(except, __FILE__, __LINE__); \
     throw except
 
 /** Use this convenient macro to instantiate an exception of the specified type,
