@@ -376,11 +376,13 @@ template <class T> static T Max(const T &one, const T &two){
 #define G_FOREVER           for(;;)
 
 
-/** Swap values in memory without using a temporary variable.
+/** Swap values in memory without using a temporary variable.  This only works
+    if the data is binary-movable.
+    
     \note This doesn't work when the two arguments share the same memory location.
     \note This evaluates to three processor instructions.
 */
-#define GUTIL_SWAP(a, b)        (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+#define GUTIL_SWAP_INPLACE(a, b)        (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
 
 /** Swaps the values of locations of memory, without using a temporary variable.
     Use this version to copy by bytes; this is not efficient for large memory blocks.
@@ -390,7 +392,7 @@ static inline void gSwapByte(void *one, void *two, GINT32 size_in_bytes){
     GBYTE *b1(reinterpret_cast<GBYTE *>(one));
     GBYTE *b2(reinterpret_cast<GBYTE *>(two));
     while(--size_in_bytes >= 0){
-        GUTIL_SWAP(*b1, *b2);
+        GUTIL_SWAP_INPLACE(*b1, *b2);
         ++b1, ++b2;
     }
 }
@@ -404,7 +406,7 @@ static inline void gSwapWord32(void *one, void *two, GINT32 size_in_ints){
     GUINT32 *b1(reinterpret_cast<GUINT32 *>(one));
     GUINT32 *b2(reinterpret_cast<GUINT32 *>(two));
     while(--size_in_ints >= 0){
-        GUTIL_SWAP(*b1, *b2);
+        GUTIL_SWAP_INPLACE(*b1, *b2);
         ++b1, ++b2;
     }
 }
@@ -418,7 +420,7 @@ static inline void gSwapWord64(void *one, void *two, GINT64 size_in_ints){
     GUINT64 *b1(reinterpret_cast<GUINT64 *>(one));
     GUINT64 *b2(reinterpret_cast<GUINT64 *>(two));
     while(--size_in_ints >= 0){
-        GUTIL_SWAP(*b1, *b2);
+        GUTIL_SWAP_INPLACE(*b1, *b2);
         ++b1, ++b2;
     }
 }
@@ -434,6 +436,18 @@ static inline void gSwap(void *one, void *two, GINT32 size_in_bytes)
         gSwapByte(one, two, size_in_bytes);
     else
         gSwapWord32(one, two, size_in_bytes >> 2);
+}
+
+
+/** A templated version of gSwap with a more "traditional" implementation
+    that uses a temp variable to copy.
+*/
+template<class T>
+static inline void gSwap(T *one, T *two)
+{
+    T bkp(*one);
+    *one = *two;
+    *two = bkp;
 }
 
 

@@ -36,38 +36,22 @@ NAMESPACE_GUTIL1(DataObjects);
     with these values via the Capacity(), Length() and DataEnd() functions.  If you
     have a pointer to an array of data managed by a VectorImp, then you can use the
     static versions of these functions to access this meta-data.
-
-    \note The size of a VectorImp on the stack is only 4 bytes, the same as an int or
-    a pointer.  This was a design choice, to allocate the necessary meta-data
-    at runtime only when you actually start putting things in the vector.
 */
 template<class T>class VectorImp
 {
-    /** The layout of the data pointer is as follows:
-     *  {
-     *                  GUINT32 capacity;
-     *                  GUINT32 size;
-     *      m_data ->   T array[size];
-     *  }
-     *
-     *  So the pointer is actually pointing to the start of the array, and the size/capacity memory
-     *  is just before the pointer.  This is an optimization, based on the assumption that the most-often
-     *  referenced data will be the array pointer.
-     *
-     *  The size of the memory on the heap is  (2 * sizeof(GUINT32)) + (capacity * sizeof(T))
-    */
-    void *m_data;
+    GUINT32 m_capacity, m_size;
+    T *m_data;
 
 public:
     class iterator;
     class const_iterator;
 
     /** Constructs an empty vector. */
-    VectorImp() :m_data(NULL) {}
+    inline VectorImp() :m_capacity(0), m_size(0), m_data(NULL) {}
 
     /** Constructs an empty vector capable of holding the given number of items. */
     explicit VectorImp(GUINT32 capacity)
-        :m_data(NULL)
+        :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(0 < capacity)
             Reserve(capacity);
@@ -76,7 +60,7 @@ public:
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
     explicit VectorImp(const T &o, GUINT32 size = 1)
-        :m_data(NULL)
+        :m_capacity(0), m_size(0), m_data(NULL)
     {
         Reserve(size);
         set_length(size);
@@ -88,7 +72,7 @@ public:
 
     /**  Constructs a vector from the array of data. */
     VectorImp(T const*arr, GUINT32 size)
-        :m_data(NULL)
+        :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(size > 0)
         {
@@ -106,7 +90,7 @@ public:
     */
     VectorImp(const typename VectorImp<T>::const_iterator &iter_begin,
                         const typename VectorImp<T>::const_iterator &iter_end)
-        :m_data(NULL)
+        :m_capacity(0), m_size(0), m_data(NULL)
     {
         const GUINT32 sz( iter_end - iter_begin );
         if(sz > 0)
@@ -119,7 +103,7 @@ public:
 
     /** The copy constructor conducts a deep copy, invoking the copy constructors on each item. */
     VectorImp(const VectorImp<T> &o)
-        :m_data(NULL)
+        :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(0 < o.Capacity())
         {
@@ -134,7 +118,7 @@ public:
         }
     }
 
-    ~VectorImp(){ Clear(); }
+    inline ~VectorImp(){ Clear(); }
 
     /** Assignment operator invokes our copy constructor after clearing the container. */
     VectorImp &operator = (const VectorImp<T> &o){
@@ -429,7 +413,7 @@ public:
             }
         }
 
-        const GUINT32 new_size_in_bytes(sizeof(GUINT32) + sizeof(GUINT32) + new_capacity * sizeof(T));
+        const GUINT32 new_size_in_bytes(new_capacity * sizeof(T));
         const GUINT32 length_bak = Length();
 
         if(0 < new_capacity)
@@ -438,53 +422,53 @@ public:
             {
                 // As an optimization for primitive types (ones that are not affected by binary moves)
                 //  we call realloc, because a hidden memory relocation doesn't affect our type.
-                void *tmp = realloc(m_data ? reinterpret_cast<GBYTE *>(m_data) - 2 * sizeof(GUINT32) : NULL, new_size_in_bytes);
+                m_data = (T*)realloc(m_data, new_size_in_bytes);
 
-                if(NULL == tmp)
+                if(NULL == m_data)
                     THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
-
-                m_data = reinterpret_cast<GBYTE *>(tmp) + 2 * sizeof(GUINT32);
             }
             else
             {
                 // Have to manually reallocate and call the copy constructors, because a complex
                 //  type may be dependent on their memory locations (self-pointers are one example)
                 T *backup( Data() );
-                void *new_data( malloc(new_size_in_bytes) );
+                T *new_data( (T*)malloc(new_size_in_bytes) );
 
                 if(NULL == new_data)
                     THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
 
-                new_data = reinterpret_cast<GBYTE *>(new_data) + 2 * sizeof(GUINT32);
-                T *cur( reinterpret_cast<T *>(new_data) );
                 if(backup)
                 {
-                    // Copy the items from the backup copy to the new vector
-                    for(GUINT32 i(0); i < Length(); ++i)
-                        new(cur++) T(*(backup + i));
+                    // Iterate through the old and new vectors
+                    for(T *targ(new_data), *src(backup), *src_end(DataEnd());
+                            src != src_end;
+                            ++targ, ++src)
+                    {
+                        // Copy the items from the backup copy to the new vector
+                        new(targ) T(*src);
+                        
+                        // Have to destruct the items from the original vector
+                        src->~T();
+                    }
 
-                    // Have to destruct the items from the backup vector
-                    for(GUINT32 i(0); i < Length(); ++i)
-                        (backup++)->~T();
-
-                    free(reinterpret_cast<GBYTE *>(m_data) - 2 * sizeof(GUINT32));
+                    // Then release the memory from the backup vector
+                    free(backup);
                 }
 
                 m_data = new_data;
             }
 
             // Initialize the meta-data at the newly allocated pointer
-            *_length() = length_bak;
-            *_capacity() = new_capacity;
+            m_size = length_bak;
+            m_capacity = new_capacity;
         }
         else
         {
             // Free the pointer because 0 capacity was requested
-            if(m_data)
-            {
-                free(reinterpret_cast<GBYTE *>(m_data) - 2 * sizeof(GUINT32));
-                m_data = NULL;
-            }
+            free(m_data);
+            m_data = NULL;
+            m_size = 0;
+            m_capacity = 0;
         }
     }
 
@@ -531,7 +515,9 @@ public:
         \note Checks the index and throws an exception if it is out of bounds
     */
     T &At(GUINT32 i){
-        return const_cast<T &>(const_cast<VectorImp<T> const *>(this)->At(i));
+        if(i >= Length())
+            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        return Data()[i];
     }
 
     /** Accesses the data at the given index.
@@ -545,24 +531,22 @@ public:
 
 
     /** Returns a pointer to the start of the array. */
-    T *Data(){ return const_cast<T *>(ConstData()); }
+    inline T *Data(){ return m_data; }
 
     /** Returns a pointer to the start of the array. */
-    T const *ConstData() const{ return reinterpret_cast<T const *>(m_data); }
+    inline T const *ConstData() const{ return m_data; }
 
     /** Returns a pointer to the end of the vector, which is 1 past
         the last item in the vector.  Do not dereference this pointer, it
         is only to allow quick iteration through the list.
     */
-    T *DataEnd(){ return const_cast<T *>(ConstDataEnd()); }
+    inline T *DataEnd(){ return m_data ? m_data + m_size : NULL; }
 
     /** Returns a pointer to the end of the vector, which is 1 past
         the last item in the vector.  Do not dereference this pointer, it
         is only to allow quick iteration through the list.
     */
-    T const *ConstDataEnd() const{
-        return ConstData() ? ConstData() + *_length() : NULL;
-    }
+    inline T const *ConstDataEnd() const{ return m_data ? m_data + m_size : NULL; }
 
     /** Clears all items and frees all memory. */
     void Clear(){ ReserveExactly(0); }
@@ -582,12 +566,10 @@ public:
     }
 
     /** The current length of the vector. */
-    GUINT32 Length() const{
-        return m_data ? *_length() : 0;
-    }
+    inline GUINT32 Length() const{ return m_size; }
 
     /** How many items of type T we are capable of holding. */
-    GUINT32 Capacity() const{ return m_data ? *_capacity() : 0; }
+    inline GUINT32 Capacity() const{ return m_capacity; }
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
@@ -635,7 +617,7 @@ public:
     }
 
     /** Returns true if we hold a matching item */
-    bool Contains(const T &i) const{ return UINT_MAX != IndexOf(i); }
+    inline bool Contains(const T &i) const{ return UINT_MAX != IndexOf(i); }
 
     /** Sorts the vector using the given sorting algorithm.
 
@@ -693,11 +675,13 @@ public:
         iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
         iterator &operator +=(GUINT32 n){ current += n; return *this; }
         iterator operator +(GUINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
+        iterator operator +(GINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
 
         iterator &operator --(){ --current; return *this; }
         iterator operator --(int){ iterator ret(*this); --current; return ret;}
         iterator &operator -=(GUINT32 n){ current -= n; return *this; }
         iterator operator -(GUINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
+        iterator operator -(GINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
         GUINT32 operator - (const iterator &other) const{
@@ -777,15 +761,15 @@ public:
         operator bool() const{ return current && m_begin <= current && current < m_end;; }
     };
 
-    iterator begin(){ return iterator(Data(), DataEnd(), Data()); }
-    const_iterator begin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData()); }
-    iterator end(){ return iterator(Data(), DataEnd(), DataEnd()); }
-    const_iterator end() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd()); }
+    inline iterator begin(){ return iterator(Data(), DataEnd(), Data()); }
+    inline const_iterator begin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData()); }
+    inline iterator end(){ return iterator(Data(), DataEnd(), DataEnd()); }
+    inline const_iterator end() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd()); }
 
-    iterator rbegin(){ return iterator(Data(), DataEnd(), DataEnd() - 1); }
-    const_iterator rbegin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd() - 1); }
-    iterator rend(){ return iterator(Data(), DataEnd(), Data() - 1); }
-    const_iterator rend() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData() - 1); }
+    inline iterator rbegin(){ return iterator(Data(), DataEnd(), DataEnd() - 1); }
+    inline const_iterator rbegin() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstDataEnd() - 1); }
+    inline iterator rend(){ return iterator(Data(), DataEnd(), Data() - 1); }
+    inline const_iterator rend() const{ return const_iterator(ConstData(), ConstDataEnd(), ConstData() - 1); }
 
     /** Returns true if the vectors are equal.
         VectorImp equality is established by checking each individual element from
@@ -820,18 +804,18 @@ public:
     */
     bool operator != (const VectorImp<T> &o) const{ return !operator == (o); }
 
-    /** Does a constant-time data swap between vectors.
+    /** Does a constant-time data swap between vectors, without allocating
+        any temporary variables.
 
-        After calling this, lhs will own rhs' data, and vice versa.  It is
-        simply a pointer swap.
+        After calling this, lhs will own rhs' data, and vice versa.
 
         \note After calling, all iterators for both vectors will still be valid,
         they will only reference the opposite VectorImp's data.
     */
     static void Swap(VectorImp<T> &lhs, VectorImp<T> &rhs){
-        void *tmp( lhs.m_data );
-        lhs.m_data = rhs.m_data;
-        rhs.m_data = tmp;
+        gSwap(&lhs.m_data, &rhs.m_data);
+        GUTIL_SWAP_INPLACE(lhs.m_capacity, rhs.m_capacity);
+        GUTIL_SWAP_INPLACE(lhs.m_size, rhs.m_size);
     }
 
 
@@ -842,16 +826,12 @@ protected:
         have a vector of more complex classes then some of their destructors may not get called.
         \note You must have already allocated the data pointer, otherwise this will dereference a null pointer.
     */
-    void set_length(GUINT32 len){ *_length() = len; }
+    inline void set_length(GUINT32 len){ m_size = len; }
 
 
 private:
 
     static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
-
-    // Be careful when calling these; they do not check if the pointer is valid
-    GUINT32 *_length() const{ return reinterpret_cast<GUINT32 *>(m_data) - 1; }
-    GUINT32 *_capacity() const{ return reinterpret_cast<GUINT32 *>(m_data) - 2; }
 
     void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const Interfaces::IComparer<T> &cmp){
         GUINT32 diff( e - b );
