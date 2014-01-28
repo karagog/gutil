@@ -83,10 +83,13 @@ public:
     /** Access the pointer's member functions */
     T *operator ->(){ return ptr; }
 
-    /** Cast operator to the naked pointer */
-    operator T *() const{ return ptr; }
+    /** Cast operator to the naked pointer.
+     *  It is implemented using static_cast, so you can cast to some other pointer types.
+    */
+    template<class U>inline operator U *() const{ return static_cast<U *>(ptr); }
+
     /** Cast operator to a bool, telling you if you're null or not (false => NULL) */
-    operator bool() const{ return ptr; }
+    operator bool() const{ return NULL != ptr; }
 
     /** Returns true if the pointer is NULL */
     bool IsNull() const{ return !operator bool(); }
