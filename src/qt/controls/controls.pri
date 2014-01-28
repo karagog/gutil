@@ -4,9 +4,14 @@ HEADERS += \
     controls/filechooser.h \
     controls/lineeditwithbutton.h \
     controls/stopwatch.h \
-    controls/timerangepicker.h
+    controls/timerangepicker.h \
+    controls/selecttimerange.h
 SOURCES += \
     controls/progressbarcontrol.cpp \
     controls/lineeditwithbutton.cpp \
     controls/stopwatch.cpp \
-    controls/timerangepicker.cpp
+    controls/timerangepicker.cpp \
+    controls/selecttimerange.cpp
+
+FORMS += \
+    controls/selecttimerange.ui
