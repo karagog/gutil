@@ -23,10 +23,15 @@ NAMESPACE_GUTIL1(Utils);
 /** A class to declare helpful atomic operations, implemented in assembly. */
 class AtomicInt
 {
+    GINT32 m_value;
 public:
 
-    /** Constructs the atomic int and initializes it to 0. */
+    /** Constructs the atomic int with initial value 0. */
     AtomicInt() :m_value(0){}
+
+    /** Constructs the atomic int with the given initial value. */
+    AtomicInt(GINT32 i) :m_value(i){}
+    
     AtomicInt(const AtomicInt &i) :m_value(i.Value()){}
 
     /** The integer's current value. */
@@ -53,17 +58,12 @@ public:
     GINT32 AddAndFetch(GINT32 n);
 
 
-    bool operator == (GINT32 v) const{ return m_value == v; }
-    bool operator != (GINT32 v) const{ return m_value != v; }
+    inline bool operator == (GINT32 v) const{ return m_value == v; }
+    inline bool operator != (GINT32 v) const{ return m_value != v; }
 
     AtomicInt &operator = (GINT32 i){ m_value = i; return *this; }
 
-    operator GINT32() const{ return m_value; }
-
-
-private:
-
-    GINT32 m_value;
+    inline operator GINT32() const{ return m_value; }
 
 };
 

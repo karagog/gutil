@@ -22,28 +22,37 @@ limitations under the License.*/
 namespace GUtil{ namespace QT{ namespace DataAccess{
 
 
+/** Implements an IODevice that listens and writes to the console on a 
+    background thread.  It emits a signal asynchronously when data is ready
+    on the console.  So you can use this class as an asynchronous
+    Human Interface Device.
+    
+    You may only instantiate one of these per process.  Trying to instantiate
+    a second one will throw an exception from the constructor.
+*/
 class ConsoleIODevice :
         public IODevice
 {
     Q_OBJECT
 public:
 
-    explicit ConsoleIODevice(QObject *parent = 0);
-    virtual ~ConsoleIODevice();
-
-    void Engage(){ SetEngaged(true); }
-    void Disengage(){ SetEngaged(false); }
-
-    bool IsEngaged() const{ return _engaged; }
+    /** Constructor for the ConsoleIODevice.  This will throw an exception if
+        you have already instantiated one.
+    */
+    ConsoleIODevice();
+    ~ConsoleIODevice();
 
 
 public slots:
 
+    /** Writes a line of data asynchronously to the console.  That means that the
+        function returns immediately after queuing the data to be written on
+        the background thread.
+    */
     void WriteLine(const QString &);
+    
+    /** Reads a line from the console. */
     QString ReadLine();
-
-    /** Stops/starts the object from listening to cin/cout */
-    void SetEngaged(bool);
 
 
 protected:
@@ -58,20 +67,6 @@ protected:
         This thread's code is inside here
     */
     virtual void run();
-
-
-private:
-
-    QQueue<QString> _messages_received;
-    QMutex _messages_lock;
-
-    // Only one of these objects can interface with the console
-    static QMutex global_console_mutex;
-
-    bool _engaged;
-    void _fail_if_not_initialized();
-
-    bool _has_data_available_locked() const;
 
 };
 

@@ -15,48 +15,31 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include "gutil_consoleiodevice.h"
 #include "gutil_console.h"
+#include "gutil_atomic.h"
 #include <stdio.h>
 USING_NAMESPACE_GUTIL1(DataAccess);
+USING_NAMESPACE_GUTIL1(Utils);
 
 NAMESPACE_GUTIL2(QT, DataAccess);
 
 
-QMutex ConsoleIODevice::global_console_mutex;
+// This is used to guarantee that only one ConsoleIODevice per process can be used
+static AtomicInt __global_console_lock(1);
+
+static QMutex _messages_lock;
+static QQueue<QString> _messages_received;
 
 ConsoleIODevice::ConsoleIODevice(QObject *parent)
     :IODevice(parent)
 {
-    _engaged = false;
-
-    Engage();
+    if(__global_console_lock.Decrement())
+        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException, 
+            "You have already instantiated one of these");
 }
 
 ConsoleIODevice::~ConsoleIODevice()
 {
-    Disengage();
-}
-
-void ConsoleIODevice::SetEngaged(bool engage)
-{
-    if(engage)
-    {
-        if(_engaged)
-            return;
-
-        _engaged = global_console_mutex.tryLock();
-        start();
-    }
-    else
-    {
-        if(!_engaged)
-            return;
-
-        terminate();
-        wait();
-
-        _engaged = false;
-        global_console_mutex.unlock();
-    }
+    __global_console_lock.Increment();
 }
 
 bool ConsoleIODevice::has_data_available()
@@ -64,7 +47,7 @@ bool ConsoleIODevice::has_data_available()
     bool ret;
     _messages_lock.lock();
     {
-        ret = _has_data_available_locked();
+        ret = _messages_received.length() > 0;
     }
     _messages_lock.unlock();
     return ret;
@@ -72,7 +55,7 @@ bool ConsoleIODevice::has_data_available()
 
 bool ConsoleIODevice::_has_data_available_locked() const
 {
-    return _messages_received.length() > 0;
+    return ;
 }
 
 void ConsoleIODevice::run()
@@ -81,8 +64,10 @@ void ConsoleIODevice::run()
 
     while(true)
     {
+        // The call to getchar() blocks until data has been read
         char c = getchar();
 
+        // If we detect an end line
         if(c == '\n')
         {
             _messages_lock.lock();
@@ -94,8 +79,12 @@ void ConsoleIODevice::run()
             raiseReadyRead();
             buf.clear();
         }
-        else if(c == (char)8)   // erase if the user pressed backspace
+
+        // erase if the user pressed backspace
+        else if(c == (char)8)
             buf.chop(1);
+            
+        // If it's not a special character then append it to the buffer
         else
             buf.append(c);
     }
@@ -129,18 +118,11 @@ QByteArray ConsoleIODevice::receive_data()
     QByteArray ret;
     _messages_lock.lock();
     {
-        if(_has_data_available_locked())
+        if(_messages_received.length() > 0)
             ret = _messages_received.dequeue().toAscii();
     }
     _messages_lock.unlock();
     return ret;
-}
-
-void ConsoleIODevice::_fail_if_not_initialized()
-{
-    if(!_engaged)
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   "The console is already in use");
 }
 
 
