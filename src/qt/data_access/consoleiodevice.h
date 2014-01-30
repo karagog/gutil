@@ -16,8 +16,6 @@ limitations under the License.*/
 #define GUTIL_CONSOLEIODEVICE_H
 
 #include "iodevice.h"
-#include <QMutex>
-#include <QQueue>
 
 namespace GUtil{ namespace QT{ namespace DataAccess{
 
@@ -39,8 +37,11 @@ public:
     /** Constructor for the ConsoleIODevice.  This will throw an exception if
         you have already instantiated one.
     */
-    ConsoleIODevice();
+    ConsoleIODevice(QObject * = 0);
     ~ConsoleIODevice();
+
+    /** Reads a line from the console. */
+    QString ReadLine();
 
 
 public slots:
@@ -50,23 +51,20 @@ public slots:
         the background thread.
     */
     void WriteLine(const QString &);
-    
-    /** Reads a line from the console. */
-    QString ReadLine();
 
 
 protected:
 
-    // Just reads/writes to stdin/out
     virtual void send_data(const QByteArray &);
     virtual QByteArray receive_data();
 
     bool has_data_available();
 
-    /** We continually read cin on a separate thread.
-        This thread's code is inside here
-    */
-    virtual void run();
+
+private:
+
+    void _send_worker();
+    void _receive_worker();
 
 };
 

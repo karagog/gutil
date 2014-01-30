@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,31 +12,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <QtCore/QCoreApplication>
 #include "console_repeater.h"
+#include <QCoreApplication>
 
-// A simple program that repeats everything you give it on stdin out to stdout
-int main(int argc, char *argv[])
+console_repeater::console_repeater(QObject *parent)
+    :QObject(parent)
 {
-    QCoreApplication a(argc, argv);
+    connect(&_cio, SIGNAL(ReadyRead()), this, SLOT(new_data()));
+    connect(this, SIGNAL(repeat(QString)), &_cio, SLOT(WriteLine(QString)));
+}
 
-//    {
-//        // Try to instantiate two: It doesn't work!
-//        console_repeater();
-//    }
-
-    console_repeater c(&a);
-    return a.exec();
-
-//    ConsoleIODevice c;
-//    while(true)
-//    {
-//        QString tmp;
-//        c>>tmp;
-
-//        if(tmp == "quit")
-//            break;
-
-//        c<<tmp<<"\n";
-//    }
+void console_repeater::new_data()
+{
+    QString s( _cio.ReadLine() );
+    if(s == "q")
+        qApp->quit();
+    else
+        emit repeat( s );
 }

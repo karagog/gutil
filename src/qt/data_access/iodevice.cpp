@@ -14,27 +14,22 @@ limitations under the License.*/
 
 #include "iodevice.h"
 #include <QWaitCondition>
+#include <QMetaType>
 USING_NAMESPACE_GUTIL1(DataObjects);
 
 NAMESPACE_GUTIL2(QT, DataAccess);
 
 
 IODevice::IODevice(QObject *parent)
-    :QThread(parent),
-    _p_Identity(QUuid::createUuid())
+    :QObject(parent),
+      _p_Identity(QUuid::createUuid())
 {
     // So you can pass QUuid's through signals and slots
     qRegisterMetaType<QUuid>("QUuid");
 }
 
 IODevice::~IODevice()
-{
-    if(isRunning())
-    {
-        terminate();
-        wait();
-    }
-}
+{}
 
 void IODevice::SendData(const QByteArray &data)
 {

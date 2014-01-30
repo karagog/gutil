@@ -15,50 +15,60 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include "gutil_consoleiodevice.h"
 #include "gutil_console.h"
-#include "gutil_atomic.h"
-#include <stdio.h>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QQueue>
+#include <QtConcurrentRun>
 USING_NAMESPACE_GUTIL1(DataAccess);
 USING_NAMESPACE_GUTIL1(Utils);
 
 NAMESPACE_GUTIL2(QT, DataAccess);
 
 
-// This is used to guarantee that only one ConsoleIODevice per process can be used
-static AtomicInt __global_console_lock(1);
-
-static QMutex _messages_lock;
-static QQueue<QString> _messages_received;
-
-ConsoleIODevice::ConsoleIODevice(QObject *parent)
-    :IODevice(parent)
+struct __console_io_data_t
 {
-    if(__global_console_lock.Decrement())
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException, 
-            "You have already instantiated one of these");
-}
+    static QMutex global_lock;
 
-ConsoleIODevice::~ConsoleIODevice()
-{
-    __global_console_lock.Increment();
-}
+    static QMutex receive_lock;
+    static QQueue<QString> receive_queue;
 
-bool ConsoleIODevice::has_data_available()
+    static QMutex send_lock;
+    static QWaitCondition send_condition;
+    static QQueue<QByteArray> send_queue;
+
+    static bool initialized;
+
+} __console_io_data;
+
+QMutex __console_io_data_t::global_lock;
+QMutex __console_io_data_t::receive_lock;
+QMutex __console_io_data_t::send_lock;
+QWaitCondition __console_io_data_t::send_condition;
+QQueue<QString> __console_io_data_t::receive_queue;
+QQueue<QByteArray> __console_io_data_t::send_queue;
+bool __console_io_data_t::initialized(false);
+
+
+
+void ConsoleIODevice::_send_worker()
 {
-    bool ret;
-    _messages_lock.lock();
+    while(true)
     {
-        ret = _messages_received.length() > 0;
+        // Wait here for data to be queued for sending
+        __console_io_data.send_lock.lock();
+        while(__console_io_data.send_queue.isEmpty())
+            __console_io_data.send_condition.wait(&__console_io_data.send_lock);
+
+        // Dequeue some data from the send queue and relinquish the lock while we write
+        QByteArray b( __console_io_data.send_queue.dequeue() );
+        __console_io_data.send_lock.unlock();
+
+        // Write the data to console:
+        Console::Write(b.constData());
     }
-    _messages_lock.unlock();
-    return ret;
 }
 
-bool ConsoleIODevice::_has_data_available_locked() const
-{
-    return ;
-}
-
-void ConsoleIODevice::run()
+void ConsoleIODevice::_receive_worker()
 {
     QString buf;
 
@@ -70,11 +80,11 @@ void ConsoleIODevice::run()
         // If we detect an end line
         if(c == '\n')
         {
-            _messages_lock.lock();
+            __console_io_data.receive_lock.lock();
             {
-                _messages_received.enqueue(buf);
+                __console_io_data.receive_queue.enqueue(buf);
             }
-            _messages_lock.unlock();
+            __console_io_data.receive_lock.unlock();
 
             raiseReadyRead();
             buf.clear();
@@ -83,11 +93,55 @@ void ConsoleIODevice::run()
         // erase if the user pressed backspace
         else if(c == (char)8)
             buf.chop(1);
-            
+
         // If it's not a special character then append it to the buffer
         else
             buf.append(c);
     }
+}
+
+
+
+
+ConsoleIODevice::ConsoleIODevice(QObject *parent)
+    :IODevice(parent)
+{
+    bool initialized;
+    __console_io_data.global_lock.lock();
+    {
+        if(!(initialized = __console_io_data.initialized))
+        {
+            // Once we set this to 'initialized', it is never unset.  Thus preventing
+            //  another instantiation within this program.
+            __console_io_data.initialized = true;
+        }
+    }
+    __console_io_data.global_lock.unlock();
+
+    if(initialized)
+        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException, 
+                                   "You have already instantiated one of these. "
+                                   " This class was intended only to be instantiated once in"
+                                   " an application, and never destructed until the app closes."
+                                   );
+
+    // Start the send/receive workers
+    QtConcurrent::run(this, &ConsoleIODevice::_send_worker);
+    QtConcurrent::run(this, &ConsoleIODevice::_receive_worker);
+}
+
+ConsoleIODevice::~ConsoleIODevice()
+{}
+
+bool ConsoleIODevice::has_data_available()
+{
+    bool ret;
+    __console_io_data.receive_lock.lock();
+    {
+        ret = __console_io_data.receive_queue.length() > 0;
+    }
+    __console_io_data.receive_lock.unlock();
+    return ret;
 }
 
 void ConsoleIODevice::WriteLine(const QString &data)
@@ -108,20 +162,23 @@ QString ConsoleIODevice::ReadLine()
 
 void ConsoleIODevice::send_data(const QByteArray &d)
 {
-    _fail_if_not_initialized();
-
-    Console::Write(d);
+    __console_io_data.send_lock.lock();
+    {
+        __console_io_data.send_queue.enqueue(d);
+    }
+    __console_io_data.send_lock.unlock();
+    __console_io_data.send_condition.wakeOne();
 }
 
 QByteArray ConsoleIODevice::receive_data()
 {
     QByteArray ret;
-    _messages_lock.lock();
+    __console_io_data.receive_lock.lock();
     {
-        if(_messages_received.length() > 0)
-            ret = _messages_received.dequeue().toAscii();
+        if(!__console_io_data.receive_queue.isEmpty())
+            ret = __console_io_data.receive_queue.dequeue().toAscii();
     }
-    _messages_lock.unlock();
+    __console_io_data.receive_lock.unlock();
     return ret;
 }
 
