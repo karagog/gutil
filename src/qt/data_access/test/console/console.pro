@@ -14,12 +14,11 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../../../.. ../../..
-LIBS += -L../../../../lib -lGUtil
+INCLUDEPATH += ../../../../../include
+LIBS += -L../../../../../lib -lGUtil -lGUtilQt
 
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 SOURCES += main.cpp
 
-HEADERS += \
-    receiver_T.h
+HEADERS +=

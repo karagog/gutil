@@ -1,4 +1,4 @@
-/*Copyright 2010 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,30 +12,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef RECEIVER_T_H
-#define RECEIVER_T_H
+#ifndef CONSOLE_REPEATER_H
+#define CONSOLE_REPEATER_H
 
+#include "gutil_consoleiodevice.h"
 #include <QObject>
-#include <QCoreApplication>
-#include "DataAccess/gconsoleiodevice.h"
 
-extern GUtil::DataAccess::GConsoleIODevice *ct;
-
-class receiver_t : public QObject
+class console_repeater : public QObject
 {
     Q_OBJECT
+
+    GUtil::QT::DataAccess::ConsoleIODevice _cio;
+
 public:
-    receiver_t():QObject(){}
-    virtual ~receiver_t(){}
+
+    explicit console_repeater(QObject *parent = 0);
+
+
+signals:
+
+    void repeat(const QString &);
+
 
 public slots:
-    void user_entered_data()
-    {
-        QString line = ct->ReadLine();
-        ct->WriteLine(QString("You just entered \"%1\"\n").arg(line));
-        if(line.length() == 0 || line == "exit" || line == "quit")
-            QCoreApplication::exit();
-    }
+
+    void new_data();
+
 };
 
-#endif // RECEIVER_T_H
+#endif // CONSOLE_REPEATER_H

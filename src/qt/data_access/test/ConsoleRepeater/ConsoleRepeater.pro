@@ -14,7 +14,13 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../..
-LIBS += -L../../lib -lGUtil
+INCLUDEPATH += ../../../../include
+LIBS += -L../../../../lib \
+    -lGUtil \
+    -lGUtilQt
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    console_repeater.cpp
+
+HEADERS += \
+    console_repeater.h

@@ -19,10 +19,8 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include <QByteArray>
 #include <QMutex>
-#include <QWaitCondition>
-#include <QThread>
 #include <QUuid>
-#include <QMetaType>
+#include <QObject>
 
 namespace GUtil{ namespace QT{ namespace DataAccess{
 
@@ -41,13 +39,14 @@ namespace GUtil{ namespace QT{ namespace DataAccess{
 */
 
 class IODevice :
-
-        // This derives from QThread to enable you to use the thread if you want to,
-        //  but the base implementation does not make use of the thread
-        public QThread,
+        public QObject,
         public GUtil::Interfaces::IReadOnlyObject
 {
     Q_OBJECT
+
+    // Protects us so we can be thread-safe
+    QMutex _this_lock;
+
 public slots:
 
     void SendData(const QByteArray &);
@@ -56,7 +55,7 @@ public slots:
 
 signals:
 
-    // This signal happens when there's new data available
+    /** This signal happens when there's new data available */
     void ReadyRead(const QUuid &identity_of_emitter = QUuid());
 
 
@@ -82,13 +81,16 @@ protected:
 
     explicit IODevice(QObject *parent = 0);
 
-    // Derived classes implement a method to determine if data is available
+    /** Derived classes implement a method to determine if data is available */
     virtual bool has_data_available() = 0;
 
-    // Derived classes must implement these functions
-    //  Note that locking is taken care of by this interface class,
-    //  so you can trust that these are atomic WRT each other
+    /** Derived classes must implement these functions
+      Note that locking is taken care of by this abstract class,
+      so you can trust that these are atomic WRT each other
+    */
     virtual void send_data(const QByteArray&) = 0;
+
+    /** Derived classes implement a function that receives data. */
     virtual QByteArray receive_data() = 0;
 
     // IReadonly interface
@@ -97,14 +99,8 @@ protected:
 
 protected slots:
 
-    // This emits the readyRead signal
+    /** This emits the readyRead signal */
     void raiseReadyRead();
-
-
-private:
-
-    // Protects us so we can be thread-safe
-    QMutex _this_lock;
 
 };
 
