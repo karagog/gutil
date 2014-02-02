@@ -119,7 +119,7 @@ public:
     */
     T &Insert(const T &obj, GUINT32 indx)
     {
-        GASSERT(0 <= indx && indx <= m_size);
+        GASSERT(indx <= m_size);
 
         if((indx + 1) > capacity(m_pageCount))
             Reserve(indx + 1);
