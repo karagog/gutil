@@ -16,6 +16,7 @@ limitations under the License.*/
 #define GUTIL_CONSOLEIODEVICE_H
 
 #include "iodevice.h"
+#include <QFuture>
 
 namespace GUtil{ namespace QT{ namespace DataAccess{
 
@@ -32,6 +33,8 @@ class ConsoleIODevice :
         public IODevice
 {
     Q_OBJECT
+    void *m_receiveWorker;
+    QFuture<void> m_sendWorker;
 public:
 
     /** Constructor for the ConsoleIODevice.  This will throw an exception if
@@ -50,7 +53,7 @@ public slots:
         function returns immediately after queuing the data to be written on
         the background thread.
     */
-    void WriteLine(const QString &);
+    void WriteLine(QString);
 
 
 protected:
@@ -64,7 +67,6 @@ protected:
 private:
 
     void _send_worker();
-    void _receive_worker();
 
 };
 

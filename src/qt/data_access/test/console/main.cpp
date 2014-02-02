@@ -13,22 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QtCore/QCoreApplication>
-#include "gutil.h"
-#include "receiver_T.h"
-using namespace GUtil::DataAccess;
-
-GConsoleIODevice *ct;
-
-receiver_t receiver;
+#include "gutil_consoleiodevice.h"
+USING_NAMESPACE_GUTIL2(QT, DataAccess);
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+    ConsoleIODevice cio;
 
-    ct = new GConsoleIODevice(&a);
+    for(int i = 0; i < 5; ++i)
+        cio.WriteLine(QString("Counting:  %1").arg(i));
 
-    a.connect(ct, SIGNAL(ReadyRead()),
-              &receiver, SLOT(user_entered_data()));
+    // Even though we write this at the end, the console io device is
+    //  writing on a background thread, so this may appear before the
+    //  counting text.  Very cool!
+    printf("Finished Counting\n");
 
-    return a.exec();
+    return 0;
 }
