@@ -5,13 +5,13 @@ HEADERS += \
     controls/lineeditwithbutton.h \
     controls/stopwatch.h \
     controls/timerangepicker.h \
-    controls/selecttimerange.h
+    controls/selectdaterange.h
 SOURCES += \
     controls/progressbarcontrol.cpp \
     controls/lineeditwithbutton.cpp \
     controls/stopwatch.cpp \
     controls/timerangepicker.cpp \
-    controls/selecttimerange.cpp
+    controls/selectdaterange.cpp
 
 FORMS += \
-    controls/selecttimerange.ui
+    controls/selectdaterange.ui

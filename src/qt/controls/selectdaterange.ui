@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SelectTimeRange</class>
- <widget class="QWidget" name="SelectTimeRange">
+ <class>SelectDateRange</class>
+ <widget class="QWidget" name="SelectDateRange">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>441</width>
-    <height>20</height>
+    <height>23</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select Time Range:</string>
+      <string>Select Date Range:</string>
      </property>
     </widget>
    </item>
@@ -87,7 +87,7 @@
   <connection>
    <sender>comboBox</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>SelectTimeRange</receiver>
+   <receiver>SelectDateRange</receiver>
    <slot>_combobox_index_changed(int)</slot>
    <hints>
     <hint type="sourcelabel">

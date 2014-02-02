@@ -25,19 +25,19 @@ class QDateEdit;
 class QDateTimeEdit;
 
 namespace Ui {
-class SelectTimeRange;
+class SelectDateRange;
 }
 
 namespace GUtil{ namespace QT{ namespace Controls{
 
 
 /** Use this control to select a range of time. */
-class SelectTimeRange :
+class SelectDateRange :
         public QWidget
 {
     Q_OBJECT
 
-    Utils::SmartPointer<Ui::SelectTimeRange> ui;
+    Utils::SmartPointer<Ui::SelectDateRange> ui;
 
     Utils::SmartPointer<QDateEdit> m_dateEdit;
 
@@ -47,8 +47,8 @@ class SelectTimeRange :
 
 public:
 
-    explicit SelectTimeRange(QWidget *parent = 0);
-    ~SelectTimeRange();
+    explicit SelectDateRange(QWidget *parent = 0);
+    ~SelectDateRange();
 
     /** Enumerates the indices of the combo box. */
     enum ComboBoxItemEnum
@@ -61,7 +61,16 @@ public:
         Custom = 5
     };
 
-    ::GUtil::DataObjects::Range<QDateTime> GetSelection() const;
+    /** Sets the given combo box selection.  This affects what date ranges are possible. */
+    void SetComboBoxSelection(ComboBoxItemEnum);
+
+    /** Returns the currently selected date range */
+    ::GUtil::DataObjects::Range<QDateTime> GetDateRange() const;
+
+    /** Sets the current date range selection.
+     *  The date range may be adjusted to make sense with the combo box selection.
+    */
+    void SetDateRange(const ::GUtil::DataObjects::Range<QDateTime> &);
 
 
 signals:
