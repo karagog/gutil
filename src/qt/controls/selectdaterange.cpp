@@ -26,51 +26,182 @@ NAMESPACE_GUTIL2(QT, Controls);
 
 
 SelectDateRange::SelectDateRange(QWidget *parent)
-    :QWidget(parent),
-      ui(new Ui::SelectDateRange),
-      m_checkStart(NULL),
-      m_checkEnd(NULL),
-      m_dateTimeStart(NULL),
-      m_dateTimeEnd(NULL)
+    :QWidget(parent)
 {
+    _init(Day);
+}
+
+SelectDateRange::SelectDateRange(ComboBoxItemEnum c, QWidget *parent)
+    :QWidget(parent)
+{
+    _init(c);
+}
+
+void SelectDateRange::_init(ComboBoxItemEnum c)
+{
+    ui = new Ui::SelectDateRange;
+    m_checkStart = NULL;
+    m_checkEnd = NULL;
+    m_dateTimeStart = NULL;
+    m_dateTimeEnd = NULL;
+    m_suppressUpdates = false;
+
     ui->setupUi(this);
 
     (new QVBoxLayout(ui->widget))
             ->setContentsMargins(0, 0, 0, 0);
 
-    _combobox_index_changed(ui->comboBox->currentIndex());
+    SetComboBoxSelection(c);
+    _update_widgets();
 }
 
 SelectDateRange::~SelectDateRange()
 {}
 
-Range<QDateTime> SelectDateRange::GetDateRange() const
+Range<QDate> SelectDateRange::GetDateRange() const
 {
-    Range<QDateTime> r;
-    if(m_customWidget && m_customWidget->isVisible()){
+    return Range<QDate>::CreateDoubleBound(m_dateStart, m_dateEnd, true, false);
+}
+
+void SelectDateRange::_refresh_date_range()
+{
+    if(m_suppressUpdates)
+        return;
+
+    QDate new_start, new_end;
+    switch((ComboBoxItemEnum)ui->comboBox->currentIndex())
+    {
+    case Day:
+        new_start = m_dateEdit->date();
+        new_end = new_start.addDays(1);
+        break;
+    case Week:
+    {
+        QDate d = m_dateEdit->date();
+        new_start = d.addDays(1 - d.dayOfWeek());
+        new_end = new_start.addDays(7);
+    }
+        break;
+    case Month:
+    {
+        QDate d = m_dateEdit->date();
+        new_start = d.addDays(1 - d.day());
+        new_end = new_start.addMonths(1);
+    }
+        break;
+    case Year:
+    {
+        QDate d = m_dateEdit->date();
+        new_start = d.addDays(1 - d.dayOfYear());
+        new_end = new_start.addYears(1);
+    }
+        break;
+    case AllTime:
+        break;
+    case Custom:
         // Grab the range from the custom widget
         if(m_checkStart->isChecked()){
-            r.SetLowerBound(m_dateTimeStart->dateTime());
+            new_start = m_dateTimeStart->date();
         }
         if(m_checkEnd->isChecked()){
-            r.SetUpperBound(m_dateTimeEnd->dateTime());
+            new_end = m_dateTimeEnd->date();
+        }
+        break;
+    default:
+        break;
+    }
+
+
+    if(!(m_dateStart == new_start &&
+         m_dateEnd == new_end))
+    {
+        m_dateStart = new_start;
+        m_dateEnd = new_end;
+
+        emit SelectionChanged(m_dateStart, m_dateEnd);
+    }
+}
+
+void __apply_new_bound(QDate &mem, const Bound<QDate> &b, bool lower_bound)
+{
+    mem = b.Value();
+    if((lower_bound && !b.ValueIncludedInBound()) ||
+            (!lower_bound && b.ValueIncludedInBound()))
+        mem = mem.addDays(1);
+}
+
+void SelectDateRange::SetDateRange(const Range<QDate> &r)
+{
+    QDate new_start, new_end;
+
+    if(!r.LowerBound().Value().isNull()){
+        __apply_new_bound(new_start, r.LowerBound(), true);
+    }
+
+    if(!r.UpperBound().Value().isNull()){
+        __apply_new_bound(new_end, r.UpperBound(), false);
+    }
+
+
+    // Try to apply a logical combo box setting, given the date range.
+    //  i.e. If the range is 1 day, select a day, etc...
+    m_suppressUpdates = true;
+    if(new_start.isNull() && new_end.isNull()){
+        m_dateStart = QDate();
+        m_dateEnd = QDate();
+        SetComboBoxSelection(AllTime);
+    }
+    else if(new_start.isNull() || new_end.isNull()){
+        m_dateStart = new_start;
+        m_dateEnd = new_end;
+        SetComboBoxSelection(Custom);
+        if(m_dateStart.isNull())
+            m_dateTimeEnd->setDate(m_dateEnd);
+        else
+            m_dateTimeStart->setDate(m_dateStart);
+    }
+    else
+    {
+        int days_apart = new_start.daysTo(new_end);
+        if(0 > days_apart)
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "The end date must come after the start");
+
+        m_dateStart = new_start;
+        m_dateEnd = new_end;
+
+        if(1 == days_apart){
+            SetComboBoxSelection(Day);
+            m_dateEdit->setDate(m_dateStart);
+        }
+        else if(7 == days_apart && 1 == m_dateStart.dayOfWeek()){
+            SetComboBoxSelection(Week);
+            m_dateEdit->setDate(m_dateStart);
+        }
+        else if(1 == m_dateStart.day() && 1 == m_dateEnd.day() &&
+                0 == ::GUtil::FuzzyCompare(days_apart, 30, 2))
+        {
+            SetComboBoxSelection(Month);
+            m_dateEdit->setDate(m_dateStart);
+        }
+        else if(1 == m_dateStart.day() && 1 == m_dateEnd.day() &&
+                m_dateEnd.year() == 1 + m_dateStart.year())
+        {
+            SetComboBoxSelection(Year);
+            m_dateEdit->setDate(m_dateStart);
+        }
+        else{
+            SetComboBoxSelection(Custom);
+            m_dateTimeStart->setDate(m_dateStart);
+            m_dateTimeEnd->setDate(m_dateEnd);
         }
     }
-    else{
-
-    }
-    return r;
+    m_suppressUpdates = false;
 }
 
-void SelectDateRange::SetDateRange(const Range<QDateTime> &r)
-{
-
-}
-
-void SelectDateRange::_combobox_index_changed(int ind)
+void SelectDateRange::_update_widgets()
 {
     // Grab the selection so we can restore it after rearranging the layout
-    Range<QDateTime> sel = GetDateRange();
+    int ind = ui->comboBox->currentIndex();
 
     // First update the control layout:
     switch((ComboBoxItemEnum)ind)
@@ -88,6 +219,8 @@ void SelectDateRange::_combobox_index_changed(int ind)
         if(!m_dateEdit){
             m_dateEdit = new QDateEdit;
             m_dateEdit->setCalendarPopup(true);
+            connect(m_dateEdit, SIGNAL(dateTimeChanged(QDateTime)),
+                    this, SLOT(_refresh_date_range()));
             //m_dateEdit->setAlignment(Qt::AlignRight);
         }
 
@@ -113,15 +246,15 @@ void SelectDateRange::_combobox_index_changed(int ind)
             fl->setContentsMargins(0,0,0,0);
 
             m_checkStart = new QCheckBox(tr("Date Start"), m_customWidget);
-            m_checkStart->setChecked(sel.HasLowerBound());
             m_checkEnd = new QCheckBox(tr("Date End"), m_customWidget);
-            m_checkEnd->setChecked(sel.HasUpperBound());
             m_dateTimeStart = new QDateTimeEdit(m_customWidget);
             m_dateTimeStart->setCalendarPopup(true);
-            m_dateTimeStart->setDateTime(sel.LowerBound().Value());
+            connect(m_dateTimeStart, SIGNAL(dateTimeChanged(QDateTime)),
+                    this, SLOT(_refresh_date_range()));
             m_dateTimeEnd = new QDateTimeEdit(m_customWidget);
             m_dateTimeEnd->setCalendarPopup(true);
-            m_dateTimeEnd->setDateTime(sel.UpperBound().Value());
+            connect(m_dateTimeEnd, SIGNAL(dateTimeChanged(QDateTime)),
+                    this, SLOT(_refresh_date_range()));
 
             connect(m_checkStart, SIGNAL(toggled(bool)), m_dateTimeStart, SLOT(setEnabled(bool)));
             connect(m_checkEnd, SIGNAL(toggled(bool)), m_dateTimeEnd, SLOT(setEnabled(bool)));
@@ -145,6 +278,9 @@ void SelectDateRange::_combobox_index_changed(int ind)
 
 
     // Then update the widgets
+    bool already_suppressing = m_suppressUpdates;
+    m_suppressUpdates = true;
+    Range<QDate> sel = GetDateRange();
     switch((ComboBoxItemEnum)ind)
     {
     case Day:
@@ -164,13 +300,21 @@ void SelectDateRange::_combobox_index_changed(int ind)
     case Custom:
         m_dateTimeStart->setDisplayFormat("MMM dd, yyyy");
         m_dateTimeEnd->setDisplayFormat("MMM dd, yyyy");
+
+        m_checkStart->setChecked(sel.HasLowerBound());
+        m_checkEnd->setChecked(sel.HasUpperBound());
+
+        if(!m_dateStart.isNull())
+            m_dateTimeStart->setDate(sel.LowerBound().Value());
+        if(!m_dateEnd.isNull())
+            m_dateTimeEnd->setDate(sel.UpperBound().Value());
         break;
     default:
         break;
     }
+    m_suppressUpdates = already_suppressing;
 
-//    dt_timeSelect.setDisplayFormat("MMM dd, yyyy");
-//    dt_timeSelect.setEnabled(true);
+    _refresh_date_range();
 }
 
 void SelectDateRange::SetComboBoxSelection(ComboBoxItemEnum c)

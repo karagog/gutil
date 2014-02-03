@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_SELECTTIMERANGE_H
-#define GUTIL_SELECTTIMERANGE_H
+#ifndef GUTIL_SELECTDATERANGE_H
+#define GUTIL_SELECTDATERANGE_H
 
 #include "gutil_smartpointer.h"
 #include "gutil_range.h"
@@ -45,10 +45,10 @@ class SelectDateRange :
     QCheckBox *m_checkStart, *m_checkEnd;
     QDateTimeEdit *m_dateTimeStart, *m_dateTimeEnd;
 
-public:
+    QDate m_dateStart, m_dateEnd;
+    bool m_suppressUpdates;
 
-    explicit SelectDateRange(QWidget *parent = 0);
-    ~SelectDateRange();
+public:
 
     /** Enumerates the indices of the combo box. */
     enum ComboBoxItemEnum
@@ -61,16 +61,20 @@ public:
         Custom = 5
     };
 
+    explicit SelectDateRange(QWidget *parent = 0);
+    explicit SelectDateRange(ComboBoxItemEnum, QWidget *parent = 0);
+    ~SelectDateRange();
+
     /** Sets the given combo box selection.  This affects what date ranges are possible. */
     void SetComboBoxSelection(ComboBoxItemEnum);
 
     /** Returns the currently selected date range */
-    ::GUtil::DataObjects::Range<QDateTime> GetDateRange() const;
+    ::GUtil::DataObjects::Range<QDate> GetDateRange() const;
 
     /** Sets the current date range selection.
      *  The date range may be adjusted to make sense with the combo box selection.
     */
-    void SetDateRange(const ::GUtil::DataObjects::Range<QDateTime> &);
+    void SetDateRange(const ::GUtil::DataObjects::Range<QDate> &);
 
 
 signals:
@@ -80,16 +84,25 @@ signals:
      *  The start and the end of the time range are given as parameters, but they may
      *  also be null, thus indicating a boundless range.
     */
-    void SelectionChanged(QDateTime range_start, QDateTime range_end);
+    void SelectionChanged(QDate range_start, QDate range_end);
 
 
 private slots:
 
-    void _combobox_index_changed(int);
+    // This slot is called whenever the combo box changes or when a date edit changes
+    void _update_widgets();
+
+    // Causes the internal date range to be updated from the values in the UI controls
+    void _refresh_date_range();
+
+
+private:
+
+    void _init(ComboBoxItemEnum);
 
 };
 
 
 }}}
 
-#endif // GUTIL_SELECTTIMERANGE_H
+#endif // GUTIL_SELECTDATERANGE_H

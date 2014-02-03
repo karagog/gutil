@@ -10,6 +10,12 @@
     <height>23</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>1</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -88,20 +94,20 @@
    <sender>comboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>SelectDateRange</receiver>
-   <slot>_combobox_index_changed(int)</slot>
+   <slot>_update_widgets()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>11</y>
+     <x>166</x>
+     <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>135</x>
-     <y>13</y>
+     <x>204</x>
+     <y>4</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>_combobox_index_changed(int)</slot>
+  <slot>_update_widgets()</slot>
  </slots>
 </ui>
