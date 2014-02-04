@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QDateEdit>
 #include <QDateTimeEdit>
 #include <QCheckBox>
-#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QFormLayout>
 USING_NAMESPACE_GUTIL1(DataObjects);
 
@@ -40,16 +40,9 @@ SelectDateRange::SelectDateRange(ComboBoxItemEnum c, QWidget *parent)
 void SelectDateRange::_init(ComboBoxItemEnum c)
 {
     ui = new Ui::SelectDateRange;
-    m_checkStart = NULL;
-    m_checkEnd = NULL;
-    m_dateTimeStart = NULL;
-    m_dateTimeEnd = NULL;
     m_suppressUpdates = false;
 
     ui->setupUi(this);
-
-    (new QVBoxLayout(ui->widget))
-            ->setContentsMargins(0, 0, 0, 0);
 
     SetComboBoxSelection(c);
     _update_widgets();
@@ -122,6 +115,7 @@ void SelectDateRange::_refresh_date_range()
     }
 }
 
+// Adjusts the date depending on whether the bound includes the given date
 void __apply_new_bound(QDate &mem, const Bound<QDate> &b, bool lower_bound)
 {
     mem = b.Value();
@@ -211,22 +205,30 @@ void SelectDateRange::_update_widgets()
     case Month:
     case Year:
     case AllTime:
-        if(m_customWidget){
-            ui->widget->layout()->removeWidget(m_customWidget);
-            m_customWidget->hide();
+        if(m_checkStart){
+            ui->gridLayout->removeWidget(m_checkStart);
+            ui->gridLayout->removeWidget(m_checkEnd);
+            ui->gridLayout->removeWidget(m_dateTimeStart);
+            ui->gridLayout->removeWidget(m_dateTimeEnd);
+            m_checkStart->hide();
+            m_checkEnd->hide();
+            m_dateTimeStart->hide();
+            m_dateTimeEnd->hide();
         }
 
         if(!m_dateEdit){
             m_dateEdit = new QDateEdit;
             m_dateEdit->setCalendarPopup(true);
+            QSizePolicy sp;
+            sp.setHorizontalPolicy(QSizePolicy::Expanding);
+            sp.setHorizontalStretch(1);
+            m_dateEdit->setSizePolicy(sp);
             connect(m_dateEdit, SIGNAL(dateTimeChanged(QDateTime)),
                     this, SLOT(_refresh_date_range()));
             //m_dateEdit->setAlignment(Qt::AlignRight);
         }
 
-        ui->widget->layout()->addWidget(m_dateEdit);
-        ui->horizontalLayout->setAlignment(ui->label, Qt::AlignLeft | Qt::AlignHCenter);
-        ui->horizontalLayout->setAlignment(ui->comboBox, Qt::AlignLeft | Qt::AlignHCenter);
+        ui->gridLayout->addWidget(m_dateEdit, 0, 2, 1, 2);
 
         m_dateEdit->setEnabled(AllTime != ind);
         m_dateEdit->show();
@@ -234,24 +236,19 @@ void SelectDateRange::_update_widgets()
         break;
     case Custom:
         if(m_dateEdit){
-            ui->widget->layout()->removeWidget(m_dateEdit);
+            ui->gridLayout->removeWidget(m_dateEdit);
             m_dateEdit->hide();
         }
 
-        if(!m_customWidget)
+        if(!m_checkStart)
         {
-            // Initialize the custom widget
-            m_customWidget = new QWidget;
-            QFormLayout *fl = new QFormLayout(m_customWidget);
-            fl->setContentsMargins(0,0,0,0);
-
-            m_checkStart = new QCheckBox(tr("Date Start"), m_customWidget);
-            m_checkEnd = new QCheckBox(tr("Date End"), m_customWidget);
-            m_dateTimeStart = new QDateTimeEdit(m_customWidget);
+            m_checkStart = new QCheckBox(tr("Date Start"));
+            m_checkEnd = new QCheckBox(tr("Date End"));
+            m_dateTimeStart = new QDateTimeEdit;
             m_dateTimeStart->setCalendarPopup(true);
             connect(m_dateTimeStart, SIGNAL(dateTimeChanged(QDateTime)),
                     this, SLOT(_refresh_date_range()));
-            m_dateTimeEnd = new QDateTimeEdit(m_customWidget);
+            m_dateTimeEnd = new QDateTimeEdit;
             m_dateTimeEnd->setCalendarPopup(true);
             connect(m_dateTimeEnd, SIGNAL(dateTimeChanged(QDateTime)),
                     this, SLOT(_refresh_date_range()));
@@ -259,18 +256,24 @@ void SelectDateRange::_update_widgets()
             connect(m_checkStart, SIGNAL(toggled(bool)), m_dateTimeStart, SLOT(setEnabled(bool)));
             connect(m_checkEnd, SIGNAL(toggled(bool)), m_dateTimeEnd, SLOT(setEnabled(bool)));
 
+            QSizePolicy sp;
+            sp.setHorizontalPolicy(QSizePolicy::Expanding);
+            sp.setHorizontalStretch(1);
+            m_dateTimeStart->setSizePolicy(sp);
+            m_dateTimeEnd->setSizePolicy(sp);
+
             m_checkStart->setChecked(true);
             m_checkEnd->setChecked(true);
-
-            fl->addRow(m_checkStart, m_dateTimeStart);
-            fl->addRow(m_checkEnd, m_dateTimeEnd);
         }
 
-        ui->widget->layout()->addWidget(m_customWidget);
-        ui->horizontalLayout->setAlignment(ui->label, Qt::AlignLeft | Qt::AlignTop);
-        ui->horizontalLayout->setAlignment(ui->comboBox, Qt::AlignLeft | Qt::AlignTop);
-
-        m_customWidget->show();
+        ui->gridLayout->addWidget(m_checkStart, 0, 2);
+        ui->gridLayout->addWidget(m_dateTimeStart, 0, 3, 1, 2);
+        ui->gridLayout->addWidget(m_checkEnd, 1, 2);
+        ui->gridLayout->addWidget(m_dateTimeEnd, 1, 3, 1, 2);
+        m_checkStart->show();
+        m_checkEnd->show();
+        m_dateTimeStart->show();
+        m_dateTimeEnd->show();
         break;
     default:
         break;

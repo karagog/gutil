@@ -41,9 +41,8 @@ class SelectDateRange :
 
     Utils::SmartPointer<QDateEdit> m_dateEdit;
 
-    Utils::SmartPointer<QWidget> m_customWidget;
-    QCheckBox *m_checkStart, *m_checkEnd;
-    QDateTimeEdit *m_dateTimeStart, *m_dateTimeEnd;
+    Utils::SmartPointer<QCheckBox> m_checkStart, m_checkEnd;
+    Utils::SmartPointer<QDateTimeEdit> m_dateTimeStart, m_dateTimeEnd;
 
     QDate m_dateStart, m_dateEnd;
     bool m_suppressUpdates;
