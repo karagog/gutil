@@ -53,7 +53,7 @@ SelectDateRange::~SelectDateRange()
 
 Range<QDate> SelectDateRange::GetDateRange() const
 {
-    return Range<QDate>::CreateDoubleBound(m_dateStart, m_dateEnd, true, false);
+    return Range<QDate>::CreateDoubleBound(m_dateStart, m_dateEnd, true, true);
 }
 
 void SelectDateRange::_refresh_date_range()
@@ -66,27 +66,27 @@ void SelectDateRange::_refresh_date_range()
     {
     case Day:
         new_start = m_dateEdit->date();
-        new_end = new_start.addDays(1);
+        new_end = new_start;
         break;
     case Week:
     {
         QDate d = m_dateEdit->date();
         new_start = d.addDays(1 - d.dayOfWeek());
-        new_end = new_start.addDays(7);
+        new_end = new_start.addDays(6);
     }
         break;
     case Month:
     {
         QDate d = m_dateEdit->date();
         new_start = d.addDays(1 - d.day());
-        new_end = new_start.addMonths(1);
+        new_end = new_start.addMonths(1).addDays(-1);
     }
         break;
     case Year:
     {
         QDate d = m_dateEdit->date();
         new_start = d.addDays(1 - d.dayOfYear());
-        new_end = new_start.addYears(1);
+        new_end = new_start.addYears(1).addDays(-1);
     }
         break;
     case AllTime:
@@ -105,6 +105,7 @@ void SelectDateRange::_refresh_date_range()
     }
 
 
+    // Only update when either value changed
     if(!(m_dateStart == new_start &&
          m_dateEnd == new_end))
     {
@@ -129,11 +130,11 @@ void SelectDateRange::SetDateRange(const Range<QDate> &r)
     QDate new_start, new_end;
 
     if(!r.LowerBound().Value().isNull()){
-        __apply_new_bound(new_start, r.LowerBound(), true);
+        __apply_new_bound(new_start, r.LowerBound(), r.LowerBound().ValueIncludedInBound());
     }
 
     if(!r.UpperBound().Value().isNull()){
-        __apply_new_bound(new_end, r.UpperBound(), false);
+        __apply_new_bound(new_end, r.UpperBound(), r.UpperBound().ValueIncludedInBound());
     }
 
 
@@ -163,22 +164,21 @@ void SelectDateRange::SetDateRange(const Range<QDate> &r)
         m_dateStart = new_start;
         m_dateEnd = new_end;
 
-        if(1 == days_apart){
+        if(0 == days_apart){
             SetComboBoxSelection(Day);
             m_dateEdit->setDate(m_dateStart);
         }
-        else if(7 == days_apart && 1 == m_dateStart.dayOfWeek()){
+        else if(6 == days_apart && 1 == m_dateStart.dayOfWeek()){
             SetComboBoxSelection(Week);
             m_dateEdit->setDate(m_dateStart);
         }
         else if(1 == m_dateStart.day() && 1 == m_dateEnd.day() &&
-                0 == ::GUtil::FuzzyCompare(days_apart, 30, 2))
+                0 == ::GUtil::FuzzyCompare(days_apart, 29, 2))
         {
             SetComboBoxSelection(Month);
             m_dateEdit->setDate(m_dateStart);
         }
-        else if(1 == m_dateStart.day() && 1 == m_dateEnd.day() &&
-                m_dateEnd.year() == 1 + m_dateStart.year())
+        else if(1 == m_dateStart.day() && m_dateEnd == m_dateStart.addYears(1).addDays(-1))
         {
             SetComboBoxSelection(Year);
             m_dateEdit->setDate(m_dateStart);
@@ -253,17 +253,19 @@ void SelectDateRange::_update_widgets()
             connect(m_dateTimeEnd, SIGNAL(dateTimeChanged(QDateTime)),
                     this, SLOT(_refresh_date_range()));
 
+            m_checkStart->setChecked(true);
+            m_checkEnd->setChecked(true);
+
             connect(m_checkStart, SIGNAL(toggled(bool)), m_dateTimeStart, SLOT(setEnabled(bool)));
             connect(m_checkEnd, SIGNAL(toggled(bool)), m_dateTimeEnd, SLOT(setEnabled(bool)));
+            connect(m_checkStart, SIGNAL(toggled(bool)), this, SLOT(_refresh_date_range()));
+            connect(m_checkEnd, SIGNAL(toggled(bool)), this, SLOT(_refresh_date_range()));
 
             QSizePolicy sp;
             sp.setHorizontalPolicy(QSizePolicy::Expanding);
             sp.setHorizontalStretch(1);
             m_dateTimeStart->setSizePolicy(sp);
             m_dateTimeEnd->setSizePolicy(sp);
-
-            m_checkStart->setChecked(true);
-            m_checkEnd->setChecked(true);
         }
 
         ui->gridLayout->addWidget(m_checkStart, 0, 2);
