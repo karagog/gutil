@@ -13,7 +13,7 @@ QT += sql
 QT += network
 #DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
 
-#DEFINES += DEBUG
+DEFINES += DEBUG
 
 # So we can interface our core classes more easily with Qt
 DEFINES += QT_ADAPTERS
