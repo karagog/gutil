@@ -45,6 +45,7 @@ class SelectDateRange :
     Utils::SmartPointer<QDateTimeEdit> m_dateTimeStart, m_dateTimeEnd;
 
     QDate m_dateStart, m_dateEnd;
+    QString m_dayFormat;
     bool m_suppressUpdates;
 
 public:
@@ -64,6 +65,9 @@ public:
     explicit SelectDateRange(ComboBoxItemEnum, QWidget *parent = 0);
     ~SelectDateRange();
 
+    /** Returns the current combo box selection. */
+    ComboBoxItemEnum GetComboBoxSelection() const;
+
     /** Sets the given combo box selection.  This affects what date ranges are possible. */
     void SetComboBoxSelection(ComboBoxItemEnum);
 
@@ -74,6 +78,14 @@ public:
      *  The date range may be adjusted to make sense with the combo box selection.
     */
     void SetDateRange(const ::GUtil::DataObjects::Range<QDate> &);
+
+    /** Returns the current day format. */
+    QString GetDayFormat() const;
+
+    /** Sets the display format for days in the date edits. Use the Qt doc for
+     *  QDateTime::toString() for the proper formatting.
+    */
+    void SetDayFormat(const QString &);
 
 
 signals:
@@ -88,12 +100,14 @@ signals:
 
 private slots:
 
-    // This slot is called whenever the combo box changes or when a date edit changes
-    void _update_widgets();
+    // This slot is called whenever the combo box changes
+    void _combobox_index_changed();
+
+    // This is called whenever one of the date edits was updated
+    void _date_updated();
 
     // Causes the internal date range to be updated from the values in the UI controls
     void _refresh_date_range();
-
 
 private:
 

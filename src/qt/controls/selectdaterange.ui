@@ -90,20 +90,20 @@
    <sender>comboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>SelectDateRange</receiver>
-   <slot>_update_widgets()</slot>
+   <slot>_combobox_index_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>166</x>
-     <y>9</y>
+     <x>276</x>
+     <y>16</y>
     </hint>
     <hint type="destinationlabel">
-     <x>204</x>
-     <y>4</y>
+     <x>221</x>
+     <y>11</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>_update_widgets()</slot>
+  <slot>_combobox_index_changed()</slot>
  </slots>
 </ui>
