@@ -371,6 +371,11 @@ template <class T> static T Max(const T &one, const T &two){
     return one < two ? two : one;
 }
 
+/** Returns 1 if the number is Odd, or 0 if it's even. */
+template<class T> static bool OddOrEven(T number){
+    return number & 1;
+}
+
 
 /** Declares a forever loop. */
 #define G_FOREVER           for(;;)
