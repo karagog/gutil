@@ -803,6 +803,11 @@ public:
         \note O(N)
     */
     bool operator != (const VectorImp<T> &o) const{ return !operator == (o); }
+    
+    /** Casts this to a pointer to the start of the vector. */
+    inline operator T * () { return m_data; }
+    /** Casts this to a pointer to the start of the vector. */
+    inline operator T const * () const { return m_data; }
 
     /** Does a constant-time data swap between vectors, without allocating
         any temporary variables.
