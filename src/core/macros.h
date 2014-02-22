@@ -97,7 +97,8 @@ private: \
     type _p_##name; \
 public: \
     const type &Get##name() const{ return _p_##name; } \
-    void Set##name(const type &value){ _p_##name = value; }
+    void Set##name(const type &value){ _p_##name = value; } \
+    enum{}
 
 
 /** Use this to succinctly declare property accessors to a pointer.
