@@ -56,7 +56,7 @@ public:
      *
      *  True by default.
     */
-    PROPERTY(AsynchronousWrite, bool)
+    PROPERTY(AsynchronousWrite, bool);
 
     /** Reads a line from the console. */
     QString ReadLine();

@@ -38,6 +38,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1
+END_NAMESPACE_GUTIL1;
 
 #endif // ICLONABLE_H

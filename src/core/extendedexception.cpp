@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <new>
 USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL
+NAMESPACE_GUTIL;
 
 
 ExtendedException::ExtendedException(const Exception<> &inner_exception)
@@ -52,4 +52,4 @@ void ExtendedException::SetInnerException(const Exception<false> &ex)
 }
 
 
-END_NAMESPACE_GUTIL
+END_NAMESPACE_GUTIL;

@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_icomparer.h"
 #include "gutil_globals.h"
-NAMESPACE_GUTIL1(Utils)
+NAMESPACE_GUTIL1(Utils);
 
 
 /** A class that provides a flexible, modifiable, compare method.
@@ -84,11 +84,11 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1
+END_NAMESPACE_GUTIL1;
 
 
 
-NAMESPACE_GUTIL
+NAMESPACE_GUTIL;
 
 /** A convenience class that compares two objects with their less-than operator. */
 template<class T>
@@ -96,6 +96,6 @@ class DefaultComparer : public Utils::FlexibleTypeComparer<T>{};
 
 template<class T>struct IsMovableType< Utils::FlexibleTypeComparer<T> >{ enum{ Value = 1 }; };
 
-END_NAMESPACE_GUTIL
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_FLEXIBLE_TYPE_COMPARER_H

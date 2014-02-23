@@ -707,7 +707,7 @@ private:
 
 template<class T>class DListStack : public Stack<T>
 {
-    GUTIL_DISABLE_COPY(DListStack<T>)
+    GUTIL_DISABLE_COPY(DListStack<T>);
 public:
 
     DListStack(DList<T> *lst) :m_list(lst), m_delete(false){}
@@ -743,7 +743,7 @@ private:
 
 template<class T>class DListQueue : public Queue<T>
 {
-    GUTIL_DISABLE_COPY(DListQueue<T>)
+    GUTIL_DISABLE_COPY(DListQueue<T>);
 public:
 
     DListQueue(DList<T> *lst) :m_list(lst), m_delete(false){}
@@ -779,7 +779,7 @@ private:
 
 template<class T>class DListDeque : public Deque<T>
 {
-    GUTIL_DISABLE_COPY(DListDeque<T>)
+    GUTIL_DISABLE_COPY(DListDeque<T>);
 public:
 
     DListDeque(DList<T> *lst) :m_list(lst), m_delete(false){}

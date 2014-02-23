@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <cstring>
 #endif
 
-NAMESPACE_GUTIL1(DataAccess)
+NAMESPACE_GUTIL1(DataAccess);
 
 SerialPort::SerialPort()
     :m_handle(0)
@@ -212,4 +212,4 @@ GUINT32 SerialPort::WriteBytes(const GBYTE *bytes, GUINT32 len)
 }
 
 
-END_NAMESPACE_GUTIL1
+END_NAMESPACE_GUTIL1;

@@ -892,7 +892,7 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
 }
 
 
-END_NAMESPACE_GUTIL1
+END_NAMESPACE_GUTIL1;
 
 
 namespace GUtil

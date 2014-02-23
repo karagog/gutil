@@ -25,4 +25,4 @@ void ProcessStatusServer::incomingConnection(quintptr socketDescriptor)
 }
 
 
-END_NAMESPACE_GUTIL2
+END_NAMESPACE_GUTIL2;

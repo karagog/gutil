@@ -56,7 +56,7 @@ template<>class ex_name<true> : \
 }
 
 
-NAMESPACE_GUTIL
+NAMESPACE_GUTIL;
 
 
 /** Implements extended features for exception classes. */
@@ -121,6 +121,6 @@ GUTIL_EXCEPTION_DECLARE_EXTENDED( InvalidStateTransitionException );
 
 
 
-END_NAMESPACE_GUTIL
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_EXTENDEDEXCEPTION_H

@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <malloc.h>
 #include <new>
 
-NAMESPACE_GUTIL
+NAMESPACE_GUTIL;
 
 static void __allocate_and_copy_string(char const *source, char **target)
 {
@@ -98,4 +98,4 @@ Exception<false>::Exception(const char *file, int line, const char *name, const 
 {}
 
 
-END_NAMESPACE_GUTIL
+END_NAMESPACE_GUTIL;

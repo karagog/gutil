@@ -18,7 +18,7 @@ limitations under the License.*/
 USING_NAMESPACE_GUTIL1(DataAccess);
 USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(Logging)
+NAMESPACE_GUTIL1(Logging);
 
 
 #define DEFAULT_TRUNCATE_LIMIT   1000

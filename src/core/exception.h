@@ -51,7 +51,7 @@ limitations under the License.*/
 #define GUTIL_EXCEPTION_DECLARE2( ex_name, ex_subclass_name ) GUTIL_EXCEPTION_DECLARE3(ex_name, ex_subclass_name, private:)
 
 
-NAMESPACE_GUTIL
+NAMESPACE_GUTIL;
 
 
 /** We define a base class, so that the construction code is not reproduced
@@ -238,6 +238,6 @@ void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
     ex_type<false> var_name(__FILE_, __LINE__, 0, msg)
 
 
-END_NAMESPACE_GUTIL
+END_NAMESPACE_GUTIL;
 
 #endif // GEXEPTION_H

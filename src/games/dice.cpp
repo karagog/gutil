@@ -34,4 +34,4 @@ void Dice::Roll()
 }
 
 
-END_NAMESPACE_GUTIL1
+END_NAMESPACE_GUTIL1;

@@ -112,7 +112,8 @@ private: \
     ptr_type *_p_##name; \
 public: \
     ptr_type *Get##name() const{ return _p_##name; } \
-    void Set##name(ptr_type *value){ _p_##name = value; }
+    void Set##name(ptr_type *value){ _p_##name = value; } \
+    enum{}
 
 
 /** Use this to succinctly declare protected property accessors.
@@ -125,7 +126,8 @@ private: \
     type _p_##name; \
 protected: \
     const type &Get##name() const{ return _p_##name; } \
-    void Set##name(const type &value){ _p_##name = value; }
+    void Set##name(const type &value){ _p_##name = value; } \
+    enum{}
 
 
 /** Use this to succinctly declare a readonly property accessor.
@@ -137,7 +139,8 @@ protected: \
 private: \
     type _p_##name; \
 public: \
-    const type &Get##name() const{ return _p_##name; }
+    const type &Get##name() const{ return _p_##name; } \
+    enum{}
 
 
 /** Use this to succinctly declare a readonly property accessor to a pointer.
@@ -150,7 +153,8 @@ public: \
 private: \
     type *_p_##name; \
 public: \
-    type *Get##name() const{ return _p_##name; }
+    type *Get##name() const{ return _p_##name; } \
+    enum{}
 
 
 /** Use this to succinctly declare a readonly protected property accessor.
@@ -162,7 +166,8 @@ public: \
 private: \
     type _p_##name; \
 protected: \
-    const type &Get##name() const{ return _p_##name; }
+    const type &Get##name() const{ return _p_##name; } \
+    enum{}
 
 
 
@@ -171,19 +176,19 @@ protected: \
 #ifndef NO_GUTIL_NAMESPACES
 
 /** A macro to begin a nested GUtil namespace. */
-#define NAMESPACE_GUTIL2( n1, n2 )      namespace GUtil{ namespace n1{ namespace n2{
+#define NAMESPACE_GUTIL2( n1, n2 )      namespace GUtil{ namespace n1{ namespace n2{ enum{}
 /** A macro to begin a GUtil sub-namespace. */
-#define NAMESPACE_GUTIL1( n )           namespace GUtil{ namespace n {
+#define NAMESPACE_GUTIL1( n )           namespace GUtil{ namespace n { enum{}
 /** A macro to begin a gutil namespace. */
-#define NAMESPACE_GUTIL                 namespace GUtil{
+#define NAMESPACE_GUTIL                 namespace GUtil{ enum{}
 
 
 /** Ends a 2-deep nested GUtil namespace. */
-#define END_NAMESPACE_GUTIL2            }}}
+#define END_NAMESPACE_GUTIL2            }}} enum{}
 /** Ends a GUtil sub-namespace. */
-#define END_NAMESPACE_GUTIL1            }}
+#define END_NAMESPACE_GUTIL1            }} enum{}
 /** Ends a GUtil namespace declaration. */
-#define END_NAMESPACE_GUTIL             }
+#define END_NAMESPACE_GUTIL             } enum{}
 
 /** Use the provided nested GUtil namespace */
 #define USING_NAMESPACE_GUTIL2( n1, n2 )        using namespace GUtil::n1::n2
@@ -195,17 +200,17 @@ protected: \
 
 #else
 
-#define NAMESPACE_GUTIL2(a, b)
-#define NAMESPACE_GUTIL1(a)
-#define NAMESPACE_GUTIL
+#define NAMESPACE_GUTIL2(a, b)              enum{}
+#define NAMESPACE_GUTIL1(a)                 enum{}
+#define NAMESPACE_GUTIL                     enum{}
 
-#define END_NAMESPACE_GUTIL2
-#define END_NAMESPACE_GUTIL1
-#define END_NAMESPACE_GUTIL
+#define END_NAMESPACE_GUTIL2                enum{}
+#define END_NAMESPACE_GUTIL1                enum{}
+#define END_NAMESPACE_GUTIL                 enum{}
 
-#define USING_NAMESPACE_GUTIL2(n1, n2)
-#define USING_NAMESPACE_GUTIL1(n1)
-#define USING_NAMESPACE_GUTIL
+#define USING_NAMESPACE_GUTIL2(n1, n2)      enum{}
+#define USING_NAMESPACE_GUTIL1(n1)          enum{}
+#define USING_NAMESPACE_GUTIL               enum{}
 
 #endif // NO_GUTIL_NAMESPACES
 
@@ -219,7 +224,8 @@ protected: \
 #define GUTIL_DISABLE_COPY(cls) \
     private: \
         cls(const cls &); \
-        cls &operator =(const cls &);
+        cls &operator =(const cls &); \
+        enum{}
 
 
 /** Declares a class to be static, by making the assignment operator,
@@ -238,7 +244,8 @@ protected: \
     protected: \
         cls(const cls &){} \
         cls &operator =(const cls &){return *this;} \
-        cls(){}
+        cls(){} \
+        enum{}
 
 
 /** A Macro that removes the warning from unused variables. */

@@ -115,7 +115,7 @@ public:
 */
 class SharedData
 {
-    GUTIL_DISABLE_COPY(SharedData)
+    GUTIL_DISABLE_COPY(SharedData);
     template<class T>friend class SharedSmartPointer;
 
     /** Counts another reference to the shared data */
