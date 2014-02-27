@@ -86,7 +86,7 @@ public:
     /** Cast operator to the naked pointer.
      *  It is implemented using static_cast, so you can cast to some other pointer types.
     */
-    template<class U>inline operator U *() const{ return static_cast<U *>(ptr); }
+    template<class U>operator U *() const{ return static_cast<U *>(ptr); }
 
     /** Cast operator to a bool, telling you if you're null or not (false => NULL) */
     operator bool() const{ return NULL != ptr; }
@@ -197,6 +197,11 @@ public:
 
     bool operator == (const SharedSmartPointer<T> &o) const{ return ConstData() == o.ConstData(); }
     bool operator != (const SharedSmartPointer<T> &o) const{ return ConstData() != o.ConstData(); }
+
+    /** Cast operator to the naked pointer.
+     *  It is implemented using static_cast, so you can cast to some other pointer types.
+    */
+    template<class U>operator U *() const{ return static_cast<U *>(m_data); }
 
 };
 
