@@ -20,7 +20,6 @@ limitations under the License.*/
 #include "gutil_application.h"
 #include "gutil_licensewindow.h"
 #include "gutil_aboutgutil.h"
-#include "gutil_atomic.h"
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>

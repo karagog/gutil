@@ -117,22 +117,9 @@ class SharedData
 {
     GUTIL_DISABLE_COPY(SharedData);
     template<class T>friend class SharedSmartPointer;
-
-    /** Counts another reference to the shared data */
-    bool AddReference(){ return m_references.Increment(); }
-    /** Removes another reference to the shared data */
-    bool RemoveReference(){ return m_references.Decrement(); }
-
-    /** Returns the current reference count to the shared data */
-    GINT32 ReferenceCount() const{ return m_references; }
-
-    Utils::AtomicInt m_references;
-
-
+    Utils::AtomicInt __references;
 protected:
-
     SharedData(){}
-
 };
 
 
@@ -150,16 +137,17 @@ template<class T>class SharedSmartPointer
 public:
 
     SharedSmartPointer() :m_data(NULL){}
-    SharedSmartPointer(T *data) :m_data(data){ m_data->AddReference(); }
-    SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->AddReference(); }
+    SharedSmartPointer(T *data) :m_data(data){ m_data->__references.Increment(); }
+    SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->__references.Increment(); }
 
     SharedSmartPointer &operator = (const SharedSmartPointer<T> &other){ return operator = (other.m_data); }
     SharedSmartPointer &operator = (T *data){
-        if(m_data && !m_data->RemoveReference())
+        if(m_data && !m_data->__references.Decrement())
             delete m_data;
 
-        m_data = data;
-        m_data->AddReference();
+        if((m_data = data)){
+            m_data->__references.Increment();
+        }
         return *this;
     }
     ~SharedSmartPointer(){ Clear(); }
@@ -169,7 +157,7 @@ public:
 
     /** Resets the pointer to 0 and dereferences the object, deleting it if necessary. */
     void Clear(){
-        if(m_data && !m_data->RemoveReference()){
+        if(m_data && !m_data->__references.Decrement()){
             delete m_data;
             m_data = NULL;
         }
@@ -184,11 +172,11 @@ public:
     const T &operator * () const{ return *m_data; }
 
     void Detach(){
-        if(m_data && m_data->ReferenceCount() > 1)
+        if(m_data && 1 < m_data->__references)
         {
-            m_data->RemoveReference();
+            m_data->__references.Decrement();
             m_data = new T(*m_data);
-            m_data->AddReference();
+            m_data->__references.Increment();
         }
     }
 
