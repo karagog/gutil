@@ -412,6 +412,11 @@ public:
         return IsWhitespace(tmp);
     }
 
+    /** Returns true if the charater is a numeral (0-9) */
+    static bool IsNumber(char c){
+        return (char)0x30 <= c && (char)0x3A > c;
+    }
+
     /** Splits the string using the given character delimiter.
         \param separator A single character delimiter
         \param keep_empty_parts Indicates whether or not to retain the empty strings
@@ -721,6 +726,9 @@ public:
             but doesn't validate the Unicode character value itself.
         */
         bool IsValidUTF8Sequence() const{ return m_cur && String::IsValidUTF8Sequence(m_cur, m_cur + ByteLength()); }
+
+        /** Returns true if the character is ascii (non-extended) */
+        bool IsValidAscii() const{ return m_cur && 0 < *m_cur; }
 
         /** Returns the Unicode codepoint of the current character, or -1 if it is
             on an invalid character.
