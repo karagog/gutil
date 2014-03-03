@@ -610,6 +610,9 @@ public:
         */
         bool IsValidUTF8Sequence() const{ return String::IsValidUTF8Sequence(m_cur, m_cur + ByteLength()); }
 
+        /** Returns true if the character is ascii (non-extended) */
+        bool IsValidAscii() const{ return m_cur && 0 < *m_cur; }
+
         /** Returns the Unicode codepoint of the current character, or -1 if it is
             on an invalid character.
         */
