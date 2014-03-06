@@ -825,46 +825,63 @@ GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
     return ret;
 }
 
-void String::UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value)
+/** Given a unicode point, this returns the number of bytes necessary to
+    represent it
+*/
+static int __get_utf8_bytes_necessary(int uc_value)
 {
+    int ret(-1);
     int fsb = FSB32(uc_value);
     if(fsb < 7)
+        ret = 1;
+    else if(fsb < 11)
+        ret = 2;
+    else if(fsb < 16)
+        ret = 3;
+    else if(fsb < 21)
+        ret = 4;
+    else if(fsb < 26)
+        ret = 5;
+    else if(fsb < 31)
+        ret = 6;
+    return ret;
+}
+
+void String::UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value)
+{
+    switch(__get_utf8_bytes_necessary(uc_value))
     {
+    case 1:
         // ASCII character, 1 byte
         *dest = uc_value;
-    }
-    else if(fsb < 11)
-    {
+        break;
+    case 2:
         // 2-byte character
         dest[0] = 0xC0 | (uc_value >> 6);
         dest[1] = 0x80 | (0x3F & uc_value);
-    }
-    else if(fsb < 16)
-    {
+        break;
+    case 3:
         // 3-byte character
         dest[0] = 0xE0 | (uc_value >> 12);
         dest[1] = 0x80 | (0x3F & (uc_value >> 6));
         dest[2] = 0x80 | (0x3F & uc_value);
-    }
-    else if(fsb < 21)
-    {
+        break;
+    case 4:
         // 4-byte character
         dest[0] = 0xF0 | (uc_value >> 18);
         dest[1] = 0x80 | (0x3F & (uc_value >> 12));
         dest[2] = 0x80 | (0x3F & (uc_value >> 6));
         dest[3] = 0x80 | (0x3F & uc_value);
-    }
-    else if(fsb < 26)
-    {
+        break;
+    case 5:
         // 5-byte character
         dest[0] = 0xF8 | (uc_value >> 24);
         dest[1] = 0x80 | (0x3F & (uc_value >> 18));
         dest[2] = 0x80 | (0x3F & (uc_value >> 12));
         dest[3] = 0x80 | (0x3F & (uc_value >> 6));
         dest[4] = 0x80 | (0x3F & uc_value);
-    }
-    else if(fsb < 31)
-    {
+        break;
+    case 6:
         // 6-byte character
         dest[0] = 0xFC | (uc_value >> 30);
         dest[1] = 0x80 | (0x3F & (uc_value >> 24));
@@ -872,12 +889,24 @@ void String::UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value)
         dest[3] = 0x80 | (0x3F & (uc_value >> 12));
         dest[4] = 0x80 | (0x3F & (uc_value >> 6));
         dest[5] = 0x80 | (0x3F & uc_value);
-    }
-    else
-    {
+        break;
+    default:
         // The value is not in the valid Unicode space
         THROW_NEW_GUTIL_EXCEPTION(Exception);
+        break;
     }
+}
+
+String String::FromUnicode(int uc)
+{
+    int bytes_req = __get_utf8_bytes_necessary(uc);
+    String ret(bytes_req);
+    UTF8CharacterFromUnicodeValue(ret.Data(), uc);
+    
+    // Write the null terminator to make it a well-behaved string.
+    ret[bytes_req] = '\0';
+    
+    return ret;
 }
 
 

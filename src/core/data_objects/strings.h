@@ -480,6 +480,11 @@ public:
         \param uc_value The unicode codepoint value
     */
     static void UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value);
+    
+    /** Returns a single UTF-8 character in a string, with the given Unicode
+        code point.
+    */
+    static String FromUnicode(int unicode_point);
 
     /** Returns a copy of this string, in which only valid UTF-8 characters are retained.
 
