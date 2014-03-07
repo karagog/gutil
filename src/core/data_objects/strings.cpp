@@ -167,14 +167,14 @@ void String::ToLower(char *dest, const char *c)
     // Roman character
     if(RomanUpperCase <= u && u < (RomanUpperCase + 26))
     {
-        UTF8CharacterFromUnicodeValue(dest, u - (RomanUpperCase - RomanLowerCase));
+        UTF8CharFromUnicode(dest, u - (RomanUpperCase - RomanLowerCase));
     }
 
     // Extended ASCII
     else if(0x00C0 <= u && u < 0x00DF)
     {
         if(u != 0x00D0 && u != 0X00D7)
-            UTF8CharacterFromUnicodeValue(dest, u + 0x0020);
+            UTF8CharFromUnicode(dest, u + 0x0020);
     }
 
     // Latin extended
@@ -206,15 +206,15 @@ void String::ToLower(char *dest, const char *c)
              0x01B3 == u ||
              0x01B5 == u ||
              0x01B8 == u))
-            UTF8CharacterFromUnicodeValue(dest, u + 1);
+            UTF8CharFromUnicode(dest, u + 1);
         else if(0x01B7 == u)
-            UTF8CharacterFromUnicodeValue(dest, u + 3);
+            UTF8CharFromUnicode(dest, u + 3);
     }
 
     // Greek character
     else if(GreekUpperCase <= u && u < (GreekUpperCase + 25))
     {
-        UTF8CharacterFromUnicodeValue(dest, u - (GreekUpperCase - GreekLowerCase));
+        UTF8CharFromUnicode(dest, u - (GreekUpperCase - GreekLowerCase));
     }
 }
 
@@ -234,14 +234,14 @@ void String::ToUpper(char *dest, const char *c)
     // Roman character
     if(RomanLowerCase <= u && u < (RomanLowerCase + 26))
     {
-        UTF8CharacterFromUnicodeValue(dest, u - (RomanLowerCase - RomanUpperCase));
+        UTF8CharFromUnicode(dest, u - (RomanLowerCase - RomanUpperCase));
     }
 
     // Extended ASCII
     else if(0x00E0 <= u && u < 0x00FF)
     {
         if(u != 0x00DF && u != 0x00F0)
-            UTF8CharacterFromUnicodeValue(dest, u - 0x0020);
+            UTF8CharFromUnicode(dest, u - 0x0020);
     }
 
     // Latin extended
@@ -273,9 +273,9 @@ void String::ToUpper(char *dest, const char *c)
              0x01B4 == u ||
              0x01B6 == u ||
              0x01B9 == u))
-            UTF8CharacterFromUnicodeValue(dest, u - 1);
+            UTF8CharFromUnicode(dest, u - 1);
         else if(0x01BA == u)
-            UTF8CharacterFromUnicodeValue(dest, u - 3);
+            UTF8CharFromUnicode(dest, u - 3);
     }
 
     // Greek character
@@ -283,7 +283,7 @@ void String::ToUpper(char *dest, const char *c)
     {
         // The old sigma character maps to a capital Sigma
         if(u == 0x3C2) u = 0x3C3;
-        UTF8CharacterFromUnicodeValue(dest, u - (GreekLowerCase - GreekUpperCase));
+        UTF8CharFromUnicode(dest, u - (GreekLowerCase - GreekUpperCase));
     }
 }
 
@@ -847,9 +847,10 @@ static int __get_utf8_bytes_necessary(int uc_value)
     return ret;
 }
 
-void String::UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value)
+int String::UTF8CharFromUnicode(char *dest, GUINT32 uc_value)
 {
-    switch(__get_utf8_bytes_necessary(uc_value))
+    int ret = __get_utf8_bytes_necessary(uc_value);
+    switch(ret)
     {
     case 1:
         // ASCII character, 1 byte
@@ -895,18 +896,13 @@ void String::UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value)
         THROW_NEW_GUTIL_EXCEPTION(Exception);
         break;
     }
+    return ret;
 }
 
-String String::FromUnicode(int uc)
+String &String::AppendUnicode(int uc)
 {
-    int bytes_req = __get_utf8_bytes_necessary(uc);
-    String ret(bytes_req);
-    UTF8CharacterFromUnicodeValue(ret.Data(), uc);
-    
-    // Write the null terminator to make it a well-behaved string.
-    ret[bytes_req] = '\0';
-    
-    return ret;
+    char tmp[6];
+    return Append(tmp, UTF8CharFromUnicode(tmp, uc));
 }
 
 

@@ -382,7 +382,7 @@ void StringTest::test_utf8_generation()
     {
         GUINT32 unicode_value = cur - 1;
 
-        String::UTF8CharacterFromUnicodeValue(buf, unicode_value);
+        String::UTF8CharFromUnicode(buf, unicode_value);
 
         GUINT32 feedback = String::UnicodeValue(buf);
         QVERIFY2(feedback == unicode_value, String::Format("%x != %x", feedback, unicode_value));

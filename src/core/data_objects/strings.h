@@ -478,13 +478,12 @@ public:
         \param dest must be large enough to hold the multibyte char.  If you're only dealing
         with ascii then the length will always be 1.
         \param uc_value The unicode codepoint value
+        \returns The number of bytes required to represent the UTF-8 character.
     */
-    static void UTF8CharacterFromUnicodeValue(char *dest, GUINT32 uc_value);
+    static int UTF8CharFromUnicode(char *dest, GUINT32 uc_value);
     
-    /** Returns a single UTF-8 character in a string, with the given Unicode
-        code point.
-    */
-    static String FromUnicode(int unicode_point);
+    /** Appends a unicode character to the string as UTF-8. */
+    String &AppendUnicode(int);
 
     /** Returns a copy of this string, in which only valid UTF-8 characters are retained.
 
