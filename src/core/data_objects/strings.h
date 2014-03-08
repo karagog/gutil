@@ -70,7 +70,7 @@ public:
     String(const char *d, GUINT32 len = UINT_MAX);
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
-    explicit String(char c, GUINT32 len = UINT_MAX);
+    explicit String(char c, GUINT32 len = 1);
 
     /** Constructs a string by copying the string between two Vector<char> iterators.
         \param b An iterator at the beginning of the string.
