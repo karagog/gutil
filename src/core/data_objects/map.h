@@ -50,11 +50,9 @@ public:
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
         V &Value(){ return values[values.Length() - 1]; }
         /** Returns the last inserted value for this key, in the case InsertMulti() was used. */
-        const V &Value() const{ return values[values.Size() - 1]; }
+        const V &Value() const{ return values[values.Length() - 1]; }
 
-        /** Returns the stack of values associated with Key.
-            You cannot modify the stack, but you can modify the values in it.
-        */
+        /** Returns the list of values associated with Key, in the order they were inserted. */
         const Vector<V> &Values() const{ return values; }
 
     protected:
@@ -160,8 +158,8 @@ public:
     */
     V &operator [](const K &k);
 
-    /** Returns the stack of values corresponding to the key. */
-    const Stack<V> &Values(const K &) const;
+    /** Returns a vector of values corresponding to the key. */
+    const Vector<V> &Values(const K &) const;
 
     /** Inserts an item into the map.
 
@@ -181,6 +179,16 @@ public:
     /** Removes all values corresponding to the key. */
     void Remove(const K &k){
         _index.Remove(_index.Search(k));
+    }
+
+    /** Removes all objects with the given key-value pair. Use this if you used InsertMulti()
+     *  and you only want to remove specific values.
+    */
+    void Remove(const K &k, const V &v){
+        typename BinarySearchTree<Page, K>::iterator iter(_index.Search(k));
+        iter->Values().RemoveAll(v);
+        if(0 == iter->Values().Length())
+            _index.Remove(iter);
     }
 
     /** Removes all values in the map and cleans up memory.
@@ -246,7 +254,7 @@ template<class K, class V>V &Map<K, V>::operator [](const K &k)
     return iter->Value();
 }
 
-template<class K, class V>const Stack<V> &Map<K, V>::Values(const K &k) const
+template<class K, class V>const Vector<V> &Map<K, V>::Values(const K &k) const
 {
     iterator iter(_index.Search(k));
     if(!iter) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
