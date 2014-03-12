@@ -112,18 +112,22 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
     This is better than Qt's foreach loop, because it doesn't make a copy of the
     container.  Use this version when you DON'T need to modify the container elements.
 
+    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
+
     \param var A variable declaration for the foreach body.  Use const-references whenever possible.
     \param container An STL-like container, which must implement an iterator class
             and begin()/end() functions
 */
 #define G_FOREACH_CONST(var, container) \
     for(GUtilForeachContainer<__typeof__(container), true, true> cont(container); cont.iter != cont.end; ++cont.iter) \
-        for(var = *cont.iter ;; __extension__({ break; }))
+        for(var( *cont.iter ) ;; __extension__({ break; }))
 
 /** A syntactically concise iteration loop.
 
     This is better than Qt's foreach loop, because it doesn't make a copy of the
     container.  Use this version when you need to modify the container elements.
+
+    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
 
     \param var A variable declaration for the foreach body.  Use references whenever possible.
     \param container An STL-like container, which must implement an iterator class
@@ -131,7 +135,7 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 */
 #define G_FOREACH(var, container) \
     for(GUtilForeachContainer<__typeof__(container), false, true> cont(container); cont.iter != cont.end; ++cont.iter) \
-        for(var = *cont.iter ;; __extension__({ break; }))
+        for(var( *cont.iter ) ;; __extension__({ break; }))
 
 
 /** A syntactically concise iteration loop that starts at the back of the container.
@@ -145,18 +149,22 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
     This is better than Qt's foreach loop, because it doesn't make a copy of the
     container.  Use this version when you DON'T need to modify the container elements.
 
+    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
+
     \param var A variable declaration for the foreach body.  Use const-references whenever possible.
     \param container An STL-like container, which must implement an iterator class
             and rbegin()/rend() functions
 */
 #define G_FOREACH_CONST_REVERSE(var, container) \
     for(GUtilForeachContainer<__typeof__(container), true, false> cont(container); cont.iter != cont.end; --cont.iter) \
-        for(var = *cont.iter ;; __extension__({ break; }))
+        for(var( *cont.iter ) ;; __extension__({ break; }))
 
 /** A syntactically concise iteration loop that starts at the back of the container.
 
     This is better than Qt's foreach loop, because it doesn't make a copy of the
     container.  Use this version when you need to modify the container elements.
+
+    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
 
     \param var A variable declaration for the foreach body.  Use references whenever possible.
     \param container An STL-like container, which must implement an iterator class
@@ -164,7 +172,7 @@ template<class T>struct GUtilForeachContainer<T, false, false>{
 */
 #define G_FOREACH_REVERSE(var, container) \
     for(GUtilForeachContainer<__typeof__(container), false, false> cont(container); cont.iter != cont.end; --cont.iter) \
-        for(var = *cont.iter ;; __extension__({ break; }))
+        for(var( *cont.iter ) ;; __extension__({ break; }))
 
 
 /** Loops N times.
