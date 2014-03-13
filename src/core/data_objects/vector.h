@@ -836,7 +836,7 @@ protected:
 
 private:
 
-    static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK_32( FSB32( n ) ); }
+    static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK<GUINT32>( FSB32( n ) ); }
 
     void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const Interfaces::IComparer<T> &cmp){
         GUINT32 diff( e - b );

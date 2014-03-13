@@ -468,11 +468,11 @@ static inline void gSwap(T *one, T *two)
 /** Generates a 32-bit bitmask where all the bits up to index i are set to 1, starting from the least significant bit.
     \note Takes 2 instructions to generate.
 */
-static inline GUINT32 GEN_BITMASK_32(int n)
+template<class INT_TYPE>
+static inline INT_TYPE GEN_BITMASK(int n)
 {
-    return (((GUINT32) 1) << (n + 1)) - 1;
+    return (((INT_TYPE) 0x1) << (n + 1)) - 1;
 }
-
 
 
 /** Truncate the left n bits of the word. */

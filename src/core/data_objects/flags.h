@@ -56,13 +56,35 @@ public:
     explicit Flags(bool init_val) :m_flags(GUtil::BitMask<INT_TYPE>(init_val)) {}
 
     /** Returns true if the flag is set. */
-    bool TestFlag(EnumType f) const{ return m_flags & (1 << f); }
+    bool TestFlag(EnumType f) const{ return m_flags & (0x1 << f); }
+
+    /** Returns the flags between the start param and end, inclusive.
+     *  The returned flags will be shifted to the start of the integer.
+    */
+    INT_TYPE TestRange(EnumType start, EnumType end) const{
+        INT_TYPE mask = GEN_BITMASK<INT_TYPE>((int)end - (int)start + 1) << (int)start;
+        return m_flags & mask;
+    }
 
     /** Sets the flag to 1 or 0, depending on the bool parameter. */
     void SetFlag(EnumType f, bool b){
-        INT_TYPE mask(1 << f);
+        INT_TYPE mask(0x1 << f);
         if(b)   m_flags |= mask;
         else    m_flags &= ~mask;
+    }
+
+    /** Sets the flags between */
+    void SetRange(EnumType start, EnumType end, INT_TYPE data){
+        INT_TYPE mask(GEN_BITMASK<GUINT32>((int)end - (int)start + 1));
+        INT_TYPE cpy = m_flags;
+
+        // Make sure data has the right number of bits set, so we don't accidentally
+        //  corrupt the other flags
+        data = data & mask;
+
+        // Set the flags by setting them to 0 and then oring the data in
+        m_flags = (m_flags & ~(mask << (int)start))
+                | (data << (int)start);
     }
 
     /** Toggles the flag; if it was 1 now it's 0, and vice versa. */
