@@ -62,8 +62,7 @@ public:
      *  The returned flags will be shifted to the start of the integer.
     */
     INT_TYPE TestRange(EnumType start, EnumType end) const{
-        INT_TYPE mask = GEN_BITMASK<INT_TYPE>((int)end - (int)start + 1) << (int)start;
-        return m_flags & mask;
+        return (m_flags >> (int)start) & GEN_BITMASK<INT_TYPE>((int)end - (int)start + 1);
     }
 
     /** Sets the flag to 1 or 0, depending on the bool parameter. */
