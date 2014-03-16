@@ -1290,6 +1290,35 @@ char String::HexToChar(char c)
 }
 
 
+String::const_iterator::const_iterator()
+{}
+
+String::const_iterator::const_iterator(const typename VectorImp<char>::const_iterator &o)
+    :Vector<char>::const_iterator(o)
+{}
+
+String::const_iterator &String::const_iterator::operator = (const typename VectorImp<char>::const_iterator &o)
+{
+    this->~const_iterator();
+    new(this) const_iterator(o);
+    return *this;
+}
+
+String::iterator::iterator()
+{}
+
+String::iterator::iterator(const typename VectorImp<char>::iterator &o)
+    :Vector<char>::iterator(o)
+{}
+
+String::iterator &String::iterator::operator = (const typename VectorImp<char>::iterator &o)
+{
+    this->~iterator();
+    new(this) iterator(o);
+    return *this;
+}
+
+
 END_NAMESPACE_GUTIL1;
 
 

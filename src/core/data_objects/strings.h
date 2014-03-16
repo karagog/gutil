@@ -563,14 +563,32 @@ public:
     static char HexToChar(char);
 
 
-    Vector<char>::const_iterator begin() const{ return Vector<char>::begin(); }
-    Vector<char>::iterator begin(){ return Vector<char>::begin(); }
-    Vector<char>::const_iterator end() const{ return Vector<char>::end(); }
-    Vector<char>::iterator end(){ return Vector<char>::end(); }
-    Vector<char>::const_iterator rbegin() const{ return Vector<char>::rbegin(); }
-    Vector<char>::iterator rbegin(){ return Vector<char>::rbegin(); }
-    Vector<char>::const_iterator rend() const{ return Vector<char>::rend(); }
-    Vector<char>::iterator rend(){ return Vector<char>::rend(); }
+    class const_iterator :
+            public Vector<char>::const_iterator
+    {
+    public:
+        const_iterator();
+        const_iterator(const typename VectorImp<char>::const_iterator &);
+        const_iterator &operator = (const typename VectorImp<char>::const_iterator &);
+    };
+
+    class iterator :
+            public Vector<char>::iterator
+    {
+    public:
+        iterator();
+        iterator(const typename VectorImp<char>::iterator &);
+        iterator &operator = (const typename VectorImp<char>::iterator &);
+    };
+
+    const_iterator begin() const{ return Vector<char>::begin(); }
+    iterator begin(){ return Vector<char>::begin(); }
+    const_iterator end() const{ return Vector<char>::end(); }
+    iterator end(){ return Vector<char>::end(); }
+    const_iterator rbegin() const{ return Vector<char>::rbegin(); }
+    iterator rbegin(){ return Vector<char>::rbegin(); }
+    const_iterator rend() const{ return Vector<char>::rend(); }
+    iterator rend(){ return Vector<char>::rend(); }
 
 
     /** An iterator that helps you with parsing the String object.
