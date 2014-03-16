@@ -41,7 +41,7 @@ void Console::WriteLine(const char *d, OutputStreamEnum e)
     if(d)
     {
         String s(d);
-        GUINT32 indx = s.LastIndexOf('\n');
+        GINT32 indx = s.LastIndexOf('\n');
         if(indx != s.Length() - 1)
             s.Append('\n');
         Write(s, e);
@@ -58,12 +58,12 @@ void Console::WriteLine(const char *d, OutputStreamEnum e)
 */
 static char __console_read_buffer[256];
 
-GUINT32 Console::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes)
+GINT32 Console::Read(GBYTE *buffer, GINT32 buffer_len, GINT32 bytes)
 {
-    GUINT32 ret(0);
+    GINT32 ret(0);
     if(buffer_len > 0)
     {
-        GUINT32 bytes_read(0);
+        GINT32 bytes_read(0);
 
         while(buffer_len-- != 1 && (bytes == UINT_MAX || bytes_read != bytes))
         {
@@ -110,7 +110,7 @@ GFLOAT32 Console::ReadFloat()
 String Console::_read_until_terminator(bool (*is_terminator_char)(char))
 {
     String ret;
-    GUINT32 cnt(sizeof(__console_read_buffer));
+    GINT32 cnt(sizeof(__console_read_buffer));
     char *ptr( __console_read_buffer );
     G_FOREVER
     {

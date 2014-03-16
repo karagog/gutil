@@ -118,25 +118,25 @@ public:
     }
 
     /** Returns an encrypted copy of the data, using the given string as an encryption string */
-    static DataObjects::String EncryptString(const GBYTE *data, GUINT32 length,
+    static DataObjects::String EncryptString(const GBYTE *data, GINT32 length,
                                                     const DataObjects::String &key,
                                                     EncryptionTypeEnum e = DefaultEncryption){
         return EncryptString(data, length, (const GBYTE *)key.ConstData(), key.Length(), e);
     }
     /** Returns a decrypted copy of the data, using the given string as an encryption string */
-    static DataObjects::String DecryptString(const GBYTE *data, GUINT32 length,
+    static DataObjects::String DecryptString(const GBYTE *data, GINT32 length,
                                                     const DataObjects::String &key,
                                                     EncryptionTypeEnum e = DefaultEncryption){
         return DecryptString(data, length, (const GBYTE *)key.ConstData(), key.Length(), e);
     }
 
     /** Returns an encrypted copy of the data, using the given string as an encryption string */
-    static DataObjects::String EncryptString(const GBYTE *data, GUINT32 data_len,
-                                             const GBYTE *key, GUINT32 key_len,
+    static DataObjects::String EncryptString(const GBYTE *data, GINT32 data_len,
+                                             const GBYTE *key, GINT32 key_len,
                                              EncryptionTypeEnum e = DefaultEncryption);
     /** Returns a decrypted copy of the data, using the given string as an encryption string */
-    static DataObjects::String DecryptString(const GBYTE *data, GUINT32 data_len,
-                                             const GBYTE *key, GUINT32 keylen,
+    static DataObjects::String DecryptString(const GBYTE *data, GINT32 data_len,
+                                             const GBYTE *key, GINT32 keylen,
                                              EncryptionTypeEnum e = DefaultEncryption);
 
 
@@ -163,10 +163,10 @@ public:
         recognize when the string actually grows from compression, and doesn't compress it
         in this case.
     */
-    static DataObjects::String CompressString(const GBYTE *data, GUINT32 data_len,
+    static DataObjects::String CompressString(const GBYTE *data, GINT32 data_len,
                                                      CompressionLevelEnum c = DefaultCompression);
     /** Returns a copy of the compressed string after it has been inflated */
-    static DataObjects::String DecompressString(const GBYTE *data, GUINT32 data_len);
+    static DataObjects::String DecompressString(const GBYTE *data, GINT32 data_len);
 
 
 
@@ -176,17 +176,17 @@ public:
         return Hash((const GBYTE *)data.ConstData(), data.Length(), e);
     }
     /** Returns a hash of the provided data */
-    static DataObjects::String Hash(const char *data, GUINT32 data_len = UINT_MAX, HashAlgorithmEnum e = DefaultHash){
+    static DataObjects::String Hash(const char *data, GINT32 data_len = INT_MAX, HashAlgorithmEnum e = DefaultHash){
         return Hash((const GBYTE *)data, data_len, e);
     }
     /** Returns a hash of the provided data */
-    static DataObjects::String Hash(const GBYTE *data, GUINT32 data_len = UINT_MAX, HashAlgorithmEnum e = DefaultHash);
+    static DataObjects::String Hash(const GBYTE *data, GINT32 data_len = INT_MAX, HashAlgorithmEnum e = DefaultHash);
 
 
     /** Returns a string of random data.  You can optionally supply a seed value, otherwise
         it will be auto-seeded (implementation in CryptoPP library).
     */
-    static DataObjects::String RandomString(GUINT32 num_bytes, GUINT32 seed = UINT_MAX);
+    static DataObjects::String RandomString(GINT32 num_bytes, GINT32 seed = INT_MAX);
 
 };
 

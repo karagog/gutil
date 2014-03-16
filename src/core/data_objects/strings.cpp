@@ -24,15 +24,15 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(DataObjects);
 
 
-String::String(const char *d, GUINT32 len)
-    :Vector<char>(len == UINT_MAX ? (len = strlen(d)) + 1 : len + 1)
+String::String(const char *d, GINT32 len)
+    :Vector<char>(len == INT_MAX ? (len = strlen(d)) + 1 : len + 1)
 {
     memcpy(Data(), d, len);
     Data()[len] = '\0';
     set_length(len);
 }
 
-String::String(char c, GUINT32 len)
+String::String(char c, GINT32 len)
     :Vector<char>(len + 1)
 {
     set_length(len);
@@ -67,8 +67,8 @@ String::String(const Vector<char>::const_iterator &b, const Vector<char>::const_
 
 String::String(const UTF8ConstIterator &b, const UTF8ConstIterator &e)
 {
-    GUINT32 byte_len(UTF8ConstIterator::ByteDistance(b, e));
-    if(byte_len != UINT_MAX)
+    GINT32 byte_len(UTF8ConstIterator::ByteDistance(b, e));
+    if(byte_len != INT_MAX)
     {
         Reserve(byte_len + 1);
         set_length(byte_len);
@@ -102,7 +102,7 @@ String::String(const String &s)
     set_length(s.Length());
 }
 
-void String::Resize(GUINT32 sz)
+void String::Resize(GINT32 sz)
 {
     if(Capacity() <= sz)
         Reserve(sz + 1);
@@ -110,13 +110,13 @@ void String::Resize(GUINT32 sz)
     operator[](sz) = '\0';
 }
 
-String &String::Insert(const String &s, GUINT32 indx)
+String &String::Insert(const String &s, GINT32 indx)
 {
     if(indx > Length())
         THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
-    GUINT32 len( Length() );
-    GUINT32 sl( s.Length() );
+    GINT32 len( Length() );
+    GINT32 sl( s.Length() );
 
     // Reserve room for the extra null-terminating byte
     if(len + sl + 1 > Capacity())
@@ -131,12 +131,12 @@ String &String::Insert(const String &s, GUINT32 indx)
     return *this;
 }
 
-String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
+String &String::Insert(const char *c, GINT32 sz, GINT32 indx)
 {
     if(indx > Length())
         THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
 
-    GUINT32 len( Length() );
+    GINT32 len( Length() );
 
     // Reserve room for the extra null-terminating byte
     if(len + sz + 1 > Capacity())
@@ -159,10 +159,68 @@ String String::ToLower() const
     return ret;
 }
 
+bool String::IsUpper(int u)
+{
+    bool ret = false;
+
+    // Roman character
+    if(RomanUpperCase <= u && u < (RomanUpperCase + 26))
+        ret = true;
+
+    // Extended ASCII
+    else if(0x00C0 <= u && u < 0x00DF)
+    {
+        if(u != 0x00D0 && u != 0X00D7)
+            ret = true;
+    }
+
+    // Latin extended
+    else if(0x0100 <= u && u < 0x0234)
+    {
+        bool even( 0 == (u & 1) );
+        if((((u <= 0x0136) || (0x014A <= u && u <= 0x0176) || (0x01DE <= u && u <= 0x01EE) || (0x01F4 <= u && u <= 0x0232 && u != 0x0220)) && even) ||
+                (((0x0139 <= u && u <= 0x0147) || (0x0179 <= u && u <= 0x017D) || (0x01CD <= u && u <= 0x01DB)) && !even) ||
+            (0x0182 == u ||
+             0x0184 == u ||
+             0x0187 == u ||
+             0x0189 == u ||
+             0x018B == u ||
+             0x018E == u ||
+             0x0191 == u ||
+             0x0193 == u ||
+             0x0196 == u ||
+             0x0198 == u ||
+             0x019A == u ||
+             0x019D == u ||
+             0x01A0 == u ||
+             0x01A2 == u ||
+             0x01A4 == u ||
+             0x01A7 == u ||
+             0x01AA == u ||
+             0x01AC == u ||
+             0x01AF == u ||
+             0x01B1 == u ||
+             0x01B3 == u ||
+             0x01B5 == u ||
+             0x01B8 == u))
+            ret = true;
+        else if(0x01B7 == u)
+            ret = true;
+    }
+
+    // Greek character
+    else if(GreekUpperCase <= u && u < (GreekUpperCase + 25))
+    {
+        ret = true;
+    }
+
+    return ret;
+}
+
 void String::ToLower(char *dest, const char *c)
 {
     GINT8 blen = MultiByteLength(*c);
-    GUINT32 u = UnicodeValue(c, blen);
+    GINT32 u = UnicodeValue(c, blen);
 
     // Roman character
     if(RomanUpperCase <= u && u < (RomanUpperCase + 26))
@@ -226,10 +284,70 @@ String String::ToUpper() const
     return ret;
 }
 
+bool String::IsLower(int u)
+{
+    bool ret = false;
+
+    // Roman character
+    if(RomanLowerCase <= u && u < (RomanLowerCase + 26))
+        ret = true;
+
+    // Extended ASCII
+    else if(0x00E0 <= u && u < 0x00FF)
+    {
+        if(u != 0x00DF && u != 0x00F0)
+            ret = true;
+    }
+
+    // Latin extended
+    else if(0x0101 <= u && u < 0x0234)
+    {
+        bool even( 0 == (u & 1) );
+        if((((u <= 0x0137) || (0x014B <= u && u <= 0x0177) || (0x01DF <= u && u <= 0x01EF) || (0x01F5 <= u && u <= 0x0233 && u != 0x0221)) && !even) ||
+                (((0x013A <= u && u <= 0x0148) || (0x017A <= u && u <= 0x017E) || (0x01CE <= u && u <= 0x01DC)) && even) ||
+            (0x0183 == u ||
+             0x0185 == u ||
+             0x0188 == u ||
+             0x018A == u ||
+             0x018C == u ||
+             0x018F == u ||
+             0x0192 == u ||
+             0x0194 == u ||
+             0x0197 == u ||
+             0x0199 == u ||
+             0x019B == u ||
+             0x019E == u ||
+             0x01A1 == u ||
+             0x01A3 == u ||
+             0x01A5 == u ||
+             0x01A8 == u ||
+             0x01AB == u ||
+             0x01AD == u ||
+             0x01B0 == u ||
+             0x01B2 == u ||
+             0x01B4 == u ||
+             0x01B6 == u ||
+             0x01B9 == u))
+            ret = true;
+        else if(0x01BA == u)
+            ret = true;
+    }
+
+    // Greek character
+    else if(GreekLowerCase <= u && u < (GreekLowerCase + 25))
+    {
+        // The old sigma character maps to a capital Sigma
+        if(u == 0x3C2) u = 0x3C3;
+        ret = true;
+    }
+
+    return ret;
+}
+
 void String::ToUpper(char *dest, const char *c)
 {
     GINT8 blen = MultiByteLength(*c);
-    GUINT32 u = UnicodeValue(c, blen);
+    GINT32 u = UnicodeValue(c, blen);
 
     // Roman character
     if(RomanLowerCase <= u && u < (RomanLowerCase + 26))
@@ -328,10 +446,10 @@ String String::Replace(const char *find, const char *replace, bool case_sensitiv
 {
     String ret(*this);
     String this_copy(*this);
-    GUINT32 len( strlen(find) );
+    GINT32 len( strlen(find) );
     if(!IsEmpty() && len > 0)
     {
-        GUINT32 rlen( strlen(replace) );
+        GINT32 rlen( strlen(replace) );
         String find_copy(find);
 
         if(!case_sensitive)
@@ -343,8 +461,8 @@ String String::Replace(const char *find, const char *replace, bool case_sensitiv
         // If the replacement string is smaller, then start from the end of the string
         if(rlen < len)
         {
-            GUINT32 last_index( this_copy.LastIndexOf(find_copy) );
-            while(last_index != UINT_MAX)
+            GINT32 last_index( this_copy.LastIndexOf(find_copy) );
+            while(last_index != INT_MAX)
             {
                 memmove(ret.Data() + last_index + rlen, ret.Data() + last_index + len,
                         this_copy.Length() - (last_index + len));
@@ -358,15 +476,15 @@ String String::Replace(const char *find, const char *replace, bool case_sensitiv
                 this_copy.set_length(this_copy.Length() - (len - rlen));
 
                 if(last_index < len)
-                    last_index = UINT_MAX;
+                    last_index = INT_MAX;
                 else
                     last_index = this_copy.LastIndexOf(find_copy, last_index - len);
             }
         }
         else // Start from the beginning of the string
         {
-            GUINT32 last_index( this_copy.IndexOf(find_copy) );
-            while(last_index != UINT_MAX)
+            GINT32 last_index( this_copy.IndexOf(find_copy) );
+            while(last_index != INT_MAX)
             {
                 if(this_copy.Length() + (rlen - len) + 1 > ret.Capacity())
                 {
@@ -386,7 +504,7 @@ String String::Replace(const char *find, const char *replace, bool case_sensitiv
                 this_copy.set_length(this_copy.Length() + rlen - len);
 
                 if(last_index > this_copy.Length() - len)
-                    last_index = UINT_MAX;
+                    last_index = INT_MAX;
                 else
                     last_index = this_copy.IndexOf(find_copy, last_index + rlen);
             }
@@ -398,10 +516,10 @@ String String::Replace(const char *find, const char *replace, bool case_sensitiv
     return ret;
 }
 
-GUINT32 String::IndexOf(const char *s, GUINT32 start, GUINT32 slen) const
+GINT32 String::IndexOf(const char *s, GINT32 start, GINT32 slen) const
 {
-    GUINT32 ret(UINT_MAX);
-    if(slen == UINT_MAX)
+    GINT32 ret(INT_MAX);
+    if(slen == INT_MAX)
         slen = strlen(s);
 
     if(Length() > 0 && slen > 0 && Length() >= slen)
@@ -419,15 +537,15 @@ GUINT32 String::IndexOf(const char *s, GUINT32 start, GUINT32 slen) const
     return ret;
 }
 
-GUINT32 String::LastIndexOf(const char *s, GUINT32 start, GUINT32 slen) const
+GINT32 String::LastIndexOf(const char *s, GINT32 start, GINT32 slen) const
 {
-    GUINT32 ret(UINT_MAX);
-    if(slen == UINT_MAX)
+    GINT32 ret(INT_MAX);
+    if(slen == INT_MAX)
         slen = strlen(s);
 
     if(Length() > 0 && slen > 0 && Length() >= slen)
     {
-        if(start == UINT_MAX)
+        if(start == INT_MAX)
             start = Length() - slen;
 
         if(start < Length())
@@ -452,14 +570,14 @@ GUINT32 String::LastIndexOf(const char *s, GUINT32 start, GUINT32 slen) const
     return ret;
 }
 
-GUINT32 String::IndexOfUTF8(const char *s, GUINT32 start, GUINT32 slen) const
+GINT32 String::IndexOfUTF8(const char *s, GINT32 start, GINT32 slen) const
 {
-    GUINT32 ret(UINT_MAX);
-    if(slen == UINT_MAX)
+    GINT32 ret(INT_MAX);
+    if(slen == INT_MAX)
         slen = LengthUTF8(s);
 
-    GUINT32 mb_len( MultiByteLength(*s) );
-    GUINT32 lutf8( LengthUTF8() );
+    GINT32 mb_len( MultiByteLength(*s) );
+    GINT32 lutf8( LengthUTF8() );
 
     if(lutf8 > 0 && slen > 0 && lutf8 >= slen)
     {
@@ -476,17 +594,17 @@ GUINT32 String::IndexOfUTF8(const char *s, GUINT32 start, GUINT32 slen) const
     return ret;
 }
 
-GUINT32 String::LastIndexOfUTF8(const char *s, GUINT32 start, GUINT32 slen) const
+GINT32 String::LastIndexOfUTF8(const char *s, GINT32 start, GINT32 slen) const
 {
-    GUINT32 ret(UINT_MAX);
-    if(slen == UINT_MAX)
+    GINT32 ret(INT_MAX);
+    if(slen == INT_MAX)
         slen = LengthUTF8(s);
-    GUINT32 mb_len( MultiByteLength(*s) );
-    GUINT32 lutf8(LengthUTF8());
+    GINT32 mb_len( MultiByteLength(*s) );
+    GINT32 lutf8(LengthUTF8());
 
     if(lutf8 > 0 && slen > 0 && lutf8 >= slen)
     {
-        if(start == UINT_MAX)
+        if(start == INT_MAX)
             start = lutf8 - slen;
 
         if(start < lutf8)
@@ -543,7 +661,7 @@ GFLOAT32 String::ToFloat(bool *ok) const
 
 String String::Trimmed() const
 {
-    GUINT32 i(Length());
+    GINT32 i(Length());
     UTF8ConstIterator iter_front( beginUTF8() );
     UTF8ConstIterator iter_back( rbeginUTF8() );
     bool stop_front(false);
@@ -575,18 +693,18 @@ String String::Trimmed() const
 }
 
 
-Vector<String> String::Split(const char *separator, bool keep_empty_parts) const
+StringList String::Split(const char *separator, bool keep_empty_parts) const
 {
-    Vector<String> ret;
-    GUINT32 len( strlen(separator) );
-    GUINT32 i( IndexOf(separator, 0, len) );
-    GUINT32 prev( 0 );
+    StringList ret;
+    GINT32 len( strlen(separator) );
+    GINT32 i( IndexOf(separator, 0, len) );
+    GINT32 prev( 0 );
 
-    while(i != UINT_MAX)
+    while(i != INT_MAX)
     {
-        GUINT32 diff( i - prev );
+        GINT32 diff( i - prev );
         if(keep_empty_parts || diff > 0)
-            ret.PushBack(String(ConstData() + prev, diff));
+            ret.Append(String(ConstData() + prev, diff));
 
         prev = i + len;
         i = IndexOf(separator, prev, len);
@@ -594,28 +712,28 @@ Vector<String> String::Split(const char *separator, bool keep_empty_parts) const
 
     if(Length() > 0)
     {
-        GUINT32 diff( Length() - prev );
+        GINT32 diff( Length() - prev );
         if(keep_empty_parts || diff > 0)
-            ret.PushBack(String(ConstData() + prev, diff));
+            ret.Append(String(ConstData() + prev, diff));
     }
     return ret;
 }
 
-String String::Join(const Vector<String> &v, const char *separator, GUINT32 len)
+String String::Join(const Vector<String> &v, const char *separator, GINT32 len)
 {
     String ret;
     if(v.Length() != 0)
     {
-        if(len == UINT_MAX)
+        if(len == INT_MAX)
             len = strlen(separator);
 
-        GUINT32 capacity((v.Length() - 1) * len + 1);
+        GINT32 capacity((v.Length() - 1) * len + 1);
         for(Vector<String>::const_iterator iter = v.begin(); iter != v.end(); ++iter)
             capacity += iter->Length();
 
         ret.Reserve(capacity);
 
-        for(GUINT32 i(0); i < v.Length(); ++i)
+        for(GINT32 i(0); i < v.Length(); ++i)
         {
             ret.Append(v[i]);
             if(i < v.Length() - 1)
@@ -631,7 +749,7 @@ String String::ToUTF8() const
 {
     String ret(*this);
     char *cur( ret.Data() );
-    GUINT32 i( ret.Length() );
+    GINT32 i( ret.Length() );
     while(i-- != 0)
     {
 
@@ -684,9 +802,9 @@ bool String::IsValidUTF8Sequence(const char *c, const char *e)
 }
 
 
-GUINT32 String::LengthUTF8(const char *c)
+GINT32 String::LengthUTF8(const char *c)
 {
-    GUINT32 cnt(0);
+    GINT32 cnt(0);
     char tmpchar(*c);
     while(tmpchar != '\0')
     {
@@ -700,7 +818,7 @@ GUINT32 String::LengthUTF8(const char *c)
     return cnt;
 }
 
-String &String::ChopUTF8(GUINT32 n)
+String &String::ChopUTF8(GINT32 n)
 {
     if(n >= Length())
         Clear();
@@ -714,13 +832,13 @@ String &String::ChopUTF8(GUINT32 n)
     return *this;
 }
 
-String &String::Chop(GUINT32 n)
+String &String::Chop(GINT32 n)
 {
     if(n >= Length())
         Clear();
     else
     {
-        GUINT32 len(Length());
+        GINT32 len(Length());
         set_length(len - n);
         operator[](len - n) = '\0';
     }
@@ -776,14 +894,14 @@ bool String::operator >= (const String &s) const
 
 
 
-GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
+GINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
 {
-    GUINT32 ret(0);
+    GINT32 ret(0);
     if(mb_len == -1)
         mb_len = MultiByteLength(*start);
 
     if(mb_len < 0 || mb_len > 7 || !IsValidUTF8StartByte(*start))
-        ret = UINT_MAX;
+        ret = INT_MAX;
     else
     {
         if(String::IsValidAscii(*start))
@@ -800,14 +918,14 @@ GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
                     ret |= GINT32(mask & c) << (byte_count * 6);
                 else
                 {
-                    ret = UINT_MAX;
+                    ret = INT_MAX;
                     break;
                 }
             }
 
             // The first character gets special treatment, because it is the only byte that
             //  has a variable number of possible bits present
-            if(ret != UINT_MAX)
+            if(ret != INT_MAX)
             {
                 mask = (1 << (7 - mb_len)) - 1;
                 ret |= GINT32(mask & *start) << ((byte_count) * 6);
@@ -817,7 +935,7 @@ GUINT32 String::UnicodeValue(const char *start, GINT8 mb_len)
 
     // Do some final sanity checks on the Unicode value.  Is it an impossible value,
     //  because it could be represented by a shorter byte sequence, etc...?
-    if(ret != UINT_MAX)
+    if(ret != INT_MAX)
     {
 
     }
@@ -847,7 +965,7 @@ static int __get_utf8_bytes_necessary(int uc_value)
     return ret;
 }
 
-int String::UTF8CharFromUnicode(char *dest, GUINT32 uc_value)
+int String::UTF8CharFromUnicode(char *dest, GINT32 uc_value)
 {
     int ret = __get_utf8_bytes_necessary(uc_value);
     switch(ret)
@@ -982,12 +1100,12 @@ char String::Base64i2a(char c)
     }
 }
 
-String String::ToBase64(const char *str, GUINT32 len)
+String String::ToBase64(const char *str, GINT32 len)
 {
-    if(len == UINT_MAX)
+    if(len == INT_MAX)
         len = strlen(str);
 
-    GUINT32 capacity( (len << 2) / 3 );
+    GINT32 capacity( (len << 2) / 3 );
 
     if(capacity & 0b0011)
     {
@@ -1003,7 +1121,7 @@ String String::ToBase64(const char *str, GUINT32 len)
     const char orig_mask1 = 0b11111100 ;
     const char orig_mask2 = 0b00000011 ;
     int shift;
-    GUINT32 i;
+    GINT32 i;
     for(i = 0; i < len; ++i, ++str)
     {
         char six_bits;
@@ -1044,9 +1162,9 @@ String String::ToBase64(const char *str, GUINT32 len)
     return ret;
 }
 
-String String::FromBase64(const char *str, GUINT32 len)
+String String::FromBase64(const char *str, GINT32 len)
 {
-    if(len == UINT_MAX)
+    if(len == INT_MAX)
         len = strlen(str);
 
     // The string length must be a multiple of 4
@@ -1056,7 +1174,7 @@ String String::FromBase64(const char *str, GUINT32 len)
     String ret( (len * 3) >> 2 );
 
     // Now translate the string
-    for(GUINT32 i = 0; i < len; i += 4)
+    for(GINT32 i = 0; i < len; i += 4)
     {
         char a( Base64a2i(*(str++)) );
         char b( Base64a2i(*(str++)) );
@@ -1084,9 +1202,9 @@ String String::FromBase64(const char *str, GUINT32 len)
 }
 
 
-String String::FromBase16(const char *str, GUINT32 len)
+String String::FromBase16(const char *str, GINT32 len)
 {
-    if(len == UINT_MAX)
+    if(len == INT_MAX)
         len = strlen(str);
 
     // Input string must be a multiple of 2
@@ -1094,7 +1212,7 @@ String String::FromBase16(const char *str, GUINT32 len)
         THROW_NEW_GUTIL_EXCEPTION( Exception );
 
     String ret(len >> 1);
-    for(GUINT32 i = 0; i < len; i += 2)
+    for(GINT32 i = 0; i < len; i += 2)
     {
         char c1 = *(str++);
         char c2 = *(str++);
@@ -1104,9 +1222,9 @@ String String::FromBase16(const char *str, GUINT32 len)
     return ret;
 }
 
-String String::ToBase16(const char *str, GUINT32 len)
+String String::ToBase16(const char *str, GINT32 len)
 {
-    if(len == UINT_MAX)
+    if(len == INT_MAX)
         len = strlen(str);
 
     String ret(len << 1);
@@ -1188,7 +1306,7 @@ bool operator != (const char *c, const GUtil::DataObjects::String &s)
 
 GUtil::DataObjects::String operator + (const char *c, const GUtil::DataObjects::String &s)
 {
-    GUINT32 sz( strlen(c) );
+    GINT32 sz( strlen(c) );
     GUtil::DataObjects::String ret(sz + s.Length());
     ret.Insert(c, sz, 0);
     return ret.Append(s);

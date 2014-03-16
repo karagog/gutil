@@ -45,7 +45,7 @@ public:
     {}
 
     /** Constructs an empty list with the given storage capacity. */
-    ListImp(GUINT32 reserve_capacity)
+    ListImp(GINT32 reserve_capacity)
         :m_pageCount(0),
           m_size(0)
     {
@@ -53,7 +53,7 @@ public:
     }
 
     /** Constructs a list with the given number of item copies */
-    explicit ListImp(const T &item, GUINT32 count = 1)
+    explicit ListImp(const T &item, GINT32 count = 1)
         :m_pageCount(0),
           m_size(0)
     {
@@ -83,17 +83,17 @@ public:
 
 
     /** How many items are in the list. */
-    GUINT32 Length() const{ return m_size; }
+    GINT32 Length() const{ return m_size; }
 
     /** How many items the list is able to hold without having to resize. */
-    GUINT32 Capacity() const{ return capacity(m_pageCount); }
+    GINT32 Capacity() const{ return capacity(m_pageCount); }
 
     /** Increases the list's capacity.  You should do this if you know how large you want
         the list to grow before-hand.
     */
-    void Reserve(GUINT32 new_capacity)
+    void Reserve(GINT32 new_capacity)
     {
-        GUINT32 cur;
+        GINT32 cur;
         int new_pages(0);
         while((cur = Capacity()) < new_capacity)
         {
@@ -117,7 +117,7 @@ public:
     /** Inserts an item at the given index.
         Called any time an item is added to the list.
     */
-    T &Insert(const T &obj, GUINT32 indx)
+    T &Insert(const T &obj, GINT32 indx)
     {
         GASSERT(indx <= m_size);
 
@@ -127,7 +127,7 @@ public:
         if(indx < m_size)
         {
             // Shift subsequent items in the list by swapping
-            GUINT32 i(m_size);
+            GINT32 i(m_size);
             iterator prev(end());
             iterator cur(rbegin());
             GBYTE mem_data[sizeof(T)];
@@ -172,7 +172,7 @@ public:
         Called any time an item is removed from the list.
         \note O(N) on average, unless you always remove from the end of the list.
     */
-    void RemoveAt(GUINT32 indx)
+    void RemoveAt(GINT32 indx)
     {
         GASSERT(indx <= m_size);
 
@@ -183,7 +183,7 @@ public:
         if(indx < (m_size - 1))
         {
             // Shift all the subsequent items by swapping
-            GUINT32 i(indx);
+            GINT32 i(indx);
             iterator prev(cur);
             char mem_data[sizeof(T)];
             T *mem(NULL);
@@ -219,7 +219,7 @@ public:
     */
     void RemoveOne(const T &o)
     {
-        for(GUINT32 i(0); i < m_size; ++i)
+        for(GINT32 i(0); i < m_size; ++i)
         {
             if(o == (*this)[i])
             {
@@ -234,9 +234,9 @@ public:
     */
     void RemoveLast(const T &o)
     {
-        for(GUINT32 i(0); i < m_size; ++i)
+        for(GINT32 i(0); i < m_size; ++i)
         {
-            const GUINT32 cur( m_size - i - 1 );
+            const GINT32 cur( m_size - i - 1 );
             if(o == (*this)[cur])
             {
                 RemoveAt(cur);
@@ -250,9 +250,9 @@ public:
     */
     void RemoveAll(const T &o)
     {
-        for(GUINT32 i(0); i < m_size; ++i)
+        for(GINT32 i(0); i < m_size; ++i)
         {
-            const GUINT32 cur( m_size - 1 - i );
+            const GINT32 cur( m_size - 1 - i );
             if(o == (*this)[cur])
                 RemoveAt(cur);
         }
@@ -294,7 +294,7 @@ public:
     */
     ListImp<T> &Append(const ListImp<T> &l){
         Reserve(Length() + l.Length());
-        for(GUINT32 i(0); i < l.Length(); ++i) Append(l[i]);
+        for(GINT32 i(0); i < l.Length(); ++i) Append(l[i]);
         return *this;
     }
 
@@ -312,7 +312,7 @@ public:
     */
     ListImp<T> &Prepend(const ListImp<T> &l){
         Reserve(Length() + l.Length());
-        for(GUINT32 i(0); i < l.Length(); ++i) Insert(l[i], i);
+        for(GINT32 i(0); i < l.Length(); ++i) Insert(l[i], i);
         return *this;
     }
 
@@ -320,17 +320,17 @@ public:
     void RemoveFirst(){ RemoveAt(0); }
 
     /** Returns the item at the given index.  Does not do bounds checking. */
-    const T &operator [](GUINT32 indx) const{ return *at(indx); }
+    const T &operator [](GINT32 indx) const{ return *at(indx); }
     /** Returns the item at the given index.  Does not do bounds checking. */
-    T &operator [](GUINT32 indx){ return *at(indx); }
+    T &operator [](GINT32 indx){ return *at(indx); }
 
     /** Returns the item at the given index.  Throws an exception if index out of range. */
-    const T &At(GUINT32 indx) const{
+    const T &At(GINT32 indx) const{
         if(indx >= Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return *at(indx);
     }
     /** Returns the item at the given index.  Throws an exception if index out of range. */
-    T &At(GUINT32 indx){
+    T &At(GINT32 indx){
         if(indx >= Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return *at(indx);
     }
@@ -367,23 +367,23 @@ public:
     public:
 
         /** Returns the index we're currently on. */
-        GUINT32 Index() const{
+        GINT32 Index() const{
             return (1 << m_pageIndex) + (current - m_pageBegin) - 1;
 	}
 
         iterator &operator ++(){ _advance(); return *this;}
         iterator operator ++(int){ iterator ret(*this); _advance(); return ret; }
-        iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
-        iterator operator + (GUINT32 n) const{ iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
+        iterator &operator += (GINT32 n){ while(n-- != 0) _advance(); return *this; }
+        iterator operator + (GINT32 n) const{ iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         iterator &operator --(){ _retreat(); return *this;}
         iterator operator --(int){ iterator ret(*this); _retreat(); return ret; }
-        iterator &operator -= (GUINT32 n){ while(n-- != 0) _retreat(); return *this; }
-        iterator operator - (GUINT32 n) const{ iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+        iterator &operator -= (GINT32 n){ while(n-- != 0) _retreat(); return *this; }
+        iterator operator - (GINT32 n) const{ iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
         /** Returns the distance between iterators. */
-        GUINT32 operator - (const iterator &o) const{
-            GUINT32 ret(0);
+        GINT32 operator - (const iterator &o) const{
+            GINT32 ret(0);
             T *tmp_cur(o.current);
             T *tmp_end(o.m_pageEnd);
             for(GINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
@@ -408,7 +408,7 @@ public:
 
     protected:
 
-        iterator(const Vector<T *> *pages, GUINT32 indx)
+        iterator(const Vector<T *> *pages, GINT32 indx)
             :m_pages(pages),
               m_pageIndex(FSB32(indx + 1)),
               m_pageBegin(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pages->operator [](m_pageIndex)),
@@ -426,7 +426,7 @@ public:
         void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if((GUINT32)++m_pageIndex >= m_pages->Length())
+                if((GINT32)++m_pageIndex >= m_pages->Length())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -476,23 +476,23 @@ public:
         {}
 
         /** Returns the index we're currently on. */
-        GUINT32 Index() const{
+        GINT32 Index() const{
             return (1 << m_pageIndex) + (current - m_pageBegin) - 1;
         }
 
         const_iterator &operator ++(){ _advance(); return *this;}
         const_iterator operator ++(int){ const_iterator ret(*this); _advance(); return ret; }
-        const_iterator &operator += (GUINT32 n){ while(n-- != 0) _advance(); return *this; }
-        const_iterator operator + (GUINT32 n) const{ const_iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
+        const_iterator &operator += (GINT32 n){ while(n-- != 0) _advance(); return *this; }
+        const_iterator operator + (GINT32 n) const{ const_iterator ret(*this); while(n-- != 0) ret._advance(); return ret; }
 
         const_iterator &operator --(){ _retreat(); return *this;}
         const_iterator operator --(int){ const_iterator ret(*this); _retreat(); return ret; }
-        const_iterator &operator -=(GUINT32 n){ while(n-- != 0) _retreat(); return *this; }
-        const_iterator operator -(GUINT32 n) const{ const_iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
+        const_iterator &operator -=(GINT32 n){ while(n-- != 0) _retreat(); return *this; }
+        const_iterator operator -(GINT32 n) const{ const_iterator ret(*this); while(n-- != 0) ret._retreat(); return ret; }
 
         /** Returns the distance between iterators. */
-        GUINT32 operator - (const const_iterator &o) const{
-            GUINT32 ret(0);
+        GINT32 operator - (const const_iterator &o) const{
+            GINT32 ret(0);
             T *tmp_cur(o.current);
             T *tmp_end(o.m_pageEnd);
             for(GINT32 cur_page(o.m_pageIndex); cur_page < m_pageIndex; ++cur_page)
@@ -517,7 +517,7 @@ public:
 
     protected:
 
-        const_iterator(const Vector<T *> *pages, GUINT32 indx)
+        const_iterator(const Vector<T *> *pages, GINT32 indx)
             :m_pages(pages),
               m_pageIndex(FSB32(indx + 1)),
               m_pageBegin(m_pageIndex >= 0 && m_pages->IsNull() ? 0 : m_pages->operator [](m_pageIndex)),
@@ -535,7 +535,7 @@ public:
         void _advance(){
             if(!current || ++current == m_pageEnd)
             {
-                if((GUINT32)++m_pageIndex >= m_pages->Length())
+                if((GINT32)++m_pageIndex >= m_pages->Length())
                 {
                     m_pageBegin = 0;
                     m_pageEnd = 0;
@@ -594,9 +594,9 @@ public:
 
 protected:
 
-    static GUINT32 capacity(GUINT32 number_of_pages){ return (1 << number_of_pages) - 1; }
+    static GINT32 capacity(GINT32 number_of_pages){ return (1 << number_of_pages) - 1; }
 
-    T *at(GUINT32 indx) const{
+    T *at(GINT32 indx) const{
         const int pindx( FSB32(++indx) );
         return d[pindx] + TRUNCATE_LEFT_32(indx, 32 - pindx);
     }
@@ -606,11 +606,11 @@ private:
 
     Vector<T*> d;
     int m_pageCount;
-    GUINT32 m_size;
+    GINT32 m_size;
 
     void _merge_sort(const iterator &b, const iterator &e, bool ascending, Vector<T> &buffer, const Interfaces::IComparer<T> &cmp){
-        GUINT32 diff( e - b );
-        if(diff == UINT_MAX);
+        GINT32 diff( e - b );
+        if(diff == INT_MAX);
         else if(diff == 2)
         {
             T *last( &(*(e - 1)) );
@@ -684,8 +684,8 @@ private:
 #define GUTIL_LIST_CONSTRUCTORS(class_name, base_class) \
     public: \
     class_name(){} \
-    class_name(GUINT32 reserve_capacity) :base_class(reserve_capacity){} \
-    explicit class_name(const T &item, GUINT32 count = 1) :base_class(item, count){} \
+    class_name(GINT32 reserve_capacity) :base_class(reserve_capacity){} \
+    explicit class_name(const T &item, GINT32 count = 1) :base_class(item, count){} \
     class_name(const base_class &o) :base_class(o){} \
     virtual ~class_name(){}
 
@@ -712,13 +712,13 @@ template<class T> class List<T, IRandomAccessContainer<T> > :
 {
     GUTIL_VECTOR_CONSTRUCTORS(List, List<T>)
 
-    virtual T &At(GUINT32 i){ return ListImp<T>::At(i); }
-    virtual T const &At(GUINT32 i) const{ return ListImp<T>::At(i); }
+    virtual T &At(GINT32 i){ return ListImp<T>::At(i); }
+    virtual T const &At(GINT32 i) const{ return ListImp<T>::At(i); }
 
-    virtual T &Insert(const T &item, GUINT32 i){ return ListImp<T>::Insert(item, i); }
-    virtual void Remove(GUINT32 i){ ListImp<T>::RemoveAt(i); }
+    virtual T &Insert(const T &item, GINT32 i){ return ListImp<T>::Insert(item, i); }
+    virtual void Remove(GINT32 i){ ListImp<T>::RemoveAt(i); }
 
-    virtual GUINT32 Size() const{ return ListImp<T>::Length(); }
+    virtual GINT32 Size() const{ return ListImp<T>::Length(); }
     virtual void Clear(){ ListImp<T>::Empty(); }
 
 };
@@ -737,7 +737,7 @@ template<class T> class List<T, IStack<T> > :
     virtual T &Top(){ return ListImp<T>::Back(); }
     virtual T const &Top() const{ return ListImp<T>::Back(); }
 
-    virtual GUINT32 Size() const{ return ListImp<T>::Length(); }
+    virtual GINT32 Size() const{ return ListImp<T>::Length(); }
     virtual void Clear(){ ListImp<T>::Empty(); }
 
 };
@@ -755,7 +755,7 @@ template<class T> class List<T, IQueue<T> > :
     virtual T &Front(){ return ListImp<T>::Front(); }
     virtual T const &Front() const{ return ListImp<T>::Front(); }
 
-    virtual GUINT32 Size() const{ return ListImp<T>::Length(); }
+    virtual GINT32 Size() const{ return ListImp<T>::Length(); }
     virtual void Clear(){ ListImp<T>::Empty(); }
 
 };
@@ -777,7 +777,7 @@ template<class T> class List<T, IDeque<T> > :
     virtual T &Back(){ return ListImp<T>::Back(); }
     virtual T const &Back() const{ return ListImp<T>::Back(); }
 
-    virtual GUINT32 Size() const{ return ListImp<T>::Length(); }
+    virtual GINT32 Size() const{ return ListImp<T>::Length(); }
     virtual void Clear(){ ListImp<T>::Empty(); }
 
 };

@@ -44,7 +44,7 @@ template<>
 class Vector<bool>
 {
     Vector<GINT32> m_data;
-    GUINT32 m_size;
+    GINT32 m_size;
 public:
 
     /** Creates a null-capacity vector */
@@ -53,13 +53,13 @@ public:
     {}
 
     /** Capacity refers to the number of bits we are capable of representing in the bitvector. */
-    explicit Vector(GUINT32 capacity)
+    explicit Vector(GINT32 capacity)
         :m_data(capacity ? ((capacity - 1) >> 5) + 1 : 0),
           m_size(0)
     {}
 
     /** Initializes the vector to the given value */
-    Vector(bool init_val, GUINT32 size)
+    Vector(bool init_val, GINT32 size)
         :m_data(init_val ? 0xFFFFFFFF : 0, size),
           m_size(size)
     {}
@@ -67,21 +67,18 @@ public:
     /** Returns the value at the given index.
         Throws an exception if the index is beyond the array's end
     */
-    bool At(GUINT32 indx) const{
+    bool At(GINT32 indx) const{
         if(indx >= m_size) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return operator [](indx);
     }
 
     /** Returns the value at the given index. */
-    bool operator [] (GINT32 indx) const{ return operator[]((GUINT32)indx); }
-
-    /** Returns the value at the given index. */
-    bool operator [] (GUINT32 indx) const{
+    bool operator [] (GINT32 indx) const{
         return m_data[indx >> 5] & (1 << (indx & 0x1F));
     }
 
     /** Sets the bit to the given value */
-    void Set(GUINT32 indx, bool val){
+    void Set(GINT32 indx, bool val){
         GINT32 &target(m_data[indx >> 5]);
         GINT32 mask(1 << (indx & 0x1F));
         if(val) target |= mask;
@@ -91,7 +88,7 @@ public:
     /** Sets the bit to the given value, and returns the value the bit once had
         \note This is not atomic; simply a convenience function
     */
-    bool FetchAndSet(GUINT32 indx, bool val){
+    bool FetchAndSet(GINT32 indx, bool val){
         bool ret( At(indx) );
         Set(indx, val);
         return ret;
@@ -99,7 +96,7 @@ public:
 
     /** Adds the bit to the end of the vector */
     void PushBack(bool val){
-        GUINT32 old_size( m_size++ );
+        GINT32 old_size( m_size++ );
         if((old_size >> 5) > m_data.Length())
             m_data.PushBack(0);
         Set(old_size, val);

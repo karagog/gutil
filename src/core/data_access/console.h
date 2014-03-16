@@ -62,10 +62,10 @@ public:
         whitespace character
         \returns The number of bytes it read into the buffer
     */
-    static GUINT32 Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes = UINT_MAX);
+    static GINT32 Read(GBYTE *buffer, GINT32 buffer_len, GINT32 bytes = INT_MAX);
 
     /** Reads from the console. */
-    static DataObjects::String Read(GUINT32 bytes){
+    static DataObjects::String Read(GINT32 bytes){
         DataObjects::String ret(bytes);
         ret.Resize(bytes);
         Read(reinterpret_cast<GBYTE *>(ret.Data()), bytes, bytes);
@@ -90,12 +90,12 @@ public:
 
 
     /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */
-    virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
+    virtual GINT32 WriteBytes(const GBYTE *data, GINT32 len){
         Write(reinterpret_cast<const char *>(data), GetOutputStream());
         return len;
     }
     /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */
-    virtual GUINT32 ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
+    virtual GINT32 ReadBytes(GBYTE *buffer, GINT32 buffer_len, GINT32 bytes_to_read){
         return Read(buffer, buffer_len, bytes_to_read);
     }
 

@@ -67,7 +67,7 @@ void __init_with_string(::GUtil::DataObjects::Version *v,
     {
         int tmp;
         bool ok(false);
-        ::GUtil::DataObjects::Vector< ::GUtil::DataObjects::String > lst( s.Split('.') );
+        GUtil::DataObjects::StringList lst( s.Split('.') );
         v->SetMajorVersion(0);
         v->SetMinorVersion(0);
         v->SetReleaseVersion(0);

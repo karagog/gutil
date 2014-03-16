@@ -36,7 +36,7 @@ using namespace CryptoPP;
 NAMESPACE_GUTIL1(Utils);
 
 
-String Crypto::CompressString(const GBYTE *data, GUINT32 data_len,
+String Crypto::CompressString(const GBYTE *data, GINT32 data_len,
                                        Crypto::CompressionLevelEnum level)
 {
     String ret(data_len + 1);   // Preallocate space for the return string
@@ -65,7 +65,7 @@ String Crypto::CompressString(const GBYTE *data, GUINT32 data_len,
     return ret;
 }
 
-String Crypto::DecompressString(const GBYTE *data, GUINT32 data_len)
+String Crypto::DecompressString(const GBYTE *data, GINT32 data_len)
 {
     String ret(data_len);
 
@@ -108,19 +108,19 @@ String Crypto::DecompressString(const GBYTE *data, GUINT32 data_len)
 
 #define ENCRYPTED_MESSAGE_STAMP 0xAAAAAAAAAAAAAAAAULL
 
-String Crypto::EncryptString(const GBYTE *data, GUINT32 data_len,
-                                      const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
+String Crypto::EncryptString(const GBYTE *data, GINT32 data_len,
+                                      const GBYTE *key, GINT32 len, EncryptionTypeEnum e)
 {
     byte padded_key[SHA256::DIGESTSIZE];
     String ret(data_len);   // A heuristic to estimate the length of the return string
-    if(len == UINT_MAX)
+    if(len == INT_MAX)
         len = strlen(reinterpret_cast<const char *>(key));
 
     SmartPointer<StreamTransformation> mode;
 
     // At least as big as the largest block size
     byte init_vec[AES::BLOCKSIZE];
-    GUINT32 block_size;
+    GINT32 block_size;
 
     switch(e)
     {
@@ -185,16 +185,16 @@ String Crypto::EncryptString(const GBYTE *data, GUINT32 data_len,
     return ret;
 }
 
-String Crypto::DecryptString(const GBYTE *data, GUINT32 data_len, const GBYTE *key, GUINT32 len, EncryptionTypeEnum e)
+String Crypto::DecryptString(const GBYTE *data, GINT32 data_len, const GBYTE *key, GINT32 len, EncryptionTypeEnum e)
 {
     String ret(data_len);
-    if(len == UINT_MAX)
+    if(len == INT_MAX)
         len = strlen(reinterpret_cast<const char *>(key));
 
 
     // Each encryption algorithm may use a different block size, and therefore require
     //  a different length initialization vector
-    GUINT32 iv_len;
+    GINT32 iv_len;
 
     // This just needs to be big enough to hold the maximum padded key length
     byte padded_key[AES::MAX_KEYLENGTH];
@@ -246,12 +246,12 @@ String Crypto::DecryptString(const GBYTE *data, GUINT32 data_len, const GBYTE *k
     return ret;
 }
 
-String Crypto::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e)
+String Crypto::Hash(const GBYTE *data, GINT32 data_len, HashAlgorithmEnum e)
 {
-    GUINT32 str_len;
+    GINT32 str_len;
     SmartPointer<HashTransformation> h;
 
-    if(data_len == UINT_MAX)
+    if(data_len == INT_MAX)
         data_len = strlen((const char *)data);
 
     switch(e)
@@ -294,14 +294,14 @@ String Crypto::Hash(const GBYTE *data, GUINT32 data_len, HashAlgorithmEnum e)
     return ret;
 }
 
-String Crypto::RandomString(GUINT32 num_bytes, GUINT32 seed)
+String Crypto::RandomString(GINT32 num_bytes, GINT32 seed)
 {
-    bool autoseed( seed == UINT_MAX );
+    bool autoseed( seed == INT_MAX );
     String ret((char)0, num_bytes);
 
     AutoSeededX917RNG<AES> rng(false, autoseed);
     if(!autoseed)
-        rng.IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GUINT32));
+        rng.IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GINT32));
 
     rng.GenerateBlock(reinterpret_cast<byte *>(ret.Data()), num_bytes);
     return ret;
