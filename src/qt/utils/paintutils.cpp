@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <math.h>
 #include <QPainter>
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 void PaintUtils::DrawArrow(QPainter &painter,
@@ -66,4 +66,4 @@ void PaintUtils::DrawArrow(QPainter &painter,
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

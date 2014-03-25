@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_binarysearchtree.h"
 #include "gutil_interfaces.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Implements a templated mapping between values.
@@ -277,17 +277,10 @@ template<class K, class V>void Map<K, V>::_insert(const K &key, const V &value, 
 }
 
 
-END_NAMESPACE_GUTIL1;
-
-
-namespace GUtil
-{
-
 // The map is binary-movable only if the BinarySearchTree is
-template<class T, class U>struct IsMovableType< DataObjects::Map<T, U> > :
-        public IsMovableType< DataObjects::BinarySearchTree<T> >{};
+template<class T, class U>struct IsMovableType< Map<T, U> > : public IsMovableType< BinarySearchTree<T> >{};
 
-}
 
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_MAP_H

@@ -14,9 +14,7 @@ limitations under the License.*/
 
 #include "gutil_commandlinemenu.h"
 #include "gutil_console.h"
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(DataAccess);
+USING_NAMESPACE_GUTIL;
 
 CommandLineMenu::CommandLineMenu(CommandLineMenuItem *root)
     :_root(root),

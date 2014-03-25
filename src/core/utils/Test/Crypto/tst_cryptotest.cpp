@@ -16,8 +16,6 @@ limitations under the License.*/
 #include "gutil_crypto.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(Utils);
 USING_NAMESPACE_GUTIL;
 
 class CryptoTest : public QObject

@@ -20,11 +20,12 @@ limitations under the License.*/
 
 NAMESPACE_GUTIL1(QT);
 
+
 static void __initialize_qt_metatypes()
 {
     qRegisterMetaType< GUtil::Exception<false> >("GUtil::Exception<false>");
     qRegisterMetaType< GUtil::Exception<true> >("GUtil::Exception<true>");
-    qRegisterMetaType< GUtil::DataObjects::String >("GUtil::DataObjects::String");
+    qRegisterMetaType< GUtil::String >("GUtil::String");
 }
 
 
@@ -44,5 +45,6 @@ public:
 };
 
 static LOADER __ldr;
+
 
 END_NAMESPACE_GUTIL1;

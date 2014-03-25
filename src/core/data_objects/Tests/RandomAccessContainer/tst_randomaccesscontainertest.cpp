@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "gutil_interfaces.h"
 #include "gutil_vector.h"
 #include "gutil_list.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class RandomAccessContainerTest : public QObject
 {

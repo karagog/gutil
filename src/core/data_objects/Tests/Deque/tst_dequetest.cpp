@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_list.h"
 #include "gutil_dlist.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class DequeTest : public QObject
 {

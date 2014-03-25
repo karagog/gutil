@@ -15,9 +15,9 @@ limitations under the License.*/
 #include "varianttable.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, DataObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 #define DATATABLE_XML_ID        "GUtil_Table"
@@ -81,7 +81,7 @@ void VariantTable::ReadXml(QXmlStreamReader &sr)
 
         for(int i = 0; i < rows; i++)
         {
-            Utils::SharedSmartPointer< DataRow<QVariant> > r( CreateRow() );
+            SharedSmartPointer< DataRow<QVariant> > r( CreateRow() );
             ReadRowXml(sr, *r);
             AddRow(r);
         }
@@ -106,4 +106,4 @@ void VariantTable::ReadRowXml(QXmlStreamReader &sr, DataRow<QVariant> &dr)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

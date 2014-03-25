@@ -26,7 +26,7 @@ limitations under the License.*/
 
 class QWidget;
 
-NAMESPACE_GUTIL2(QT, Plugins);
+NAMESPACE_GUTIL1(QT);
 
 
 /** The abstract plugin interface for showing and setting up an about window */
@@ -40,9 +40,9 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 // We have to declare this outside the namespace
-Q_DECLARE_INTERFACE(GUtil::QT::Plugins::IAboutGUtil, "GUtil.IAboutGUtil")
+Q_DECLARE_INTERFACE(GUtil::QT::IAboutGUtil, "GUtil.IAboutGUtil")
 
 #endif // ABOUTPLUGININTERFACE_H

@@ -16,7 +16,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Defines some base functions common to most data containers. */
@@ -152,6 +152,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_ICOLLECTIONS_H

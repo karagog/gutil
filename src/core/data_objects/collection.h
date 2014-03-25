@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_list.h"
 #include "gutil_vector.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** A random-access container class, which provides added functionality over
@@ -30,7 +30,7 @@ public:
 
     explicit Collection(int capacity = 0) :_collection(capacity){}
     Collection(const Collection<T> &c) :_collection(c._collection){}
-    Collection(const DataObjects::List<T> &l) :_collection(l){}
+    Collection(const List<T> &l) :_collection(l){}
 
     /** \note It is important that we don't remove items manually,
         to avoid calling the virtual functions in the destructor.
@@ -248,7 +248,7 @@ protected:
 
 private:
 
-    DataObjects::List<T> _collection;
+    List<T> _collection;
 
 };
 
@@ -265,7 +265,7 @@ public:
     explicit ResizableCollection(int capacity = 0)
         :Collection<T>(capacity) {}
 
-    ResizableCollection(const DataObjects::List<T> &v)
+    ResizableCollection(const List<T> &v)
         : Collection<T>(v){}
 
     ResizableCollection(const ResizableCollection<T> &v)
@@ -404,7 +404,7 @@ template <typename T> int Collection<T>::IndexOf(const T &o, int from) const
 
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 #endif // GUTIL_COLLECTION_H

@@ -40,7 +40,7 @@ limitations under the License.*/
     }
 
 /** You can use this to declare exceptions with public data members. */
-#define GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( ex_name, members ) GUTIL_EXCEPTION_DECLARE3(ex_name, ::GUtil::Exception, members)
+#define GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( ex_name, members ) GUTIL_EXCEPTION_DECLARE3(ex_name, GUtil::Exception, members)
 
 
 /** Use this to declare simple exception types with no extra public members. */
@@ -209,7 +209,7 @@ void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
 
 /** Use this convenient macro to insert the file/line data in the exception */
 #define THROW_GUTIL_EXCEPTION( except ) \
-    ::GUtil::__setExceptionFileAndLineInfo(except, __FILE__, __LINE__); \
+    GUtil::__setExceptionFileAndLineInfo(except, __FILE__, __LINE__); \
     throw except
 
 /** Use this convenient macro to instantiate an exception of the specified type,

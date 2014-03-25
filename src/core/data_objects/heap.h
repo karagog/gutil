@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_vector.h"
 #include "gutil_flexibletypecomparer.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Implements a heap of objects.  You can modify the sorting behavior by injecting a new
@@ -34,7 +34,7 @@ public:
     Heap(){}
 
     /** Creates an empty heap with your own custom compare function. */
-    Heap(const Utils::FlexibleTypeComparer<T> &f)
+    Heap(const FlexibleTypeComparer<T> &f)
         :compare(f)
     {}
 
@@ -102,7 +102,7 @@ public:
 private:
 
     Vector<T> data;
-    Utils::FlexibleTypeComparer<T> compare;
+    FlexibleTypeComparer<T> compare;
 
     void _heapify_up();
     void _heapify_down();
@@ -207,17 +207,11 @@ template<class T>void Heap<T>::_heapify_down()
 }
 
 
-END_NAMESPACE_GUTIL1;
+template<class T>struct IsMovableType< Heap<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< MinHeap<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< MaxHeap<T> >{ enum{ Value = 1 }; };
 
 
-namespace GUtil
-{
-
-template<class T>struct IsMovableType< DataObjects::Heap<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::MinHeap<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::MaxHeap<T> >{ enum{ Value = 1 }; };
-
-}
-
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_GUTIL_HEAP_H

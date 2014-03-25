@@ -20,10 +20,7 @@ limitations under the License.*/
 #include "cryptopp/osrng.h"
 #endif
 
-USING_NAMESPACE_GUTIL1(Utils);
-
-
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 #ifdef UUID_VERSION_OFFSET
@@ -137,4 +134,4 @@ bool Uuid::operator != (const Uuid &other) const
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

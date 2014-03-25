@@ -22,33 +22,33 @@ limitations under the License.*/
 class QXmlStreamWriter;
 class QXmlStreamReader;
 
-NAMESPACE_GUTIL2(QT, DataObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 class VariantTable :
-        public GUtil::DataObjects::DataTable<QVariant>,
-        public Interfaces::IQXmlSerializable
+        public GUtil::DataTable<QVariant>,
+        public IQXmlSerializable
 {
 public:
 
     VariantTable(){}
-    VariantTable(int num_cols) :GUtil::DataObjects::DataTable<QVariant>(num_cols){}
-    VariantTable(const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &col_names)
-        :GUtil::DataObjects::DataTable<QVariant>(col_names){}
-    VariantTable(const GUtil::DataObjects::String &tbl_name, const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &col_names = GUtil::DataObjects::Vector<GUtil::DataObjects::String>())
-        :GUtil::DataObjects::DataTable<QVariant>(tbl_name, col_names)
+    VariantTable(int num_cols) :GUtil::DataTable<QVariant>(num_cols){}
+    VariantTable(const GUtil::Vector<GUtil::String> &col_names)
+        :GUtil::DataTable<QVariant>(col_names){}
+    VariantTable(const GUtil::String &tbl_name, const GUtil::Vector<GUtil::String> &col_names = GUtil::Vector<GUtil::String>())
+        :GUtil::DataTable<QVariant>(tbl_name, col_names)
     {}
 
     virtual void WriteXml(QXmlStreamWriter &) const;
     virtual void ReadXml(QXmlStreamReader &);
 
 
-    static void WriteRowXml(QXmlStreamWriter &, const GUtil::DataObjects::DataRow<QVariant> &);
-    static void ReadRowXml(QXmlStreamReader &, GUtil::DataObjects::DataRow<QVariant> &);
+    static void WriteRowXml(QXmlStreamWriter &, const GUtil::DataRow<QVariant> &);
+    static void ReadRowXml(QXmlStreamReader &, GUtil::DataRow<QVariant> &);
 
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_VARIANTTABLE_H

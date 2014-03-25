@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_flexibletypecomparer.h"
 #include "gutil_exception.h"
 #include "gutil_globals.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** The DList provides a doubly-linked list.
@@ -507,7 +507,7 @@ public:
     */
     void Sort(bool ascending = true,
               GUtil::SortTypeEnum e = GUtil::MergeSort,
-              const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>())
+              const GUtil::IComparer<T> &comparer = GUtil::DefaultComparer<T>())
     {
         switch(e)
         {
@@ -529,7 +529,7 @@ private:
     node *m_first;
     node *m_last;
 
-    void _merge_sort(iterator &b, iterator &e, bool ascending, const Interfaces::IComparer<T> &cmp)
+    void _merge_sort(iterator &b, iterator &e, bool ascending, const IComparer<T> &cmp)
     {
         // Find the midpoint of the list
         GUINT32 diff(0);
@@ -825,19 +825,13 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
-
-
-namespace GUtil
-{
-
 // Both DList types can be binary-moved
-template<class T>struct IsMovableType< DataObjects::DList<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::DListStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::DListQueue<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DataObjects::DListDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DList<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DListStack<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DListQueue<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DListDeque<T> >{ enum{ Value = 1 }; };
 
-}
 
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_DLIST_H

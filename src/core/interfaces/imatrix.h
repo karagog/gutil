@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_exception.h"
 
-NAMESPACE_GUTIL1( Interfaces );
+NAMESPACE_GUTIL;
 
 
 template <class T> class IMatrix
@@ -163,6 +163,6 @@ T IMatrix<T>::_find_optimum_in_row(int index,
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // IMATRIX_H

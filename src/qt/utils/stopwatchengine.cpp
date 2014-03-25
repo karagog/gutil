@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <QTimerEvent>
 #include <QTimer>
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 #define DEFAULT_TIMER_RESOLUTION 100
@@ -213,4 +213,4 @@ QDateTime StopwatchEngine::TimeStopped()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

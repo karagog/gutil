@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_NULLABLE_H
 
 #include "gutil_globals.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** A class that allows you to nullify an ordinary object.
@@ -103,22 +103,22 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 /** Returns true if the nullable equals the given value */
 template<class T>
-bool operator == (const GUtil::DataObjects::Nullable<T> &lhs, const T &rhs){ bool ret(false); if(!lhs.IsNull()) ret = *lhs == rhs; return ret; }
+bool operator == (const GUtil::Nullable<T> &lhs, const T &rhs){ bool ret(false); if(!lhs.IsNull()) ret = *lhs == rhs; return ret; }
 /** Returns false if the nullable equals the given value */
 template<class T>
-bool operator != (const GUtil::DataObjects::Nullable<T> &lhs, const T &rhs){ bool ret(true); if(!lhs.IsNull()) ret = *lhs != rhs; return ret; }
+bool operator != (const GUtil::Nullable<T> &lhs, const T &rhs){ bool ret(true); if(!lhs.IsNull()) ret = *lhs != rhs; return ret; }
 
 /** Returns true if the given value equals the nullable */
 template<class T>
-bool operator == (const T &lhs, const GUtil::DataObjects::Nullable<T> &rhs){ bool ret(false); if(!rhs.IsNull()) ret = *rhs == lhs; return ret; }
+bool operator == (const T &lhs, const GUtil::Nullable<T> &rhs){ bool ret(false); if(!rhs.IsNull()) ret = *rhs == lhs; return ret; }
 /** Returns false if the given value equals the nullable */
 template<class T>
-bool operator != (const T &lhs, const GUtil::DataObjects::Nullable<T> &rhs){ bool ret(true); if(!rhs.IsNull()) ret = *rhs != lhs; return ret; }
+bool operator != (const T &lhs, const GUtil::Nullable<T> &rhs){ bool ret(true); if(!rhs.IsNull()) ret = *rhs != lhs; return ret; }
 
 
 

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include "applicationbase.h"
 
-namespace GUtil{ namespace QT{ namespace Custom {
+namespace GUtil{ namespace QT{
 
 
 /** A customized QCoreApplication, which implements the Application functionality */
@@ -79,7 +79,7 @@ private:
 };
 
 
-}}}
+}}
 
 
 #ifdef gApp

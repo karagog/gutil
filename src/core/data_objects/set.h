@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_vector.h"
 #include "gutil_binarysearchtree.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Implements an associative container of objects.
@@ -260,17 +260,11 @@ template<class T>void Set<T>::_remove(const T &i, bool all)
     }
 }
 
-END_NAMESPACE_GUTIL1;
-
-
-namespace GUtil
-{
 
 // The set is binary-movable only if the BinarySearchTree is
-template<class T>struct IsMovableType< DataObjects::Set<T> > :
-        public IsMovableType< DataObjects::BinarySearchTree<T> >{};
+template<class T>struct IsMovableType< Set<T> > : public IsMovableType< BinarySearchTree<T> >{};
 
-}
 
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_SET_H

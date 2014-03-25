@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    GUtil::QT::Custom::Application::AboutGUtil();
+    GUtil::QT::Application::AboutGUtil();
 
     //return a.exec();
     return 0;

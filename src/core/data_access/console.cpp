@@ -14,9 +14,8 @@ limitations under the License.*/
 
 #include "gutil_console.h"
 #include <cstdio>
-USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(DataAccess);
+NAMESPACE_GUTIL;
 
 void Console::Write(const char *d, OutputStreamEnum e)
 {
@@ -149,4 +148,4 @@ bool Console::_is_whitespace(char c)
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

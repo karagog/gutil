@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QString>
 #include <QFont>
 
-NAMESPACE_GUTIL2(QT, DataObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A convenience class that pairs a piece of text with the font with which to format it. */
@@ -46,7 +46,7 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUI_FUNCTIONALITY
 

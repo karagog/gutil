@@ -17,9 +17,9 @@ limitations under the License.*/
 #include "messageboxlogger.h"
 #include "gutil_extendedexception.h"
 #include <QMessageBox>
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, Logging);
+NAMESPACE_GUTIL1(QT);
 
 
 void MessageBoxLogger::log_protected(const LoggingData &d)
@@ -41,6 +41,6 @@ void MessageBoxLogger::log_protected(const LoggingData &d)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUI_FUNCTIONALITY

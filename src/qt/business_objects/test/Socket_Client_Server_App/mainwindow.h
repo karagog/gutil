@@ -49,8 +49,8 @@ private:
 
     QString _process_name;
 
-    GUtil::BusinessObjects::LocalSocketClient *_client;
-    GUtil::BusinessObjects::LocalSocketServer *_server;
+    GUtil::LocalSocketClient *_client;
+    GUtil::LocalSocketServer *_server;
 
 };
 

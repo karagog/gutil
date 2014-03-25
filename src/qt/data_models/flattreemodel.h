@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QAbstractProxyModel>
 #include "gutil_map.h"
 
-namespace GUtil{ namespace QT{ namespace DataModels{
+namespace GUtil{ namespace QT{
 
 
 /** This class will represent a tree model as a list model, essentially
@@ -98,9 +98,9 @@ private slots:
 
 private:
 
-    GUtil::DataObjects::Map<int, QPersistentModelIndex> _index_map_to_source;
-    GUtil::DataObjects::Map<int, int> _index_map_from_source;
-    GUtil::DataObjects::Map<int, int> _child_record;
+    GUtil::Map<int, QPersistentModelIndex> _index_map_to_source;
+    GUtil::Map<int, int> _index_map_from_source;
+    GUtil::Map<int, int> _child_record;
 
     int _total_rows;
 
@@ -119,7 +119,7 @@ private:
 };
 
 
-}}}
+}}
 
 
 #endif // GUI_FUNCTIONALITY

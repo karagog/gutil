@@ -13,10 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "globallogger.h"
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 // Static variables
 Map<int, SharedSmartPointer<AbstractLogger> > GlobalLogger::m_loggers;
@@ -44,4 +42,4 @@ void GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
     }
 }
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

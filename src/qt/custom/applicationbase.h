@@ -35,11 +35,11 @@ limitations under the License.*/
     \note You need to compile with RTTI for this to work.
     \sa qApp
 */
-#define gApp   dynamic_cast<GUtil::QT::Custom::ApplicationBase *>(qApp)
+#define gApp   dynamic_cast<GUtil::QT::ApplicationBase *>(qApp)
 
 
 
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL1(QT);
 
 
 /** Used as a base class for the common functionality of Application and CoreApplication.
@@ -71,8 +71,8 @@ public:
 
 
     /** Get convenient access to the command line arguments. */
-    GUtil::Utils::CommandLineArgs Args() const{
-        return GUtil::Utils::CommandLineArgs(qApp->argc(), qApp->argv());
+    GUtil::CommandLineArgs Args() const{
+        return GUtil::CommandLineArgs(qApp->argc(), qApp->argv());
     }
 
 
@@ -174,6 +174,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GAPPLICATIONBASE_H

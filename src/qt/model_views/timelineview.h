@@ -29,17 +29,12 @@ class QDateTimeEdit;
 
 
 namespace GUtil{
-namespace Utils{
-    template <class T> class SymmetricMatrix;
-}
+
+template <class T> class SymmetricMatrix;
 
 namespace QT{
-namespace DataObjects{
-    class FormattedText;
-}
 
-
-namespace ModelViews{
+class FormattedText;
 
 
 class TimelineView :
@@ -156,7 +151,7 @@ private:
     void _draw_items(QModelIndexList &, QPainter &, int iteration);
     void _draw_item(const QModelIndex &, QPainter &);
     void _draw_rect(const QRect &, const QColor &,
-                    const DataObjects::FormattedText &, QPainter &);
+                    const FormattedText &, QPainter &);
     void _draw_datetime_rect(const QDateTime &, const QPoint &center_point, bool raise, QPainter &);
 
     QRegion itemRegion(const QModelIndex &) const;
@@ -226,7 +221,7 @@ private:
 };
 
 
-}}}
+}}
 
 
 #endif // GUI_FUNCTIONALITY

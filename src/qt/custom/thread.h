@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QReadWriteLock>
 #include <QWaitCondition>
 
-namespace GUtil{ namespace QT{ namespace Custom{
+namespace GUtil{ namespace QT{
 
 
 /** Useful QThread wrapper
@@ -75,6 +75,6 @@ protected:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_THREAD_H

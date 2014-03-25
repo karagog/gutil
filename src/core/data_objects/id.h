@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include <cstring>
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Implements a random ID of configurable size.
@@ -97,7 +97,7 @@ public:
     bool IsNull() const{ return 0 == Compare(Null(), *this); }
 
     /** Generates a random new value for this id. */
-    void Generate(){ ::GUtil::Utils::RNG::Fill(m_data, sizeof(m_data)); }
+    void Generate(){ GUtil::RNG::Fill(m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with hex digits */
     String ToString16() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }
@@ -162,12 +162,9 @@ public:
 
 template<int NUM_BYTES> const Id<NUM_BYTES> Id<NUM_BYTES>::s_null(false);
 
+template<int NUM_BYTES>struct IsMovableType< GUtil::Id<NUM_BYTES> >{ enum{ Value = 1 }; };
 
-END_NAMESPACE_GUTIL1;
 
-
-namespace GUtil{
-    template<int NUM_BYTES>struct IsMovableType< ::GUtil::DataObjects::Id<NUM_BYTES> >{ enum{ Value = 1 }; };
-}
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_ID_H

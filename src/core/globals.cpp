@@ -126,7 +126,7 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
 class LOADER :
 
         // Initialize the RNG
-        public ::GUtil::Utils::RNG_Initializer
+        public GUtil::RNG_Initializer
 {
 public:
 

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_exception.h"
 
-NAMESPACE_GUTIL1( Interfaces );
+NAMESPACE_GUTIL;
 
 
 /** Declares an interface that says you have a "Readonly" state.
@@ -80,7 +80,7 @@ protected:
     /** Derived classes return a useful string to identify the object
         which threw a ReadOnlyException
     */
-    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::Interfaces::IReadonlyObject"; }
+    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::IReadonlyObject"; }
 
 private:
 
@@ -95,6 +95,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // IREADONLYOBJECT_H

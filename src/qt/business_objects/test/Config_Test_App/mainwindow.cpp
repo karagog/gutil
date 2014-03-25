@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-USING_NAMESPACE_GUTIL2(QT, BusinessObjects);
+USING_NAMESPACE_GUTIL1(QT);
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

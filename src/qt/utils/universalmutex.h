@@ -27,7 +27,7 @@ limitations under the License.*/
 #include <QStringList>
 
 
-namespace GUtil{ namespace QT{ namespace Utils{
+namespace GUtil{ namespace QT{
 
 
 /** This class provides mutually exclusive access to a file.
@@ -103,7 +103,7 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // UNIVERSALMUTEX_H
 

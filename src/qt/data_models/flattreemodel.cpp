@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "flattreemodel.h"
 #include "gutil_macros.h"
 
-NAMESPACE_GUTIL2(QT, DataModels);
+NAMESPACE_GUTIL1(QT);
 
 
 void FlatTreeModel::setSourceModel(QAbstractItemModel *m)
@@ -151,4 +151,4 @@ void FlatTreeModel::_refresh_index_mapping(const QModelIndex &ind)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

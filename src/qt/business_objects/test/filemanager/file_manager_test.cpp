@@ -16,10 +16,8 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include "gutil_consolelogger.h"
 #include <QTest>
-using namespace GUtil;
-USING_NAMESPACE_GUTIL1(Logging);
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL2(QT, BusinessObjects );
+USING_NAMESPACE_GUTIL;
+USING_NAMESPACE_GUTIL1(QT);
 
 
 class file_manager_test : public QObject
@@ -77,7 +75,7 @@ void file_manager_test::simple_startup_test()
     }
     catch(const Exception<> &ex)
     {
-        GUtil::Logging::ConsoleLogger().LogException(ex);
+        GUtil::ConsoleLogger().LogException(ex);
         QFAIL("Exception");
     }
 }

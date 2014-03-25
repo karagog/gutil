@@ -28,9 +28,8 @@ limitations under the License.*/
 #include <QResource>
 #include <QPluginLoader>
 #include <QMessageBox>
-USING_NAMESPACE_GUTIL1(QT);
 
-NAMESPACE_GUTIL2(QT, UI);
+NAMESPACE_GUTIL1(QT);
 
 #define TITLE_HEIGHT 40
 
@@ -39,7 +38,7 @@ NAMESPACE_GUTIL2(QT, UI);
 /** A reference to the about plugin instance.  This is lazy-loaded when the user
  *   opens the first about window.
  */
-static Plugins::IAboutGUtil *si_ag( 0 );
+static IAboutGUtil *si_ag( 0 );
 
 AboutLogic::AboutLogic(QObject *parent)
     :QObject(parent)
@@ -75,7 +74,7 @@ QString AboutLogic::_load_about_gutil_plugin()
             .arg(QCoreApplication::applicationDirPath())
             .arg(GUTIL_SHAREDLIBRARY_NAME GUTIL_SHAREDLIBRARY_SUFFIX)));
         if(pl.load()){
-            Plugins::IAboutGUtil *iface( qobject_cast<GUtil::QT::Plugins::IAboutGUtil *>(pl.instance()) );
+            IAboutGUtil *iface( qobject_cast<GUtil::QT::IAboutGUtil *>(pl.instance()) );
             if(iface){
                 si_ag = iface;
             }
@@ -246,7 +245,7 @@ void About::ShowAbout()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 
 #endif // GUI_FUNCTIONALITY

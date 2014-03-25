@@ -22,7 +22,7 @@ class console_repeater : public QObject
 {
     Q_OBJECT
 
-    GUtil::QT::DataAccess::ConsoleIODevice _cio;
+    GUtil::QT::ConsoleIODevice _cio;
 
 public:
 

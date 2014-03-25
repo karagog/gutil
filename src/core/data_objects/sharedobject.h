@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_smartpointer.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Defines an explicitly shared object, whose data is shared between class
@@ -67,11 +67,11 @@ protected:
 
 private:
 
-    GUtil::Utils::SharedSmartPointer<T> _shared_data;
+    GUtil::SharedSmartPointer<T> _shared_data;
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_SHAREDOBJECT_H

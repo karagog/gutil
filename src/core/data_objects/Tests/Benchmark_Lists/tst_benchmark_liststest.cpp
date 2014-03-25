@@ -23,7 +23,7 @@ limitations under the License.*/
 #include <stack>
 #include <queue>
 using namespace std;
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class Benchmark_ListsTest :
         public QObject

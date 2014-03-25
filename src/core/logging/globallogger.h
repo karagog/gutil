@@ -21,7 +21,7 @@ limitations under the License.*/
 #include "gutil_smartpointer.h"
 #include "abstractlogger.h"
 
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 /** A static class that facilitates a global logging entity, accessible
@@ -89,24 +89,24 @@ public:
 
 
     /** Logs a message. */
-    static void LogMessage(const DataObjects::String &msg,
-                                  const DataObjects::String &title = DataObjects::String(),
+    static void LogMessage(const String &msg,
+                                  const String &title = String(),
                                   int logger_id = DefaultId)
     {
         _log(msg, title, logger_id, AbstractLogger::MessageLevel_Info);
     }
 
     /** Logs a message with a severity of "warning". */
-    static void LogWarning(const DataObjects::String &msg,
-                           const DataObjects::String &title = DataObjects::String(),
+    static void LogWarning(const String &msg,
+                           const String &title = String(),
                            int logger_id = DefaultId)
     {
         _log(msg, title, logger_id, AbstractLogger::MessageLevel_Warning);
     }
 
     /** Logs a message with a severity of "error". */
-    static void LogError(const DataObjects::String &msg,
-                                const DataObjects::String &title = DataObjects::String(),
+    static void LogError(const String &msg,
+                                const String &title = String(),
                                 int logger_id = DefaultId)
     {
         _log(msg, title, logger_id, AbstractLogger::MessageLevel_Error);
@@ -126,7 +126,7 @@ public:
 
 private:
 
-    static DataObjects::Map<int, Utils::SharedSmartPointer<AbstractLogger> > m_loggers;
+    static Map<int, SharedSmartPointer<AbstractLogger> > m_loggers;
     static int m_default_logger_id;
 
 
@@ -138,8 +138,8 @@ private:
         }
     }
 
-    static void _log(const DataObjects::String &msg,
-                            const DataObjects::String &title,
+    static void _log(const String &msg,
+                            const String &title,
                             int logger_id,
                             AbstractLogger::MessageLevelEnum ml)
     {
@@ -159,6 +159,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_GLOBALLOGGER_H

@@ -79,7 +79,7 @@ public:
 
         \sa Roll()
     */
-    const ::GUtil::DataObjects::Vector<Die> &Inspect() const{
+    const GUtil::Vector<Die> &Inspect() const{
         return m_dice;
     }
 
@@ -94,7 +94,7 @@ public:
 
 private:
 
-    ::GUtil::DataObjects::Vector<Die> m_dice;
+    GUtil::Vector<Die> m_dice;
     GUINT8 m_sides;
 
 };

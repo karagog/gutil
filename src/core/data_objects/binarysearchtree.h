@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_flexibletypecomparer.h"
 #include "gutil_vector.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** A class which maps one type to another, using a function pointer
@@ -156,7 +156,7 @@ template<class T, class KeyType = T>class BinarySearchTree
     
     node *root;
     GUINT32 m_size;
-    Utils::FlexibleTypeComparer<KeyType> f_cmp;
+    FlexibleTypeComparer<KeyType> f_cmp;
     TypeMapper<T, KeyType> f_map;
 
 public:
@@ -174,7 +174,7 @@ public:
         value of your comparison function (i.e. if you want it to arrange
         items in reverse order, then reverse your comparison function)
     */
-    BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp)
+    BinarySearchTree(const FlexibleTypeComparer<KeyType> &cmp)
         :root(NULL),
           m_size(0),
           f_cmp(cmp)
@@ -199,7 +199,7 @@ public:
         The tree still uses the less-than
         operator for comparisons, and sorts things ascendingly
     */
-    BinarySearchTree(const Utils::FlexibleTypeComparer<KeyType> &cmp,
+    BinarySearchTree(const FlexibleTypeComparer<KeyType> &cmp,
                                      const TypeMapper<T, KeyType> &map)
         :root(NULL),
           m_size(0),
@@ -892,16 +892,10 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
 }
 
 
-END_NAMESPACE_GUTIL1;
-
-
-namespace GUtil
-{
-
 // The Binary Search Tree can be binary-moved
-template<class T>struct IsMovableType< DataObjects::BinarySearchTree<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< BinarySearchTree<T> >{ enum{ Value = 1 }; };
 
-}
 
+END_NAMESPACE_GUTIL;
 
 #endif //GUTIL_BST_H

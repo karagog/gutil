@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "queuedlogger.h"
 
-NAMESPACE_GUTIL2(QT, Logging);
+NAMESPACE_GUTIL1(QT);
 
 
 QueuedLogger::~QueuedLogger()
@@ -99,4 +99,4 @@ void QueuedLogger::log_protected(const LoggingData &d)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

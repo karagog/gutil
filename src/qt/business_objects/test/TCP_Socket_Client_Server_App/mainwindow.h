@@ -46,8 +46,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    GUtil::BusinessObjects::TcpSocketClient *_client;
-    GUtil::BusinessObjects::TcpSocketServer *_server;
+    GUtil::TcpSocketClient *_client;
+    GUtil::TcpSocketServer *_server;
 
 };
 

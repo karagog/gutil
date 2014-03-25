@@ -18,7 +18,7 @@ limitations under the License.*/
 
 
 // Convenient namespace declaration
-NAMESPACE_GUTIL2( DummyTest )
+NAMESPACE_GUTIL1( DummyTest )
 
 class TestClass
 {
@@ -55,7 +55,7 @@ bool TestClass::GetSexy() const
     return true;
 }
 
-END_NAMESPACE_GUTIL2
+END_NAMESPACE_GUTIL1
 
 
 
@@ -73,7 +73,7 @@ private Q_SLOTS:
 
 
 
-USING_NAMESPACE_GUTIL2( DummyTest );
+USING_NAMESPACE_GUTIL1( DummyTest );
 //using namespace GUtil::DummyTest;
 
 GUtil_MacrosTest::GUtil_MacrosTest()

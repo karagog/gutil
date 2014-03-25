@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <QApplication>
 #include <QDesktopWidget>
 
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL1(QT);
 
 
 void Widget::CenterOverWidget(QWidget *main, QWidget *child)
@@ -59,4 +59,4 @@ QWidget *Widget::FindTopMostParent(QWidget *w)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

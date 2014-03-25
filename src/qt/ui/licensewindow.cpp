@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ui_licensewindow.h"
 #include "gutil_macros.h"
 
-NAMESPACE_GUTIL2(QT, UI);
+NAMESPACE_GUTIL1(QT);
 
 
 LicenseWindow::LicenseWindow(const QString &license_text, QWidget *parent)
@@ -45,4 +45,4 @@ QString LicenseWindow::GetLicenseText() const
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

@@ -39,7 +39,7 @@ limitations under the License.*/
 #define GUTIL_EXCEPTION_DECLARE_EXTENDED( ex_name ) \
 template<>class ex_name<true> : \
     public ex_name<false>, \
-    public ::GUtil::ExtendedException \
+    public GUtil::ExtendedException \
 { \
     public: \
         ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
@@ -49,9 +49,9 @@ template<>class ex_name<true> : \
         ex_name(const char *file, \
                          int line, \
                          const char *message, \
-                         const ::GUtil::Exception<false> &inner_exception) \
+                         const GUtil::Exception<false> &inner_exception) \
             :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
-                ::GUtil::ExtendedException(inner_exception) {} \
+                GUtil::ExtendedException(inner_exception) {} \
         virtual ~ex_name(){} \
 }
 
@@ -62,8 +62,8 @@ NAMESPACE_GUTIL;
 /** Implements extended features for exception classes. */
 class ExtendedException
 {
-    ::GUtil::DataObjects::Map< ::GUtil::DataObjects::String, ::GUtil::DataObjects::String> _data;
-    ::GUtil::Utils::SmartPointer< Exception<> > m_innerException;
+    GUtil::Map< GUtil::String, GUtil::String> _data;
+    GUtil::SmartPointer< Exception<> > m_innerException;
 public:
 
     ExtendedException(){}
@@ -73,18 +73,18 @@ public:
     ExtendedException &operator = (const ExtendedException &);
     virtual ~ExtendedException();
 
-    void SetData(const DataObjects::String &key, const DataObjects::String &value){
+    void SetData(const String &key, const String &value){
         _data[key] = value;
     }
-    DataObjects::String GetData(const DataObjects::String &key) const{
-        DataObjects::String ret;
+    String GetData(const String &key) const{
+        String ret;
         if(HasData(key)) ret = _data.At(key);
         return ret;
     }
-    bool HasData(const DataObjects::String &key) const{ return _data.Contains(key); }
+    bool HasData(const String &key) const{ return _data.Contains(key); }
 
     /** Returns the map of key-value pairs. */
-    const DataObjects::Map<DataObjects::String, DataObjects::String> &GetDataMap() const
+    const Map<String, String> &GetDataMap() const
     { return _data; }
 
     void SetInnerException(const Exception<> &ex);

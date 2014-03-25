@@ -24,10 +24,10 @@ class DogTable;
 // This is the simple version of a derived data row; one in which the row data
 //  has nothing special to it, just property accessors for the columns
 class DogRow :
-        public GUtil::DataObjects::DataRow
+        public GUtil::DataRow
 {
-    //friend class GUtil::DataObjects::DataRowCollection;
-    //friend class GUtil::DataObjects::DataTable;
+    //friend class GUtil::DataRowCollection;
+    //friend class GUtil::DataTable;
 
 public:
 

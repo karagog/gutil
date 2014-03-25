@@ -31,7 +31,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    GUtil::DataAccess::GSocketIODevice *sock;
+    GUtil::GSocketIODevice *sock;
     QLocalServer *srv;
 
 };

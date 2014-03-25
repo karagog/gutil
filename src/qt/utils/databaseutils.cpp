@@ -21,17 +21,17 @@ limitations under the License.*/
 #include <QSqlError>
 #include <QSqlDatabase>
 #include <QVariant>
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 #ifdef GUTIL_DEBUG
 #include "gutil_console.h"
 #endif
 
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
-::GUtil::DataObjects::String DatabaseUtils::InfoString(const QSqlQuery &q)
+GUtil::String DatabaseUtils::InfoString(const QSqlQuery &q)
 {
     int cnt(0);
     String tmp("");
@@ -66,7 +66,7 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
 {
 #ifdef GUTIL_DEBUG
-    ::GUtil::DataAccess::Console::WriteLine(InfoString(q));
+    GUtil::Console::WriteLine(InfoString(q));
 #endif
 
     if(!q.exec())
@@ -74,9 +74,9 @@ void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
         
 #ifdef GUTIL_DEBUG
     if(q.isSelect())
-        ::GUtil::DataAccess::Console::WriteLine(String::Format("Last Query returned %d results. \n\n", q.size()));
+        GUtil::Console::WriteLine(String::Format("Last Query returned %d results. \n\n", q.size()));
     else
-        ::GUtil::DataAccess::Console::WriteLine(String::Format("Last Query modified %d rows. \n\n", q.numRowsAffected()));
+        GUtil::Console::WriteLine(String::Format("Last Query modified %d rows. \n\n", q.numRowsAffected()));
 #endif
 }
 
@@ -150,4 +150,4 @@ QDateTime DatabaseUtils::ConvertStringToDate(const QString &s)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

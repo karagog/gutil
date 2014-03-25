@@ -19,8 +19,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include "gutil_set.h"
 USING_NAMESPACE_GUTIL1(Games);
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class CardsTest : public QObject
 {

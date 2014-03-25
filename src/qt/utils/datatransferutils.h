@@ -21,7 +21,7 @@ limitations under the License.*/
 class QString;
 class QByteArray;
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A static class that declares functions which may help in
@@ -48,6 +48,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // DATATRANSFERUTILS_H

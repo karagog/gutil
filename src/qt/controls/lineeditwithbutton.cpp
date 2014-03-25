@@ -15,9 +15,8 @@ limitations under the License.*/
 #include "gutil_lineeditwithbutton.h"
 #include "gutil_faderwidget.h"
 #include <QHBoxLayout>
-USING_NAMESPACE_GUTIL2(QT, UI);
 
-NAMESPACE_GUTIL2(QT, Controls);
+NAMESPACE_GUTIL1(QT);
 
 
 LineEditWithButton::LineEditWithButton(QWidget *par, bool btn_visible, int fade_duration) :
@@ -61,4 +60,4 @@ LineEditWithButton::LineEditWithButton(QWidget *par, bool btn_visible, int fade_
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

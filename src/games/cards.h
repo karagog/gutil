@@ -178,9 +178,9 @@ class Hand
 {
     friend class Deck;
 
-    ::GUtil::DataObjects::Vector<Card *> m_cards;
-    ::GUtil::DataObjects::Vector<Card *> m_cardsPlayed;
-    ::GUtil::Utils::FlexibleTypeComparer<Card *> m_cardComparer;
+    GUtil::Vector<Card *> m_cards;
+    GUtil::Vector<Card *> m_cardsPlayed;
+    GUtil::FlexibleTypeComparer<Card *> m_cardComparer;
 
 public:
 
@@ -191,7 +191,7 @@ public:
     GUINT32 CardCount() const{ return m_cards.Length() + m_cardsPlayed.Length(); }
 
     /** Returns the list of cards in the hand. */
-    const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
+    const GUtil::Vector<Card *> &Cards() const{ return m_cards; }
 
     /** Sorts the remaining cards in the hand, typically for display purposes. */
     void Sort(){ m_cards.Sort(true, m_cardComparer); }
@@ -328,13 +328,13 @@ public:
 
         \sa SetNumberHands()
     */
-    ::GUtil::DataObjects::Vector<Hand> &Hands(){ return m_hands; }
+    GUtil::Vector<Hand> &Hands(){ return m_hands; }
 
     /** Returns a const-reference to our list of hands
 
         \sa SetNumberHands()
     */
-    const ::GUtil::DataObjects::Vector<Hand> &Hands() const{ return m_hands; }
+    const GUtil::Vector<Hand> &Hands() const{ return m_hands; }
 
 
     /** Deals the given number of cards evenly into the hands.
@@ -390,16 +390,16 @@ public:
     bool IsCollected() const;
 
 
-    const ::GUtil::DataObjects::Vector<Card *> &Cards() const{ return m_cards; }
+    const GUtil::Vector<Card *> &Cards() const{ return m_cards; }
 
 
 protected:
 
     /** Our list of cards, accessible to any subclass. */
-    ::GUtil::DataObjects::Vector<Card *> m_cards;
+    GUtil::Vector<Card *> m_cards;
 
     /** Our list of hands, accessible to any subclass. */
-    ::GUtil::DataObjects::Vector<Hand> m_hands;
+    GUtil::Vector<Hand> m_hands;
 
     /** Appends a standard 52 card deck to our list of cards.
         Used for deck initialization.

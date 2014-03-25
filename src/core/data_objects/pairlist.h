@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "gutil_pair.h"
 #include "gutil_list.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Describes a list of value pairs. */
@@ -31,6 +31,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_PAIRLIST_H

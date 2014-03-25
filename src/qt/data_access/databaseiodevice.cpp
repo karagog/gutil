@@ -24,12 +24,9 @@ limitations under the License.*/
 #include <QSqlDatabase>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL2(QT, DataObjects);
-USING_NAMESPACE_GUTIL2(QT, Utils);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, DataAccess);
+NAMESPACE_GUTIL1(QT);
 
 
 DatabaseIODevice::DatabaseIODevice(const QString &db_connection_id,
@@ -66,7 +63,7 @@ DatabaseIODevice::DatabaseIODevice(const QString &db_connection_id,
                 while(c.next())
                     columns.Insert(String::FromQString(c.value(1).toString()));
 
-                _tables.insert(table_name, DataObjects::VariantTable(columns));
+                _tables.insert(table_name, VariantTable(columns));
             }
         }
         //    else if(driver == "QMYSQL")
@@ -834,6 +831,6 @@ void DatabaseParametersBase::WriteXml(QXmlStreamWriter &sw) const
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // DATABASE_FUNCTIONALITY

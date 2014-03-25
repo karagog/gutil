@@ -16,7 +16,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Represents a trio of data. */
@@ -61,6 +61,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_TRIO_H

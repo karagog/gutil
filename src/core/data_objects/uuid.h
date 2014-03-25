@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include "gutil_globals.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** A Universally Unique Identifier implementation, which conforms to the
@@ -43,7 +43,7 @@ public:
     /** Constructs Uuid from an ascii hex string.
         \sa FromString(), ToString()
     */
-    Uuid(const ::GUtil::DataObjects::String &id);
+    Uuid(const GUtil::String &id);
 
     /** Copy constructor*/
     Uuid(const Uuid &);
@@ -62,12 +62,12 @@ public:
     /** Returns a new Uuid which has been constructed from a string
         \sa ToString()
     */
-    static Uuid FromString(const ::GUtil::DataObjects::String &s){ return Uuid(s); }
+    static Uuid FromString(const GUtil::String &s){ return Uuid(s); }
 
     /** Turns the Uuid object into an ASCII hex string.
         \sa FromString()
     */
-    ::GUtil::DataObjects::String ToString() const;
+    GUtil::String ToString() const;
 
     /** Causes the Uuid to generate a new value. */
     void Generate();
@@ -94,6 +94,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // UUID_H

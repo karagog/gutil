@@ -14,9 +14,8 @@ limitations under the License.*/
 
 #include "gutil_file.h"
 #include <stdio.h>
-USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(DataAccess);
+NAMESPACE_GUTIL;
 
 
 File::~File()
@@ -147,4 +146,4 @@ String File::Read(GUINT32 bytes)
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

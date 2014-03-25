@@ -19,7 +19,7 @@ limitations under the License.*/
 #define DEFAULT_WRITE_PROGRESS_RESOLUTION -1
 #define DEFAULT_READ_PROGRESS_RESOLUTION -1
 
-NAMESPACE_GUTIL2(QT, DataAccess);
+NAMESPACE_GUTIL1(QT);
 
 
 QT_IODevice::QT_IODevice(QIODevice *io, QObject *parent)
@@ -143,4 +143,4 @@ void QT_IODevice::_fail_if_not_open()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

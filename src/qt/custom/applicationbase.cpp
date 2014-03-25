@@ -18,9 +18,7 @@ limitations under the License.*/
 #include <signal.h>
 #endif
 
-USING_NAMESPACE_GUTIL1(Logging);
-
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL1(QT);
 
 
 ApplicationBase::ApplicationBase()
@@ -120,4 +118,4 @@ bool ApplicationBase::RestoreDefaultSignalFromOS(int)
 #endif
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

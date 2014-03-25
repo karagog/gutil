@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_strings.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 class Version
@@ -85,6 +85,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_VERSION_H

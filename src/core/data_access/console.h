@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_iointerface.h"
 #include "gutil_strings.h"
 
-NAMESPACE_GUTIL1(DataAccess);
+NAMESPACE_GUTIL;
 
 
 /** A blocking IO device that reads/writes to the console.
@@ -65,14 +65,14 @@ public:
     static GINT32 Read(GBYTE *buffer, GINT32 buffer_len, GINT32 bytes = INT_MAX);
 
     /** Reads from the console. */
-    static DataObjects::String Read(GINT32 bytes){
-        DataObjects::String ret(bytes);
+    static String Read(GINT32 bytes){
+        String ret(bytes);
         ret.Resize(bytes);
         Read(reinterpret_cast<GBYTE *>(ret.Data()), bytes, bytes);
         return ret;
     }
     /** Reads a line from the console. */
-    static DataObjects::String ReadLine(){
+    static String ReadLine(){
         return _read_until_terminator(&_is_end_line);
     }
 
@@ -83,7 +83,7 @@ public:
     static GFLOAT32 ReadFloat();
 
     /** Reads a string from stdin (reads until a whitespace character) */
-    static DataObjects::String Read(){
+    static String Read(){
         return _read_until_terminator(&_is_whitespace);
     }
 
@@ -102,7 +102,7 @@ public:
 
 private:
 
-    static DataObjects::String _read_until_terminator(bool (*is_terminator_char)(char));
+    static String _read_until_terminator(bool (*is_terminator_char)(char));
 
     static bool _is_end_line(char c);
     static bool _is_whitespace(char c);
@@ -110,6 +110,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_CONSOLE_H

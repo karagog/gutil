@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "Logging/globallogger.h"
 #include "Logging/messageboxlogger.h"
-using namespace GUtil::Logging;
+using namespace GUtil;
 
 int main(int argc, char *argv[])
 {

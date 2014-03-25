@@ -24,12 +24,9 @@ limitations under the License.*/
 #include <QDesktopServices>
 #include <QDir>
 #include <QTimer>
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(Interfaces);
-USING_NAMESPACE_GUTIL2(QT, DataObjects);
-USING_NAMESPACE_GUTIL2(QT, DataAccess);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, BusinessObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 void PersistentData::_clear_data_index(Map<String, data_t *> &data, Map<int, data_t *> &index)
@@ -245,7 +242,7 @@ void PersistentData::commit_reject_changes(bool commit)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_NO_DATABASE_FUNCTIONALITY
 #endif // GUI_FUNCTIONALITY

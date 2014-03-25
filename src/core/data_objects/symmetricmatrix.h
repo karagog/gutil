@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_imatrix.h"
 #include "gutil_vector.h"
 
-NAMESPACE_GUTIL1( DataObjects );
+NAMESPACE_GUTIL;
 
 
 /** This class represents a symmetric matrix of items, which optimizes memory
@@ -26,19 +26,19 @@ NAMESPACE_GUTIL1( DataObjects );
 */
 template <class T>
 class SymmetricMatrix :
-        public Interfaces::IMatrix<T>
+        public IMatrix<T>
 {
 public:
 
     SymmetricMatrix(GUINT32 size)
-        :Interfaces::IMatrix<T>(size, size)
+        :IMatrix<T>(size, size)
     {
         for(int i = 0; i < size; i++)
             m_matrix.push_back(Vector<T>(i + 1));
     }
 
     SymmetricMatrix(GUINT32 size, const T &initial_value)
-        :Interfaces::IMatrix<T>(size, size)
+        :IMatrix<T>(size, size)
     {
         for(GUINT32 i = 0; i < size; i++)
         {
@@ -113,6 +113,6 @@ T SymmetricMatrix<T>::FindMaxValue(int &row, int &col) const
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // SYMMETRICMATRIX_H

@@ -17,8 +17,7 @@ limitations under the License.*/
 #include "gutil_rng.h"
 #include "gutil_strings.h"
 #include "gutil_globals.h"
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 #define NUM_TRIES 1000000U
 

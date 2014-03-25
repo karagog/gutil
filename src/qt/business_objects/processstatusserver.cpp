@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "processstatusserver.h"
 
-NAMESPACE_GUTIL2(QT, BusinessObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 void ProcessStatusServer::incomingConnection(quintptr socketDescriptor)
@@ -25,4 +25,4 @@ void ProcessStatusServer::incomingConnection(quintptr socketDescriptor)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

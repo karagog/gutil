@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include <QContextMenuEvent>
 
-NAMESPACE_GUTIL2(QT, ModelViews);
+NAMESPACE_GUTIL1(QT);
 
 
 void TreeView::ExpandToIndex(const QModelIndex &ind)
@@ -62,7 +62,7 @@ void TreeView::_append_children_to_selection(const QModelIndex &ind, QItemSelect
         _append_children_to_selection(model()->index(i, 0, ind), sel, fl);
 }
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 
 #endif // GUI_FUNCTIONALITY

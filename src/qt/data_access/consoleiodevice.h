@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "iodevice.h"
 
-namespace GUtil{ namespace QT{ namespace DataAccess{
+namespace GUtil{ namespace QT{
 
 
 /** Implements an IODevice that listens and writes to the console on a 
@@ -108,6 +108,6 @@ protected:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_CONSOLEIODEVICE_H

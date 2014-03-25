@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <QUuid>
 #include <QObject>
 
-namespace GUtil{ namespace QT{ namespace DataAccess{
+namespace GUtil{ namespace QT{
 
 
 /** This is an abstract base class to represent different methods of data transport
@@ -40,7 +40,7 @@ namespace GUtil{ namespace QT{ namespace DataAccess{
 
 class IODevice :
         public QObject,
-        public GUtil::Interfaces::IReadOnlyObject
+        public GUtil::IReadOnlyObject
 {
     Q_OBJECT
 
@@ -94,7 +94,7 @@ protected:
     virtual QByteArray receive_data() = 0;
 
     // IReadonly interface
-    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::QT::DataAccess::IODevice"; }
+    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::QT::IODevice"; }
 
 
 protected slots:
@@ -105,6 +105,6 @@ protected slots:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_IODEVICE_H

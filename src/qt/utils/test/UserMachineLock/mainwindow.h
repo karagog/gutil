@@ -34,10 +34,10 @@ private:
 
     bool using_mutex();
 
-    GUtil::Utils::MachineLockBase *_get_lock();
+    GUtil::MachineLockBase *_get_lock();
 
-    GUtil::Utils::UserMachineMutex *_mutex;
-    GUtil::Utils::UserMachineReadWriteLock *_rw_lock;
+    GUtil::UserMachineMutex *_mutex;
+    GUtil::UserMachineReadWriteLock *_rw_lock;
 };
 
 #endif // MAINWINDOW_H

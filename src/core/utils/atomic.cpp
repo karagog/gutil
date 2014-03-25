@@ -13,7 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "atomic.h"
-USING_NAMESPACE_GUTIL1(Utils);
+
+NAMESPACE_GUTIL;
+
 
 bool AtomicInt::Increment()
 {
@@ -62,3 +64,6 @@ int AtomicInt::AddAndFetch(int n)
     );
     return n;
 }
+
+
+END_NAMESPACE_GUTIL;

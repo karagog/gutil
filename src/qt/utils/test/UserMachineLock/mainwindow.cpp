@@ -4,8 +4,6 @@
 #include "Logging/globallogger.h"
 #include <QMessageBox>
 #include <QFileDialog>
-using namespace GUtil::Utils;
-using namespace GUtil::Logging;
 using namespace GUtil;
 
 #define DEFAULT_ID "UserMachineLockTest"
@@ -122,7 +120,7 @@ bool MainWindow::using_mutex()
     return ui->cmb_lockSelect->currentIndex() == 0;
 }
 
-Utils::MachineLockBase *MainWindow::_get_lock()
+MachineLockBase *MainWindow::_get_lock()
 {
     if(using_mutex())
         return _mutex;

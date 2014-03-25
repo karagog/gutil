@@ -15,8 +15,8 @@ limitations under the License.*/
 #include "mainwindow.h"
 #include <QVBoxLayout>
 #include <QLabel>
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL2(QT, Controls);
+USING_NAMESPACE_GUTIL;
+USING_NAMESPACE_GUTIL1(QT);
 
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),

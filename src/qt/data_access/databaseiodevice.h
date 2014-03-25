@@ -31,12 +31,8 @@ class QSqlQuery;
 class QSqlDatabase;
 
 namespace GUtil{ namespace QT{
-namespace DataObjects{
-    class VariantTable;
-}
-namespace DataAccess{
 
-
+class VariantTable;
 class DatabaseSelectionParameters;
 class DatabaseValueParameters;
 
@@ -47,7 +43,7 @@ class DatabaseValueParameters;
 //  is not able to handle foreign relationships or table joins.
 
 // The data to send/receive is XML data generated from a
-//  DataObjects::VariantTable object.  The data you receive from it can be
+//  VariantTable object.  The data you receive from it can be
 //  equivalently read into a VariantTable object with the FromXmlQString method
 
 class DatabaseIODevice :
@@ -69,7 +65,7 @@ public:
     // Here are the various database commands you can issue:
 
     void CreateTable(const QString &name,
-                     const GUtil::DataObjects::PairList<QString, QString> &column_names_n_types,
+                     const GUtil::PairList<QString, QString> &column_names_n_types,
                      int primary_key_column = -1,
                      bool drop_if_exists = true);
 
@@ -85,7 +81,7 @@ public:
 
     // Insert the rows in the provided table into the database table of the same name
     //  You can get a blank table to operate on by calling 'GetBlankTable' with the right table name
-    void Insert(const DataObjects::VariantTable &);
+    void Insert(const VariantTable &);
 
     int LastInsertId() const{ return _p_ReturnValue.value<int>(); }
 
@@ -93,16 +89,16 @@ public:
     //  of the table, and you can set values in it that will be used
     //  to filter the data in the select clause.  It will select the
     //  columns you give it in the 'columns' variable
-    DataObjects::VariantTable Select(const DatabaseSelectionParameters &where,
+    VariantTable Select(const DatabaseSelectionParameters &where,
                                   const QList<int> &columns = QList<int>());
 
     // Select all the data in the table
-    DataObjects::VariantTable Select(const QString &table_name,
+    VariantTable Select(const QString &table_name,
                                   const QList<int> &columns = QList<int>());
 
-    DataObjects::VariantTable Select(const DatabaseSelectionParameters &where,
+    VariantTable Select(const DatabaseSelectionParameters &where,
                                   const QStringList &columns);
-    DataObjects::VariantTable Select(const QString &table_name,
+    VariantTable Select(const QString &table_name,
                                   const QStringList &columns);
 
     // A count query, based on your selection parameter filters
@@ -120,7 +116,7 @@ public:
     // Call these functions to get a blank table or parameters object that matches the table you declared
     DatabaseSelectionParameters GetBlankSelectionParameters(const QString &table_name) const;
     DatabaseValueParameters GetBlankValueParameters(const QString &table_name) const;
-    DataObjects::VariantTable GetBlankTable(const QString &table_name) const;
+    VariantTable GetBlankTable(const QString &table_name) const;
 
     // The value returned by the last query
     READONLY_PROPERTY( ReturnValue, QVariant );
@@ -168,7 +164,7 @@ protected:
     //  the convenient functions above
     QByteArray prepare_send_data(
             WriteCommandsEnum cmd,
-            const DataObjects::VariantTable &);
+            const VariantTable &);
 
     QByteArray prepare_send_data(
             WriteCommandsEnum cmd,
@@ -181,7 +177,7 @@ protected:
 
     QByteArray prepare_send_data(
             WriteCommandsEnum cmd,
-            const DataObjects::VariantTable &,
+            const VariantTable &,
             const DatabaseSelectionParameters &,
             const DatabaseValueParameters &);
 
@@ -207,7 +203,7 @@ private:
     // Control what commands to issue
     ReadCommandsEnum _p_ReadCommand;
 
-    QMap<QString, DataObjects::VariantTable> _tables;
+    QMap<QString, VariantTable> _tables;
 
     QList<int> _columns_requested;
     DatabaseSelectionParameters *_selection_parameters;
@@ -218,7 +214,7 @@ private:
     }
 
     QString _prepare_where_clause(
-            const GUtil::DataObjects::Vector<GUtil::DataObjects::String> &column_keys,
+            const GUtil::Vector<GUtil::String> &column_keys,
             const DatabaseSelectionParameters &) const;
 
 };
@@ -226,23 +222,23 @@ private:
 
 
 class DatabaseParametersBase :
-        public Interfaces::IQXmlSerializable
+        public IQXmlSerializable
 {
 public:
 
     // Use ColumnOptions to set various options on the columns, like
     //  a different compare operator, NOT/OR it, etc...
-    GUtil::DataObjects::ResizableCollection
+    GUtil::ResizableCollection
     <DatabaseIODevice::ColumnOptions> &ColumnOptions(){
         return _column_options;
     }
-    const GUtil::DataObjects::ResizableCollection
+    const GUtil::ResizableCollection
     <DatabaseIODevice::ColumnOptions> &ColumnOptions() const{
         return _column_options;
     }
 
-    const DataObjects::VariantTable &Table() const{
-        return static_cast<const DataObjects::VariantTable &>(_row.Table());
+    const VariantTable &Table() const{
+        return static_cast<const VariantTable &>(_row.Table());
     }
 
     int ColumnCount() const{ return _row.ColumnCount(); }
@@ -256,19 +252,19 @@ public:
 
 protected:
 
-    DatabaseParametersBase(const GUtil::DataObjects::DataRow<QVariant> &fv)
+    DatabaseParametersBase(const GUtil::DataRow<QVariant> &fv)
         :_column_options(fv.ColumnCount()),
           _row(fv)
     {}
 
     DatabaseParametersBase(){}
 
-    GUtil::DataObjects::ResizableCollection<DatabaseIODevice::ColumnOptions>
+    GUtil::ResizableCollection<DatabaseIODevice::ColumnOptions>
     _column_options;
 
     // Use the Filtervalues to declare a "where" clause, where every
     //  item in the result set matches the FilterValues.
-    GUtil::DataObjects::DataRow<QVariant> _row;
+    GUtil::DataRow<QVariant> _row;
 
     void ReadXml(QXmlStreamReader &);
     void WriteXml(QXmlStreamWriter &) const;
@@ -284,7 +280,7 @@ public:
 
     // DataRow is an explicitly shared class, so changes to the
     //   returned object will hold
-    GUtil::DataObjects::DataRow<QVariant> FilterValues() const{ return _row; }
+    GUtil::DataRow<QVariant> FilterValues() const{ return _row; }
 
     DatabaseSelectionParameters(const DatabaseParametersBase &p)
         :DatabaseParametersBase(p)
@@ -295,7 +291,7 @@ public:
 
 protected:
 
-    DatabaseSelectionParameters(const GUtil::DataObjects::DataRow<QVariant> &r)
+    DatabaseSelectionParameters(const GUtil::DataRow<QVariant> &r)
         :DatabaseParametersBase(r)
     {}
 
@@ -312,7 +308,7 @@ public:
 
     // DataRow is an explicitly shared class, so changes to the
     //   returned object will hold
-    GUtil::DataObjects::DataRow<QVariant> Values() const{ return _row; }
+    GUtil::DataRow<QVariant> Values() const{ return _row; }
 
     DatabaseValueParameters(const DatabaseParametersBase &p)
         :DatabaseParametersBase(p)
@@ -323,7 +319,7 @@ public:
 
 protected:
 
-    DatabaseValueParameters(const GUtil::DataObjects::DataRow<QVariant> &r)
+    DatabaseValueParameters(const GUtil::DataRow<QVariant> &r)
         :DatabaseParametersBase(r)
     {}
 
@@ -332,7 +328,7 @@ protected:
 };
 
 
-}}}
+}}
 
 #endif // GDATABASEIODEVICE_H
 

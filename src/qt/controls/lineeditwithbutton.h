@@ -24,7 +24,7 @@ limitations under the License.*/
 #include <QShowEvent>
 #include <QEvent>
 
-namespace GUtil{ namespace QT{ namespace Controls{
+namespace GUtil{ namespace QT{
 
 
 /** Implements a simple line edit, with a button on the far right that. */
@@ -50,9 +50,9 @@ public:
     QLineEdit const &LineEdit() const{ return line_edit; }
 
     /** Gives access to the fader widget instance */
-    UI::FaderWidget *Fader(){ return _fader; }
+    FaderWidget *Fader(){ return _fader; }
     /** Gives access to the fader widget instance */
-    UI::FaderWidget const *Fader() const{ return _fader; }
+    FaderWidget const *Fader() const{ return _fader; }
 
 
 public slots:
@@ -83,12 +83,12 @@ private:
 
     QPushButton button;
     QLineEdit line_edit;
-    UI::FaderWidget *_fader;
+    FaderWidget *_fader;
 
 };
 
 
-}}}
+}}
 
 #endif  // GUI_FUNCTIONALITY
 

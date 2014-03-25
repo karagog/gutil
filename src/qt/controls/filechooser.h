@@ -21,7 +21,7 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <QFileDialog>
 
-namespace GUtil{ namespace QT{ namespace Controls{
+namespace GUtil{ namespace QT{
 
 
 /** A control to facilitate choosing a file.  It is a line edit with a button,
@@ -124,7 +124,7 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // GUI_FUNCTIONALITY
 

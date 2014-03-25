@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_globals.h"
 #include "gutil_pair.h"
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 /** A convenience class that gives you useful Random Number Generator functions.
@@ -104,7 +104,7 @@ public:
         Use this version if you will be generating lots of random values,
         because the regular implementation practically generates two values anyways.
     */
-    static GUtil::DataObjects::Pair<GFLOAT64> N2(GFLOAT64 mean = 0.0,
+    static GUtil::Pair<GFLOAT64> N2(GFLOAT64 mean = 0.0,
                                                    GFLOAT64 standard_deviation = 1.0);
 
     /** Returns a normally distributed integer with the given mean and standard deviation. */
@@ -115,7 +115,7 @@ public:
         Use this version if you will be generating lots of random values,
         because the regular implementation practically generates two values anyways.
     */
-    static GUtil::DataObjects::Pair<GINT32> N_Discrete2(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
+    static GUtil::Pair<GINT32> N_Discrete2(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
 
 
     /** Generates a Poisson-distributed random variable.
@@ -257,6 +257,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_RNG_H

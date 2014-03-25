@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 
-NAMESPACE_GUTIL2(QT, Interfaces);
+NAMESPACE_GUTIL1(QT);
 
 
 /** An abstract interface deriving from the core XML serializable class,
@@ -57,6 +57,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_IQXMLSERIALIZABLE_H

@@ -14,8 +14,7 @@ limitations under the License.*/
 
 #include "dice.h"
 #include "gutil_rng.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(Games);
 

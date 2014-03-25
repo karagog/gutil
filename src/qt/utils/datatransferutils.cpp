@@ -15,9 +15,9 @@ limitations under the License.*/
 #include "gutil_datatransferutils.h"
 #include "gutil_extendedexception.h"
 #include <QFile>
-USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 #define CHUNK_SIZE 4096
@@ -175,4 +175,4 @@ QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

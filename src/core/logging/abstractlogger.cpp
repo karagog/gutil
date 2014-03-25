@@ -15,10 +15,9 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include "gutil_abstractlogger.h"
 #include "gutil_map.h"
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 #define DEFAULT_TRUNCATE_LIMIT   1000
@@ -156,4 +155,4 @@ String AbstractLogger::prepare_log_message(const LoggingData &d)
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

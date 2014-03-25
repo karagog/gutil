@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QEvent>
 #include <QApplication>
 
-NAMESPACE_GUTIL2(QT, UI);
+NAMESPACE_GUTIL1(QT);
 
 
 #define FADE_RESOLUTION 40
@@ -197,4 +197,4 @@ void FaderWidget::toggleFade(bool skip_fade)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

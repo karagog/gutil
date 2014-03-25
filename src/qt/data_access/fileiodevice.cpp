@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>
 
-NAMESPACE_GUTIL2(QT, DataAccess);
+NAMESPACE_GUTIL1(QT);
 
 
 FileIODevice::FileIODevice(const QString &filename, QObject *parent)
@@ -169,6 +169,6 @@ void FileIODevice::unlock_file()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUI_FUNCTIONALITY

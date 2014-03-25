@@ -20,13 +20,7 @@ limitations under the License.*/
 #include "gutil_smartpointer.h"
 #include "gutil_macros.h"
 
-namespace GUtil{
-
-namespace DataAccess{
-    class Console;
-}
-
-namespace Utils{
+NAMESPACE_GUTIL;
 
 
 /** This class will manage the navigation of command line menus.  To use it,
@@ -46,10 +40,10 @@ public:
     public:
 
         /** The name of the menu (displayed at the top). */
-        DataObjects::String Text;
+        String Text;
 
         /** A list of choices that will navigate to other menus, or trigger events.s */
-        DataObjects::Vector< CommandLineMenuItem *> SubMenus;
+        Vector< CommandLineMenuItem *> SubMenus;
 
         /** This function is called when the menu gets activated.
             You can override it to do whatever you want.
@@ -57,7 +51,7 @@ public:
         virtual void Activated(){}
 
         virtual ~CommandLineMenuItem(){
-            for(DataObjects::Vector<CommandLineMenuItem *>::iterator iter(SubMenus.begin());
+            for(Vector<CommandLineMenuItem *>::iterator iter(SubMenus.begin());
                 iter != SubMenus.end(); ++iter)
                 delete *iter;
         }
@@ -83,7 +77,7 @@ public:
 
 private:
 
-    Utils::SmartPointer<CommandLineMenuItem> _root;
+    SmartPointer<CommandLineMenuItem> _root;
     CommandLineMenuItem *_current_item;
 
     static void _print_menu_item(const CommandLineMenuItem &);
@@ -91,6 +85,6 @@ private:
 };
 
 
-}}
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_COMMANDLINEMENU_H

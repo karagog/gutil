@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_abstractlogger.h"
 #include <QMutex>
 
-NAMESPACE_GUTIL2(QT, Logging);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A logger that is safe to use across threads.
@@ -26,9 +26,9 @@ NAMESPACE_GUTIL2(QT, Logging);
  *  You must provide an actual logger implementation through the constructor.
 */
 class ThreadSafeLogger :
-        public GUtil::Logging::AbstractLogger
+        public GUtil::AbstractLogger
 {
-    GUtil::Logging::AbstractLogger *m_logger;
+    GUtil::AbstractLogger *m_logger;
     QMutex m_mutex;
     bool m_autoDelete;
 public:
@@ -36,7 +36,7 @@ public:
     /** Constructs a thread-safe logger.  You must provide a logging implementation.
      *  \param auto_delete Controls whether this will delete the logging implementation at the end.
     */
-    ThreadSafeLogger(GUtil::Logging::AbstractLogger *, bool auto_delete = true);
+    ThreadSafeLogger(GUtil::AbstractLogger *, bool auto_delete = true);
     virtual ~ThreadSafeLogger();
 
     /** All logging requests go through this function, which will require a lock to actually use the log
@@ -46,6 +46,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_THREADSAFELOGGER_H

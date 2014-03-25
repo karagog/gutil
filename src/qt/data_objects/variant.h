@@ -37,7 +37,7 @@ limitations under the License.*/
 #include <string>
 #endif
 
-NAMESPACE_GUTIL2(QT, DataObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A class derived from QVariant to extend its functionality.
@@ -46,7 +46,7 @@ NAMESPACE_GUTIL2(QT, DataObjects);
 */
 class Variant :
         public QVariant,
-        public Interfaces::IQXmlSerializable
+        public IQXmlSerializable
 {
 public:
     Variant() {}
@@ -110,11 +110,11 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 
 // Register these types with the Qt meta-type system so we can use them with QVariants
-Q_DECLARE_METATYPE(GUtil::QT::DataObjects::Variant);
+Q_DECLARE_METATYPE(GUtil::QT::Variant);
 Q_DECLARE_METATYPE(QUuid);
 Q_DECLARE_METATYPE(float);
 

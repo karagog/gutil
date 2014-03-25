@@ -18,11 +18,8 @@ limitations under the License.*/
 #include <QSqlTableModel>
 
 namespace GUtil{ namespace QT{
-namespace Logging{
-    class DatabaseLogger;
-}
 
-namespace DataModels{
+class DatabaseLogger;
 
 
 /** A data model for database logs, so you can display them in
@@ -35,7 +32,7 @@ class DatabaseLogModel :
 public:
 
     /** Constructs a database log model with the given connection string */
-    explicit DatabaseLogModel(const Logging::DatabaseLogger &, QObject *parent = 0);
+    explicit DatabaseLogModel(const DatabaseLogger &, QObject *parent = 0);
 
     /** Overridden from QSqlTableModel */
     virtual QVariant data(const QModelIndex &idx, int role) const;
@@ -46,6 +43,6 @@ public:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_DATABASELOGMODEL_H

@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_globals.h"
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 /** Provides an integer that rolls over a max and min value.
@@ -113,6 +113,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_CIRCULARINT_H

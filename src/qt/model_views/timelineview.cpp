@@ -37,10 +37,9 @@ limitations under the License.*/
 #define TIMELINE_LEFT_MARGIN_12HOURS 85
 #define TIMELINE_LEFT_MARGIN_24HOURS 70
 
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL2(QT, DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, ModelViews);
+NAMESPACE_GUTIL1(QT);
 
 
 TimelineView::TimelineView(QWidget *p)
@@ -1202,4 +1201,4 @@ void TimelineView::SetTimeFormat(TimeFormatEnum t)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

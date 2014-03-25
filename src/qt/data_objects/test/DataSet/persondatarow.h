@@ -22,10 +22,10 @@ limitations under the License.*/
 class PeopleTable;
 
 class PersonDataRow :
-        public GUtil::DataObjects::DataRow
+        public GUtil::DataRow
 {
-    //template<class T> friend class GUtil::DataObjects::DataRowCollection;
-    //template<class T> friend class GUtil::DataObjects::DataTableBase;
+    //template<class T> friend class GUtil::DataRowCollection;
+    //template<class T> friend class GUtil::DataTableBase;
 
 public:
 

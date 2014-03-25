@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_list.h"
 #include "gutil_dlist.h"
 #include "gutil_slist.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class QueueTest : public QObject
 {

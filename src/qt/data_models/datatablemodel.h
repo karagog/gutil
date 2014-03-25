@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QAbstractTableModel>
 
 
-namespace GUtil{ namespace QT{ namespace DataModels {
+namespace GUtil{ namespace QT{
 
 
 // Use this as a datamodel for the data table object
@@ -34,7 +34,7 @@ public:
     explicit DataTableModel(QObject *parent = 0);
     virtual ~DataTableModel(){}
 
-    PROPERTY_POINTER(DataTable, GUtil::DataObjects::DataTable<DataObjects::Variant>);
+    PROPERTY_POINTER(DataTable, GUtil::DataTable<Variant>);
 
 
     // QAbstractTableModel interface:
@@ -63,6 +63,6 @@ protected:
 };
 
 
-}}}
+}}
 
 #endif // DATATABLEMODEL_H

@@ -21,9 +21,9 @@ limitations under the License.*/
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QFormLayout>
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, Controls);
+NAMESPACE_GUTIL1(QT);
 
 
 SelectDateRange::SelectDateRange(QWidget *parent)
@@ -182,7 +182,7 @@ void SelectDateRange::SetDateRange(const Range<QDate> &r)
             m_dateEdit->setDate(m_dateStart);
         }
         else if(1 == m_dateStart.day() && 1 == m_dateEnd.day() &&
-                0 == ::GUtil::FuzzyCompare(days_apart, 29, 2))
+                0 == GUtil::FuzzyCompare(days_apart, 29, 2))
         {
             SetComboBoxSelection(Month);
             m_dateEdit->setDate(m_dateStart);
@@ -357,4 +357,4 @@ void SelectDateRange::SetDayFormat(const QString &d)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

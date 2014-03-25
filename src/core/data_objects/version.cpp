@@ -16,11 +16,11 @@ limitations under the License.*/
 
 
 /** Constructs a new Version object with the given string */
-static void __init_with_string(::GUtil::DataObjects::Version *,
-                               const ::GUtil::DataObjects::String &);
+static void __init_with_string(::GUtil::Version *,
+                               const GUtil::String &);
 
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 Version::Version(const String &version_string)
@@ -52,11 +52,11 @@ bool Version::operator >(const Version &o) const
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
-void __init_with_string(::GUtil::DataObjects::Version *v,
-                        const ::GUtil::DataObjects::String &s)
+void __init_with_string(::GUtil::Version *v,
+                        const GUtil::String &s)
 {
     v->SetMajorVersion(-1);
     v->SetMinorVersion(-1);
@@ -67,7 +67,7 @@ void __init_with_string(::GUtil::DataObjects::Version *v,
     {
         int tmp;
         bool ok(false);
-        GUtil::DataObjects::StringList lst( s.Split('.') );
+        GUtil::StringList lst( s.Split('.') );
         v->SetMajorVersion(0);
         v->SetMinorVersion(0);
         v->SetReleaseVersion(0);

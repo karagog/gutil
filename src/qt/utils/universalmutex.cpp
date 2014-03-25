@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "gutil_universalmutex.h"
 #include "gutil_extendedexception.h"
 #include <QFile>
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 #define UNIVERSAL_MUTEX_MODIFIER "UNIVERSAL_LOCK"
@@ -260,6 +260,6 @@ void UniversalMutex::run()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUI_FUNCTIONALITY

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QLabel>
 #include <QFormLayout>
 
-NAMESPACE_GUTIL2(QT, Controls);
+NAMESPACE_GUTIL1(QT);
 
 
 #define TIMER_INTERVAL 100
@@ -138,4 +138,4 @@ void Stopwatch::SetResolution(ResolutionEnum r)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

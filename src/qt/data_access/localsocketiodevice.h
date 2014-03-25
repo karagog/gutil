@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "qt_iodevice.h"
 #include <QLocalSocket>
 
-namespace GUtil{ namespace QT{ namespace DataAccess{
+namespace GUtil{ namespace QT{
 
 
 class LocalSocketIODevice :
@@ -62,7 +62,7 @@ private slots:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_LOCAL_SOCKET_IODEVICE_H
 

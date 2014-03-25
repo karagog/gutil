@@ -20,13 +20,13 @@ limitations under the License.*/
 
 /** Defines the implementation of the about window */
 class __about_gutil :
-        public GUtil::QT::UI::About
+        public GUtil::QT::About
 {
     Q_OBJECT
 public:
 
     explicit __about_gutil(QWidget *parent)
-        : ::GUtil::QT::UI::About(parent, false, true)
+        : GUtil::QT::About(parent, false, true)
     {
         // Set up the about window
         _dialog.setWindowTitle("About GUtil");
@@ -50,7 +50,7 @@ public:
 
 
 
-NAMESPACE_GUTIL2(QT, Plugins);
+NAMESPACE_GUTIL1(QT);
 
 
 void AboutGUtil::ShowAboutGUtil(QWidget *parent)
@@ -59,8 +59,8 @@ void AboutGUtil::ShowAboutGUtil(QWidget *parent)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
-Q_EXPORT_PLUGIN2(GUtilAboutPlugin, ::GUtil::QT::Plugins::AboutGUtil)
+Q_EXPORT_PLUGIN2(GUtilAboutPlugin, GUtil::QT::AboutGUtil)
 
 #include "aboutgutil.moc"

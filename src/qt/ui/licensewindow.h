@@ -22,7 +22,7 @@ class LicenseWindow;
 }
 
 
-namespace GUtil{ namespace QT{ namespace UI{
+namespace GUtil{ namespace QT{
 
 
 class LicenseWindow : public QDialog
@@ -43,6 +43,6 @@ public:
 };
 
 
-}}}
+}}
 
 #endif // LICENSEWINDOW_H

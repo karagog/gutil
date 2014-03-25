@@ -26,7 +26,7 @@ limitations under the License.*/
 class QLocalSocket;
 class QLocalServer;
 
-namespace GUtil{ namespace QT{ namespace BusinessObjects{
+namespace GUtil{ namespace QT{
 
 class ProcessStatusServer;
 
@@ -43,9 +43,9 @@ class ProcessStatusIndicator :
 {
     Q_OBJECT
 
-    ::GUtil::QT::Utils::UserMachineReadWriteLock _status_lock;
+    GUtil::QT::UserMachineReadWriteLock _status_lock;
     PersistentData _status_data;
-    ::GUtil::Utils::SmartPointer<ProcessStatusServer> _server;
+    GUtil::SmartPointer<ProcessStatusServer> _server;
 public:
 
     explicit ProcessStatusIndicator(QObject *parent = 0);
@@ -83,7 +83,7 @@ public:
     void SendMessageToControllingProcess(const QString &);
 
     /** Returns the identity string for the application */
-    GUtil::DataObjects::String GetProcessIdentityString() const{
+    GUtil::String GetProcessIdentityString() const{
         return _status_data.GetIdentity();
     }
 
@@ -104,7 +104,7 @@ private slots:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_PROCESSSTATUSINDICATOR_H
 

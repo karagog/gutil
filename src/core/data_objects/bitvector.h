@@ -16,7 +16,7 @@ limitations under the License.*/
 
 #include "gutil_vector.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** \file
@@ -141,6 +141,6 @@ public:
 typedef Vector<bool> BitVector;
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_BITVECTOR_H

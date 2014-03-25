@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <QPushButton>
 #include <QProgressBar>
 
-namespace GUtil{ namespace QT{ namespace Controls{
+namespace GUtil{ namespace QT{
 
 
 /** Implements a progress bar that you can push like a button, and has a
@@ -64,7 +64,7 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // GUI_FUNCTIONALITY
 

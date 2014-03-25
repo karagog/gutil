@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "gutil_smartpointer.h"
 #include "gutil_flags.h"
 #include <time.h>
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 /** An abstract base implementation of a logging object.
@@ -31,7 +31,7 @@ NAMESPACE_GUTIL1(Logging);
     on any logging subclass.
 */
 class AbstractLogger :
-        public Utils::SharedData
+        public SharedData
 {
     GUTIL_DISABLE_COPY(AbstractLogger);
 public:
@@ -91,8 +91,8 @@ public:
     /** Something to be logged.  Contains all the information needed to log an event. */
     struct LoggingData
     {
-        DataObjects::String Message;
-        DataObjects::String Title;
+        String Message;
+        String Title;
         MessageLevelEnum MessageLevel;
         time_t LogTime;
 
@@ -109,13 +109,13 @@ public:
 
         All available logger options are enabled by default
     */
-    AbstractLogger(DataAccess::OutputInterface *);
+    AbstractLogger(OutputInterface *);
 
     /** You must inject an IO object, and this class will take ownership
         of the instance.  With this constructor you can also initialize the
         options flags
     */
-    AbstractLogger(DataAccess::OutputInterface *, const LoggingOptionsFlags &);
+    AbstractLogger(OutputInterface *, const LoggingOptionsFlags &);
 
     /** Clears the contents of the log, if applicable.
         The default implementation does nothing.
@@ -124,7 +124,7 @@ public:
 
 
     /** Logs a message with the lowest severity */
-    void LogInfo(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    void LogInfo(const String &message, const String &title = String())
     {
         LoggingData d;
         d.Message = message;
@@ -134,7 +134,7 @@ public:
     }
 
     /** Logs a warning */
-    void LogWarning(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    void LogWarning(const String &message, const String &title = String())
     {
         LoggingData d;
         d.Message = message;
@@ -144,7 +144,7 @@ public:
     }
 
     /** Logs an error */
-    void LogError(const DataObjects::String &message, const DataObjects::String &title = DataObjects::String())
+    void LogError(const String &message, const String &title = String())
     {
         LoggingData d;
         d.Message = message;
@@ -199,7 +199,7 @@ public:
 protected:
 
     /** You can customize your own logging format here */
-    virtual DataObjects::String prepare_log_message(const LoggingData &);
+    virtual String prepare_log_message(const LoggingData &);
 
     /** Defines the filter applied to log messages.  The default implementation
      *  filters based on the message level.
@@ -215,14 +215,14 @@ protected:
 
 
     /** Derived classes may use this accessor to access the io device */
-    DataAccess::OutputInterface *io_device(){ return _io.Data(); }
+    OutputInterface *io_device(){ return _io.Data(); }
     /** Derived classes may use this accessor to access the io device */
-    DataAccess::OutputInterface const *io_device() const{ return _io.Data(); }
+    OutputInterface const *io_device() const{ return _io.Data(); }
 
 
 private:
 
-    Utils::SmartPointer<DataAccess::OutputInterface> _io;
+    SmartPointer<OutputInterface> _io;
     LoggingOptionsFlags m_options;
 
     /** An optional character limit on the exception data message. */
@@ -231,12 +231,12 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 
-GUTIL_DECLARE_FLAG_OPERATORS(GUtil::Logging::AbstractLogger::LoggingOptionsFlags,
-                             GUtil::Logging::AbstractLogger::LoggingOptionsEnum);
+GUTIL_DECLARE_FLAG_OPERATORS(GUtil::AbstractLogger::LoggingOptionsFlags,
+                             GUtil::AbstractLogger::LoggingOptionsEnum);
 
 
 #endif // GUTIL_ABSTRACTLOGGER_H

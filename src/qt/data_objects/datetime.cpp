@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datetime.h"
-NAMESPACE_GUTIL2(QT, DataObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 DateTime::TimeBreakdown DateTime::GetTimeDistanceBreakdown(const DateTime &start_time,
@@ -53,4 +53,4 @@ long long DateTime::_subtract_time_units(long long &msecs, long long how_many_ms
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

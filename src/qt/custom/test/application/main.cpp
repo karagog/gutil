@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "gutil_coreapplication.h"
 #include <signal.h>
 USING_NAMESPACE_GUTIL;
-USING_NAMESPACE_GUTIL2(QT, Custom);
+USING_NAMESPACE_GUTIL1(QT);
 
 
 class my_application :

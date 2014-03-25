@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_nullable.h"
 #include "gutil_flexibletypecomparer.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Describes one bound of a range/region.
@@ -333,7 +333,7 @@ public:
         everyone uses in the Range/Region implementation
     */
     static int CompareValues(const T &lhs, const T &rhs){
-        return Utils::FlexibleTypeComparer<T>::DefaultCompare(lhs, rhs);
+        return FlexibleTypeComparer<T>::DefaultCompare(lhs, rhs);
     }
 
     /** Compares the two lower bounds (neither can be null) */
@@ -970,78 +970,78 @@ Region<T> &Region<T>::Complement()
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 /** Returns the region of intersection between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator * (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Range<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) *= two; }
+template<class T>GUtil::Region<T> operator * (const GUtil::Range<T> &one,
+                                                                  const GUtil::Range<T> &two)
+{ return GUtil::Region<T>(one) *= two; }
 
 /** Returns the region of intersection between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator * (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Region<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) *= two; }
+template<class T>GUtil::Region<T> operator * (const GUtil::Range<T> &one,
+                                                                  const GUtil::Region<T> &two)
+{ return GUtil::Region<T>(one) *= two; }
 
 /** Returns the region of intersection between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator & (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Range<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) &= two; }
+template<class T>GUtil::Region<T> operator & (const GUtil::Range<T> &one,
+                                                                  const GUtil::Range<T> &two)
+{ return GUtil::Region<T>(one) &= two; }
 
 /** Returns the region of intersection between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator & (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Region<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) &= two; }
+template<class T>GUtil::Region<T> operator & (const GUtil::Range<T> &one,
+                                                                  const GUtil::Region<T> &two)
+{ return GUtil::Region<T>(one) &= two; }
 
 /** Returns the region of union between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator + (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Range<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) += two; }
+template<class T>GUtil::Region<T> operator + (const GUtil::Range<T> &one,
+                                                                  const GUtil::Range<T> &two)
+{ return GUtil::Region<T>(one) += two; }
 
 /** Returns the region of union between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator + (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Region<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) += two; }
+template<class T>GUtil::Region<T> operator + (const GUtil::Range<T> &one,
+                                                                  const GUtil::Region<T> &two)
+{ return GUtil::Region<T>(one) += two; }
 
 /** Returns the region of union between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator | (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Range<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) |= two; }
+template<class T>GUtil::Region<T> operator | (const GUtil::Range<T> &one,
+                                                                  const GUtil::Range<T> &two)
+{ return GUtil::Region<T>(one) |= two; }
 
 /** Returns the region of union between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator | (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Region<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) |= two; }
+template<class T>GUtil::Region<T> operator | (const GUtil::Range<T> &one,
+                                                                  const GUtil::Region<T> &two)
+{ return GUtil::Region<T>(one) |= two; }
 
 /** Returns the region of the difference between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator - (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Range<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) -= two; }
+template<class T>GUtil::Region<T> operator - (const GUtil::Range<T> &one,
+                                                                  const GUtil::Range<T> &two)
+{ return GUtil::Region<T>(one) -= two; }
 
 /** Returns the region of the difference between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator - (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Region<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) -= two; }
+template<class T>GUtil::Region<T> operator - (const GUtil::Range<T> &one,
+                                                                  const GUtil::Region<T> &two)
+{ return GUtil::Region<T>(one) -= two; }
 
 /** Returns the region of symmetric difference between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator ^ (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Range<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) ^= two; }
+template<class T>GUtil::Region<T> operator ^ (const GUtil::Range<T> &one,
+                                                                  const GUtil::Range<T> &two)
+{ return GUtil::Region<T>(one) ^= two; }
 
 /** Returns the region of symmetric difference between two ranges */
-template<class T>GUtil::DataObjects::Region<T> operator ^ (const GUtil::DataObjects::Range<T> &one,
-                                                                  const GUtil::DataObjects::Region<T> &two)
-{ return GUtil::DataObjects::Region<T>(one) ^= two; }
+template<class T>GUtil::Region<T> operator ^ (const GUtil::Range<T> &one,
+                                                                  const GUtil::Region<T> &two)
+{ return GUtil::Region<T>(one) ^= two; }
 
 
 /** Returns true if the range is a subset of the region */
-template<class T>bool operator <= (const GUtil::DataObjects::Range<T> &rng,
-                                          const GUtil::DataObjects::Region<T> &reg)
+template<class T>bool operator <= (const GUtil::Range<T> &rng,
+                                          const GUtil::Region<T> &reg)
 { return reg.IsSuperset(rng); }
 
 /** Returns true if the range is a superset of the region */
-template<class T>bool operator >= (const GUtil::DataObjects::Range<T> &rng,
-                                          const GUtil::DataObjects::Region<T> &reg)
+template<class T>bool operator >= (const GUtil::Range<T> &rng,
+                                          const GUtil::Region<T> &reg)
 { return reg.IsSubset(rng); }
 
 

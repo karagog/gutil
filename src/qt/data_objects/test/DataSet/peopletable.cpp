@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "peopletable.h"
 #include "DataObjects/DataSet/dataset.h"
-USING_NAMESPACE_GUTIL2(DataObjects);
+USING_NAMESPACE_GUTIL1(QT);
 
 PeopleTable::PeopleTable()
 {
@@ -22,10 +22,10 @@ PeopleTable::PeopleTable()
 }
 
 PeopleTable::PeopleTable(const PeopleTable &o)
-    :GUtil::DataObjects::DataTable(o)
+    :GUtil::DataTable(o)
 {}
 
-void PeopleTable::init_new_row(GUtil::DataObjects::DataRow &r)
+void PeopleTable::init_new_row(GUtil::DataRow &r)
 {
     r.At(2) = QUuid::createUuid();
 }

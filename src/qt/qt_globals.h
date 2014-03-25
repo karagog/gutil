@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QMetaType>
 
 
-Q_DECLARE_METATYPE( GUtil::DataObjects::String )
+Q_DECLARE_METATYPE( GUtil::String )
 Q_DECLARE_METATYPE( GUtil::Exception<false> )
 Q_DECLARE_METATYPE( GUtil::Exception<true> )
 

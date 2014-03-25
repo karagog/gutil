@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_atomic.h"
 #include "gutil_macros.h"
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 /** Implements a smart pointer, which manages a pointer and deletes it when
@@ -117,7 +117,7 @@ class SharedData
 {
     GUTIL_DISABLE_COPY(SharedData);
     template<class T>friend class SharedSmartPointer;
-    Utils::AtomicInt __references;
+    AtomicInt __references;
 protected:
     SharedData(){}
 };
@@ -215,6 +215,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_SHAREDSMARTPOINTER_H

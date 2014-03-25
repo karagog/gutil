@@ -20,9 +20,8 @@ limitations under the License.*/
 #endif
 
 #include "environment.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 String Environment::Username()
@@ -57,4 +56,4 @@ String Environment::Username()
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

@@ -25,7 +25,7 @@ limitations under the License.*/
 
 class QFileSystemWatcher;
 
-namespace GUtil{ namespace QT{ namespace DataAccess{
+namespace GUtil{ namespace QT{
 
 
 /** A mechanism for exchanging data with a file.
@@ -85,11 +85,11 @@ private:
     void _open_file(bool for_write);
     void _close_file();
 
-    Utils::UserMachineReadWriteLock _machine_lock;
+    UserMachineReadWriteLock _machine_lock;
 
 };
 
-}}}
+}}
 
 #endif // GUTIL_FILETRANSPORT_H
 

@@ -20,15 +20,11 @@ limitations under the License.*/
 #include <cstdarg>
 #include <cstring>
 
-NAMESPACE_GUTIL1(CryptoPP);
-class EncryptionUtils;
-END_NAMESPACE_GUTIL1;
-
 #ifdef GUTIL_CORE_QT_ADAPTERS
 #include <QString>
 #endif // GUTIL_CORE_QT_ADAPTERS
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 class String;
@@ -57,7 +53,6 @@ typedef List<String> StringList;
 class String :
         private Vector<char>
 {
-    friend class GUtil::CryptoPP::EncryptionUtils;
 public:
 
     /** Creates a new empty string. */
@@ -918,17 +913,17 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 /** A convenience operator allows you to compare with const char * as a lhs value. */
-bool operator == (const char *c, const GUtil::DataObjects::String &s);
+bool operator == (const char *c, const GUtil::String &s);
 
 /** A convenience operator allows you to compare with const char * as a lhs value. */
-bool operator != (const char *c, const GUtil::DataObjects::String &s);
+bool operator != (const char *c, const GUtil::String &s);
 
 /** A convenience operator that allows you to create strings with the + operator. */
-GUtil::DataObjects::String operator + (const char *, const GUtil::DataObjects::String &);
+GUtil::String operator + (const char *, const GUtil::String &);
 
 
 #endif // GUTIL_STRING_H

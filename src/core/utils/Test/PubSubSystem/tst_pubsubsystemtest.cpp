@@ -18,9 +18,6 @@ limitations under the License.*/
 #include "gutil_console.h"
 #include "gutil_strings.h"
 USING_NAMESPACE_GUTIL;
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(DataObjects);
 
 class PubSubSystemTest : public QObject
 {

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QLabel>
 #include <QDialogButtonBox>
 
-NAMESPACE_GUTIL2(QT, UI);
+NAMESPACE_GUTIL1(QT);
 
 #define DIALOG_WIDTH 400
 #define DIALOG_HEIGHT 100
@@ -57,4 +57,4 @@ void EnterStringDialog::accept()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

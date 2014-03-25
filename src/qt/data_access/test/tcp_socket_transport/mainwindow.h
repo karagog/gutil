@@ -45,7 +45,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    GUtil::DataAccess::GTcpSocketIODevice *sock;
+    GUtil::GTcpSocketIODevice *sock;
     QTcpServer *srv;
 
 };

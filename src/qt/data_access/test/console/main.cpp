@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gutil_consoleiodevice.h"
-USING_NAMESPACE_GUTIL2(QT, DataAccess);
+USING_NAMESPACE_GUTIL1(QT);
 
 #define CNT_MAX 8
 

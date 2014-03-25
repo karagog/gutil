@@ -23,11 +23,8 @@ limitations under the License.*/
 #include <QTextEdit>
 
 namespace GUtil{ namespace QT{
-namespace Plugins{
-    class IAboutGUtil;
-}
 
-namespace UI{
+class IAboutGUtil;
 
 
 /** The business logic of the about window. */
@@ -160,7 +157,7 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // GUI_FUNCTIONALITY
 

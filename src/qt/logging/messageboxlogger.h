@@ -21,13 +21,13 @@ limitations under the License.*/
 
 class QWidget;
 
-NAMESPACE_GUTIL2(QT, Logging);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A logger implementation which displays the message in a modal dialog box.
 */
 class MessageBoxLogger :
-        public GUtil::Logging::AbstractLogger
+        public GUtil::AbstractLogger
 {
     QWidget *m_parent;
 public:
@@ -47,7 +47,7 @@ protected:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_MESSAGEBOXLOGGER_H
 

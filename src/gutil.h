@@ -37,48 +37,9 @@ limitations under the License.*/
     deeper explanation of the types of classes or code they contain.
 
 
-    \namespace GUtil::DataAccess Classes used for input/output.
-
-
-    \namespace GUtil::DataObjects Classes to hold and represent data structures.
-
-    (i.e. container classes like List or Map)
-
-
     \namespace GUtil::Games Classes related to games.
 
     Dice, cards, etc...  Business objects relating to games, but not dependent on Qt.
-
-
-    \namespace GUtil::Interfaces Holds interface classes.
-
-    The GUtil library does not have a strict interface convention.  Interfaces
-    may or may not have pure virtual functions, although most do.  Interfaces
-    may also contain some small implementation component, which is forbidden in some
-    interface conventions.
-
-    The rules I have for Interfaces:
-    -# They must be as simple as possible, but no simpler!
-            Don't have too many members to the interface.  Interfaces are supposed to be
-            simplified abstractions, not over-engineered solutions.
-    -# Interface classes begin with a capital I (IComparer, for example), and the header
-            also starts with an 'i'.
-    -# They must have dynamic type info (must have at least one virtual function)
-    -# They must have a virtual destructor, to allow its superclass to be deleted by the interface.
-
-    As long as you comply with these simple interface rules, then your class can qualify
-    to be in the Interfaces namespace.
-
-    \note Just because a class satisfies all of these conditions, it does NOT mean that it
-    has to be in the Interfaces namespace.  i.e. There are interfaces existing outside this namespace.
-
-
-    \namespace GUtil::Logging The GUtil logging module.
-
-    Contains classes which enable logging functionality.
-
-
-    \namespace GUtil::Utils Miscellaneous utility classes
 
 
     \namespace GUtil::QT GUtil's Qt-dependent classes and functions.
@@ -88,70 +49,11 @@ limitations under the License.*/
     in the QT root are by definition dependent on Qt.
 
 
-    \namespace GUtil::QT::Interfaces Interface module which depends on Qt.
-
-    \sa GUtil::Interfaces
-
-
-    \namespace GUtil::QT::Utils Miscellaneous utility classes, depending on Qt.
-
-
-    \namespace GUtil::QT::Custom Classes that customize Qt classes.
-
-    They provide extra functionality that I want and the Qt team won't implement/haven't
-    yet implemented.
-
-
-    \namespace GUtil::QT::UI User Interface widgets.
-
-    Custom user-interfaces which will be useful for many applications.  Keep these
-    interfaces simple; this module is designed for superficial interfaces.
-
-    Ex. An about window, which only needs the text content customized.
-
-
-    \namespace GUtil::QT::DataObjects Classes containing/representing to data.
-
-
-    \namespace GUtil::QT::DataModels Data model classes that work with Qt's model-view framework.
-
-
-    \namespace GUtil::QT::ModelViews Model view classes that work with Qt's model-view framework.
-
-
-    \namespace GUtil::QT::DataAccess Classes relating to data transfer.
-
-
-    \namespace GUtil::QT::Logging Logging framework, derived from the core functionality,
-
-    that depends on some Qt classes.
-
-
-    \namespace GUtil::QT::BusinessObjects Higher-level classes built atop the other libraries,
-    which provide advanced functionality.
-
-
-    \namespace GUtil::QT::Controls UI controls built with Qt's widget system.
-
-
-    \namespace GUtil::QT::Resources A library to contain common resources, such as images
-    and text.
-
-    No images are built into this library by default, although there are some provided
-    with the library.  You must add them to the .qrc file yourself
-    if you want to use them, that way you optimize the dll size and the GUtil build speed.
-
-    You must use the Q_INIT_RESOURCES() macro when you want to use this library, with the
-    argument being the qrc file name, without the .qrc appended.
-
-
     \namespace GUtil::Test Classes useful for testing applications and implementations.
 
     It links with Qt's Test library.  Normal applications don't need this library, it is just
     for testing situations.
 
-
-    \namespace GUtil::CryptoPP Classes built upon the Crypto++ api
 
 */
 

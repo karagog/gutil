@@ -15,9 +15,7 @@ limitations under the License.*/
 #include "databaselogmodel.h"
 #include "gutil_databaseutils.h"
 #include "gutil_databaselogger.h"
-USING_NAMESPACE_GUTIL2(QT, DataModels);
-USING_NAMESPACE_GUTIL2(QT, Utils);
-USING_NAMESPACE_GUTIL2(QT, Logging);
+USING_NAMESPACE_GUTIL1(QT);
 
 DatabaseLogModel::DatabaseLogModel(const DatabaseLogger &logger, QObject *parent)
     :QSqlTableModel(parent, QSqlDatabase::database(logger.GetConnectionString()))

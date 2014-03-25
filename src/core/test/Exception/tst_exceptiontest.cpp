@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "gutil.h"
-USING_NAMESPACE_GUTIL2(Core);
+USING_NAMESPACE_GUTIL1(QT);
 
 class ExceptionTest : public QObject
 {

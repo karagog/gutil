@@ -16,8 +16,6 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "gutil_core.h"
 USING_NAMESPACE_GUTIL;
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(DataObjects);
 
 class ConsoleTest : public QObject
 {

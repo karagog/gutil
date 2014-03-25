@@ -17,18 +17,18 @@ limitations under the License.*/
 
 #include "gutil_strings.h"
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 class Environment
 {
 public:
 
-    static GUtil::DataObjects::String Username();
+    static GUtil::String Username();
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // ENVIRONMENT_H

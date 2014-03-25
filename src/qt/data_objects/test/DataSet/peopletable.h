@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 
 class PeopleTable :
-        public GUtil::DataObjects::DataTable
+        public GUtil::DataTable
 {
     friend class DogOwnerDataSet;
 
@@ -36,7 +36,7 @@ public:
 
 protected:
 
-    virtual void init_new_row(GUtil::DataObjects::DataRow &r);
+    virtual void init_new_row(GUtil::DataRow &r);
 
 
 private:

@@ -13,9 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "undostack.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 /** Helper function truncates the stack at the given index. */
@@ -220,4 +219,4 @@ bool UndoStack::IsMakingMacro()
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

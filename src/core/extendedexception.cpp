@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "extendedexception.h"
 #include <new>
-USING_NAMESPACE_GUTIL1(DataObjects);
 
 NAMESPACE_GUTIL;
 

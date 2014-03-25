@@ -22,7 +22,7 @@ limitations under the License.*/
 #include "gutil_smartpointer.h"
 #include "gutil_iupdatable.h"
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 template<class T>class DataTable;
@@ -84,8 +84,8 @@ protected:
 
 template<class T>
 class DataRow :
-        public Utils::SharedData,
-        public Interfaces::IUpdatable,
+        public SharedData,
+        public IUpdatable,
         protected ResizableCollection<T>
 {
     friend class DataTable<T>;
@@ -94,7 +94,7 @@ class DataRow :
 public:
 
     DataRow(const DataRow<T> &o)
-        :Utils::SharedData(), Interfaces::IUpdatable(),
+        :SharedData(), IUpdatable(),
           ResizableCollection<T>(o),
           m_columns(o.m_columns),
           m_columnMap(o.m_columnMap),
@@ -179,8 +179,8 @@ protected:
     * Can commit/undo changes to the table
 */
 template<class T>class DataTable :
-        public Interfaces::IUpdatable,
-        private Collection< Utils::SharedSmartPointer< DataRow<T> > >
+        public IUpdatable,
+        private Collection< SharedSmartPointer< DataRow<T> > >
 {
     friend class DataRow<T>;
 public:
@@ -204,14 +204,14 @@ public:
 
     /** Conducts a deep-copy of the table. */
     DataTable(const DataTable<T> &o)
-        :Interfaces::IUpdatable(),
-          Collection< Utils::SharedSmartPointer< DataRow<T> > >(o),
+        :IUpdatable(),
+          Collection< SharedSmartPointer< DataRow<T> > >(o),
           m_columns(o.m_columns),
           column_map(o.column_map),
           m_name(o.m_name)
     {
         // Detach all rows from the other table
-        for(typename List< Utils::SharedSmartPointer< DataRow<T> > >::iterator iter(RowsBegin());
+        for(typename List< SharedSmartPointer< DataRow<T> > >::iterator iter(RowsBegin());
             iter != RowsEnd(); ++iter)
             iter->Detach();
     }
@@ -224,13 +224,13 @@ public:
 
 
     void Clear(){
-        Collection< Utils::SharedSmartPointer< DataRow<T> > >::Clear();
+        Collection< SharedSmartPointer< DataRow<T> > >::Clear();
         m_columns.Clear();
         column_map.Clear();
     }
 
     GUINT32 RowCount() const{
-        return Collection< Utils::SharedSmartPointer< DataRow<T> > >::Count();
+        return Collection< SharedSmartPointer< DataRow<T> > >::Count();
     }
     int ColumnCount() const{
         return column_map.Size();
@@ -245,8 +245,8 @@ public:
     Vector<String> ColumnKeys() const{ return column_map.Keys(); }
 
 
-    Collection< Utils::SharedSmartPointer< DataRow<T> > > &Rows(){ return *this; }
-    Collection< Utils::SharedSmartPointer< DataRow<T> > > const &Rows() const{ return *this; }
+    Collection< SharedSmartPointer< DataRow<T> > > &Rows(){ return *this; }
+    Collection< SharedSmartPointer< DataRow<T> > > const &Rows() const{ return *this; }
 
 
     String const &Name() const{ return m_name; }
@@ -255,49 +255,49 @@ public:
 
     /** An iterator through the rows. */
     class RowIterator :
-            public Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator
+            public Collection< SharedSmartPointer< DataRow<T> > >::iterator
     {
         friend class DataTable<T>;
     public:
 
-        RowIterator(const typename Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator &iter) :Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator(iter){}
-        RowIterator(const RowIterator &iter) :Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator(iter){}
+        RowIterator(const typename Collection< SharedSmartPointer< DataRow<T> > >::iterator &iter) :Collection< SharedSmartPointer< DataRow<T> > >::iterator(iter){}
+        RowIterator(const RowIterator &iter) :Collection< SharedSmartPointer< DataRow<T> > >::iterator(iter){}
 
-        DataRow<T> const &operator *() const{ return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator::operator *(); }
-        DataRow<T> const *operator ->() const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator::operator *().ConstData(); }
+        DataRow<T> const &operator *() const{ return *Collection< SharedSmartPointer< DataRow<T> > >::iterator::operator *(); }
+        DataRow<T> const *operator ->() const{ return Collection< SharedSmartPointer< DataRow<T> > >::iterator::operator *().ConstData(); }
 
-        T const &operator [](int indx) const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator::operator *()->operator [](indx); }
-        typename Collection<T>::ItemReference operator [](int indx){ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::iterator::operator *()->operator [](indx); }
+        T const &operator [](int indx) const{ return Collection< SharedSmartPointer< DataRow<T> > >::iterator::operator *()->operator [](indx); }
+        typename Collection<T>::ItemReference operator [](int indx){ return Collection< SharedSmartPointer< DataRow<T> > >::iterator::operator *()->operator [](indx); }
 
     };
 
     /** A const-iterator through the rows. */
     class ConstRowIterator :
-            public Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator
+            public Collection< SharedSmartPointer< DataRow<T> > >::const_iterator
     {
         friend class DataTable<T>;
     public:
 
-        ConstRowIterator(const RowIterator &iter) :Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator(iter){}
-        ConstRowIterator(const typename Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator &iter) :Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator(iter){}
-        ConstRowIterator(const ConstRowIterator &iter) :Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator(iter){}
+        ConstRowIterator(const RowIterator &iter) :Collection< SharedSmartPointer< DataRow<T> > >::const_iterator(iter){}
+        ConstRowIterator(const typename Collection< SharedSmartPointer< DataRow<T> > >::const_iterator &iter) :Collection< SharedSmartPointer< DataRow<T> > >::const_iterator(iter){}
+        ConstRowIterator(const ConstRowIterator &iter) :Collection< SharedSmartPointer< DataRow<T> > >::const_iterator(iter){}
 
-        DataRow<T> const &operator *() const{ return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator::operator *(); }
-        DataRow<T> const *operator ->() const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator::operator *().ConstData(); }
+        DataRow<T> const &operator *() const{ return *Collection< SharedSmartPointer< DataRow<T> > >::const_iterator::operator *(); }
+        DataRow<T> const *operator ->() const{ return Collection< SharedSmartPointer< DataRow<T> > >::const_iterator::operator *().ConstData(); }
 
-        T const &operator [](int indx) const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::const_iterator::operator *()->operator [](indx); }
+        T const &operator [](int indx) const{ return Collection< SharedSmartPointer< DataRow<T> > >::const_iterator::operator *()->operator [](indx); }
 
     };
 
-    RowIterator RowsBegin(){ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::begin(); }
-    ConstRowIterator RowsBegin() const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::begin(); }
-    RowIterator RowsEnd(){ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::end(); }
-    ConstRowIterator RowsEnd() const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::end(); }
+    RowIterator RowsBegin(){ return Collection< SharedSmartPointer< DataRow<T> > >::begin(); }
+    ConstRowIterator RowsBegin() const{ return Collection< SharedSmartPointer< DataRow<T> > >::begin(); }
+    RowIterator RowsEnd(){ return Collection< SharedSmartPointer< DataRow<T> > >::end(); }
+    ConstRowIterator RowsEnd() const{ return Collection< SharedSmartPointer< DataRow<T> > >::end(); }
 
-    RowIterator RowsRBegin(){ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::rbegin(); }
-    ConstRowIterator RowsRBegin() const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::rbegin(); }
-    RowIterator RowsREnd(){ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::rend(); }
-    ConstRowIterator RowsREnd() const{ return Collection< Utils::SharedSmartPointer< DataRow<T> > >::rend(); }
+    RowIterator RowsRBegin(){ return Collection< SharedSmartPointer< DataRow<T> > >::rbegin(); }
+    ConstRowIterator RowsRBegin() const{ return Collection< SharedSmartPointer< DataRow<T> > >::rbegin(); }
+    RowIterator RowsREnd(){ return Collection< SharedSmartPointer< DataRow<T> > >::rend(); }
+    ConstRowIterator RowsREnd() const{ return Collection< SharedSmartPointer< DataRow<T> > >::rend(); }
 
     /** Returns an iterator to the first row whose column equals the given value.
         If no match is found, then an iterator equal to the end is returned.
@@ -408,11 +408,11 @@ public:
 
 
     /** Creates a new row, which you can then add to the table with AddRow() */
-    Utils::SharedSmartPointer< DataRow<T> > CreateRow() const{
+    SharedSmartPointer< DataRow<T> > CreateRow() const{
         return new DataRow<T>(this, ColumnCount());
     }
     /** Creates a new row from a vector of values, which you can then add to the table with AddRow() */
-    Utils::SharedSmartPointer< DataRow<T> > CreateRow(const Vector<T> &v) const{
+    SharedSmartPointer< DataRow<T> > CreateRow(const Vector<T> &v) const{
         DataRow<T> *ret( new DataRow<T>(this, ColumnCount()) );
         for(int i(0); i < ColumnCount(); ++i)
             ret->operator [](i).SetValue(v[i]);
@@ -420,25 +420,25 @@ public:
     }
 
     /** Creates a new blank row and adds it to the table. */
-    Utils::SharedSmartPointer< DataRow<T> > AddRow(){
+    SharedSmartPointer< DataRow<T> > AddRow(){
         DataRow<T> *dr( new DataRow<T>(this, ColumnCount()) );
         InsertRow(dr, RowCount());
         return dr;
     }
     /** Creates a new row from a vector of values and adds it to the table. */
-    Utils::SharedSmartPointer< DataRow<T> > AddRow(const Vector<T> &v){
-        Utils::SharedSmartPointer< DataRow<T> > dr( CreateRow(v) );
+    SharedSmartPointer< DataRow<T> > AddRow(const Vector<T> &v){
+        SharedSmartPointer< DataRow<T> > dr( CreateRow(v) );
         InsertRow(dr.Data(), RowCount());
         return dr;
     }
     /** Adds a row created with CreateRow() to the table */
-    Utils::SharedSmartPointer< DataRow<T> > AddRow(DataRow<T> *dr){
+    SharedSmartPointer< DataRow<T> > AddRow(DataRow<T> *dr){
         InsertRow(dr, RowCount());
         return dr;
     }
     /** Inserts a row at a specific index */
     void InsertRow(DataRow<T> *dr, GUINT32 index){
-        Collection< Utils::SharedSmartPointer< DataRow<T> > >::Insert(dr, index);
+        Collection< SharedSmartPointer< DataRow<T> > >::Insert(dr, index);
     }
 
     /** Removes the row at the given index */
@@ -448,18 +448,18 @@ public:
     /** Removes the given row from the table */
     void RemoveRow(const RowIterator &iter){ RemoveRow(iter.Index()); }
 
-    DataRow<T> &operator [](GUINT32 indx){ return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::value_at(indx); }
-    DataRow<T> const &operator [](GUINT32 indx) const{ return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::operator [](indx); }
-    DataRow<T> &operator [](GINT32 indx){ return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::value_at(indx); }
-    DataRow<T> const &operator [](GINT32 indx) const{ return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::operator [](indx); }
+    DataRow<T> &operator [](GUINT32 indx){ return *Collection< SharedSmartPointer< DataRow<T> > >::value_at(indx); }
+    DataRow<T> const &operator [](GUINT32 indx) const{ return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](indx); }
+    DataRow<T> &operator [](GINT32 indx){ return *Collection< SharedSmartPointer< DataRow<T> > >::value_at(indx); }
+    DataRow<T> const &operator [](GINT32 indx) const{ return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](indx); }
 
     DataRow<T> &operator [](const String &col_name){
         if(!column_map.Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::operator [](column_map[col_name]);
+        return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](column_map[col_name]);
     }
     DataRow<T> const &operator [](const String &col_name) const{
         if(!column_map.Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
-        return *Collection< Utils::SharedSmartPointer< DataRow<T> > >::operator [](column_map.At(col_name));
+        return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](column_map.At(col_name));
     }
 
 
@@ -480,7 +480,7 @@ public:
         column_map.Insert(key, index);
         for(int i(index + 1); i < m_columns.Count(); ++i)
             column_map[m_columns[i]->GetKey()] = i;
-        for(typename List< Utils::SharedSmartPointer< DataRow<T> > >::iterator iter(RowsBegin());
+        for(typename List< SharedSmartPointer< DataRow<T> > >::iterator iter(RowsBegin());
             iter != RowsEnd(); ++iter)
             (*iter)->Insert(T(), index);
     }
@@ -565,7 +565,7 @@ public:
 
 protected:
 
-    virtual void pre_add(Utils::SharedSmartPointer<DataRow<T> > &item, int){
+    virtual void pre_add(SharedSmartPointer<DataRow<T> > &item, int){
         // Can do some validation on the row if you wish
         MakeDirty();
         item->SetTable(this);
@@ -573,7 +573,7 @@ protected:
 
     virtual void commit_reject_changes(bool c){
         IUpdatable::commit_reject_changes(c);
-        for(typename List< Utils::SharedSmartPointer< DataRow<T> > >::iterator iter(RowsBegin());
+        for(typename List< SharedSmartPointer< DataRow<T> > >::iterator iter(RowsBegin());
             iter != RowsEnd(); ++iter)
         {
             if((*iter)->IsDirty())
@@ -606,6 +606,6 @@ private:
 
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_DATATABLE_H

@@ -29,11 +29,10 @@ limitations under the License.*/
 #include "cryptopp/pwdbased.h"
 #include "cryptopp/md4.h"
 #include "cryptopp/md5.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL;
 using namespace CryptoPP;
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 String Crypto::CompressString(const GBYTE *data, GINT32 data_len,
@@ -308,7 +307,7 @@ String Crypto::RandomString(GINT32 num_bytes, GINT32 seed)
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 #endif // GUTIL_NO_CRYPTOPP

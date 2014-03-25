@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include "gutil_strings.h"
 
-NAMESPACE_GUTIL1( Interfaces );
+NAMESPACE_GUTIL;
 
 
 /** An abstract interface which says your class can be serialized into
@@ -30,14 +30,14 @@ class IXmlSerializable
 public:
 
     /** Serialize your class into an XML string. */
-    virtual DataObjects::String ToXmlString(bool human_readable) const = 0;
+    virtual String ToXmlString(bool human_readable) const = 0;
 
     /** Construct your class from an existing XML string. */
-    virtual void FromXmlString(const DataObjects::String &) = 0;
+    virtual void FromXmlString(const String &) = 0;
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // CORE_IXMLSERIALIZABLE_H

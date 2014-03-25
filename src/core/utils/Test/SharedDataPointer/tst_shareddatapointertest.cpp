@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "Core/DataObjects/smartpointer.h"
 #include "gutil_strings.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 
 class SharedDataPointerTest : public QObject

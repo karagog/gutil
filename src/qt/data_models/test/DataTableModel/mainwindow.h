@@ -44,7 +44,7 @@ private:
     Ui::MainWindow *ui;
 
     GUtil::DataModels::DataTableModel _model;
-    GUtil::DataObjects::DataTable _data;
+    GUtil::DataTable _data;
 
 };
 

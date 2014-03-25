@@ -19,8 +19,7 @@ limitations under the License.*/
 #include <QFile>
 #include <QTest>
 USING_NAMESPACE_GUTIL;
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL2(QT, BusinessObjects);
+USING_NAMESPACE_GUTIL1(QT);
 
 class settingsTest : public QObject
 {

@@ -14,9 +14,8 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "DataAccess/file.h"
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(DataObjects);
+#include "gutil_file.h"
+USING_NAMESPACE_GUTIL;
 
 
 class FileTest : public QObject

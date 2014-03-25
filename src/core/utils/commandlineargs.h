@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_strings.h"
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 /** Use this class as a wrapper for command line arguments.  You should dispose
@@ -27,7 +27,7 @@ NAMESPACE_GUTIL1(Utils);
 */
 
 class CommandLineArgs :
-        public DataObjects::Vector<DataObjects::String>
+        public Vector<String>
 {
 public:
 
@@ -40,21 +40,21 @@ public:
     /** Searches for a specific argument, with or without case-sensitivity.
         \returns -1 if not found
     */
-    int FindArgument(const DataObjects::String &, bool case_sensitive = true) const;
+    int FindArgument(const String &, bool case_sensitive = true) const;
 
     /** Returns whether the given argument is present in the argument list. */
-    bool Contains(const DataObjects::String &arg, bool case_sensitive = true) const{
+    bool Contains(const String &arg, bool case_sensitive = true) const{
         return FindArgument(arg, case_sensitive) != -1;
     }
 
     /** Get the program name argument, or the element at argument 0 */
-    DataObjects::String ProgramArgument() const{
+    String ProgramArgument() const{
         return 0 < Length() ? operator[](0) : "";
     }
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_COMMANDLINEARGS_H

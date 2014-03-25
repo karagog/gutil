@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_strings.h"
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 /** An interface you must implement to give commands to the UndoStack. */
@@ -40,7 +40,7 @@ public:
     virtual void Redo() = 0;
 
     /** A field to provide a textual description of the action. */
-    virtual ::GUtil::DataObjects::String Text() const = 0;
+    virtual GUtil::String Text() const = 0;
 
     /** So the implementation class can be deleted by the interface. */
     virtual ~IUndoableAction(){}
@@ -76,7 +76,7 @@ class UndoStack
 {
     GUTIL_DISABLE_COPY(UndoStack);
 
-    ::GUtil::DataObjects::Vector<IUndoableAction *> m_stack;
+    GUtil::Vector<IUndoableAction *> m_stack;
     int m_ptr;
     void *m_macro;
 
@@ -105,12 +105,12 @@ public:
     /** Returns a textual description of the current action to be undone.
      *  \note The undoable action must have implemented a text description.
     */
-    virtual ::GUtil::DataObjects::String GetUndoText() const;
+    virtual GUtil::String GetUndoText() const;
 
     /** Returns a textual description of the current action to be redone.
      *  \note The undoable action must have implemented a text description.
     */
-    virtual ::GUtil::DataObjects::String GetRedoText() const;
+    virtual GUtil::String GetRedoText() const;
 
 
     /** Executes a command and pushes it onto the stack.
@@ -180,6 +180,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_UNDOSTACK_H

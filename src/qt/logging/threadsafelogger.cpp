@@ -13,9 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "threadsafelogger.h"
-USING_NAMESPACE_GUTIL1(Logging);
 
-NAMESPACE_GUTIL2(QT, Logging);
+NAMESPACE_GUTIL1(QT);
 
 
 ThreadSafeLogger::ThreadSafeLogger(AbstractLogger *al, bool auto_delete)
@@ -39,4 +38,4 @@ void ThreadSafeLogger::Log(const LoggingData &d)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

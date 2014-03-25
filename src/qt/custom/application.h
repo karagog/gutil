@@ -22,7 +22,7 @@ limitations under the License.*/
 
 class QAction;
 
-namespace GUtil{ namespace QT{ namespace Custom{
+namespace GUtil{ namespace QT{
 
 
 /** My derived version of QApplication.
@@ -142,7 +142,7 @@ private:
 };
 
 
-}}}
+}}
 
 
 #ifdef gApp
@@ -155,7 +155,7 @@ private:
     cast, so in case you didn't actually instantiate a Application it will return NULL.
     \sa qApp
 */
-#define gApp   dynamic_cast<GUtil::QT::Custom::Application *>(qApp)
+#define gApp   dynamic_cast<GUtil::QT::Application *>(qApp)
 
 
 #endif // GUI_FUNCTIONALITY

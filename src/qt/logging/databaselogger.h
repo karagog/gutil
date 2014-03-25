@@ -20,12 +20,12 @@ limitations under the License.*/
 
 class QSqlDatabase;
 
-NAMESPACE_GUTIL2(QT, Logging);
+NAMESPACE_GUTIL1(QT);
 
 
 /** Logs stuff to a database */
 class DatabaseLogger :
-        public GUtil::Logging::AbstractLogger
+        public GUtil::AbstractLogger
 {
 public:
 
@@ -64,8 +64,8 @@ public:
     bool ValidateDatabase() const;
 
     /** Overridden from AbstractLogger to log to the database. */
-    virtual void Log(const GUtil::DataObjects::String &message,
-                     const GUtil::DataObjects::String &title,
+    virtual void Log(const GUtil::String &message,
+                     const GUtil::String &title,
                      MessageLevelEnum ml,
                      time_t);
 
@@ -77,7 +77,7 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 
 #endif // GUTIL_DATABASELOGGER_H

@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QWidget>
 #include <QMutex>
 
-namespace GUtil{ namespace QT{ namespace UI{
+namespace GUtil{ namespace QT{
 
 
 /** This class causes a QWidget to fade in/out.
@@ -89,7 +89,7 @@ private:
 
 };
 
-}}}
+}}
 
 
 #endif // GUI_FUNCTIONALITY

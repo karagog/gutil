@@ -20,13 +20,13 @@ limitations under the License.*/
 #include "gutil_list.h"
 #include "gutil_Icollections.h"
 #include "gutil_smartpointer.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class MemoryLeakChecker
 {
 public:
 
-    GUtil::Utils::SmartPointer<int> Data;
+    GUtil::SmartPointer<int> Data;
 
     explicit MemoryLeakChecker(int value): Data(new int(value)){}
     MemoryLeakChecker(const MemoryLeakChecker &o) :Data(new int(*o.Data)){}

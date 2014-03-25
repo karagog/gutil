@@ -17,8 +17,7 @@ limitations under the License.*/
 #include "DataModels/databaselogmodel.h"
 #include <QSqlDatabase>
 #include <QTableView>
-USING_NAMESPACE_GUTIL2(QT, Logging);
-USING_NAMESPACE_GUTIL2(QT, DataModels);
+USING_NAMESPACE_GUTIL1(QT);
 
 #define TEST_CONN_STR   "test_connection"
 

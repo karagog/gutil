@@ -25,7 +25,7 @@ class MainWindow :
 {
     Q_OBJECT
 
-    ::GUtil::QT::Controls::SelectDateRange *m_sdr;
+    GUtil::QT::SelectDateRange *m_sdr;
     QLabel *lbl_dateStart, *lbl_dateEnd, *lbl_updateCount;
 
     int m_updateCount;

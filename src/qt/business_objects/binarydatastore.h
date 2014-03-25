@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <QString>
 #include <QUuid>
 
-NAMESPACE_GUTIL2(QT, BusinessObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 /** Use this class to manage binary data without consuming lots of memory.
@@ -75,7 +75,7 @@ public:
 
         Throws an exception if something fails.
     */
-    ::GUtil::DataObjects::Pair<int, QUuid> AddData(const QByteArray &);
+    GUtil::Pair<int, QUuid> AddData(const QByteArray &);
 
 
     /** Remove a file from storage. The size of the cache file will shrink about the size of the file.
@@ -120,12 +120,12 @@ public:
     /** Returns the list of ids contained by the database cache, paired with
      *  that item's version id.
     */
-    GUtil::DataObjects::Vector< GUtil::DataObjects::Pair<int, QUuid> > GetIds() const;
+    GUtil::Vector< GUtil::Pair<int, QUuid> > GetIds() const;
 
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // DATABASE_FUNCTIONALITY
 

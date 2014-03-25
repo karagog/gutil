@@ -24,7 +24,7 @@ class QSqlQuery;
 class QSqlDatabase;
 
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A static class that defines functions which are useful for
@@ -37,7 +37,7 @@ public:
     /** Prepares a string that contains all the relevant information about the
             query about to be executed.  This string is useful for log files.
     */
-    static ::GUtil::DataObjects::String InfoString(const QSqlQuery &);
+    static GUtil::String InfoString(const QSqlQuery &);
 
     /** Throws an exception with all the important query info */
     static void ThrowQueryException(const QSqlQuery &);
@@ -72,6 +72,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_DATABASEUTILS_H

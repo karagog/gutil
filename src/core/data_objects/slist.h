@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "gutil_Icollections.h"
 #include "gutil_globals.h"
 #include "gutil_flexibletypecomparer.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** Implements a singly-linked list.
@@ -166,7 +166,7 @@ public:
     /** Sorts the list with the given sorting algorithm. */
     void Sort(bool ascending = true,
                      GUtil::SortTypeEnum e = GUtil::MergeSort,
-                     const Interfaces::IComparer<T> &comparer = DefaultComparer<T>())
+                     const IComparer<T> &comparer = DefaultComparer<T>())
     {
         switch(e)
         {
@@ -308,7 +308,7 @@ private:
         --m_count;
     }
 
-    void _merge_sort(iterator &b, iterator &e, bool ascending, const Interfaces::IComparer<T> &cmp)
+    void _merge_sort(iterator &b, iterator &e, bool ascending, const IComparer<T> &cmp)
     {
         GUINT32 diff(0);
         iterator m(b);
@@ -476,15 +476,10 @@ template<class T>class SList<T, IQueue<T> > :
 };
 
 
-END_NAMESPACE_GUTIL1;
+template<class T>struct IsMovableType< SListImp<T> >{ enum{ Value = 1 }; };
+template<class T, class U>struct IsMovableType< SList<T, U> >{ enum{ Value = 1 }; };
 
 
-namespace GUtil
-{
-
-template<class T>struct IsMovableType< DataObjects::SListImp<T> >{ enum{ Value = 1 }; };
-template<class T, class U>struct IsMovableType< DataObjects::SList<T, U> >{ enum{ Value = 1 }; };
-
-}
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_SLIST_H

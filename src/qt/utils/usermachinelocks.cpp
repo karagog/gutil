@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QDesktopServices>
 
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 QMap<QString, QReadWriteLock *> MachineLockBase::process_locks;
 QReadWriteLock MachineLockBase::process_locks_lock;
@@ -195,6 +195,6 @@ void MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUI_FUNCTIONALITY

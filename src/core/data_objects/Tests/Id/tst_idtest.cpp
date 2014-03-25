@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include "gutil_id.h"
 
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 class IdTest : public QObject
 {

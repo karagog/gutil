@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_interfaces.h"
 #include "gutil_macros.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** A list of items, implemented as a memory array.
@@ -344,7 +344,7 @@ public:
 
 
     /** Sorts the list using the given sorting algorithm. */
-    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
+    void Sort(bool ascending = true, GUtil::SortTypeEnum e = MergeSort, const IComparer<T> &comparer = GUtil::DefaultComparer<T>()){
         switch(e)
         {
         case GUtil::MergeSort:
@@ -608,7 +608,7 @@ private:
     int m_pageCount;
     GINT32 m_size;
 
-    void _merge_sort(const iterator &b, const iterator &e, bool ascending, Vector<T> &buffer, const Interfaces::IComparer<T> &cmp){
+    void _merge_sort(const iterator &b, const iterator &e, bool ascending, Vector<T> &buffer, const IComparer<T> &cmp){
         GINT32 diff( e - b );
         if(diff == INT_MAX);
         else if(diff == 2)
@@ -783,16 +783,10 @@ template<class T> class List<T, IDeque<T> > :
 };
 
 
-END_NAMESPACE_GUTIL1;
+template<class T>struct IsMovableType< ListImp<T> >{ enum{ Value = 1 }; };
+template<class T, class U>struct IsMovableType< List<T, U> >{ enum{ Value = 1 }; };
 
 
-namespace GUtil
-{
-
-template<class T>struct IsMovableType< DataObjects::ListImp<T> >{ enum{ Value = 1 }; };
-template<class T, class U>struct IsMovableType< DataObjects::List<T, U> >{ enum{ Value = 1 }; };
-
-}
-
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_LIST_H

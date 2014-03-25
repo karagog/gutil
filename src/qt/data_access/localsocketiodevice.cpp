@@ -16,7 +16,7 @@ limitations under the License.*/
 
 #include "localsocketiodevice.h"
 
-NAMESPACE_GUTIL2(QT, DataAccess);
+NAMESPACE_GUTIL1(QT);
 
 
 LocalSocketIODevice::LocalSocketIODevice(QLocalSocket *s, QObject *parent)
@@ -51,6 +51,6 @@ void LocalSocketIODevice::_localsocket_state_changed(QLocalSocket::LocalSocketSt
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // NETWORK_FUNCTIONALITY

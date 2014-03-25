@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_globals.h"
 #include "gutil_bitvector.h"
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** A class to encapsulate boolean memory storage on an integer type.
@@ -104,7 +104,12 @@ public:
 
 };
 
-END_NAMESPACE_GUTIL1;
+
+/** The Flag type can be binary-moved */
+template<class U>struct IsMovableType< Flags<U> >{ enum{ Value = 1 }; };
+
+
+END_NAMESPACE_GUTIL;
 
 
 /** Use this for convenient flag operators for your enum type.
@@ -120,13 +125,13 @@ END_NAMESPACE_GUTIL1;
     \param int_type The type of integer you want behind the flags
 */
 #define GUTIL_DECLARE_FLAGS2(flags_name, enum_type, int_type) \
-    class flags_name : public GUtil::DataObjects::Flags<enum_type, int_type>{ \
+    class flags_name : public GUtil::Flags<enum_type, int_type>{ \
     public: \
         flags_name(){} \
-        flags_name(enum_type e) :GUtil::DataObjects::Flags<enum_type, int_type>(e){}  \
-        explicit flags_name(int_type i) :GUtil::DataObjects::Flags<enum_type, int_type>(i){} \
-        flags_name(const GUtil::DataObjects::Flags<enum_type, int_type> &o) :GUtil::DataObjects::Flags<enum_type, int_type>(o){} \
-        flags_name &operator = (enum_type e){ GUtil::DataObjects::Flags<enum_type, int_type>::operator = (e); return *this; } \
+        flags_name(enum_type e) :GUtil::Flags<enum_type, int_type>(e){}  \
+        explicit flags_name(int_type i) :GUtil::Flags<enum_type, int_type>(i){} \
+        flags_name(const GUtil::Flags<enum_type, int_type> &o) :GUtil::Flags<enum_type, int_type>(o){} \
+        flags_name &operator = (enum_type e){ GUtil::Flags<enum_type, int_type>::operator = (e); return *this; } \
     }
 
 /** Declares all necessary operators and supplement classes to integrate
@@ -148,15 +153,5 @@ END_NAMESPACE_GUTIL1;
     namespace GUtil{ \
     template<>struct IsMovableType< flags_name >{ enum{ Value = 1 }; }; \
     }enum{}
-
-
-namespace GUtil
-{
-
-/** The Flag type can be binary-moved */
-template<class U>struct IsMovableType< DataObjects::Flags<U> >{ enum{ Value = 1 }; };
-
-}
-
 
 #endif // GUTIL_FLAGS_H

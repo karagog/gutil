@@ -20,7 +20,7 @@ limitations under the License.*/
 
 class QIODevice;
 
-namespace GUtil{ namespace QT{ namespace DataAccess{
+namespace GUtil{ namespace QT{
 
 
 /** An IO device that encapsulates a normal Qt IODevice.
@@ -75,6 +75,6 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_QIODEVICE_H

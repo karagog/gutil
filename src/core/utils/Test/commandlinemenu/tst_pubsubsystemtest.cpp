@@ -17,9 +17,6 @@ limitations under the License.*/
 #include "Core/Utils/commandlinemenu.h"
 #include "gutil_console.h"
 USING_NAMESPACE_GUTIL;
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(DataObjects);
 
 class CommandLineMenuTest : public QObject
 {

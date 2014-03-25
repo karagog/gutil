@@ -21,7 +21,7 @@ limitations under the License.*/
 class QPainter;
 class QPointF;
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 /** A class that defines functions which are useful for
@@ -55,6 +55,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_PAINTUTILS_H

@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "abstractlogger.h"
 #include "gutil_console.h"
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 /** A logger that outputs to the console. */
@@ -25,12 +25,12 @@ class ConsoleLogger :
         public AbstractLogger
 {
 public:
-    ConsoleLogger(DataAccess::Console::OutputStreamEnum e = DataAccess::Console::StandardOut)
-        :AbstractLogger(new DataAccess::Console(e))
+    ConsoleLogger(Console::OutputStreamEnum e = Console::StandardOut)
+        :AbstractLogger(new Console(e))
     {}
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_CONSOLELOGGER_H

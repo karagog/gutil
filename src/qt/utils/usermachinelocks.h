@@ -25,7 +25,7 @@ limitations under the License.*/
 
 class QtLockedFile;
 
-NAMESPACE_GUTIL2(QT, Utils);
+NAMESPACE_GUTIL1(QT);
 
 
 /** An easy to use inter-process locking mechanism.
@@ -172,7 +172,7 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // APPLICATIONLOCK_H
 

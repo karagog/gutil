@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <QMutex>
 #include <QWaitCondition>
 
-namespace GUtil{ namespace QT{ namespace Logging{
+namespace GUtil{ namespace QT{
 
 
 /** A logger that queues logging requests and writes them to
@@ -30,17 +30,17 @@ namespace GUtil{ namespace QT{ namespace Logging{
 */
 class QueuedLogger :
         private QThread,
-        public ::GUtil::Logging::AbstractLogger
+        public GUtil::AbstractLogger
 {
     Q_OBJECT
 
     QMutex m_lock;
     QWaitCondition m_forActivity;
 
-    ::GUtil::Utils::SharedSmartPointer< ::GUtil::Logging::AbstractLogger > m_logger;
+    GUtil::SharedSmartPointer< GUtil::AbstractLogger > m_logger;
 
     // The following variables should be protected by the mutex lock
-    ::GUtil::DataObjects::SList< LoggingData > m_queue;
+    GUtil::SList< LoggingData > m_queue;
     bool m_cancel;
     bool m_flushQueueOnCancel;
 
@@ -50,8 +50,8 @@ public:
             You must pass a valid pointer to another logger for this to work,
             and the class will manage the memory for you.
     */
-    explicit QueuedLogger(::GUtil::Logging::AbstractLogger *l)
-        :GUtil::Logging::AbstractLogger(NULL),
+    explicit QueuedLogger(::GUtil::AbstractLogger *l)
+        :GUtil::AbstractLogger(NULL),
           m_logger(l),
           m_cancel(false),
           m_flushQueueOnCancel(true)
@@ -61,9 +61,9 @@ public:
             You must pass a valid pointer to another logger for this to work,
             and the class will manage the memory for you.
     */
-    QueuedLogger(::GUtil::Logging::AbstractLogger *l,
+    QueuedLogger(::GUtil::AbstractLogger *l,
                         const LoggingOptionsFlags &f)
-        :GUtil::Logging::AbstractLogger(NULL, f),
+        :GUtil::AbstractLogger(NULL, f),
           m_logger(l),
           m_cancel(false),
           m_flushQueueOnCancel(true)
@@ -102,6 +102,6 @@ protected:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_QUEUEDLOGGER_H

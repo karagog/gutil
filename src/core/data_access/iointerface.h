@@ -25,8 +25,6 @@ namespace GUtil{
 */
 GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( IOException, int Bytes );
 
-namespace DataAccess{
-
 
 /** An abstract interface that says you implement a way of receiving data
     from somewhere
@@ -89,6 +87,6 @@ public:
 };
 
 
-}}
+}
 
 #endif // GUTIL_IOINTERFACE_H

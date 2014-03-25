@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "dogtable.h"
 #include "DataObjects/DataSet/dataset.h"
-USING_NAMESPACE_GUTIL2(DataObjects);
+USING_NAMESPACE_GUTIL1(QT);
 
 DogTable::DogTable()
 {
@@ -22,7 +22,7 @@ DogTable::DogTable()
 }
 
 DogTable::DogTable(const DogTable &o)
-    :GUtil::DataObjects::DataTable(o)
+    :GUtil::DataTable(o)
 {}
 
 void DogTable::_init_dog_table()

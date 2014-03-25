@@ -21,7 +21,7 @@ limitations under the License.*/
 #define STRING_TERMINATOR   static_cast<char>(0x00)
 
 
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 String::String(const char *d, GINT32 len)
@@ -1319,24 +1319,24 @@ String::iterator &String::iterator::operator = (const typename VectorImp<char>::
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
-bool operator == (const char *c, const GUtil::DataObjects::String &s)
+bool operator == (const char *c, const GUtil::String &s)
 {
     return s == c;
 }
 
-bool operator != (const char *c, const GUtil::DataObjects::String &s)
+bool operator != (const char *c, const GUtil::String &s)
 {
     return s != c;
 }
 
 
-GUtil::DataObjects::String operator + (const char *c, const GUtil::DataObjects::String &s)
+GUtil::String operator + (const char *c, const GUtil::String &s)
 {
     GINT32 sz( strlen(c) );
-    GUtil::DataObjects::String ret(sz + s.Length());
+    GUtil::String ret(sz + s.Length());
     ret.Insert(c, sz, 0);
     return ret.Append(s);
 }

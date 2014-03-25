@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_macros.h"
 
-NAMESPACE_GUTIL1( Interfaces );
+NAMESPACE_GUTIL;
 
 
 /** Declares an initializable interface */

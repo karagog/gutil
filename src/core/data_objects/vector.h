@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <limits.h>
 #include <malloc.h>
 #include <cstring>
-NAMESPACE_GUTIL1(DataObjects);
+NAMESPACE_GUTIL;
 
 
 /** This is the implementation for the Vector class.
@@ -621,7 +621,7 @@ public:
 
         \param sort_type The sorting algorithm to use.
     */
-    void Sort(bool ascending = true, const GUtil::Interfaces::IComparer<T> &comparer = GUtil::DefaultComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
+    void Sort(bool ascending = true, const GUtil::IComparer<T> &comparer = GUtil::DefaultComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
         switch(sort_type)
         {
         case GUtil::MergeSort:
@@ -828,7 +828,7 @@ private:
 
     static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK<GINT32>( FSB32( n ) ); }
 
-    void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const Interfaces::IComparer<T> &cmp){
+    void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const IComparer<T> &cmp){
         GINT32 diff( e - b );
         if(diff == INT_MAX);
         else if(diff == 2)
@@ -1003,15 +1003,10 @@ template<class T> class Vector<T, IDeque<T> > :
 };
 
 
-END_NAMESPACE_GUTIL1;
+template<class T>struct IsMovableType< VectorImp<T> >{ enum{ Value = 1 }; };
+template<class T, typename U>struct IsMovableType< Vector<T, U> >{ enum{ Value = 1 }; };
 
 
-namespace GUtil
-{
-
-template<class T>struct IsMovableType< DataObjects::VectorImp<T> >{ enum{ Value = 1 }; };
-template<class T, typename U>struct IsMovableType< DataObjects::Vector<T, U> >{ enum{ Value = 1 }; };
-
-}
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_VECTOR_H

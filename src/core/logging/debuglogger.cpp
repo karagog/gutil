@@ -14,9 +14,8 @@ limitations under the License.*/
 
 #include "debuglogger.h"
 #include "filelogger.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
 
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 #define DEFAULT_LOG_FILENAME "debug.log"
@@ -42,4 +41,4 @@ void DebugLogger::_check_if_initialized()
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

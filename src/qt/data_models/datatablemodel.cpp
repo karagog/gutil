@@ -13,10 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "datatablemodel.h"
-USING_NAMESPACE_GUTIL2(QT, DataObjects);
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, DataModels);
+NAMESPACE_GUTIL1(QT);
 
 
 DataTableModel::DataTableModel(QObject *parent)
@@ -211,4 +210,4 @@ bool DataTableModel::removeColumns(int column, int count, const QModelIndex &par
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

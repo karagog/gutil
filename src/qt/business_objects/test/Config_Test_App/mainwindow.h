@@ -40,7 +40,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    GUtil::QT::BusinessObjects::PersistentData cfile;
+    GUtil::QT::PersistentData cfile;
 };
 
 #endif // MAINWINDOW_H

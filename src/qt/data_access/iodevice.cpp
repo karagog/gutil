@@ -15,9 +15,9 @@ limitations under the License.*/
 #include "iodevice.h"
 #include <QWaitCondition>
 #include <QMetaType>
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, DataAccess);
+NAMESPACE_GUTIL1(QT);
 
 
 IODevice::IODevice(QObject *parent)
@@ -114,4 +114,4 @@ bool IODevice::HasDataAvailable()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 #include <limits.h>
 
-NAMESPACE_GUTIL2(QT, DataObjects);
+NAMESPACE_GUTIL1(QT);
 
 #define GVARIANT_XML_ID "GV"
 
@@ -61,13 +61,13 @@ void Variant::WriteXml(QXmlStreamWriter &sw) const
     switch(type)
     {
     case String:
-        sw.writeAttribute("d", GUtil::DataObjects::String(toString()).ToBase64());
+        sw.writeAttribute("d", GUtil::String(toString()).ToBase64());
         break;
     case ByteArray:
-        sw.writeAttribute("d", GUtil::DataObjects::String(toByteArray().constData(), toByteArray().length()).ToBase64());
+        sw.writeAttribute("d", GUtil::String(toByteArray().constData(), toByteArray().length()).ToBase64());
         break;
     case Char:
-        sw.writeAttribute("d", GUtil::DataObjects::String(toString()).ToBase64());
+        sw.writeAttribute("d", GUtil::String(toString()).ToBase64());
         break;
     case Int:
         sw.writeAttribute("d", toString());
@@ -122,7 +122,7 @@ void Variant::WriteXml(QXmlStreamWriter &sw) const
         foreach(QString z, toStringList())
         {
             sw.writeStartElement("i");
-            sw.writeAttribute("d", GUtil::DataObjects::String(z).ToBase64());
+            sw.writeAttribute("d", GUtil::String(z).ToBase64());
             sw.writeEndElement();
         }
         break;
@@ -145,7 +145,7 @@ void Variant::WriteXml(QXmlStreamWriter &sw) const
         foreach(QString z, toMap().keys())
         {
             sw.writeStartElement("i");
-            sw.writeAttribute("k", GUtil::DataObjects::String(z).ToBase64());
+            sw.writeAttribute("k", GUtil::String(z).ToBase64());
             Variant(toMap().value(z)).WriteXml(sw);
             sw.writeEndElement();
         }
@@ -203,16 +203,16 @@ void Variant::ReadXml(QXmlStreamReader &sr)
             switch(type)
             {
             case String:
-                setValue(GUtil::DataObjects::String(d).FromBase64().ToQString());
+                setValue(GUtil::String(d).FromBase64().ToQString());
                 break;
             case ByteArray:
             {
-                GUtil::DataObjects::String tmps( GUtil::DataObjects::String(d).FromBase64() );
+                GUtil::String tmps( GUtil::String(d).FromBase64() );
                 setValue(QByteArray(tmps.ConstData(), tmps.Length()));
             }
                 break;
             case Char:
-                setValue(QChar(GUtil::DataObjects::String(d).FromBase64()[0]));
+                setValue(QChar(GUtil::String(d).FromBase64()[0]));
                 break;
             case Int:
                 setValue(d.toInt());
@@ -271,7 +271,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
                     if(!sr.readNextStartElement())
                         THROW_NEW_GUTIL_EXCEPTION(XmlException);
 
-                    sltemp1.append(GUtil::DataObjects::String(sr.attributes().at(0).value().toString())
+                    sltemp1.append(GUtil::String(sr.attributes().at(0).value().toString())
                                    .FromBase64());
                     while(sr.readNext() != QXmlStreamReader::EndElement);
                 }
@@ -302,7 +302,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
                     if(!sr.readNextStartElement())
                         THROW_NEW_GUTIL_EXCEPTION(XmlException);
 
-                    QString key = GUtil::DataObjects::String(
+                    QString key = GUtil::String(
                                 sr.attributes().at(0).value().toString()
                                 ).FromBase64();
                     Variant gv;
@@ -364,4 +364,4 @@ bool Variant::operator == (const Variant &o) const
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

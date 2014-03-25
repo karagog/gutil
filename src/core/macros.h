@@ -175,23 +175,17 @@ protected: \
 
 #ifndef NO_GUTIL_NAMESPACES
 
-/** A macro to begin a nested GUtil namespace. */
-#define NAMESPACE_GUTIL2( n1, n2 )      namespace GUtil{ namespace n1{ namespace n2{ enum{}
 /** A macro to begin a GUtil sub-namespace. */
 #define NAMESPACE_GUTIL1( n )           namespace GUtil{ namespace n { enum{}
 /** A macro to begin a gutil namespace. */
 #define NAMESPACE_GUTIL                 namespace GUtil{ enum{}
 
 
-/** Ends a 2-deep nested GUtil namespace. */
-#define END_NAMESPACE_GUTIL2            }}} enum{}
 /** Ends a GUtil sub-namespace. */
 #define END_NAMESPACE_GUTIL1            }} enum{}
 /** Ends a GUtil namespace declaration. */
 #define END_NAMESPACE_GUTIL             } enum{}
 
-/** Use the provided nested GUtil namespace */
-#define USING_NAMESPACE_GUTIL2( n1, n2 )        using namespace GUtil::n1::n2
 /** Use the provided GUtil sub-namespace */
 #define USING_NAMESPACE_GUTIL1( ns )            using namespace GUtil::ns
 /** Use the GUtil namespace */
@@ -200,15 +194,12 @@ protected: \
 
 #else
 
-#define NAMESPACE_GUTIL2(a, b)              enum{}
 #define NAMESPACE_GUTIL1(a)                 enum{}
 #define NAMESPACE_GUTIL                     enum{}
 
-#define END_NAMESPACE_GUTIL2                enum{}
 #define END_NAMESPACE_GUTIL1                enum{}
 #define END_NAMESPACE_GUTIL                 enum{}
 
-#define USING_NAMESPACE_GUTIL2(n1, n2)      enum{}
 #define USING_NAMESPACE_GUTIL1(n1)          enum{}
 #define USING_NAMESPACE_GUTIL               enum{}
 

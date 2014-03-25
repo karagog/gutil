@@ -43,7 +43,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    GUtil::Utils::UniversalMutex _universal_lock;
+    GUtil::UniversalMutex _universal_lock;
 
 };
 

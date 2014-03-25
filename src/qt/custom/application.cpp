@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <QPluginLoader>
 #include <QMessageBox>
 #include <QAction>
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL1(QT);
 
 
 Application::Application(int &argc, char **argv)
@@ -118,10 +118,10 @@ QAction *Application::CreateActionAboutGUtil(QObject *p)
 
 void Application::AboutGUtil(QWidget *dialog_parent)
 {
-    ::GUtil::QT::UI::About::ShowAboutGUtil(dialog_parent);
+    GUtil::QT::About::ShowAboutGUtil(dialog_parent);
 }
 
 void Application::about_to_quit(){}
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "rng.h"
 #include "gutil_smartpointer.h"
 #include <math.h>
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 
 #ifndef GUTIL_NO_RNG
 
@@ -24,7 +24,7 @@ USING_NAMESPACE_GUTIL1(DataObjects);
 /** We allocate a global static RNG from CryptoPP, so we don't
     have to allocate one every time we need random data.
 */
-static ::GUtil::Utils::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > __rng;
+static GUtil::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > __rng;
 
 #endif  // GUTIL_NO_RNG
 
@@ -40,7 +40,7 @@ static Pair<GUINT32> __rng_generate_two_numbers();
 
 
 
-NAMESPACE_GUTIL1(Utils);
+NAMESPACE_GUTIL;
 
 
 void RNG::Initialize()
@@ -186,7 +186,7 @@ GFLOAT64 RNG::Exponential(GFLOAT64 lambda)
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 
 
@@ -201,6 +201,6 @@ GFLOAT64 __rng_int_to_unit_float(GUINT32 i)
 
 Pair<GUINT32> __rng_generate_two_numbers()
 {
-    GUINT64 L( GUtil::Utils::RNG::Generate<GUINT64>() );
+    GUINT64 L( GUtil::RNG::Generate<GUINT64>() );
     return Pair<GUINT32>(L >> 32, L);
 }

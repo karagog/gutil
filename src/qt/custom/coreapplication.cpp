@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "coreapplication.h"
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL1(QT);
 
 
 CoreApplication::CoreApplication(int &argc, char **argv)
@@ -71,4 +71,4 @@ bool CoreApplication::notify(QObject *o, QEvent *ev)
 void CoreApplication::about_to_quit(){}
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

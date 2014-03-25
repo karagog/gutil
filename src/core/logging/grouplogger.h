@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "abstractlogger.h"
 #include "gutil_vector.h"
 #include "gutil_smartpointer.h"
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 /** A logger class that logs to a group of loggers
@@ -32,12 +32,12 @@ public:
     GroupLogger() :AbstractLogger(0) {}
 
     /** Overridden from AbstractLogger to log the message to all loggers in the group */
-    virtual void Log(const DataObjects::String &message,
-                     const DataObjects::String &title = DataObjects::String(),
+    virtual void Log(const String &message,
+                     const String &title = String(),
                      MessageLevelEnum msg_lvl = MessageLevel_Info)
     {
         // Log the message to all of our loggers
-        for(DataObjects::Vector< Utils::SharedSmartPointer<AbstractLogger> >::const_iterator iter(m_loggers.begin());
+        for(Vector< SharedSmartPointer<AbstractLogger> >::const_iterator iter(m_loggers.begin());
             iter != m_loggers.end(); ++iter)
             (*iter)->Log(message, title, msg_lvl);
     }
@@ -51,11 +51,11 @@ public:
 
 private:
 
-    DataObjects::Vector< Utils::SharedSmartPointer<AbstractLogger> > m_loggers;
+    Vector< SharedSmartPointer<AbstractLogger> > m_loggers;
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_GROUPLOGGER_H

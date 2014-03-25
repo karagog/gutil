@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "DataObjects/DataSet/datatable.h"
 
 class DogTable :
-        public GUtil::DataObjects::DataTable
+        public GUtil::DataTable
 {
     friend class DogOwnerDataSet;
 

@@ -21,10 +21,9 @@ limitations under the License.*/
 #include <QQueue>
 #include <QtConcurrentRun>
 #include <QThread>
-USING_NAMESPACE_GUTIL1(DataAccess);
-USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, DataAccess);
+NAMESPACE_GUTIL1(QT);
 
 
 // This is the data that is shared between the class and the background threads.
@@ -308,4 +307,4 @@ QByteArray ConsoleIODevice::receive_data()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

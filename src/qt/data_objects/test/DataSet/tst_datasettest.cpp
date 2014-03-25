@@ -21,10 +21,8 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 
-using namespace GUtil;
-USING_NAMESPACE_GUTIL2( DataObjects );
-USING_NAMESPACE_GUTIL2( Core );
-USING_NAMESPACE_GUTIL2( Custom );
+USING_NAMESPACE_GUTIL;
+USING_NAMESPACE_GUTIL1(QT);
 
 class DataSetTest : public QObject
 {

@@ -28,7 +28,7 @@ namespace Ui {
 class SelectDateRange;
 }
 
-namespace GUtil{ namespace QT{ namespace Controls{
+namespace GUtil{ namespace QT{
 
 
 /** Use this control to select a range of time. */
@@ -37,12 +37,12 @@ class SelectDateRange :
 {
     Q_OBJECT
 
-    Utils::SmartPointer<Ui::SelectDateRange> ui;
+    SmartPointer<Ui::SelectDateRange> ui;
 
-    Utils::SmartPointer<QDateEdit> m_dateEdit;
+    SmartPointer<QDateEdit> m_dateEdit;
 
-    Utils::SmartPointer<QCheckBox> m_checkStart, m_checkEnd;
-    Utils::SmartPointer<QDateTimeEdit> m_dateTimeStart, m_dateTimeEnd;
+    SmartPointer<QCheckBox> m_checkStart, m_checkEnd;
+    SmartPointer<QDateTimeEdit> m_dateTimeStart, m_dateTimeEnd;
 
     QDate m_dateStart, m_dateEnd;
     QString m_dayFormat;
@@ -72,12 +72,12 @@ public:
     void SetComboBoxSelection(ComboBoxItemEnum);
 
     /** Returns the currently selected date range */
-    ::GUtil::DataObjects::Range<QDate> GetDateRange() const;
+    GUtil::Range<QDate> GetDateRange() const;
 
     /** Sets the current date range selection.
      *  The date range may be adjusted to make sense with the combo box selection.
     */
-    void SetDateRange(const ::GUtil::DataObjects::Range<QDate> &);
+    void SetDateRange(const GUtil::Range<QDate> &);
 
     /** Returns the current day format. */
     QString GetDayFormat() const;
@@ -116,6 +116,6 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // GUTIL_SELECTDATERANGE_H

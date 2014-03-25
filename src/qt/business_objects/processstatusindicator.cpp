@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QLocalServer>
 #include <QCoreApplication>
 
-NAMESPACE_GUTIL2(QT, BusinessObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 #define IDENTITY_FORMAT "PROCESS_STATUS"
@@ -134,7 +134,7 @@ void ProcessStatusIndicator::_status_data_changed()
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_NO_NETWORK_FUNCTIONALITY
 #endif // GUTIL_NO_GUI_FUNCTIONALITY

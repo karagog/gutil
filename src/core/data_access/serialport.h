@@ -26,7 +26,7 @@ limitations under the License.*/
     This is the header for cross-platform serial port functionality
 */
 
-NAMESPACE_GUTIL1(DataAccess);
+NAMESPACE_GUTIL;
 
 
 /** A cross-platform serial port class.  Writes and reads bytes to/from a serial port.
@@ -67,6 +67,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;    // DataAccess
+END_NAMESPACE_GUTIL;
 
 #endif  // GUTIL_SERIAL_H

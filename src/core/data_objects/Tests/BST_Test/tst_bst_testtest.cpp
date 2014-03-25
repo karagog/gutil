@@ -17,8 +17,7 @@ limitations under the License.*/
 #include "gutil_binarysearchtree.h"
 #include <iostream>
 #include <vector>
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(DataObjects);
+USING_NAMESPACE_GUTIL;
 using namespace std;
 
 class BST_Test :

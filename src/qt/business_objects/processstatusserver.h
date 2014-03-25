@@ -22,9 +22,7 @@ limitations under the License.*/
 #include <QLocalServer>
 #include <QThreadPool>
 
-namespace GUtil{ namespace QT{ namespace BusinessObjects{
-
-
+namespace GUtil{ namespace QT{
 
 
 /** Implements an application status server, which provides status information
@@ -61,7 +59,7 @@ private:
     virtual void incomingConnection(quintptr socketDescriptor);
 
     QThreadPool thread_pool;
-    GUtil::Utils::SmartPointer<QRunnable> _thread;
+    GUtil::SmartPointer<QRunnable> _thread;
 
 };
 
@@ -89,7 +87,7 @@ private:
 };
 
 
-}}}
+}}
 
 
 #endif // GUTIL_PROCESSSTATUSSERVER_H

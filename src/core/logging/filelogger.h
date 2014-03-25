@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_file.h"
 #include "gutil_abstractlogger.h"
 
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 /** A logger that outputs to a. */
@@ -27,22 +27,22 @@ class FileLogger :
 {
 public:
     FileLogger(const char *filename)
-        :AbstractLogger(new DataAccess::File(filename))
+        :AbstractLogger(new File(filename))
     {
-        DataAccess::File *f(static_cast<DataAccess::File *>(io_device()));
+        File *f(static_cast<File *>(io_device()));
         f->SetBufferedWrites(false);    // A log file must not delay writing
-        f->Open(DataAccess::File::OpenAppend);
+        f->Open(File::OpenAppend);
     }
 
     /** Erases the contents of the logfile. */
     virtual void Clear(){
-        DataAccess::File *f( static_cast<DataAccess::File *>(io_device()) );
+        File *f( static_cast<File *>(io_device()) );
         f->Close();
-        f->Open(DataAccess::File::OpenReadWriteTruncate);
+        f->Open(File::OpenReadWriteTruncate);
     }
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_FILELOGGER_H

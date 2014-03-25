@@ -16,8 +16,7 @@ limitations under the License.*/
 #include "gutil_range.h"
 #include "Core/DataObjects/gstrings.h"
 #include "gutil_console.h"
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(DataAccess);
+USING_NAMESPACE_GUTIL;
 
 
 

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <stdio.h>
 
-NAMESPACE_GUTIL1(DataAccess);
+NAMESPACE_GUTIL;
 
 
 /** An encapsulation of a file, that gives easy access to file operations.
@@ -48,7 +48,7 @@ public:
     }
 
     /** Returns the current filename we're set to. */
-    const DataObjects::String &Filename() const{ return m_filename; }
+    const String &Filename() const{ return m_filename; }
 
     /** Returns whether the file exists. */
     bool Exists() const{ return Exists(m_filename); }
@@ -110,14 +110,14 @@ public:
                      len == UINT_MAX ? strlen(data) : len);
     }
     /** Write data to the file. */
-    GUINT32 Write(const DataObjects::String &data){
+    GUINT32 Write(const String &data){
         return Write(data.ConstData(), data.Length());
     }
 
     /** Read data from the file.  Return the number of bytes read. */
     GUINT32 Read(GBYTE *buffer, GUINT32 buf_len, GUINT32 bytes_to_read = UINT_MAX);
     /** Read data from the file and returns it in a string object. */
-    DataObjects::String Read(GUINT32 bytes = UINT_MAX);
+    String Read(GUINT32 bytes = UINT_MAX);
 
     /** Changes the position of the read pointer. */
     void Seek(GUINT32 pos);
@@ -146,12 +146,12 @@ public:
 
 private:
 
-    DataObjects::String m_filename;
+    String m_filename;
     FILE *m_handle;
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_FILE_H

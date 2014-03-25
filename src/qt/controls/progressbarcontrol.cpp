@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <QStackedLayout>
 #include <QVBoxLayout>
 
-NAMESPACE_GUTIL2(QT, Controls);
+NAMESPACE_GUTIL1(QT);
 
 
 ProgressBarControl::ProgressBarControl(QWidget *parent)
@@ -58,4 +58,4 @@ void ProgressBarControl::setButtonEnabled(bool which)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

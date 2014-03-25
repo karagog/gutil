@@ -23,7 +23,7 @@ limitations under the License.*/
 class QLabel;
 class QPushButton;
 
-namespace GUtil{ namespace QT{ namespace Controls{
+namespace GUtil{ namespace QT{
 
 
 /** Implements a simple stopwatch widget. */
@@ -92,14 +92,14 @@ private:
     QLabel *lbl_time;
     QPushButton *btn_start, *btn_reset;
 
-    Utils::StopwatchEngine _stopwatch;
+    StopwatchEngine _stopwatch;
 
     ResolutionEnum m_resolution;
 
 };
 
 
-}}}
+}}
 
 #endif // GUI_FUNCTIONALITY
 

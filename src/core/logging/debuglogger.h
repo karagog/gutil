@@ -20,16 +20,16 @@ limitations under the License.*/
 #ifdef DEBUG_LOGGING
 
 /** Logs a message to the debug logger (in debug mode only). */
-#define dLogMessage( m )    GUtil::Logging::DebugLogger::LogMessage(__FILE__, __LINE__, m)
+#define dLogMessage( m )    GUtil::DebugLogger::LogMessage(__FILE__, __LINE__, m)
 
 /** Logs a warning to the debug logger (in debug mode only). */
-#define dLogWarning( m )    GUtil::Logging::DebugLogger::LogWarning(__FILE__, __LINE__, m)
+#define dLogWarning( m )    GUtil::DebugLogger::LogWarning(__FILE__, __LINE__, m)
 
 /** Logs an error to the debug logger (in debug mode only). */
-#define dLogError( m )      GUtil::Logging::DebugLogger::LogError(__FILE__, __LINE__, m)
+#define dLogError( m )      GUtil::DebugLogger::LogError(__FILE__, __LINE__, m)
 
 /** Logs an exception to the debug logger (in debug mode only). */
-#define dLogException( e )  GUtil::Logging::DebugLogger::LogException(e)
+#define dLogException( e )  GUtil::DebugLogger::LogException(e)
 
 #else
 
@@ -51,7 +51,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include "globallogger.h"
 
-NAMESPACE_GUTIL1(Logging);
+NAMESPACE_GUTIL;
 
 
 /** A class to wrap debug logging functionality
@@ -61,24 +61,24 @@ class DebugLogger
 {
 public:
 
-    static void SetupLogFile(const DataObjects::String &fn);
+    static void SetupLogFile(const String &fn);
 
     static void LogMessage(const char *file, int line,
-                                  const DataObjects::String &msg)
+                                  const String &msg)
     {
         _check_if_initialized();
         GlobalLogger::LogMessage(msg, _create_title(file, line), GlobalLogger::DebugId);
     }
 
     static void LogWarning(const char *file, int line,
-                                  const DataObjects::String &msg)
+                                  const String &msg)
     {
         _check_if_initialized();
         GlobalLogger::LogWarning( msg, _create_title(file, line), GlobalLogger::DebugId);
     }
 
     static void LogError(const char *file, int line,
-                                const DataObjects::String &msg)
+                                const String &msg)
     {
         _check_if_initialized();
         GlobalLogger::LogError(msg, _create_title(file, line), GlobalLogger::DebugId);
@@ -86,7 +86,7 @@ public:
 
     static void LogException(const Exception<> &ex){
         _check_if_initialized();
-        Logging::GlobalLogger::LogException(ex, GUtil::Logging::GlobalLogger::DebugId);
+        GlobalLogger::LogException(ex, GUtil::GlobalLogger::DebugId);
     }
 
 
@@ -94,8 +94,8 @@ private:
 
     static bool _initialized;
 
-    static DataObjects::String _create_title(const char *file, int line){
-        return DataObjects::String::Format("  File: %s    Line: %d", file, line);
+    static String _create_title(const char *file, int line){
+        return String::Format("  File: %s    Line: %d", file, line);
     }
 
     static void _check_if_initialized();
@@ -103,6 +103,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_DEBUGLOGGER_H

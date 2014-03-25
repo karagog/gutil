@@ -22,9 +22,6 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 USING_NAMESPACE_GUTIL;
-USING_NAMESPACE_GUTIL1(Utils);
-USING_NAMESPACE_GUTIL1(Logging);
-USING_NAMESPACE_GUTIL1(DataObjects);
 
 class LoggerTest : public QObject
 {

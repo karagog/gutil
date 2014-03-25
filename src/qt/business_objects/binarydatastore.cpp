@@ -25,12 +25,9 @@ limitations under the License.*/
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlError>
-USING_NAMESPACE_GUTIL2(QT, DataObjects);
-USING_NAMESPACE_GUTIL2(QT, Utils);
-USING_NAMESPACE_GUTIL1(DataObjects);
-USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL2(QT, BusinessObjects);
+NAMESPACE_GUTIL1(QT);
 
 
 #define BDS_TABLE_NAME "data"
@@ -226,6 +223,6 @@ Vector< Pair<int, QUuid> > BinaryDataStore::GetIds() const
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_NO_DATABASE_FUNCTIONALITY

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QReadWriteLock>
 #include "gutil_macros.h"
 
-namespace GUtil{ namespace QT{ namespace Utils{
+namespace GUtil{ namespace QT{
 
 
 /** This class behaves like a stopwatch.  It is thread safe. */
@@ -115,6 +115,6 @@ private:
 };
 
 
-}}}
+}}
 
 #endif // STOPWATCHENGINE_H

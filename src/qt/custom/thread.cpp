@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "thread.h"
 
-NAMESPACE_GUTIL2(QT, Custom);
+NAMESPACE_GUTIL1(QT);
 
 
 Thread::Thread(QObject *parent)
@@ -61,4 +61,4 @@ void Thread::usleep(GUINT32 useconds)
 }
 
 
-END_NAMESPACE_GUTIL2;
+END_NAMESPACE_GUTIL1;

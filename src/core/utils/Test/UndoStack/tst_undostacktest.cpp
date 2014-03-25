@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "gutil_undostack.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-USING_NAMESPACE_GUTIL1(Utils);
+USING_NAMESPACE_GUTIL;
 
 
 static int A;
