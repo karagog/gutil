@@ -15,108 +15,64 @@ limitations under the License.*/
 #ifndef GUTIL_EUCLIDEANVECTOR_H
 #define GUTIL_EUCLIDEANVECTOR_H
 
-#include <math.h>
 #include "gutil_macros.h"
 NAMESPACE_GUTIL;
-
-
-/** Declares a euclidean vector with the given dimensions.
- *
- *  The default is a 2-d vector
-*/
-template<int dimensions = 2>class EuclideanVector;
 
 
 /** Implements the 3-dimensional free EuclideanVector.
  *
  *  This vector has its base at the origin.
 */
-template<>
-class EuclideanVector<3>
+class EuclideanVector3
 {
 public:
     /** Constructs a null vector. */
-    EuclideanVector():_p_X(0), _p_Y(0), _p_Z(0){}
+    EuclideanVector3();
 
     /** Constructs a vector with the given x, y and z components. */
-    EuclideanVector(GFLOAT64 x, GFLOAT64 y, GFLOAT64 z):_p_X(x), _p_Y(y), _p_Z(z){}
+    EuclideanVector3(GFLOAT64 x, GFLOAT64 y, GFLOAT64 z);
 
     /** Constructs a vector from the given two points, based at the origin. */
-    EuclideanVector(GFLOAT64 x1, GFLOAT64 y1, GFLOAT64 z1,
-                    GFLOAT64 x2, GFLOAT64 y2, GFLOAT64 z2)
-        :_p_X(x2-x1), _p_Y(y2-y1), _p_Z(z2-z1){}
+    EuclideanVector3(GFLOAT64 x1, GFLOAT64 y1, GFLOAT64 z1,
+                     GFLOAT64 x2, GFLOAT64 y2, GFLOAT64 z2);
 
     PROPERTY(X, GFLOAT64);
     PROPERTY(Y, GFLOAT64);
     PROPERTY(Z, GFLOAT64);
 
     /** Returns true if this is a null vector (0 magnitude). */
-    bool IsNull() const{ return 0 == GetX() && 0 == GetY() && 0 == GetZ(); }
+    bool IsNull() const;
 
     /** Returns the scalar magnitude of the vector. */
-    GFLOAT64 Magnitude() const{ return sqrt(GetX()*GetX() + GetY()*GetY() + GetZ()*GetZ()); }
+    GFLOAT64 Magnitude() const;
 
     /** Returns the unit vector of the vector. */
-    EuclideanVector<3> UnitVector () const{ return *this/Magnitude(); }
+    EuclideanVector3 UnitVector () const;
 
     /** Multiplies the vector by the scalar. */
-    EuclideanVector<3> operator * (GFLOAT64 val) const{
-        return EuclideanVector<3>(*this) *= val;
-    }
-    EuclideanVector<3> &operator *= (GFLOAT64 val){
-        SetX(GetX()*val);
-        SetY(GetY()*val);
-        SetZ(GetZ()*val);
-        return *this;
-    }
+    EuclideanVector3 operator * (GFLOAT64 val) const{ return EuclideanVector3(*this) *= val; }
+    EuclideanVector3 &operator *= (GFLOAT64 val);
 
     /** Gives you the dot product of the vectors. */
-    GFLOAT64 operator * (const EuclideanVector<3> &o) const{
-        return GetX()*o.GetX() + GetY()*o.GetY() + GetZ()*o.GetZ();
-    }
+    GFLOAT64 operator * (const EuclideanVector3 &o) const;
 
     /** Gives you the cross-product of the two vectors. */
-    EuclideanVector<3> operator ^ (const EuclideanVector<3> &o) const{
-        return EuclideanVector<3>(GetY()*o.GetZ()-GetZ()*o.GetY(),
-                                         GetZ()*o.GetX()-GetX()*o.GetZ(),
-                                         GetX()*o.GetY()-GetY()*o.GetX());
-    }
+    EuclideanVector3 operator ^ (const EuclideanVector3 &o) const;
 
     /** Divides the vector by the scalar. */
-    EuclideanVector<3> operator / (GFLOAT64 val) const{
-        return EuclideanVector<3>(*this) /= val;
-    }
-    EuclideanVector<3> &operator /= (GFLOAT64 val){
-        SetX(GetX()/val);
-        SetY(GetY()/val);
-        SetZ(GetZ()/val);
-        return *this;
-    }
+    EuclideanVector3 operator / (GFLOAT64 val) const{ return EuclideanVector3(*this) /= val; }
+    EuclideanVector3 &operator /= (GFLOAT64 val);
 
     /** Adds the other vector to this one. */
-    EuclideanVector<3> operator + (const EuclideanVector<3> &o) const{
-        return EuclideanVector<3>(*this) += o;
-    }
-    EuclideanVector<3> &operator += (const EuclideanVector<3> &o){
-        SetX(GetX()+o.GetX());
-        SetY(GetY()+o.GetY());
-        SetZ(GetZ()+o.GetZ());
-        return *this;
-    }
+    EuclideanVector3 operator + (const EuclideanVector3 &o) const{ return EuclideanVector3(*this) += o; }
+    EuclideanVector3 &operator += (const EuclideanVector3 &o);
 
     /** Subtracts the other vector from this one. */
-    EuclideanVector<3> operator - (const EuclideanVector<3> &o) const{
-        return EuclideanVector<3>(*this) -= o;
-    }
-    EuclideanVector<3> &operator -= (const EuclideanVector<3> &o){
-        SetX(GetX()-o.GetX());
-        SetY(GetY()-o.GetY());
-        SetZ(GetZ()-o.GetZ());
-        return *this;
-    }
+    EuclideanVector3 operator - (const EuclideanVector3 &o) const{ return EuclideanVector3(*this) -= o; }
+    EuclideanVector3 &operator -= (const EuclideanVector3 &o);
 
     /** Returns the negative of this vector. */
-    EuclideanVector<3> operator - (){ return EuclideanVector<3>(-GetX(), -GetY(), -GetZ()); }
+    EuclideanVector3 operator - ();
 
 };
 
@@ -125,88 +81,60 @@ public:
  *
  *  This vector has its base at the origin.
 */
-template<>
-class EuclideanVector<2>
+class EuclideanVector2
 {
 public:
     /** Constructs a null vector. */
-    EuclideanVector():_p_X(0), _p_Y(0){}
+    EuclideanVector2();
 
     /** Constructs a vector with the given x and y components. */
-    EuclideanVector(GFLOAT64 x, GFLOAT64 y):_p_X(x), _p_Y(y){}
+    EuclideanVector2(GFLOAT64 x, GFLOAT64 y);
 
     /** Constructs a vector from the given two points, based at the origin. */
-    EuclideanVector(GFLOAT64 x1, GFLOAT64 y1,
-                    GFLOAT64 x2, GFLOAT64 y2)
-        :_p_X(x2-x1), _p_Y(y2-y1){}
+    EuclideanVector2(GFLOAT64 x1, GFLOAT64 y1,
+                     GFLOAT64 x2, GFLOAT64 y2);
 
     PROPERTY(X, GFLOAT64);
     PROPERTY(Y, GFLOAT64);
 
     /** Returns true if this is a null vector (0 magnitude). */
-    bool IsNull() const{ return 0 == GetX() && 0 == GetY(); }
+    bool IsNull() const;
 
     /** Returns the scalar magnitude of the vector. */
-    GFLOAT64 Magnitude() const{ return sqrt(GetX()*GetX() + GetY()*GetY()); }
+    GFLOAT64 Magnitude() const;
 
-    /** Returns a perpendicular vector to this one. */
-    EuclideanVector<2> Orthogonal() const{ return EuclideanVector<2>(-GetY(), GetX()); }
+    /** Returns a perpendicular vector to this one. You can negate this vector
+        to get the other perpendicular one.
+    */
+    EuclideanVector2 Orthogonal() const;
 
     /** Returns the unit vector of the vector. */
-    EuclideanVector<2> UnitVector () const{ return *this/Magnitude(); }
+    EuclideanVector2 UnitVector () const;
 
     /** Multiplies the vector by the scalar. */
-    EuclideanVector<2> operator * (GFLOAT64 val) const{
-        return EuclideanVector<2>(*this) *= val;
-    }
-    EuclideanVector<2> &operator *= (GFLOAT64 val){
-        SetX(GetX()*val);
-        SetY(GetY()*val);
-        return *this;
-    }
+    EuclideanVector2 operator * (GFLOAT64 val) const{ return EuclideanVector2(*this) *= val; }
+    EuclideanVector2 &operator *= (GFLOAT64 val);
 
     /** Gives you the dot product of the vectors. */
-    GFLOAT64 operator * (const EuclideanVector<2> &o) const{
-        return GetX()*o.GetX() + GetY()*o.GetY();
-    }
+    GFLOAT64 operator * (const EuclideanVector2 &o) const;
 
-    /** Gives you the cross-product of the two vectors. */
-    EuclideanVector<3> operator ^ (const EuclideanVector<2> &o) const{
-        return EuclideanVector<3>(0, 0, GetX()*o.GetY() - GetY()*o.GetX());
-    }
+    /** Gives you the cross-product of the two vectors, which is a 3-d vector. */
+    EuclideanVector3 operator ^ (const EuclideanVector2 &o) const;
 
     /** Divides the vector by the scalar. */
-    EuclideanVector<2> operator / (GFLOAT64 val) const{
-        return EuclideanVector<2>(*this) /= val;
-    }
-    EuclideanVector<2> &operator /= (GFLOAT64 val){
-        SetX(GetX()/val);
-        SetY(GetY()/val);
-        return *this;
-    }
+    EuclideanVector2 operator / (GFLOAT64 val) const{ return EuclideanVector2(*this) /= val; }
+    EuclideanVector2 &operator /= (GFLOAT64 val);
 
     /** Adds the other vector to this one. */
-    EuclideanVector<2> operator + (const EuclideanVector<2> &o) const{
-        return EuclideanVector<2>(*this) += o;
-    }
-    EuclideanVector<2> &operator += (const EuclideanVector<2> &o){
-        SetX(GetX()+o.GetX());
-        SetY(GetY()+o.GetY());
-        return *this;
-    }
+    EuclideanVector2 operator + (const EuclideanVector2 &o) const{ return EuclideanVector2(*this) += o; }
+    EuclideanVector2 &operator += (const EuclideanVector2 &o);
 
     /** Subtracts the other vector from this one. */
-    EuclideanVector<2> operator - (const EuclideanVector<2> &o) const{
-        return EuclideanVector<2>(*this) -= o;
-    }
-    EuclideanVector<2> &operator -= (const EuclideanVector<2> &o){
-        SetX(GetX()-o.GetX());
-        SetY(GetY()-o.GetY());
-        return *this;
-    }
+    EuclideanVector2 operator - (const EuclideanVector2 &o) const{ return EuclideanVector2(*this) -= o; }
+    EuclideanVector2 &operator -= (const EuclideanVector2 &o);
 
     /** Returns the negative of this vector. */
-    EuclideanVector<2> operator - (){ return EuclideanVector<2>(-GetX(), -GetY()); }
+    EuclideanVector2 operator - ();
 
 };
 

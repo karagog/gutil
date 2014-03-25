@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "paintutils.h"
 #include "gutil_euclideanvector.h"
 #include "gutil_exception.h"
+#include <math.h>
 #include <QPainter>
 
 NAMESPACE_GUTIL2(QT, Utils);
@@ -42,22 +43,24 @@ void PaintUtils::DrawArrow(QPainter &painter,
     // Draw the pointy part of the arrow
 
     // First create a vector from the two points and find its unit vector
-    EuclideanVector<2> v(start.x(), start.y(), end.x(), end.y());
-    EuclideanVector<2> unit = v.UnitVector();
+    EuclideanVector2 v(start.x(), start.y(), end.x(), end.y());
+    EuclideanVector2 unit = v.UnitVector();
 
     // Find the base of the point triangle
-    EuclideanVector<2> bevel_base(v - (unit * (cos(bevel_angle*M_PI/180)*bevel_length)));
+    EuclideanVector2 bevel_base(v - (unit * (cos(bevel_angle*M_PI/180)*bevel_length)));
 
     // Find the orthogonal vector which takes us to the two points of the triangle
-    EuclideanVector<2> d = unit.Orthogonal()*(sin(bevel_angle*M_PI/180)*bevel_length);
+    EuclideanVector2 d = unit.Orthogonal()*(sin(bevel_angle*M_PI/180)*bevel_length);
 
     // The two points we need are the bevel_base +- the orthogonal vector
-    EuclideanVector<2> pt1 = bevel_base + d;
-    EuclideanVector<2> pt2 = bevel_base - d;
-
+    EuclideanVector2 pt = bevel_base + d;
+    
     // Don't forget to offset by the start point, since the euclidean vector is based at the origin
-    painter.drawLine(end, QPointF(start.x() + pt1.GetX(), start.y() + pt1.GetY()));
-    painter.drawLine(end, QPointF(start.x() + pt2.GetX(), start.y() + pt2.GetY()));
+    painter.drawLine(end, QPointF(start.x() + pt.GetX(), start.y() + pt.GetY()));
+    
+    // Draw the line on the opposite side
+    pt = bevel_base - d;
+    painter.drawLine(end, QPointF(start.x() + pt.GetX(), start.y() + pt.GetY()));
 
     painter.restore();
 }

@@ -1,4 +1,5 @@
 HEADERS += \
     math/euclideanvector.h
 
-SOURCES +=
+SOURCES += \
+    math/euclideanvector.cpp
