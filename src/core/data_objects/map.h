@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_binarysearchtree.h"
 #include "gutil_interfaces.h"
+
 NAMESPACE_GUTIL;
 
 
@@ -92,8 +93,7 @@ public:
     public:
         iterator(){}
         iterator(const typename BinarySearchTree<Page, K>::iterator &o)
-            :BinarySearchTree<Page, K>::iterator(o)
-        {}
+            :BinarySearchTree<Page, K>::iterator(o){}
     };
 
     /** Iterates through the key/value pairs.
@@ -105,8 +105,9 @@ public:
     public:
         const_iterator(){}
         const_iterator(const typename BinarySearchTree<Page, K>::const_iterator &o)
-            :BinarySearchTree<Page, K>::const_iterator(o)
-        {}
+            :BinarySearchTree<Page, K>::const_iterator(o){}
+        const_iterator(const typename BinarySearchTree<Page, K>::iterator &o)
+            :BinarySearchTree<Page, K>::const_iterator(o){}
     };
 
     iterator begin(){ return _index.begin(); }
@@ -196,6 +197,15 @@ public:
     */
     void Clear(){ _index.Clear(); }
 
+    /** Creates a vector with the keys in sort order.
+    
+        \note This list is created in O(N) time, where N is the number of keys.
+    
+        \warning You cannot use this return value with the G_FOREACH macro,
+        since this depends on the continuing existence of the container object.
+        If you still want to use G_FOREACH then make your own copy of the keys
+        container and then use it instead.
+    */
     Vector<K> Keys() const{
         Vector<K> ret(Size());
         for(const_iterator iter(begin()); iter != end(); ++iter)
