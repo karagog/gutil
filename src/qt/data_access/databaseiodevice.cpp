@@ -114,7 +114,7 @@ void DatabaseIODevice::CreateTable(const QString &name,
         if(driver == "QSQLITE")
         {
             QString cols;
-            for(GUINT32 i = 0; i < column_names_n_types.Length(); i++)
+            for(GINT32 i = 0; i < column_names_n_types.Length(); i++)
             {
                 cols.append(QString("%1 %2,")
                             .arg(column_names_n_types[i].First)
