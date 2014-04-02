@@ -32,7 +32,7 @@ NAMESPACE_GUTIL;
     \tparam INT_TYPE The type of integer used to store the flags.  You can optimize the
     space consumed by the flags object and tailor it to the size of the EnumType
 */
-template<class EnumType, class INT_TYPE = GUINT32>
+template<class EnumType = GINT32, class INT_TYPE = GUINT32>
 class Flags
 {
     INT_TYPE m_flags;
@@ -54,6 +54,11 @@ public:
 
     /** Constructs a flags object with all bits set to init_val. */
     explicit Flags(bool init_val) :m_flags(GUtil::BitMask<INT_TYPE>(init_val)) {}
+
+    /** Casts the flags object as a bool, which is true if any of the flags are set. It is
+     *  essentially an 'or' of all the flags.
+    */
+    operator bool () const{ return m_flags != 0; }
 
     /** Returns true if the flag is set. */
     bool TestFlag(EnumType f) const{ return m_flags & (0x1 << f); }
