@@ -52,12 +52,12 @@ void Thread::sleep(GUINT32 seconds)
 
 void Thread::msleep(GUINT32 mseconds)
 {
-    QThread::sleep(mseconds);
+    QThread::msleep(mseconds);
 }
 
 void Thread::usleep(GUINT32 useconds)
 {
-    QThread::sleep(useconds);
+    QThread::usleep(useconds);
 }
 
 
