@@ -187,8 +187,8 @@ public:
     */
     void Remove(const K &k, const V &v){
         typename BinarySearchTree<Page, K>::iterator iter(_index.Search(k));
-        iter->Values().RemoveAll(v);
-        if(0 == iter->Values().Length())
+        iter->values.RemoveAll(v);
+        if(0 == iter->values.Length())
             _index.Remove(iter);
     }
 
