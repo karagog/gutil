@@ -23,7 +23,8 @@ HEADERS += \
     data_objects/uuid.h \
     data_objects/id.h \
     data_objects/trio.h \
-    data_objects/Icollections.h
+    data_objects/Icollections.h \
+    data_objects/d.h
 
 SOURCES += \
     data_objects/version.cpp \

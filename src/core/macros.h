@@ -25,6 +25,10 @@ limitations under the License.*/
 #include <limits.h>
 
 
+// Include the useful hidden member data implementation for all to use
+#include "gutil_d.h"
+
+
 /** Represents a generic 8 bits of memory. */
 #define GBYTE unsigned char
 
