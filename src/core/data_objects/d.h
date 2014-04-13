@@ -30,7 +30,7 @@ limitations under the License.*/
  *  {
  *  // A pointer to your class' data (nobody using your class knows the structure)
  *  //  Note: The name must match
- *  void *g_d;
+ *  void *d;
  *
  *  void func();
  *  };
@@ -40,8 +40,8 @@ limitations under the License.*/
  *
  *  #include "gutil_d.h"
  *
- *  // Your class' data type (the name must match)
- *  struct g_d_t
+ *  // Your class' data type (the name must match, but of course the class members are up to you)
+ *  struct d_t
  *  {
  *    int data1;
  *    char *data2;
@@ -66,11 +66,11 @@ limitations under the License.*/
 
 
 /** Instantiates a temporary variable called "d" that is cast as your class internal data type. */
-#define G_D  g_d_t *d = reinterpret_cast<g_d_t *>(g_d)
+#define G_D  d_t *d = reinterpret_cast<d_t *>(this->d)
 
 
 /** You must call this in your constructor to initialize your class data. */
-#define G_D_INIT()      g_d = new g_d_t
+#define G_D_INIT()      this->d = new d_t
 
 
 /** You must call this in your destructor to take down your class data. */
