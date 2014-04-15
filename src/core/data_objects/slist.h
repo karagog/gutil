@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_SLIST_H
 
 #include "gutil_exception.h"
-#include "gutil_Icollections.h"
+#include "gutil_icollections.h"
 #include "gutil_globals.h"
 #include "gutil_flexibletypecomparer.h"
 NAMESPACE_GUTIL;

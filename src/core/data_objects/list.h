@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_LIST_H
 
 #include "gutil_vector.h"
-#include "gutil_interfaces.h"
+#include "gutil_icollections.h"
 #include "gutil_macros.h"
 NAMESPACE_GUTIL;
 

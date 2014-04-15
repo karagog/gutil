@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "gutil_interfaces.h"
+#include "gutil_icollections.h"
 #include "gutil_vector.h"
 #include "gutil_list.h"
 USING_NAMESPACE_GUTIL;

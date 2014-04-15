@@ -25,7 +25,7 @@ class IDataContainer
 public:
 
     /** Returns the number of objects in the data container. */
-    virtual GUINT32 Size() const = 0;
+    virtual GINT32 Size() const = 0;
 
     /** Removes all items from the container. */
     virtual void Clear() = 0;

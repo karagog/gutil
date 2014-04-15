@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_vector.h"
 #include "gutil_binarysearchtree.h"
-#include "gutil_interfaces.h"
+#include "gutil_icollections.h"
 
 NAMESPACE_GUTIL;
 

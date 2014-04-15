@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_globals.h"
 #include "gutil_flexibletypecomparer.h"
-#include "gutil_Icollections.h"
+#include "gutil_icollections.h"
 #include <new>
 #include <limits.h>
 #include <malloc.h>

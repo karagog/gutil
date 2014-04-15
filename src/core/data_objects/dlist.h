@@ -15,14 +15,14 @@ limitations under the License.*/
 #ifndef GUTIL_DLIST_H
 #define GUTIL_DLIST_H
 
-#include "gutil_interfaces.h"
+#include "gutil_icollections.h"
 #include "gutil_flexibletypecomparer.h"
 #include "gutil_exception.h"
 #include "gutil_globals.h"
 NAMESPACE_GUTIL;
 
 
-/** The DList provides a doubly-linked list.
+/** The DListImp provides a doubly-linked list.
 
     Doubly-linked lists are optimized for lots of insertions/removals, but do not allow random-access
     to the elements.  The only way to access items inside the list (other than the front and back)
@@ -32,9 +32,8 @@ NAMESPACE_GUTIL;
 
     \sa List, Vector, SList
 */
-template<class T>class DList
+template<class T>class DListImp
 {
-
     /** Describes a node of the dlist. */
     class node
     {
@@ -55,14 +54,14 @@ public:
     class const_iterator;
 
     /** Builds an empty list. */
-    DList()
+    DListImp()
         :m_size(0),
           m_first(0),
           m_last(0)
     {}
 
     /** Constructs a list with the item in it. */
-    explicit DList(const T &i)
+    explicit DListImp(const T &i)
         :m_size(0),
           m_first(0),
           m_last(0)
@@ -74,7 +73,7 @@ public:
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    DList(const DList<T> &o)
+    DListImp(const DListImp<T> &o)
         :m_size(0),
           m_first(0),
           m_last(0)
@@ -83,14 +82,14 @@ public:
             PushBack(item);
     }
 
-    ~DList(){ Clear(); }
+    ~DListImp(){ Clear(); }
 
     /** Conducts a deep copy of the list.
         \note O(N)
     */
-    DList<T> &operator = (const DList<T> &o){
+    DListImp<T> &operator = (const DListImp<T> &o){
         Clear();
-        new(this) DList<T>(o); return *this;
+        new(this) DListImp<T>(o); return *this;
     }
 
     /** Inserts the item into the list.
@@ -226,19 +225,19 @@ public:
     }
 
     /** Pushes an item on a logical stack, with appealing syntax. */
-    DList<T> &operator << (const T &item){ PushBack(item); return *this; }
+    DListImp<T> &operator << (const T &item){ PushBack(item); return *this; }
 
     /** Pops the top item from a logical stack and copies it into the given variable */
-    DList<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
+    DListImp<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
 
     /** How many items are in the dlist */
-    GUINT32 Length() const{ return m_size; }
+    GINT32 Length() const{ return m_size; }
 
     /** How many items are in the dlist */
-    GUINT32 Count() const{ return m_size; }
+    GINT32 Count() const{ return m_size; }
 
     /** How many items are in the dlist */
-    GUINT32 Size() const{ return m_size; }
+    GINT32 Size() const{ return m_size; }
 
     /** Clears all items and reclaims all memory. */
     void Clear(){ Remove(begin(), Count()); }
@@ -250,7 +249,7 @@ public:
     */
     class iterator
     {
-        friend class DList;
+        friend class DListImp;
     public:
 
         /** Creates a null iterator */
@@ -361,7 +360,7 @@ public:
     */
     class const_iterator
     {
-        friend class DList;
+        friend class DListImp;
     public:
 
         /** Creates a null iterator */
@@ -525,7 +524,7 @@ public:
 
 private:
 
-    GUINT32 m_size;
+    GINT32 m_size;
     node *m_first;
     node *m_last;
 
@@ -705,131 +704,79 @@ private:
 
 
 
-template<class T>class DListStack : public Stack<T>
+/** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
+ *  repeat so much code.
+ *
+ *  \param class_name The name of top-level class for which to define constructors.
+ *  \param base_class The base class to whose constructors you will forward parameters.
+*/
+#define GUTIL_DLIST_CONSTRUCTORS(class_name, base_class) \
+    public: \
+    class_name(){} \
+    explicit class_name(const T &item):base_class(item){} \
+    class_name(const base_class &o) :base_class(o){} \
+    virtual ~class_name(){}
+
+
+/** Defines the basic DListImp type without any interfaces.
+ *
+ *  Use this as the most memory efficient version.
+ *
+ *  \tparam T The type contained.
+ *  \tparam IFace The interface class, or void if no interface.
+*/
+template<class T, typename IFace = void>class DList : public DListImp<T>
+{ GUTIL_DLIST_CONSTRUCTORS(DList, DListImp<T>) };
+
+
+template<class T>class DList<T, IStack<T> > : public DList<T>, public IStack<T>
 {
-    GUTIL_DISABLE_COPY(DListStack<T>);
-public:
+    GUTIL_DLIST_CONSTRUCTORS(DList, DList<T>)
 
-    DListStack(DList<T> *lst) :m_list(lst), m_delete(false){}
-    DListStack() :m_list(new DList<T>), m_delete(true){}
-    ~DListStack(){ if(m_delete) delete m_list; }
-
-    /** Satisfies the Stack abstract interface. */
-    void Push(const T &i){ m_list->PushBack(i); }
-
-    /** Satisfies the Stack abstract interface. */
-    void Pop(){ m_list->PopBack(); }
-
-    /** Satisfies the Stack abstract interface. */
-    const T &Top() const{ return m_list->Back(); }
-
-    /** Satisfies the Stack abstract interface. */
-    T &Top(){ return m_list->Back(); }
-
-    /** Satisfies the Stack abstract interface. */
-    void FlushStack(){ m_list->Clear(); }
-
-    /** Satisfies the Stack abstract interface. */
-    GUINT32 CountStackItems() const{ return m_list->Count(); }
-
-
-private:
-
-    DList<T> *m_list;
-    bool m_delete;
-
+    virtual void Push(const T &i){ DListImp<T>::PushBack(i); }
+    virtual void Pop(){ DListImp<T>::PopBack(); }
+    virtual const T &Top() const{ return DListImp<T>::Back(); }
+    virtual T &Top(){ return DListImp<T>::Back(); }
+    virtual void FlushStack(){ DListImp<T>::Clear(); }
+    virtual GINT32 Size() const{ return DListImp<T>::Count(); }
 };
 
 
-template<class T>class DListQueue : public Queue<T>
+template<class T>class DList<T, IQueue<T> > : public DList<T>, public IQueue<T>
 {
-    GUTIL_DISABLE_COPY(DListQueue<T>);
-public:
+    GUTIL_DLIST_CONSTRUCTORS(DList, DList<T>)
 
-    DListQueue(DList<T> *lst) :m_list(lst), m_delete(false){}
-    DListQueue() :m_list(new DList<T>), m_delete(true){}
-    ~DListQueue(){ if(m_delete) delete m_list; }
-
-    /** Satisfies the Queue abstract interface. */
-    void Enqueue(const T &i){ m_list->PushBack(i); }
-
-    /** Satisfies the Queue abstract interface. */
-    void Dequeue(){ m_list->PopFront(); }
-
-    /** Satisfies the Queue abstract interface. */
-    T &Front(){ return m_list->Front(); }
-
-    /** Satisfies the Queue abstract interface. */
-    const T &Front() const{ return m_list->Front(); }
-
-    /** Satisfies the Queue abstract interface. */
-    void FlushQueue(){ m_list->Clear(); }
-
-    /** Satisfies the Queue abstract interface. */
-    GUINT32 CountQueueItems() const{ return m_list->Count(); }
-
-
-private:
-
-    DList<T> *m_list;
-    bool m_delete;
-
+    virtual void Enqueue(const T &i){ DListImp<T>::PushBack(i); }
+    virtual void Dequeue(){ DListImp<T>::PopFront(); }
+    virtual T &Front(){ return DListImp<T>::Front(); }
+    virtual const T &Front() const{ return DListImp<T>::Front(); }
+    virtual void FlushQueue(){ DListImp<T>::Clear(); }
+    virtual GINT32 Size() const{ return DListImp<T>::Count(); }
 };
 
 
-template<class T>class DListDeque : public Deque<T>
+template<class T>class DList<T, IDeque<T> > : public DList<T>, public IDeque<T>
 {
-    GUTIL_DISABLE_COPY(DListDeque<T>);
-public:
+    GUTIL_DLIST_CONSTRUCTORS(DList, DList<T>)
 
-    DListDeque(DList<T> *lst) :m_list(lst), m_delete(false){}
-    DListDeque() :m_list(new DList<T>), m_delete(true){}
-    ~DListDeque(){ if(m_delete) delete m_list; }
-
-    /** Satisfies the Deque abstract interface. */
-    void PushFront(const T &i){ m_list->PushFront(i); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PushBack(const T &i){ m_list->PushBack(i); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PopFront(){ m_list->PopFront(); }
-
-    /** Satisfies the Deque abstract interface. */
-    void PopBack(){ m_list->PopBack(); }
-
-    /** Satisfies the Deque abstract interface. */
-    const T &Front() const{ return m_list->Front(); }
-
-    /** Satisfies the Deque abstract interface. */
-    T &Front(){ return m_list->Front(); }
-
-    /** Satisfies the Deque abstract interface. */
-    const T &Back() const{ return m_list->Back(); }
-
-    /** Satisfies the Deque abstract interface. */
-    T &Back(){ return m_list->Back(); }
-
-    /** Satisfies the Deque abstract interface. */
-    void FlushDeque(){ m_list->Clear(); }
-
-    /** Satisfies the Deque abstract interface. */
-    GUINT32 CountDequeItems() const{ return m_list->Count(); }
-
-
-private:
-
-    DList<T> *m_list;
-    bool m_delete;
-
+    virtual void PushFront(const T &i){ DListImp<T>::PushFront(i); }
+    virtual void PushBack(const T &i){ DListImp<T>::PushBack(i); }
+    virtual void PopFront(){ DListImp<T>::PopFront(); }
+    virtual void PopBack(){ DListImp<T>::PopBack(); }
+    virtual const T &Front() const{ return DListImp<T>::Front(); }
+    virtual T &Front(){ return DListImp<T>::Front(); }
+    virtual const T &Back() const{ return DListImp<T>::Back(); }
+    virtual T &Back(){ return DListImp<T>::Back(); }
+    virtual void FlushDeque(){ DListImp<T>::Clear(); }
+    virtual GINT32 Size() const{ return DListImp<T>::Count(); }
 };
 
 
-// Both DList types can be binary-moved
+// Both DListImp types can be binary-moved
 template<class T>struct IsMovableType< DList<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DListStack<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DListQueue<T> >{ enum{ Value = 1 }; };
-template<class T>struct IsMovableType< DListDeque<T> >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DList<T, IStack<T> > >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DList<T, IQueue<T> > >{ enum{ Value = 1 }; };
+template<class T>struct IsMovableType< DList<T, IDeque<T> > >{ enum{ Value = 1 }; };
 
 
 END_NAMESPACE_GUTIL;

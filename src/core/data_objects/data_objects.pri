@@ -6,7 +6,6 @@ HEADERS += \
     data_objects/heap.h \
     data_objects/binarysearchtree.h \
     data_objects/set.h \
-    data_objects/interfaces.h \
     data_objects/vector.h \
     data_objects/flags.h \
     data_objects/collection.h \
@@ -23,7 +22,7 @@ HEADERS += \
     data_objects/uuid.h \
     data_objects/id.h \
     data_objects/trio.h \
-    data_objects/Icollections.h \
+    data_objects/icollections.h \
     data_objects/d.h
 
 SOURCES += \
