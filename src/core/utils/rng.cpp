@@ -64,8 +64,8 @@ void RNG::Uninitialize()
 void RNG::Fill(GBYTE *buffer, GUINT32 size)
 {
 #ifndef GUTIL_NO_RNG
-    // In release mode we don't want to check every time if it's initialized
-    GASSERT2( !__rng.IsNull(), "The RNG has not been initialized" );
+    if(__rng.IsNull())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "The RNG has not been initialized");
 
     __rng->GenerateBlock(buffer, size);
 #else

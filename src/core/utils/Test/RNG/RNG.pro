@@ -14,11 +14,11 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../../../.. ../../../../include
-LIBS += -L../../../../lib \
+INCLUDEPATH += ../../../../../include
+LIBS += -L../../../../../lib \
     -lGUtil
 
-unix: LIBS += -Wl,-rpath,../../../../lib
+unix: LIBS += -Wl,-rpath,../../../../../lib
 
 
 SOURCES += tst_rngtest.cpp
