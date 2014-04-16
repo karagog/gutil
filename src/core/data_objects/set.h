@@ -239,7 +239,7 @@ template<class T>void Set<T>::_insert(const T &i, bool allow_multiples)
     }
     else
     {
-        data.Add(Vector<T>(i));
+        data.Add(Vector<T>(i, 1));
     }
     ++m_size;
 }

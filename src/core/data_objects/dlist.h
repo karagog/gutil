@@ -718,7 +718,7 @@ private:
     virtual ~class_name(){}
 
 
-/** Defines the basic DListImp type without any interfaces.
+/** Defines the basic DList type without any interfaces.
  *
  *  Use this as the most memory efficient version.
  *
