@@ -710,7 +710,7 @@ template<class T> class List<T, IRandomAccessContainer<T> > :
         public List<T>,
         public IRandomAccessContainer<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(List, List<T>)
+    GUTIL_LIST_CONSTRUCTORS(List, List<T>)
 
     virtual T &At(GINT32 i){ return ListImp<T>::At(i); }
     virtual T const &At(GINT32 i) const{ return ListImp<T>::At(i); }
@@ -730,7 +730,7 @@ template<class T> class List<T, IStack<T> > :
         public List<T>,
         public IStack<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(List, List<T>)
+    GUTIL_LIST_CONSTRUCTORS(List, List<T>)
 
     virtual T &Push(const T &item){ return ListImp<T>::Append(item); }
     virtual void Pop(){ ListImp<T>::RemoveLast(); }
@@ -748,7 +748,7 @@ template<class T> class List<T, IQueue<T> > :
         public List<T>,
         public IQueue<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(List, List<T>)
+    GUTIL_LIST_CONSTRUCTORS(List, List<T>)
 
     virtual T &Enqueue(const T &item){ return ListImp<T>::Append(item); }
     virtual void Dequeue(){ ListImp<T>::RemoveFirst(); }
@@ -766,7 +766,7 @@ template<class T> class List<T, IDeque<T> > :
         public List<T>,
         public IDeque<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(List, List<T>)
+    GUTIL_LIST_CONSTRUCTORS(List, List<T>)
 
     virtual T &EnqueueFront(const T &item){ return ListImp<T>::Prepend(item); }
     virtual T &EnqueueBack(const T &item){ return ListImp<T>::Append(item); }

@@ -823,6 +823,9 @@ protected:
     */
     inline void set_length(GINT32 len){ m_size = len; }
 
+    /** Returns the data pointer from a const reference to this. */
+    T *get_data_pointer() const{ return m_data; }
+    
 
 private:
 
@@ -898,18 +901,17 @@ private:
 /** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
  *  repeat so much code.
  *
- *  \param class_name The name of top-level class for which to define constructors.
  *  \param base_class The base class to whose constructors you will forward parameters.
 */
-#define GUTIL_VECTOR_CONSTRUCTORS(class_name, base_class) \
+#define GUTIL_VECTOR_CONSTRUCTORS(base_class) \
     public: \
-    class_name() {} \
-    explicit class_name(GINT32 capacity) :base_class(capacity){} \
-    explicit class_name(const T &o, GINT32 size) :base_class(o, size){} \
-    class_name(T const*arr, GINT32 size) :base_class(arr, size){} \
-    class_name(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
-    class_name(const VectorImp<T> &o) :base_class(o) {} \
-    virtual ~class_name(){}
+    Vector() {} \
+    explicit Vector(GINT32 capacity) :base_class(capacity){} \
+    explicit Vector(const T &o, GINT32 size) :base_class(o, size){} \
+    Vector(T const*arr, GINT32 size) :base_class(arr, size){} \
+    Vector(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
+    Vector(const VectorImp<T> &o) :base_class(o) {} \
+    virtual ~Vector(){}
 
 
 
@@ -920,17 +922,38 @@ private:
  *
  *  \tparam T The type contained by the vector.
  *  \tparam IFace The interface class, or void if no interface.
+ *  \tparam const_protected Controls whether you can modify the elements
+ *  of a const-vector.  By default you can only modify members of a non-const
+ *  vector.
 */
-template<class T, typename IFace = void> class Vector : public VectorImp<T>
-{ GUTIL_VECTOR_CONSTRUCTORS(Vector, VectorImp<T>) };
+template<class T, bool const_protected = true, typename IFace = void> class Vector : public VectorImp<T>
+{ GUTIL_VECTOR_CONSTRUCTORS(VectorImp<T>) };
+
+/** A template specialization of the vector class that allows modification of
+    elements inside a const vector.
+*/
+template<class T> class Vector<T, false> : public Vector<T>
+{ 
+    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>) 
+    
+    /** Data() is now a const function. */
+    T *Data() const{ return this->get_data_pointer(); }
+    
+    T &operator [](GINT32 i) const{ return this->Data()[i]; }
+    
+    T &At(GINT32 i) const{
+        if(i >= this->Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        return this->Data()[i];
+    }
+};
 
 
 /** Defines a template specialization of the Vector class, with a random access container interface. */
-template<class T> class Vector<T, IRandomAccessContainer<T> > :
+template<class T> class Vector<T, true, IRandomAccessContainer<T> > :
         public Vector<T>,
         public IRandomAccessContainer<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
+    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>)
 
     virtual T &At(GINT32 i){ return VectorImp<T>::At(i); }
     virtual T const &At(GINT32 i) const{ return VectorImp<T>::At(i); }
@@ -946,11 +969,11 @@ template<class T> class Vector<T, IRandomAccessContainer<T> > :
 
 
 /** Defines a template specialization of the Vector class, with a stack interface. */
-template<class T> class Vector<T, IStack<T> > :
+template<class T> class Vector<T, true, IStack<T> > :
         public Vector<T>,
         public IStack<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
+    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>)
 
     virtual T &Push(const T &item){ return VectorImp<T>::Insert(item); }
     virtual void Pop(){ VectorImp<T>::RemoveAt(VectorImp<T>::Length() - 1); }
@@ -964,11 +987,11 @@ template<class T> class Vector<T, IStack<T> > :
 
 
 /** Defines a template specialization of the Vector class, with a queue interface. */
-template<class T> class Vector<T, IQueue<T> > :
+template<class T> class Vector<T, true, IQueue<T> > :
         public Vector<T>,
         public IQueue<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
+    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>)
 
     virtual T &Enqueue(const T &item){ return VectorImp<T>::PushBack(item); }
     virtual void Dequeue(){ VectorImp<T>::PopFront(); }
@@ -982,11 +1005,11 @@ template<class T> class Vector<T, IQueue<T> > :
 
 
 /** Defines a template specialization of the Vector class, with a deque interface. */
-template<class T> class Vector<T, IDeque<T> > :
+template<class T> class Vector<T, true, IDeque<T> > :
         public Vector<T>,
         public IDeque<T>
 {
-    GUTIL_VECTOR_CONSTRUCTORS(Vector, Vector<T>)
+    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>)
 
     virtual T &EnqueueFront(const T &item){ return VectorImp<T>::PushFront(item); }
     virtual T &EnqueueBack(const T &item){ return VectorImp<T>::PushBack(item); }
@@ -1004,7 +1027,7 @@ template<class T> class Vector<T, IDeque<T> > :
 
 
 template<class T>struct IsMovableType< VectorImp<T> >{ enum{ Value = 1 }; };
-template<class T, typename U>struct IsMovableType< Vector<T, U> >{ enum{ Value = 1 }; };
+template<class T, bool B, typename U>struct IsMovableType< Vector<T, B, U> >{ enum{ Value = 1 }; };
 
 
 END_NAMESPACE_GUTIL;

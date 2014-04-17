@@ -91,7 +91,7 @@ void MapTest::test_basic_function()
     map.Insert(100, "one");
     map.InsertMulti(100, "two");
     QVERIFY((iter = map.Search(100))->Value() == "two");
-    QVERIFY(iter->Values().Size() == 2);
+    QVERIFY(iter->Values().Length() == 2);
 
 //    // Test our auto-remove key when the last value is popped
 //    iter->Values().Pop();
@@ -125,19 +125,19 @@ void MapTest::test_iterators()
         switch(iter->Key())
         {
         case 1:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "One");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "One");
             break;
         case 2:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Two");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "Two");
             break;
         case 3:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Three");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "Three");
             break;
         case 4:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Four");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "Four");
             break;
         default:
-            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key()).toStdString().c_str());
+            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key()).toUtf8().constData());
             break;
         }
     }
@@ -151,19 +151,19 @@ void MapTest::test_iterators()
         switch(iter->Key())
         {
         case 1:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "One");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "One");
             break;
         case 2:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Two");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "Two");
             break;
         case 3:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Three");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "Three");
             break;
         case 4:
-            QVERIFY(iter->Values()[iter->Values().Size() - 1] == "Four");
+            QVERIFY(iter->Values()[iter->Values().Length() - 1] == "Four");
             break;
         default:
-            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key()).toStdString().c_str());
+            QVERIFY2(false, QString("Unrecognized key: %1").arg(iter->Key()).toUtf8().constData());
             break;
         }
     }

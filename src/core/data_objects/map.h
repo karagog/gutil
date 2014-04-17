@@ -54,12 +54,12 @@ public:
         const V &Value() const{ return values[values.Length() - 1]; }
 
         /** Returns the list of values associated with Key, in the order they were inserted. */
-        const Vector<V> &Values() const{ return values; }
+        const Vector<V, false> &Values() const{ return values; }
 
     protected:
 
         K key;
-        Vector<V> values;
+        Vector<V, false> values;
 
     };
     
@@ -139,6 +139,18 @@ public:
         \sa Find()
     */
     V &At(const K &);
+    
+    /** Returns the value corresponding to the key/value pair.  If the key does not exist, it throws an
+        IndexOutOfRangeException.
+        Use this in case of a Multi-Map to distinguish between equivalent keys.
+    */
+    V const &At(const K &, const V &) const;
+    
+    /** Returns the value corresponding to the key/value pair.  If the key does not exist, it throws an
+        IndexOutOfRangeException.
+        Use this in case of a Multi-Map to distinguish between equivalent keys.
+    */
+    V &At(const K &, const V &);
 
     /** Returns a pointer to the value referenced by the key, or a NULL value if the key does not
         exist in the map.
@@ -157,8 +169,8 @@ public:
         will be inserted with a blank value.
         \sa At()
     */
-    V &operator [](const K &k);
-
+    V &operator [](const K &);
+    
     /** Returns a vector of values corresponding to the key. */
     const Vector<V> &Values(const K &) const;
 
@@ -239,6 +251,22 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
     if(!iter)
         THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
     return iter->Value();
+}
+
+template<class K, class V>V const &Map<K, V>::At(const K &k, const V &v) const
+{
+    iterator iter(_index.Search(k));
+    if(!iter)
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+    return iter->Values().At(iter->Values().IndexOf(v));
+}
+
+template<class K, class V>V &Map<K, V>::At(const K &k, const V &v)
+{
+    iterator iter(_index.Search(k));
+    if(!iter)
+        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+    return iter->Values().At(iter->Values().IndexOf(v));
 }
 
 template<class K, class V>V const *Map<K, V>::Find(const K &k) const

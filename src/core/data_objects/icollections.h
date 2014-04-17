@@ -47,16 +47,16 @@ template<class T> class IRandomAccessContainer :
 public:
 
     /** Returns the item at the given index. */
-    virtual T &At(GUINT32 index) = 0;
+    virtual T &At(GINT32 index) = 0;
 
     /** Returns the item at the given index. */
-    virtual T const &At(GUINT32 index) const = 0;
+    virtual T const &At(GINT32 index) const = 0;
 
     /** Inserts a copy of the item at the given index, and returns a reference to the inserted item. */
-    virtual T &Insert(const T &item, GUINT32 index) = 0;
+    virtual T &Insert(const T &item, GINT32 index) = 0;
 
     /** Removes the item at the given index. */
-    virtual void Remove(GUINT32 index) = 0;
+    virtual void Remove(GINT32 index) = 0;
 
     virtual ~IRandomAccessContainer(){}
 
