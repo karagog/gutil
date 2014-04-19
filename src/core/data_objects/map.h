@@ -62,7 +62,7 @@ public:
         Vector<V, false> values;
 
     };
-    
+
 
     /** Constructs an empty map with the default compare function. */
     Map()
@@ -139,13 +139,13 @@ public:
         \sa Find()
     */
     V &At(const K &);
-    
+
     /** Returns the value corresponding to the key/value pair.  If the key does not exist, it throws an
         IndexOutOfRangeException.
         Use this in case of a Multi-Map to distinguish between equivalent keys.
     */
     V const &At(const K &, const V &) const;
-    
+
     /** Returns the value corresponding to the key/value pair.  If the key does not exist, it throws an
         IndexOutOfRangeException.
         Use this in case of a Multi-Map to distinguish between equivalent keys.
@@ -170,7 +170,7 @@ public:
         \sa At()
     */
     V &operator [](const K &);
-    
+
     /** Returns a vector of values corresponding to the key. */
     const Vector<V> &Values(const K &) const;
 
@@ -199,9 +199,12 @@ public:
     */
     void Remove(const K &k, const V &v){
         typename BinarySearchTree<Page, K>::iterator iter(_index.Search(k));
-        iter->values.RemoveAll(v);
-        if(0 == iter->values.Length())
-            _index.Remove(iter);
+        if(iter)
+        {
+            iter->values.RemoveAll(v);
+            if(0 == iter->values.Length())
+                _index.Remove(iter);
+        }
     }
 
     /** Removes all values in the map and cleans up memory.
@@ -210,9 +213,9 @@ public:
     void Clear(){ _index.Clear(); }
 
     /** Creates a vector with the keys in sort order.
-    
+
         \note This list is created in O(N) time, where N is the number of keys.
-    
+
         \warning You cannot use this return value with the G_FOREACH macro,
         since this depends on the continuing existence of the container object.
         If you still want to use G_FOREACH then make your own copy of the keys
