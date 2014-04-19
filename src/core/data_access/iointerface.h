@@ -71,6 +71,10 @@ public:
         If no exception is thrown, it should return the number of bytes written.
     */
     virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len) = 0;
+
+    /** Flushes the output buffer, if there is one. Otherwise does nothing. */
+    virtual void Flush(){}
+
     virtual ~OutputInterface(){}
 };
 

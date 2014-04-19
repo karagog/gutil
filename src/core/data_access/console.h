@@ -56,6 +56,12 @@ public:
     */
     static void WriteLine(const char *d = 0, OutputStreamEnum e = StandardOut);
 
+    /** Flushes the console output buffer. */
+    static void FlushOutput();
+
+    /** Flushes the console output buffer. */
+    virtual void Flush(){ FlushOutput(); }
+
 
     /** Reads from the console into the buffer.
         If you pass UINT_MAX as a byte count, then it will read until the first
@@ -106,6 +112,8 @@ private:
 
     static bool _is_end_line(char c);
     static bool _is_whitespace(char c);
+
+    static FILE *_get_output_stream(OutputStreamEnum e);
 
 };
 
