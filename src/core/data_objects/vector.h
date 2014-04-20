@@ -289,6 +289,9 @@ public:
     /** Convenient operator that appends to the end of the vector, and returns a reference to this. */
     VectorImp<T> &operator << (const T &item){ PushBack(item); return *this; }
 
+    /** Convenient operator that appends to the end of the vector, and returns a reference to this. */
+    VectorImp<T> &operator << (const VectorImp<T> &vec){ Insert(vec, Length()); return *this; }
+
     /** Convenient operator that removes the last item in the vector and copies it to the given reference. */
     void operator >> (T &cpy){ cpy = Back(); PopBack(); }
 
@@ -446,7 +449,7 @@ public:
                     {
                         // Copy the items from the backup copy to the new vector
                         new(targ) T(*src);
-                        
+
                         // Have to destruct the items from the original vector
                         src->~T();
                     }
@@ -565,10 +568,10 @@ public:
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
-        \return The index on success, INT_MAX on failure
+        \return The index on success, -1 on failure
     */
     GINT32 IndexOf(const T &item, GINT32 start = 0) const{
-        GINT32 ret( INT_MAX );
+        GINT32 ret( -1 );
         T const *cur( ConstData() + start );
         T const *e( ConstDataEnd() );
         while(cur < e)
@@ -585,13 +588,13 @@ public:
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
-        \return The index on success, INT_MAX on failure
+        \return The index on success, -1 on failure
     */
-    GINT32 LastIndexOf(const T &item, GINT32 start = INT_MAX) const{
-        GINT32 ret(INT_MAX);
+    GINT32 LastIndexOf(const T &item, GINT32 start = -1) const{
+        GINT32 ret(-1);
         if(Length() > 0)
         {
-            if(start == INT_MAX)
+            if(start == -1)
                 start = Length() - 1;
             T const *cur( ConstData() + start );
             T const *e( ConstData() - 1 );
@@ -609,7 +612,7 @@ public:
     }
 
     /** Returns true if we hold a matching item */
-    inline bool Contains(const T &i) const{ return INT_MAX != IndexOf(i); }
+    inline bool Contains(const T &i) const{ return -1 != IndexOf(i); }
 
     /** Sorts the vector using the given sorting algorithm.
 
@@ -676,7 +679,7 @@ public:
         /** Returns the difference between iterators. */
         GINT32 operator - (const iterator &other) const{
             if(m_begin != other.m_begin || current < other.current)
-                return INT_MAX;
+                return -1;
             return current - other.current;
         }
 
@@ -738,7 +741,7 @@ public:
         /** Returns the difference between iterators. */
         GINT32 operator - (const const_iterator &other) const{
             if(m_begin != other.m_begin || current < other.current)
-                return INT_MAX;
+                return -1;
             return current - other.current;
         }
 
@@ -793,7 +796,7 @@ public:
         \note O(N)
     */
     bool operator != (const VectorImp<T> &o) const{ return !operator == (o); }
-    
+
     /** Casts this to a pointer to the start of the vector. */
     inline operator T * () { return m_data; }
     /** Casts this to a pointer to the start of the vector. */
@@ -825,7 +828,7 @@ protected:
 
     /** Returns the data pointer from a const reference to this. */
     T *get_data_pointer() const{ return m_data; }
-    
+
 
 private:
 
@@ -833,7 +836,7 @@ private:
 
     void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const IComparer<T> &cmp){
         GINT32 diff( e - b );
-        if(diff == INT_MAX);
+        if(diff == -1);
         else if(diff == 2)
         {
             T *last( e.Current() - 1 );
@@ -933,14 +936,14 @@ template<class T, bool const_protected = true, typename IFace = void> class Vect
     elements inside a const vector.
 */
 template<class T> class Vector<T, false> : public Vector<T>
-{ 
-    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>) 
-    
+{
+    GUTIL_VECTOR_CONSTRUCTORS(Vector<T>)
+
     /** Data() is now a const function. */
     T *Data() const{ return this->get_data_pointer(); }
-    
+
     T &operator [](GINT32 i) const{ return this->Data()[i]; }
-    
+
     T &At(GINT32 i) const{
         if(i >= this->Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return this->Data()[i];
