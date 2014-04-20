@@ -153,7 +153,7 @@ template<class T, class KeyType = T>class BinarySearchTree
             return ret;
         }
     };
-    
+
     node *root;
     GUINT32 m_size;
     FlexibleTypeComparer<KeyType> f_cmp;
@@ -230,8 +230,8 @@ public:
     }
 
     ~BinarySearchTree(){ Clear(); }
-    
-    
+
+
     /** Declares base functionality for both const and non-const iterators. */
     class iterator_base
     {
@@ -359,7 +359,7 @@ public:
         }
 
     };
-    
+
 
     /** For iterating depth-first through the BST. */
     class iterator :
@@ -402,7 +402,7 @@ public:
         const_iterator(){}
         const_iterator(const iterator_base &o) :iterator_base(o){}
 
-        const_iterator &operator =(const const_iterator &o){ new(this) const_iterator(o); }
+        const_iterator &operator =(const const_iterator &o){ new(this) const_iterator(o); return *this; }
 
         /** Prefix ++.  \note O(1) */
         const_iterator &operator ++(){ this->advance(); return *this; }
@@ -589,9 +589,9 @@ public:
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return _last()->Data;
     }
-    
+
     /** A convenience function that returns a sorted list of the items contained in the BST.
-    
+
         This function works in linear O(N) time, so with it you can sort a collection of items
         in O(log(N)) time simply by inserting them all into the BST, and then calling SortedList().
     */
