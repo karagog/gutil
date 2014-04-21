@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_file.h"
+#include "file.h"
 #include <stdio.h>
 
 NAMESPACE_GUTIL;
@@ -119,10 +119,15 @@ GUINT32 File::Write(const GBYTE *data, GUINT32 len)
     GUINT32 ret = 0;
     if(1 == fwrite(data, len, 1, m_handle)){
         if(!GetBufferedWrites())
-            fflush(m_handle);
+            Flush();
         ret = len;
     }
     return ret;
+}
+
+void File::Flush()
+{
+    fflush(m_handle);
 }
 
 GUINT32 File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)

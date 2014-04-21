@@ -17,8 +17,6 @@ limitations under the License.*/
 
 #include "gutil_iointerface.h"
 #include "gutil_strings.h"
-#include "gutil_exception.h"
-#include <stdio.h>
 
 NAMESPACE_GUTIL;
 
@@ -113,6 +111,11 @@ public:
     GUINT32 Write(const String &data){
         return Write(data.ConstData(), data.Length());
     }
+    
+    /** Flushes the file's output buffer.
+        \sa SetBufferedWrites()
+    */
+    virtual void Flush();
 
     /** Read data from the file.  Return the number of bytes read. */
     GUINT32 Read(GBYTE *buffer, GUINT32 buf_len, GUINT32 bytes_to_read = UINT_MAX);
