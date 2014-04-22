@@ -25,45 +25,39 @@ limitations under the License.*/
 
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
-    /** Switch on debug features when building in debug mode. */
     #define GUTIL_DEBUG
 #endif
 
-
-#ifdef GUTIL_DEBUG
-    #include <iostream>
-    /** Special output method for debug mode. */
-    #define GDEBUG(x)       std::cout << x << std::endl
-
-    #define DEBUG_LOGGING
-#else
-    /** Special output method for debug mode. */
-    #define GDEBUG(x)
-#endif
-
-
 /** The GUtil version.  This is always updated after every release.
 
-    See DataObjects/version.h for a useful class for manipulating version strings,
+    See version.h for a useful class for manipulating version strings,
     and for an explanation of the version system used by GUtil.
 */
 #define GUTIL_VERSION       "0.0.0"
 
 
-
-#if defined(GUTIL_DEBUG)
-    #include <stdio.h>
-    #include <stdlib.h>
-    #define GASSERT(b)          if((!(b))){ printf("Assertion failed: (%s) on line %d of %s", #b, __LINE__, __FILE__); abort(); }
-    #define GASSERT2(b, msg)    if((!(b))){ printf("Assertion failed: (%s) on line %d of %s: %s", #b, __LINE__, __FILE__, msg); abort(); }
-#else
+/** Switch on debug features when building in debug mode. */
+#ifdef GUTIL_DEBUG
+    void __gutil_debug(const char *);
+    void __gutil_assertion_failed(const char *assertion_text, const char *filename, int line_number);
+    void __gutil_assertion_failed(const char *assertion_text, const char *filename, int line_number, const char *message);
+    
+    /** Special output method for debug mode. */
+    #define GDEBUG(x)       __gutil_debug(x)
+        
     /** Defines a debug assertion, which only executes in debug mode and aborts
         the program if the boolean condition returns false
     */
-    #define GASSERT(b)
-
+    #define GASSERT(b)          if(!(b)){ __gutil_assertion_failed(#b, __FILE__, __LINE__); }
+    
     /** Much like GASSERT, except you can also include a message when the program exits */
-    #define GASSERT2(b, msg)
+    #define GASSERT2(b, msg)    if(!(b)){ __gutil_assertion_failed(#b, __FILE__, __LINE__, msg); }
+    
+    #define DEBUG_LOGGING
+#else
+    #define GDEBUG(x)
+    #define GASSERT(x)
+    #define GASSERT2(x)
 #endif
 
 

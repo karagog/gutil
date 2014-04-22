@@ -33,10 +33,10 @@ class File :
 public:
 
     /** Creates an empty file object.  You must use SetFilename before calling open. */
-    File() :_p_BufferedWrites(true), m_handle(NULL){}
+    File() :_p_BufferedWrites(true), h(NULL){}
     /** Creates a file object with the given filename. */
     explicit File(const char *filename)
-        :_p_BufferedWrites(true), m_filename(filename), m_handle(NULL){}
+        :_p_BufferedWrites(true), m_filename(filename), h(NULL){}
     virtual ~File();
 
     /** Closes the file if it was open and changes the filename*/
@@ -90,7 +90,7 @@ public:
     void Open(OpenModeEnum);
 
     /** Returns whether the file is open or not*/
-    bool IsOpen() const{ return m_handle; }
+    bool IsOpen() const{ return h; }
 
     /** Closes the file if it is open. */
     void Close();
@@ -150,7 +150,7 @@ public:
 private:
 
     String m_filename;
-    FILE *m_handle;
+    void *h;
 
 };
 

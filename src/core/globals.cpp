@@ -17,6 +17,30 @@ limitations under the License.*/
 #include <cstdlib>
 #include <time.h>
 
+
+#ifdef GUTIL_DEBUG
+    #include <stdio.h>
+    #define ASSERTION_TEXT_TEMPLATE  "Assertion failed: (%s) on line %d of %s"
+    
+    void __gutil_debug(const char *s)
+    {
+        printf("%s\n", s);
+    }
+
+    void __gutil_assertion_failed(const char *assertion_text, const char *filename, int line_number)
+    {
+        printf(ASSERTION_TEXT_TEMPLATE "\n", assertion_text, line_number, filename); 
+        abort();
+    }
+    
+    void __gutil_assertion_failed(const char *assertion_text, const char *filename, int line_number, const char *message)
+    {
+        printf(ASSERTION_TEXT_TEMPLATE ": %s\n", assertion_text, line_number, filename, message); 
+        abort();
+    }
+#endif
+
+
 #if !defined(GUTIL_COM_EXPORTS) && !defined(GUTIL_COM_IMPORTS)
 NAMESPACE_GUTIL;
 #endif

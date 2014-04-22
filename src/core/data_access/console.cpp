@@ -18,15 +18,15 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
-FILE *Console::_get_output_stream(OutputStreamEnum e)
+static FILE *__get_output_stream(Console::OutputStreamEnum e)
 {
     FILE *ret;
     switch(e)
     {
-    case StandardOut:
+    case Console::StandardOut:
         ret = stdout;
         break;
-    case StandardError:
+    case Console::StandardError:
         ret = stderr;
         break;
     default:
@@ -37,7 +37,7 @@ FILE *Console::_get_output_stream(OutputStreamEnum e)
 
 void Console::Write(const char *d, OutputStreamEnum e)
 {
-    fputs(d, _get_output_stream(e));
+    fputs(d, __get_output_stream(e));
 }
 
 void Console::WriteLine(const char *d, OutputStreamEnum e)

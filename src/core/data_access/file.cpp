@@ -18,6 +18,10 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
+// casts our void pointer as the standard file handle type
+#define H reinterpret_cast<FILE *>(h)
+
+
 File::~File()
 {
     if(IsOpen()) Close();
@@ -50,25 +54,24 @@ void File::Open(OpenModeEnum e)
         THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
     }
 
-    m_handle = fopen(m_filename, options);
-    if(!m_handle)
+    h = fopen(m_filename, options);
+    if(!h)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Unable to open file: '%s'", m_filename.ConstData()));
 }
 
 void File::Close()
 {
-    if(EOF == fclose(m_handle))
+    if(EOF == fclose(H))
     {
-        // Even if fclose fails, the handle is not associated with the file anymore
-        m_handle = NULL;
-
         // Do not throw an exception here, because some operating
         //  systems may automatically close a file before your program
         //  gets around to it.  In that case your program could
         //  end always with a crash.
         //THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to close file");
     }
-    m_handle = NULL;
+    
+    // Even if fclose fails, the handle is not associated with the file anymore
+    h = NULL;
 }
 
 bool File::Exists(const char *filename)
@@ -93,31 +96,31 @@ void File::Delete(const char *filename)
 GUINT32 File::Length() const
 {
     GUINT32 ret(0);
-    if(m_handle)
+    if(H)
     {
-        long pos = ftell(m_handle);
-        fseek(m_handle, 0, SEEK_END);
-        ret = ftell(m_handle);
-        fseek(m_handle, pos, SEEK_SET);
+        long pos = ftell(H);
+        fseek(H, 0, SEEK_END);
+        ret = ftell(H);
+        fseek(H, pos, SEEK_SET);
     }
     return ret;
 }
 
 void File::Seek(GUINT32 pos)
 {
-    if(0 != fseek(m_handle, pos, SEEK_SET))
+    if(0 != fseek(H, pos, SEEK_SET))
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Exception);
 }
 
 GUINT32 File::Pos() const
 {
-    return m_handle ? ftell(m_handle) : 0;
+    return H ? ftell(H) : 0;
 }
 
 GUINT32 File::Write(const GBYTE *data, GUINT32 len)
 {
     GUINT32 ret = 0;
-    if(1 == fwrite(data, len, 1, m_handle)){
+    if(1 == fwrite(data, len, 1, H)){
         if(!GetBufferedWrites())
             Flush();
         ret = len;
@@ -127,13 +130,13 @@ GUINT32 File::Write(const GBYTE *data, GUINT32 len)
 
 void File::Flush()
 {
-    fflush(m_handle);
+    fflush(H);
 }
 
 GUINT32 File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
 {
     GUINT32 actually_read( Min(buffer_len, bytes_to_read) );
-    if(1 != fread(buffer, actually_read, 1, m_handle))
+    if(1 != fread(buffer, actually_read, 1, H))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not read from file");
     if(actually_read < bytes_to_read)
         Seek(Pos() + (bytes_to_read - actually_read));

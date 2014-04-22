@@ -113,8 +113,6 @@ private:
     static bool _is_end_line(char c);
     static bool _is_whitespace(char c);
 
-    static FILE *_get_output_stream(OutputStreamEnum e);
-
 };
 
 
