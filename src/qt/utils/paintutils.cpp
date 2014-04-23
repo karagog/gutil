@@ -36,28 +36,28 @@ void PaintUtils::DrawArrow(QPainter &painter,
     QPen pen(color);
     pen.setWidth(thickness);
     painter.setPen(pen);
-    
+
     // Draw the arrow main line
     painter.drawLine(start, end);
-    
+
     // Draw the pointy part of the arrow
 
     // First create a vector from the two points and find its unit vector
-    EuclideanVector2 v(start.x(), start.y(), end.x(), end.y());
-    EuclideanVector2 unit = v.UnitVector();
+    EuclideanVector2<GFLOAT64> v(start.x(), start.y(), end.x(), end.y());
+    EuclideanVector2<GFLOAT64> unit = v.UnitVector();
 
     // Find the base of the point triangle
-    EuclideanVector2 bevel_base(v - (unit * (cos(bevel_angle*M_PI/180)*bevel_length)));
+    EuclideanVector2<GFLOAT64> bevel_base(v - (unit * (cos(bevel_angle*M_PI/180)*bevel_length)));
 
     // Find the orthogonal vector which takes us to the two points of the triangle
-    EuclideanVector2 d = unit.Orthogonal()*(sin(bevel_angle*M_PI/180)*bevel_length);
+    EuclideanVector2<GFLOAT64> d = unit.Orthogonal()*(sin(bevel_angle*M_PI/180)*bevel_length);
 
     // The two points we need are the bevel_base +- the orthogonal vector
-    EuclideanVector2 pt = bevel_base + d;
-    
+    EuclideanVector2<GFLOAT64> pt = bevel_base + d;
+
     // Don't forget to offset by the start point, since the euclidean vector is based at the origin
     painter.drawLine(end, QPointF(start.x() + pt.GetX(), start.y() + pt.GetY()));
-    
+
     // Draw the line on the opposite side
     pt = bevel_base - d;
     painter.drawLine(end, QPointF(start.x() + pt.GetX(), start.y() + pt.GetY()));
