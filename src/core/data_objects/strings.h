@@ -147,6 +147,9 @@ public:
     /** Returns if it is an empty string, including when it has not been initialized. */
     bool IsEmpty() const{ return Length() == 0; }
 
+    /** Empties the string, so it has 0 length but still has the same capacity as before. */
+    void Empty(){ Resize(0); }
+
     /** Clears the string and reclaims the memory. */
     void Clear(){ Vector<char>::Clear(); }
 
