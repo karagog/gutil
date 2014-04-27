@@ -87,7 +87,7 @@ String::String(const UTF8ConstIterator &b, const UTF8ConstIterator &e)
 }
 
 String::String(const Vector<char> &s)
-    :Vector<char>(s.Length() + 1)
+    :Vector<char>(s.IsEmpty() ? 0 : s.Length() + 1)
 {
     memcpy(Data(), s.ConstData(), s.Length());
     Data()[s.Length()] = '\0';
@@ -95,7 +95,7 @@ String::String(const Vector<char> &s)
 }
 
 String::String(const String &s)
-    :Vector<char>(s.Length() + 1)
+    :Vector<char>(s.IsEmpty() ? 0 : s.Length() + 1)
 {
     memcpy(Data(), s.ConstData(), s.Length());
     Data()[s.Length()] = '\0';

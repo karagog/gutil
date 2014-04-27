@@ -422,6 +422,11 @@ public:
         return (char)0x30 <= c && (char)0x3A > c;
     }
 
+    /** Returns true if the charater is a letter in the latin alphabet (a-z, A-Z) */
+    static bool IsLatin(char c){
+        return ((char)0x41 <= c && c < (char)0x5B) || ((char)0x61 <= c && c < (char)0x7B);
+    }
+
     /** Splits the string using the given character delimiter.
         \param separator A single character delimiter
         \param keep_empty_parts Indicates whether or not to retain the empty strings
@@ -486,7 +491,7 @@ public:
         \returns The number of bytes required to represent the UTF-8 character.
     */
     static int UTF8CharFromUnicode(char *dest, GINT32 uc_value);
-    
+
     /** Appends a unicode character to the string as UTF-8. */
     String &AppendUnicode(int);
 
