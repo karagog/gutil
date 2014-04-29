@@ -41,18 +41,18 @@ limitations under the License.*/
     void __gutil_debug(const char *);
     void __gutil_assertion_failed(const char *assertion_text, const char *filename, int line_number);
     void __gutil_assertion_failed(const char *assertion_text, const char *filename, int line_number, const char *message);
-    
+
     /** Special output method for debug mode. */
     #define GDEBUG(x)       __gutil_debug(x)
-        
+
     /** Defines a debug assertion, which only executes in debug mode and aborts
         the program if the boolean condition returns false
     */
     #define GASSERT(b)          if(!(b)){ __gutil_assertion_failed(#b, __FILE__, __LINE__); }
-    
+
     /** Much like GASSERT, except you can also include a message when the program exits */
     #define GASSERT2(b, msg)    if(!(b)){ __gutil_assertion_failed(#b, __FILE__, __LINE__, msg); }
-    
+
     #define DEBUG_LOGGING
 #else
     #define GDEBUG(x)
@@ -219,24 +219,32 @@ NAMESPACE_GUTIL;
 
 /** Returns the most significant set bit of a 8 bit number using a lookup table
     \note O(1).  This is implemented simply using a lookup table
+    \returns If any bits are set, it returns a number between 0 and 7.  If no bits are set
+    it returns 255
 */
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB8(GUINT8 n);
 
 /** Returns the most significant set bit of a 16 bit number in the minimum number of instructions
     using a lookup table.
     \note O(1).  This is computed in 3-4 cpu instructions using a lookup table
+    \returns If any bits are set, it returns a number between 0 and 15.  If no bits are set
+    it returns 255
 */
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB16(GUINT16);
 
 /** Returns the most significant set bit of a 32 bit number in the minimum number of instructions
     using a lookup table.
     \note O(1).  This is computed in 7 cpu instructions on average using a lookup table
+    \returns If any bits are set, it returns a number between 0 and 31.  If no bits are set
+    it returns 255
 */
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB32(GUINT32);
 
 /** Returns the most significant set bit of a 64 bit number in the minimum number of instructions
     using a lookup table.
     \note O(1).  This is computed in 9 cpu instructions on average using a lookup table
+    \returns If any bits are set, it returns a number between 0 and 63.  If no bits are set
+    it returns 255
 */
 GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64);
 
@@ -385,7 +393,7 @@ template<class T> static bool OddOrEven(T number){
 
 /** Swap values in memory without using a temporary variable.  This only works
     if the data is binary-movable.
-    
+
     \note This doesn't work when the two arguments share the same memory location.
     \note This evaluates to three processor instructions.
 */

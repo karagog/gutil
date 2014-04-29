@@ -37,12 +37,14 @@ public:
                                        QString("File does not exist: %1").arg(filename).toUtf8().constData());
     }
 
-    ~TestVectorReader(){
+    ~TestVectorReader()
+    {
         if(f.isOpen())
             f.close();
     }
 
-    bool ReadNextLine(QByteArray &ba){
+    bool ReadNextLine(QByteArray &ba)
+    {
         if(!f.isOpen())
         {
             if(!f.open(QFile::ReadOnly))
@@ -77,6 +79,6 @@ private:
 };
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_TESTVECTORREADER_H

@@ -17,10 +17,10 @@ TEMPLATE = app
 # Enable this define to have access to functions that will convert between Qt types and GUtil types
 DEFINES += GUTIL_CORE_QT_ADAPTERS
 
-INCLUDEPATH += ../.. ../../.. ../../../.. ../../../../include
-LIBS += -L../../../../lib -lGUtil
+INCLUDEPATH += ../../../../../include ../../../..
+LIBS += -L../../../../../lib -lGUtil
 
-unix: LIBS += -Wl,-rpath,../../../../lib
+unix: LIBS += -Wl,-rpath,../../../../../lib
 
 
 SOURCES += tst_stringtest.cpp

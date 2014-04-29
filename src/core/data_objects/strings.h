@@ -66,7 +66,7 @@ public:
         \param len Specifies the length of the data.  If it is -1 then the string automatically
         finds the terminating null byte (it had better exist in this case!)
     */
-    String(const char *d, GINT32 len = INT_MAX);
+    String(const char *d, GINT32 len = -1);
 
     /** Creates a new string initialized with the character repeated the specified number of times. */
     explicit String(char c, GINT32 len = 1);
@@ -93,17 +93,11 @@ public:
     String(const String &s);
 
     /** Assignment operator. */
-    String &operator = (const String &s){
-        Empty();
-        Append(s);
-        return *this;
-    }
+    String &operator = (const String &s);
+
     /** Assignment operator. */
-    String &operator = (const char *c){
-        Empty();
-        Append(c);
-        return *this;
-    }
+    String &operator = (const char *c);
+
     /** Assignment operator. */
     String &operator = (char c){ char cpy[] = {c, '\0'}; return operator = (cpy);}
 
@@ -114,14 +108,11 @@ public:
 
     /** Resizes the string, but does not initialize any new bytes. */
     void Resize(GINT32 sz);
-    /** Resizes the string and fills any uninitialized bytes with the given char. */
-    void Resize(GINT32 sz, char c){
-        GINT32 sz_before(Size());
-        Resize(sz);
-        char *ptr(Data() + sz_before);
-        while(ptr != DataEnd())
-            *(ptr++) = c;
-    }
+
+    /** Resizes the string and fills any uninitialized bytes with the given char.
+     *  It must be called explicitly to avoid ambiguity with the other Resize()
+    */
+    void Resize(GINT32 sz, char c);
 
     /** The number of bytes we're capable of holding. */
     GINT32 Capacity() const{ return Vector<char>::Capacity(); }
@@ -165,8 +156,8 @@ public:
     String &Append(const String &s){ Insert(s, s.Length(), Length()); return *this; }
 
     /** Appends the string to this one and returns this. */
-    String &Append(const char *s, GINT32 len = INT_MAX){
-        Insert(s, len == INT_MAX ? strlen(s) : len, Length()); return *this;
+    String &Append(const char *s, GINT32 len = -1){
+        Insert(s, len == -1 ? strlen(s) : len, Length()); return *this;
     }
 
     /** Appends the character the specified number of times. */
@@ -293,38 +284,38 @@ public:
     static bool IsLower(int unicode_value);
 
     /** Returns the index of the first instance of the character.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
     GINT32 IndexOf(char c, GINT32 start = 0) const{ return Vector<char>::IndexOf(c, start); }
     /** Returns the index of the first instance of the string.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
     GINT32 IndexOf(const String &s, GINT32 start = 0) const{
         return IndexOf(s.ConstData(), start, s.Length());
     }
     /** Returns the index of the first instance of the String.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 IndexOf(const char *, GINT32 start = 0, GINT32 string_length = INT_MAX) const;
+    GINT32 IndexOf(const char *, GINT32 start = 0, GINT32 string_length = -1) const;
 
     /** Returns the index of the last instance of the character.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 LastIndexOf(char c, GINT32 start = INT_MAX) const{ return Vector<char>::LastIndexOf(c, start); }
+    GINT32 LastIndexOf(char c, GINT32 start = -1) const{ return Vector<char>::LastIndexOf(c, start); }
     /** Returns the index of the last instance of the string.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 LastIndexOf(const String &s, GINT32 start = INT_MAX) const{
+    GINT32 LastIndexOf(const String &s, GINT32 start = -1) const{
         return LastIndexOf(s.ConstData(), start, s.Length());
     }
     /** Returns the index of the last instance of the string.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 LastIndexOf(const char *, GINT32 start = INT_MAX, GINT32 string_length = INT_MAX) const;
+    GINT32 LastIndexOf(const char *, GINT32 start = -1, GINT32 string_length = -1) const;
 
 
     /** Returns the UTF-8 index of the string.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
     GINT32 IndexOfUTF8(const String &s, GINT32 start = 0) const{
         return IndexOfUTF8(s.ConstData(), start, s.LengthUTF8());
@@ -338,20 +329,20 @@ public:
         \param string_length The UTF-8 length of the search string (not the byte length!)
         This is only for optimization purposes; if you don't know the length of the
         string it will be determined automatically for you
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 IndexOfUTF8(const char *s, GINT32 start = 0, GINT32 string_length = INT_MAX) const;
+    GINT32 IndexOfUTF8(const char *s, GINT32 start = 0, GINT32 string_length = -1) const;
 
     /** Returns the last UTF-8 index of the string.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 LastIndexOfUTF8(const String &s, GINT32 start = INT_MAX) const{
+    GINT32 LastIndexOfUTF8(const String &s, GINT32 start = -1) const{
         return LastIndexOfUTF8(s.ConstData(), start, s.Length());
     }
     /** Returns the last UTF-8 index of the string.
-        \returns INT_MAX if not found
+        \returns -1 if not found
     */
-    GINT32 LastIndexOfUTF8(const char *, GINT32 start = INT_MAX, GINT32 string_length = INT_MAX) const;
+    GINT32 LastIndexOfUTF8(const char *, GINT32 start = -1, GINT32 string_length = -1) const;
 
     /** Format a string using printf-style strings.  It is a static function, so
         to use it would look like this:
@@ -426,8 +417,9 @@ public:
     }
 
     /** Returns true if the charater is a letter in the latin alphabet (a-z, A-Z) */
-    static bool IsLatin(char c){
-        return ((char)0x41 <= c && c < (char)0x5B) || ((char)0x61 <= c && c < (char)0x7B);
+    static bool IsRoman(char c){
+        return ((char)RomanLowerCase <= c && c < (char)RomanLowerCase + 26) ||
+                ((char)RomanUpperCase <= c && c < (char)RomanUpperCase + 26);
     }
 
     /** Splits the string using the given character delimiter.
@@ -450,11 +442,11 @@ public:
     StringList Split(const char *separator, bool keep_empty_parts = true) const;
 
     /** Creates a new string by joining the strings in the vector, using the given separator between them. */
-    static String Join(const Vector<String> &v, char separator){ return Join(v, &separator, 1); }
+    static String Join(const StringList &v, char separator){ return Join(v, &separator, 1); }
     /** Creates a new string by joining the strings in the vector, using the given separator between them. */
-    static String Join(const Vector<String> &v, const String &separator){ return Join(v, separator.ConstData(), separator.Length()); }
+    static String Join(const StringList &v, const String &separator){ return Join(v, separator.ConstData(), separator.Length()); }
     /** Creates a new string by joining the strings in the vector, using the given separator between them. */
-    static String Join(const Vector<String> &, const char *separator, GINT32 len = INT_MAX);
+    static String Join(const StringList &, const char *separator, GINT32 len = -1);
 
 
 
@@ -521,7 +513,7 @@ public:
     String ToBase64() const{ return ToBase64(ConstData(), Length()); }
 
     /** Returns the base64 version of this string. */
-    static String ToBase64(const char *, GINT32 len = INT_MAX);
+    static String ToBase64(const char *, GINT32 len = -1);
 
     /** Returns the decoded version of this base64 string.
         If the string is not actually a base64 string then the behavior is undefined.
@@ -530,7 +522,7 @@ public:
     String FromBase64() const{ return FromBase64(ConstData(), Length()); }
 
     /** Returns the decoded version of the base64 string. */
-    static String FromBase64(const char *, GINT32 len = INT_MAX);
+    static String FromBase64(const char *, GINT32 len = -1);
 
 
     /** Given a base 64 character, it returns the number it represents. */
@@ -546,7 +538,7 @@ public:
     String ToBase16() const{ return ToBase16(ConstData(), Length()); }
 
     /** Returns the base16 version of the given string. */
-    static String ToBase16(const char *, GINT32 len = INT_MAX);
+    static String ToBase16(const char *, GINT32 len = -1);
 
     /** Returns the decoded version of this base16 string.
         \note The resulting string will be half as large.
@@ -554,7 +546,7 @@ public:
     String FromBase16() const{ return FromBase16(ConstData(), Length()); }
 
     /** Returns the decoded version of the base16 string. */
-    static String FromBase16(const char *, GINT32 len = INT_MAX);
+    static String FromBase16(const char *, GINT32 len = -1);
 
     /** Given a hex digit as an ascii character, this returns the 4-bit hex value. */
     static char CharToHex(char);
@@ -663,11 +655,11 @@ public:
                                         }
 
         /** Returns the number of bytes between the first and second iterators.
-            \returns INT_MAX if the iterators aren't from the same string, or if the end comes before the beginning
+            \returns -1 if the iterators aren't from the same string, or if the end comes before the beginning
         */
         static GINT32 ByteDistance(const UTF8Iterator &b, const UTF8Iterator &e){
             GINT32 ret;
-            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = INT_MAX;
+            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = -1;
             else ret = e.m_cur - b.m_cur;
             return ret;
         }
@@ -781,11 +773,11 @@ public:
         GINT8 ByteLength() const{ return String::MultiByteLength(*m_cur); }
 
         /** Returns the number of bytes between the first and second iterators.
-            \returns INT_MAX if the iterators aren't from the same string, or if the end comes before the beginning
+            \returns -1 if the iterators aren't from the same string, or if the end comes before the beginning
         */
         static GINT32 ByteDistance(const UTF8ConstIterator &b, const UTF8ConstIterator &e){
             GINT32 ret;
-            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = INT_MAX;
+            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = -1;
             else ret = e.m_cur - b.m_cur;
             return ret;
         }
@@ -917,8 +909,9 @@ private:
         }
         return 0;
     }
-    
+
     void _copy_init(const Vector<char> &);
+    void _copy_assign(const char *, int len);
 
 };
 

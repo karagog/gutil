@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include "gutil_extendedexception.h"
 #include "gutil_crypto.h"
+#include "gutil_consolelogger.h"
 USING_NAMESPACE_GUTIL;
 using namespace std;
 
@@ -265,7 +266,7 @@ void StringTest::test_compare()
 
 void StringTest::test_indexof()
 {
-    GUINT32 ind;
+    GINT32 ind;
     String s("George and George and George");
 
     ind = s.IndexOf("George");
@@ -287,13 +288,13 @@ void StringTest::test_indexof()
     QVERIFY(ind == 0);
 
 
-    QVERIFY(s.IndexOf("Harry") == UINT_MAX);
-    QVERIFY(s.IndexOf("George", 100) == UINT_MAX);
-    QVERIFY(s.IndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == UINT_MAX);
+    QVERIFY(s.IndexOf("Harry") == -1);
+    QVERIFY(s.IndexOf("George", 100) == -1);
+    QVERIFY(s.IndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == -1);
 
-    QVERIFY(s.LastIndexOf("Harry") == UINT_MAX);
-    QVERIFY(s.LastIndexOf("George", 100) == UINT_MAX);
-    QVERIFY(s.LastIndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == UINT_MAX);
+    QVERIFY(s.LastIndexOf("Harry") == -1);
+    QVERIFY(s.LastIndexOf("George", 100) == -1);
+    QVERIFY(s.LastIndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == -1);
 }
 
 void StringTest::test_utf8()
@@ -310,7 +311,7 @@ void StringTest::test_utf8()
 
     // Test a 2-byte utf-8 character
 
-    // The character 'Ü' has unicode value 0x00DC, which translates to UTF-8 0xC39C
+    // The character 'ï¿½' has unicode value 0x00DC, which translates to UTF-8 0xC39C
     const char c1[] = { 0xC3, 0x9C, 0x00 };
     qs = QString::fromUtf8(c1);
     s = qs.toUtf8().constData();
@@ -346,7 +347,7 @@ void StringTest::test_utf8_validation()
     QString qs;
     String s;
 
-    const char goodchar_1[] = { 0xC3, 0x9C, 0x00 };     // Ü
+    const char goodchar_1[] = { 0xC3, 0x9C, 0x00 };     // ï¿½
     const char goodchar_2[] = { 0xE0, 0xAE, 0x82, 0x00 };
 
     const char badchar_1[] = { 0x8F, 0x00 };    // Invalid UTF-8 (starts with continuation byte)
@@ -378,11 +379,11 @@ void StringTest::test_utf8_generation()
     char buf[10];
     while(cur < 0x80000000)
     {
-        GUINT32 unicode_value = cur - 1;
+        GINT32 unicode_value = cur - 1;
 
         String::UTF8CharFromUnicode(buf, unicode_value);
 
-        GUINT32 feedback = String::UnicodeValue(buf);
+        GINT32 feedback = String::UnicodeValue(buf);
         QVERIFY2(feedback == unicode_value, String::Format("%x != %x", feedback, unicode_value));
 
         cur = cur << 1;
@@ -446,7 +447,7 @@ void StringTest::test_number_conversions()
 void StringTest::test_split_join()
 {
     String s("George,Jim,Sue,Patty,");
-    Vector<String> v( s.Split(',') );
+    StringList v( s.Split(',') );
     QVERIFY(v.Length() == 5);
     QVERIFY2(v[0] == "George", v[0]);
     QVERIFY2(v[1] == "Jim", v[1]);
@@ -484,11 +485,11 @@ void StringTest::test_split_join()
     QVERIFY(v[4] == "");
 
 
-    Vector<String> lst;
-    lst.PushBack("George");
-    lst.PushBack("Jim");
-    lst.PushBack("Sue");
-    lst.PushBack("Patty");
+    StringList lst;
+    lst.Append("George");
+    lst.Append("Jim");
+    lst.Append("Sue");
+    lst.Append("Patty");
     s = String::Join(lst, ',');
     QVERIFY(s == "George,Jim,Sue,Patty");
 }
@@ -547,15 +548,15 @@ void StringTest::test_utf8_vectors()
     catch(const Exception<> & ex)
     {
         Exception<true> const *ex_ptr( dynamic_cast<Exception<true> const *>(&ex) );
-        qDebug() << ex.What;
+        qDebug() << ex.What();
         if(ex_ptr)
-            qDebug() << ex_ptr->GetMessage();
+            qDebug() << ex_ptr->Message();
         throw;
     }
 }
 
 
-#include "Test/testvectorreader.h"
+#include "test/testvectorreader.h"
 #define TESTVECTORS_DIRECTORY "TestVectors"
 USING_NAMESPACE_GUTIL1(Test);
 
@@ -569,7 +570,7 @@ void StringTest::test_vector_UTF8basics()
     {
         int indx = line.indexOf(' ');
         bool ok(false);
-        GUINT32 size = line.left(indx).toInt(&ok);
+        GINT32 size = line.left(indx).toInt(&ok);
         QVERIFY(ok);
 
         line = line.right(line.length() - (indx + 1));
@@ -595,13 +596,13 @@ void StringTest::test_vector_UTF8indexof()
         memcpy(srch, line.constData(), indx1);
 
         bool ok(false);
-        GUINT32 indx = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
+        GINT32 indx = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
         QVERIFY(ok);
 
         line = line.right(line.length() - (indx2 + 1));
         s = String(line.constData(), line.length());
 
-        GUINT32 val(s.IndexOfUTF8(srch, 0, 1));
+        GINT32 val(s.IndexOfUTF8(srch, 0, 1));
         QVERIFY2(val == indx, String::Format("%d != %d", val, indx));
     }
 }
@@ -622,13 +623,13 @@ void StringTest::test_vector_UTF8lastindexof()
         memcpy(srch, line.constData(), indx1);
 
         bool ok(false);
-        GUINT32 indx = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
+        GINT32 indx = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
         QVERIFY(ok);
 
         line = line.right(line.length() - (indx2 + 1));
         s = String(line.constData(), line.length());
 
-        GUINT32 val(s.LastIndexOfUTF8(srch, UINT_MAX, 1));
+        GINT32 val(s.LastIndexOfUTF8(srch, -1, 1));
         QVERIFY2(val == indx, String::Format("%d != %d", val, indx));
     }
 }
@@ -652,7 +653,7 @@ void StringTest::test_vector_UTF8chop()
             QVERIFY(indx != -1);
 
             bool ok(false);
-            GUINT32 N = line.left(indx).toInt(&ok);
+            GINT32 N = line.left(indx).toInt(&ok);
             QVERIFY(ok);
 
             line = line.right(line.length() - (indx + 1));
@@ -687,7 +688,7 @@ void StringTest::test_vector_UTF8truncate()
             QVERIFY(indx != -1);
 
             bool ok(false);
-            GUINT32 N = line.left(indx).toInt(&ok);
+            GINT32 N = line.left(indx).toInt(&ok);
             QVERIFY(ok);
 
             line = line.right(line.length() - (indx + 1));
@@ -804,11 +805,11 @@ void StringTest::test_vector_UTF8substring()
             QVERIFY(indx1 != -1 && indx2 != -1);
 
             bool ok(false);
-            GUINT32 indx = line.left(indx1).toInt(&ok);
+            GINT32 indx = line.left(indx1).toInt(&ok);
             QVERIFY(ok);
 
             ok = false;
-            GUINT32 count = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
+            GINT32 count = line.left(indx2).right(indx2 - (indx1 + 1)).toInt(&ok);
             QVERIFY(ok);
 
             line = line.right(line.length() - (indx2 + 1));
@@ -832,7 +833,7 @@ void StringTest::test_vector_UTF8format()
     int state(0);
     String s;
     QByteArray line;
-    Vector<String> args;
+    StringList args;
     while(rdr.ReadNextLine(line))
     {
         if(state == 0)
@@ -870,7 +871,7 @@ void StringTest::test_vector_UTF8split()
     char sep[10];
     int cnt(0);
     int line_cnt(0);
-    Vector<String> items;
+    StringList items;
     String s;
     QByteArray line;
     while(rdr.ReadNextLine(line))
@@ -944,6 +945,34 @@ void StringTest::test_vector_UTF8join()
     }
 }
 
-QTEST_APPLESS_MAIN(StringTest);
+
+#include <QCoreApplication>
+class test_app : public QCoreApplication
+{
+public:
+
+    test_app(int argc, char **argv):QCoreApplication(argc, argv) {}
+
+    bool notify(QObject *o, QEvent *e)
+    {
+        bool ret;
+        try
+        {
+            ret = QCoreApplication::notify(o, e);
+        }
+        catch(const Exception<> &ex)
+        {
+            ConsoleLogger().LogException(ex);
+        }
+        return ret;
+    }
+};
+
+int main(int argc, char**argv)
+{
+    test_app app(argc, argv);
+    StringTest tc;
+    return QTest::qExec(&tc, argc, argv);
+}
 
 #include "tst_stringtest.moc"
