@@ -917,6 +917,8 @@ private:
         }
         return 0;
     }
+    
+    void _copy_init(const Vector<char> &);
 
 };
 

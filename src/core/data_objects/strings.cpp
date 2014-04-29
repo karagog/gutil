@@ -87,19 +87,24 @@ String::String(const UTF8ConstIterator &b, const UTF8ConstIterator &e)
 }
 
 String::String(const Vector<char> &s)
-    :Vector<char>(s.IsEmpty() ? 0 : s.Length() + 1)
 {
-    memcpy(Data(), s.ConstData(), s.Length());
-    Data()[s.Length()] = '\0';
-    set_length(s.Length());
+    _copy_init(s);
 }
 
 String::String(const String &s)
-    :Vector<char>(s.IsEmpty() ? 0 : s.Length() + 1)
 {
-    memcpy(Data(), s.ConstData(), s.Length());
-    Data()[s.Length()] = '\0';
-    set_length(s.Length());
+    _copy_init(s);
+}
+
+void String::_copy_init(const Vector<char> &s)
+{
+    if(0 < s.Length())
+    {
+        Reserve(s.Length() + 1);
+        memcpy(Data(), s.ConstData(), s.Length());
+        Data()[s.Length()] = '\0';
+        set_length(s.Length());
+    }
 }
 
 void String::Resize(GINT32 sz)
