@@ -16,6 +16,7 @@ limitations under the License.*/
 #include <QtTest/QtTest>
 #include <string>
 #include "gutil_map.h"
+#include "gutil_strings.h"
 USING_NAMESPACE_GUTIL;
 
 class MapTest : public QObject
@@ -29,6 +30,8 @@ private Q_SLOTS:
     void test_basic_function();
 
     void test_iterators();
+    
+    void test_my_strings();
 
     void test_load();
 };
@@ -180,6 +183,13 @@ void MapTest::test_iterators()
     {
         QVERIFY(iter->Key() == cnt);
     }
+}
+
+void MapTest::test_my_strings()
+{
+    Map<String, String> m;
+    m.Insert("Result", "1-0");
+    QVERIFY(m.Contains("Result"));
 }
 
 void MapTest::test_load()
