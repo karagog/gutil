@@ -901,7 +901,7 @@ private:
 
 
 
-/** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
+/** This is used to define all the same constructors as the base class so you don't have to
  *  repeat so much code.
  *
  *  \param base_class The base class to whose constructors you will forward parameters.
@@ -914,7 +914,6 @@ private:
     Vector(T const*arr, GINT32 size) :base_class(arr, size){} \
     Vector(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
     Vector(const VectorImp<T> &o) :base_class(o) {} \
-    virtual ~Vector(){}
 
 
 
