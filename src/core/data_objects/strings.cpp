@@ -71,7 +71,7 @@ String::String(const Vector<char>::const_iterator &b, const Vector<char>::const_
 
 String::String(const UTF8ConstIterator &b, const UTF8ConstIterator &e)
 {
-    GINT32 byte_len(UTF8ConstIterator::ByteDistance(b, e));
+    GINT32 byte_len(ByteDistance(b, e));
     if(byte_len != -1)
     {
         Reserve(byte_len + 1);
