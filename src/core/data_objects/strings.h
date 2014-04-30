@@ -772,16 +772,6 @@ public:
         */
         GINT8 ByteLength() const{ return String::MultiByteLength(*m_cur); }
 
-        /** Returns the number of bytes between the first and second iterators.
-            \returns -1 if the iterators aren't from the same string, or if the end comes before the beginning
-        */
-        static GINT32 ByteDistance(const UTF8ConstIterator &b, const UTF8ConstIterator &e){
-            GINT32 ret;
-            if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = -1;
-            else ret = e.m_cur - b.m_cur;
-            return ret;
-        }
-
         /** Returns the Unicode codepoint of the current character, or -1 if it is
             on an invalid character.
         */
@@ -837,6 +827,16 @@ public:
         }
 
     };
+    
+    /** Returns the number of bytes between the first and second iterators.
+        \returns -1 if the iterators aren't from the same string, or if the end comes before the beginning
+    */
+    static GINT32 ByteDistance(const UTF8ConstIterator &b, const UTF8ConstIterator &e){
+        GINT32 ret;
+        if(b.m_begin != e.m_begin || e.m_cur < b.m_cur) ret = -1;
+        else ret = e.m_cur - b.m_cur;
+        return ret;
+    }
 
     UTF8Iterator beginUTF8(){ return UTF8Iterator(Data(), Data() + Length(), Data()); }
     UTF8Iterator endUTF8(){ return UTF8Iterator(Data(), Data() + Length(), Data() + Length()); }
