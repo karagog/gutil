@@ -74,7 +74,7 @@ limitations under the License.*/
 
 
 /** You must call this in your destructor to take down your class data. */
-#define G_D_UNINIT()    G_D; delete d
+#define G_D_UNINIT()    delete reinterpret_cast<d_t *>(this->d)
 
 
 #endif // GUTIL_D_H
