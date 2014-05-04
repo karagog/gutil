@@ -369,7 +369,7 @@ public:
         /** Returns the index we're currently on. */
         GINT32 Index() const{
             return (1 << m_pageIndex) + (current - m_pageBegin) - 1;
-	}
+    }
 
         iterator &operator ++(){ _advance(); return *this;}
         iterator operator ++(int){ iterator ret(*this); _advance(); return ret; }
@@ -675,7 +675,7 @@ private:
 
 
 
-/** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
+/** This is used to define all the same constructors as the base class so you don't have to
  *  repeat so much code.
  *
  *  \param class_name The name of top-level class for which to define constructors.
@@ -687,7 +687,6 @@ private:
     class_name(GINT32 reserve_capacity) :base_class(reserve_capacity){} \
     explicit class_name(const T &item, GINT32 count = 1) :base_class(item, count){} \
     class_name(const base_class &o) :base_class(o){} \
-    virtual ~class_name(){}
 
 
 

@@ -416,7 +416,7 @@ private:
 
 
 
-/** This is used to define all the same constructors (and virtual destructor) as the base class so you don't have to
+/** This is used to define all the same constructors as the base class so you don't have to
  *  repeat so much code.
  *
  *  \param class_name The name of top-level class for which to define constructors.
@@ -427,7 +427,6 @@ private:
     class_name(){} \
     explicit class_name(const T &item):base_class(item){} \
     class_name(const base_class &o) :base_class(o){} \
-    virtual ~class_name(){}
 
 
 /** Defines the basic SList type without any interfaces.
