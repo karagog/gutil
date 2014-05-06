@@ -421,6 +421,9 @@ public:
         return ((char)RomanLowerCase <= c && c < (char)RomanLowerCase + 26) ||
                 ((char)RomanUpperCase <= c && c < (char)RomanUpperCase + 26);
     }
+    
+    /** Compares two strings */
+    static int Compare(const char *, const char *);
 
     /** Splits the string using the given character delimiter.
         \param separator A single character delimiter

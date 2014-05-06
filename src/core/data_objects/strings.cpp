@@ -889,6 +889,11 @@ String &String::Chop(GINT32 n)
     return *this;
 }
 
+int String::Compare(const char *lhs, const char *rhs)
+{
+    return strcmp(lhs, rhs);
+}
+
 
 bool String::operator == (const char *s) const
 {
