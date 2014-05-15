@@ -57,7 +57,7 @@ limitations under the License.*/
 #else
     #define GDEBUG(x)
     #define GASSERT(x)
-    #define GASSERT2(x)
+    #define GASSERT2(x, y)
 #endif
 
 
