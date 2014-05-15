@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <math.h>
 USING_NAMESPACE_GUTIL;
 
-#ifndef GUTIL_NO_RNG
+#ifndef GUTIL_NO_CRYPTOPP
 
 #include "cryptopp/osrng.h"
 
@@ -31,7 +31,7 @@ static GUtil::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > _
 #include <cstdlib>
 #include <ctime>
 
-#endif  // GUTIL_NO_RNG
+#endif  // GUTIL_NO_CRYPTOPP
 
 
 
@@ -50,7 +50,7 @@ NAMESPACE_GUTIL;
 
 void RNG::Initialize()
 {
-#ifndef GUTIL_NO_RNG
+#ifndef GUTIL_NO_CRYPTOPP
     if(__rng.IsNull())
         __rng = new ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES >;
 #else
@@ -60,7 +60,7 @@ void RNG::Initialize()
 
 void RNG::Uninitialize()
 {
-#ifndef GUTIL_NO_RNG
+#ifndef GUTIL_NO_CRYPTOPP
     if(!__rng.IsNull())
         __rng.Clear();
 #endif
@@ -68,7 +68,7 @@ void RNG::Uninitialize()
 
 void RNG::Fill(GBYTE *buffer, GUINT32 size)
 {
-#ifndef GUTIL_NO_RNG
+#ifndef GUTIL_NO_CRYPTOPP
     if(__rng.IsNull())
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "The RNG has not been initialized");
 

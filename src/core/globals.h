@@ -579,13 +579,4 @@ END_NAMESPACE_GUTIL;
 #endif
 
 
-
-#ifdef GUTIL_NO_CRYPTOPP
-
-// Since our RNG is implemented by CryptoPP, we also have to disable this.
-#define GUTIL_NO_RNG
-
-#endif
-
-
 #endif // GUTIL_GLOBALS_H
