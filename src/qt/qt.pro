@@ -13,7 +13,13 @@ QT += sql
 QT += network
 #DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
 
-DEFINES += DEBUG
+build_pass:CONFIG(debug, debug|release) {
+    message(Preparing debug build)
+    DEFINES += DEBUG
+}
+else:build_pass {
+    message(Preparing release build)
+}
 
 # So we can interface our core classes more easily with Qt
 DEFINES += QT_ADAPTERS

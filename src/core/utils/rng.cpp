@@ -26,6 +26,11 @@ USING_NAMESPACE_GUTIL;
 */
 static GUtil::SmartPointer< ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES > > __rng;
 
+#else
+
+#include <cstdlib>
+#include <ctime>
+
 #endif  // GUTIL_NO_RNG
 
 

@@ -13,15 +13,26 @@ TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 
 INCLUDEPATH += $$TOP_DIR/include
-LIBS += -L$$TOP_DIR/lib \
-    -lcryptopp
+LIBS += -L$$TOP_DIR/lib
 
 # Enables STL dependent functions
 #DEFINES += GUTIL_STL
 
 #DEFINES += GUTIL_COM_EXPORTS
 #DEFINES += GUTIL_NO_CRYPTOPP
-DEFINES += DEBUG
+
+!contains(DEFINES, GUTIL_NO_CRYPTOPP){
+    LIBS += -lcryptopp
+}
+
+build_pass:CONFIG(debug, debug|release) {
+    message(Preparing debug build)
+    DEFINES += DEBUG
+}
+else:build_pass {
+    message(Preparing release build)
+}
+
 
 HEADERS += \
     exception.h \
