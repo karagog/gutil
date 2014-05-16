@@ -12,13 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_NO_CRYPTOPP
-
-
 /** To disable warnings, because we're exposing some weak algorithms (MD4-5) */
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "gutil_crypto.h"
+#include "cryptopp_utils.h"
 #include "gutil_smartpointer.h"
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/filters.h"
@@ -29,8 +26,28 @@ limitations under the License.*/
 #include "cryptopp/pwdbased.h"
 #include "cryptopp/md4.h"
 #include "cryptopp/md5.h"
-USING_NAMESPACE_GUTIL;
+#include "cryptopp/simple.h"
 using namespace CryptoPP;
+
+
+/** Used to adapt the GUtil String into CryptoPP Sink. */
+class GUtil_StringSink :
+        public Bufferless<Sink>
+{
+    GUtil::String &sref;
+public:
+
+    /** Just give it a string reference, and it will append all the data to it */
+    GUtil_StringSink(GUtil::String &s) :sref(s){}
+
+    /** Overridden from ::CryptoPP::Sink*/
+    virtual size_t Put2(const byte *inString, size_t length, int, bool){
+        sref.Append(reinterpret_cast<const char *>(inString), length);
+        return 0;
+    }
+
+};
+
 
 NAMESPACE_GUTIL;
 
@@ -46,7 +63,7 @@ String Crypto::CompressString(const GBYTE *data, GINT32 data_len,
         if(level < MinimumCompression || level > MaximumCompression)
             level = DefaultCompression;
 
-        Gzip zipper(new StringSink(ret), level);
+        Gzip zipper(new GUtil_StringSink(ret), level);
         zipper.Put(data, data_len);
         zipper.MessageEnd();
     }
@@ -93,7 +110,7 @@ String Crypto::DecompressString(const GBYTE *data, GINT32 data_len)
 
         if(is_compressed)
         {
-            StringSource(start, data_len, true, new Gunzip(new StringSink(ret)));
+            StringSource(start, data_len, true, new Gunzip(new GUtil_StringSink(ret)));
         }
         else
         {
@@ -166,7 +183,7 @@ String Crypto::EncryptString(const GBYTE *data, GINT32 data_len,
         break;
     }
 
-    StreamTransformationFilter enc(*mode, new StringSink(ret));
+    StreamTransformationFilter enc(*mode, new GUtil_StringSink(ret));
 
     // The initialization vector goes on the front of the string, unencrypted
     ret.Append(reinterpret_cast<const char *>(init_vec), block_size);
@@ -231,7 +248,7 @@ String Crypto::DecryptString(const GBYTE *data, GINT32 data_len, const GBYTE *ke
         break;
     }
 
-    StreamTransformationFilter decryptor(*mode, new StringSink(ret));
+    StreamTransformationFilter decryptor(*mode, new GUtil_StringSink(ret));
     decryptor.Put(reinterpret_cast<const byte *>(data) + iv_len, data_len - iv_len);
     decryptor.MessageEnd();
 
@@ -245,12 +262,12 @@ String Crypto::DecryptString(const GBYTE *data, GINT32 data_len, const GBYTE *ke
     return ret;
 }
 
-String Crypto::Hash(const GBYTE *data, GINT32 data_len, HashAlgorithmEnum e)
+String Crypto::Hash(const GBYTE *data, GINT32 data_len, HashTypeEnum e)
 {
     GINT32 str_len;
     SmartPointer<HashTransformation> h;
 
-    if(data_len == INT_MAX)
+    if(data_len == -1)
         data_len = strlen((const char *)data);
 
     switch(e)
@@ -293,21 +310,5 @@ String Crypto::Hash(const GBYTE *data, GINT32 data_len, HashAlgorithmEnum e)
     return ret;
 }
 
-String Crypto::RandomString(GINT32 num_bytes, GINT32 seed)
-{
-    bool autoseed( seed == INT_MAX );
-    String ret((char)0, num_bytes);
-
-    AutoSeededX917RNG<AES> rng(false, autoseed);
-    if(!autoseed)
-        rng.IncorporateEntropy(reinterpret_cast<byte *>(&seed), sizeof(GINT32));
-
-    rng.GenerateBlock(reinterpret_cast<byte *>(ret.Data()), num_bytes);
-    return ret;
-}
-
 
 END_NAMESPACE_GUTIL;
-
-
-#endif // GUTIL_NO_CRYPTOPP

@@ -6,7 +6,6 @@ HEADERS += \
     utils/smartpointer.h \
     utils/flexibletypecomparer.h \
     utils/commandlinemenu.h \
-    utils/crypto.h \
     utils/rng.h \
     utils/circularint.h \
     utils/undostack.h
@@ -16,6 +15,5 @@ SOURCES += \
     utils/environment.cpp \
     utils/atomic.cpp \
     utils/commandlinemenu.cpp \
-    utils/crypto.cpp \
     utils/rng.cpp \
     utils/undostack.cpp

@@ -16,10 +16,6 @@ limitations under the License.*/
 #include "gutil_rng.h"
 #include <cstring>
 
-#ifndef GUTIL_NO_CRYPTOPP
-#include "cryptopp/osrng.h"
-#endif
-
 NAMESPACE_GUTIL;
 
 
@@ -86,7 +82,7 @@ void Uuid::Clear()
 void Uuid::Generate()
 {
     // Fill with random data
-    RNG::Fill(m_data, sizeof(m_data));
+    RNG()->Fill(m_data, sizeof(m_data));
 
     // Then set the reserved and version bits to conform with the UUID standard
 

@@ -1,4 +1,4 @@
-/*Copyright 2012 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,25 +12,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "dice.h"
-#include "gutil_rng.h"
-USING_NAMESPACE_GUTIL;
+#include "cryptopp_rng.h"
+#include "cryptopp/osrng.h"
 
-NAMESPACE_GUTIL1(Games);
-
-
-Dice::Dice(GUINT32 n, GUINT8 s)
-    :m_dice(n), m_sides(s)
+namespace
 {
-    // Initialize all dice to 0, which means they have not yet been rolled
-    m_dice.Resize(n, 0);
-}
 
-void Dice::Roll()
+struct d_t
 {
-    G_FOREACH(Die &d, m_dice)
-        d = RNG()->U_Discrete(1, m_sides);
+    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
+};
+
 }
 
 
-END_NAMESPACE_GUTIL1;
+NAMESPACE_GUTIL;
+
+
+CryptoPP_RNG::CryptoPP_RNG()
+{
+    G_D_INIT();
+}
+
+CryptoPP_RNG::~CryptoPP_RNG()
+{
+    G_D_UNINIT();
+}
+
+void CryptoPP_RNG::Fill(GBYTE *b, GUINT32 l)
+{
+    G_D;
+    d->rng.GenerateBlock(b, l);
+}
+
+
+END_NAMESPACE_GUTIL;

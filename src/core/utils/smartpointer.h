@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_atomic.h"
 #include "gutil_macros.h"
+#include <new>  // For the placement new operator
 NAMESPACE_GUTIL;
 
 
@@ -60,11 +61,11 @@ public:
 
     /** Deletes the pointer and sets it to null */
     void Clear(){ delete ptr; ptr = NULL; }
-    
+
     /** Relinquishes control of the naked pointer, so it will not be deleted when this
         object destructs.  After calling this, the pointer will appear as if newly constructed
         as a NULL pointer.
-        
+
         \returns The naked pointer that once was controlled by this object.  If this was already
         a null pointer then NULL is returned and nothing bad happens.
     */

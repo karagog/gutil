@@ -21,49 +21,23 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
-/** A convenience class that gives you useful Random Number Generator functions.
-
-    By default, the library uses CryptoPP's RNG implementation, which
-    is extremely good.  However, if you want to disable this and simply
-    use C's rand() function as a random data source, you can define
-    GUTIL_NO_CRYPTOPP. Your random data won't be nearly as good,
-    but at least you won't depend on the cryptopp library.
-
-    \note The RNG is automatically initialized when the GUtil core library is loaded,
-    so simply by linking with this library you have already initialized the RNG.  Therefore
-    this just works "out of the box".
-
-    \sa globals.cpp
+/** An abstract class that gives you useful Random Number Generator functions.
+ *
+ *  RNG's must only implement the fill function, and all other functions are implemented
+ *  in the abstract class for convenience.
 */
-class RNG
+class AbstractRNG
 {
-    GUTIL_STATIC_CLASS(RNG);
 public:
 
-    /** Initializes the RNG, including setting up necessary data objects
-        in memory and seeding the RNG.
-
-        You must call this before using any RNG-dependent functions!
-
-        \note This does nothing if the RNG was already initialized, so it
-        doesn't hurt to call it.
-
-        \sa Uninitialize()
+    /** Fills the data buffer with uniform random data. Uniform means that every bit has a 50%
+     *  chance of being a 0 or 1.
     */
-    static void Initialize();
+    virtual void Fill(GBYTE *buffer, GUINT32 size) = 0;
 
-    /** Uninitializes the RNG.
+    virtual ~AbstractRNG();
 
-        You do not have to call this, but it is there in case
-        you want to free the resources used by the RNG.  This memory will automatically
-        be reclaimed when the GUtil library is unloaded at the end of the program's execution.
 
-        After calling this, you will have to call Initialize() again before you can use
-        the RNG.
-
-        \sa Initialize()
-    */
-    static void Uninitialize();
 
     /** Returns a uniformly distributed random number between the two bounds, EXCLUSIVE.
 
@@ -78,7 +52,7 @@ public:
 
         \note The resolution of the random return value is about (upper_bound - lower_bound)/2^32
     */
-    static GFLOAT64 U(GFLOAT64 lower_bound = 0.0, GFLOAT64 upper_bound = 1.0);
+    GFLOAT64 U(GFLOAT64 lower_bound = 0.0, GFLOAT64 upper_bound = 1.0);
 
     /** Returns a uniformly distributed integer value between the given
         lower and upper bounds, INCLUSIVE.  Each integer in the return range
@@ -86,7 +60,7 @@ public:
 
         \return An integer value in the range [lower_bound, upper_bound].
     */
-    static GINT32 U_Discrete(GINT32 lower_bound, GINT32 upper_bound);
+    GINT32 U_Discrete(GINT32 lower_bound, GINT32 upper_bound);
 
     /** Returns a normally distributed random number with the given mean
         and standard deviation.
@@ -97,25 +71,25 @@ public:
 
         \note The resolution of the random return value is about standard_deviation/2^32
     */
-    static GFLOAT64 N(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
+    GFLOAT64 N(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
 
     /** A special version of Normal that produces 2 values instead of 1.
 
         Use this version if you will be generating lots of random values,
         because the regular implementation practically generates two values anyways.
     */
-    static GUtil::Pair<GFLOAT64> N2(GFLOAT64 mean = 0.0,
-                                                   GFLOAT64 standard_deviation = 1.0);
+    GUtil::Pair<GFLOAT64> N2(GFLOAT64 mean = 0.0,
+                             GFLOAT64 standard_deviation = 1.0);
 
     /** Returns a normally distributed integer with the given mean and standard deviation. */
-    static GINT32 N_Discrete(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
+    GINT32 N_Discrete(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
 
     /** Returns two normally distributed integers with the given mean and standard deviation.
 
         Use this version if you will be generating lots of random values,
         because the regular implementation practically generates two values anyways.
     */
-    static GUtil::Pair<GINT32> N_Discrete2(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
+    GUtil::Pair<GINT32> N_Discrete2(GFLOAT64 mean = 0.0, GFLOAT64 standard_deviation = 1.0);
 
 
     /** Generates a Poisson-distributed random variable.
@@ -132,7 +106,7 @@ public:
         \note The complexity of the implementation is O(expected_value),
         so be careful when calling with large numbers
     */
-    static GINT32 Poisson( GFLOAT32 expected_value );
+    GINT32 Poisson( GFLOAT32 expected_value );
 
 
     /** Generates a discrete, Geometrically-distributed random variable
@@ -167,7 +141,7 @@ public:
         Int( log(U)/log(1-p) ) + 1
         Where Int(Y) is the integer part of Y.
     */
-    static GUINT64 Geometric( GFLOAT32 expected_value );
+    GUINT64 Geometric( GFLOAT32 expected_value );
 
 
     /** Generates an Exponentially distributed random variable
@@ -193,26 +167,7 @@ public:
           If the input parameter is invalid (less than or equal to 0),
           then the return value is -1.
     */
-    static GFLOAT64 Exponential( GFLOAT64 lambda );
-
-
-
-    /** Returns a random data object, whose type is specified by the
-        template parameter.
-
-        \tparam T The type of the return value.  This must be a
-        Plain-Old-Data (POD) type, like an Int or Float, because the
-        object's memory will be randomly generated.
-    */
-    template<class T> static T Generate(){
-        T ret;
-        Fill(reinterpret_cast<GBYTE *>(&ret), sizeof(T));
-        return ret;
-    }
-
-    /** Fills the buffer with random data. */
-    static void Fill(GBYTE *buffer, GUINT32 size);
-
+    GFLOAT64 Exponential( GFLOAT64 lambda );
 
 
     /** A discrete random variable which is 1 with the given probability
@@ -226,9 +181,7 @@ public:
 
         \return 1 with the given probability  and 0 otherwise.
     */
-    static int Succeed(GFLOAT64 probability_of_success){
-        return U(0, 1) < probability_of_success ? 1 : 0;
-    }
+    bool Succeed(GFLOAT64 probability_of_success);
 
     /** Optimized version of Succeed() that returns 1 with a 50% probability.
 
@@ -238,22 +191,66 @@ public:
 
         \return 1 with 50% probability, otherwise 0.
     */
-    static int CoinToss(){
-        return Generate<GINT8>() < 0 ? 1 : 0;
+    bool CoinToss();
+
+
+    /** Returns a random data object, whose type is specified by the
+        template parameter.
+
+        \tparam T The type of the return value.  This must be a
+        Plain-Old-Data (POD) type, like an Int or Float, because the
+        object's memory will be randomly generated.
+    */
+    template<class T> T Generate(){
+        T ret;
+        this->Fill(reinterpret_cast<GBYTE *>(&ret), sizeof(T));
+        return ret;
     }
 
 };
 
 
-/** Create a static instance of this in any library making use of the RNG
+
+/** An RNG implemented by the rand() function of the C standard library. */
+class CStdRNG :
+        public AbstractRNG
+{
+public:
+    /** Seeds the rng with srand() and the current time. */
+    CStdRNG();
+    virtual void Fill(GBYTE *, GUINT32);
+    virtual ~CStdRNG();
+};
+
+
+
+/** Returns the global RNG.
+ *
+ *  It is always 0 by default, so you must set it with InitializeRNG().
+*/
+extern AbstractRNG *RNG();
+
+/** Initializes the global RNG(). You must call this before RNG() returns anything.
+ *  The instance will be deleted when the library/executable unloads, or when you
+ *  explicitly call UninitializeRNG().
+*/
+extern void InitializeRNG(AbstractRNG *);
+
+/** Deletes the global RNG, or does nothing if it wasn't set. */
+extern void UninitializeRNG();
+
+
+
+
+/** Create a instance of this in any library making use of the RNG
  *  to make sure that it is properly initialized and ready for use.
  *
- *  \example static RNG_Initializer __rng_init;
+ *  \example RNG_Initializer __rng_init;
 */
 class RNG_Initializer
 {
 public:
-    inline RNG_Initializer(){ RNG::Initialize(); }
+    inline RNG_Initializer(AbstractRNG *r = new CStdRNG){ InitializeRNG(r); }
 };
 
 

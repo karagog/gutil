@@ -129,7 +129,7 @@ void Deck::Shuffle()
         // Deal each card randomly into the tmp vector
         while(1 < m_cards.Length())
         {
-            GINT32 index( RNG::U_Discrete(0, m_cards.Length() - 1) );
+            GINT32 index( RNG()->U_Discrete(0, m_cards.Length() - 1) );
 
             tmp.PushBack( m_cards[index] );
             m_cards.RemoveAt(index);
@@ -234,7 +234,7 @@ char const *Card::SuitString(Card::SuitEnum s)
 Card *InfiniteDeck::pick_one()
 {
     // Pick a card at random and don't remove it from the deck
-    return m_cards[ RNG::U_Discrete(0, m_cards.Length() - 1) ];
+    return m_cards[ RNG()->U_Discrete(0, m_cards.Length() - 1) ];
 }
 
 void InfiniteDeck::Collect()

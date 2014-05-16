@@ -19,7 +19,7 @@ HEADER_PREFIX = gutil_
 # Directory patterns for which we want to ignore all headers
 IGNORE_PATHS = Test
 
-HEADERGEN_TARGET_DIRS = core,qt,qt_plugins,games
+HEADERGEN_TARGET_DIRS = core,qt,cryptopp,qt_plugins,games
 
 
 headers.commands = $$HEADER_CMD \

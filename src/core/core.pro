@@ -19,12 +19,6 @@ LIBS += -L$$TOP_DIR/lib
 #DEFINES += GUTIL_STL
 
 #DEFINES += GUTIL_COM_EXPORTS
-#DEFINES += GUTIL_NO_CRYPTOPP
-
-!contains(DEFINES, GUTIL_NO_CRYPTOPP){
-    LIBS += -lcryptopp
-}
-
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)

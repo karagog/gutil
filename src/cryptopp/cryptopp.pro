@@ -1,0 +1,34 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2014-05-15T20:18:37
+#
+#-------------------------------------------------
+
+QT       -= core gui
+
+TARGET = GUtilCryptoPP
+TEMPLATE = lib
+
+TOP_DIR = ../..
+DESTDIR = $$TOP_DIR/lib
+
+INCLUDEPATH += $$TOP_DIR/include
+LIBS += -L$$DESTDIR \
+    -lGUtil \
+    -lcryptopp
+
+CONFIG(debug, debug|release) {
+    #message(Preparing debug build)
+    DEFINES += DEBUG
+}
+else {
+    #message(Preparing release build)
+}
+
+SOURCES += \
+    cryptopp_rng.cpp \
+    cryptopp_utils.cpp
+
+HEADERS += \
+    cryptopp_rng.h \
+    cryptopp_utils.h

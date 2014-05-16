@@ -1,4 +1,4 @@
-/*Copyright 2012 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,25 +12,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "dice.h"
+#ifndef GUTIL_CRYPTOPP_RNG_H
+#define GUTIL_CRYPTOPP_RNG_H
+
 #include "gutil_rng.h"
-USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(Games);
+NAMESPACE_GUTIL;
 
 
-Dice::Dice(GUINT32 n, GUINT8 s)
-    :m_dice(n), m_sides(s)
+class CryptoPP_RNG :
+        public GUtil::AbstractRNG
 {
-    // Initialize all dice to 0, which means they have not yet been rolled
-    m_dice.Resize(n, 0);
-}
+    void *d;
+public:
+    CryptoPP_RNG();
+    virtual ~CryptoPP_RNG();
 
-void Dice::Roll()
-{
-    G_FOREACH(Die &d, m_dice)
-        d = RNG()->U_Discrete(1, m_sides);
-}
+    virtual void Fill(GBYTE *, GUINT32);
+};
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
+
+#endif // GUTIL_CRYPTOPP_RNG_H
