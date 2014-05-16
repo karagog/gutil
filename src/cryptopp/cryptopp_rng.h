@@ -21,7 +21,7 @@ NAMESPACE_GUTIL;
 
 
 class CryptoPP_RNG :
-        public GUtil::AbstractRNG
+        public GUtil::RNG
 {
     void *d;
 public:

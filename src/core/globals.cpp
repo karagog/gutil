@@ -149,10 +149,7 @@ GUTIL_COM_EXTERN GUTIL_COM_DECLSPEC int FSB64(GUINT64 n)
     developers.  You should not have to modify it in any way for your daily
     programming needs.
 */
-class LOADER :
-
-        // Initialize the RNG
-        public GUtil::RNG_Initializer
+class LOADER
 {
 public:
 

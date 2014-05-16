@@ -37,7 +37,7 @@ NAMESPACE_GUTIL;
     \note If you are using the CryptoPP random number generator, you must initialize
     the RNG before using this class.
 
-    \sa InitializeRNG()
+    \sa SetGlobalRNG()
 */
 template<int NUM_BYTES>
 
@@ -97,7 +97,7 @@ public:
     bool IsNull() const{ return 0 == Compare(Null(), *this); }
 
     /** Generates a random new value for this id. */
-    void Generate(){ GUtil::RNG()->Fill(m_data, sizeof(m_data)); }
+    void Generate(){ GUtil::GlobalRNG()->Fill(m_data, sizeof(m_data)); }
 
     /** Returns an ASCII string representation of the Id with hex digits */
     String ToString16() const{ return String::ToBase16((const char *)m_data, sizeof(m_data)); }

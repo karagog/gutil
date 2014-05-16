@@ -26,7 +26,7 @@ NAMESPACE_GUTIL;
  *  RNG's must only implement the fill function, and all other functions are implemented
  *  in the abstract class for convenience.
 */
-class AbstractRNG
+class RNG
 {
 public:
 
@@ -35,7 +35,7 @@ public:
     */
     virtual void Fill(GBYTE *buffer, GUINT32 size) = 0;
 
-    virtual ~AbstractRNG();
+    virtual ~RNG();
 
 
 
@@ -211,46 +211,35 @@ public:
 
 
 
-/** An RNG implemented by the rand() function of the C standard library. */
-class CStdRNG :
-        public AbstractRNG
-{
-public:
-    /** Seeds the rng with srand() and the current time. */
-    CStdRNG();
-    virtual void Fill(GBYTE *, GUINT32);
-    virtual ~CStdRNG();
-};
+/** Returns the global RNG set by SetGlobalRNG(). */
+extern RNG *GlobalRNG();
 
-
-
-/** Returns the global RNG.
- *
- *  It is always 0 by default, so you must set it with InitializeRNG().
+/** Initializes the global RNG(). You must call this before GlobalRNG() returns anything.
+ *  The memory is owned by the caller, so you are responsible for cleaning it up.
+ *  If you pass a null pointer it will reset to the default RNG implementation.
 */
-extern AbstractRNG *RNG();
-
-/** Initializes the global RNG(). You must call this before RNG() returns anything.
- *  The instance will be deleted when the library/executable unloads, or when you
- *  explicitly call UninitializeRNG().
-*/
-extern void InitializeRNG(AbstractRNG *);
-
-/** Deletes the global RNG, or does nothing if it wasn't set. */
-extern void UninitializeRNG();
+extern void SetGlobalRNG(RNG *);
 
 
 
 
-/** Create a instance of this in any library making use of the RNG
+/** Create a static global instance of this in any library making use of the RNG
  *  to make sure that it is properly initialized and ready for use.
  *
- *  \example RNG_Initializer __rng_init;
+ *  If you do not use this class, it will default to the standard C RNG.
+ *
+ *  You can build with GUTIL_NO_DEFAULT_RNG defined to
+ *  disable the default C std RNG implementation.  You would then have
+ *  to provide your own explicitly if you want to use it.
+ *
+ *  \example
+ *  static class MyRNG{ ... } my_static_rng;
+ *  RNG_Initializer __rng_init(&my_static_rng);
 */
 class RNG_Initializer
 {
 public:
-    inline RNG_Initializer(AbstractRNG *r = new CStdRNG){ InitializeRNG(r); }
+    RNG_Initializer(RNG *r);
 };
 
 

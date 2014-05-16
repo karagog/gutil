@@ -82,7 +82,7 @@ void Uuid::Clear()
 void Uuid::Generate()
 {
     // Fill with random data
-    RNG()->Fill(m_data, sizeof(m_data));
+    GlobalRNG()->Fill(m_data, sizeof(m_data));
 
     // Then set the reserved and version bits to conform with the UUID standard
 

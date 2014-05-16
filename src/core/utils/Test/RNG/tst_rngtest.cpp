@@ -24,7 +24,7 @@ USING_NAMESPACE_GUTIL;
 // Control whether to dump debug output to the command line
 bool OUTPUT_ENABLED = true;
 
-static RNG_Initializer __rng_init;
+//static RNG_Initializer __rng_init;
 
 
 class RNGTest : public QObject
@@ -48,12 +48,12 @@ private Q_SLOTS:
 
     void test_Geometric();
     void test_Exponential();
+
+    void test_Generate();
 };
 
 RNGTest::RNGTest()
-{
-    //RNG::Initialize();
-}
+{}
 
 void RNGTest::test_CoinToss()
 {
@@ -61,7 +61,7 @@ void RNGTest::test_CoinToss()
 
     for(int i = 0; i < NUM_TRIES; ++i)
     {
-        if(RNG::CoinToss())
+        if(GlobalRNG()->CoinToss())
             cnt++;
     }
 
@@ -78,7 +78,7 @@ void RNGTest::test_PercentSuccess()
 
     for(int i = 0; i < NUM_TRIES; ++i)
     {
-        if(RNG::Succeed(percentage))
+        if(GlobalRNG()->Succeed(percentage))
             cnt++;
     }
 
@@ -93,7 +93,7 @@ void RNGTest::test_UniformInteger()
     const int range(10);
     int cnt[range] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     for(int i = 0; i < NUM_TRIES; ++i){
-        GINT32 val = RNG::U_Discrete(1, 10);
+        GINT32 val = GlobalRNG()->U_Discrete(1, 10);
         GASSERT2(0 < val && 11 > val, String::Format("After %i tries I got %i", i, val).ConstData());
         cnt[val - 1] += 1;
     }
@@ -120,7 +120,7 @@ void RNGTest::test_Normal()
     GFLOAT64 sum(0);
 
     for(GUINT32 i = 0; i < NUM_TRIES; i += 2){
-        Pair<GFLOAT64> val( RNG::N2(desired_mean, desired_stdev) );
+        Pair<GFLOAT64> val( GlobalRNG()->N2(desired_mean, desired_stdev) );
         mem.PushBack(val.First);
         mem.PushBack(val.Second);
         sum += val.First + val.Second;
@@ -156,7 +156,7 @@ void RNGTest::test_NormalInteger()
     GINT32 sum(0);
 
     for(GUINT32 i = 0; i < NUM_TRIES; i += 2){
-        Pair<GINT32> val( RNG::N_Discrete2(desired_mean, desired_stdev) );
+        Pair<GINT32> val( GlobalRNG()->N_Discrete2(desired_mean, desired_stdev) );
         mem.PushBack(val.First);
         mem.PushBack(val.Second);
         sum += val.First + val.Second;
@@ -192,7 +192,7 @@ void RNGTest::test_Poisson()
 
     for(int i = 0; i < num_tries; ++i)
     {
-        GINT32 p = RNG::Poisson(desired_mean);
+        GINT32 p = GlobalRNG()->Poisson(desired_mean);
         sum += p;
         //printf("Poisson: %d\n", p);
     }
@@ -208,17 +208,17 @@ void RNGTest::test_Poisson()
 void RNGTest::test_Geometric()
 {
     // Check that invalid inputs give the invalid return value
-    QVERIFY(0 == RNG::Geometric(-1));
-    QVERIFY(0 == RNG::Geometric(-241553));
-    QVERIFY(0 == RNG::Geometric(0));
-    QVERIFY(0 == RNG::Geometric(0.999999));
+    QVERIFY(0 == GlobalRNG()->Geometric(-1));
+    QVERIFY(0 == GlobalRNG()->Geometric(-241553));
+    QVERIFY(0 == GlobalRNG()->Geometric(0));
+    QVERIFY(0 == GlobalRNG()->Geometric(0.999999));
 
     // This is a special case to try and trip up the implementation.  Log of 0 is undefined,
     //  so if they use logs in the implementation this case needs to be handled separately.
-    QVERIFY(1 == RNG::Geometric(1));
+    QVERIFY(1 == GlobalRNG()->Geometric(1));
 
     // A value just barely above one is valid and should return 1 most of the time
-    QVERIFY(1 <= RNG::Geometric(1.00001));
+    QVERIFY(1 <= GlobalRNG()->Geometric(1.00001));
 
 
     // Generate N geometric random variables and see if they actually match our expected value
@@ -231,7 +231,7 @@ void RNGTest::test_Geometric()
 
     for(int i = 0; i < NUM_TRIES; ++i)
     {
-        GUINT64 T = RNG::Geometric(expected_value);
+        GUINT64 T = GlobalRNG()->Geometric(expected_value);
         mean += T;
         if(max < T){
             next_max = max;
@@ -267,7 +267,7 @@ void RNGTest::test_Exponential()
 
     for(int i = 0; i < num_tries; ++i)
     {
-        GFLOAT64 T = RNG::Exponential(rate);
+        GFLOAT64 T = GlobalRNG()->Exponential(rate);
         mean += T;
         if(max < T)
             max = T;
@@ -282,6 +282,12 @@ void RNGTest::test_Exponential()
     }
 
     QVERIFY(0 == GUtil::FuzzyCompare(1.0 / rate, mean, 0.1));
+}
+
+void RNGTest::test_Generate()
+{
+    int v = GlobalRNG()->Generate<int>();
+    QVERIFY(v);
 }
 
 

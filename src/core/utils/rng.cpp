@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "rng.h"
-#include "gutil_smartpointer.h"
 #include <math.h>
 USING_NAMESPACE_GUTIL;
 
@@ -21,6 +20,8 @@ USING_NAMESPACE_GUTIL;
 #include <ctime>
 #include <cstring>
 
+
+namespace{
 
 /** Scales down an integer in the range [0, GUINT32_MAX] to a
     floating point number in the range (0, 1).
@@ -37,53 +38,83 @@ static GFLOAT64 __rng_int_to_unit_float(GUINT32 i)
 /** Generates two integers with one call to Generate(). */
 static Pair<GUINT32> __rng_generate_two_numbers()
 {
-    GASSERT(RNG());
-    GUINT64 L( RNG()->Generate<GUINT64>() );
+    GASSERT(GlobalRNG());
+    GUINT64 L( GlobalRNG()->Generate<GUINT64>() );
     return Pair<GUINT32>(L >> 32, L);
 }
 
+
+#ifndef GUTIL_NO_DEFAULT_RNG
+
+/** An RNG implemented by the rand() function of the C standard library. */
+struct CStdRNG : public RNG
+{
+    CStdRNG(){ srand(time(NULL)); }
+
+    void Fill(GBYTE *b, GUINT32 l)
+    {
+       GUINT32 filled = 0;
+       const int chunk_size = 2;
+       int n = 0;
+       while(filled < l){
+           b += n;
+           const int r = rand();
+           const int remaining = l - filled;
+           n = remaining < chunk_size ?
+                       remaining : chunk_size;
+           memcpy(b, &r, n);
+           filled += n;
+       }
+    }
+}
+static __cstd_rng;
+
+static RNG *__rng(&__cstd_rng);
+
+#else
+static RNG *__rng(0);
+#endif  // GUTIL_NO_DEFAULT_RNG
+
+}
 
 
 NAMESPACE_GUTIL;
 
 
-static SmartPointer<AbstractRNG> __rng;
-
-AbstractRNG::~AbstractRNG()
+RNG::~RNG()
 {}
 
-AbstractRNG *RNG()
+RNG *GlobalRNG()
 {
     return __rng;
 }
 
-void InitializeRNG(AbstractRNG *r)
+void SetGlobalRNG(RNG *r)
 {
-    __rng = r;
+#ifndef GUTIL_NO_DEFAULT_RNG
+    if(0 == r)
+        __rng = &__cstd_rng;
+    else
+#endif
+        __rng = r;
 }
 
-void UninitializeRNG()
-{
-    GASSERT(__rng);
-    __rng.Clear();
-}
 
-
-GFLOAT64 AbstractRNG::U(GFLOAT64 lower_bound, GFLOAT64 upper_bound)
+GFLOAT64 RNG::U(GFLOAT64 lower_bound, GFLOAT64 upper_bound)
 {
     GASSERT(lower_bound <= upper_bound);
 
     return lower_bound + __rng_int_to_unit_float(Generate<GUINT32>()) * (upper_bound - lower_bound);
 }
 
-GINT32 AbstractRNG::U_Discrete(GINT32 lower_bound, GINT32 upper_bound)
+GINT32 RNG::U_Discrete(GINT32 lower_bound, GINT32 upper_bound)
 {
     return floor( U(lower_bound, upper_bound + 1) );
 }
 
 
 
-GFLOAT64 AbstractRNG::N(GFLOAT64 mean, GFLOAT64 standard_deviation)
+GFLOAT64 RNG::N(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
     // I use the Box-Muller method due to the ease of implementation
     //  and the quality of the normally-distributed random data, but
@@ -97,7 +128,7 @@ GFLOAT64 AbstractRNG::N(GFLOAT64 mean, GFLOAT64 standard_deviation)
     return mean + standard_deviation * sqrt(-2.0 * log(u) ) * sin( 2.0 * PI * v );
 }
 
-Pair<GFLOAT64> AbstractRNG::N2(GFLOAT64 mean, GFLOAT64 standard_deviation)
+Pair<GFLOAT64> RNG::N2(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
     // Generate two independent U(0, 1) values (optimized)
     const Pair<GUINT32> p( __rng_generate_two_numbers() );
@@ -114,12 +145,12 @@ Pair<GFLOAT64> AbstractRNG::N2(GFLOAT64 mean, GFLOAT64 standard_deviation)
     return Pair<GFLOAT64>(mean + standard_deviation * C * sin(A), mean + standard_deviation * C * cos(A));
 }
 
-GINT32 AbstractRNG::N_Discrete(GFLOAT64 mean, GFLOAT64 standard_deviation)
+GINT32 RNG::N_Discrete(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
    return floor( N(mean + 0.5, standard_deviation) );
 }
 
-Pair<GINT32> AbstractRNG::N_Discrete2(GFLOAT64 mean, GFLOAT64 standard_deviation)
+Pair<GINT32> RNG::N_Discrete2(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
     Pair<GINT32> ret;
     Pair<GFLOAT64> f( N2(mean + 0.5, standard_deviation) );
@@ -128,7 +159,7 @@ Pair<GINT32> AbstractRNG::N_Discrete2(GFLOAT64 mean, GFLOAT64 standard_deviation
     return ret;
 }
 
-GINT32 AbstractRNG::Poisson(GFLOAT32 expected_value)
+GINT32 RNG::Poisson(GFLOAT32 expected_value)
 {
     // This algorithm was taken from Wikipedia.  I honestly don't know why it works, but you
     //  can validate it by studying the output of the function.
@@ -149,7 +180,7 @@ GINT32 AbstractRNG::Poisson(GFLOAT32 expected_value)
     return ret;
 }
 
-GUINT64 AbstractRNG::Geometric(GFLOAT32 e)
+GUINT64 RNG::Geometric(GFLOAT32 e)
 {
     GUINT64 ret;
     if(1.0 < e)
@@ -171,7 +202,7 @@ GUINT64 AbstractRNG::Geometric(GFLOAT32 e)
     return ret;
 }
 
-GFLOAT64 AbstractRNG::Exponential(GFLOAT64 lambda)
+GFLOAT64 RNG::Exponential(GFLOAT64 lambda)
 {
     GFLOAT64 ret(-1.0);
     if(0.0 < lambda)
@@ -179,43 +210,21 @@ GFLOAT64 AbstractRNG::Exponential(GFLOAT64 lambda)
     return ret;
 }
 
-bool AbstractRNG::Succeed(double probability_of_success)
+bool RNG::Succeed(double probability_of_success)
 {
     return U(0, 1) < probability_of_success;
 }
 
-bool AbstractRNG::CoinToss()
+bool RNG::CoinToss()
 {
     return Generate<GINT8>() < 0;
 }
 
 
 
-CStdRNG::CStdRNG()
+RNG_Initializer::RNG_Initializer(RNG *r)
 {
-    srand(time(NULL));
-}
-
-void CStdRNG::Fill(GBYTE *a, GUINT32 l)
-{
-    GUINT32 filled = 0;
-    const int chunk_size = sizeof(int)/sizeof(GBYTE);
-    int n = 0;
-    while(filled < l)
-    {
-        a += n;
-        const int r = rand();
-        const int remaining = l - filled;
-        n = remaining < chunk_size ?
-                    remaining : chunk_size;
-        memcpy(a, &r, n);
-        filled += n;
-    }
-}
-
-CStdRNG::~CStdRNG()
-{
-    // nothing to cleanup
+    SetGlobalRNG(r);
 }
 
 

@@ -18,6 +18,10 @@ LIBS += -L$$TOP_DIR/lib
 # Enables STL dependent functions
 #DEFINES += GUTIL_STL
 
+# Disables the default global rng.
+#  Don't do this unless you know what you're doing
+#DEFINES += GUTIL_NO_DEFAULT_RNG
+
 #DEFINES += GUTIL_COM_EXPORTS
 
 CONFIG(debug, debug|release) {
