@@ -34,14 +34,18 @@ NAMESPACE_GUTIL1(QT);
 GUtil::String DatabaseUtils::InfoString(const QSqlQuery &q)
 {
     int cnt(0);
-    String tmp("");
+    String tmp;
     foreach(QVariant v, q.boundValues().values())
     {
         ++cnt;
         tmp.Append( String::Format("  Bound value %d: %s\n", cnt, v.toString().toAscii().constData()) );
     }
 
-    return String::Format("Query String:    \"%s\"\n\n%s", q.lastQuery().toAscii().constData(), tmp.ConstData());
+    String ret = String::Format("Query String:    \"%s\"", q.lastQuery().toAscii().constData());
+    if(!tmp.IsEmpty()){
+        ret.Append(String::Format("\n\n%s", tmp.ConstData()));
+    }
+    return ret;
 }
 
 void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
@@ -71,7 +75,7 @@ void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
 
     if(!q.exec())
         ThrowQueryException(q);
-        
+
 #ifdef GUTIL_DEBUG
     if(q.isSelect())
         GUtil::Console::WriteLine(String::Format("Last Query returned %d results. \n\n", q.size()));

@@ -86,13 +86,8 @@ public:
      *  \param modifier A string modifier to distinguish this object from others within the application.
     */
     explicit PersistentData(const GUtil::String &identifier,
-                            const GUtil::String &modifier = "",
+                            const GUtil::String &modifier = GUtil::String(),
                             QObject *parent = 0);
-
-    /** You should never call this, but it is provided to allow you to create dummy constructors.
-     *  It will throw an exception.
-    */
-    PersistentData();
 
     virtual ~PersistentData();
 
@@ -143,6 +138,11 @@ signals:
 
 
 protected:
+
+    /** You should never call this, but it is provided to allow you to create dummy constructors.
+     *  It will throw an exception.
+    */
+    PersistentData();
 
     /** This function is provided so that subclasses can operate on the data before
      *  it is saved to disk.
