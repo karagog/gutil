@@ -23,7 +23,7 @@ limitations under the License.*/
 #include <QVariant>
 USING_NAMESPACE_GUTIL;
 
-#ifdef GUTIL_DEBUG
+#ifdef GUTIL_DEBUG2
 #include "gutil_console.h"
 #endif
 
@@ -69,14 +69,14 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 
 void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
 {
-#ifdef GUTIL_DEBUG
+#ifdef GUTIL_DEBUG2
     GUtil::Console::WriteLine(InfoString(q));
 #endif
 
     if(!q.exec())
         ThrowQueryException(q);
 
-#ifdef GUTIL_DEBUG
+#ifdef GUTIL_DEBUG2
     if(q.isSelect())
         GUtil::Console::WriteLine(String::Format("Last Query returned %d results. \n\n", q.size()));
     else

@@ -23,10 +23,18 @@ limitations under the License.*/
 #include "gutil_exception.h"
 #include <malloc.h>
 
-
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     #define GUTIL_DEBUG
 #endif
+
+#if defined(GUTIL_DEBUG3)
+    #define GUTIL_DEBUG2
+#endif
+
+#if defined(GUTIL_DEBUG2)
+    #define GUTIL_DEBUG
+#endif
+
 
 /** The GUtil version.  This is always updated after every release.
 
