@@ -421,8 +421,8 @@ public:
         return ((char)RomanLowerCase <= c && c < (char)RomanLowerCase + 26) ||
                 ((char)RomanUpperCase <= c && c < (char)RomanUpperCase + 26);
     }
-    
-    /** Compares two strings */
+
+    /** Compares two strings with the strcmp() function. */
     static int Compare(const char *, const char *);
 
     /** Splits the string using the given character delimiter.
@@ -830,7 +830,7 @@ public:
         }
 
     };
-    
+
     /** Returns the number of bytes between the first and second iterators.
         \returns -1 if the iterators aren't from the same string, or if the end comes before the beginning
     */
