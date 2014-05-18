@@ -181,6 +181,11 @@ void PersistentData::RemoveValue(const String &key)
     }
 }
 
+Vector<String> PersistentData::Keys() const
+{
+    return m_data.Keys();
+}
+
 void PersistentData::_value_changed()
 {
     if(GetAutoCommitChanges())

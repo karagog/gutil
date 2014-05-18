@@ -104,6 +104,9 @@ public:
     /** Returns whether the key is in the config settings. */
     bool Contains(const GUtil::String &key){ return m_data.Contains(key); }
 
+    /** Returns the list of keys in the data store. */
+    Vector<String> Keys() const;
+
     /** Returns the file name of the file which is storing the cached data. */
     const QString &GetFileName() const{ return m_bds.GetFileName(); }
 
