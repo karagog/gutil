@@ -15,7 +15,8 @@ HEADERS += \
     utils/datatransferutils.h \
     utils/databaseutils.h \
     utils/stopwatchengine.h \
-    utils/paintutils.h
+    utils/paintutils.h \
+    utils/pluginutils.h
 
 
 
