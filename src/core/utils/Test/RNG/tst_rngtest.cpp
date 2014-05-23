@@ -286,7 +286,12 @@ void RNGTest::test_Exponential()
 
 void RNGTest::test_Generate()
 {
-    int v = GlobalRNG()->Generate<int>();
+    int v;
+    for(int i = 0; i < 100; i++){
+        v = GlobalRNG()->Generate<int>();
+        //v = rand();
+        //qDebug("%x", v);
+    }
     QVERIFY(v);
 }
 

@@ -53,18 +53,11 @@ struct CStdRNG : public RNG
 
     void Fill(GBYTE *b, GUINT32 l)
     {
-       GUINT32 filled = 0;
-       const int chunk_size = 2;
-       int n = 0;
-       while(filled < l){
-           b += n;
-           const int r = rand();
-           const int remaining = l - filled;
-           n = remaining < chunk_size ?
-                       remaining : chunk_size;
-           memcpy(b, &r, n);
-           filled += n;
-       }
+       // Rand is only guaranteed to return values up to 32767 (0x7FFF)
+       // Therefore I chose to only use it to generate one byte at a time
+       // There are better RNG's out there, so use them if you need to
+       for(GUINT32 i = 0; i < l; ++i)
+           *(b++) = rand();
     }
 }
 static __cstd_rng;
