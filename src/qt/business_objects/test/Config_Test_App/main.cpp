@@ -20,15 +20,19 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w1;
+    QProcess *p;
     w1.show();
 
     if(argc == 1)
     {
-        QProcess *p = new QProcess(&a);
+        p = new QProcess(&a);
         p->start(argv[0], QStringList("-n"));
 
         (new MainWindow)->show();
     }
 
-    return a.exec();
+    int ret = a.exec();
+    p->kill();
+    p->waitForFinished();
+    return ret;
 }

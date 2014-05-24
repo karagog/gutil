@@ -18,9 +18,9 @@ USING_NAMESPACE_GUTIL1(QT);
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    cfile("Test_App")
 {
-    cfile.Initialize("Test_App");
     ui->setupUi(this);
 
     connect(&cfile, SIGNAL(DataChanged()),

@@ -4,12 +4,20 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui
 
 TARGET = Config_Test_App
 TEMPLATE = app
 
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
+
+TOP_DIR = ../../../../..
+
+INCLUDEPATH += $$TOP_DIR/include
+LIBS += \
+    -L$$TOP_DIR/lib \
+    -lGUtil \
+    -lGUtilQt
 
 SOURCES += main.cpp\
         mainwindow.cpp
@@ -17,9 +25,3 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
-
-INCLUDEPATH += ../../../../include ../../..
-LIBS += -L../../../../lib \
-    -lGUtilQt \
-    -lGUtil \
-    -lcryptopp

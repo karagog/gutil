@@ -29,12 +29,12 @@ USING_NAMESPACE_GUTIL;
 NAMESPACE_GUTIL1(QT);
 
 
-void PersistentData::_clear_data_index(Map<String, data_t *> &data, Map<int, data_t *> &index)
+void PersistentData::_clear_data_index(QMap<QString, data_t *> &data, QMap<int, data_t *> &index)
 {
-    for(Map<String, data_t *>::iterator iter(data.begin()); iter != data.end(); ++iter)
-        delete iter->Value();
-    data.Clear();
-    index.Clear();
+    for(QMap<QString, data_t *>::iterator iter(data.begin()); iter != data.end(); ++iter)
+        delete *iter;
+    data.clear();
+    index.clear();
 }
 
 
@@ -43,12 +43,12 @@ PersistentData::PersistentData()
     THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
 }
 
-PersistentData::PersistentData(const String &identifier, const String &modifier, QObject *parent)
+PersistentData::PersistentData(const QString &identifier, const QString &modifier, QObject *parent)
     :QObject(parent),
       m_bds(QString("%1%2%3.GUtilPersistentData.sqlite")
             .arg(_get_file_location(identifier))
-            .arg(modifier.IsEmpty() ? "" : ".")
-            .arg(modifier.IsEmpty() ? "" : modifier.ConstData())),
+            .arg(modifier.isEmpty() ? "" : ".")
+            .arg(modifier.isEmpty() ? "" : modifier.toUtf8().constData())),
       _p_AutoCommitChanges(true)
 {
     connect(&m_watcher, SIGNAL(fileChanged(const QString &)),
@@ -78,13 +78,13 @@ void PersistentData::Reload()
     Vector< Pair<int, QUuid> > ids( m_bds.GetIds() );
 
     Set<int> my_ids;
-    for(Map<int, data_t *>::iterator iter(m_index.begin()); iter != m_index.end(); ++iter)
-        my_ids.Insert(iter->Key());
+    for(QMap<int, data_t *>::iterator iter(m_index.begin()); iter != m_index.end(); ++iter)
+        my_ids.Insert(iter.key());
 
     for(Vector< Pair<int,QUuid> >::iterator iter(ids.begin()); iter != ids.end(); ++iter)
     {
-        data_t **tmp_d = m_index.Find(iter->First);
-        data_t *d = tmp_d ? *tmp_d : 0;
+        typename QMap<int, data_t *>::const_iterator tmp_d = m_index.find(iter->First);
+        data_t *d = tmp_d == m_index.end() ? 0 : *tmp_d;
         if(0 == d || d->Version != iter->Second)
         {
             something_changed = true;
@@ -108,9 +108,10 @@ void PersistentData::Reload()
                 String key(ba_key.constData(), ba_key.length());
                 key = key.FromBase64();
 
-                d = new data_t(key, v, iter->First, iter->Second);
-                m_data.Insert(key, d);
-                m_index.Insert(iter->First, d);
+                QString q_key = key.ToQString();
+                d = new data_t(q_key, v, iter->First, iter->Second);
+                m_data.insert(q_key, d);
+                m_index.insert(iter->First, d);
             }
         }
 
@@ -121,12 +122,12 @@ void PersistentData::Reload()
     // Remove the data that has been removed
     for(Set<int>::const_iterator iter(my_ids.begin()); iter != my_ids.end(); ++iter)
     {
-        GASSERT(m_index.Find(*iter));
+        GASSERT(m_index.find(*iter) != m_index.end());
 
-        data_t *d = *m_index.Find(*iter);
+        data_t *d = *m_index.find(*iter);
 
-        m_data.Remove(d->Key);
-        m_index.Remove(d->Id);
+        m_data.remove(d->Key);
+        m_index.remove(d->Id);
         delete d;
     }
 
@@ -142,48 +143,49 @@ void PersistentData::preprocess_incoming_data(QByteArray &)
 { /** Nothing by default */ }
 
 
-QVariant PersistentData::Value(const String &key) const
+QVariant PersistentData::Value(const QString &key) const
 {
     QVariant ret;
-    data_t* const *tmp = m_data.Find(key);
-    if(tmp) ret = (*tmp)->Data;
+    typename QMap<QString, data_t *>::const_iterator tmp = m_data.find(key);
+    if(tmp != m_data.end())
+        ret = (*tmp)->Data;
     return ret;
 }
 
-void PersistentData::SetValue(const String &key, const QVariant &value)
+void PersistentData::SetValue(const QString &key, const QVariant &value)
 {
-    data_t **tmp = m_data.Find(key);
-    if(tmp){
+    typename QMap<QString, data_t *>::const_iterator tmp = m_data.find(key);
+    if(tmp != m_data.end()){
         // Need to update existing data
         (*tmp)->Data = value;
         (*tmp)->Dirty = true;
     }
     else{
         // Need to insert the new data
-        m_data.Insert(key, new data_t(key, value));
+        m_data.insert(key, new data_t(key, value));
     }
     _value_changed();
 }
 
-void PersistentData::RemoveValue(const String &key)
+void PersistentData::RemoveValue(const QString &key)
 {
-    data_t **d = m_data.Find(key);
-    if(d){
+    typename QMap<QString, data_t *>::const_iterator d = m_data.find(key);
+    if(d != m_data.end()){
         const int id = (*d)->Id;
 
         m_bds.RemoveData(id);
 
         delete *d;
-        m_data.Remove(key);
-        m_index.Remove(id);
+        m_data.remove(key);
+        m_index.remove(id);
 
         _value_changed();
     }
 }
 
-Vector<String> PersistentData::Keys() const
+QStringList PersistentData::Keys() const
 {
-    return m_data.Keys();
+    return m_data.keys();
 }
 
 void PersistentData::_value_changed()
@@ -215,13 +217,13 @@ void PersistentData::commit_reject_changes(bool commit)
     if(commit)
     {
         // Commit changes to the object
-        for(Map<String, data_t *>::iterator iter(m_data.begin()); iter != m_data.end(); ++iter)
+        for(QMap<QString, data_t *>::iterator iter(m_data.begin()); iter != m_data.end(); ++iter)
         {
-            data_t *d = iter->Value();
+            data_t *d = *iter;
             if(d->Dirty)
             {
                 QByteArray new_data(QString("%1:%2")
-                                    .arg(iter->Key().ToBase64().ToQString())
+                                    .arg(String::FromQString(iter.key()).ToBase64().ToQString())
                                     .arg(Variant::ConvertToXmlQString(d->Data, false)).toUtf8());
 
                 preprocess_outgoing_data(new_data);
@@ -230,7 +232,7 @@ void PersistentData::commit_reject_changes(bool commit)
                     Pair<int, QUuid> p(m_bds.AddData(new_data));
                     d->Id = p.First;
                     d->Version = p.Second;
-                    m_index.Insert(d->Id, d);
+                    m_index.insert(d->Id, d);
                 }
                 else{
                     d->Version = m_bds.SetData(d->Id, new_data);

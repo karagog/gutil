@@ -59,21 +59,21 @@ class PersistentData :
     public:
         QVariant Data;
         QUuid Version;
-        GUtil::String Key;
+        QString Key;
         int Id;
         bool Dirty;
 
-        data_t(const GUtil::String &k,
+        data_t(const QString &k,
                       const QVariant &d,
                       int id = -1,
                       const QUuid &version = QUuid())
             :Data(d), Version(version), Key(k), Id(id), Dirty(version.isNull() ? true : false) {}
     };
 
-    GUtil::String m_identity;
-    GUtil::String m_modifier;
-    GUtil::Map< GUtil::String, data_t * > m_data;
-    GUtil::Map<int, data_t *> m_index;
+    QString m_identity;
+    QString m_modifier;
+    QMap< QString, data_t * > m_data;
+    QMap<int, data_t *> m_index;
 
     GUtil::QT::BinaryDataStore m_bds;
     QFileSystemWatcher m_watcher;
@@ -85,36 +85,36 @@ public:
      *  \param identifier A string identifier to distinguish this object from others
      *  \param modifier A string modifier to distinguish this object from others within the application.
     */
-    explicit PersistentData(const GUtil::String &identifier,
-                            const GUtil::String &modifier = GUtil::String(),
+    explicit PersistentData(const QString &identifier,
+                            const QString &modifier = QString(),
                             QObject *parent = 0);
 
     virtual ~PersistentData();
 
 
     /** Returns a null variant if the key does not exist */
-    QVariant Value(const GUtil::String &key) const;
+    QVariant Value(const QString &key) const;
 
     /** Sets the data at the given key to the given value */
-    void SetValue(const GUtil::String &key, const QVariant &value);
+    void SetValue(const QString &key, const QVariant &value);
 
     /** Remove a specific key */
-    void RemoveValue(const GUtil::String &key);
+    void RemoveValue(const QString &key);
 
     /** Returns whether the key is in the config settings. */
-    bool Contains(const GUtil::String &key){ return m_data.Contains(key); }
+    bool Contains(const QString &key){ return m_data.contains(key); }
 
     /** Returns the list of keys in the data store. */
-    Vector<String> Keys() const;
+    QStringList Keys() const;
 
     /** Returns the file name of the file which is storing the cached data. */
     const QString &GetFileName() const{ return m_bds.GetFileName(); }
 
     /** Returns the identity string you passed in the constructor. */
-    GUtil::String const &GetIdentity() const{ return m_identity; }
+    QString const &GetIdentity() const{ return m_identity; }
 
     /** Returns the modifier string you passed in the constructor. */
-    GUtil::String const &GetModifier() const{ return m_modifier; }
+    QString const &GetModifier() const{ return m_modifier; }
 
 
     /** Controls whether to commit changes right away, or wait until a manual
@@ -177,8 +177,8 @@ private:
     static QString _get_file_location(QString id);
 
     /** Reusable function to clear the indexes and reclaim memory. */
-    static void _clear_data_index(::GUtil::Map< GUtil::String, data_t *> &,
-                                  GUtil::Map<int, data_t *> &);
+    static void _clear_data_index(QMap<QString, data_t *> &,
+                                  QMap<int, data_t *> &);
 
     void _value_changed();
 

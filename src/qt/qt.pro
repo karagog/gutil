@@ -21,9 +21,6 @@ else {
     #message(Preparing release build)
 }
 
-# So we can interface our core classes more easily with Qt
-DEFINES += QT_ADAPTERS
-
 # Enables STL dependent functions
 #DEFINES += GUTIL_STL
 
