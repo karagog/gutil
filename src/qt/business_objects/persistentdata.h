@@ -102,7 +102,7 @@ public:
     void RemoveValue(const QString &key);
 
     /** Returns whether the key is in the config settings. */
-    bool Contains(const QString &key){ return m_data.contains(key); }
+    bool Contains(const QString &key) const{ return m_data.contains(key); }
 
     /** Returns the list of keys in the data store. */
     QStringList Keys() const;
