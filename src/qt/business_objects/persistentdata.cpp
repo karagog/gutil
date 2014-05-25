@@ -68,8 +68,24 @@ PersistentData::~PersistentData()
 
 void PersistentData::Clear()
 {
-    m_bds.Clear();
     _clear_data_index(m_data, m_index);
+    _value_changed();
+}
+
+void PersistentData::_process_line_of_data(QByteArray ba, QByteArray *key, QVariant *value)
+{
+    // Do some pre-processing on the raw data
+    preprocess_incoming_data(ba);
+
+    int split_index( ba.indexOf(':') );
+
+    if(-1 != split_index){
+        *key = ba.left(split_index);
+        *value = Variant::ConvertFromXmlQString(ba.right(ba.length() - split_index - 1));
+    }
+    else{
+        GASSERT(false);
+    }
 }
 
 void PersistentData::Reload()
@@ -83,43 +99,45 @@ void PersistentData::Reload()
 
     for(Vector< Pair<int,QUuid> >::iterator iter(ids.begin()); iter != ids.end(); ++iter)
     {
+        int data_id =iter->First;
+        QUuid data_version = iter->Second;
+
         typename QMap<int, data_t *>::const_iterator tmp_d = m_index.find(iter->First);
-        data_t *d = tmp_d == m_index.end() ? 0 : *tmp_d;
-        if(0 == d || d->Version != iter->Second)
+        bool found = tmp_d != m_index.end();
+
+        if(!found || (*tmp_d)->Version != data_version)
         {
             something_changed = true;
-            QByteArray ba( m_bds.GetData(iter->First) );
+            QByteArray ba_key;
+            QVariant value;
+            _process_line_of_data(m_bds.GetData(data_id), &ba_key, &value);
 
-            // Do some pre-processing on the raw data
-            preprocess_incoming_data(ba);
-
-            int split_index( ba.indexOf(':') );
-            if(-1 == split_index)
-                THROW_NEW_GUTIL_EXCEPTION(Exception);
-
-            QVariant v( Variant::ConvertFromXmlQString(ba.right(ba.length() - split_index - 1)) );
-            QByteArray ba_key( ba.left(split_index) );
-
-            if(d){
-                d->Data = v;
-                d->Version = iter->Second;
+            if(found)
+            {
+                // Update our memory store with new values
+                (*tmp_d)->Data = value;
+                (*tmp_d)->Version = data_version;
+                (*tmp_d)->Dirty = false;
             }
-            else{
+            else
+            {
+                // Insert new values in our memory store
                 String key(ba_key.constData(), ba_key.length());
                 key = key.FromBase64();
 
                 QString q_key = key.ToQString();
-                d = new data_t(q_key, v, iter->First, iter->Second);
+                data_t *d = new data_t(q_key, value, data_id, iter->Second);
                 m_data.insert(q_key, d);
                 m_index.insert(iter->First, d);
             }
         }
 
-        if(my_ids.Contains(iter->First))
-            my_ids.RemoveOne(iter->First);
+        // Keep track of all the ids we come across, so we know if we need to remove some
+        if(my_ids.Contains(data_id))
+            my_ids.RemoveOne(data_id);
     }
 
-    // Remove the data that has been removed
+    // Remove the data that doesn't exist in the file
     for(Set<int>::const_iterator iter(my_ids.begin()); iter != my_ids.end(); ++iter)
     {
         GASSERT(m_index.find(*iter) != m_index.end());
@@ -129,8 +147,8 @@ void PersistentData::Reload()
         m_data.remove(d->Key);
         m_index.remove(d->Id);
         delete d;
+        something_changed = true;
     }
-
 
     if(something_changed)
         emit DataChanged();
@@ -158,6 +176,7 @@ void PersistentData::SetValue(const QString &key, const QVariant &value)
     if(tmp != m_data.end()){
         // Need to update existing data
         (*tmp)->Data = value;
+        (*tmp)->Version = QUuid::createUuid();
         (*tmp)->Dirty = true;
     }
     else{
@@ -172,8 +191,6 @@ void PersistentData::RemoveValue(const QString &key)
     typename QMap<QString, data_t *>::const_iterator d = m_data.find(key);
     if(d != m_data.end()){
         const int id = (*d)->Id;
-
-        m_bds.RemoveData(id);
 
         delete *d;
         m_data.remove(key);
@@ -192,8 +209,6 @@ void PersistentData::_value_changed()
 {
     if(GetAutoCommitChanges())
         CommitChanges();
-
-    emit DataChanged();
 }
 
 QString PersistentData::_get_file_location(QString id)
@@ -217,6 +232,10 @@ void PersistentData::commit_reject_changes(bool commit)
     if(commit)
     {
         // Commit changes to the object
+        bool something_changed = false;
+        Set<int> keep_ids;
+
+        // Add/Update data that is in our memory store
         for(QMap<QString, data_t *>::iterator iter(m_data.begin()); iter != m_data.end(); ++iter)
         {
             data_t *d = *iter;
@@ -238,13 +257,31 @@ void PersistentData::commit_reject_changes(bool commit)
                     d->Version = m_bds.SetData(d->Id, new_data);
                 }
                 d->Dirty = false;
+                something_changed = true;
+            }
+
+            keep_ids.Insert(d->Id);
+
+            GASSERT(d->Id != -1);   // All data must have an id here
+        }
+
+        // Remove data from disk that is not in our memory store
+        Vector<Pair<int, QUuid> > disk_ids = m_bds.GetIds();
+        for(int i = 0; i < disk_ids.Length(); ++i){
+            int cur_id = disk_ids[i].First;
+            if(!keep_ids.Contains(cur_id)){
+                m_bds.RemoveData(cur_id);
+                something_changed = true;
             }
         }
+
+        if(something_changed)
+            emit DataChanged();
     }
     else
     {
         // Reject changes to the object
-        GASSERT2(false, "ERROR: Rejecting changes not implemented");
+        Reload();
     }
 }
 

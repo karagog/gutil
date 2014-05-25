@@ -125,7 +125,7 @@ public:
 
 public slots:
 
-    /** Reloads the config from the file on disk */
+    /** Reloads the config from the file on disk, overwriting any in-memory changes. */
     void Reload();
 
     /** Clears all config parameters. */
@@ -181,6 +181,8 @@ private:
                                   QMap<int, data_t *> &);
 
     void _value_changed();
+
+    void _process_line_of_data(QByteArray ba, QByteArray *key, QVariant *value);
 
 };
 
