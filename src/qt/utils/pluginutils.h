@@ -28,7 +28,7 @@ limitations under the License.*/
 #endif
 
 
-NAMESPACE_GUTIL;
+NAMESPACE_GUTIL1(QT);
 
 
 /** A utility to simplify loading plugins at runtime. */
@@ -68,6 +68,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;
 
 #endif // PLUGINLOADER_H
