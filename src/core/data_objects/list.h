@@ -168,6 +168,45 @@ public:
         return this->operator [](indx);
     }
 
+    /** Conducts a linear search for the first instance of the item
+        starting at the given index, and using the == operator to test equality.
+        \return The index on success, -1 on failure
+    */
+    GINT32 IndexOf(const T &item, GINT32 start = 0) const{
+        GINT32 ret( -1 );
+        ListImp<T>::const_iterator cur( begin() + start );
+        while(cur != end()){
+            if(*cur == item){
+                ret = cur.Index();
+                break;
+            }
+            ++cur;
+        }
+        return ret;
+    }
+
+    /** Conducts a linear search for the first instance of the item
+        starting at the given index, and using the == operator to test equality.
+        \return The index on success, -1 on failure
+    */
+    GINT32 LastIndexOf(const T &item, GINT32 start = -1) const{
+        GINT32 ret(-1);
+        if(Length() > 0)
+        {
+            if(start == -1)
+                start = Length() - 1;
+            ListImp<T>::const_iterator cur( begin() + start );
+            while(cur != rend()){
+                if(*cur == item){
+                    ret = cur.Index();
+                    break;
+                }
+                --cur;
+            }
+        }
+        return ret;
+    }
+
     /** Removes the item at the given index.
         Called any time an item is removed from the list.
         \note O(N) on average, unless you always remove from the end of the list.
