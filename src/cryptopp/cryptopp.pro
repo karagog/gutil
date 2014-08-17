@@ -8,14 +8,12 @@ QT       -= core gui
 
 TARGET = GUtilCryptoPP
 TEMPLATE = lib
+CONFIG += staticlib
 
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 
 INCLUDEPATH += $$TOP_DIR/include
-LIBS += -L$$DESTDIR \
-    -lGUtil \
-    -lcryptopp
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)

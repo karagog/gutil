@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "cryptopp_rng.h"
-#include "cryptopp/osrng.h"
+#include <cryptopp/osrng.h>
 
 namespace
 {
