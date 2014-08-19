@@ -1,0 +1,19 @@
+George's C++ Utility Library
+
+Hi guys, this is George writing about his very own utility library. He wrote this code as part of his lifelong journey of becoming a master developer. Over the years as he wrote open-source applications for fun he created a lot of useful code that could be reused. He found that by putting it all into a library it made it faster to write applications and he could do it with less code.
+
+The library is divided into several modules. The core module (libGUtil.a) is completely independent and builds without any third party libraries. The Qt module (libGUtilQt.a) extends the Qt framework with extra classes that can make life easier, or at least more enriching. The Crypto++ module (libGUtilCryptoPP.a) extends the crypto++ library with classes like simple encryption/compression functions and the best damn RNG in town.
+
+Examples of classes you can find in GUtil are not limited to:
+
+ - All the standard data objects, like vectors, lists, strings (with UTF-8 parsing ability), smart pointers, map, set and lots more (George can't guarantee that any of these implementations are better than the STL, but he tried hard and at the end of the day they're his, dammit, and nobody can take that from him).
+
+ - An exception class and framework to support exception related development. Macros to quickly make your own exceptions derived from the GUtil exceptions.
+
+ - An intuitive logging framework that logs to files, consoles, databases, anything your heart desires. Simply implement the Input/Output interface to provide your own persistence for log data.
+
+ - Doxygen documentation for most classes
+
+There is tons more to be found in this library and George is giving it all to you for free. He hopes you will appreciate it and learn lots, but he also hopes you don't abuse it and do evil things, or cheat on any of your college programming courses.
+
+Some of the classes you will find useful, others not as much. George suggest building the library statically so the linker will throw away any code that isn't needed and it won't clutter your application.
