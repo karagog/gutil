@@ -25,7 +25,7 @@ class OutputInterface;
 
 
 /** Used to adapt a generic OutputInterface into CryptoPP Sink. */
-class OutputInterfaceSink : public CryptoPP::Bufferless<CryptoPP::Sink>
+class OutputInterfaceSink : public CryptoPP::Sink
 {
     OutputInterface &ref;
 public:
@@ -35,6 +35,7 @@ public:
     virtual ~OutputInterfaceSink() {}
 
     virtual size_t Put2(const byte *, size_t, int, bool);
+    virtual bool IsolatedFlush(bool, bool);
 
 };
 

@@ -24,9 +24,15 @@ size_t OutputInterfaceSink::Put2(const byte *inString, size_t length, int msg_en
 {
     GUTIL_UNUSED(msg_end);
     GUTIL_UNUSED(blocking);
-    
+
     ref.WriteBytes(inString, length);
     return length;
+}
+
+bool OutputInterfaceSink::IsolatedFlush(bool, bool)
+{
+    ref.Flush();
+    return true;
 }
 
 
@@ -34,7 +40,7 @@ size_t StringSink::Put2(const byte *inString, size_t length, int msg_end, bool b
 {
     GUTIL_UNUSED(msg_end);
     GUTIL_UNUSED(blocking);
-    
+
     ref.Append((const char *)inString, length);
     return length;
 }

@@ -44,15 +44,27 @@ public:
      *
      *  \param output The crypttext will be pushed here.
     */
-    void EncryptData(byte const *plaintext, size_t length, OutputInterface *output);
-    
+    void EncryptData(byte const *plaintext, GUINT32 length, OutputInterface *output);
+
     /** Decrypts the string. The IV must be appended to the crypttext.
      *  This function has no way to know if decryption fails, so you will get
      *  a random-looking string if it does.
      *
      *  \param output The plaintext will be pushed here.
     */
-    void DecryptData(byte const *crypttext, size_t length, OutputInterface *output);
+    void DecryptData(byte const *crypttext, GUINT32 length, OutputInterface *output);
+
+    /** Encrypts the file (the IV for decrypting will be appended to the crypttext)
+     *
+     *  \param output The crypttext will be pushed here.
+    */
+    void EncryptFile(const char *filename, OutputInterface *output);
+
+    /** Decrypts the file (the IV for decrypting must be appended to the crypttext)
+     *
+     *  \param output The plaintext will be pushed here.
+    */
+    void DecryptFile(const char *filename, OutputInterface *output);
 
 };
 

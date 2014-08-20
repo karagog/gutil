@@ -17,10 +17,12 @@ limitations under the License.*/
 #include "gutil_d.h"
 #include "gutil_iointerface.h"
 #include "gutil_exception.h"
+#include "gutil_file.h"
 #include <cryptopp/modes.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
+#include <cryptopp/files.h>
 using namespace CryptoPP;
 
 // These are some constants for the type of encryption we've chosen
@@ -73,7 +75,7 @@ bool Cryptor::CheckPassword(const char *password) const
 }
 
 
-void Cryptor::EncryptData(byte const *plaintext, size_t len, OutputInterface *output)
+void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *output)
 {
     G_D;
 
@@ -87,13 +89,14 @@ void Cryptor::EncryptData(byte const *plaintext, size_t len, OutputInterface *ou
         stf.Put(plaintext, len);
         stf.MessageEnd();
     }
-    
+
     // Append the IV
     output->WriteBytes(iv, IVLENGTH);
+    output->Flush();
 }
 
 
-void Cryptor::DecryptData(byte const *crypttext, size_t len, OutputInterface *output)
+void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *output)
 {
     if(len < IVLENGTH)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
@@ -106,6 +109,60 @@ void Cryptor::DecryptData(byte const *crypttext, size_t len, OutputInterface *ou
     StreamTransformationFilter stf(d->dec, new OutputInterfaceSink(*output), StreamTransformationFilter::NO_PADDING);
     stf.Put(crypttext, len - IVLENGTH);
     stf.MessageEnd();
+    output->Flush();
+}
+
+void Cryptor::EncryptFile(const char *filename, OutputInterface *output)
+{
+    G_D;
+
+    if(!File::Exists(filename))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "File not found");
+
+    // Initialize a random IV and initialize the encryptor
+    byte iv[IVLENGTH];
+    d->rng.GenerateBlock(iv, IVLENGTH);
+    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv);
+
+    FileSource(filename, true,
+               new StreamTransformationFilter(
+                   d->enc, new OutputInterfaceSink(*output),
+                   StreamTransformationFilter::NO_PADDING)
+               );
+
+    // Append the IV
+    output->WriteBytes(iv, IVLENGTH);
+    output->Flush();
+}
+
+void Cryptor::DecryptFile(const char *filename, OutputInterface *output)
+{
+    G_D;
+    File f(filename);
+    GUINT32 len;
+    if(!f.Exists())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "File not found");
+    f.Open(File::OpenRead);
+    if((len = f.Length()) < IVLENGTH)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
+
+    // Read the IV
+    byte iv[IVLENGTH];
+    f.Seek(len - IVLENGTH);
+    if(IVLENGTH != f.Read(iv, IVLENGTH, IVLENGTH))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to read from file");
+
+    // Initialize the decryptor
+    d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv);
+
+    lword ct_len = len - IVLENGTH;
+    FileSource(filename, false,
+               new StreamTransformationFilter(
+                   d->dec,
+                   new OutputInterfaceSink(*output),
+                   StreamTransformationFilter::NO_PADDING)
+               ).Pump2(ct_len);
+    output->Flush();
 }
 
 
