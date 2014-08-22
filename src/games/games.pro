@@ -12,6 +12,7 @@ TARGET = GUtilGames
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 TEMPLATE = lib
+CONFIG += staticlib
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)
@@ -22,8 +23,7 @@ else {
 }
 
 INCLUDEPATH += $$TOP_DIR/include
-LIBS += -L$$DESTDIR \
-    -lGUtil
+#LIBS += -L$$DESTDIR -lGUtil
 
 
 SOURCES += dice.cpp \

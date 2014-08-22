@@ -4,7 +4,7 @@ TARGET = GUtil
 QT -= gui core
 
 TEMPLATE = lib
-#CONFIG += staticlib
+CONFIG += staticlib
 
 CONFIG += warn_off
 
@@ -13,7 +13,7 @@ TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 
 INCLUDEPATH += $$TOP_DIR/include
-LIBS += -L$$TOP_DIR/lib
+#LIBS += -L$$TOP_DIR/lib
 
 # Enables STL dependent functions
 #DEFINES += GUTIL_STL

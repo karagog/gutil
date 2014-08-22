@@ -3,6 +3,7 @@ TARGET = GUtilQt
 #VERSION = 0.0.0
 
 TEMPLATE = lib
+CONFIG += staticlib
 
 #QT -= gui
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
@@ -29,7 +30,7 @@ TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 
 INCLUDEPATH += $$TOP_DIR/include ../third_party
-LIBS += -L$$DESTDIR -lGUtil
+#LIBS += -L$$DESTDIR -lGUtil
 
 include(interfaces/interfaces.pri)
 include(utils/utils.pri)
