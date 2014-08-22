@@ -192,6 +192,12 @@ GUTIL_EXCEPTION_DECLARE( DivideByZeroException );
 /** Means that an operation failed due to a unique key violation */
 GUTIL_EXCEPTION_DECLARE( UniqueKeyException );
 
+/** Means that an operation failed due to authentication problems. */
+GUTIL_EXCEPTION_DECLARE( AuthenticationException );
+
+/** Means that an operation was cancelled. */
+GUTIL_EXCEPTION_DECLARE( CancelledOperationException );
+
 /** Means that an operation failed due to a bad build.  This is a compile-time bug,
     and probably means the developer used the wrong preprocessor definitions or something.
 */
