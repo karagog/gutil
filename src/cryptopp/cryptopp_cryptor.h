@@ -15,14 +15,26 @@ limitations under the License.*/
 #ifndef GUTIL_CRYPTOPP_CRYPTOR_H
 #define GUTIL_CRYPTOPP_CRYPTOR_H
 
-#include "gutil_macros.h"
+#include "gutil_iointerface.h"
 
 NAMESPACE_GUTIL;
 
-class OutputInterface;
 
-
-/** Use this class to encrypt and decrypt data */
+/** Use this class to encrypt and decrypt data securely and with message authentication.
+ *
+ *  Authentication means that on decrypting it will recognize if the message has been
+ *  tampered with or corrupted. This assurance comes at a small cost of 16 additional bytes
+ *  added onto every encrypted message.
+ *
+ *  The crypttext output of all functions will contain a 16-byte
+ *  Message Authentication Code (MAC) and the 12-byte Initialization Vector that are
+ *  required to decrypt the message. The total size of the crypttext will be the size of
+ *  the plaintext data plus the MAC and IV, in other words 28 bytes plus pDataLen.
+ *
+ *  You can optionally supply authenticated data to the encryption functions, which will
+ *  not add to the size of the crypttext (you will transmit this data in clear text),
+ *  but it will nonetheless be required to decrypt the message.
+*/
 class Cryptor
 {
     void *d;
@@ -33,47 +45,51 @@ public:
      *  \param password The password to be used for encryption/decryption, must be in UTF-8 format.
      *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
      *      another one matches by using the CheckPassword function.
+     *  \param Optionally supply salt to be used when creating a key hash.
     */
-    Cryptor(const char *password);
+    Cryptor(const char *password, byte const *salt = NULL, GUINT32 saltLen = 0);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
     ~Cryptor();
 
     /** Returns true if the password is correct, by comparing hashes. */
-    bool CheckPassword(const char *) const;
-    
-    /** Changes the password used by the cryptor. */
-    void ChangePassword(const char *);
+    bool CheckPassword(const char *, byte const *salt = NULL, GUINT32 saltLen = 0) const;
 
-    /** Encrypts the string with authentication. The output interface will be deleted
-     *  after all data is processed, to be consistent with CryptoPP conventions.
+    /** Changes the password used by the cryptor. */
+    void ChangePassword(const char *password, byte const *salt = NULL, GUINT32 saltLen = 0);
+
+    /** Encrypts the string with authentication.
      *
-     *  \note The Initialization Vector for the block cypher will be stored with the crypttext.
-     *
-     *  \param output The crypttext will be pushed here and then this object will be deleted.
+     *  \param pData The plaintext data that will be encrypted AND authenticated. This may be
+     *          null, but then you must provide authenticated data (one or the other, or both, but
+     *          not neither, according to the NIST document on GCM)
+     *  \param out The crypttext will be pushed here.
+     *  \param aData The authenticated data will be authenticated but NOT encrypted. This is
+     *          optional, but if given this data will be required to correctly decrypt the message.
+     *          It will not contribute to the size of the crypttext output but will be
+     *          required to decrypt the message. You will transmit this in clear text
+     *          along with the crypttext.
     */
-    void EncryptData(byte const *plaintext, GUINT32 length, OutputInterface *output) const;
+    void EncryptData(byte const *pData, GUINT32 pDataLen,
+                     OutputInterface *out,
+                     byte const *aData = NULL, GUINT32 aDataLen = 0) const;
 
     /** Decrypts the string and throw an exception if decryption failed.
+     *  It could fail due to a wrong key, wrong data (length), or if a bit was flipped somewhere
+     *  either maliciously or accidentally, or the initialization vector wasn't right
      *
-     *  The encrypted messages have authentication built in, so if even one bit of the
-     *  decrypted plaintext is off, it will fail.
-     *
-     *  The output interface will be deleted after all data is processed,
-     *  to be consistent with CryptoPP conventions.
-     *
-     *  \param crypttext The crypttext that was given by EncryptData. It must have the IV
-     *              exactly where it was put by that function.
-     *  \param output The plaintext will be pushed here and then this object will be deleted.
+     *  \param cData The crypttext data that was produced by EncryptData.
+     *  \param out The recovered plaintext will be pushed here.
      *              This paramater may be null, in which case you won't get the plaintext, but
      *              you can still validate the authenticity of the message.
-     *  \throws A GUtil exception if decryption failed. It could fail due to a wrong key,
-     *              wrong data (length), or if a bit was flipped somewhere,
-     *              or the initialization vector wasn't right (or wasn't there).
-     *              The output interface still gets deleted if an exception was thrown.
+     *  \param aData The authenticated data that is associated with the crypttext. This is
+     *              only used if you encrypted data with the aData parameter.
+     *  \throws A GUtil exception if decryption or message authentication failed.
     */
-    void DecryptData(byte const *crypttext, GUINT32 length, OutputInterface *output) const;
+    void DecryptData(byte const *cData, GUINT32 cDataLen,
+                     OutputInterface *out,
+                     byte const *aData = NULL, GUINT32 aDataLen = 0) const;
 
 
     /** An interface that allows you to handle progress updates, and also cancel the operation. */
@@ -87,13 +103,25 @@ public:
         virtual bool CancelOperation(){ return false; }
     };
 
-    /** Encrypts the file (the IV for decrypting will be appended to the crypttext)
+    /** Encrypts the file.
      *
-     *  \param output The crypttext will be pushed here.
-     *  \param chunk_size Optionally read and encrypt the file in chunks (given in bytes). If you pass 0 it does the whole file in one go.
-     *  \param ph A progress handler (pass null if you don't want this feature)
+     *  \param filename The path to the plaintext source file.
+     *  \param out The crypttext will be pushed here.
+     *  \param aData The authenticated data will be authenticated but NOT encrypted. This is
+     *          optional, but if given this data will be required to correctly decrypt the message.
+     *          It will not contribute to the size of the crypttext output but will be
+     *          required to decrypt the message. You will transmit this in clear text
+     *          along with the crypttext.
+     *  \param chunk_size Optionally process the file in chunks (given in bytes).
+     *          If you pass 0 it does the whole file in one go.
+     *  \param ph An optional progress handler for long operations; large data sources.
+     *          In order for this to be useful, you should set a reasonable value for chunk_size.
     */
-    void EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0) const;
+    void EncryptFile(const char *filename,
+                     OutputInterface *out,
+                     byte const *aData = NULL, GUINT32 aDataLen = 0,
+                     GUINT32 chunk_size = 0,
+                     IProgressHandler *ph = 0) const;
 
     /** Decrypts the file and throw an exception if decryption failed. For large files you
      *  can choose to work in chunks, or leave this parameter 0 to do the whole file in one go.
@@ -101,20 +129,25 @@ public:
      *  The encrypted messages have authentication built in, so if even one bit of the
      *  decrypted plaintext is off, it will fail.
      *
-     *  The output interface will be deleted after all data is processed,
-     *  to be consistent with CryptoPP conventions.
-     *
-     *  \param output The plaintext will be pushed here. This parameter can be null, if
+     *  \param filename The path to the crypttext source file.
+     *  \param out The plaintext will be pushed here. This parameter can be null, if
      *          you only care about the authenticity of the data.
-     *  \param chunk_size Optionally read and decrypt the file in chunks (given in bytes).
+     *  \param aData The authenticated data that is associated with the crypttext. This is
+     *              only used if you encrypted data with the aData parameter.
+     *  \param chunk_size Optionally process the file in chunks (given in bytes).
      *          If you pass 0 it does the whole file in one go.
-     *  \param ph A progress handler (pass null if you don't want this feature)
+     *  \param ph An optional progress handler for long operations; large data sources.
+     *          In order for this to be useful, you should set a reasonable value for chunk_size.
      *  \throws A GUtil exception if decryption failed. It could fail due to a wrong key,
      *              wrong data (length), or if a bit was flipped somewhere,
      *              or the initialization vector wasn't right (or wasn't there).
      *              The output interface still gets deleted if an exception was thrown.
     */
-    void DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0) const;
+    void DecryptFile(const char *filename,
+                     OutputInterface *out,
+                     byte const *aData = NULL, GUINT32 aDataLen = 0,
+                     GUINT32 chunk_size = 0,
+                     IProgressHandler *ph = 0) const;
 
 };
 
