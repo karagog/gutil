@@ -35,6 +35,9 @@ public:
      *      another one matches by using the CheckPassword function.
     */
     Cryptor(const char *password);
+
+    /** Duplicates the cryptor, taking on the other's password. */
+    Cryptor(const Cryptor &);
     ~Cryptor();
 
     /** Returns true if the password is correct, by comparing hashes. */

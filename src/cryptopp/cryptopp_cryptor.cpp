@@ -18,11 +18,11 @@ limitations under the License.*/
 #include "gutil_iointerface.h"
 #include "gutil_exception.h"
 #include "gutil_file.h"
+#include "gutil_smartpointer.h"
 #include <cryptopp/gcm.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
-#include <cryptopp/files.h>
 using namespace CryptoPP;
 
 // These are some constants for the type of encryption we've chosen
@@ -58,6 +58,13 @@ Cryptor::Cryptor(const char *password)
     G_D_INIT();
     G_D;
     __compute_password_hash(d->key, password);
+}
+
+Cryptor::Cryptor(const Cryptor &other)
+{
+    G_D_INIT();
+    G_D;
+    memcpy(d->key, ((d_t *)other.d)->key, sizeof(d->key));
 }
 
 Cryptor::~Cryptor()
@@ -96,59 +103,79 @@ void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *o
 
 void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *output)
 {
+    G_D;
+    SmartPointer<OutputInterface> out(output);
     if(len < IVLENGTH)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
-
-    G_D;
+    len = len - IVLENGTH;
 
     // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, crypttext + len - IVLENGTH, IVLENGTH);
-
+    d->dec.SetKeyWithIV(d->key, KEYLENGTH, crypttext + len, IVLENGTH);
     try
     {
         AuthenticatedDecryptionFilter df(d->dec,
                                          output == NULL ? NULL : new OutputInterfaceSink(*output),
                                          AuthenticatedDecryptionFilter::THROW_EXCEPTION);
-        df.Put(crypttext, len - IVLENGTH);
+        df.Put(crypttext, len);
         df.MessageEnd();
     }
     catch(const CryptoPP::Exception &ex)
     {
-        delete output;
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, ex.what());
+        THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
     }
-    if(output){
-        output->Flush();
-        delete output;
-    }
+    if(output) output->Flush();
 }
 
 void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
 {
     G_D;
+    SmartPointer<OutputInterface> out(output);
+    byte iv[IVLENGTH];
+    if(ph) ph->ProgressUpdated(0);
 
-    if(!File::Exists(filename))
+    File f(filename);
+    if(!f.Exists())
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "File not found");
+    f.Open(File::OpenRead);
 
     // Initialize a random IV and initialize the encryptor
-    byte iv[IVLENGTH];
     d->rng.GenerateBlock(iv, IVLENGTH);
     d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
-    FileSource(filename, true,
-               new AuthenticatedEncryptionFilter(
-                   d->enc, new OutputInterfaceSink(*output))
-               );
+    GUINT32 len = f.Length();
+    GUINT32 read = 0;
+    GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
+    GUINT32 buf_sz = to_read;
+    SmartArrayPointer<byte> buf( new byte[buf_sz] );
+    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output));
+    while(read < len)
+    {
+        if((read + to_read) > len)
+            to_read = len - read;
+
+        if(to_read != f.Read(buf, buf_sz, to_read))
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Problem reading file");
+
+        ef.Put(buf, to_read, true);
+        read += to_read;
+
+        if(ph){
+            ph->ProgressUpdated(((float)read / len) * 100);
+            if(ph->CancelOperation())
+                THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+        }
+    }
+    ef.MessageEnd();
 
     // Append the IV
     output->WriteBytes(iv, IVLENGTH);
     output->Flush();
-    delete output;
 }
 
 void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
 {
     G_D;
+    SmartPointer<OutputInterface> out(output);
     File f(filename);
     GUINT32 len;
     if(!f.Exists())
@@ -156,35 +183,50 @@ void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32
     f.Open(File::OpenRead);
     if((len = f.Length()) < IVLENGTH)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
+    len = len - IVLENGTH;
 
-    // Read the IV
+    // Read the IV from the end of the file
     byte iv[IVLENGTH];
-    f.Seek(len - IVLENGTH);
+    f.Seek(len);
     if(IVLENGTH != f.Read(iv, IVLENGTH, IVLENGTH))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to read from file");
+    f.Seek(0);
 
     // Initialize the decryptor
     d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
-
-    lword ct_len = len - IVLENGTH;
     try
     {
-        FileSource(filename, false,
-                   new AuthenticatedDecryptionFilter(
-                       d->dec,
+        GUINT32 read = 0;
+        GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
+        GUINT32 buf_sz = to_read;
+        SmartArrayPointer<byte> buf( new byte[buf_sz] );
+        AuthenticatedDecryptionFilter df(d->dec,
                        output == NULL ? NULL : new OutputInterfaceSink(*output),
-                       AuthenticatedDecryptionFilter::THROW_EXCEPTION)
-                   ).Pump2(ct_len);
+                       AuthenticatedDecryptionFilter::THROW_EXCEPTION);
+        while(read < len)
+        {
+            if((read + to_read) > len)
+                to_read = len - read;
+
+            if(to_read != f.Read(buf, buf_sz, to_read))
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Problem reading file");
+
+            df.Put(buf, to_read, true);
+            read += to_read;
+
+            if(ph){
+                ph->ProgressUpdated(((float)read / len) * 100);
+                if(ph->CancelOperation())
+                    THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+            }
+        }
+        df.MessageEnd();
     }
     catch(const CryptoPP::Exception &ex)
     {
-        delete output;
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, ex.what());
+        THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
     }
-    if(output){
-        output->Flush();
-        delete output;
-    }
+    if(output) output->Flush();
 }
 
 
