@@ -53,7 +53,7 @@ public:
      *
      *  \param output The crypttext will be pushed here and then this object will be deleted.
     */
-    void EncryptData(byte const *plaintext, GUINT32 length, OutputInterface *output);
+    void EncryptData(byte const *plaintext, GUINT32 length, OutputInterface *output) const;
 
     /** Decrypts the string and throw an exception if decryption failed.
      *
@@ -73,7 +73,7 @@ public:
      *              or the initialization vector wasn't right (or wasn't there).
      *              The output interface still gets deleted if an exception was thrown.
     */
-    void DecryptData(byte const *crypttext, GUINT32 length, OutputInterface *output);
+    void DecryptData(byte const *crypttext, GUINT32 length, OutputInterface *output) const;
 
 
     /** An interface that allows you to handle progress updates, and also cancel the operation. */
@@ -93,7 +93,7 @@ public:
      *  \param chunk_size Optionally read and encrypt the file in chunks (given in bytes). If you pass 0 it does the whole file in one go.
      *  \param ph A progress handler (pass null if you don't want this feature)
     */
-    void EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
+    void EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0) const;
 
     /** Decrypts the file and throw an exception if decryption failed. For large files you
      *  can choose to work in chunks, or leave this parameter 0 to do the whole file in one go.
@@ -114,7 +114,7 @@ public:
      *              or the initialization vector wasn't right (or wasn't there).
      *              The output interface still gets deleted if an exception was thrown.
     */
-    void DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
+    void DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0) const;
 
 };
 

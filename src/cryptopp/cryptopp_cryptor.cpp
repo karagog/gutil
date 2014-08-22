@@ -86,7 +86,7 @@ void Cryptor::ChangePassword(const char *password)
 }
 
 
-void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *output)
+void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *output) const
 {
     G_D;
 
@@ -106,7 +106,7 @@ void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *o
 }
 
 
-void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *output)
+void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *output) const
 {
     G_D;
     SmartPointer<OutputInterface> out(output);
@@ -131,7 +131,7 @@ void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *o
     if(output) output->Flush();
 }
 
-void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
+void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph) const
 {
     G_D;
     SmartPointer<OutputInterface> out(output);
@@ -177,7 +177,7 @@ void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32
     output->Flush();
 }
 
-void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
+void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph) const
 {
     G_D;
     SmartPointer<OutputInterface> out(output);
