@@ -26,9 +26,9 @@ else {
 SOURCES += \
     cryptopp_rng.cpp \
     cryptopp_sinks.cpp \
-    cryptopp_utils.cpp
+    cryptopp_cryptor.cpp
 
 HEADERS += \
     cryptopp_rng.h \
     cryptopp_sinks.h \
-    cryptopp_utils.h
+    cryptopp_cryptor.h
