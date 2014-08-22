@@ -40,17 +40,32 @@ public:
     /** Returns true if the password is correct, by comparing hashes. */
     bool CheckPassword(const char *) const;
 
-    /** Encrypts the string (the IV for decrypting will be appended to the crypttext)
+    /** Encrypts the string with authentication. The output interface will be deleted
+     *  after all data is processed, to be consistent with CryptoPP conventions.
      *
-     *  \param output The crypttext will be pushed here.
+     *  \note The Initialization Vector for the block cypher will be stored with the crypttext.
+     *
+     *  \param output The crypttext will be pushed here and then this object will be deleted.
     */
     void EncryptData(byte const *plaintext, GUINT32 length, OutputInterface *output);
 
-    /** Decrypts the string. The IV must be appended to the crypttext.
-     *  This function has no way to know if decryption fails, so you will get
-     *  a random-looking string if it does.
+    /** Decrypts the string and throw an exception if decryption failed.
      *
-     *  \param output The plaintext will be pushed here.
+     *  The encrypted messages have authentication built in, so if even one bit of the
+     *  decrypted plaintext is off, it will fail.
+     *
+     *  The output interface will be deleted after all data is processed,
+     *  to be consistent with CryptoPP conventions.
+     *
+     *  \param crypttext The crypttext that was given by EncryptData. It must have the IV
+     *              exactly where it was put by that function.
+     *  \param output The plaintext will be pushed here and then this object will be deleted.
+     *              This paramater may be null, in which case you won't get the plaintext, but
+     *              you can still validate the authenticity of the message.
+     *  \throws A GUtil exception if decryption failed. It could fail due to a wrong key,
+     *              wrong data (length), or if a bit was flipped somewhere,
+     *              or the initialization vector wasn't right (or wasn't there).
+     *              The output interface still gets deleted if an exception was thrown.
     */
     void DecryptData(byte const *crypttext, GUINT32 length, OutputInterface *output);
 
@@ -74,11 +89,24 @@ public:
     */
     void EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
 
-    /** Decrypts the file (the IV for decrypting must be appended to the crypttext)
+    /** Decrypts the file and throw an exception if decryption failed. For large files you
+     *  can choose to work in chunks, or leave this parameter 0 to do the whole file in one go.
      *
-     *  \param output The plaintext will be pushed here.
-     *  \param chunk_size Optionally read and decrypt the file in chunks (given in bytes). If you pass 0 it does the whole file in one go.
+     *  The encrypted messages have authentication built in, so if even one bit of the
+     *  decrypted plaintext is off, it will fail.
+     *
+     *  The output interface will be deleted after all data is processed,
+     *  to be consistent with CryptoPP conventions.
+     *
+     *  \param output The plaintext will be pushed here. This parameter can be null, if
+     *          you only care about the authenticity of the data.
+     *  \param chunk_size Optionally read and decrypt the file in chunks (given in bytes).
+     *          If you pass 0 it does the whole file in one go.
      *  \param ph A progress handler (pass null if you don't want this feature)
+     *  \throws A GUtil exception if decryption failed. It could fail due to a wrong key,
+     *              wrong data (length), or if a bit was flipped somewhere,
+     *              or the initialization vector wasn't right (or wasn't there).
+     *              The output interface still gets deleted if an exception was thrown.
     */
     void DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
 

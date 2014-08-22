@@ -90,6 +90,7 @@ void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *o
     // Append the IV
     output->WriteBytes(iv, IVLENGTH);
     output->Flush();
+    delete output;
 }
 
 
@@ -103,11 +104,23 @@ void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *o
     // Initialize the decryptor
     d->dec.SetKeyWithIV(d->key, KEYLENGTH, crypttext + len - IVLENGTH, IVLENGTH);
 
-    AuthenticatedDecryptionFilter df(d->dec, new OutputInterfaceSink(*output),
-                                     AuthenticatedDecryptionFilter::THROW_EXCEPTION);
-    df.Put(crypttext, len - IVLENGTH);
-    df.MessageEnd();
-    output->Flush();
+    try
+    {
+        AuthenticatedDecryptionFilter df(d->dec,
+                                         output == NULL ? NULL : new OutputInterfaceSink(*output),
+                                         AuthenticatedDecryptionFilter::THROW_EXCEPTION);
+        df.Put(crypttext, len - IVLENGTH);
+        df.MessageEnd();
+    }
+    catch(const CryptoPP::Exception &ex)
+    {
+        delete output;
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, ex.what());
+    }
+    if(output){
+        output->Flush();
+        delete output;
+    }
 }
 
 void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
@@ -130,6 +143,7 @@ void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32
     // Append the IV
     output->WriteBytes(iv, IVLENGTH);
     output->Flush();
+    delete output;
 }
 
 void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
@@ -153,13 +167,24 @@ void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32
     d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
     lword ct_len = len - IVLENGTH;
-    FileSource(filename, false,
-               new AuthenticatedDecryptionFilter(
-                   d->dec,
-                   new OutputInterfaceSink(*output),
-                   AuthenticatedDecryptionFilter::THROW_EXCEPTION)
-               ).Pump2(ct_len);
-    output->Flush();
+    try
+    {
+        FileSource(filename, false,
+                   new AuthenticatedDecryptionFilter(
+                       d->dec,
+                       output == NULL ? NULL : new OutputInterfaceSink(*output),
+                       AuthenticatedDecryptionFilter::THROW_EXCEPTION)
+                   ).Pump2(ct_len);
+    }
+    catch(const CryptoPP::Exception &ex)
+    {
+        delete output;
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, ex.what());
+    }
+    if(output){
+        output->Flush();
+        delete output;
+    }
 }
 
 
