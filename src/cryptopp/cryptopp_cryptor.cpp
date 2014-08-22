@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_iointerface.h"
 #include "gutil_exception.h"
 #include "gutil_file.h"
-#include <cryptopp/modes.h>
+#include <cryptopp/gcm.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
@@ -27,8 +27,7 @@ using namespace CryptoPP;
 
 // These are some constants for the type of encryption we've chosen
 #define KEYLENGTH   32
-#define BLOCKSIZE   16
-#define IVLENGTH    BLOCKSIZE
+#define IVLENGTH    16
 
 namespace
 {
@@ -38,8 +37,8 @@ namespace
 struct d_t
 {
     AutoSeededX917RNG<AES> rng;
-    OFB_Mode<AES>::Encryption enc;
-    OFB_Mode<AES>::Decryption dec;
+    GCM<AES>::Encryption enc;
+    GCM<AES>::Decryption dec;
     byte key[KEYLENGTH];
 };
 
@@ -82,13 +81,11 @@ void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *o
     // Initialize a random IV and initialize the encryptor
     byte iv[IVLENGTH];
     d->rng.GenerateBlock(iv, IVLENGTH);
-    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv);
+    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
-    {
-        StreamTransformationFilter stf(d->enc, new OutputInterfaceSink(*output), StreamTransformationFilter::NO_PADDING);
-        stf.Put(plaintext, len);
-        stf.MessageEnd();
-    }
+    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output));
+    ef.Put(plaintext, len);
+    ef.MessageEnd();
 
     // Append the IV
     output->WriteBytes(iv, IVLENGTH);
@@ -104,15 +101,16 @@ void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *o
     G_D;
 
     // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, crypttext + len - IVLENGTH);
+    d->dec.SetKeyWithIV(d->key, KEYLENGTH, crypttext + len - IVLENGTH, IVLENGTH);
 
-    StreamTransformationFilter stf(d->dec, new OutputInterfaceSink(*output), StreamTransformationFilter::NO_PADDING);
-    stf.Put(crypttext, len - IVLENGTH);
-    stf.MessageEnd();
+    AuthenticatedDecryptionFilter df(d->dec, new OutputInterfaceSink(*output),
+                                     AuthenticatedDecryptionFilter::THROW_EXCEPTION);
+    df.Put(crypttext, len - IVLENGTH);
+    df.MessageEnd();
     output->Flush();
 }
 
-void Cryptor::EncryptFile(const char *filename, OutputInterface *output)
+void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
 {
     G_D;
 
@@ -122,12 +120,11 @@ void Cryptor::EncryptFile(const char *filename, OutputInterface *output)
     // Initialize a random IV and initialize the encryptor
     byte iv[IVLENGTH];
     d->rng.GenerateBlock(iv, IVLENGTH);
-    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv);
+    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
     FileSource(filename, true,
-               new StreamTransformationFilter(
-                   d->enc, new OutputInterfaceSink(*output),
-                   StreamTransformationFilter::NO_PADDING)
+               new AuthenticatedEncryptionFilter(
+                   d->enc, new OutputInterfaceSink(*output))
                );
 
     // Append the IV
@@ -135,7 +132,7 @@ void Cryptor::EncryptFile(const char *filename, OutputInterface *output)
     output->Flush();
 }
 
-void Cryptor::DecryptFile(const char *filename, OutputInterface *output)
+void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size, IProgressHandler *ph)
 {
     G_D;
     File f(filename);
@@ -153,14 +150,14 @@ void Cryptor::DecryptFile(const char *filename, OutputInterface *output)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to read from file");
 
     // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv);
+    d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
     lword ct_len = len - IVLENGTH;
     FileSource(filename, false,
-               new StreamTransformationFilter(
+               new AuthenticatedDecryptionFilter(
                    d->dec,
                    new OutputInterfaceSink(*output),
-                   StreamTransformationFilter::NO_PADDING)
+                   AuthenticatedDecryptionFilter::THROW_EXCEPTION)
                ).Pump2(ct_len);
     output->Flush();
 }

@@ -54,17 +54,33 @@ public:
     */
     void DecryptData(byte const *crypttext, GUINT32 length, OutputInterface *output);
 
+
+    /** An interface that allows you to handle progress updates, and also cancel the operation. */
+    class IProgressHandler
+    {
+    public:
+        /** Called periodically with an updated progress value between 0 (started) and 100 (finished)*/
+        virtual void ProgressUpdated(int) = 0;
+
+        /** Called periodically to ask if the operation should be cancelled. Return true if you want to cancel. */
+        virtual bool CancelOperation(){ return false; }
+    };
+
     /** Encrypts the file (the IV for decrypting will be appended to the crypttext)
      *
      *  \param output The crypttext will be pushed here.
+     *  \param chunk_size Optionally read and encrypt the file in chunks (given in bytes). If you pass 0 it does the whole file in one go.
+     *  \param ph A progress handler (pass null if you don't want this feature)
     */
-    void EncryptFile(const char *filename, OutputInterface *output);
+    void EncryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
 
     /** Decrypts the file (the IV for decrypting must be appended to the crypttext)
      *
      *  \param output The plaintext will be pushed here.
+     *  \param chunk_size Optionally read and decrypt the file in chunks (given in bytes). If you pass 0 it does the whole file in one go.
+     *  \param ph A progress handler (pass null if you don't want this feature)
     */
-    void DecryptFile(const char *filename, OutputInterface *output);
+    void DecryptFile(const char *filename, OutputInterface *output, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
 
 };
 
