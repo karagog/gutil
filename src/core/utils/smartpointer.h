@@ -104,6 +104,63 @@ public:
 
 
 
+/** Implements a smart pointer, which manages a pointer and deletes it when
+    the instance destructs.  You can also Relinquish() the naked pointer if you need to take
+    control away from the smart pointer.
+
+    You are not allowed to copy this class, because copying would mean that the pointer
+    would be deleted multiple times.
+
+    You can use it with the normal pointer operators.
+*/
+template<class T>class SmartArrayPointer
+{
+    GUTIL_DISABLE_COPY(SmartArrayPointer<T>);
+    T *ptr;
+public:
+
+    /** Initializes the pointer to NULL */
+    SmartArrayPointer() :ptr(NULL){}
+
+    /** Initializes the pointer to p, an array of type T. */
+    SmartArrayPointer(T *p) :ptr(p){}
+
+    /** Delete the pointer when we destruct */
+    ~SmartArrayPointer(){ delete []ptr; }
+
+    /** Deletes the pointer and sets it to null */
+    void Clear(){ delete []ptr; ptr = NULL; }
+
+    /** Relinquishes control of the naked pointer, so it will not be deleted when this
+        object destructs.  After calling this, the pointer will appear as if newly constructed
+        as a NULL pointer.
+
+        \returns The naked pointer that once was controlled by this object.  If this was already
+        a null pointer then NULL is returned and nothing bad happens.
+    */
+    T *Relinquish(){ T *ret(ptr); ptr = NULL; return ret; }
+
+    /** Returns the naked pointer */
+    T *Data() const{ return ptr; }
+
+    /** Index the array. Returns the item at the index. */
+    T const &operator [] (int i) const{ return ptr[i]; }
+    /** Index the array. Returns the item at the index. */
+    T &operator [] (int i){ return ptr[i]; }
+
+    /** Cast operator to a bool, telling you if you're null or not (false => NULL) */
+    operator bool() const{ return NULL != ptr; }
+
+    /** Returns true if the pointer is NULL */
+    bool IsNull() const{ return !operator bool(); }
+
+    /** Cast operator to the naked pointer. */
+    operator T *() const{ return ptr; }
+
+};
+
+
+
 
 /** Inherit from this class to declare your class able to be used by the shared data
     pointer class.
