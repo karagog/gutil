@@ -16,6 +16,7 @@ limitations under the License.*/
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include "cryptopp_utils.h"
+#include "cryptopp_sinks.h"
 #include "gutil_smartpointer.h"
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/filters.h"
@@ -28,26 +29,6 @@ limitations under the License.*/
 #include "cryptopp/md5.h"
 #include "cryptopp/simple.h"
 using namespace CryptoPP;
-
-
-/** Used to adapt the GUtil String into CryptoPP Sink. */
-class GUtil_StringSink :
-        public Bufferless<Sink>
-{
-    GUtil::String &sref;
-public:
-
-    /** Just give it a string reference, and it will append all the data to it */
-    GUtil_StringSink(GUtil::String &s) :sref(s){}
-
-    /** Overridden from ::CryptoPP::Sink*/
-    virtual size_t Put2(const byte *inString, size_t length, int, bool){
-        sref.Append(reinterpret_cast<const char *>(inString), length);
-        return 0;
-    }
-
-};
-
 
 NAMESPACE_GUTIL;
 
@@ -63,7 +44,7 @@ String Crypto::CompressString(const GBYTE *data, GINT32 data_len,
         if(level < MinimumCompression || level > MaximumCompression)
             level = DefaultCompression;
 
-        Gzip zipper(new GUtil_StringSink(ret), level);
+        Gzip zipper(new GUtil::StringSink(ret), level);
         zipper.Put(data, data_len);
         zipper.MessageEnd();
     }
@@ -110,7 +91,7 @@ String Crypto::DecompressString(const GBYTE *data, GINT32 data_len)
 
         if(is_compressed)
         {
-            StringSource(start, data_len, true, new Gunzip(new GUtil_StringSink(ret)));
+            StringSource(start, data_len, true, new Gunzip(new GUtil::StringSink(ret)));
         }
         else
         {
@@ -183,7 +164,7 @@ String Crypto::EncryptString(const GBYTE *data, GINT32 data_len,
         break;
     }
 
-    StreamTransformationFilter enc(*mode, new GUtil_StringSink(ret));
+    StreamTransformationFilter enc(*mode, new GUtil::StringSink(ret));
 
     // The initialization vector goes on the front of the string, unencrypted
     ret.Append(reinterpret_cast<const char *>(init_vec), block_size);
@@ -248,7 +229,7 @@ String Crypto::DecryptString(const GBYTE *data, GINT32 data_len, const GBYTE *ke
         break;
     }
 
-    StreamTransformationFilter decryptor(*mode, new GUtil_StringSink(ret));
+    StreamTransformationFilter decryptor(*mode, new GUtil::StringSink(ret));
     decryptor.Put(reinterpret_cast<const byte *>(data) + iv_len, data_len - iv_len);
     decryptor.MessageEnd();
 

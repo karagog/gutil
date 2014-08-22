@@ -39,8 +39,10 @@ limitations under the License.*/
 /** The min value of a GINT8 */
 #define GINT8_MIN     ((GINT8)0x80)
 
+typedef unsigned char byte;
+
 /** An 8 bit unsigned integer*/
-#define GUINT8      unsigned char
+#define GUINT8      byte
 /** The max value of a GUINT8 */
 #define GUINT8_MAX     ((GUINT8)0xFF)
 

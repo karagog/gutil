@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       -= core gui
+QT       -= gui
 
 TARGET = GUtilCryptoPP
 TEMPLATE = lib
@@ -25,8 +25,10 @@ else {
 
 SOURCES += \
     cryptopp_rng.cpp \
+    cryptopp_sinks.cpp \
     cryptopp_utils.cpp
 
 HEADERS += \
     cryptopp_rng.h \
+    cryptopp_sinks.h \
     cryptopp_utils.h
