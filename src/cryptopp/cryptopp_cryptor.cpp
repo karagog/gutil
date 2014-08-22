@@ -56,8 +56,7 @@ static void __compute_password_hash(byte result[KEYLENGTH], const char *password
 Cryptor::Cryptor(const char *password)
 {
     G_D_INIT();
-    G_D;
-    __compute_password_hash(d->key, password);
+    ChangePassword(password);
 }
 
 Cryptor::Cryptor(const Cryptor &other)
@@ -78,6 +77,12 @@ bool Cryptor::CheckPassword(const char *password) const
     byte buf[KEYLENGTH];
     __compute_password_hash(buf, password);
     return 0 == memcmp(d->key, buf, KEYLENGTH);
+}
+
+void Cryptor::ChangePassword(const char *password)
+{
+    G_D;
+    __compute_password_hash(d->key, password);
 }
 
 

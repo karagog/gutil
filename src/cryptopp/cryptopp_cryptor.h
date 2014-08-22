@@ -42,6 +42,9 @@ public:
 
     /** Returns true if the password is correct, by comparing hashes. */
     bool CheckPassword(const char *) const;
+    
+    /** Changes the password used by the cryptor. */
+    void ChangePassword(const char *);
 
     /** Encrypts the string with authentication. The output interface will be deleted
      *  after all data is processed, to be consistent with CryptoPP conventions.
