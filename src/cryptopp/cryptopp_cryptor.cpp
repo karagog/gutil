@@ -27,7 +27,12 @@ using namespace CryptoPP;
 
 // These are some constants for the type of encryption we've chosen
 #define KEYLENGTH   32
-#define IVLENGTH    16
+
+// The recommended IV size for GCM is 96 bits (NIST SP-800-38D)
+#define IVLENGTH    12
+
+// The default tag length for GCM is 128 bits, but we'll explicitly declare it here
+#define TAGLENGTH   16
 
 namespace
 {
@@ -95,7 +100,7 @@ void Cryptor::EncryptData(byte const *plaintext, GUINT32 len, OutputInterface *o
     d->rng.GenerateBlock(iv, IVLENGTH);
     d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
-    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output));
+    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output), false, TAGLENGTH);
     ef.Put(plaintext, len);
     ef.MessageEnd();
 
@@ -120,7 +125,8 @@ void Cryptor::DecryptData(byte const *crypttext, GUINT32 len, OutputInterface *o
     {
         AuthenticatedDecryptionFilter df(d->dec,
                                          output == NULL ? NULL : new OutputInterfaceSink(*output),
-                                         AuthenticatedDecryptionFilter::THROW_EXCEPTION);
+                                         AuthenticatedDecryptionFilter::THROW_EXCEPTION,
+                                         TAGLENGTH);
         df.Put(crypttext, len);
         df.MessageEnd();
     }
@@ -152,7 +158,7 @@ void Cryptor::EncryptFile(const char *filename, OutputInterface *output, GUINT32
     GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
     GUINT32 buf_sz = to_read;
     SmartArrayPointer<byte> buf( new byte[buf_sz] );
-    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output));
+    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output), false, TAGLENGTH);
     while(read < len)
     {
         if((read + to_read) > len)
@@ -207,7 +213,8 @@ void Cryptor::DecryptFile(const char *filename, OutputInterface *output, GUINT32
         SmartArrayPointer<byte> buf( new byte[buf_sz] );
         AuthenticatedDecryptionFilter df(d->dec,
                        output == NULL ? NULL : new OutputInterfaceSink(*output),
-                       AuthenticatedDecryptionFilter::THROW_EXCEPTION);
+                       AuthenticatedDecryptionFilter::THROW_EXCEPTION,
+                       TAGLENGTH);
         while(read < len)
         {
             if((read + to_read) > len)
