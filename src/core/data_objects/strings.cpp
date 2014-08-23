@@ -25,7 +25,8 @@ NAMESPACE_GUTIL;
 
 
 String::String(const char *d, GINT32 len)
-    :Vector<char>(len == -1 ? (len = strlen(d)) + 1 : len + 1)
+    :Vector<char>(d == NULL ? (len = 0) :
+                              (len == -1 ? (len = strlen(d)) + 1 : len + 1))
 {
     if(0 < len){
         memcpy(Data(), d, len);

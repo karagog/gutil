@@ -29,6 +29,9 @@ File::~File()
 
 void File::Open(OpenModeEnum e)
 {
+    if(m_filename.IsEmpty())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Filename cannot be empty");
+
     const char *options;
     switch(e)
     {
@@ -69,7 +72,7 @@ void File::Close()
         //  end always with a crash.
         //THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to close file");
     }
-    
+
     // Even if fclose fails, the handle is not associated with the file anymore
     h = NULL;
 }
