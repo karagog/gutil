@@ -45,19 +45,18 @@ public:
      *  \param password The password to be used for encryption/decryption, must be in UTF-8 format.
      *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
      *      another one matches by using the CheckPassword function.
-     *  \param Optionally supply salt to be used when creating a key hash.
     */
-    Cryptor(const char *password, byte const *salt = NULL, GUINT32 saltLen = 0);
+    Cryptor(const char *password);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
     ~Cryptor();
 
     /** Returns true if the password is correct, by comparing hashes. */
-    bool CheckPassword(const char *, byte const *salt = NULL, GUINT32 saltLen = 0) const;
+    bool CheckPassword(const char *) const;
 
     /** Changes the password used by the cryptor. */
-    void ChangePassword(const char *password, byte const *salt = NULL, GUINT32 saltLen = 0);
+    void ChangePassword(const char *password);
 
 
     /** An interface that allows you to handle progress updates, and also cancel the operation. */

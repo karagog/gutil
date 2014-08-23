@@ -51,20 +51,16 @@ struct d_t
 NAMESPACE_GUTIL;
 
 
-static void __compute_password_hash(byte result[KEYLENGTH], const char *password, byte const *salt, GUINT32 saltLen)
+static void __compute_password_hash(byte result[KEYLENGTH], const char *password)
 {
-    SHA256 hash;
-    if(salt && 0 < saltLen)
-        hash.Update(salt, saltLen);
-    hash.Update((byte const *)password, strlen(password));
-    hash.Final(result);
+    SHA256().CalculateDigest(result, (byte const *)password, strlen(password));
 }
 
 
-Cryptor::Cryptor(const char *password, byte const *salt, GUINT32 saltLen)
+Cryptor::Cryptor(const char *password)
 {
     G_D_INIT();
-    ChangePassword(password, salt, saltLen);
+    ChangePassword(password);
 }
 
 Cryptor::Cryptor(const Cryptor &other)
@@ -79,18 +75,18 @@ Cryptor::~Cryptor()
     G_D_UNINIT();
 }
 
-bool Cryptor::CheckPassword(const char *password, byte const *salt, GUINT32 saltLen) const
+bool Cryptor::CheckPassword(const char *password) const
 {
     G_D;
     byte buf[KEYLENGTH];
-    __compute_password_hash(buf, password, salt, saltLen);
+    __compute_password_hash(buf, password);
     return 0 == memcmp(d->key, buf, KEYLENGTH);
 }
 
-void Cryptor::ChangePassword(const char *password, byte const *salt, GUINT32 saltLen)
+void Cryptor::ChangePassword(const char *password)
 {
     G_D;
-    __compute_password_hash(d->key, password, salt, saltLen);
+    __compute_password_hash(d->key, password);
 }
 
 
