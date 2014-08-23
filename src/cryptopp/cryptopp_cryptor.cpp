@@ -94,153 +94,89 @@ void Cryptor::ChangePassword(const char *password, byte const *salt, GUINT32 sal
 }
 
 
-void Cryptor::EncryptData(byte const *pData, GUINT32 pDataLen,
+void Cryptor::EncryptData(InputInterface *pData,
                           OutputInterface *out,
-                          byte const *aData, GUINT32 aDataLen) const
-{
-    G_D;
-
-    // Initialize a random IV and initialize the encryptor
-    byte iv[IVLENGTH];
-    d->rng.GenerateBlock(iv, IVLENGTH);
-    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
-
-    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*out), false, TAGLENGTH);
-
-    // First give it the authenticated data (nothing is pushed to output yet)
-    if(aData){
-        ef.ChannelPut(AAD_CHANNEL, aData, aDataLen);
-        ef.ChannelMessageEnd(AAD_CHANNEL);
-    }
-
-    // Then give it the plaintext data (now the out bytes start flowing)
-    ef.Put(pData, pDataLen);
-
-    // This writes the MAC at the end
-    ef.MessageEnd();
-
-    // Then we'll append the IV and flush the output device
-    out->WriteBytes(iv, IVLENGTH);
-    out->Flush();
-}
-
-
-void Cryptor::DecryptData(byte const *cData, GUINT32 cDataLen,
-                          OutputInterface *output,
-                          byte const *aData, GUINT32 aDataLen) const
-{
-    G_D;
-    if(cDataLen < (IVLENGTH + TAGLENGTH))
-        THROW_NEW_GUTIL_EXCEPTION2(
-                    Exception,
-                    "Invalid data length: Crypttext must be at least the size of the IV plus MAC");
-    cDataLen = cDataLen - IVLENGTH;
-
-    // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, cData + cDataLen, IVLENGTH);
-    try
-    {
-        AuthenticatedDecryptionFilter df(d->dec,
-                                         output == NULL ? NULL : new OutputInterfaceSink(*output),
-                                         AuthenticatedDecryptionFilter::THROW_EXCEPTION,
-                                         TAGLENGTH);
-
-        // First give it the authenticated data
-        if(aData && 0 < aDataLen){
-            df.ChannelPut(AAD_CHANNEL, aData, aDataLen);
-            df.ChannelMessageEnd(AAD_CHANNEL);
-        }
-
-        // Then give it the crypttext plus MAC
-        df.Put(cData, cDataLen);
-
-        // If verification of the message's authenticity failed, this will throw an exception.
-        df.MessageEnd();
-    }
-    catch(const CryptoPP::Exception &ex)
-    {
-        THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
-    }
-    if(output) output->Flush();
-}
-
-void Cryptor::EncryptFile(const char *filename, OutputInterface *output,
-                          byte const *aData, GUINT32 aDataLen,
-                          GUINT32 chunk_size, IProgressHandler *ph) const
+                          InputInterface *aData,
+                          GUINT32 chunk_size,
+                          IProgressHandler *ph) const
 {
     G_D;
     byte iv[IVLENGTH];
+
     if(ph) ph->ProgressUpdated(0);
 
-    File f(filename);
-    if(!f.Exists())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "File not found");
-    f.Open(File::OpenRead);
-
     // Initialize a random IV and initialize the encryptor
-    d->rng.GenerateBlock(iv, IVLENGTH);
+    d->rng.GenerateBlock(iv, sizeof(iv));
     d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
-    GUINT32 len = f.Length();
+    // First write the IV
+    out->WriteBytes(iv, sizeof(iv));
+
+    GUINT32 len = pData ? pData->BytesAvailable() : 0;
+    if(len == GUINT32_MAX)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
+
     GUINT32 read = 0;
     GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
     GUINT32 buf_sz = to_read;
-    SmartArrayPointer<byte> buf( new byte[buf_sz] );
-    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*output), false, TAGLENGTH);
+    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*out), false, TAGLENGTH);
 
     // First pass the authenticated data:
-    if(aData && 0 < aDataLen){
-        ef.ChannelPut(AAD_CHANNEL, aData, aDataLen);
+    if(aData && 0 < aData->BytesAvailable())
+    {
+        SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
+        aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
+
+        ef.ChannelPut(AAD_CHANNEL, a.Data(), aData->BytesAvailable());
         ef.ChannelMessageEnd(AAD_CHANNEL);
     }
 
     // Then read and pass the plaintext data
-    while(read < len)
+    if(read < len)
     {
-        if((read + to_read) > len)
-            to_read = len - read;
+        SmartArrayPointer<byte> buf(new byte[buf_sz]);
+        while(read < len)
+        {
+            GASSERT(pData);
 
-        if(to_read != f.Read(buf, buf_sz, to_read))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Problem reading file");
+            if((read + to_read) > len)
+                to_read = len - read;
 
-        ef.Put(buf, to_read, true);
-        read += to_read;
+            if(to_read != pData->ReadBytes(buf, buf_sz, to_read))
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
-        if(ph){
-            ph->ProgressUpdated(((float)read / len) * 100);
-            if(ph->CancelOperation())
-                THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+            ef.Put(buf, to_read, true);
+            read += to_read;
+
+            if(ph){
+                ph->ProgressUpdated(((float)read / len) * 100);
+                if(ph->CancelOperation())
+                    THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+            }
         }
     }
     ef.MessageEnd();
 
-    // Append the IV
-    output->WriteBytes(iv, IVLENGTH);
-    output->Flush();
+    out->Flush();
 }
 
-void Cryptor::DecryptFile(const char *filename, OutputInterface *output,
-                          byte const *aData, GUINT32 aDataLen,
-                          GUINT32 chunk_size, IProgressHandler *ph) const
+
+void Cryptor::DecryptData(InputInterface *cData,
+                          OutputInterface *out,
+                          InputInterface *aData,
+                          GUINT32 chunk_size,
+                          IProgressHandler *ph) const
 {
     G_D;
-    File f(filename);
     GUINT32 len;
-    if(!f.Exists())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "File not found");
-    f.Open(File::OpenRead);
-    if((len = f.Length()) < (IVLENGTH + TAGLENGTH))
-        THROW_NEW_GUTIL_EXCEPTION2(
-                    Exception,
-                    "Invalid data length: Crypttext must be at least the size of the IV plus MAC");
+    if((len = cData->BytesAvailable()) < (IVLENGTH + TAGLENGTH))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
     len = len - IVLENGTH;
 
-    // Read the IV from the end of the file
+    // Read the IV from the start of the source
     byte iv[IVLENGTH];
-    f.Seek(len);
-    if(IVLENGTH != f.Read(iv, IVLENGTH, IVLENGTH))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to read from file");
-    f.Seek(0);
+    if(IVLENGTH != cData->ReadBytes(iv, sizeof(iv), IVLENGTH))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
     // Initialize the decryptor
     d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
@@ -249,34 +185,41 @@ void Cryptor::DecryptFile(const char *filename, OutputInterface *output,
         GUINT32 read = 0;
         GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
         GUINT32 buf_sz = to_read;
-        SmartArrayPointer<byte> buf( new byte[buf_sz] );
         AuthenticatedDecryptionFilter df(d->dec,
-                       output == NULL ? NULL : new OutputInterfaceSink(*output),
+                       out == NULL ? NULL : new OutputInterfaceSink(*out),
                        AuthenticatedDecryptionFilter::THROW_EXCEPTION,
                        TAGLENGTH);
 
         // First pass the authenticated data:
-        if(aData && 0 < aDataLen){
-            df.ChannelPut(AAD_CHANNEL, aData, aDataLen);
+        if(aData && 0 < aData->BytesAvailable())
+        {
+            SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
+            aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
+
+            df.ChannelPut(AAD_CHANNEL, a.Data(), aData->BytesAvailable());
             df.ChannelMessageEnd(AAD_CHANNEL);
         }
 
         // Then read and pass the crypttext
-        while(read < len)
+        if(read < len)
         {
-            if((read + to_read) > len)
-                to_read = len - read;
+            SmartArrayPointer<byte> buf(new byte[buf_sz]);
+            while(read < len)
+            {
+                if((read + to_read) > len)
+                    to_read = len - read;
 
-            if(to_read != f.Read(buf, buf_sz, to_read))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Problem reading file");
+                if(to_read != cData->ReadBytes(buf, buf_sz, to_read))
+                    THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
-            df.Put(buf, to_read, true);
-            read += to_read;
+                df.Put(buf, to_read, true);
+                read += to_read;
 
-            if(ph){
-                ph->ProgressUpdated(((float)read / len) * 100);
-                if(ph->CancelOperation())
-                    THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                if(ph){
+                    ph->ProgressUpdated(((float)read / len) * 100);
+                    if(ph->CancelOperation())
+                        THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                }
             }
         }
 
@@ -287,7 +230,7 @@ void Cryptor::DecryptFile(const char *filename, OutputInterface *output,
     {
         THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
     }
-    if(output) output->Flush();
+    if(out) out->Flush();
 }
 
 
