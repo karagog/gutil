@@ -45,13 +45,16 @@ public:
         pass UINT_MAX to have it read all available data.
     */
     virtual GUINT32 ReadBytes(GBYTE *buffer,
-                           GUINT32 buffer_len,
-                           GUINT32 bytes_to_read = UINT_MAX) = 0;
+                              GUINT32 buffer_len,
+                              GUINT32 bytes_to_read = UINT_MAX) = 0;
 
-    /** Should return the number of bytes available to be read.
-        Classes can override the base implementation, which always return -1.
+    /** Returns the number of bytes available to be read.
+     *  If it doesn't know how many bytes there are available (as with a
+     *  pipe or network connection), it should return UINT_MAX.
+     *  \returns 0 if the source is exhausted, int32_max if it doesn't know,
+     *      otherwise returns the number of bytes that can still be read.
     */
-    virtual GUINT32 BytesAvailable() const{ return -1; }
+    virtual GUINT32 BytesAvailable() const = 0;
 
     virtual ~InputInterface(){}
 };

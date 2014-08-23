@@ -111,7 +111,7 @@ public:
     GUINT32 Write(const String &data){
         return Write(data.ConstData(), data.Length());
     }
-    
+
     /** Flushes the file's output buffer.
         \sa SetBufferedWrites()
     */
@@ -137,6 +137,8 @@ public:
     virtual GUINT32 ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
         return Read(buffer, buffer_len, bytes_to_read);
     }
+
+    virtual GUINT32 BytesAvailable() const{ return IsOpen() ? Length() - Pos() : 0; }
 
 
     /** Controls whether to buffer write outputs.  The default is true.
