@@ -62,6 +62,9 @@ public:
     /** Deletes the pointer and sets it to null */
     void Clear(){ delete ptr; ptr = NULL; }
 
+    /** Sets the current pointer, deleting the old one. */
+    void Set(T *p){ delete ptr; ptr = p; }
+
     /** Relinquishes control of the naked pointer, so it will not be deleted when this
         object destructs.  After calling this, the pointer will appear as if newly constructed
         as a NULL pointer.
@@ -130,6 +133,9 @@ public:
 
     /** Deletes the pointer and sets it to null */
     void Clear(){ delete []ptr; ptr = NULL; }
+
+    /** Sets the current array pointer, deleting the old one. */
+    void Set(T *p){ delete []ptr; ptr = p; }
 
     /** Relinquishes control of the naked pointer, so it will not be deleted when this
         object destructs.  After calling this, the pointer will appear as if newly constructed
