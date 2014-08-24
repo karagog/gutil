@@ -213,6 +213,9 @@ void Hash::ComputeHash(byte *out,
         h.AddData(buf, buf_sz);
         read += to_read;
 
+        if((read + to_read) > len)
+            to_read = len - read;
+
         if(ph){
             if(ph->CancelOperation())
                 THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
