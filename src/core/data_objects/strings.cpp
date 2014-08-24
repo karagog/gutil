@@ -805,24 +805,27 @@ String String::ToUTF8() const
 
 bool String::IsValidUTF8(GINT32 *bad_bytes) const
 {
+    bool ret = true;
+    if(ConstData())
+        ret = IsValidUTF8(ConstData(), ConstData() + Length(), bad_bytes);
+    return ret;
+}
+
+bool String::IsValidUTF8(const char *start, const char *end, GINT32 *bad_bytes)
+{
     bool ret(true);
-    UTF8ConstIterator iter( beginUTF8() );
-    if(iter)
+    if(bad_bytes) *bad_bytes = 0;
+
+    for(UTF8ConstIterator iter(start, end, start);
+        iter && (ret || bad_bytes);
+        ++iter)
     {
-        for(; iter != endUTF8() && (ret || bad_bytes); ++iter)
+        if(*iter.Current() == '\0' ||
+                !iter.IsValidUTF8Sequence())
         {
-            if(*iter.Current() == '\0' ||
-                    !iter.IsValidUTF8Sequence())
-            {
-                ret = false;
-                if(bad_bytes)
-                    ++(*bad_bytes);
-            }
+            ret = false;
+            if(bad_bytes) ++(*bad_bytes);
         }
-    }
-    else if(bad_bytes)
-    {
-        *bad_bytes = 0;
     }
     return ret;
 }

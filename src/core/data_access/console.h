@@ -93,6 +93,8 @@ public:
         return _read_until_terminator(&_is_whitespace);
     }
 
+    virtual GUINT32 BytesAvailable() const{ return GUINT32_MAX; }
+
 
 
     /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */

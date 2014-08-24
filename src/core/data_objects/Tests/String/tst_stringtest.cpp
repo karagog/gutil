@@ -17,7 +17,6 @@ limitations under the License.*/
 #include <iostream>
 #include "gutil_strings.h"
 #include "gutil_extendedexception.h"
-#include "gutil_crypto.h"
 #include "gutil_consolelogger.h"
 USING_NAMESPACE_GUTIL;
 using namespace std;
@@ -346,6 +345,11 @@ void StringTest::test_utf8_validation()
 {
     QString qs;
     String s;
+
+    // Let's check that basic strings are valid
+    s = "Hello World";
+    QVERIFY(s.IsValidUTF8());
+    QVERIFY(String::IsValidUTF8(s.ConstData(), s.ConstData() + s.Length()));
 
     const char goodchar_1[] = { 0xC3, 0x9C, 0x00 };     // �
     const char goodchar_2[] = { 0xE0, 0xAE, 0x82, 0x00 };

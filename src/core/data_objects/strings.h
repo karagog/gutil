@@ -457,11 +457,11 @@ public:
     static bool IsValidAscii(char c){ return c >= 0;  }
 
     /** Returns true if the character is a valid UTF-8 start byte. */
-    static bool IsValidUTF8StartByte(GINT8 b){ return !IsValidUTF8ContinuationByte(b); }
+    static bool IsValidUTF8StartByte(GBYTE b){ return !IsValidUTF8ContinuationByte(b); }
 
     /** Returns true if the character is a valid UTF-8 continuation byte. */
-    static bool IsValidUTF8ContinuationByte(GINT8 b){
-        return GINT8(0x80) == (b & GINT8(0xC0));
+    static bool IsValidUTF8ContinuationByte(GBYTE b){
+        return (GBYTE)(0x80) == (b & (GBYTE)(0xC0));
     }
 
     /** Returns true if the character sequence represents a valid UTF-8 multibyte character.
@@ -509,6 +509,8 @@ public:
         it won't parse the rest of the string once it finds the first bad byte.
     */
     bool IsValidUTF8(GINT32 *bad_bytes = NULL) const;
+
+    static bool IsValidUTF8(const char *start, const char *end, GINT32 *bad_bytes = NULL);
 
     /** Returns the base64 version of this string.
         \note The resulting string will be 4/3 as large.
