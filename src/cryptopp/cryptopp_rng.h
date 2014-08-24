@@ -17,21 +17,21 @@ limitations under the License.*/
 
 #include "gutil_rng.h"
 
-NAMESPACE_GUTIL;
+NAMESPACE_GUTIL1(CryptoPP);
 
 
-class CryptoPP_RNG :
-        public GUtil::RNG
+class RNG :
+        public ::GUtil::RNG
 {
     void *d;
 public:
-    CryptoPP_RNG();
-    virtual ~CryptoPP_RNG();
+    RNG();
+    virtual ~RNG();
 
     virtual void Fill(GBYTE *, GUINT32);
 };
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_CRYPTOPP_RNG_H

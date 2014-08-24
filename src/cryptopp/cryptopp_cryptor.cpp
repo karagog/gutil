@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
-using namespace CryptoPP;
+USING_NAMESPACE_GUTIL;
 
 // These are some constants for the type of encryption we've chosen
 #define KEYLENGTH   32
@@ -40,20 +40,20 @@ namespace
 //   of our class don't need to include cryptopp headers
 struct d_t
 {
-    AutoSeededX917RNG<AES> rng;
-    GCM<AES>::Encryption enc;
-    GCM<AES>::Decryption dec;
+    ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES> rng;
+    ::CryptoPP::GCM< ::CryptoPP::AES>::Encryption enc;
+    ::CryptoPP::GCM< ::CryptoPP::AES>::Decryption dec;
     byte key[KEYLENGTH];
 };
 
 }
 
-NAMESPACE_GUTIL;
+NAMESPACE_GUTIL1(CryptoPP);
 
 
 static void __compute_password_hash(byte result[KEYLENGTH], const char *password)
 {
-    SHA256().CalculateDigest(result, (byte const *)password, strlen(password));
+    ::CryptoPP::SHA256().CalculateDigest(result, (byte const *)password, strlen(password));
 }
 
 
@@ -115,7 +115,11 @@ void Cryptor::EncryptData(InputInterface *pData,
     GUINT32 read = 0;
     GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
     GUINT32 buf_sz = to_read;
-    AuthenticatedEncryptionFilter ef(d->enc, new OutputInterfaceSink(*out), false, TAGLENGTH);
+    ::CryptoPP::AuthenticatedEncryptionFilter ef(
+                d->enc,
+                new OutputInterfaceSink(*out),
+                false,
+                TAGLENGTH);
 
     // First pass the authenticated data:
     if(aData && 0 < aData->BytesAvailable())
@@ -123,8 +127,8 @@ void Cryptor::EncryptData(InputInterface *pData,
         SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
         aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
 
-        ef.ChannelPut(AAD_CHANNEL, a.Data(), aData->BytesAvailable());
-        ef.ChannelMessageEnd(AAD_CHANNEL);
+        ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
+        ef.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
     }
 
     // Then read and pass the plaintext data
@@ -181,10 +185,11 @@ void Cryptor::DecryptData(InputInterface *cData,
         GUINT32 read = 0;
         GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
         GUINT32 buf_sz = to_read;
-        AuthenticatedDecryptionFilter df(d->dec,
-                       out == NULL ? NULL : new OutputInterfaceSink(*out),
-                       AuthenticatedDecryptionFilter::THROW_EXCEPTION,
-                       TAGLENGTH);
+        ::CryptoPP::AuthenticatedDecryptionFilter df(
+                    d->dec,
+                    out == NULL ? NULL : new OutputInterfaceSink(*out),
+                    ::CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION,
+                    TAGLENGTH);
 
         // First pass the authenticated data:
         if(aData && 0 < aData->BytesAvailable())
@@ -192,8 +197,8 @@ void Cryptor::DecryptData(InputInterface *cData,
             SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
             aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
 
-            df.ChannelPut(AAD_CHANNEL, a.Data(), aData->BytesAvailable());
-            df.ChannelMessageEnd(AAD_CHANNEL);
+            df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
+            df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
         }
 
         // Then read and pass the crypttext
@@ -222,7 +227,7 @@ void Cryptor::DecryptData(InputInterface *cData,
         // This will throw an exception if validation of authenticity failed
         df.MessageEnd();
     }
-    catch(const CryptoPP::Exception &ex)
+    catch(const ::CryptoPP::Exception &ex)
     {
         THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
     }
@@ -230,4 +235,4 @@ void Cryptor::DecryptData(InputInterface *cData,
 }
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;

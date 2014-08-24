@@ -10,7 +10,8 @@ HEADERS += \
     interfaces/icomparable.h \
     interfaces/iclonable.h \
     interfaces/imatrix.h \
-    interfaces/imemoryusagereporter.h
+    interfaces/imemoryusagereporter.h \
+    interfaces/iprogresshandler.h
 
 SOURCES +=
 

@@ -16,8 +16,9 @@ limitations under the License.*/
 #define GUTIL_CRYPTOPP_CRYPTOR_H
 
 #include "gutil_iointerface.h"
+#include "gutil_iprogresshandler.h"
 
-NAMESPACE_GUTIL;
+NAMESPACE_GUTIL1(CryptoPP);
 
 
 /** Use this class to encrypt and decrypt data securely and with message authentication.
@@ -59,18 +60,6 @@ public:
     void ChangePassword(const char *password);
 
 
-    /** An interface that allows you to handle progress updates, and also cancel the operation. */
-    class IProgressHandler
-    {
-    public:
-        /** Called periodically with an updated progress value between 0 (started) and 100 (finished)*/
-        virtual void ProgressUpdated(int) = 0;
-
-        /** Called periodically to ask if the operation should be cancelled. Return true if you want to cancel. */
-        virtual bool CancelOperation(){ return false; }
-    };
-
-
     /** Encrypts the string with authentication.
      *
      *  \param pData The plaintext data that will be encrypted AND authenticated. This may be
@@ -87,11 +76,11 @@ public:
      *  \param ph An optional progress handler for long operations; large data sources.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
     */
-    void EncryptData(InputInterface *pData,
-                     OutputInterface *out,
-                     InputInterface *aData = NULL,
+    void EncryptData(GUtil::InputInterface *pData,
+                     GUtil::OutputInterface *out,
+                     GUtil::InputInterface *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     IProgressHandler *ph = 0) const;
+                     GUtil::IProgressHandler *ph = 0) const;
 
     /** Decrypts the string and throw an exception if decryption failed.
      *  It could fail due to a wrong key, wrong data (length), or if a bit was flipped somewhere
@@ -111,15 +100,15 @@ public:
      *              wrong data (or length), or if a bit was flipped somewhere,
      *              or the initialization vector wasn't right (or wasn't there).
     */
-    void DecryptData(InputInterface *cData,
-                     OutputInterface *out,
-                     InputInterface *aData = NULL,
+    void DecryptData(GUtil::InputInterface *cData,
+                     GUtil::OutputInterface *out,
+                     GUtil::InputInterface *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     IProgressHandler *ph = 0) const;
+                     GUtil::IProgressHandler *ph = 0) const;
 
 };
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_CRYPTOPP_CRYPTOR_H

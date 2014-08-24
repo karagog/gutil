@@ -8,7 +8,7 @@ QT       -= gui
 
 TARGET = GUtilCryptoPP
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
@@ -26,9 +26,11 @@ else {
 SOURCES += \
     cryptopp_rng.cpp \
     cryptopp_sinks.cpp \
-    cryptopp_cryptor.cpp
+    cryptopp_cryptor.cpp \
+    cryptopp_hash.cpp
 
 HEADERS += \
     cryptopp_rng.h \
     cryptopp_sinks.h \
-    cryptopp_cryptor.h
+    cryptopp_cryptor.h \
+    cryptopp_hash.h

@@ -19,13 +19,15 @@ limitations under the License.*/
 #include "gutil_macros.h"
 
 NAMESPACE_GUTIL;
-
 class String;
 class OutputInterface;
+END_NAMESPACE_GUTIL;
+
+NAMESPACE_GUTIL1(CryptoPP);
 
 
 /** Used to adapt a generic OutputInterface into CryptoPP Sink. */
-class OutputInterfaceSink : public CryptoPP::Sink
+class OutputInterfaceSink : public ::CryptoPP::Sink
 {
     OutputInterface &ref;
 public:
@@ -41,7 +43,7 @@ public:
 
 
 /** Used to adapt the GUtil String into CryptoPP Sink. */
-class StringSink : public CryptoPP::Bufferless<CryptoPP::Sink>
+class StringSink : public ::CryptoPP::Bufferless< ::CryptoPP::Sink>
 {
     GUtil::String &ref;
 public:
@@ -55,6 +57,6 @@ public:
 };
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;
 
 #endif // GUTIL_CRYPTOPP_SINKS_H

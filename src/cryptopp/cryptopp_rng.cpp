@@ -20,30 +20,30 @@ namespace
 
 struct d_t
 {
-    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
+    ::CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
 };
 
 }
 
 
-NAMESPACE_GUTIL;
+NAMESPACE_GUTIL1(CryptoPP);
 
 
-CryptoPP_RNG::CryptoPP_RNG()
+RNG::RNG()
 {
     G_D_INIT();
 }
 
-CryptoPP_RNG::~CryptoPP_RNG()
+RNG::~RNG()
 {
     G_D_UNINIT();
 }
 
-void CryptoPP_RNG::Fill(GBYTE *b, GUINT32 l)
+void RNG::Fill(GBYTE *b, GUINT32 l)
 {
     G_D;
     d->rng.GenerateBlock(b, l);
 }
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;

@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "gutil_iointerface.h"
 #include <QByteArray>
 
-NAMESPACE_GUTIL;
+NAMESPACE_GUTIL1(CryptoPP);
 
 
 size_t OutputInterfaceSink::Put2(const byte *inString, size_t length, int msg_end, bool blocking)
@@ -46,4 +46,4 @@ size_t StringSink::Put2(const byte *inString, size_t length, int msg_end, bool b
 }
 
 
-END_NAMESPACE_GUTIL;
+END_NAMESPACE_GUTIL1;
