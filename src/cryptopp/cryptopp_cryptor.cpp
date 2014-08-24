@@ -156,8 +156,8 @@ void Cryptor::EncryptData(InputInterface *pData,
         }
     }
     ef.MessageEnd();
-
     out->Flush();
+    if(ph) ph->ProgressUpdated(100);
 }
 
 
@@ -232,6 +232,7 @@ void Cryptor::DecryptData(InputInterface *cData,
         THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
     }
     if(out) out->Flush();
+    if(ph) ph->ProgressUpdated(100);
 }
 
 

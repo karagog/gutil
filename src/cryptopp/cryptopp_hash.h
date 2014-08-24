@@ -74,7 +74,9 @@ public:
     */
     static void ComputeHash(byte *digest_out, byte const *data, GUINT32 data_len, HashAlgorithmEnum);
 
-    /** Generates the hash of data from an input device.
+    /** Generates the hash of data from an input device. The input device may be null,
+     *  in which case you get the hash of zero bytes.
+     *
      *  \param digest_out Must be the correct digest size, returned by DigestSize()
      *  \param chunk_size The number of bytes to read at a time.
      *  \param ph An optional progress handler to monitor this potentially long operation.

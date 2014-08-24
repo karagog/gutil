@@ -198,7 +198,7 @@ void Hash::ComputeHash(byte *out,
                        IProgressHandler *ph)
 {
     Hash h(e);
-    GUINT32 len = input->BytesAvailable();
+    GUINT32 len = input ? input->BytesAvailable() : 0;
     GUINT32 to_read = chunk_size == 0 ? len : GUtil::Min(chunk_size, len);
     GUINT32 read = 0;
     const GUINT32 buf_sz = to_read;
@@ -223,6 +223,7 @@ void Hash::ComputeHash(byte *out,
         }
     }
     h.Final(out);
+    if(ph) ph->ProgressUpdated(100);
 }
 
 
