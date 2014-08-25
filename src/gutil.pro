@@ -11,8 +11,8 @@ SUBDIRS += \
     cryptopp \
     qt_plugins \
     games \
-    test \
-    doc
+    test
+#    doc
 
 CONFIG += ordered
 

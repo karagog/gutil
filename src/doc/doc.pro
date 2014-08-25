@@ -24,10 +24,10 @@ docs_zip.commands = cd $$DOCS_PATH; zip $$DOCS_ZIP_TARGET -r $$DOCS_DIR;
 
 PRE_TARGETDEPS += docs_clean
 PRE_TARGETDEPS += docs_gen
-PRE_TARGETDEPS += docs_zip
+#PRE_TARGETDEPS += docs_zip
 
 QMAKE_EXTRA_TARGETS += docs_clean
 QMAKE_EXTRA_TARGETS += docs_gen
-QMAKE_EXTRA_TARGETS += docs_zip
+#QMAKE_EXTRA_TARGETS += docs_zip
 
 OTHER_FILES += Doxyfile
