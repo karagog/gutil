@@ -4,7 +4,7 @@ TARGET = GUtil
 QT -= gui core
 
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 
 CONFIG += warn_off
 
