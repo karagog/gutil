@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,14 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef EFFECTSWIDGETS_H
-#define EFFECTSWIDGETS_H
+#ifndef GUTIL_FADERWIDGET_H
+#define GUTIL_FADERWIDGET_H
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_macros.h"
 #include <QWidget>
-#include <QMutex>
 
 namespace GUtil{ namespace QT{
 
@@ -35,57 +34,58 @@ class FaderWidget :
         public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QColor fadeColor READ fadeColor WRITE setFadeColor)
-    Q_PROPERTY(int fadeDuration READ fadeDuration WRITE setFadeDuration)
+
+    int m_timerId;
+    int m_alpha;
+    int m_delayCtr;
+    bool m_fadeIn;
 public:
 
-    FaderWidget(QWidget *par = 0, int fade_duration = 333, int start_delay = 0);
+    /** You must give the fader a parent widget that will be faded in/out.
+        You can use this constructor to conveniently set the fade options as well.
+    */
+    FaderWidget(QWidget *widget_to_be_faded, GUINT32 fade_duration = 333, GUINT32 fade_delay = 0);
 
     /** The color it will fade to */
-    QColor fadeColor() const{ return color; }
-    /** The color it will fade to */
-    void setFadeColor(const QColor &newColor){ color = newColor; }
+    PROPERTY(FadeColor, QColor);
 
-    /** How many milliseconds it takes to complete a fade operation */
-    int fadeDuration() const{ return duration; }
-    /** How many milliseconds it takes to complete a fade operation */
-    void setFadeDuration(int milliseconds){ duration = milliseconds; }
+    /** The duration of fading, in milliseconds. */
+    PROPERTY(FadeDuration, GUINT32);
+
+    /** The delay before starting to fade, in milliseconds. */
+    PROPERTY(FadeDelay, GUINT32);
 
 
 public slots:
 
-    void fadeOut(bool skip_fade = false);
-    void fadeIn(bool skip_fade = false);
-    void toggleFade(bool skip_fade = false);
+    /** Causes the widget to fade in. */
+    void FadeIn(bool skip_fade = false);
+
+    /** Causes the widget to fade out. */
+    void FadeOut(bool skip_fade = false);
+
+    /** Causes the widget to fade to a different state;
+        if it was visible it will fade out, and vice versa.
+    */
+    void ToggleFade(bool skip_fade = false);
 
 
 signals:
 
-    void doneFading(bool faded_in);
+    /** Emitted when the fading has finished. */
+    void DoneFading(bool faded_in);
 
 
 protected:
 
-    void paintEvent(QPaintEvent *event);
-    bool eventFilter(QObject *, QEvent *);
-
-
-private slots:
-
-    void start_fading();
-    void _start();
+    virtual void paintEvent(QPaintEvent *);
+    virtual void timerEvent(QTimerEvent *);
+    virtual bool eventFilter(QObject *, QEvent *);
 
 
 private:
-    QTimer *timer;
-    int currentAlpha;
-    QColor color;
-    int duration;
-    int delay;
-    bool _fade_in;
-    bool skipped_fade;
-    QMutex thislock;
-    QMutex fadelock;
+
+    void _fade_requested(bool skip_fade);
 
 };
 
@@ -94,4 +94,4 @@ private:
 
 #endif // GUI_FUNCTIONALITY
 
-#endif // EFFECTSWIDGETS_H
+#endif // GUTIL_FADERWIDGET_H

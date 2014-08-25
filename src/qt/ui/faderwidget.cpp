@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,187 +13,130 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "faderwidget.h"
+#include "gutil_globals.h"
 #include <QPainter>
-#include <QTimer>
 #include <QEvent>
-#include <QApplication>
+#include <QTimer>
+USING_NAMESPACE_GUTIL;
+
+#define FADE_RESOLUTION 40
 
 NAMESPACE_GUTIL1(QT);
 
 
-#define FADE_RESOLUTION 40
-
-FaderWidget::FaderWidget(QWidget *par, int fade_duration, int start_delay)
-    : QWidget(par)
+FaderWidget::FaderWidget(QWidget *par, GUINT32 fade_duration, GUINT32 fade_delay)
+    :QWidget(par),
+      m_timerId(-1),
+      m_alpha(0),
+      m_delayCtr(0),
+      m_fadeIn(false),
+      _p_FadeColor(par->palette().window().color()),
+      _p_FadeDuration(fade_duration),
+      _p_FadeDelay(fade_delay)
 {
-    if (par)
-        color = par->palette().window().color();
-    else
-        color = Qt::white;
-
-    _fade_in = false;
-    skipped_fade = false;
-
-    duration = fade_duration;
-    delay = start_delay;
-
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-
-    // We want to intercept resize event so we can adjust our size
     par->installEventFilter(this);
 }
 
 bool FaderWidget::eventFilter(QObject *obj, QEvent *ev)
 {
     bool ret = false;
-
-    if(obj == parent())
-    {
-        if(ev->type() == QEvent::Resize)
-        {
+    if(obj == parent()){
+        if(ev->type() == QEvent::Resize){
             resize(parentWidget()->size());
-            ret = true;
         }
     }
-
     return ret;
 }
 
-void FaderWidget::start_fading()
+void FaderWidget::_fade_requested(bool skip_fade)
 {
-    if(!fadelock.tryLock())
-        return;
-
-    if(timer->isActive())
+    if(skip_fade)
     {
-        if(parentWidget()->isHidden())
-            timer->stop();
-        else
-        {
-            fadelock.unlock();
-            return;
+        if(m_timerId != -1){
+            killTimer(m_timerId);
+            m_timerId = -1;
         }
+
+        if(m_fadeIn){
+            hide();
+            parentWidget()->show();
+        }
+        else
+            parentWidget()->hide();
     }
-
-    if(_fade_in)
-        currentAlpha = 255;
     else
-        currentAlpha = 0;
-
-    if(!skipped_fade)
+    {
+        m_delayCtr = GetFadeDelay();
+        if(m_fadeIn)m_alpha = 255;
+        else        m_alpha = 0;
         show();
-
-    // If they disabled the fade, then we ignore the delay
-    if(skipped_fade || duration == 0)
-        _start();
-
-    // Check if the parent is in the correct state before we fade it
-    else if((_fade_in && parentWidget()->isHidden()) ||
-       (!_fade_in && !parentWidget()->isHidden()))
-    {
-        QTimer::singleShot(delay, this, SLOT(_start()));
-    }
-    else
-        fadelock.unlock();
-}
-
-void FaderWidget::_start()
-{
-    if(_fade_in)
-        parentWidget()->showNormal();
-    else if(skipped_fade)
-        parentWidget()->hide();
-
-    if(!skipped_fade)
-        timer->start(FADE_RESOLUTION);
-
-    fadelock.unlock();
-}
-
-void FaderWidget::paintEvent(QPaintEvent * /* event */)
-{
-    QPainter painter(this);
-    QColor semiTransparentColor = color;
-    semiTransparentColor.setAlpha(currentAlpha);
-
-    painter.fillRect(rect(), semiTransparentColor);
-
-    if(timer->isActive())
-    {
-        if(_fade_in)
-        {
-            if(duration != 0)
-            {
-                currentAlpha -= (255 * timer->interval()) / duration;
-            }
-
-            if (duration == 0 || currentAlpha <= 0)
-            {
-                timer->stop();
-                currentAlpha = 0;
-                hide();
-
-                emit doneFading(true);
-            }
-        }
-        else
-        {
-            if(duration != 0)
-            {
-                currentAlpha += (255 * timer->interval()) / duration;
-            }
-
-            if (duration == 0 || currentAlpha >= 255)
-            {
-                timer->stop();
-                currentAlpha = 255;
-
-                // Hide the parent once we're faded out
-                parentWidget()->hide();
-
-                hide();
-
-                emit doneFading(false);
-            }
-        }
+        if(m_timerId == -1)
+            m_timerId = startTimer(FADE_RESOLUTION);
     }
 }
 
-void FaderWidget::fadeIn(bool skip_fade)
+void FaderWidget::paintEvent(QPaintEvent *)
 {
-    if(!thislock.tryLock())
-        return;
-
-    skipped_fade = skip_fade;
-    _fade_in = true;
-    start_fading();
-
-    thislock.unlock();
+    QColor c = GetFadeColor();
+    c.setAlpha(m_alpha);
+    QPainter(this).fillRect(rect(), c);
 }
 
-void FaderWidget::fadeOut(bool skip_fade)
+void FaderWidget::timerEvent(QTimerEvent *ev)
 {
-    if(!thislock.tryLock())
+    if(m_delayCtr > 0){
+        m_delayCtr = Max(m_delayCtr - FADE_RESOLUTION, 0);
         return;
+    }
+    else if(m_delayCtr == 0){
+        m_delayCtr = -1;
 
-    skipped_fade = skip_fade;
-    _fade_in = false;
-    start_fading();
+        // Show my parent after the delay is up
+        if(m_fadeIn)
+            parentWidget()->show();
+    }
 
-    thislock.unlock();
+    const int diff = (float)(255 * FADE_RESOLUTION) / GetFadeDuration();
+    if(m_fadeIn){
+        m_alpha = Max(m_alpha - diff, 0);
+        if(m_alpha == 0){
+            // Done fading in, hide myself
+            hide();
+            killTimer(ev->timerId());
+            emit DoneFading(true);
+        }
+    }
+    else{
+        m_alpha = Min(m_alpha + diff, 255);
+        if(m_alpha == 255){
+            // Done fading out, hide my parent
+            parentWidget()->hide();
+            killTimer(ev->timerId());
+            emit DoneFading(false);
+        }
+    }
+
+    // Update triggers my paint event
+    update();
+    ev->accept();
 }
 
-void FaderWidget::toggleFade(bool skip_fade)
+void FaderWidget::FadeIn(bool skip_fade)
 {
-    if(!thislock.tryLock())
-        return;
+    m_fadeIn = true;
+    _fade_requested(skip_fade);
+}
 
-    skipped_fade = skip_fade;
-    _fade_in = !_fade_in;
-    start_fading();
+void FaderWidget::FadeOut(bool skip_fade)
+{
+    m_fadeIn = false;
+    _fade_requested(skip_fade);
+}
 
-    thislock.unlock();
+void FaderWidget::ToggleFade(bool skip_fade)
+{
+    m_fadeIn = !m_fadeIn;
+    _fade_requested(skip_fade);
 }
 
 

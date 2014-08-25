@@ -12,78 +12,65 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef LINE_EDIT_WITH_BUTTON_H
-#define LINE_EDIT_WITH_BUTTON_H
+#ifndef GUTIL_LINE_EDIT_WITH_BUTTON_H
+#define GUTIL_LINE_EDIT_WITH_BUTTON_H
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_faderwidget.h"
-#include <QWidget>
-#include <QPushButton>
+#include <QToolButton>
 #include <QLineEdit>
-#include <QShowEvent>
-#include <QEvent>
 
 namespace GUtil{ namespace QT{
 
 
-/** Implements a simple line edit, with a button on the far right that. */
+/** Implements a simple line edit, with a button on the far right that fades
+    in magically and can do whatever you want it to do.
+
+    You can access the line edit and button directly via the member functions,
+    and attach whatever signals/filters you want to their events.
+
+    To show the button, call ShowButton() and you can control how fast it fades.
+    The same thing goes for HideButton().
+*/
 class LineEditWithButton :
         public QWidget
 {
     Q_OBJECT
+    QToolButton m_button;
+    QLineEdit m_lineEdit;
+    FaderWidget m_fader;
 public:
 
-    /** Creates a LineEditWithButton with the given parameters*/
-    explicit LineEditWithButton(QWidget *par = 0,
-                                bool btn_visible = true,
-                                int fade_duration = -1);
+    /** Creates a LineEditWithButton with the given button action.
+        You must supply an action to take when the button is clicked,
+        otherwise why are you using the line edit with button?
+    */
+    explicit LineEditWithButton(QAction *button_action, QWidget *par = 0);
+
+    /** Show the button if it's hidden.
+        You can optionally override the default times used to fade.
+    */
+    void ShowButton(int fade_duration_ms = -1, int fade_delay = -1);
+
+    /** If the button is visible, hide it.
+        You can optionally override the default times used to fade.
+    */
+    void HideButton(int fade_duration_ms = -1, int fade_delay = -1);
+
+    /** Returns true if the button is currently visible (or in the process of fading in/out). */
+    bool IsButtonVisible() const{ return !Button().isHidden(); }
+
 
     /** Gives access to the button instance */
-    QPushButton &PushButton(){ return button; }
+    QToolButton &Button(){ return m_button; }
     /** Gives access to the button instance */
-    QPushButton const &PushButton() const{ return button; }
+    QToolButton const &Button() const{ return m_button; }
 
     /** Gives access to the lineedit instance */
-    QLineEdit &LineEdit(){ return line_edit; }
+    QLineEdit &LineEdit(){ return m_lineEdit; }
     /** Gives access to the lineedit instance */
-    QLineEdit const &LineEdit() const{ return line_edit; }
-
-    /** Gives access to the fader widget instance */
-    FaderWidget *Fader(){ return _fader; }
-    /** Gives access to the fader widget instance */
-    FaderWidget const *Fader() const{ return _fader; }
-
-
-public slots:
-
-    /** Show the button if it's hidden */
-    void ShowButton(){ if(button.isHidden()) _fader->fadeIn(); }
-
-    /** If the button is visible, hide it */
-    void HideButton(){ if(!button.isHidden()) _fader->fadeIn(); }
-
-    /** Toggles the button between visible and faded states */
-    void ToggleButton(){ _fader->toggleFade(); }
-
-
-protected:
-
-    /** Overridden from QWidget */
-    virtual void focusInEvent(QFocusEvent *e){ line_edit.event(e); }
-
-    /** Overridden from QWidget */
-    virtual void keyPressEvent(QKeyEvent *e){ line_edit.event(e); }
-
-    /** Overridden from QWidget */
-    virtual void keyReleaseEvent(QKeyEvent *e){ line_edit.event(e); }
-
-
-private:
-
-    QPushButton button;
-    QLineEdit line_edit;
-    FaderWidget *_fader;
+    QLineEdit const &LineEdit() const{ return m_lineEdit; }
 
 };
 
@@ -92,4 +79,4 @@ private:
 
 #endif  // GUI_FUNCTIONALITY
 
-#endif // LINE_EDIT_WITH_BUTTON_H
+#endif // GUTIL_LINE_EDIT_WITH_BUTTON_H

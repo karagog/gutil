@@ -1,6 +1,5 @@
 
 HEADERS += \
-    controls/filechooser.h \
     controls/lineeditwithbutton.h \
     controls/stopwatch.h \
     controls/selectdaterange.h
