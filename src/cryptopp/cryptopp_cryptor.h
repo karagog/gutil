@@ -41,7 +41,9 @@ class Cryptor
     void *d;
 public:
 
-    /** Constructs and initializes the Cryptor.
+    /** Constructs and initializes the Cryptor.  The Cryptor must always have a valid password, but
+     *  you can change it using ChangePassword().  The password may also be a null string, but that is
+     *  not recommended.
      *
      *  \param password The password to be used for encryption/decryption, must be in UTF-8 format.
      *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
@@ -57,15 +59,15 @@ public:
     bool CheckPassword(const char *) const;
 
     /** Changes the password used by the cryptor. */
-    void ChangePassword(const char *password);
+    void ChangePassword(const char *);
 
 
-    /** Encrypts the string with authentication.
+    /** Encrypts the string.
      *
+     *  \param out The crypttext will be pushed here.
      *  \param pData The plaintext data that will be encrypted AND authenticated. This may be
      *          null, but then you must provide authenticated data (one or the other, or both, but
      *          not neither, according to the NIST document on GCM)
-     *  \param out The crypttext will be pushed here.
      *  \param aData The authenticated data will be authenticated but NOT encrypted. This is
      *          optional, but if given this data will be required to correctly decrypt the message.
      *          It will not contribute to the size of the crypttext output but will be
@@ -76,20 +78,20 @@ public:
      *  \param ph An optional progress handler for long operations; large data sources.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
     */
-    void EncryptData(GUtil::InputInterface *pData,
-                     GUtil::OutputInterface *out,
+    void EncryptData(GUtil::OutputInterface *out,
+                     GUtil::InputInterface *pData = NULL,
                      GUtil::InputInterface *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = 0) const;
+                     GUtil::IProgressHandler *ph = NULL) const;
 
     /** Decrypts the string and throw an exception if decryption failed.
      *  It could fail due to a wrong key, wrong data (length), or if a bit was flipped somewhere
-     *  either maliciously or accidentally, or the initialization vector wasn't right
+     *  either maliciously or accidentally, or the initialization vector wasn't right.
      *
-     *  \param cData The crypttext data that was produced by EncryptData.
      *  \param out The recovered plaintext will be pushed here.
      *              This paramater may be null, in which case you won't get the plaintext, but
      *              you can still validate the authenticity of the message.
+     *  \param cData The crypttext data that was produced by EncryptData.
      *  \param aData The authenticated data that is associated with the crypttext. This is
      *              only used if you encrypted data with the aData parameter.
      *  \param chunk_size Optionally process the file in chunks (given in bytes).
@@ -100,11 +102,11 @@ public:
      *              wrong data (or length), or if a bit was flipped somewhere,
      *              or the initialization vector wasn't right (or wasn't there).
     */
-    void DecryptData(GUtil::InputInterface *cData,
-                     GUtil::OutputInterface *out,
+    void DecryptData(GUtil::OutputInterface *out,
+                     GUtil::InputInterface *cData,
                      GUtil::InputInterface *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = 0) const;
+                     GUtil::IProgressHandler *ph = NULL) const;
 
 };
 

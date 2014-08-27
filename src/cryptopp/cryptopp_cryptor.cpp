@@ -90,79 +90,93 @@ void Cryptor::ChangePassword(const char *password)
 }
 
 
-void Cryptor::EncryptData(InputInterface *pData,
-                          OutputInterface *out,
+void Cryptor::EncryptData(OutputInterface *out,
+                          InputInterface *pData,
                           InputInterface *aData,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
 {
     G_D;
     byte iv[IVLENGTH];
-
     if(ph) ph->ProgressUpdated(0);
 
-    // Initialize a random IV and initialize the encryptor
-    d->rng.GenerateBlock(iv, sizeof(iv));
-    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
-
-    // First write the IV
-    out->WriteBytes(iv, sizeof(iv));
-
-    GUINT32 len = pData ? pData->BytesAvailable() : 0;
-    if(len == GUINT32_MAX)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
-
-    GUINT32 read = 0;
-    GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
-    GUINT32 buf_sz = to_read;
-    ::CryptoPP::AuthenticatedEncryptionFilter ef(
-                d->enc,
-                new OutputInterfaceSink(*out),
-                false,
-                TAGLENGTH);
-
-    // First pass the authenticated data:
-    if(aData && 0 < aData->BytesAvailable())
+    try
     {
-        SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
-        aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
+        if((pData == NULL || pData->BytesAvailable() == 0) &&
+                (aData == NULL || aData->BytesAvailable() == 0))
+            THROW_NEW_GUTIL_EXCEPTION2(ArgumentException,
+                                       "Thou shalt not generate a MAC"
+                                       " without either plaintext or"
+                                       " authenticated data (NIST SP-800-38D)");
 
-        ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
-        ef.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
-    }
+        // Initialize a random IV and initialize the encryptor
+        d->rng.GenerateBlock(iv, sizeof(iv));
+        d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
 
-    // Then read and pass the plaintext data
-    if(read < len)
-    {
-        SmartArrayPointer<byte> buf(new byte[buf_sz]);
-        while(read < len)
+        // First write the IV
+        out->WriteBytes(iv, sizeof(iv));
+
+        GUINT32 len = pData ? pData->BytesAvailable() : 0;
+        if(len == GUINT32_MAX)
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
+
+        GUINT32 read = 0;
+        GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
+        GUINT32 buf_sz = to_read;
+        ::CryptoPP::AuthenticatedEncryptionFilter ef(
+                    d->enc,
+                    new OutputInterfaceSink(*out),
+                    false,
+                    TAGLENGTH);
+
+        // First pass the authenticated data:
+        if(aData && 0 < aData->BytesAvailable())
         {
-            GASSERT(pData);
+            SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
+            aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
 
-            if((read + to_read) > len)
-                to_read = len - read;
+            ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
+            ef.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
+        }
 
-            if(to_read != pData->ReadBytes(buf, buf_sz, to_read))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+        // Then read and pass the plaintext data
+        if(read < len)
+        {
+            SmartArrayPointer<byte> buf(new byte[buf_sz]);
+            while(read < len)
+            {
+                GASSERT(pData);
 
-            ef.Put(buf, to_read, true);
-            read += to_read;
+                if((read + to_read) > len)
+                    to_read = len - read;
 
-            if(ph){
-                ph->ProgressUpdated(((float)read / len) * 100);
-                if(ph->CancelOperation())
-                    THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                if(to_read != pData->ReadBytes(buf, buf_sz, to_read))
+                    THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+
+                ef.Put(buf, to_read, true);
+                read += to_read;
+
+                if(ph){
+                    ph->ProgressUpdated(((float)read / len) * 100);
+                    if(ph->CancelOperation())
+                        THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                }
             }
         }
+        ef.MessageEnd();
+        out->Flush();
     }
-    ef.MessageEnd();
-    out->Flush();
+    catch(...)
+    {
+        if(ph) ph->ProgressUpdated(100);
+        throw;
+    }
     if(ph) ph->ProgressUpdated(100);
 }
 
 
-void Cryptor::DecryptData(InputInterface *cData,
-                          OutputInterface *out,
+void Cryptor::DecryptData(OutputInterface *out,
+                          InputInterface *cData,
                           InputInterface *aData,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
