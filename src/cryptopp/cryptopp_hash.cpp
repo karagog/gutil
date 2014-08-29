@@ -22,6 +22,7 @@ limitations under the License.*/
 #include <cryptopp/md5.h>
 #include <cryptopp/ripemd.h>
 #include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
 #include <cryptopp/tiger.h>
 #include <cryptopp/whrlpool.h>
 USING_NAMESPACE_GUTIL;
@@ -29,175 +30,31 @@ USING_NAMESPACE_GUTIL;
 NAMESPACE_GUTIL1(CryptoPP);
 
 
-Hash::Hash(HashAlgorithmEnum ht)
-    :m_hashType(ht)
+HashBase::HashBase(::CryptoPP::HashTransformation *h)
+    :m_hash(h) {}
+
+HashBase::~HashBase() {}
+
+int HashBase::DigestSize() const
 {
-    switch(ht)
-    {
-    case MD2:
-        m_hash = new ::CryptoPP::Weak1::MD2;
-        break;
-    case MD4:
-        m_hash = new ::CryptoPP::Weak1::MD4;
-        break;
-    case MD5:
-        m_hash = new ::CryptoPP::Weak1::MD5;
-        break;
-    case RIPEMD128:
-        m_hash = new ::CryptoPP::RIPEMD128;
-        break;
-    case RIPEMD160:
-        m_hash = new ::CryptoPP::RIPEMD160;
-        break;
-    case RIPEMD256:
-        m_hash = new ::CryptoPP::RIPEMD256;
-        break;
-    case RIPEMD320:
-        m_hash = new ::CryptoPP::RIPEMD320;
-        break;
-    case Tiger:
-        m_hash = new ::CryptoPP::Tiger;
-        break;
-    case SHA1:
-        m_hash = new ::CryptoPP::SHA1;
-        break;
-    case SHA224:
-        m_hash = new ::CryptoPP::SHA224;
-        break;
-    case SHA256:
-        m_hash = new ::CryptoPP::SHA256;
-        break;
-    case SHA384:
-        m_hash = new ::CryptoPP::SHA384;
-        break;
-    case SHA512:
-        m_hash = new ::CryptoPP::SHA512;
-        break;
-    case Whirlpool:
-        m_hash = new ::CryptoPP::Whirlpool;
-        break;
-    default:
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
+    return get_hash_transformation()->DigestSize();
 }
 
-Hash::~Hash()
+void HashBase::AddData(const byte *d, GUINT32 len)
 {
-    // Because HashTransformation doesn't have a virtual destructor, we have to
-    // go through this mess...
-    switch(m_hashType)
-    {
-    case MD2:
-        delete static_cast< ::CryptoPP::Weak1::MD2 *>(m_hash);
-        break;
-    case MD4:
-        delete static_cast< ::CryptoPP::Weak1::MD4 *>(m_hash);
-        break;
-    case MD5:
-        delete static_cast< ::CryptoPP::Weak1::MD5 *>(m_hash);
-        break;
-    case RIPEMD128:
-        delete static_cast< ::CryptoPP::RIPEMD128 *>(m_hash);
-        break;
-    case RIPEMD160:
-        delete static_cast< ::CryptoPP::RIPEMD160 *>(m_hash);
-        break;
-    case RIPEMD256:
-        delete static_cast< ::CryptoPP::RIPEMD256 *>(m_hash);
-        break;
-    case RIPEMD320:
-        delete static_cast< ::CryptoPP::RIPEMD320 *>(m_hash);
-        break;
-    case Tiger:
-        delete static_cast< ::CryptoPP::Tiger *>(m_hash);
-        break;
-    case SHA1:
-        delete static_cast< ::CryptoPP::SHA1 *>(m_hash);
-        break;
-    case SHA224:
-        delete static_cast< ::CryptoPP::SHA224 *>(m_hash);
-        break;
-    case SHA256:
-        delete static_cast< ::CryptoPP::SHA256 *>(m_hash);
-        break;
-    case SHA384:
-        delete static_cast< ::CryptoPP::SHA384 *>(m_hash);
-        break;
-    case SHA512:
-        delete static_cast< ::CryptoPP::SHA512 *>(m_hash);
-        break;
-    case Whirlpool:
-        delete static_cast< ::CryptoPP::Whirlpool *>(m_hash);
-        break;
-    default:
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
-    }
+    get_hash_transformation()->Update(d, len);
 }
 
-int Hash::DigestSize(HashAlgorithmEnum h)
+void HashBase::Final(byte *d)
 {
-    int ret = 0;
-    switch(h)
-    {
-    case MD2:
-    case MD4:
-    case MD5:
-    case RIPEMD128:
-        ret = ::CryptoPP::Weak1::MD5::DIGESTSIZE;
-        break;
-    case RIPEMD160:
-    case SHA1:
-        ret = ::CryptoPP::SHA1::DIGESTSIZE;
-        break;
-    case Tiger:
-        ret = ::CryptoPP::Tiger::DIGESTSIZE;
-        break;
-    case SHA224:
-        ret = ::CryptoPP::SHA224::DIGESTSIZE;
-        break;
-    case RIPEMD256:
-    case SHA256:
-        ret = ::CryptoPP::SHA256::DIGESTSIZE;
-        break;
-    case RIPEMD320:
-        ret = ::CryptoPP::RIPEMD320::DIGESTSIZE;
-        break;
-    case SHA384:
-        ret = ::CryptoPP::SHA384::DIGESTSIZE;
-        break;
-    case Whirlpool:
-    case SHA512:
-        ret = ::CryptoPP::SHA512::DIGESTSIZE;
-        break;
-    }
-    return ret;
+    get_hash_transformation()->Final(d);
 }
 
-void Hash::AddData(const byte *d, GUINT32 len)
-{
-    m_hash->Update(d, len);
-}
-
-void Hash::Final(byte *d)
-{
-    m_hash->Final(d);
-}
-
-
-void Hash::ComputeHash(byte *out, byte const *data, GUINT32 data_len, HashAlgorithmEnum e)
-{
-    Hash h(e);
-    h.AddData(data, data_len);
-    h.Final(out);
-}
-
-void Hash::ComputeHash(byte *out,
+void HashBase::ComputeHash(byte *out,
                        InputInterface *input,
-                       HashAlgorithmEnum e,
                        GUINT32 chunk_size,
                        IProgressHandler *ph)
 {
-    Hash h(e);
     GUINT32 len = input ? input->BytesAvailable() : 0;
     GUINT32 to_read = chunk_size == 0 ? len : GUtil::Min(chunk_size, len);
     GUINT32 read = 0;
@@ -210,7 +67,7 @@ void Hash::ComputeHash(byte *out,
         if(to_read != input->ReadBytes(buf, buf_sz, to_read))
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from device");
 
-        h.AddData(buf, buf_sz);
+        AddData(buf, buf_sz);
         read += to_read;
 
         if((read + to_read) > len)
@@ -222,9 +79,69 @@ void Hash::ComputeHash(byte *out,
             ph->ProgressUpdated(((float)read / len) * 100);
         }
     }
-    h.Final(out);
+    Final(out);
     if(ph) ph->ProgressUpdated(100);
 }
+
+
+Hash<SHA3_512>::Hash() :HashBase(new ::CryptoPP::SHA3_512) {}
+Hash<SHA3_512>::~Hash() { delete static_cast< ::CryptoPP::SHA3_512 *>(get_hash_transformation()); }
+
+Hash<SHA3_384>::Hash() :HashBase(new ::CryptoPP::SHA3_384) {}
+Hash<SHA3_384>::~Hash() { delete static_cast< ::CryptoPP::SHA3_384 *>(get_hash_transformation()); }
+
+Hash<SHA3_256>::Hash() :HashBase(new ::CryptoPP::SHA3_256) {}
+Hash<SHA3_256>::~Hash() { delete static_cast< ::CryptoPP::SHA3_256 *>(get_hash_transformation()); }
+
+Hash<SHA3_224>::Hash() :HashBase(new ::CryptoPP::SHA3_224) {}
+Hash<SHA3_224>::~Hash() { delete static_cast< ::CryptoPP::SHA3_224 *>(get_hash_transformation()); }
+
+
+Hash<SHA512>::Hash() :HashBase(new ::CryptoPP::SHA512) {}
+Hash<SHA512>::~Hash() { delete static_cast< ::CryptoPP::SHA512 *>(get_hash_transformation()); }
+
+Hash<SHA384>::Hash() :HashBase(new ::CryptoPP::SHA384) {}
+Hash<SHA384>::~Hash() { delete static_cast< ::CryptoPP::SHA384 *>(get_hash_transformation()); }
+
+Hash<SHA256>::Hash() :HashBase(new ::CryptoPP::SHA256) {}
+Hash<SHA256>::~Hash() { delete static_cast< ::CryptoPP::SHA256 *>(get_hash_transformation()); }
+
+Hash<SHA224>::Hash() :HashBase(new ::CryptoPP::SHA224) {}
+Hash<SHA224>::~Hash() { delete static_cast< ::CryptoPP::SHA224 *>(get_hash_transformation()); }
+
+
+Hash<RIPEMD320>::Hash() :HashBase(new ::CryptoPP::RIPEMD320) {}
+Hash<RIPEMD320>::~Hash() { delete static_cast< ::CryptoPP::RIPEMD320 *>(get_hash_transformation()); }
+
+Hash<RIPEMD256>::Hash() :HashBase(new ::CryptoPP::RIPEMD256) {}
+Hash<RIPEMD256>::~Hash() { delete static_cast< ::CryptoPP::RIPEMD256 *>(get_hash_transformation()); }
+
+Hash<RIPEMD160>::Hash() :HashBase(new ::CryptoPP::RIPEMD160) {}
+Hash<RIPEMD160>::~Hash() { delete static_cast< ::CryptoPP::RIPEMD160 *>(get_hash_transformation()); }
+
+Hash<RIPEMD128>::Hash() :HashBase(new ::CryptoPP::RIPEMD128) {}
+Hash<RIPEMD128>::~Hash() { delete static_cast< ::CryptoPP::RIPEMD128 *>(get_hash_transformation()); }
+
+
+Hash<Tiger>::Hash() :HashBase(new ::CryptoPP::Tiger) {}
+Hash<Tiger>::~Hash() { delete static_cast< ::CryptoPP::Tiger *>(get_hash_transformation()); }
+
+Hash<Whirlpool>::Hash() :HashBase(new ::CryptoPP::Whirlpool) {}
+Hash<Whirlpool>::~Hash() { delete static_cast< ::CryptoPP::Whirlpool *>(get_hash_transformation()); }
+
+
+Hash<SHA1>::Hash() :HashBase(new ::CryptoPP::SHA1) {}
+Hash<SHA1>::~Hash() { delete static_cast< ::CryptoPP::SHA1 *>(get_hash_transformation()); }
+
+
+Hash<MD5>::Hash() :HashBase(new ::CryptoPP::Weak1::MD5) {}
+Hash<MD5>::~Hash() { delete static_cast< ::CryptoPP::Weak1::MD5 *>(get_hash_transformation()); }
+
+Hash<MD4>::Hash() :HashBase(new ::CryptoPP::Weak1::MD4) {}
+Hash<MD4>::~Hash() { delete static_cast< ::CryptoPP::Weak1::MD4 *>(get_hash_transformation()); }
+
+Hash<MD2>::Hash() :HashBase(new ::CryptoPP::Weak1::MD2) {}
+Hash<MD2>::~Hash() { delete static_cast< ::CryptoPP::Weak1::MD2 *>(get_hash_transformation()); }
 
 
 END_NAMESPACE_GUTIL1;
