@@ -41,33 +41,40 @@ class Cryptor
     void *d;
 public:
 
-    /** Constructs and initializes the Cryptor.  The Cryptor must always have a valid password, but
-     *  you can change it using ChangePassword().  The password may also be a null string, but that is
-     *  not recommended.
+    /** Constructs and initializes the Cryptor using the password and/or keyfile.  
+     *  
+     *  If you supply a password, then only the password will be required to decrypt. If you
+     *  supply a keyfile but not a password, then only the keyfile will be required to decrypt.
      *
-     *  \param password The password to be used for encryption/decryption, must be in UTF-8 format.
+     *  The cryptor implements multifactor authentication, if you want to use it by supplying both
+     *  a password and a keyfile. If you do this, you will be required to present both the correct
+     *  password and keyfile if you want to successfully decrypt the message.
+     *
+     *  \param password The password to be used for encryption/decryption, must be in UTF-8/ASCII format.
      *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
      *      another one matches by using the CheckPassword function.
+     *  \param keyfile The key file, if any. Can be any file of any size, but it's better
+     *      if it's small (under or around 100 bytes) and random. If you leave this blank, only the
+     *      password will be required to decrypt.
     */
-    Cryptor(const char *password);
+    Cryptor(const char *password, const char *keyfile = 0);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
     ~Cryptor();
 
-    /** Returns true if the password is correct, by comparing hashes. */
-    bool CheckPassword(const char *) const;
+    /** Returns true if the password/keyfile combination is correct. */
+    bool CheckPassword(const char *password, const char *keyfile = 0) const;
 
-    /** Changes the password used by the cryptor. */
-    void ChangePassword(const char *);
+    /** Changes the password/keyfile combination used by the cryptor. */
+    void ChangePassword(const char *password, const char *keyfile = 0);
 
 
     /** Encrypts the string.
      *
      *  \param out The crypttext will be pushed here.
      *  \param pData The plaintext data that will be encrypted AND authenticated. This may be
-     *          null, but then you must provide authenticated data (one or the other, or both, but
-     *          not neither, according to the NIST document on GCM)
+     *          null, in which case you will get a MAC as output that can be used to validate the password.
      *  \param aData The authenticated data will be authenticated but NOT encrypted. This is
      *          optional, but if given this data will be required to correctly decrypt the message.
      *          It will not contribute to the size of the crypttext output but will be
