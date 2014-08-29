@@ -50,7 +50,8 @@ enum HashAlgorithmEnum
 
 
 /** The base class for all hash classes built on top of Crypto++. You cannot instantiate it directly, but
-    you can create a Hash<> object which derives from this.
+    you can create a Hash<> object which derives from this. Alternately you can use the CreateHash()
+    static function to instantiate the proper hash object.
     
     This class is re-entrant, as long as the Crypto++ classes remain re-entrant.
 
@@ -66,6 +67,12 @@ class HashBase
     GUTIL_DISABLE_COPY(HashBase);
     ::CryptoPP::HashTransformation *m_hash;
 public:
+
+    /** Instantiates a new Hash object of the given type. The caller gets ownership.
+        This is useful if you don't know the type of hash at compile time, otherwise
+        you should instantiate the Hash template object directly.
+    */
+    static HashBase *CreateHash(HashAlgorithmEnum);
 
     /** Returns the size of the digest for this hash object. */
     int DigestSize() const;

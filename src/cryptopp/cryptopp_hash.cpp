@@ -83,6 +83,71 @@ void HashBase::ComputeHash(byte *out,
     if(ph) ph->ProgressUpdated(100);
 }
 
+HashBase *HashBase::CreateHash(HashAlgorithmEnum h)
+{
+    HashBase *ret;
+    switch(h)
+    {
+    case SHA3_512:
+        ret = new Hash<SHA3_512>;
+        break;
+    case SHA3_384:
+        ret = new Hash<SHA3_384>;
+        break;
+    case SHA3_256:
+        ret = new Hash<SHA3_256>;
+        break;
+    case SHA3_224:
+        ret = new Hash<SHA3_224>;
+        break;
+    case SHA512:
+        ret = new Hash<SHA512>;
+        break;
+    case SHA384:
+        ret = new Hash<SHA384>;
+        break;
+    case SHA256:
+        ret = new Hash<SHA256>;
+        break;
+    case SHA224:
+        ret = new Hash<SHA224>;
+        break;
+    case SHA1:
+        ret = new Hash<SHA1>;
+        break;
+    case Tiger:
+        ret = new Hash<Tiger>;
+        break;
+    case Whirlpool:
+        ret = new Hash<Whirlpool>;
+        break;
+    case RIPEMD320:
+        ret = new Hash<RIPEMD320>;
+        break;
+    case RIPEMD256:
+        ret = new Hash<RIPEMD256>;
+        break;
+    case RIPEMD160:
+        ret = new Hash<RIPEMD160>;
+        break;
+    case RIPEMD128:
+        ret = new Hash<RIPEMD128>;
+        break;
+    case MD5:
+        ret = new Hash<MD5>;
+        break;
+    case MD4:
+        ret = new Hash<MD4>;
+        break;
+    case MD2:
+        ret = new Hash<MD2>;
+        break;
+    default:
+        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+    }
+    return ret;
+}
+
 
 Hash<SHA3_512>::Hash() :HashBase(new ::CryptoPP::SHA3_512) {}
 Hash<SHA3_512>::~Hash() { delete static_cast< ::CryptoPP::SHA3_512 *>(get_hash_transformation()); }
