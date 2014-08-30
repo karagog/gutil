@@ -27,12 +27,6 @@ USING_NAMESPACE_GUTIL;
 // These are some constants for the type of encryption we've chosen
 #define KEYLENGTH   32
 
-// The recommended IV size for GCM is 96 bits (NIST SP-800-38D)
-#define IVLENGTH    12
-
-// The default tag length for GCM is 128 bits, but we'll explicitly declare it here
-#define TAGLENGTH   16
-
 #define DEFAULT_CHUNK_SIZE 1024
 
 namespace
@@ -69,8 +63,7 @@ static void __compute_keyfile_hash(byte result[KEYLENGTH], const char *keyfile, 
         in = f;
     }
 
-    Hash<SHA3_256> hash;
-    hash.ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
+    Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
 }
 
 
@@ -144,13 +137,19 @@ void Cryptor::EncryptData(IOutput *out,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
 {
+    if((pData == NULL || pData->BytesAvailable() == 0) &&
+            (aData == NULL || aData->BytesAvailable() == 0))
+    {
+        GDEBUG("Thou shalt not encrypt without either pData or aData or both! (NIST SP-800-38D)");
+    }
+
     G_D;
-    byte iv[IVLENGTH];
+    byte iv[IVLength];
     if(ph) ph->ProgressUpdated(0);
 
     // Initialize a random IV and initialize the encryptor
     d->rng.GenerateBlock(iv, sizeof(iv));
-    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
+    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLength);
 
     // First write the IV
     out->WriteBytes(iv, sizeof(iv));
@@ -166,7 +165,7 @@ void Cryptor::EncryptData(IOutput *out,
                 d->enc,
                 new OutputInterfaceSink(*out),
                 false,
-                TAGLENGTH);
+                TagLength);
 
     // First pass the authenticated data:
     ef.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
@@ -174,9 +173,11 @@ void Cryptor::EncryptData(IOutput *out,
     // If they gave us additional auth data, add it here
     if(aData && 0 < aData->BytesAvailable())
     {
-        SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
-        aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
-        ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
+        const GUINT32 len = aData->BytesAvailable();
+        SmartArrayPointer<byte> a(new byte[len]);
+        if(len != aData->ReadBytes(a, len, len))
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from auth data source");
+        ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), len);
     }
     ef.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
 
@@ -218,27 +219,27 @@ void Cryptor::DecryptData(IOutput *out,
 {
     G_D;
     GUINT32 len;
-    if((len = cData->BytesAvailable()) < (IVLENGTH + TAGLENGTH))
+    if((len = cData->BytesAvailable()) < (IVLength + TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
-    len = len - (IVLENGTH + TAGLENGTH);
+    len = len - (IVLength + TagLength);
 
     // Read the IV from the start of the source
-    byte iv[IVLENGTH];
-    if(IVLENGTH != cData->ReadBytes(iv, sizeof(iv), IVLENGTH))
+    byte iv[IVLength];
+    if(IVLength != cData->ReadBytes(iv, sizeof(iv), IVLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
     // Read the MAC tag at the end of the crypttext
-    byte mac[TAGLENGTH];
+    byte mac[TagLength];
     const GUINT32 cData_startPos = cData->Pos();
-    cData->Seek(cData->Length() - TAGLENGTH);
-    if(TAGLENGTH != cData->ReadBytes(mac, TAGLENGTH, TAGLENGTH))
+    cData->Seek(cData->Length() - TagLength);
+    if(TagLength != cData->ReadBytes(mac, TagLength, TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
     // Seek back to the start of the message
     cData->Seek(cData_startPos);
 
     // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
+    d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLength);
     try
     {
         GUINT32 read = 0;
@@ -249,11 +250,11 @@ void Cryptor::DecryptData(IOutput *out,
                     out == NULL ? NULL : new OutputInterfaceSink(*out),
                     ::CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION |
                     ::CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN,
-                    TAGLENGTH);
+                    TagLength);
 
         // We have to give it the mac before everything else in order to decrypt both
         //  the pData and the aData
-        df.Put(mac, TAGLENGTH);
+        df.Put(mac, TagLength);
 
         // Pass the authenticated data before the plaintext:
         df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
@@ -261,9 +262,11 @@ void Cryptor::DecryptData(IOutput *out,
         // If they gave us additional auth data, add it here
         if(aData && 0 < aData->BytesAvailable())
         {
-            SmartArrayPointer<byte> a(new byte[aData->BytesAvailable()]);
-            aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
-            df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
+            const GUINT32 len = aData->BytesAvailable();
+            SmartArrayPointer<byte> a(new byte[len]);
+            if(len != aData->ReadBytes(a, len, len))
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from auth data source");
+            df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), len);
         }
         df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
 

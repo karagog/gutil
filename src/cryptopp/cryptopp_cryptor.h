@@ -41,6 +41,22 @@ class Cryptor
     void *d;
 public:
 
+    /** The size of the initialization vector.
+     *
+     *  This contributes as many bytes to the size of the resulting crypttext.
+     *
+     *  \note The recommended IV size for GCM is 96 bits (NIST SP-800-38D)
+    */
+    static const GUINT32 IVLength = 12;
+
+    /** The size of the tag, or Message Authentication Code (MAC) that goes on
+     *  every encrypted message. The MAC is used to verify authenticity of the
+     *  entire message, so if any single bit is wrong the MAC tag will know it.
+     *
+     *  This contributes as many bytes to the size of the resulting crypttext.
+    */
+    static const GUINT32 TagLength = 16;
+
     /** Constructs and initializes the Cryptor using the password and/or keyfile.
      *
      *  If you supply a password, then only the password will be required to decrypt. If you

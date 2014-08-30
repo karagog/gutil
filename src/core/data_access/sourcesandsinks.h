@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_SOURCESANDSINKS_H
 #define GUTIL_SOURCESANDSINKS_H
 
-#include "gutil_macros.h"
 #include "gutil_iointerface.h"
+#include "gutil_vector.h"
 
 NAMESPACE_GUTIL;
 
@@ -40,6 +40,12 @@ public:
     ByteArrayInput(char const *ba, GUINT32 len)
         :m_start((byte const *)ba), m_end(m_start + len), m_cur(m_start) {}
 
+    ByteArrayInput(const GUtil::Vector<char> &s)
+        :m_start((byte const *)s.ConstData()), m_end(m_start + s.Length()), m_cur(m_start) {}
+
+    ByteArrayInput(const GUtil::Vector<byte> &s)
+        :m_start((byte const *)s.ConstData()), m_end(m_start + s.Length()), m_cur(m_start) {}
+
     virtual ~ByteArrayInput();
 
     /** \name GUtil::IRandomAccessInput
@@ -50,6 +56,23 @@ public:
     virtual GUINT32 Length() const{ return m_end - m_start; }
     virtual void Seek(GUINT32 pos){ m_cur = m_start + pos; }
     /** \} */
+};
+
+
+
+/** Outputs to a byte array. Use as a data sink. */
+class ByteArrayOutput : public GUtil::IOutput
+{
+    Vector<char> &m_out;
+public:
+
+    ByteArrayOutput(Vector<char> &ba) :m_out(ba) {}
+
+    virtual GUINT32 WriteBytes(const byte *data, GUINT32 len){
+        m_out.Insert((char const *)data, len, m_out.Length());
+        return len;
+    }
+
 };
 
 

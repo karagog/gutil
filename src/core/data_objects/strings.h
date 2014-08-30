@@ -857,6 +857,8 @@ public:
     /** Comparison operator. */
     bool operator == (const String &s) const{ return Vector<char>::operator == (s); }
     /** Comparison operator. */
+    bool operator == (const Vector<char> &s) const{ return Vector<char>::operator == (s); }
+    /** Comparison operator. */
     bool operator == (const char *s) const;
 
     /** Comparison operator. */
