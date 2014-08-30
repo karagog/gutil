@@ -22,10 +22,14 @@ limitations under the License.*/
 #include <cryptopp/gcm.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
+#include <cryptopp/sha3.h>
 USING_NAMESPACE_GUTIL;
 
 // These are some constants for the type of encryption we've chosen
 #define KEYLENGTH   32
+
+// The length of the second key, if we're using it
+#define KEYLENGTH2  64
 
 #define DEFAULT_CHUNK_SIZE 1024
 
@@ -40,7 +44,7 @@ struct d_t
     ::CryptoPP::GCM< ::CryptoPP::AES>::Encryption enc;
     ::CryptoPP::GCM< ::CryptoPP::AES>::Decryption dec;
     byte key[KEYLENGTH];
-    byte auth_data[KEYLENGTH];
+    byte key2[KEYLENGTH2];
 };
 
 }
@@ -50,8 +54,7 @@ NAMESPACE_GUTIL1(CryptoPP);
 
 static void __compute_password_hash(byte result[KEYLENGTH], const char *password)
 {
-    const int len = password ? strlen(password) : 0;
-    Hash<SHA3_256>().ComputeHash(result, (byte const *)password, len);
+    ::CryptoPP::SHA3_256().CalculateDigest(result, (byte const *)password, password ? strlen(password) : 0);
 }
 
 static void __compute_keyfile_hash(byte result[KEYLENGTH], const char *keyfile, IProgressHandler *ph = 0)
@@ -62,8 +65,12 @@ static void __compute_keyfile_hash(byte result[KEYLENGTH], const char *keyfile, 
         f->Open(File::OpenRead);
         in = f;
     }
+    ::GUtil::CryptoPP::Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
+}
 
-    Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
+static void __compute_password_hash2(byte result[KEYLENGTH2], const char *password)
+{
+    ::CryptoPP::SHA3_512().CalculateDigest(result, (byte const *)password, password ? strlen(password) : 0);
 }
 
 
@@ -77,8 +84,8 @@ Cryptor::Cryptor(const Cryptor &other)
 {
     G_D_INIT();
     G_D;
-    memcpy(d->key, ((d_t *)other.d)->key, sizeof(d->key));
-    memcpy(d->auth_data, ((d_t *)other.d)->auth_data, sizeof(d->auth_data));
+    memcpy(d->key, ((d_t *)other.d)->key, KEYLENGTH);
+    memcpy(d->key2, ((d_t *)other.d)->key2, KEYLENGTH2);
 }
 
 Cryptor::~Cryptor()
@@ -89,25 +96,19 @@ Cryptor::~Cryptor()
 bool Cryptor::CheckPassword(const char *password, const char *keyfile) const
 {
     G_D;
-    byte buf_key[sizeof(d->key)] = {};
-    byte buf_auth[sizeof(d->auth_data)] = {};
+    byte buf_key[KEYLENGTH] = {};
+    byte buf_key2[KEYLENGTH2] = {};
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
         __compute_password_hash(buf_key, password);
-        memcpy(buf_auth, buf_key, sizeof(buf_key));
-    }
-    else if(password == NULL || strlen(password) == 0){
-        // A keyfile was given but no password
-        __compute_keyfile_hash(buf_key, keyfile);
-        memcpy(buf_auth, buf_key, sizeof(buf_key));
     }
     else{
         // A password and keyfile were given
         __compute_keyfile_hash(buf_key, keyfile);
-        __compute_password_hash(buf_auth, password);
     }
+    __compute_password_hash2(buf_key2, password);
     return (0 == memcmp(d->key, buf_key, sizeof(buf_key))) &&
-           (0 == memcmp(d->auth_data, buf_auth, sizeof(buf_auth)));
+           (0 == memcmp(d->key2, buf_key2, sizeof(buf_key2)));
 }
 
 void Cryptor::ChangePassword(const char *password, const char *keyfile)
@@ -116,18 +117,12 @@ void Cryptor::ChangePassword(const char *password, const char *keyfile)
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
         __compute_password_hash(d->key, password);
-        memcpy(d->auth_data, d->key, sizeof(d->key));
-    }
-    else if(password == NULL || strlen(password) == 0){
-        // A keyfile was given but no password
-        __compute_keyfile_hash(d->key, keyfile);
-        memcpy(d->auth_data, d->key, sizeof(d->key));
     }
     else{
         // A password and keyfile were given
         __compute_keyfile_hash(d->key, keyfile);
-        __compute_password_hash(d->auth_data, password);
     }
+    __compute_password_hash2(d->key2, password);
 }
 
 
@@ -167,8 +162,8 @@ void Cryptor::EncryptData(IOutput *out,
                 false,
                 TagLength);
 
-    // First pass the authenticated data:
-    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
+    // First pass the authenticated data. Our second key goes in here.
+    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, d->key2, KEYLENGTH2);
 
     // If they gave us additional auth data, add it here
     if(aData && 0 < aData->BytesAvailable())
@@ -257,7 +252,7 @@ void Cryptor::DecryptData(IOutput *out,
         df.Put(mac, TagLength);
 
         // Pass the authenticated data before the plaintext:
-        df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
+        df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->key2, KEYLENGTH2);
 
         // If they gave us additional auth data, add it here
         if(aData && 0 < aData->BytesAvailable())
