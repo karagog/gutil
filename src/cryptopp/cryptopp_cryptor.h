@@ -110,7 +110,7 @@ public:
      *              or the initialization vector wasn't right (or wasn't there).
     */
     void DecryptData(GUtil::IOutput *out,
-                     GUtil::IInput *cData,
+                     GUtil::IRandomAccessInput *cData,
                      GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
                      GUtil::IProgressHandler *ph = NULL) const;

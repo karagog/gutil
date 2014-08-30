@@ -211,7 +211,7 @@ void Cryptor::EncryptData(IOutput *out,
 
 
 void Cryptor::DecryptData(IOutput *out,
-                          IInput *cData,
+                          IRandomAccessInput *cData,
                           IInput *aData,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
@@ -220,12 +220,22 @@ void Cryptor::DecryptData(IOutput *out,
     GUINT32 len;
     if((len = cData->BytesAvailable()) < (IVLENGTH + TAGLENGTH))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
-    len = len - IVLENGTH;
+    len = len - (IVLENGTH + TAGLENGTH);
 
     // Read the IV from the start of the source
     byte iv[IVLENGTH];
     if(IVLENGTH != cData->ReadBytes(iv, sizeof(iv), IVLENGTH))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+
+    // Read the MAC tag at the end of the crypttext
+    byte mac[TAGLENGTH];
+    const GUINT32 cData_startPos = cData->Pos();
+    cData->Seek(cData->Length() - TAGLENGTH);
+    if(TAGLENGTH != cData->ReadBytes(mac, TAGLENGTH, TAGLENGTH))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+
+    // Seek back to the start of the message
+    cData->Seek(cData_startPos);
 
     // Initialize the decryptor
     d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
@@ -241,7 +251,11 @@ void Cryptor::DecryptData(IOutput *out,
                     ::CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN,
                     TAGLENGTH);
 
-        // First pass the authenticated data:
+        // We have to give it the mac before everything else in order to decrypt both
+        //  the pData and the aData
+        df.Put(mac, TAGLENGTH);
+
+        // Pass the authenticated data before the plaintext:
         df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
 
         // If they gave us additional auth data, add it here
@@ -251,6 +265,7 @@ void Cryptor::DecryptData(IOutput *out,
             aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
             df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
         }
+        df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
 
         // Then read and pass the crypttext
         if(read < len)
@@ -276,7 +291,6 @@ void Cryptor::DecryptData(IOutput *out,
         }
 
         // This will throw an exception if authenticity validation failed
-        df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
         df.MessageEnd();
     }
     catch(const ::CryptoPP::Exception &ex)
