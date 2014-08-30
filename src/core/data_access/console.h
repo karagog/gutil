@@ -24,7 +24,7 @@ NAMESPACE_GUTIL;
 /** A blocking IO device that reads/writes to the console.
 
     Normally you can just use the static functions to write/read from the console,
-    but it also has the feature that it implements InputOutputInterface, so you can
+    but it also has the feature that it implements IInput and IOutput, so you can
     instantiate one and use it like an IO device.
 */
 class Console :
@@ -98,12 +98,12 @@ public:
 
 
 
-    /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */
+    /** Satisfies the IInput and IOutput abstract interface.  The second argument is ignored. */
     virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
         Write(reinterpret_cast<const char *>(data), GetOutputStream());
         return len;
     }
-    /** Satisfies the InputOutputInterface abstract interface.  The second argument is ignored. */
+    /** Satisfies the IInput and IOutput abstract interface.  The second argument is ignored. */
     virtual GUINT32 ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
         return Read(buffer, buffer_len, bytes_to_read);
     }

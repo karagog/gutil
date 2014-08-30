@@ -128,18 +128,18 @@ public:
     /** Returns the current position of the file pointer. */
     virtual GUINT32 Pos() const;
 
-    /** Satisfies the InputOutputInterface abstract interface. */
+    /** Satisfies the IInput and IOutput abstract interface. */
     virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
         Write(data, len);
         return len;
     }
 
-    /** Satisfies the InputOutputInterface abstract interface. */
+    /** Satisfies the IInput abstract interface. */
     virtual GUINT32 ReadBytes(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read){
         return Read(buffer, buffer_len, bytes_to_read);
     }
 
-    virtual GUINT32 BytesAvailable() const{ return IsOpen() ? Length() - Pos() : 0; }
+    virtual GUINT32 BytesAvailable() const{ return IsOpen() ? IRandomAccessInput::BytesAvailable() : 0; }
 
 
     /** Controls whether to buffer write outputs.  The default is true.

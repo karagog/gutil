@@ -87,11 +87,19 @@ class IRandomAccessInput :
 {
 public:
 
+    /** Returns the total size of the input from beginning to end. */
     virtual GUINT32 Length() const = 0;
 
+    /** Returns the current position of the input. */
     virtual GUINT32 Pos() const = 0;
 
+    /** Moves the current position to the given value. */
     virtual void Seek(GUINT32) = 0;
+
+    /** Provides a default implementation
+     *  which should should work for most cases.
+    */
+    virtual GUINT32 BytesAvailable() const{ return this->Length() - this->Pos(); }
 
     virtual ~IRandomAccessInput(){}
 };

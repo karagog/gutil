@@ -25,27 +25,30 @@ NAMESPACE_GUTIL;
  *  for the lifetime of this instance.  The caller retains ownership
  *  of the byte array.
 */
-class ByteArrayInput : public GUtil::IInput
+class ByteArrayInput : public GUtil::IRandomAccessInput
 {
-    byte const *m_cur;
+    byte const *const m_start;
     byte const *const m_end;
+    byte const *m_cur;
 public:
 
     /** Initialize from a byte array. */
     ByteArrayInput(byte const *ba, GUINT32 len)
-        :m_cur(ba), m_end(ba + len) {}
-    
+        :m_start(ba), m_end(m_start + len), m_cur(m_start) {}
+
     /** Initialize from a char array. */
     ByteArrayInput(char const *ba, GUINT32 len)
-        :m_cur((byte const *)ba), m_end(((byte const *)ba) + len) {}
-        
+        :m_start((byte const *)ba), m_end(m_start + len), m_cur(m_start) {}
+
     virtual ~ByteArrayInput();
 
-    /** \name GUtil::IInput
+    /** \name GUtil::IRandomAccessInput
         \{
     */
     virtual GUINT32 ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read);
-    virtual GUINT32 BytesAvailable() const{ return m_end - m_cur; }
+    virtual GUINT32 Pos() const{ return m_cur - m_start; }
+    virtual GUINT32 Length() const{ return m_end - m_start; }
+    virtual void Seek(GUINT32 pos){ m_cur = m_start + pos; }
     /** \} */
 };
 
