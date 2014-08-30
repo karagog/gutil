@@ -24,7 +24,7 @@ NAMESPACE_GUTIL1(QT);
 
 
 /** Outputs to a QByteArray. */
-class QByteArrayOutput : public GUtil::OutputInterface
+class QByteArrayOutput : public GUtil::IOutput
 {
     QByteArray &m_ba;
 public:

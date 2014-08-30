@@ -59,7 +59,7 @@ enum HashAlgorithmEnum
 
     - If you have all the data in memory, you can call ComputeHash()
     - If you are only getting data piecemeal, you can call AddData() and Final()
-    - If you have a generic InputInterface, you can use the other ComputeHash() call
+    - If you have a generic IInput, you can use the other ComputeHash() call
         which takes care of buffering the input and also allows you to monitor progress.
 */
 class HashBase
@@ -103,7 +103,7 @@ public:
      *  \param ph An optional progress handler to monitor this potentially long operation.
     */
     void ComputeHash(byte *digest_out,
-                     GUtil::InputInterface *,
+                     GUtil::IInput *,
                      GUINT32 chunk_size = 0, 
                      GUtil::IProgressHandler *ph = 0);
 

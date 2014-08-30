@@ -62,13 +62,13 @@ static void __compute_password_hash(byte result[KEYLENGTH], const char *password
 
 static void __compute_keyfile_hash(byte result[KEYLENGTH], const char *keyfile, IProgressHandler *ph = 0)
 {
-    SmartPointer<InputInterface> in;
+    SmartPointer<IInput> in;
     if(keyfile != NULL && strlen(keyfile) > 0){
         File *f = new File(keyfile);
         f->Open(File::OpenRead);
         in = f;
     }
-    
+
     Hash<SHA3_256> hash;
     hash.ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
 }
@@ -138,16 +138,16 @@ void Cryptor::ChangePassword(const char *password, const char *keyfile)
 }
 
 
-void Cryptor::EncryptData(OutputInterface *out,
-                          InputInterface *pData,
-                          InputInterface *aData,
+void Cryptor::EncryptData(IOutput *out,
+                          IInput *pData,
+                          IInput *aData,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
 {
     G_D;
     byte iv[IVLENGTH];
     if(ph) ph->ProgressUpdated(0);
-    
+
     // Initialize a random IV and initialize the encryptor
     d->rng.GenerateBlock(iv, sizeof(iv));
     d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLENGTH);
@@ -170,7 +170,7 @@ void Cryptor::EncryptData(OutputInterface *out,
 
     // First pass the authenticated data:
     ef.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
-    
+
     // If they gave us additional auth data, add it here
     if(aData && 0 < aData->BytesAvailable())
     {
@@ -210,9 +210,9 @@ void Cryptor::EncryptData(OutputInterface *out,
 }
 
 
-void Cryptor::DecryptData(OutputInterface *out,
-                          InputInterface *cData,
-                          InputInterface *aData,
+void Cryptor::DecryptData(IOutput *out,
+                          IInput *cData,
+                          IInput *aData,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
 {
@@ -237,12 +237,13 @@ void Cryptor::DecryptData(OutputInterface *out,
         ::CryptoPP::AuthenticatedDecryptionFilter df(
                     d->dec,
                     out == NULL ? NULL : new OutputInterfaceSink(*out),
-                    ::CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION,
+                    ::CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION |
+                    ::CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN,
                     TAGLENGTH);
 
         // First pass the authenticated data:
         df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->auth_data, sizeof(d->auth_data));
-        
+
         // If they gave us additional auth data, add it here
         if(aData && 0 < aData->BytesAvailable())
         {
@@ -250,7 +251,6 @@ void Cryptor::DecryptData(OutputInterface *out,
             aData->ReadBytes(a, aData->BytesAvailable(), aData->BytesAvailable());
             df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData->BytesAvailable());
         }
-        df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
 
         // Then read and pass the crypttext
         if(read < len)
@@ -276,6 +276,7 @@ void Cryptor::DecryptData(OutputInterface *out,
         }
 
         // This will throw an exception if authenticity validation failed
+        df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
         df.MessageEnd();
     }
     catch(const ::CryptoPP::Exception &ex)

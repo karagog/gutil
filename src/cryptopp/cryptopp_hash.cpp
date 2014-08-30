@@ -51,7 +51,7 @@ void HashBase::Final(byte *d)
 }
 
 void HashBase::ComputeHash(byte *out,
-                       InputInterface *input,
+                       IInput *input,
                        GUINT32 chunk_size,
                        IProgressHandler *ph)
 {

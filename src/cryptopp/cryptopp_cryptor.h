@@ -41,8 +41,8 @@ class Cryptor
     void *d;
 public:
 
-    /** Constructs and initializes the Cryptor using the password and/or keyfile.  
-     *  
+    /** Constructs and initializes the Cryptor using the password and/or keyfile.
+     *
      *  If you supply a password, then only the password will be required to decrypt. If you
      *  supply a keyfile but not a password, then only the keyfile will be required to decrypt.
      *
@@ -85,9 +85,9 @@ public:
      *  \param ph An optional progress handler for long operations; large data sources.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
     */
-    void EncryptData(GUtil::OutputInterface *out,
-                     GUtil::InputInterface *pData = NULL,
-                     GUtil::InputInterface *aData = NULL,
+    void EncryptData(GUtil::IOutput *out,
+                     GUtil::IInput *pData = NULL,
+                     GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
                      GUtil::IProgressHandler *ph = NULL) const;
 
@@ -109,9 +109,9 @@ public:
      *              wrong data (or length), or if a bit was flipped somewhere,
      *              or the initialization vector wasn't right (or wasn't there).
     */
-    void DecryptData(GUtil::OutputInterface *out,
-                     GUtil::InputInterface *cData,
-                     GUtil::InputInterface *aData = NULL,
+    void DecryptData(GUtil::IOutput *out,
+                     GUtil::IInput *cData,
+                     GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
                      GUtil::IProgressHandler *ph = NULL) const;
 

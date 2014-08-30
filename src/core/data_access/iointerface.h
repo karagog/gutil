@@ -29,7 +29,7 @@ GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( IOException, int Bytes );
 /** An abstract interface that says you implement a way of receiving data
     from somewhere
 */
-class InputInterface
+class IInput
 {
 public:
     /** Attempts to read data from the device.
@@ -56,14 +56,14 @@ public:
     */
     virtual GUINT32 BytesAvailable() const = 0;
 
-    virtual ~InputInterface(){}
+    virtual ~IInput(){}
 };
 
 
 /** An abstract interface that says you implement a way of outputting
     data somewhere
 */
-class OutputInterface
+class IOutput
 {
 public:
     /** Writes the data to the IO device.
@@ -78,12 +78,12 @@ public:
     /** Flushes the output buffer, if there is one. Otherwise does nothing. */
     virtual void Flush(){}
 
-    virtual ~OutputInterface(){}
+    virtual ~IOutput(){}
 };
 
 
 class IRandomAccessInput :
-        public InputInterface
+        public IInput
 {
 public:
 

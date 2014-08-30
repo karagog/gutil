@@ -22,13 +22,13 @@ NAMESPACE_GUTIL;
 
 #define DEFAULT_TRUNCATE_LIMIT   1000
 
-AbstractLogger::AbstractLogger(OutputInterface *io)
+AbstractLogger::AbstractLogger(IOutput *io)
     :_io(io),
       m_options(GUINT32_MAX),
       m_truncate_limit(DEFAULT_TRUNCATE_LIMIT)
 {}
 
-AbstractLogger::AbstractLogger(OutputInterface *io, const AbstractLogger::LoggingOptionsFlags &f)
+AbstractLogger::AbstractLogger(IOutput *io, const AbstractLogger::LoggingOptionsFlags &f)
     :_io(io),
       m_options(f),
       m_truncate_limit(DEFAULT_TRUNCATE_LIMIT)

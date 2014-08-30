@@ -24,7 +24,7 @@ NAMESPACE_GUTIL;
 
 
 /** An abstract base implementation of a logging object.
-    You must simply inject an object that implements the OutputInterface into
+    You must simply inject an object that implements the IOutput into
     the constructor.
 
     It inherits from SharedData, to enable you to use the SharedSmartPointer
@@ -109,13 +109,13 @@ public:
 
         All available logger options are enabled by default
     */
-    AbstractLogger(OutputInterface *);
+    AbstractLogger(IOutput *);
 
     /** You must inject an IO object, and this class will take ownership
         of the instance.  With this constructor you can also initialize the
         options flags
     */
-    AbstractLogger(OutputInterface *, const LoggingOptionsFlags &);
+    AbstractLogger(IOutput *, const LoggingOptionsFlags &);
 
     /** Clears the contents of the log, if applicable.
         The default implementation does nothing.
@@ -215,14 +215,14 @@ protected:
 
 
     /** Derived classes may use this accessor to access the io device */
-    OutputInterface *io_device(){ return _io.Data(); }
+    IOutput *io_device(){ return _io.Data(); }
     /** Derived classes may use this accessor to access the io device */
-    OutputInterface const *io_device() const{ return _io.Data(); }
+    IOutput const *io_device() const{ return _io.Data(); }
 
 
 private:
 
-    SmartPointer<OutputInterface> _io;
+    SmartPointer<IOutput> _io;
     LoggingOptionsFlags m_options;
 
     /** An optional character limit on the exception data message. */

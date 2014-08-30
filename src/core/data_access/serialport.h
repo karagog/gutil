@@ -33,8 +33,8 @@ NAMESPACE_GUTIL;
     It currently works in Windows and Linux only.
 */
 class SerialPort :
-        public InputInterface,
-        public OutputInterface
+        public IInput,
+        public IOutput
 {
 public:
 

@@ -25,7 +25,7 @@ NAMESPACE_GUTIL;
  *  for the lifetime of this instance.  The caller retains ownership
  *  of the byte array.
 */
-class ByteArrayInput : public GUtil::InputInterface
+class ByteArrayInput : public GUtil::IInput
 {
     byte const *m_cur;
     byte const *const m_end;
@@ -41,7 +41,7 @@ public:
         
     virtual ~ByteArrayInput();
 
-    /** \name GUtil::InputInterface
+    /** \name GUtil::IInput
         \{
     */
     virtual GUINT32 ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read);

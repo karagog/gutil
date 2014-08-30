@@ -28,7 +28,7 @@ NAMESPACE_GUTIL;
 */
 class File :
         public IRandomAccessInput,
-        public OutputInterface
+        public IOutput
 {
     GUTIL_DISABLE_COPY(File);
 public:

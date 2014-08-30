@@ -20,20 +20,20 @@ limitations under the License.*/
 
 NAMESPACE_GUTIL;
 class String;
-class OutputInterface;
+class IOutput;
 END_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(CryptoPP);
 
 
-/** Used to adapt a generic OutputInterface into CryptoPP Sink. */
+/** Used to adapt a generic IOutput into CryptoPP Sink. */
 class OutputInterfaceSink : public ::CryptoPP::Sink
 {
-    OutputInterface &ref;
+    IOutput &ref;
 public:
 
     /** Just give it a string reference, and it will append all the data to it */
-    OutputInterfaceSink(OutputInterface &s) :ref(s) {}
+    OutputInterfaceSink(IOutput &s) :ref(s) {}
     virtual ~OutputInterfaceSink() {}
 
     virtual size_t Put2(const byte *, size_t, int, bool);
