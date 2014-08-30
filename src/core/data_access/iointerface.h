@@ -82,15 +82,18 @@ public:
 };
 
 
-/** An abstract interface that says you implement a way of receiving and
-    producing byte data.
-*/
-class InputOutputInterface :
-        public InputInterface,
-        public OutputInterface
+class IRandomAccessInput :
+        public InputInterface
 {
 public:
-    virtual ~InputOutputInterface(){}
+
+    virtual GUINT32 Length() const = 0;
+
+    virtual GUINT32 Pos() const = 0;
+
+    virtual void Seek(GUINT32) = 0;
+
+    virtual ~IRandomAccessInput(){}
 };
 
 

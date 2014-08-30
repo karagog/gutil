@@ -28,7 +28,8 @@ NAMESPACE_GUTIL;
     instantiate one and use it like an IO device.
 */
 class Console :
-        public InputOutputInterface
+        public InputInterface,
+        public OutputInterface
 {
 public:
 

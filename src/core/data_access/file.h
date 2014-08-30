@@ -27,7 +27,8 @@ NAMESPACE_GUTIL;
     failure cases and trap them.
 */
 class File :
-        public InputOutputInterface
+        public IRandomAccessInput,
+        public OutputInterface
 {
     GUTIL_DISABLE_COPY(File);
 public:
@@ -96,7 +97,7 @@ public:
     void Close();
 
     /** The length of the file. */
-    GUINT32 Length() const;
+    virtual GUINT32 Length() const;
     /** The length of the file. */
     GUINT32 Size() const{ return Length(); }
 
@@ -123,9 +124,9 @@ public:
     String Read(GUINT32 bytes = UINT_MAX);
 
     /** Changes the position of the read pointer. */
-    void Seek(GUINT32 pos);
+    virtual void Seek(GUINT32 pos);
     /** Returns the current position of the file pointer. */
-    GUINT32 Pos() const;
+    virtual GUINT32 Pos() const;
 
     /** Satisfies the InputOutputInterface abstract interface. */
     virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
