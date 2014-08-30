@@ -140,9 +140,6 @@ void Cryptor::EncryptData(IOutput *out,
     d->rng.GenerateBlock(iv, sizeof(iv));
     d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLength);
 
-    // First write the IV
-    out->WriteBytes(iv, sizeof(iv));
-
     GUINT32 len = pData ? pData->BytesAvailable() : 0;
     if(len == GUINT32_MAX)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
@@ -195,6 +192,9 @@ void Cryptor::EncryptData(IOutput *out,
         }
     }
     ef.MessageEnd();
+
+    // Write the IV at the very end
+    out->WriteBytes(iv, sizeof(iv));
     out->Flush();
     if(ph) ph->ProgressUpdated(100);
 }
@@ -212,23 +212,17 @@ void Cryptor::DecryptData(IOutput *out,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
     len = len - (IVLength + TagLength);
 
-    // Read the IV from the start of the source
-    byte iv[IVLength];
-    if(IVLength != cData->ReadBytes(iv, sizeof(iv), IVLength))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
-
-    // Read the MAC tag at the end of the crypttext
-    byte mac[TagLength];
-    const GUINT32 cData_startPos = cData->Pos();
-    cData->Seek(cData->Length() - TagLength);
-    if(TagLength != cData->ReadBytes(mac, TagLength, TagLength))
+    // Read the MAC tag and IV at the end of the crypttext
+    byte mac_iv[TagLength + IVLength];
+    cData->Seek(cData->Length() - sizeof(mac_iv));
+    if(sizeof(mac_iv) != cData->ReadBytes(mac_iv, sizeof(mac_iv), sizeof(mac_iv)))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
     // Seek back to the start of the message
-    cData->Seek(cData_startPos);
+    cData->Seek(0);
 
     // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLength);
+    d->dec.SetKeyWithIV(d->key, KEYLENGTH, mac_iv + TagLength, IVLength);
     try
     {
         GUINT32 read = 0;
@@ -243,7 +237,7 @@ void Cryptor::DecryptData(IOutput *out,
 
         // We have to give it the mac before everything else in order to decrypt both
         //  the pData and the aData
-        df.Put(mac, TagLength);
+        df.Put(mac_iv, TagLength);
 
         // Pass the authenticated data before the plaintext:
         df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->key2, KEYLENGTH2);
