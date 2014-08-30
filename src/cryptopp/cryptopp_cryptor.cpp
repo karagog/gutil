@@ -132,12 +132,6 @@ void Cryptor::EncryptData(IOutput *out,
                           GUINT32 chunk_size,
                           IProgressHandler *ph) const
 {
-    if((pData == NULL || pData->BytesAvailable() == 0) &&
-            (aData == NULL || aData->BytesAvailable() == 0))
-    {
-        GDEBUG("Thou shalt not encrypt without either pData or aData or both! (NIST SP-800-38D)");
-    }
-
     G_D;
     byte iv[IVLength];
     if(ph) ph->ProgressUpdated(0);
