@@ -208,7 +208,7 @@ void Cryptor::DecryptData(IOutput *out,
 {
     G_D;
     GUINT32 len;
-    if((len = cData->BytesAvailable()) < (IVLength + TagLength))
+    if(cData == NULL || (len = cData->BytesAvailable()) < (IVLength + TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
     len = len - (IVLength + TagLength);
 
