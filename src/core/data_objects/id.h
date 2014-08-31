@@ -71,9 +71,12 @@ public:
     /** Constructs an Id from an arbitrary byte array.  The array must
      *  be at least NUM_BYTES large, otherwise it will seg fault.
     */
-    explicit Id(const GBYTE *d){
-        memcpy(m_data, d, sizeof(m_data));
-    }
+    explicit Id(const GBYTE *d){ memcpy(m_data, d, sizeof(m_data)); }
+
+    /** Constructs an Id from an arbitrary byte array.  The array must
+     *  be at least NUM_BYTES large, otherwise it will seg fault.
+    */
+    explicit Id(const char *d){ memcpy(m_data, d, sizeof(m_data)); }
 
     /** Assignment operator */
     Id<NUM_BYTES> &operator = (const Id<NUM_BYTES> &other){
