@@ -105,7 +105,7 @@ public:
                      GUtil::IInput *pData = NULL,
                      GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = NULL) const;
+                     GUtil::IProgressHandler *ph = NULL);
 
     /** Decrypts the string and throw an exception if decryption failed.
      *  It could fail due to a wrong key, wrong data (length), or if a bit was flipped somewhere
@@ -129,7 +129,7 @@ public:
                      GUtil::IRandomAccessInput *cData,
                      GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = NULL) const;
+                     GUtil::IProgressHandler *ph = NULL);
 
 };
 

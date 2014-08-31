@@ -130,7 +130,7 @@ void Cryptor::EncryptData(IOutput *out,
                           IInput *pData,
                           IInput *aData,
                           GUINT32 chunk_size,
-                          IProgressHandler *ph) const
+                          IProgressHandler *ph)
 {
     G_D;
     byte iv[IVLength];
@@ -204,7 +204,7 @@ void Cryptor::DecryptData(IOutput *out,
                           IRandomAccessInput *cData,
                           IInput *aData,
                           GUINT32 chunk_size,
-                          IProgressHandler *ph) const
+                          IProgressHandler *ph)
 {
     G_D;
     GUINT32 len;
