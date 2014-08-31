@@ -20,8 +20,9 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(QT);
 
 
-ProgressBarControl::ProgressBarControl(QWidget *parent)
-    :QWidget(parent)
+ProgressBarControl::ProgressBarControl(bool be, QWidget *parent)
+    :QWidget(parent),
+      _p_AutoShow(true)
 {
     _button.setStyleSheet("background-color: rgba(0,0,0,0);");
 
@@ -40,8 +41,14 @@ ProgressBarControl::ProgressBarControl(QWidget *parent)
     ((QStackedLayout*)_progressBar.layout())->setStackingMode(QStackedLayout::StackAll);
     _progressBar.layout()->addWidget(&_label);
 
-    _button.hide();
     _progressBar.layout()->addWidget(&_button);
+
+    connect(&_button, SIGNAL(clicked()), this, SIGNAL(Clicked()));
+
+    setButtonEnabled(be);
+
+    if(GetAutoShow())
+        hide();
 }
 
 void ProgressBarControl::setButtonEnabled(bool which)
@@ -54,6 +61,19 @@ void ProgressBarControl::setButtonEnabled(bool which)
     else
     {
         _button.hide();
+    }
+}
+
+void ProgressBarControl::SetProgress(int p, const QString &s)
+{
+    _progressBar.setValue(p);
+    _label.setText(s);
+    if(GetAutoShow())
+    {
+        if(p == _progressBar.minimum() && !isVisible())
+            show();
+        else if(p == _progressBar.maximum() && isVisible())
+            hide();
     }
 }
 

@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
+#include "gutil_macros.h"
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
@@ -34,10 +35,13 @@ class ProgressBarControl :
     Q_OBJECT
 public:
 
-    explicit ProgressBarControl(QWidget *parent = 0);
+    explicit ProgressBarControl(bool button_enabled, QWidget *parent = 0);
 
     /** Enables the progress bar to be clicked like a button */
     void setButtonEnabled(bool which = true);
+
+    /** Controls whether to show/hide the progress bar automatically. Default is true. */
+    PROPERTY(AutoShow, bool);
 
     /** Access to the label */
     QLabel &Label(){ return _label; }
@@ -53,6 +57,18 @@ public:
     QPushButton &PushButton(){ return _button; }
     /** Access to the push button */
     const QPushButton &PushButton() const{ return _button; }
+
+
+public slots:
+
+    /** Updates the displayed progress and shows the task string. */
+    void SetProgress(int, const QString &task_name = QString());
+
+
+signals:
+
+    /** Emitted when the progress bar button is clicked. */
+    void Clicked();
 
 
 private:

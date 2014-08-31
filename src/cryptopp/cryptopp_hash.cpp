@@ -74,7 +74,7 @@ void HashBase::ComputeHash(byte *out,
             to_read = len - read;
 
         if(ph){
-            if(ph->CancelOperation())
+            if(ph->ShouldOperationCancel())
                 THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
             ph->ProgressUpdated(((float)read / len) * 100);
         }

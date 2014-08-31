@@ -186,7 +186,7 @@ void Cryptor::EncryptData(IOutput *out,
 
             if(ph){
                 ph->ProgressUpdated(((float)read / len) * 100);
-                if(ph->CancelOperation())
+                if(ph->ShouldOperationCancel())
                     THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
             }
         }
@@ -270,7 +270,7 @@ void Cryptor::DecryptData(IOutput *out,
 
                 if(ph){
                     ph->ProgressUpdated(((float)read / len) * 100);
-                    if(ph->CancelOperation())
+                    if(ph->ShouldOperationCancel())
                         THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
                 }
             }

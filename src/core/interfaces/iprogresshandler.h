@@ -33,10 +33,10 @@ public:
     */
     virtual void ProgressUpdated(int) = 0;
 
-    /** Called periodically to ask if the operation should be cancelled.
-     *  Return true if you want to cancel.
+    /** Used by interface consumers to know if you want to cancel the operation.
+     *  The default implementation returns false, thus never cancelling.
     */
-    virtual bool CancelOperation(){ return false; }
+    virtual bool ShouldOperationCancel(){ return false; }
 
 };
 
