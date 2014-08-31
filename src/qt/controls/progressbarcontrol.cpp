@@ -66,8 +66,6 @@ void ProgressBarControl::setButtonEnabled(bool which)
 
 void ProgressBarControl::SetProgress(int p, const QString &s)
 {
-    _progressBar.setValue(p);
-    _label.setText(s);
     if(GetAutoShow())
     {
         if(p == _progressBar.minimum() && !isVisible())
@@ -75,6 +73,12 @@ void ProgressBarControl::SetProgress(int p, const QString &s)
         else if(p == _progressBar.maximum() && isVisible())
             hide();
     }
+
+    _progressBar.setValue(p);
+    if(_button.isVisible())
+        _label.setText(QString(tr("%1 (Click to cancel)")).arg(s));
+    else
+        _label.setText(s);
 }
 
 
