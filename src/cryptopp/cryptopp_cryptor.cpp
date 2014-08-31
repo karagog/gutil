@@ -182,6 +182,8 @@ void Cryptor::EncryptData(IOutput *out,
                 THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
             ef.Put(buf, to_read, true);
+            if(out)
+                out->Flush();
             read += to_read;
 
             if(ph){
@@ -208,6 +210,7 @@ void Cryptor::DecryptData(IOutput *out,
 {
     G_D;
     GUINT32 len;
+    if(ph) ph->ProgressUpdated(0);
     if(cData == NULL || (len = cData->BytesAvailable()) < (IVLength + TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
     len = len - (IVLength + TagLength);
@@ -266,6 +269,8 @@ void Cryptor::DecryptData(IOutput *out,
                     THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
                 df.Put(buf, to_read, true);
+                if(out)
+                    out->Flush();
                 read += to_read;
 
                 if(ph){
