@@ -48,8 +48,10 @@ class Id
     /** A cached null id for fast null comparisons. */
     static const Id s_null;
 
-
 public:
+
+    /** Returns the number of bytes used in the Id.  This is a fixed constant. */
+    static const int Size;
 
     /** Constructs a null Id, which has all bytes set to 0. */
     Id(){ Clear(); }
@@ -85,9 +87,6 @@ public:
 
     /** Returns a null id (all bits set to 0). */
     static const Id<NUM_BYTES> &Null(){ return s_null; }
-
-    /** Returns the number of bytes used in the Id.  This is a fixed constant. */
-    static int Size(){ return NUM_BYTES; }
 
     /** Returns the base of the data array, which has a size of Size(). */
     char const *ConstData() const{ return (char const *)m_data; }
@@ -163,7 +162,8 @@ public:
 };
 
 
-template<int NUM_BYTES> const Id<NUM_BYTES> Id<NUM_BYTES>::s_null(false);
+template<int NUM_BYTES>const int Id<NUM_BYTES>::Size = NUM_BYTES;
+template<int NUM_BYTES>const Id<NUM_BYTES> Id<NUM_BYTES>::s_null(false);
 
 template<int NUM_BYTES>struct IsMovableType< GUtil::Id<NUM_BYTES> >{ enum{ Value = 1 }; };
 
