@@ -244,6 +244,15 @@ protected: \
         cls(){} \
         enum{}
 
+/** Disables a class' ability to default construct, thus
+ *  forcing the consumer to use a user-defined constructor or
+ *  static factory function.
+*/
+#define GUTIL_DISABLE_DEFAULT_CONSTRUCTION(cls) \
+    private: \
+        cls(){} \
+        enum{}
+
 
 /** A Macro that removes the warning from unused variables. */
 #define GUTIL_UNUSED(x) (void)x;
