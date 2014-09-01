@@ -59,14 +59,36 @@ public:
 };
 
 
-
-/** Outputs to a byte array. Use as a data sink. */
+/** Outputs to a generic byte array. Use as a data sink.
+ *  You must be very careful with this class, and only use it if
+ *  you know your buffer is large enough to receive the data
+ *  This could cause a seg fault if used improperly. If you don't
+ *  know the size of the output, then use VectorByteArrayOutput.
+*/
 class ByteArrayOutput : public GUtil::IOutput
+{
+    byte *m_cur;
+public:
+
+    ByteArrayOutput(char *ba) :m_cur((byte *)ba) {}
+    ByteArrayOutput(byte *ba) :m_cur(ba) {}
+
+    virtual GUINT32 WriteBytes(const byte *data, GUINT32 len){
+        memcpy(m_cur, data, len);
+        m_cur += len;
+        return len;
+    }
+
+};
+
+
+/** Outputs to a vector byte array. Use as a data sink. */
+class VectorByteArrayOutput : public GUtil::IOutput
 {
     Vector<char> &m_out;
 public:
 
-    ByteArrayOutput(Vector<char> &ba) :m_out(ba) {}
+    VectorByteArrayOutput(Vector<char> &ba) :m_out(ba) {}
 
     virtual GUINT32 WriteBytes(const byte *data, GUINT32 len){
         m_out.Insert((char const *)data, len, m_out.Length());
