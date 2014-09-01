@@ -33,10 +33,8 @@ class File :
     GUTIL_DISABLE_COPY(File);
 public:
 
-    /** Creates an empty file object.  You must use SetFilename before calling open. */
-    File() :_p_BufferedWrites(true), h(NULL){}
     /** Creates a file object with the given filename. */
-    explicit File(const char *filename)
+    explicit File(const char *filename = NULL)
         :_p_BufferedWrites(true), m_filename(filename), h(NULL){}
     virtual ~File();
 
