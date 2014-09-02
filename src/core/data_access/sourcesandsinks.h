@@ -59,6 +59,27 @@ public:
 };
 
 
+/** Takes a large input device and constrains the input to a section of it.
+ *  Like if you only want to read part of a file, not the whole thing, you might
+ *  constrain it as an input.
+*/
+class ConstrainedInput : public GUtil::IRandomAccessInput
+{
+    IRandomAccessInput &m_input;
+    const GUINT32 m_start, m_end;
+public:
+    ConstrainedInput(IRandomAccessInput &input, GUINT32 startpos, GUINT32 endpos)
+        :m_input(input), m_start(startpos), m_end(endpos) {}
+
+    virtual GUINT32 ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read){
+        return m_input.ReadBytes(buf, len, to_read);
+    }
+    virtual GUINT32 Pos() const{ return m_input.Pos() - m_start; }
+    virtual GUINT32 Length() const{ return m_end - m_start; }
+    virtual void Seek(GUINT32 pos){ m_input.Seek(m_start + pos); }
+};
+
+
 /** Outputs to a generic byte array. Use as a data sink.
  *  You must be very careful with this class, and only use it if
  *  you know your buffer is large enough to receive the data
