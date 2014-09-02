@@ -99,12 +99,22 @@ void File::Delete(const char *filename)
 GUINT32 File::Length() const
 {
     GUINT32 ret(0);
-    if(H)
-    {
-        long pos = ftell(H);
-        fseek(H, 0, SEEK_END);
-        ret = ftell(H);
-        fseek(H, pos, SEEK_SET);
+    if(IsOpen()){
+        long int pos = ftell(H);
+        if(0 == fseek(H, 0, SEEK_END)){
+            ret = ftell(H);
+            if(0 != fseek(H, pos, SEEK_SET))
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to seek back to starting location");
+        }
+    }
+    else{
+        // If the file is not opened yet, open it, read the length, then close it
+        FILE *handle;
+        if((handle = fopen(m_filename, "r"))){
+            if(0 == fseek(handle, 0, SEEK_END))
+                ret = ftell(handle);
+            fclose(handle);
+        }
     }
     return ret;
 }
