@@ -87,7 +87,8 @@ public:
     */
     void Final(byte *digest_out);
     
-    /** Generates the hash of a fixed length data input.
+    /** Generates the hash of a fixed length data input. You can initialize the hash
+     *  with salt simply by calling AddData() before this.
      *  \param digest_out Must be the correct digest size, returned by DigestSize()
     */
     void ComputeHash(byte *digest_out, byte const *data, GUINT32 data_len){
@@ -96,7 +97,8 @@ public:
     }
     
     /** Generates the hash of data from an input device. The input device may be null,
-     *  in which case you get the hash of zero bytes.
+     *  in which case you get the hash of zero bytes. You can initialize the hash
+     *  with salt simply by calling AddData() before this.
      *
      *  \param digest_out Must be the correct digest size, returned by DigestSize()
      *  \param chunk_size The number of bytes to read at a time.

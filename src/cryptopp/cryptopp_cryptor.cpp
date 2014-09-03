@@ -64,7 +64,10 @@ static void __compute_keyfile_hash(byte *result, const char *keyfile,
         in = f;
         f->Open(File::OpenRead);
     }
-    Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
+    Hash<SHA3_256> h;
+    if(salt)
+        h.AddData(salt, salt_len);
+    h.ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
 }
 
 static void __compute_password_hash2(byte *result, const char *password,
