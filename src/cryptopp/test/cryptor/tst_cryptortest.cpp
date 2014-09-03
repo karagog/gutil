@@ -43,16 +43,16 @@ void CryptorTest::test_basic_encryption()
     Vector<char> cData;
     {
         ByteArrayInput i(pData.ConstData(), pData.Length());
-        ByteArrayOutput o(cData);
+        VectorByteArrayOutput o(cData);
         crypt.EncryptData(&o, &i);
     }
     QVERIFY(0 != memcmp(pData.ConstData(), cData.ConstData(), pData.Length()));
-    QVERIFY(cData.Length() == pData.Length() + crypt.IVLength + crypt.TagLength);
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
 
     Vector<char> recovered;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt.DecryptData(&o, &i);
     }
     catch(...){
@@ -65,7 +65,7 @@ void CryptorTest::test_basic_encryption()
     Vector<char> cData2;
     {
         ByteArrayInput i(pData.ConstData(), pData.Length());
-        ByteArrayOutput o(cData2);
+        VectorByteArrayOutput o(cData2);
         crypt.EncryptData(&o, &i);
     }
     QVERIFY(cData.Length() == cData2.Length());
@@ -80,7 +80,7 @@ void CryptorTest::test_basic_encryption()
             " data blocks and the cipher correctly.";
     {
         ByteArrayInput i(pData.ConstData(), pData.Length());
-        ByteArrayOutput o(cData);
+        VectorByteArrayOutput o(cData);
         crypt.EncryptData(&o, &i);
     }
     QVERIFY(0 != memcmp(pData.ConstData(), cData.ConstData(), pData.Length()));
@@ -88,7 +88,7 @@ void CryptorTest::test_basic_encryption()
     recovered.Empty();
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt.DecryptData(&o, &i);
     }
     catch(...){
@@ -138,11 +138,11 @@ void CryptorTest::test_encryption_with_authentication()
     // First authenticate a message without pData
     {
         ByteArrayInput i(aData.ConstData(), aData.Length());
-        ByteArrayOutput o(cData);
+        VectorByteArrayOutput o(cData);
         crypt.EncryptData(&o, NULL, &i);
     }
     // The crypttext has only the IV and MAC
-    QVERIFY(cData.Length() == crypt.IVLength + crypt.TagLength);
+    QVERIFY(cData.Length() == crypt.GetNonceSize() + crypt.TagLength);
 
     // Verify the authenticity correctly
     try{
@@ -175,18 +175,18 @@ void CryptorTest::test_encryption_with_authentication()
     {
         ByteArrayInput i(pData.ConstData(), pData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
-        ByteArrayOutput o(cData);
+        VectorByteArrayOutput o(cData);
         crypt.EncryptData(&o, &i, &ia);
     }
     // The crypttext has the plaintext plus IV and MAC
-    QVERIFY(cData.Length() == pData.Length() + crypt.IVLength + crypt.TagLength);
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
 
     // Recover the pData and verify the authenticity
     Vector<char> recovered;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt.DecryptData(&o, &i, &ia);
     }
     catch(...){
@@ -249,16 +249,16 @@ void CryptorTest::test_encryption_with_keyfiles()
     Vector<char> cData;
     {
         ByteArrayInput i(pData.ConstData(), pData.Length());
-        ByteArrayOutput o(cData);
+        VectorByteArrayOutput o(cData);
         crypt.EncryptData(&o, &i);
     }
-    QVERIFY(cData.Length() == pData.Length() + crypt.IVLength + crypt.TagLength);
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
     QVERIFY(0 != memcmp(pData.ConstData(), cData.ConstData(), pData.Length()));
 
     Vector<char> recovered;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt.DecryptData(&o, &i);
     }
     catch(...){
@@ -302,7 +302,7 @@ void CryptorTest::test_encryption_with_keyfiles()
     recovered.Empty();
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt2.DecryptData(&o, &i);
     }
     catch(...){
@@ -323,17 +323,17 @@ void CryptorTest::test_encryption_with_all_features()
     {
         ByteArrayInput i(pData.ConstData(), pData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
-        ByteArrayOutput o(cData);
+        VectorByteArrayOutput o(cData);
         crypt.EncryptData(&o, &i, &ia);
     }
-    QVERIFY(cData.Length() == pData.Length() + crypt.IVLength + crypt.TagLength);
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
     QVERIFY(0 != memcmp(pData.ConstData(), cData.ConstData(), pData.Length()));
 
     Vector<char> recovered;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt.DecryptData(&o, &i, &ia);
     }
     catch(...){
@@ -380,7 +380,7 @@ void CryptorTest::test_encryption_with_all_features()
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
-        ByteArrayOutput o(recovered);
+        VectorByteArrayOutput o(recovered);
         crypt.DecryptData(&o, &i, &ia);
     }
     catch(...){

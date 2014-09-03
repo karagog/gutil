@@ -28,26 +28,32 @@ NAMESPACE_GUTIL1(CryptoPP);
  *  added onto every encrypted message.
  *
  *  The crypttext output of all functions will contain a 16-byte
- *  Message Authentication Code (MAC) and the 12-byte Initialization Vector that are
+ *  Message Authentication Code (MAC) and the Nonce of configurable size that are
  *  required to decrypt the message. The total size of the crypttext will be the size of
- *  the plaintext data plus the MAC and IV, in other words 28 bytes plus pDataLen.
+ *  the plaintext data plus the MAC and Nonce.
  *
  *  You can optionally supply authenticated data to the encryption functions, which will
  *  not add to the size of the crypttext (you will transmit this data in clear text),
  *  but it will nonetheless be required to decrypt the message.
+ *
+ *  A note on limits:
+ *  The encryption method is AES-CCM. With CCM mode, the maximum payload size is
+ *  configurable based on the size of the Nonce, since you must specify the length
+ *  of the data before encryption and it must fit inside a 15-byte block with the nonce
+ *  itself. Therefore, whatever the nonce length (N) is, you have 15-N bytes to represent
+ *  the payload size. However, before you decide you want a minimum sized nonce to maximize
+ *  your payload, the nonce must be guaranteed to be unique every time you use the key, with
+ *  the probability of collision less than 2^-32. So if your nonce is 7 bytes (the minimum)
+ *  that is 2^56 possible nonces, and if you're generating them randomly then after 2^24
+ *  (about 16 million) encryptions you will exceed this threshold and have to change your key.
 */
 class Cryptor
 {
     void *d;
+    GUINT8 m_nonceSize;
+    byte m_key[32];     // The max key size for AES
+    byte m_key2[64];    // The size of a SHA512 hash
 public:
-
-    /** The size of the initialization vector.
-     *
-     *  This contributes as many bytes to the size of the resulting crypttext.
-     *
-     *  \note The recommended IV size for GCM is 96 bits (NIST SP-800-38D)
-    */
-    static const GUINT32 IVLength = 12;
 
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
      *  every encrypted message. The MAC is used to verify authenticity of the
@@ -72,12 +78,30 @@ public:
      *  \param keyfile The key file, if any. Can be any file of any size, but it's better
      *      if it's small (under or around 100 bytes) and random. If you leave this blank, only the
      *      password will be required to decrypt.
+     *  \param nonce_length The length of the nonce, in bytes. Valid values are between 7 and 13
     */
-    Cryptor(const char *password, const char *keyfile = 0);
+    Cryptor(const char *password, const char *keyfile = 0, GUINT8 nonce_length = 10);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
     ~Cryptor();
+
+    /** The length of the nonce. This determines several critical properties
+     *  of the cryptor.
+     *
+     *  There is not a one nonce-size fits all for this parameter. You should
+     *  tailor this number to your needs, depending on the size of the payloads you will
+     *  be encrypting and the number of times the key will be reused.
+     *
+     *  \param size The length of the nonce, in bytes. Valid values are between 7 and 13
+     *  \throws An exception if the value is out of range
+    */
+    void SetNonceSize(GUINT8 size);
+
+    /** Returns the nonce size
+     *  \sa SetNonceSize()
+    */
+    GUINT8 GetNonceSize() const{ return m_nonceSize; }
 
     /** Returns true if the password/keyfile combination is correct. */
     bool CheckPassword(const char *password, const char *keyfile = 0) const;

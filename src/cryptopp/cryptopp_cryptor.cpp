@@ -19,17 +19,11 @@ limitations under the License.*/
 #include "gutil_file.h"
 #include "gutil_smartpointer.h"
 #include "gutil_cryptopp_hash.h"
-#include <cryptopp/gcm.h>
+#include <cryptopp/ccm.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha3.h>
 USING_NAMESPACE_GUTIL;
-
-// These are some constants for the type of encryption we've chosen
-#define KEYLENGTH   32
-
-// The length of the second key, if we're using it
-#define KEYLENGTH2  64
 
 #define DEFAULT_CHUNK_SIZE 1024
 
@@ -41,10 +35,8 @@ namespace
 struct d_t
 {
     ::CryptoPP::AutoSeededX917RNG< ::CryptoPP::AES> rng;
-    ::CryptoPP::GCM< ::CryptoPP::AES>::Encryption enc;
-    ::CryptoPP::GCM< ::CryptoPP::AES>::Decryption dec;
-    byte key[KEYLENGTH];
-    byte key2[KEYLENGTH2];
+    ::CryptoPP::CCM< ::CryptoPP::AES, GUtil::CryptoPP::Cryptor::TagLength>::Encryption enc;
+    ::CryptoPP::CCM< ::CryptoPP::AES, GUtil::CryptoPP::Cryptor::TagLength>::Decryption dec;
 };
 
 }
@@ -52,40 +44,40 @@ struct d_t
 NAMESPACE_GUTIL1(CryptoPP);
 
 
-static void __compute_password_hash(byte result[KEYLENGTH], const char *password)
+static void __compute_password_hash(byte *result, const char *password)
 {
     ::CryptoPP::SHA3_256().CalculateDigest(result, (byte const *)password, password ? strlen(password) : 0);
 }
 
-static void __compute_keyfile_hash(byte result[KEYLENGTH], const char *keyfile, IProgressHandler *ph = 0)
+static void __compute_keyfile_hash(byte *result, const char *keyfile, IProgressHandler *ph = 0)
 {
     SmartPointer<IInput> in;
     if(keyfile != NULL && strlen(keyfile) > 0){
         File *f = new File(keyfile);
-        f->Open(File::OpenRead);
         in = f;
+        f->Open(File::OpenRead);
     }
-    ::GUtil::CryptoPP::Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
+    Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
 }
 
-static void __compute_password_hash2(byte result[KEYLENGTH2], const char *password)
+static void __compute_password_hash2(byte *result, const char *password)
 {
     ::CryptoPP::SHA3_512().CalculateDigest(result, (byte const *)password, password ? strlen(password) : 0);
 }
 
 
-Cryptor::Cryptor(const char *password, const char *keyfile)
+Cryptor::Cryptor(const char *password, const char *keyfile, GUINT8 nonce_length)
 {
-    G_D_INIT();
+    SetNonceSize(nonce_length);
     ChangePassword(password, keyfile);
+    G_D_INIT();
 }
 
 Cryptor::Cryptor(const Cryptor &other)
 {
+    memcpy(m_key, other.m_key, sizeof(m_key));
+    memcpy(m_key2, other.m_key2, sizeof(m_key2));
     G_D_INIT();
-    G_D;
-    memcpy(d->key, ((d_t *)other.d)->key, KEYLENGTH);
-    memcpy(d->key2, ((d_t *)other.d)->key2, KEYLENGTH2);
 }
 
 Cryptor::~Cryptor()
@@ -93,11 +85,17 @@ Cryptor::~Cryptor()
     G_D_UNINIT();
 }
 
+void Cryptor::SetNonceSize(GUINT8 size)
+{
+    if(size < 7 || 13 < size)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid nonce size");
+    m_nonceSize = size;
+}
+
 bool Cryptor::CheckPassword(const char *password, const char *keyfile) const
 {
-    G_D;
-    byte buf_key[KEYLENGTH] = {};
-    byte buf_key2[KEYLENGTH2] = {};
+    byte buf_key[sizeof(m_key)] = {};
+    byte buf_key2[sizeof(m_key2)] = {};
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
         __compute_password_hash(buf_key, password);
@@ -107,22 +105,21 @@ bool Cryptor::CheckPassword(const char *password, const char *keyfile) const
         __compute_keyfile_hash(buf_key, keyfile);
     }
     __compute_password_hash2(buf_key2, password);
-    return (0 == memcmp(d->key, buf_key, sizeof(buf_key))) &&
-           (0 == memcmp(d->key2, buf_key2, sizeof(buf_key2)));
+    return (0 == memcmp(m_key, buf_key, sizeof(buf_key))) &&
+           (0 == memcmp(m_key2, buf_key2, sizeof(buf_key2)));
 }
 
 void Cryptor::ChangePassword(const char *password, const char *keyfile)
 {
-    G_D;
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        __compute_password_hash(d->key, password);
+        __compute_password_hash(m_key, password);
     }
     else{
         // A password and keyfile were given
-        __compute_keyfile_hash(d->key, keyfile);
+        __compute_keyfile_hash(m_key, keyfile);
     }
-    __compute_password_hash2(d->key2, password);
+    __compute_password_hash2(m_key2, password);
 }
 
 
@@ -133,16 +130,24 @@ void Cryptor::EncryptData(IOutput *out,
                           IProgressHandler *ph)
 {
     G_D;
-    byte iv[IVLength];
+    SmartArrayPointer<byte> n(new byte[GetNonceSize()]);
     if(ph) ph->ProgressUpdated(0);
 
-    // Initialize a random IV and initialize the encryptor
-    d->rng.GenerateBlock(iv, sizeof(iv));
-    d->enc.SetKeyWithIV(d->key, KEYLENGTH, iv, IVLength);
-
-    GUINT32 len = pData ? pData->BytesAvailable() : 0;
+    const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
+    GUINT64 len = pData ? pData->BytesAvailable() : 0;
     if(len == GUINT32_MAX)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
+
+    // With CCM the length is restricted, let's check that here
+    const GUINT64 max_length = GetNonceSize() == 7 ?
+                GUINT64_MAX : ((GUINT64)1 << 8*(15-GetNonceSize())) - 1;
+    if(max_length < len)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large. Decrease the nonce size or chop up your payload.");
+
+    // Initialize a random IV and initialize the encryptor
+    d->rng.GenerateBlock(n, GetNonceSize());
+    d->enc.SetKeyWithIV(m_key, sizeof(m_key), n.Data(), GetNonceSize());
+    d->enc.SpecifyDataLengths(aData_len + sizeof(m_key2), len);
 
     GUINT32 read = 0;
     GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
@@ -154,18 +159,16 @@ void Cryptor::EncryptData(IOutput *out,
                 TagLength);
 
     // First pass the authenticated data. Our second key goes in here.
-    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, d->key2, KEYLENGTH2);
+    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, m_key2, sizeof(m_key2));
 
     // If they gave us additional auth data, add it here
     if(aData && 0 < aData->BytesAvailable())
     {
-        const GUINT32 len = aData->BytesAvailable();
-        SmartArrayPointer<byte> a(new byte[len]);
-        if(len != aData->ReadBytes(a, len, len))
+        SmartArrayPointer<byte> a(new byte[aData_len]);
+        if(aData_len != aData->ReadBytes(a, aData_len, aData_len))
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from auth data source");
-        ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), len);
+        ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData_len);
     }
-    ef.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
 
     // Then read and pass the plaintext data
     if(read < len)
@@ -196,7 +199,7 @@ void Cryptor::EncryptData(IOutput *out,
     ef.MessageEnd();
 
     // Write the IV at the very end
-    out->WriteBytes(iv, sizeof(iv));
+    out->WriteBytes(n, GetNonceSize());
     out->Flush();
     if(ph) ph->ProgressUpdated(100);
 }
@@ -209,23 +212,26 @@ void Cryptor::DecryptData(IOutput *out,
                           IProgressHandler *ph)
 {
     G_D;
-    GUINT32 len;
+    GUINT64 len;
     if(ph) ph->ProgressUpdated(0);
-    if(cData == NULL || (len = cData->BytesAvailable()) < (IVLength + TagLength))
+    const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
+    if(cData == NULL || (len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
-    len = len - (IVLength + TagLength);
+    len = len - (GetNonceSize() + TagLength);
 
     // Read the MAC tag and IV at the end of the crypttext
-    byte mac_iv[TagLength + IVLength];
-    cData->Seek(cData->Length() - sizeof(mac_iv));
-    if(sizeof(mac_iv) != cData->ReadBytes(mac_iv, sizeof(mac_iv), sizeof(mac_iv)))
+    SmartArrayPointer<byte> mac_iv(new byte[TagLength + GetNonceSize()]);
+    cData->Seek(cData->Length() - (TagLength + GetNonceSize()));
+    if(GetNonceSize() + TagLength !=
+            cData->ReadBytes(mac_iv.Data(), GetNonceSize() + TagLength, GetNonceSize() + TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
 
     // Seek back to the start of the message
     cData->Seek(0);
 
     // Initialize the decryptor
-    d->dec.SetKeyWithIV(d->key, KEYLENGTH, mac_iv + TagLength, IVLength);
+    d->dec.SetKeyWithIV(m_key, sizeof(m_key), mac_iv.Data() + TagLength, GetNonceSize());
+    d->dec.SpecifyDataLengths(aData_len + sizeof(m_key2), len);
     try
     {
         GUINT32 read = 0;
@@ -240,21 +246,19 @@ void Cryptor::DecryptData(IOutput *out,
 
         // We have to give it the mac before everything else in order to decrypt both
         //  the pData and the aData
-        df.Put(mac_iv, TagLength);
+        df.Put(mac_iv.Data(), TagLength);
 
         // Pass the authenticated data before the plaintext:
-        df.ChannelPut(::CryptoPP::AAD_CHANNEL, d->key2, KEYLENGTH2);
+        df.ChannelPut(::CryptoPP::AAD_CHANNEL, m_key2, sizeof(m_key2));
 
         // If they gave us additional auth data, add it here
         if(aData && 0 < aData->BytesAvailable())
         {
-            const GUINT32 len = aData->BytesAvailable();
-            SmartArrayPointer<byte> a(new byte[len]);
-            if(len != aData->ReadBytes(a, len, len))
+            SmartArrayPointer<byte> a(new byte[aData_len]);
+            if(aData_len != aData->ReadBytes(a, aData_len, aData_len))
                 THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from auth data source");
-            df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), len);
+            df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData_len);
         }
-        df.ChannelMessageEnd(::CryptoPP::AAD_CHANNEL);
 
         // Then read and pass the crypttext
         if(read < len)
