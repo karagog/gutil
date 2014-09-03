@@ -30,7 +30,9 @@ class CryptorTest : public QObject
 private Q_SLOTS:
     void test_basic_encryption();
     void test_encryption_with_authentication();
+    void test_salt();
     void test_encryption_with_keyfiles();
+    void test_nonce();
     void test_encryption_with_all_features();
 };
 
@@ -212,7 +214,7 @@ void CryptorTest::test_encryption_with_authentication()
     QVERIFY(exception_hit);
 }
 
-void CryptorTest::test_encryption_with_keyfiles()
+static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
 {
     // First let's make one successfully so we feel good about ourselves
     try{
@@ -244,7 +246,7 @@ void CryptorTest::test_encryption_with_keyfiles()
     QVERIFY(exception_hit);
 
     // Ok now let's encrypt and decrypt and see if it works using keyfiles
-    Cryptor crypt(NULL, KEYFILE1);
+    Cryptor crypt(NULL, KEYFILE1, salt, salt_len);
     String pData = "Hello world!!!";
     Vector<char> cData;
     {
@@ -268,7 +270,7 @@ void CryptorTest::test_encryption_with_keyfiles()
     QVERIFY(pData == recovered);
 
     // What if we decrypt with the wrong keyfile?
-    Cryptor crypt2(NULL, KEYFILE2);
+    Cryptor crypt2(NULL, KEYFILE2, salt, salt_len);
     exception_hit = false;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -283,7 +285,7 @@ void CryptorTest::test_encryption_with_keyfiles()
     QVERIFY(exception_hit);
 
     // What if we decrypt with the right keyfile but also give a password?
-    crypt2.ChangePassword("password", KEYFILE1);
+    crypt2.ChangePassword("password", KEYFILE1, salt, salt_len);
     exception_hit = false;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -298,7 +300,7 @@ void CryptorTest::test_encryption_with_keyfiles()
     QVERIFY(exception_hit);
 
     // But after everything we can still decrypt it with the right keyfile
-    crypt2.ChangePassword("", KEYFILE1);
+    crypt2.ChangePassword("", KEYFILE1, salt, salt_len);
     recovered.Empty();
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -310,6 +312,127 @@ void CryptorTest::test_encryption_with_keyfiles()
     }
     QVERIFY(0 == memcmp(pData.ConstData(), recovered.ConstData(), pData.Length()));
     QVERIFY(pData == recovered);
+}
+
+void CryptorTest::test_salt()
+{
+    const char *salt = "Hello I am salt";
+    __test_encryption_with_keyfiles((byte const *)salt, sizeof(salt));
+
+    Cryptor crypt("password", NULL, (const byte *)salt, sizeof(salt));
+
+    String pData = "Hello world!!!";
+    String aData = "This data will be authenticated!";
+    Vector<char> cData;
+    {
+        ByteArrayInput i(pData.ConstData(), pData.Length());
+        ByteArrayInput ia(aData.ConstData(), aData.Length());
+        VectorByteArrayOutput o(cData);
+        crypt.EncryptData(&o, &i, &ia);
+    }
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
+
+    // Try to decrypt with a bad salt
+    bool exception_hit = false;
+    try{
+        const char *bad_salt = "This salt is different";
+        Cryptor crypt2("password", NULL, (const byte *)bad_salt, sizeof(bad_salt));
+        ByteArrayInput i(cData.ConstData(), cData.Length());
+        ByteArrayInput ia(aData.ConstData(), aData.Length());
+        crypt2.DecryptData(NULL, &i, &ia);
+    }
+    catch(const AuthenticationException<> &){
+        exception_hit = true;
+    }
+    catch(...){
+        QVERIFY(false);
+    }
+    QVERIFY(exception_hit);
+}
+
+static void __test_cryptor_nonce_length(Cryptor &crypt, int nonce_len)
+{
+    crypt.SetNonceSize(nonce_len);
+    QVERIFY(crypt.GetNonceSize() == nonce_len);
+
+    String pData = "Hello world!!!";
+    String aData = "This data will be authenticated!";
+    Vector<char> cData;
+    {
+        ByteArrayInput i(pData.ConstData(), pData.Length());
+        ByteArrayInput ia(aData.ConstData(), aData.Length());
+        VectorByteArrayOutput o(cData);
+        crypt.EncryptData(&o, &i, &ia);
+    }
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
+    QVERIFY(0 != memcmp(pData.ConstData(), cData.ConstData(), pData.Length()));
+
+    Vector<char> recovered;
+    try{
+        ByteArrayInput i(cData.ConstData(), cData.Length());
+        ByteArrayInput ia(aData.ConstData(), aData.Length());
+        VectorByteArrayOutput o(recovered);
+        crypt.DecryptData(&o, &i, &ia);
+    }
+    catch(...){
+        QVERIFY(false);
+    }
+    QVERIFY(0 == memcmp(pData.ConstData(), recovered.ConstData(), pData.Length()));
+    QVERIFY(pData == recovered);
+}
+
+void CryptorTest::test_nonce()
+{
+    Cryptor crypt("password");
+
+    bool exception_hit = false;
+    try{
+        crypt.SetNonceSize(6);
+    }
+    catch(...){
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
+
+    exception_hit = false;
+    try{
+        crypt.SetNonceSize(14);
+    }
+    catch(...){
+        exception_hit = true;
+    }
+    QVERIFY(exception_hit);
+
+    for(int i = 7; i <= 13; ++i)
+        __test_cryptor_nonce_length(crypt, i);
+
+    // Try encrypting a payload that is too large
+    class too_large_input : public GUtil::IInput{
+        GUINT64 m_value;
+    public:
+        too_large_input(GUINT64 value) :m_value(value){ }
+        GUINT64 BytesAvailable() const{ return m_value; }
+        GUINT32 ReadBytes(GBYTE *, GUINT32, GUINT32){ return 0; }
+    };
+
+    for(int i = 8; i <= 13; ++i)
+    {
+        crypt.SetNonceSize(i);
+        exception_hit = false;
+        try{
+            too_large_input input(((GUINT64)0x10000) << 8*(13-i));
+            crypt.EncryptData(NULL, &input, NULL);
+        }
+        catch(...){
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+    }
+}
+
+void CryptorTest::test_encryption_with_keyfiles()
+{
+    __test_encryption_with_keyfiles(NULL, 0);
 }
 
 void CryptorTest::test_encryption_with_all_features()

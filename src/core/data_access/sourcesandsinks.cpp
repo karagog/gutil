@@ -24,7 +24,7 @@ ByteArrayInput::~ByteArrayInput(){}
 GUINT32 ByteArrayInput::ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read)
 {
     GUINT32 ret = Min(len, to_read);
-    ret = Min(ret, BytesAvailable());
+    ret = Min((GUINT64)ret, BytesAvailable());
     memcpy(buf, m_cur, ret);
     m_cur += ret;
     return ret;

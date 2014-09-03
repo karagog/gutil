@@ -51,10 +51,10 @@ public:
     /** Returns the number of bytes available to be read.
      *  If it doesn't know how many bytes there are available (as with a
      *  pipe or network connection), it should return UINT_MAX.
-     *  \returns 0 if the source is exhausted, int32_max if it doesn't know,
+     *  \returns 0 if the source is exhausted, int64_max if it doesn't know,
      *      otherwise returns the number of bytes that can still be read.
     */
-    virtual GUINT32 BytesAvailable() const = 0;
+    virtual GUINT64 BytesAvailable() const = 0;
 
     virtual ~IInput(){}
 };
@@ -88,18 +88,18 @@ class IRandomAccessInput :
 public:
 
     /** Returns the total size of the input from beginning to end. */
-    virtual GUINT32 Length() const = 0;
+    virtual GUINT64 Length() const = 0;
 
     /** Returns the current position of the input. */
-    virtual GUINT32 Pos() const = 0;
+    virtual GUINT64 Pos() const = 0;
 
     /** Moves the current position to the given value. */
-    virtual void Seek(GUINT32) = 0;
+    virtual void Seek(GUINT64) = 0;
 
     /** Provides a default implementation
      *  which should should work for most cases.
     */
-    virtual GUINT32 BytesAvailable() const{ return this->Length() - this->Pos(); }
+    virtual GUINT64 BytesAvailable() const{ return this->Length() - this->Pos(); }
 
     virtual ~IRandomAccessInput(){}
 };

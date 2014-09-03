@@ -52,9 +52,9 @@ public:
         \{
     */
     virtual GUINT32 ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read);
-    virtual GUINT32 Pos() const{ return m_cur - m_start; }
-    virtual GUINT32 Length() const{ return m_end - m_start; }
-    virtual void Seek(GUINT32 pos){ m_cur = m_start + pos; }
+    virtual GUINT64 Pos() const{ return m_cur - m_start; }
+    virtual GUINT64 Length() const{ return m_end - m_start; }
+    virtual void Seek(GUINT64 pos){ m_cur = m_start + pos; }
     /** \} */
 };
 
@@ -74,8 +74,8 @@ public:
     virtual GUINT32 ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read){
         return m_input.ReadBytes(buf, len, to_read);
     }
-    virtual GUINT32 Pos() const{ return m_input.Pos() - m_start; }
-    virtual GUINT32 Length() const{ return m_end - m_start; }
+    virtual GUINT64 Pos() const{ return m_input.Pos() - m_start; }
+    virtual GUINT64 Length() const{ return m_end - m_start; }
     virtual void Seek(GUINT32 pos){ m_input.Seek(m_start + pos); }
 };
 

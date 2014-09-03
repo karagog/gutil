@@ -96,9 +96,9 @@ void File::Delete(const char *filename)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to delete file");
 }
 
-GUINT32 File::Length() const
+GUINT64 File::Length() const
 {
-    GUINT32 ret(0);
+    GUINT64 ret(0);
     if(IsOpen()){
         long int pos = ftell(H);
         if(0 == fseek(H, 0, SEEK_END)){
@@ -119,13 +119,13 @@ GUINT32 File::Length() const
     return ret;
 }
 
-void File::Seek(GUINT32 pos)
+void File::Seek(GUINT64 pos)
 {
     if(0 != fseek(H, pos, SEEK_SET))
         THROW_NEW_GUTIL_EXCEPTION(GUtil::Exception);
 }
 
-GUINT32 File::Pos() const
+GUINT64 File::Pos() const
 {
     return H ? ftell(H) : 0;
 }

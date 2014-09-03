@@ -95,9 +95,9 @@ public:
     void Close();
 
     /** The length of the file. */
-    virtual GUINT32 Length() const;
+    virtual GUINT64 Length() const;
     /** The length of the file. */
-    GUINT32 Size() const{ return Length(); }
+    GUINT64 Size() const{ return Length(); }
 
     /** Write data to the file. */
     GUINT32 Write(const GBYTE *data, GUINT32 len);
@@ -122,9 +122,9 @@ public:
     String Read(GUINT32 bytes = UINT_MAX);
 
     /** Changes the position of the read pointer. */
-    virtual void Seek(GUINT32 pos);
+    virtual void Seek(GUINT64 pos);
     /** Returns the current position of the file pointer. */
-    virtual GUINT32 Pos() const;
+    virtual GUINT64 Pos() const;
 
     /** Satisfies the IInput and IOutput abstract interface. */
     virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len){
@@ -137,7 +137,7 @@ public:
         return Read(buffer, buffer_len, bytes_to_read);
     }
 
-    virtual GUINT32 BytesAvailable() const{ return IsOpen() ? IRandomAccessInput::BytesAvailable() : 0; }
+    virtual GUINT64 BytesAvailable() const{ return IsOpen() ? IRandomAccessInput::BytesAvailable() : 0; }
 
 
     /** Controls whether to buffer write outputs.  The default is true.

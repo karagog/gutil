@@ -94,7 +94,7 @@ public:
         return _read_until_terminator(&_is_whitespace);
     }
 
-    virtual GUINT32 BytesAvailable() const{ return GUINT32_MAX; }
+    virtual GUINT64 BytesAvailable() const{ return GUINT64_MAX; }
 
 
 
