@@ -46,6 +46,7 @@ NAMESPACE_GUTIL1(CryptoPP);
  *  the probability of collision less than 2^-32. So if your nonce is 7 bytes (the minimum)
  *  that is 2^56 possible nonces, and if you're generating them randomly then after 2^24
  *  (about 16 million) encryptions you will exceed this threshold and have to change your key.
+ *  You can change your key by changing any or all of the password, keyfile or salt.
 */
 class Cryptor
 {
@@ -62,6 +63,9 @@ public:
      *  This contributes as many bytes to the size of the resulting crypttext.
     */
     static const GUINT32 TagLength = 16;
+
+    /** The default nonce size. Change it with SetNonceSize().  */
+    static const GINT8 DefaultNonceSize = 10;
 
     /** Constructs and initializes the Cryptor using the password and/or keyfile.
      *
@@ -80,11 +84,11 @@ public:
      *      password will be required to decrypt.
      *  \param salt A byte array to initialize the hash functions that generate keys from passwords.
      *              You need this to keep your keys fresh without the user changing passwords.
-     *  \param nonce_length The length of the nonce, in bytes. Valid values are between 7 and 13
+     *  \param nonce_length The length of the nonce, in bytes. Valid values are between 7 and 13.
+     *              The default is DefaultNonceSize.
     */
     Cryptor(const char *password, const char *keyfile = 0,
-            const byte *salt = NULL, GUINT32 salt_len = 0,
-            GUINT8 nonce_length = 10);
+            const byte *salt = NULL, GUINT32 salt_len = 0);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
@@ -106,14 +110,26 @@ public:
      *  \sa SetNonceSize()
     */
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
-    
+
     /** Returns the maximum payload length, which is a function of the nonce size. */
     GUINT64 GetMaxPayloadLength() const;
-    
+
     /** Sets the nonce size such that the maximum payload length will be at least as great or greater
         than the length you specify here. Any value is valid.
     */
     void SetMaxPayloadLength(GUINT64);
+
+    /** Returns the maximum suggested number of key uses for the given nonce length.
+     *  This function assumes random nonce generation. If you are deterministically
+     *  producing nonces with a counter you can get far more uses (2^8n, where n is the nonce size),
+     *  just as long as you never repeat a nonce with the same key.
+     *
+     *  It satisfies the requirement that the probability of generating a random nonce that
+     *  has appeared before is less than 2^-32.
+     *
+     *  \returns The maximum number of key invocations as a suggestion, assuming random nonce generation.
+    */
+    static double GetMaxKeyUsageSuggestion(GUINT8 nonce_length);
 
     /** Returns true if the password/keyfile combination is correct. */
     bool CheckPassword(const char *password, const char *keyfile = 0,

@@ -23,6 +23,7 @@ limitations under the License.*/
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha3.h>
+#include <math.h>
 USING_NAMESPACE_GUTIL;
 
 #define DEFAULT_CHUNK_SIZE 1024
@@ -82,15 +83,15 @@ static void __compute_password_hash2(byte *result, const char *password,
 
 
 Cryptor::Cryptor(const char *password, const char *keyfile,
-                 const byte *salt, GUINT32 salt_len,
-                 GUINT8 nonce_length)
+                 const byte *salt, GUINT32 salt_len)
+    :m_nonceSize(DefaultNonceSize)
 {
-    SetNonceSize(nonce_length);
     ChangePassword(password, keyfile, salt, salt_len);
     G_D_INIT();
 }
 
 Cryptor::Cryptor(const Cryptor &other)
+    :m_nonceSize(other.m_nonceSize)
 {
     memcpy(m_key, other.m_key, sizeof(m_key));
     memcpy(m_key2, other.m_key2, sizeof(m_key2));
@@ -248,7 +249,7 @@ void Cryptor::DecryptData(IOutput *out,
 
     if(GetMaxPayloadLength() < len)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
-    
+
     // Read the MAC tag and IV at the end of the crypttext
     SmartArrayPointer<byte> mac_iv(new byte[TagLength + GetNonceSize()]);
     cData->Seek(cData->Length() - (TagLength + GetNonceSize()));
@@ -324,6 +325,15 @@ void Cryptor::DecryptData(IOutput *out,
     }
     if(out) out->Flush();
     if(ph) ph->ProgressUpdated(100);
+}
+
+double Cryptor::GetMaxKeyUsageSuggestion(GUINT8 nonce_length)
+{
+    double ret = 0;
+    if(7 <= nonce_length && nonce_length <= 13){
+        ret = pow(2, 8*nonce_length - 32);
+    }
+    return ret;
 }
 
 
