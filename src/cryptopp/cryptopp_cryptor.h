@@ -106,6 +106,14 @@ public:
      *  \sa SetNonceSize()
     */
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
+    
+    /** Returns the maximum payload length, which is a function of the nonce size. */
+    GUINT64 GetMaxPayloadLength() const;
+    
+    /** Sets the nonce size such that the maximum payload length will be at least as great or greater
+        than the length you specify here. Any value is valid.
+    */
+    void SetMaxPayloadLength(GUINT64);
 
     /** Returns true if the password/keyfile combination is correct. */
     bool CheckPassword(const char *password, const char *keyfile = 0,

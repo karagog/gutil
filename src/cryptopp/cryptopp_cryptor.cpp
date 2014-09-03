@@ -142,6 +142,16 @@ void Cryptor::ChangePassword(const char *password, const char *keyfile,
 }
 
 
+GUINT64 Cryptor::GetMaxPayloadLength() const
+{
+    return GetNonceSize() == 7 ? GUINT64_MAX : ((GUINT64)1 << 8*(15-GetNonceSize())) - 1;
+}
+
+void Cryptor::SetMaxPayloadLength(GUINT64 len)
+{
+    SetNonceSize(Min(13, 15 - ((FSB64(len) + 1) >> 3)));
+}
+
 void Cryptor::EncryptData(IOutput *out,
                           IInput *pData,
                           IInput *aData,
@@ -158,10 +168,8 @@ void Cryptor::EncryptData(IOutput *out,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
 
     // With CCM the length is restricted, let's check that here
-    const GUINT64 max_length = GetNonceSize() == 7 ?
-                GUINT64_MAX : ((GUINT64)1 << 8*(15-GetNonceSize())) - 1;
-    if(max_length < len)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large. Decrease the nonce size or chop up your payload.");
+    if(GetMaxPayloadLength() < len)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
 
     // Initialize a random IV and initialize the encryptor
     d->rng.GenerateBlock(n, GetNonceSize());
@@ -238,6 +246,9 @@ void Cryptor::DecryptData(IOutput *out,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
     len = len - (GetNonceSize() + TagLength);
 
+    if(GetMaxPayloadLength() < len)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
+    
     // Read the MAC tag and IV at the end of the crypttext
     SmartArrayPointer<byte> mac_iv(new byte[TagLength + GetNonceSize()]);
     cData->Seek(cData->Length() - (TagLength + GetNonceSize()));
