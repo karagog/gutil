@@ -78,9 +78,13 @@ public:
      *  \param keyfile The key file, if any. Can be any file of any size, but it's better
      *      if it's small (under or around 100 bytes) and random. If you leave this blank, only the
      *      password will be required to decrypt.
+     *  \param salt A byte array to initialize the hash functions that generate keys from passwords.
+     *              You need this to keep your keys fresh without the user changing passwords.
      *  \param nonce_length The length of the nonce, in bytes. Valid values are between 7 and 13
     */
-    Cryptor(const char *password, const char *keyfile = 0, GUINT8 nonce_length = 10);
+    Cryptor(const char *password, const char *keyfile = 0,
+            const byte *salt = NULL, GUINT32 salt_len = 0,
+            GUINT8 nonce_length = 10);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
@@ -104,10 +108,12 @@ public:
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
 
     /** Returns true if the password/keyfile combination is correct. */
-    bool CheckPassword(const char *password, const char *keyfile = 0) const;
+    bool CheckPassword(const char *password, const char *keyfile = 0,
+                       const byte *salt = NULL, GUINT32 salt_len = 0) const;
 
     /** Changes the password/keyfile combination used by the cryptor. */
-    void ChangePassword(const char *password, const char *keyfile = 0);
+    void ChangePassword(const char *password, const char *keyfile = 0,
+                        const byte *salt = NULL, GUINT32 salt_len = 0);
 
 
     /** Encrypts the string.

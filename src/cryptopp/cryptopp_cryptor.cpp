@@ -44,12 +44,19 @@ struct d_t
 NAMESPACE_GUTIL1(CryptoPP);
 
 
-static void __compute_password_hash(byte *result, const char *password)
+static void __compute_password_hash(byte *result, const char *password,
+                                    const byte *salt, GUINT32 salt_len)
 {
-    ::CryptoPP::SHA3_256().CalculateDigest(result, (byte const *)password, password ? strlen(password) : 0);
+    ::CryptoPP::SHA3_256 h;
+    if(salt)
+        h.Update(salt, salt_len);
+    h.Update((byte const *)password, password ? strlen(password) : 0);
+    h.Final(result);
 }
 
-static void __compute_keyfile_hash(byte *result, const char *keyfile, IProgressHandler *ph = 0)
+static void __compute_keyfile_hash(byte *result, const char *keyfile,
+                                   const byte *salt, GUINT32 salt_len,
+                                   IProgressHandler *ph = 0)
 {
     SmartPointer<IInput> in;
     if(keyfile != NULL && strlen(keyfile) > 0){
@@ -60,16 +67,23 @@ static void __compute_keyfile_hash(byte *result, const char *keyfile, IProgressH
     Hash<SHA3_256>().ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
 }
 
-static void __compute_password_hash2(byte *result, const char *password)
+static void __compute_password_hash2(byte *result, const char *password,
+                                     const byte *salt, GUINT32 salt_len)
 {
-    ::CryptoPP::SHA3_512().CalculateDigest(result, (byte const *)password, password ? strlen(password) : 0);
+    ::CryptoPP::SHA3_512 h;
+    if(salt)
+        h.Update(salt, salt_len);
+    h.Update((byte const *)password, password ? strlen(password) : 0);
+    h.Final(result);
 }
 
 
-Cryptor::Cryptor(const char *password, const char *keyfile, GUINT8 nonce_length)
+Cryptor::Cryptor(const char *password, const char *keyfile,
+                 const byte *salt, GUINT32 salt_len,
+                 GUINT8 nonce_length)
 {
     SetNonceSize(nonce_length);
-    ChangePassword(password, keyfile);
+    ChangePassword(password, keyfile, salt, salt_len);
     G_D_INIT();
 }
 
@@ -92,34 +106,36 @@ void Cryptor::SetNonceSize(GUINT8 size)
     m_nonceSize = size;
 }
 
-bool Cryptor::CheckPassword(const char *password, const char *keyfile) const
+bool Cryptor::CheckPassword(const char *password, const char *keyfile,
+                            const byte *salt, GUINT32 salt_len) const
 {
     byte buf_key[sizeof(m_key)] = {};
     byte buf_key2[sizeof(m_key2)] = {};
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        __compute_password_hash(buf_key, password);
+        __compute_password_hash(buf_key, password, salt, salt_len);
     }
     else{
         // A password and keyfile were given
-        __compute_keyfile_hash(buf_key, keyfile);
+        __compute_keyfile_hash(buf_key, keyfile, salt, salt_len);
     }
-    __compute_password_hash2(buf_key2, password);
+    __compute_password_hash2(buf_key2, password, salt, salt_len);
     return (0 == memcmp(m_key, buf_key, sizeof(buf_key))) &&
            (0 == memcmp(m_key2, buf_key2, sizeof(buf_key2)));
 }
 
-void Cryptor::ChangePassword(const char *password, const char *keyfile)
+void Cryptor::ChangePassword(const char *password, const char *keyfile,
+                             const byte *salt, GUINT32 salt_len)
 {
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        __compute_password_hash(m_key, password);
+        __compute_password_hash(m_key, password, salt, salt_len);
     }
     else{
         // A password and keyfile were given
-        __compute_keyfile_hash(m_key, keyfile);
+        __compute_keyfile_hash(m_key, keyfile, salt, salt_len);
     }
-    __compute_password_hash2(m_key2, password);
+    __compute_password_hash2(m_key2, password, salt, salt_len);
 }
 
 
