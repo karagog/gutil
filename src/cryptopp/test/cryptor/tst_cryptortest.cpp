@@ -428,6 +428,21 @@ void CryptorTest::test_nonce()
         }
         QVERIFY(exception_hit);
     }
+
+    // Test specifying my own nonce
+    crypt.SetNonceSize(8);
+    GUINT64 n = 0;
+    String pData = "Hello world!!!";
+    Vector<char> cData;
+    {
+        ByteArrayInput i(pData.ConstData(), pData.Length());
+        VectorByteArrayOutput o(cData);
+        crypt.EncryptData(&o, &i, NULL, (byte const *)&n);
+    }
+    QVERIFY(cData.Length() == pData.Length() + crypt.GetNonceSize() + crypt.TagLength);
+
+    // Check if the nonce is on the end of the message exactly as we gave it
+    QVERIFY(0 == memcmp(cData.Data() + pData.Length() + Cryptor::TagLength, &n, sizeof(n)));
 }
 
 void CryptorTest::test_encryption_with_keyfiles()

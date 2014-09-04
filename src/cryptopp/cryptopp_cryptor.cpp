@@ -156,11 +156,14 @@ void Cryptor::SetMaxPayloadLength(GUINT64 len)
 void Cryptor::EncryptData(IOutput *out,
                           IInput *pData,
                           IInput *aData,
+                          byte const *nonce,
                           GUINT32 chunk_size,
                           IProgressHandler *ph)
 {
     G_D;
-    SmartArrayPointer<byte> n(new byte[GetNonceSize()]);
+    SmartArrayPointer<byte> n;
+    if(NULL == nonce)
+        n.Set(new byte[GetNonceSize()]);
     if(ph) ph->ProgressUpdated(0);
 
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
@@ -172,9 +175,11 @@ void Cryptor::EncryptData(IOutput *out,
     if(GetMaxPayloadLength() < len)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
 
-    // Initialize a random IV and initialize the encryptor
-    d->rng.GenerateBlock(n, GetNonceSize());
-    d->enc.SetKeyWithIV(m_key, sizeof(m_key), n.Data(), GetNonceSize());
+    if(NULL == nonce){
+        // Initialize a random IV
+        d->rng.GenerateBlock(n.Data(), GetNonceSize());
+    }
+    d->enc.SetKeyWithIV(m_key, sizeof(m_key), nonce == NULL ? n.Data():nonce, GetNonceSize());
     d->enc.SpecifyDataLengths(aData_len + sizeof(m_key2), len);
 
     GUINT32 read = 0;
@@ -227,7 +232,7 @@ void Cryptor::EncryptData(IOutput *out,
     ef.MessageEnd();
 
     // Write the IV at the very end
-    out->WriteBytes(n, GetNonceSize());
+    out->WriteBytes(nonce == NULL ? n.Data():nonce, GetNonceSize());
     out->Flush();
     if(ph) ph->ProgressUpdated(100);
 }

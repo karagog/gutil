@@ -150,6 +150,8 @@ public:
      *          It will not contribute to the size of the crypttext output but will be
      *          required to decrypt the message. You will transmit this in clear text
      *          along with the crypttext.
+     *  \param nonce The nonce, if you choose to provide it, must be GetNonceSize() bytes. If you
+     *          pass null a nonce will be randomly generated for you.
      *  \param chunk_size Optionally process the file in chunks (given in bytes).
      *          If you pass 0 it does the whole file in one go.
      *  \param ph An optional progress handler for long operations; large data sources.
@@ -158,6 +160,7 @@ public:
     void EncryptData(GUtil::IOutput *out,
                      GUtil::IInput *pData = NULL,
                      GUtil::IInput *aData = NULL,
+                     byte const *nonce = NULL,
                      GUINT32 chunk_size = 0,
                      GUtil::IProgressHandler *ph = NULL);
 
