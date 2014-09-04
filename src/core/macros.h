@@ -73,14 +73,14 @@ typedef unsigned char byte;
 /** A 64 bit integer. */
 #define GINT64      long long
 /** The max value of a GINT64 */
-#define GINT64_MAX      (0x7FFFFFFFFFFFFFFFLL)
+#define GINT64_MAX      ((GINT64)0x7FFFFFFFFFFFFFFFLL)
 /** The min value of a GINT64 */
-#define GINT64_MIN      (0x8000000000000000LL)
+#define GINT64_MIN      ((GINT64)0x8000000000000000LL)
 
 /** A 64 bit unsigned integer. */
 #define GUINT64     unsigned long long
 /** The max value of a GUINT64 */
-#define GUINT64_MAX     (0xFFFFFFFFFFFFFFFFLL)
+#define GUINT64_MAX     ((GUINT64)0xFFFFFFFFFFFFFFFFLL)
 
 /** A 32-bit floating point number. */
 #define GFLOAT32    float
