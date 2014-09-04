@@ -110,6 +110,12 @@ void Cryptor::SetNonceSize(GUINT8 size)
     m_nonceSize = size;
 }
 
+void Cryptor::FillRandom(byte *b, GUINT32 l)
+{
+    G_D;
+    d->rng.GenerateBlock(b, l);
+}
+
 bool Cryptor::CheckPassword(const char *password, const char *keyfile,
                             const byte *salt, GUINT32 salt_len) const
 {
@@ -177,7 +183,7 @@ void Cryptor::EncryptData(IOutput *out,
 
     if(NULL == nonce){
         // Initialize a random IV
-        d->rng.GenerateBlock(n.Data(), GetNonceSize());
+        FillRandom(n.Data(), GetNonceSize());
     }
     d->enc.SetKeyWithIV(m_key, sizeof(m_key), nonce == NULL ? n.Data():nonce, GetNonceSize());
     d->enc.SpecifyDataLengths(aData_len + sizeof(m_key2), len);

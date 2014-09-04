@@ -188,6 +188,10 @@ public:
                      GUINT32 chunk_size = 0,
                      GUtil::IProgressHandler *ph = NULL);
 
+
+    /** Fills the buffer with random data from they cryptor's RNG. */
+    void FillRandom(byte *, GUINT32);
+
 };
 
 

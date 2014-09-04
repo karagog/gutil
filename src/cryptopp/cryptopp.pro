@@ -30,10 +30,12 @@ SOURCES += \
     cryptopp_rng.cpp \
     cryptopp_sinks.cpp \
     cryptopp_cryptor.cpp \
-    cryptopp_hash.cpp
+    cryptopp_hash.cpp \
+    gpsutils.cpp
 
 HEADERS += \
     cryptopp_rng.h \
     cryptopp_sinks.h \
     cryptopp_cryptor.h \
-    cryptopp_hash.h
+    cryptopp_hash.h \
+    gpsutils.h

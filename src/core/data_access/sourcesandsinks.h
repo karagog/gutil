@@ -76,7 +76,7 @@ public:
     }
     virtual GUINT64 Pos() const{ return m_input.Pos() - m_start; }
     virtual GUINT64 Length() const{ return m_end - m_start; }
-    virtual void Seek(GUINT32 pos){ m_input.Seek(m_start + pos); }
+    virtual void Seek(GUINT64 pos){ m_input.Seek(m_start + pos); }
 };
 
 
