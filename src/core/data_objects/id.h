@@ -19,6 +19,10 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include <cstring>
 
+#ifdef GUTIL_CORE_QT_ADAPTERS
+#include <QByteArray>
+#endif // GUTIL_CORE_QT_ADAPTERS
+
 NAMESPACE_GUTIL;
 
 
@@ -79,6 +83,15 @@ public:
      *  be at least NUM_BYTES large, otherwise it will seg fault.
     */
     explicit Id(const char *d){ memcpy(m_data, d, sizeof(m_data)); }
+
+    /** Constructs an Id from a vector of char.  The vector must
+     *  be at least NUM_BYTES large, otherwise it will throw an exception.
+    */
+    Id(const Vector<char> &v){
+        if(v.Length() < sizeof(m_data))
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Id length too short");
+        memcpy(m_data, v.ConstData(), sizeof(m_data));
+    }
 
     /** Assignment operator */
     Id<NUM_BYTES> &operator = (const Id<NUM_BYTES> &other){
@@ -159,6 +172,18 @@ public:
     bool operator <= (const Id &other) const{ return 0 >= Compare(*this, other); }
     bool operator >= (const Id &other) const{ return 0 <= Compare(*this, other); }
 
+    operator const GUINT8 *() const { return m_data; }
+
+#ifdef GUTIL_CORE_QT_ADAPTERS
+    Id(const QByteArray &b){
+        if(b.length() < (GINT32)sizeof(m_data))
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Id length too short");
+        memcpy(m_data, b.constData(), sizeof(m_data));
+    }
+    QByteArray ToQByteArray() const{ return QByteArray((const char *)m_data, sizeof(m_data)); }
+    operator QByteArray () const { return ToQByteArray(); }
+#endif // GUTIL_CORE_QT_ADAPTERS
+
 };
 
 
@@ -169,5 +194,17 @@ template<int NUM_BYTES>struct IsMovableType< GUtil::Id<NUM_BYTES> >{ enum{ Value
 
 
 END_NAMESPACE_GUTIL;
+
+#ifdef GUTIL_CORE_QT_ADAPTERS
+
+#include <QHash>
+
+/** A hash function that allows you to use the Id class as a key in a QHash object. */
+#define GUTIL_DEFINE_ID_QHASH( NUM_BYTES ) \
+    inline uint qHash(const GUtil::Id<NUM_BYTES> &id){ \
+        return qHash(id.ToQByteArray()); \
+    }
+
+#endif
 
 #endif // GUTIL_ID_H
