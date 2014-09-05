@@ -18,8 +18,6 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(QT);
 
 
-QByteArrayOutput::~QByteArrayOutput(){}
-
 GUINT32 QByteArrayOutput::WriteBytes(const byte *ba, unsigned int len)
 {
     m_ba.append((const char *)ba, len);

@@ -15,13 +15,28 @@ limitations under the License.*/
 #ifndef GUTIL_QT_SOURCESANDSINKS_H
 #define GUTIL_QT_SOURCESANDSINKS_H
 
-#include "gutil_macros.h"
 #include "gutil_iointerface.h"
-
-class QByteArray;
+#include "gutil_sourcesandsinks.h"
+#include <QByteArray>
 
 NAMESPACE_GUTIL1(QT);
 
+
+/** Inputs from a QByteArray */
+class QByteArrayInput : public GUtil::ByteArrayInput
+{
+    // QByteArray's are explicitly shared, so copying them takes almost no time,
+    //  and this guarantees that the data pointer we receive in the constructor
+    //  will remain in existence, because if the input byte array is destroyed
+    //  this will retain its data pointer.
+    const QByteArray m_ba;
+public:
+    QByteArrayInput(const QByteArray &b)
+        :GUtil::ByteArrayInput((const byte *)b.data(), b.length()),
+         m_ba(b)
+    {}
+    virtual ~QByteArrayInput() {}
+};
 
 /** Outputs to a QByteArray. */
 class QByteArrayOutput : public GUtil::IOutput
@@ -29,7 +44,7 @@ class QByteArrayOutput : public GUtil::IOutput
     QByteArray &m_ba;
 public:
     QByteArrayOutput(QByteArray &b) :m_ba(b) {}
-    virtual ~QByteArrayOutput();
+    virtual ~QByteArrayOutput() {}
 
     virtual GUINT32 WriteBytes(byte const *ba, GUINT32 len);
 };
