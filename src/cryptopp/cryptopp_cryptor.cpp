@@ -45,6 +45,10 @@ struct d_t
 NAMESPACE_GUTIL1(CryptoPP);
 
 
+// This needs to be defined or we get linker errors since this is used in the code
+//  in places other than a const expression
+const GUINT32 Cryptor::TagLength;
+
 static void __compute_password_hash(byte *result, const char *password,
                                     const byte *salt, GUINT32 salt_len)
 {
