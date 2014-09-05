@@ -165,14 +165,26 @@ public:
         return memcmp(lhs.m_data, rhs.m_data, sizeof(Id<NUM_BYTES>::m_data));
     }
 
+    /** Gives you a 4 byte hash of the Id. The hash of the null id is 0.
+     *  This is certainly not a secure hash, just a heuristic to generate
+     *  a probably unique hash quickly (in O(N) time).
+    */
+    GUINT32 Hash() const{
+        byte bytes[4] = {}; \
+        for(int i = 0; i < Size; ++i) \
+            bytes[i & 3] ^= m_data[i]; \
+        return ((GUINT32)bytes[0] << 24) |
+                ((GUINT32)bytes[1] << 16) |
+                ((GUINT32)bytes[2] << 8) |
+                bytes[3]; \
+    }
+
     /** A less-than operator is defined, to support sorted indexes. */
     bool operator < (const Id &other) const{ return 0 > Compare(*this, other); }
     bool operator > (const Id &other) const{ return 0 < Compare(*this, other); }
 
     bool operator <= (const Id &other) const{ return 0 >= Compare(*this, other); }
     bool operator >= (const Id &other) const{ return 0 <= Compare(*this, other); }
-
-    operator const GUINT8 *() const { return m_data; }
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
     Id(const QByteArray &b){
@@ -181,7 +193,7 @@ public:
         memcpy(m_data, b.constData(), sizeof(m_data));
     }
     QByteArray ToQByteArray() const{ return QByteArray((const char *)m_data, sizeof(m_data)); }
-    operator QByteArray () const { return ToQByteArray(); }
+    explicit operator QByteArray () const { return ToQByteArray(); }
 #endif // GUTIL_CORE_QT_ADAPTERS
 
 };
@@ -195,15 +207,14 @@ template<int NUM_BYTES>struct IsMovableType< GUtil::Id<NUM_BYTES> >{ enum{ Value
 
 END_NAMESPACE_GUTIL;
 
+
 #ifdef GUTIL_CORE_QT_ADAPTERS
 
-#include <QHash>
+
 
 /** A hash function that allows you to use the Id class as a key in a QHash object. */
 #define GUTIL_DEFINE_ID_QHASH( NUM_BYTES ) \
-    inline uint qHash(const GUtil::Id<NUM_BYTES> &id){ \
-        return qHash(id.ToQByteArray()); \
-    }
+    inline GUINT32 qHash(const GUtil::Id<NUM_BYTES> &id){ return id.Hash(); }
 
 #endif
 
