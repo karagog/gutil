@@ -146,16 +146,16 @@ public:
     }
 
     /** Compares two ids for equality.
-        \note Null ids do not equal each other
+        \note Null ids do equal each other
     */
     bool operator == (const Id &other) const{
-        return !this->IsNull() && !other.IsNull() && 0 == Compare(*this, other);
+        return 0 == Compare(*this, other);
     }
     /** Compares two ids for inequality.
-        \note Null ids do not equal each other
+        \note Null ids do equal each other
     */
     bool operator != (const Id &other) const{
-        return this->IsNull() || other.IsNull() || 0 != Compare(*this, other);
+        return 0 != Compare(*this, other);
     }
 
     /** A compare function that simply compares ID's bitwise.  i.e. Nulls are equal.
