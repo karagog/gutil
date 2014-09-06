@@ -188,9 +188,12 @@ public:
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
     Id(const QByteArray &b){
-        if(b.length() < (GINT32)sizeof(m_data))
+        if(b.isEmpty())
+            Clear();
+        else if(b.length() < (GINT32)sizeof(m_data))
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Id length too short");
-        memcpy(m_data, b.constData(), sizeof(m_data));
+        else
+            memcpy(m_data, b.constData(), sizeof(m_data));
     }
     QByteArray ToQByteArray() const{ return QByteArray((const char *)m_data, sizeof(m_data)); }
     explicit operator QByteArray () const { return ToQByteArray(); }
