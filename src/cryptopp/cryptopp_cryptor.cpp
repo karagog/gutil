@@ -28,6 +28,9 @@ USING_NAMESPACE_GUTIL;
 
 #define DEFAULT_CHUNK_SIZE 1024
 
+// The number of iterations for our key derivation function
+#define KDF_ITERATIONS (((GUINT32)1)<<16)
+
 namespace
 {
 
@@ -50,17 +53,22 @@ NAMESPACE_GUTIL1(CryptoPP);
 const GUINT32 Cryptor::TagLength;
 
 static void __compute_password_hash(byte *result, const char *password,
-                                    const byte *salt, GUINT32 salt_len)
+                                    const byte *salt, GUINT32 salt_len,
+                                    GUINT32 iteration_count = KDF_ITERATIONS)
 {
     ::CryptoPP::SHA3_256 h;
     if(salt)
         h.Update(salt, salt_len);
     h.Update((byte const *)password, password ? strlen(password) : 0);
     h.Final(result);
+
+    for(GUINT32 i = 0; i < iteration_count; ++i)
+        h.CalculateDigest(result, result, h.DIGESTSIZE);
 }
 
 static void __compute_keyfile_hash(byte *result, const char *keyfile,
                                    const byte *salt, GUINT32 salt_len,
+                                   GUINT32 iteration_count = KDF_ITERATIONS,
                                    IProgressHandler *ph = 0)
 {
     SmartPointer<IInput> in;
@@ -73,16 +81,23 @@ static void __compute_keyfile_hash(byte *result, const char *keyfile,
     if(salt)
         h.AddData(salt, salt_len);
     h.ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
+
+    for(GUINT32 i = 0; i < iteration_count; ++i)
+        h.ComputeHash(result, result, h.DigestSize());
 }
 
 static void __compute_password_hash2(byte *result, const char *password,
-                                     const byte *salt, GUINT32 salt_len)
+                                     const byte *salt, GUINT32 salt_len,
+                                     GUINT32 iteration_count = KDF_ITERATIONS)
 {
     ::CryptoPP::SHA3_512 h;
     if(salt)
         h.Update(salt, salt_len);
     h.Update((byte const *)password, password ? strlen(password) : 0);
     h.Final(result);
+
+    for(GUINT32 i = 0; i < iteration_count; ++i)
+        h.CalculateDigest(result, result, h.DIGESTSIZE);
 }
 
 
