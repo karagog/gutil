@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "gutil_gpsutils.h"
 #include "gutil_file.h"
+#include "gutil_cryptopp_cryptor.h"
 #include <QString>
 #include <QtTest>
 USING_NAMESPACE_GUTIL;
@@ -33,6 +34,8 @@ public:
 private Q_SLOTS:
     void test_export();
     void test_import();
+
+    void test_checksum();
 
 private:
     static void _cleanup();
@@ -144,6 +147,43 @@ void GpsutilsTest::test_import()
 
         // No more payloads
         QVERIFY(!fi.NextPayload());
+    }
+}
+
+// Test that the checksum feature works
+void GpsutilsTest::test_checksum()
+{
+    // Try truncating file 2 to the size of file 1
+    const String copied_filename(QString("copied_%1").arg(FILENAME2).toUtf8().constData());
+    {
+        File f1(FILENAME2);
+        File f2(copied_filename);
+        f1.Open(File::OpenRead);
+        f2.Open(File::OpenReadWriteTruncate);
+        String data = f1.Read(9 + 2 + GPS_HASH_DIGEST_LENGTH + CryptoPP::Cryptor::TagLength + 7);
+        f2.Write(data);
+    }
+
+    // It should be able to read in the file header, but when you hit the end of the file it should
+    //  throw an exception
+    bool exception_hit = false;
+    {
+        GPSFile_Import fi(copied_filename, "password");
+        try{
+            fi.NextPayload();
+        } catch(const AuthenticationException<> &){
+            exception_hit = true;
+        }
+        File::Delete(copied_filename);
+    }
+    QVERIFY(exception_hit);
+
+    // Validation should work even if I don't manually read the payloads
+    {
+        GPSFile_Import fi(FILENAME2, "password");
+        int cnt = 0;
+        while(fi.NextPayload())
+            ++cnt;
     }
 }
 

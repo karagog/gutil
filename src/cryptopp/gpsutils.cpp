@@ -206,6 +206,16 @@ bool GPSFile_Import::NextPayload()
     const GUINT32 header_len = PAYLOAD_LENGTH_BYTES + UserDataSize();
     const GUINT32 header_len_ct = header_len + m_cryptor->TagLength + NONCE_LENGTH;
 
+    // If they didn't read the current payload, then read it in now and add it to
+    // the hash, or skip over it
+    if(!m_payloadRead){
+        if(m_validateChecksum)
+            GetCurrentPayload(NULL);
+        else
+            m_file.Seek(m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
+        m_payloadRead = true;
+    }
+
     if(m_file.BytesAvailable() < header_len_ct){
         // We hit the end of the file, so compare the hash with what we read in the header
         if(m_validateChecksum){
@@ -216,16 +226,6 @@ bool GPSFile_Import::NextPayload()
                                            "Checksum does not match received data");
         }
         return false;
-    }
-
-    // If they didn't read the current payload, then read it in now and add it to
-    // the hash, or skip over it
-    if(!m_payloadRead){
-        if(m_validateChecksum)
-            GetCurrentPayload(NULL);
-        else
-            m_file.Seek(m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
-        m_payloadRead = true;
     }
 
     // Read in and decrypt the payload header
@@ -266,6 +266,7 @@ void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgress
         HashOutput o(*m_hash);
         m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
     }
+    i.Seek(i.Length());
     m_payloadRead = true;
 }
 
