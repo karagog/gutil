@@ -41,6 +41,9 @@ limitations under the License.*/
 
 NAMESPACE_GUTIL1(CryptoPP);
 class Cryptor;
+END_NAMESPACE_GUTIL1;
+
+NAMESPACE_GUTIL;
 
 
 /** A class for exporting to GPS. */
@@ -48,7 +51,7 @@ class GPSFile_Export
 {
     GUTIL_DISABLE_COPY(GPSFile_Export);
     GUtil::File m_file;
-    GUtil::SmartPointer<Cryptor> m_cryptor;
+    GUtil::SmartPointer<GUtil::CryptoPP::Cryptor> m_cryptor;
     const GUINT16 m_userDataSize;
 public:
 
@@ -66,6 +69,7 @@ public:
                    const char *password,
                    const char *keyfile = NULL,
                    GUINT16 userdata_size = 0);
+    ~GPSFile_Export();
 
     /** Returns the size of the user data field of each payload header, in bytes. */
     GUINT16 UserDataSize() const{ return m_userDataSize; }
@@ -76,7 +80,7 @@ public:
      *          If non-null, it can be max UserDataSize() bytes long.
      *          Any bytes you don't write in the user data section will be 0.
     */
-    void AppendPayload(const char *payload, GUINT32 payload_length,
+    void AppendPayload(byte const *payload, GUINT32 payload_length,
                        byte const *user_data = NULL,
                        GUINT16 user_data_len = 0);
 
@@ -98,7 +102,7 @@ class GPSFile_Import
 {
     GUTIL_DISABLE_COPY(GPSFile_Import);
     GUtil::File m_file;
-    GUtil::SmartPointer<Cryptor> m_cryptor;
+    GUtil::SmartPointer<GUtil::CryptoPP::Cryptor> m_cryptor;
 
     bool m_payloadRead;
     GUINT64 m_payloadLength;
@@ -117,6 +121,7 @@ public:
     GPSFile_Import(const char *filepath,
                    const char *password,
                    const char *keyfile = NULL);
+    ~GPSFile_Import();
 
     /** Returns the size of the user data field of each payload header, in bytes. */
     GUINT16 UserDataSize() const{ return m_userDataSize; }
@@ -128,7 +133,7 @@ public:
     bool NextPayload();
 
     /** Returns the user data array of the current payload. The size of the array is
-     *  given by UserDataSize().
+     *  given by UserDataSize(). This data is only valid if NextPayload returned true.
     */
     byte const *CurrentUserData(){ return m_userData.Data(); }
 
@@ -138,11 +143,11 @@ public:
     /** Writes the current payload to the destination buffer. The buffer must
      *  be at least CurrentPayloadSize() large.
     */
-    void GetPayload(byte *dest, GUINT32 chunk_size = 0, GUtil::IProgressHandler * = NULL);
+    void GetCurrentPayload(byte *dest, GUINT32 chunk_size = 0, GUtil::IProgressHandler * = NULL);
 
 };
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;
 
 #endif // GUTIL_GPSUTILS_H

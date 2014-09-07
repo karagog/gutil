@@ -137,8 +137,6 @@ public:
         return Read(buffer, buffer_len, bytes_to_read);
     }
 
-    virtual GUINT64 BytesAvailable() const{ return IsOpen() ? IRandomAccessInput::BytesAvailable() : 0; }
-
 
     /** Controls whether to buffer write outputs.  The default is true.
         If there is a write buffer, then data is not written to the file immediately,

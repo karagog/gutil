@@ -255,12 +255,12 @@ void Cryptor::DecryptData(IOutput *out,
                           IProgressHandler *ph)
 {
     G_D;
-    GUINT64 len;
+    GUINT64 ct_len, len;
     if(ph) ph->ProgressUpdated(0);
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
-    if(cData == NULL || (len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
+    if(cData == NULL || (ct_len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
-    len = len - (GetNonceSize() + TagLength);
+    len = ct_len - (GetNonceSize() + TagLength);
 
     if(GetMaxPayloadLength() < len)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
@@ -338,6 +338,10 @@ void Cryptor::DecryptData(IOutput *out,
     {
         THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
     }
+
+    // Seek the input device to the end of the message
+    cData->Seek(ct_len);
+
     if(out) out->Flush();
     if(ph) ph->ProgressUpdated(100);
 }

@@ -148,19 +148,17 @@ void File::Flush()
 
 GUINT32 File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
 {
-    GUINT32 actually_read( Min(buffer_len, bytes_to_read) );
-    if(1 != fread(buffer, actually_read, 1, H))
+    bytes_to_read = Min(buffer_len, bytes_to_read);
+    bytes_to_read = Min((GUINT32)BytesAvailable(), bytes_to_read);
+    if(1 != fread(buffer, bytes_to_read, 1, H))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not read from file");
-    if(actually_read < bytes_to_read)
-        Seek(Pos() + (bytes_to_read - actually_read));
-    return actually_read;
+    return bytes_to_read;
 }
 
 String File::Read(GUINT32 bytes)
 {
     String ret;
     GUINT32 remaining( Length() - Pos() );
-
     ret.Resize(bytes == UINT_MAX ? remaining : bytes);
     Read(reinterpret_cast<GBYTE *>(ret.Data()), ret.Length(), remaining);
     return ret;

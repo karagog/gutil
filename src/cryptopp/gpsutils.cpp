@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "cryptopp_rng.h"
 #include "gutil_sourcesandsinks.h"
 #include "gutil_smartpointer.h"
-USING_NAMESPACE_GUTIL;
+USING_NAMESPACE_GUTIL1(CryptoPP);
 
 // Pick the smallest size nonce, because if they don't know the key then
 // the only nonces they'll be able to identify are on the header and the one
@@ -27,7 +27,7 @@ USING_NAMESPACE_GUTIL;
 // and eat it too!
 #define NONCE_LENGTH 7
 
-NAMESPACE_GUTIL1(CryptoPP);
+NAMESPACE_GUTIL;
 
 
 GPSFile_Export::GPSFile_Export(const char *filepath,
@@ -43,7 +43,7 @@ GPSFile_Export::GPSFile_Export(const char *filepath,
     const GUINT32 salt_len = sizeof(version_salt) - 1;
 
     version_salt[0] = VERSION;
-    RNG().Fill(salt, salt_len);
+    CryptoPP::RNG().Fill(salt, salt_len);
 
     // Prepare the userdata size bytes, to be encrypted in the header
     byte header_pt[2];
@@ -63,7 +63,9 @@ GPSFile_Export::GPSFile_Export(const char *filepath,
     m_cryptor->EncryptData(&m_file, &i);
 }
 
-void GPSFile_Export::AppendPayload(const char *payload, GUINT32 payload_length,
+GPSFile_Export::~GPSFile_Export() {}
+
+void GPSFile_Export::AppendPayload(byte const *payload, GUINT32 payload_length,
                                    byte const *user_data, GUINT16 user_data_len)
 {
     if(user_data_len > UserDataSize())
@@ -166,6 +168,8 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
     m_userData.Set(new byte[UserDataSize()]);
 }
 
+GPSFile_Import::~GPSFile_Import() {}
+
 bool GPSFile_Import::NextPayload()
 {
     const GUINT32 header_len = PAYLOAD_LENGTH_BYTES + UserDataSize();
@@ -199,7 +203,7 @@ bool GPSFile_Import::NextPayload()
     return true;
 }
 
-void GPSFile_Import::GetPayload(byte *dest, GUINT32 chunk_size, IProgressHandler *ph)
+void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgressHandler *ph)
 {
     if(m_payloadRead)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload already gotten");
@@ -212,4 +216,4 @@ void GPSFile_Import::GetPayload(byte *dest, GUINT32 chunk_size, IProgressHandler
 }
 
 
-END_NAMESPACE_GUTIL1;
+END_NAMESPACE_GUTIL;

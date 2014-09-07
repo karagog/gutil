@@ -69,7 +69,13 @@ class ConstrainedInput : public GUtil::IRandomAccessInput
     const GUINT32 m_start, m_end;
 public:
     ConstrainedInput(IRandomAccessInput &input, GUINT32 startpos, GUINT32 endpos)
-        :m_input(input), m_start(startpos), m_end(endpos) {}
+        :m_input(input), m_start(startpos), m_end(endpos)
+    {
+        GASSERT(m_input.Length() > startpos);
+        GASSERT(m_input.Length() >= endpos);
+        GASSERT(endpos >= startpos);
+        m_input.Seek(startpos);
+    }
 
     virtual GUINT32 ReadBytes(byte *buf, GUINT32 len, GUINT32 to_read){
         return m_input.ReadBytes(buf, len, to_read);
