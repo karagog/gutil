@@ -40,7 +40,7 @@ GPSFile_Export::GPSFile_Export(const char *filepath,
                                const char *keyfile,
                                GUINT16 userdata_size)
     :m_file(filepath),
-      m_hash(new Hash<SHA3_512>),
+      m_hash(new Hash<SHA3_224>),
       m_userDataSize(userdata_size)
 {
     // Prepare the version + salt, to be written first in plaintext
@@ -158,7 +158,7 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
                                const char *keyfile,
                                bool validate)
     :m_file(filepath),
-      m_hash(validate ? new Hash<SHA3_512> : NULL),
+      m_hash(validate ? new Hash<SHA3_224> : NULL),
       m_payloadRead(true),
       m_payloadLength(0),
       m_validateChecksum(validate)

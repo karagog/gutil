@@ -44,7 +44,7 @@ class Cryptor;
 class HashBase;
 END_NAMESPACE_GUTIL1;
 
-#define GPS_HASH_DIGEST_LENGTH  64
+#define GPS_HASH_DIGEST_LENGTH  28
 
 NAMESPACE_GUTIL;
 
