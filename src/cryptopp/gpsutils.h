@@ -41,7 +41,10 @@ limitations under the License.*/
 
 NAMESPACE_GUTIL1(CryptoPP);
 class Cryptor;
+class HashBase;
 END_NAMESPACE_GUTIL1;
+
+#define GPS_HASH_DIGEST_LENGTH  64
 
 NAMESPACE_GUTIL;
 
@@ -52,6 +55,7 @@ class GPSFile_Export
     GUTIL_DISABLE_COPY(GPSFile_Export);
     GUtil::File m_file;
     GUtil::SmartPointer<GUtil::CryptoPP::Cryptor> m_cryptor;
+    GUtil::SmartPointer<GUtil::CryptoPP::HashBase> m_hash;
     const GUINT16 m_userDataSize;
 public:
 
@@ -103,11 +107,14 @@ class GPSFile_Import
     GUTIL_DISABLE_COPY(GPSFile_Import);
     GUtil::File m_file;
     GUtil::SmartPointer<GUtil::CryptoPP::Cryptor> m_cryptor;
+    GUtil::SmartPointer<GUtil::CryptoPP::HashBase> m_hash;
 
     bool m_payloadRead;
     GUINT64 m_payloadLength;
     GUtil::SmartArrayPointer<byte> m_userData;
     GUINT16 m_userDataSize;
+    bool m_validateChecksum;
+    byte m_finalHash[GPS_HASH_DIGEST_LENGTH];
 public:
 
     /** Over time the format of GPS files may change. This tracks
@@ -117,10 +124,16 @@ public:
 
     /** Constructs an import object.
      *  \param filepath The path to the GPS you want to import from.
+     *  \param validate_checksum If this is true, then the entire file's contents
+     *  will be validated for authenticity. The last time you call NextPayload()
+     *  when it returns false at the end of the file, if the file contents do not
+     *  match the checksum then it will throw an AuthenticationException. There is
+     *  a small overhead to doing this, but will guarantee the file's content authenticity.
     */
     GPSFile_Import(const char *filepath,
                    const char *password,
-                   const char *keyfile = NULL);
+                   const char *keyfile = NULL,
+                   bool validate_checksum = true);
     ~GPSFile_Import();
 
     /** Returns the size of the user data field of each payload header, in bytes. */

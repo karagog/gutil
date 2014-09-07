@@ -14,10 +14,15 @@ limitations under the License.*/
 
 #include "gpsutils.h"
 #include "cryptopp_cryptor.h"
+#include "cryptopp_hash.h"
 #include "cryptopp_rng.h"
+#include "cryptopp_sinks.h"
 #include "gutil_sourcesandsinks.h"
 #include "gutil_smartpointer.h"
 USING_NAMESPACE_GUTIL1(CryptoPP);
+
+#define SALT_LENGTH         8
+#define GPS_HEADER_LENGTH   2 + GPS_HASH_DIGEST_LENGTH
 
 // Pick the smallest size nonce, because if they don't know the key then
 // the only nonces they'll be able to identify are on the header and the one
@@ -35,35 +40,46 @@ GPSFile_Export::GPSFile_Export(const char *filepath,
                                const char *keyfile,
                                GUINT16 userdata_size)
     :m_file(filepath),
+      m_hash(new Hash<SHA3_512>),
       m_userDataSize(userdata_size)
 {
     // Prepare the version + salt, to be written first in plaintext
-    byte version_salt[9];
+    byte version_salt[1 + SALT_LENGTH];
     byte *salt = version_salt + 1;
-    const GUINT32 salt_len = sizeof(version_salt) - 1;
 
     version_salt[0] = VERSION;
-    CryptoPP::RNG().Fill(salt, salt_len);
-
-    // Prepare the userdata size bytes, to be encrypted in the header
-    byte header_pt[2];
-    header_pt[0] = (userdata_size >> 8) & 0x0FF;
-    header_pt[1] = userdata_size & 0x0FF;
-
-    // Initialize the cryptor
-    m_cryptor = new Cryptor(password, keyfile, salt, salt_len);
-    m_cryptor->SetNonceSize(NONCE_LENGTH);
+    CryptoPP::RNG().Fill(salt, SALT_LENGTH);
 
     // Write the version + salt in plaintext
     m_file.Open(File::OpenReadWriteTruncate);
     m_file.Write(version_salt, sizeof(version_salt));
 
+    // Write a placeholder for the encrypted header, which we'll write in the destructor
+    byte placeholder[GPS_HEADER_LENGTH + Cryptor::TagLength + NONCE_LENGTH] = {};
+    m_file.Write(placeholder, sizeof(placeholder));
+
+    // Initialize the cryptor
+    m_cryptor = new Cryptor(password, keyfile, salt, SALT_LENGTH);
+    m_cryptor->SetNonceSize(NONCE_LENGTH);
+}
+
+GPSFile_Export::~GPSFile_Export()
+{
+    // Write the file header
+    m_file.Seek(1 + SALT_LENGTH);
+
+    // Prepare the plaintext
+    byte header_pt[GPS_HEADER_LENGTH];
+    header_pt[0] = (UserDataSize() >> 8) & 0x0FF;
+    header_pt[1] = UserDataSize() & 0x0FF;
+
+    // Get the final hash
+    m_hash->Final(header_pt + 2);
+
     // Write the encrypted header
     ByteArrayInput i(header_pt, sizeof(header_pt));
     m_cryptor->EncryptData(&m_file, &i);
 }
-
-GPSFile_Export::~GPSFile_Export() {}
 
 void GPSFile_Export::AppendPayload(byte const *payload, GUINT32 payload_length,
                                    byte const *user_data, GUINT16 user_data_len)
@@ -73,6 +89,9 @@ void GPSFile_Export::AppendPayload(byte const *payload, GUINT32 payload_length,
 
     // The first thing we write is the payload header
     _write_payload_header(payload_length, user_data, user_data_len);
+
+    // Add the payload to the hash
+    m_hash->AddData(payload, payload_length);
 
     // Now encrypt and write the payload
     ByteArrayInput i(payload, payload_length);
@@ -94,7 +113,11 @@ void GPSFile_Export::AppendPayloadFile(const char *payload_file,
     // The first thing we write is the payload header
     _write_payload_header(f.Length(), user_data, user_data_len);
 
+    // Add the payload to the hash
+    m_hash->AddData(&f, chunk_size, ph);
+
     // Now encrypt and write the payload
+    f.Seek(0);
     m_cryptor->EncryptData(&m_file, &f, NULL, NULL, chunk_size, ph);
 }
 
@@ -120,6 +143,8 @@ void GPSFile_Export::_write_payload_header(GUINT64 payload_length,
         memset(header_pt.Data() + PAYLOAD_LENGTH_BYTES + user_data_len, 0,
                header_len - PAYLOAD_LENGTH_BYTES - user_data_len);
 
+    m_hash->AddData(header_pt, header_len);
+
     // Encrypt and write header
     ByteArrayInput i(header_pt, header_len);
     m_cryptor->EncryptData(&m_file, &i);
@@ -130,15 +155,17 @@ void GPSFile_Export::_write_payload_header(GUINT64 payload_length,
 
 GPSFile_Import::GPSFile_Import(const char *filepath,
                                const char *password,
-                               const char *keyfile)
+                               const char *keyfile,
+                               bool validate)
     :m_file(filepath),
+      m_hash(validate ? new Hash<SHA3_512> : NULL),
       m_payloadRead(true),
-      m_payloadLength(0)
+      m_payloadLength(0),
+      m_validateChecksum(validate)
 {
     byte version_salt[9];
     byte *salt = version_salt + 1;
-    const GUINT32 salt_len = sizeof(version_salt) - 1;
-    byte header_pt[2];
+    byte header_pt[GPS_HEADER_LENGTH];
     m_file.Open(File::OpenRead);
     if(m_file.Length() < (sizeof(version_salt) + sizeof(header_pt) + m_cryptor->TagLength + NONCE_LENGTH))
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid file (too small)");
@@ -151,7 +178,7 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "This file's version is too advanced for me");
 
     // Initialize the cryptor
-    m_cryptor = new Cryptor(password, keyfile, salt, salt_len);
+    m_cryptor = new Cryptor(password, keyfile, salt, SALT_LENGTH);
     m_cryptor->SetNonceSize(NONCE_LENGTH);
 
     // Read in and decrypt the header:
@@ -166,6 +193,10 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
     // Now we know the size of the user data
     m_userDataSize = ((GUINT16)header_pt[0] << 8) | header_pt[1];
     m_userData.Set(new byte[UserDataSize()]);
+
+    // Save the hash for later comparison
+    if(m_validateChecksum)
+        memcpy(m_finalHash, header_pt + 2, sizeof(m_finalHash));
 }
 
 GPSFile_Import::~GPSFile_Import() {}
@@ -175,12 +206,25 @@ bool GPSFile_Import::NextPayload()
     const GUINT32 header_len = PAYLOAD_LENGTH_BYTES + UserDataSize();
     const GUINT32 header_len_ct = header_len + m_cryptor->TagLength + NONCE_LENGTH;
 
-    if(m_file.BytesAvailable() < header_len_ct)
+    if(m_file.BytesAvailable() < header_len_ct){
+        // We hit the end of the file, so compare the hash with what we read in the header
+        if(m_validateChecksum){
+            byte calculated[GPS_HASH_DIGEST_LENGTH];
+            m_hash->Final(calculated);
+            if(0 != memcmp(calculated, m_finalHash, GPS_HASH_DIGEST_LENGTH))
+                THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException,
+                                           "Checksum does not match received data");
+        }
         return false;
+    }
 
-    // If they didn't read the current payload, then skip over it
+    // If they didn't read the current payload, then read it in now and add it to
+    // the hash, or skip over it
     if(!m_payloadRead){
-        m_file.Seek(m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
+        if(m_validateChecksum)
+            GetCurrentPayload(NULL);
+        else
+            m_file.Seek(m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
         m_payloadRead = true;
     }
 
@@ -190,6 +234,9 @@ bool GPSFile_Import::NextPayload()
         ConstrainedInput i(m_file, m_file.Pos(), m_file.Pos() + header_len_ct);
         ByteArrayOutput o(header_pt.Data());
         m_cryptor->DecryptData(&o, &i);
+
+        if(m_validateChecksum)
+            m_hash->AddData(header_pt, header_len);
     }
 
     // First interpret the payload length:
@@ -210,8 +257,15 @@ void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgress
 
     ConstrainedInput i(m_file, m_file.Pos(),
                        m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
-    ByteArrayOutput o(dest);
-    m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
+    if(dest){
+        ByteArrayOutput o(dest);
+        m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
+    }
+    if(m_validateChecksum){
+        i.Seek(0);
+        HashOutput o(*m_hash);
+        m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
+    }
     m_payloadRead = true;
 }
 

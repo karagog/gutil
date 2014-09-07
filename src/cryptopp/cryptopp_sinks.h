@@ -16,14 +16,24 @@ limitations under the License.*/
 #define GUTIL_CRYPTOPP_SINKS_H
 
 #include <cryptopp/simple.h>
-#include "gutil_macros.h"
+#include "gutil_iointerface.h"
 
 NAMESPACE_GUTIL;
 class String;
-class IOutput;
 END_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(CryptoPP);
+class HashBase;
+
+
+/** Outputs to a hash object. You can get the digest by calling Final() on the hash. */
+class HashOutput : public GUtil::IOutput
+{
+    HashBase &m_hash;
+public:
+    HashOutput(HashBase &h) :m_hash(h) {}
+    virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len);
+};
 
 
 /** Used to adapt a generic IOutput into CryptoPP Sink. */

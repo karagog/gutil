@@ -15,10 +15,17 @@ limitations under the License.*/
 #include "cryptopp_sinks.h"
 #include "gutil_strings.h"
 #include "gutil_iointerface.h"
+#include "cryptopp_hash.h"
 #include <QByteArray>
 
 NAMESPACE_GUTIL1(CryptoPP);
 
+
+GUINT32 HashOutput::WriteBytes(const GBYTE *data, GUINT32 len)
+{
+    m_hash.AddData(data, len);
+    return len;
+}
 
 size_t OutputInterfaceSink::Put2(const byte *inString, size_t length, int msg_end, bool blocking)
 {

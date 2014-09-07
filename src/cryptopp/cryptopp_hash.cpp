@@ -45,15 +45,9 @@ void HashBase::AddData(const byte *d, GUINT32 len)
     get_hash_transformation()->Update(d, len);
 }
 
-void HashBase::Final(byte *d)
-{
-    get_hash_transformation()->Final(d);
-}
-
-void HashBase::ComputeHash(byte *out,
-                       IInput *input,
+void HashBase::AddData(GUtil::IInput *input,
                        GUINT32 chunk_size,
-                       IProgressHandler *ph)
+                       GUtil::IProgressHandler *ph)
 {
     GUINT32 len = input ? input->BytesAvailable() : 0;
     GUINT32 to_read = chunk_size == 0 ? len : GUtil::Min(chunk_size, len);
@@ -79,8 +73,12 @@ void HashBase::ComputeHash(byte *out,
             ph->ProgressUpdated(((float)read / len) * 100);
         }
     }
-    Final(out);
     if(ph) ph->ProgressUpdated(100);
+}
+
+void HashBase::Final(byte *d)
+{
+    get_hash_transformation()->Final(d);
 }
 
 HashBase *HashBase::CreateHash(HashAlgorithmEnum h)
@@ -100,17 +98,17 @@ HashBase *HashBase::CreateHash(HashAlgorithmEnum h)
     case SHA3_224:
         ret = new Hash<SHA3_224>;
         break;
-    case SHA512:
-        ret = new Hash<SHA512>;
+    case SHA2_512:
+        ret = new Hash<SHA2_512>;
         break;
-    case SHA384:
-        ret = new Hash<SHA384>;
+    case SHA2_384:
+        ret = new Hash<SHA2_384>;
         break;
-    case SHA256:
-        ret = new Hash<SHA256>;
+    case SHA2_256:
+        ret = new Hash<SHA2_256>;
         break;
-    case SHA224:
-        ret = new Hash<SHA224>;
+    case SHA2_224:
+        ret = new Hash<SHA2_224>;
         break;
     case SHA1:
         ret = new Hash<SHA1>;
@@ -162,17 +160,17 @@ Hash<SHA3_224>::Hash() :HashBase(new ::CryptoPP::SHA3_224) {}
 Hash<SHA3_224>::~Hash() { delete static_cast< ::CryptoPP::SHA3_224 *>(get_hash_transformation()); }
 
 
-Hash<SHA512>::Hash() :HashBase(new ::CryptoPP::SHA512) {}
-Hash<SHA512>::~Hash() { delete static_cast< ::CryptoPP::SHA512 *>(get_hash_transformation()); }
+Hash<SHA2_512>::Hash() :HashBase(new ::CryptoPP::SHA512) {}
+Hash<SHA2_512>::~Hash() { delete static_cast< ::CryptoPP::SHA512 *>(get_hash_transformation()); }
 
-Hash<SHA384>::Hash() :HashBase(new ::CryptoPP::SHA384) {}
-Hash<SHA384>::~Hash() { delete static_cast< ::CryptoPP::SHA384 *>(get_hash_transformation()); }
+Hash<SHA2_384>::Hash() :HashBase(new ::CryptoPP::SHA384) {}
+Hash<SHA2_384>::~Hash() { delete static_cast< ::CryptoPP::SHA384 *>(get_hash_transformation()); }
 
-Hash<SHA256>::Hash() :HashBase(new ::CryptoPP::SHA256) {}
-Hash<SHA256>::~Hash() { delete static_cast< ::CryptoPP::SHA256 *>(get_hash_transformation()); }
+Hash<SHA2_256>::Hash() :HashBase(new ::CryptoPP::SHA256) {}
+Hash<SHA2_256>::~Hash() { delete static_cast< ::CryptoPP::SHA256 *>(get_hash_transformation()); }
 
-Hash<SHA224>::Hash() :HashBase(new ::CryptoPP::SHA224) {}
-Hash<SHA224>::~Hash() { delete static_cast< ::CryptoPP::SHA224 *>(get_hash_transformation()); }
+Hash<SHA2_224>::Hash() :HashBase(new ::CryptoPP::SHA224) {}
+Hash<SHA2_224>::~Hash() { delete static_cast< ::CryptoPP::SHA224 *>(get_hash_transformation()); }
 
 
 Hash<RIPEMD320>::Hash() :HashBase(new ::CryptoPP::RIPEMD320) {}

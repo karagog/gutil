@@ -38,10 +38,10 @@ enum HashAlgorithmEnum
     SHA1,
     Tiger,
     Whirlpool,
-    SHA224,
-    SHA256,
-    SHA384,
-    SHA512,
+    SHA2_224,
+    SHA2_256,
+    SHA2_384,
+    SHA2_512,
     SHA3_224,
     SHA3_256,
     SHA3_384,
@@ -52,7 +52,7 @@ enum HashAlgorithmEnum
 /** The base class for all hash classes built on top of Crypto++. You cannot instantiate it directly, but
     you can create a Hash<> object which derives from this. Alternately you can use the CreateHash()
     static function to instantiate the proper hash object.
-    
+
     This class is re-entrant, as long as the Crypto++ classes remain re-entrant.
 
     You can use this class in several ways:
@@ -82,11 +82,21 @@ public:
     */
     void AddData(byte const *, GUINT32 len);
 
+    /** Adds data to be included in the hash.  When you've added all the data you want,
+     *  call Final() to get the digest.
+     *
+     *  \param chunk_size The number of bytes to read at a time.
+     *  \param ph An optional progress handler to monitor this potentially long operation.
+    */
+    void AddData(GUtil::IInput *,
+                 GUINT32 chunk_size = 0,
+                 GUtil::IProgressHandler *ph = 0);
+
     /** Outputs the digest to digest_out and restarts for a new hash.
      *  \param digest_out Must be the correct digest size, returned by DigestSize()
     */
     void Final(byte *digest_out);
-    
+
     /** Generates the hash of a fixed length data input. You can initialize the hash
      *  with salt simply by calling AddData() before this.
      *  \param digest_out Must be the correct digest size, returned by DigestSize()
@@ -95,7 +105,7 @@ public:
         AddData(data, data_len);
         Final(digest_out);
     }
-    
+
     /** Generates the hash of data from an input device. The input device may be null,
      *  in which case you get the hash of zero bytes. You can initialize the hash
      *  with salt simply by calling AddData() before this.
@@ -105,21 +115,24 @@ public:
      *  \param ph An optional progress handler to monitor this potentially long operation.
     */
     void ComputeHash(byte *digest_out,
-                     GUtil::IInput *,
-                     GUINT32 chunk_size = 0, 
-                     GUtil::IProgressHandler *ph = 0);
+                     GUtil::IInput *input,
+                     GUINT32 chunk_size = 0,
+                     GUtil::IProgressHandler *ph = 0){
+        AddData(input, chunk_size, ph);
+        Final(digest_out);
+    }
 
     /** The destructor is virtual so you can safely delete the base object, and it also includes
         runtime type information for the Hash classes, so you can dynamic_cast between them if you like.
     */
     virtual ~HashBase();
-    
-    
+
+
 protected:
 
     HashBase(::CryptoPP::HashTransformation *);
     ::CryptoPP::HashTransformation *get_hash_transformation() const{ return m_hash; }
-    
+
 };
 
 
@@ -128,28 +141,30 @@ template<HashAlgorithmEnum>class Hash {};
 
 
 // Here are all the template specializations for our hash classes
-template<>class Hash<SHA3_512> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<SHA3_384> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<SHA3_256> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<SHA3_224> : public HashBase { public: Hash(); ~Hash(); };
+#define DECLARE_HASH( HASH_TYPE ) template<>class Hash<HASH_TYPE> : public HashBase { public: Hash(); ~Hash(); }
 
-template<>class Hash<SHA512> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<SHA384> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<SHA256> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<SHA224> : public HashBase { public: Hash(); ~Hash(); };
+DECLARE_HASH(SHA3_512);
+DECLARE_HASH(SHA3_384);
+DECLARE_HASH(SHA3_256);
+DECLARE_HASH(SHA3_224);
 
-template<>class Hash<RIPEMD320> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<RIPEMD256> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<RIPEMD160> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<RIPEMD128> : public HashBase { public: Hash(); ~Hash(); };
+DECLARE_HASH(SHA2_512);
+DECLARE_HASH(SHA2_384);
+DECLARE_HASH(SHA2_256);
+DECLARE_HASH(SHA2_224);
 
-template<>class Hash<Whirlpool> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<Tiger> : public HashBase { public: Hash(); ~Hash(); };
+DECLARE_HASH(RIPEMD320);
+DECLARE_HASH(RIPEMD256);
+DECLARE_HASH(RIPEMD160);
+DECLARE_HASH(RIPEMD128);
 
-template<>class Hash<SHA1> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<MD5> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<MD4> : public HashBase { public: Hash(); ~Hash(); };
-template<>class Hash<MD2> : public HashBase { public: Hash(); ~Hash(); };
+DECLARE_HASH(Whirlpool);
+DECLARE_HASH(Tiger);
+
+DECLARE_HASH(SHA1);
+DECLARE_HASH(MD5);
+DECLARE_HASH(MD4);
+DECLARE_HASH(MD2);
 
 
 END_NAMESPACE_GUTIL1;
