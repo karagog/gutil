@@ -99,12 +99,13 @@ public:
         \note O(1)
     */
     template<class ITERATOR_TYPE>
-    void Insert(const T &item, ITERATOR_TYPE &iter){
+    T &Insert(const T &item, ITERATOR_TYPE &iter){
         // The iterator must be valid, except in the case when we insert on the end
-        if(0 < Count() && !iter.m_current && !iter.m_prev_node) return;
+        if(0 < Count() && !iter.m_current && !iter.m_prev_node)
+            THROW_NEW_GUTIL_EXCEPTION(Exception);
 
         // Insert, and then fix the iterator so it points to the correct node
-        _insert(item, iter);
+        T &ret( _insert(item, iter) );
 
         // If we inserted somewhere in the middle of the list
         if(iter.m_current)
@@ -113,16 +114,19 @@ public:
         // If we inserted on the end of the list
         else
             iter.set_current_node(0, 0, m_last);
+
+        return ret;
     }
 
     /** Inserts the item into the list.
         \note The iterator is not changed in this version of the function
     */
     template<class ITERATOR_TYPE>
-    void Insert(const T &item, const ITERATOR_TYPE &iter){
+    T &Insert(const T &item, const ITERATOR_TYPE &iter){
         // The iterator must be valid, except in the case when we insert on the end
-        if(0 < Count() && !iter.m_current && !iter.m_prev_node) return;
-        _insert(item, iter);
+        if(0 < Count() && !iter.m_current && !iter.m_prev_node)
+            THROW_NEW_GUTIL_EXCEPTION(Exception);
+        return _insert(item, iter);
     }
 
     /** Remove an item from the list.
@@ -201,15 +205,15 @@ public:
     }
 
     /** Pushes the item on the front of the list */
-    void PushFront(const T &i){
+    T &PushFront(const T &i){
         iterator b(begin());
-        Insert(i, b);
+        return Insert(i, b);
     }
 
     /** Pushes the item on the back of the list */
-    void PushBack(const T &i){
+    T &PushBack(const T &i){
         iterator e(end());
-        Insert(i, e);
+        return Insert(i, e);
     }
 
     /** Removes the item on the front of the list */
@@ -231,13 +235,13 @@ public:
     DListImp<T> &operator >> (T &cpy){ cpy = *rbegin(); PopBack(); return *this; }
 
     /** How many items are in the dlist */
-    GINT32 Length() const{ return m_size; }
+    GUINT32 Length() const{ return m_size; }
 
     /** How many items are in the dlist */
-    GINT32 Count() const{ return m_size; }
+    GUINT32 Count() const{ return m_size; }
 
     /** How many items are in the dlist */
-    GINT32 Size() const{ return m_size; }
+    GUINT32 Size() const{ return m_size; }
 
     /** Clears all items and reclaims all memory. */
     void Clear(){ Remove(begin(), Count()); }
@@ -275,8 +279,10 @@ public:
         }
         /** Returns a copy of the iterator advanced the specified number of times. */
         iterator operator + (GINT32 n) const{
-            if(n < 0) THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot use negative values");
-            return this->operator + ((GUINT32)n);
+            if(n < 0)
+                return this->operator - (-n);
+            else
+                return this->operator + ((GUINT32)n);
         }
 
         /** Retreats the iterator */
@@ -299,8 +305,10 @@ public:
         }
         /** Returns a copy of the iterator retreated the specified number of times. */
         iterator operator - (GINT32 n) const{
-            if(n < 0) THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot use negative values");
-            return this->operator - ((GUINT32)n);
+            if(n < 0)
+                return this->operator + (-n);
+            else
+                return this->operator - ((GUINT32)n);
         }
 
         const T &operator *() const{ return m_current->Data; }
@@ -403,8 +411,10 @@ public:
         }
         /** Returns a copy of the iterator advanced the specified number of times. */
         const_iterator operator + (GINT32 n) const{
-            if(n < 0) THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot use negative values");
-            return this->operator + ((GUINT32)n);
+            if(n < 0)
+                return this->operator - (-n);
+            else
+                return this->operator + ((GUINT32)n);
         }
 
         /** Retreats the iterator */
@@ -426,9 +436,11 @@ public:
             return ret;
         }
         /** Returns a copy of the iterator retreated the specified number of times. */
-        const_iterator operator - (int n) const{
-            if(n < 0) THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot use negative values");
-            return this->operator - ((GUINT32)n);
+        const_iterator operator - (GINT32 n) const{
+            if(n < 0)
+                return this->operator + (-n);
+            else
+                return this->operator - ((GUINT32)n);
         }
 
         const T &operator *() const{ return m_current->Data; }
@@ -524,7 +536,7 @@ public:
 
 private:
 
-    GINT32 m_size;
+    GUINT32 m_size;
     node *m_first;
     node *m_last;
 
@@ -638,7 +650,7 @@ private:
         }
     }
 
-    template<class ITERATOR_TYPE>void _insert(const T &i, const ITERATOR_TYPE &iter){
+    template<class ITERATOR_TYPE>T &_insert(const T &i, const ITERATOR_TYPE &iter){
         // The iterator must be valid, except in the case when we insert on the end
         GASSERT(0 == Count() || iter.m_current || iter.m_prev_node);
 
@@ -670,8 +682,8 @@ private:
             }
             m_last = new_node;
         }
-
         m_size++;
+        return new_node->Data;
     }
 
     template<class ITERATOR_TYPE>void _remove(const ITERATOR_TYPE &iter){
@@ -732,12 +744,12 @@ template<class T>class DList<T, IStack<T> > : public DList<T>, public IStack<T>
 {
     GUTIL_DLIST_CONSTRUCTORS(DList, DList<T>)
 
-    virtual void Push(const T &i){ DListImp<T>::PushBack(i); }
+    virtual T &Push(const T &i){ return DListImp<T>::PushBack(i); }
     virtual void Pop(){ DListImp<T>::PopBack(); }
     virtual const T &Top() const{ return DListImp<T>::Back(); }
     virtual T &Top(){ return DListImp<T>::Back(); }
-    virtual void FlushStack(){ DListImp<T>::Clear(); }
-    virtual GINT32 Size() const{ return DListImp<T>::Count(); }
+    virtual void Clear(){ DListImp<T>::Clear(); }
+    virtual GUINT32 Size() const{ return DListImp<T>::Count(); }
 };
 
 
@@ -745,12 +757,12 @@ template<class T>class DList<T, IQueue<T> > : public DList<T>, public IQueue<T>
 {
     GUTIL_DLIST_CONSTRUCTORS(DList, DList<T>)
 
-    virtual void Enqueue(const T &i){ DListImp<T>::PushBack(i); }
+    virtual T &Enqueue(const T &i){ return DListImp<T>::PushBack(i); }
     virtual void Dequeue(){ DListImp<T>::PopFront(); }
     virtual T &Front(){ return DListImp<T>::Front(); }
     virtual const T &Front() const{ return DListImp<T>::Front(); }
-    virtual void FlushQueue(){ DListImp<T>::Clear(); }
-    virtual GINT32 Size() const{ return DListImp<T>::Count(); }
+    virtual void Clear(){ DListImp<T>::Clear(); }
+    virtual GUINT32 Size() const{ return DListImp<T>::Count(); }
 };
 
 
@@ -767,7 +779,7 @@ template<class T>class DList<T, IDeque<T> > : public DList<T>, public IDeque<T>
     virtual const T &Back() const{ return DListImp<T>::Back(); }
     virtual T &Back(){ return DListImp<T>::Back(); }
     virtual void FlushDeque(){ DListImp<T>::Clear(); }
-    virtual GINT32 Size() const{ return DListImp<T>::Count(); }
+    virtual GUINT32 Size() const{ return DListImp<T>::Count(); }
 };
 
 

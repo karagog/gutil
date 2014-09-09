@@ -14,8 +14,10 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../.. ../../../../include ../../..
-LIBS += -L../../../../lib -lGUtil
+TOP_DIR = ../../../../..
+
+INCLUDEPATH += $$TOP_DIR/include
+LIBS += -L$$TOP_DIR/lib -lGUtil
 
 unix: LIBS += -Wl,-rpath,../../../../lib
 

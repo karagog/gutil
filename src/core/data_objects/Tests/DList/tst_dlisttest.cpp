@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "gutil_dlist.h"
-#include "Core/DataObjects/gstrings.h"
+#include "gutil_strings.h"
 USING_NAMESPACE_GUTIL;
 
 class DListTest : public QObject
@@ -68,35 +68,35 @@ void DListTest::test_basics()
     QVERIFY(list.Count() == 0);
 
     // Test the stack interface
-    DListStack<int> stk( &list );
+    DList<int, IStack<int> > stk;
     stk.Push(4);
     stk.Push(3);
     stk.Push(2);
     stk.Push(1);
     stk.Push(0);
+    iter = stk.begin();
     for(int i(0); i < 5; ++i, ++iter)
     {
         int cur(stk.Top());
         QVERIFY2(cur == i, QString("%1 != %2").arg(cur).arg(i).toAscii());
         stk.Pop();
     }
-    QVERIFY(stk.CountStackItems() == 0);
+    QVERIFY(stk.Count() == 0);
 
     // Test the queue interface.
-    DListQueue<int> q(&list);
+    DList<int, IQueue<int> > q;
     q.Enqueue(0);
     q.Enqueue(1);
     q.Enqueue(2);
     q.Enqueue(3);
     q.Enqueue(4);
-    iter = list.begin();
     for(int i(0); i < 5; ++i)
     {
         int cur(q.Front());
         QVERIFY2(cur == i, QString("%1 != %2").arg(cur).arg(i).toAscii());
         q.Dequeue();
     }
-    QVERIFY(q.CountQueueItems() == 0);
+    QVERIFY(q.Count() == 0);
 
 
     // Try iterating backwards
@@ -105,14 +105,16 @@ void DListTest::test_basics()
     q.Enqueue(2);
     q.Enqueue(3);
     q.Enqueue(4);
-    iter = list.rbegin();
-    for(int i(0); i < 5; ++i, --iter)
+    iter = q.rbegin();
+    for(int i(0); iter != q.rend(); ++i, --iter)
     {
         int cur(*iter);
-        QVERIFY2(cur == 4 - i, QString("%1 != %2").arg(cur).arg(i).toAscii());
+        QVERIFY2(cur == 4 - i, QString("%1 != %2").arg(cur).arg(4 - i).toAscii());
     }
 
     validate_list(list);
+    validate_list(stk);
+    validate_list(q);
 }
 
 void DListTest::test_iterators()
