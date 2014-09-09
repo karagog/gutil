@@ -255,18 +255,20 @@ void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgress
     if(m_payloadRead)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload already gotten");
 
+    OutputReplicator o;
+    SmartPointer<IOutput> o1;
+    SmartPointer<IOutput> o2;
+    if(dest)
+        o.AddOutputDevice(o1 = new ByteArrayOutput(dest));
+    if(m_validateChecksum)
+        o.AddOutputDevice(o2 = new HashOutput(*m_hash));
+
     ConstrainedInput i(m_file, m_file.Pos(),
                        m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
-    if(dest){
-        ByteArrayOutput o(dest);
+    if(o.NumberOfOutputs() > 0)
         m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
-    }
-    if(m_validateChecksum){
-        i.Seek(0);
-        HashOutput o(*m_hash);
-        m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
-    }
-    i.Seek(i.Length());
+    else
+        i.Seek(i.Length());
     m_payloadRead = true;
 }
 

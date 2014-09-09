@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_iointerface.h"
 #include "gutil_vector.h"
+#include <cstdarg>
 
 NAMESPACE_GUTIL;
 
@@ -122,6 +123,51 @@ public:
         return len;
     }
 
+};
+
+
+/** A class that replicates output across several output devices. 
+    The output data received by this device will be replicated to the other devices in the order they are given.
+    The separate output devices are not owned by the replicator, so you must manage their memory yourself.
+    
+    If one device encounters an error during output and it throws an exception, all further processing
+    will be halted.  If the device fails silently (i.e. returns less than the desired number of bytes written)
+    then it will not be known to the outside. The replicator simply skips over it and always returns the
+    desired number of bytes written.
+*/
+class OutputReplicator : public GUtil::IOutput
+{
+    Vector<IOutput *> m_outputs;
+public:
+
+    /** Variadic constructor allows you to make a replicator with arbitrarily many outputs.
+        The number of arguments must match the first argument N.
+    */
+    OutputReplicator(GUINT32 N = 0, ...)
+        :m_outputs(N)
+    {
+        va_list args;
+        va_start(args, N);
+        for(GUINT32 i = 0; i < N; ++i)
+            m_outputs.PushBack(va_arg(args, IOutput*));
+        va_end(args);
+    }
+    
+    /** Appends an output device to the list. */
+    void AddOutputDevice(IOutput *o){ m_outputs.PushBack(o); }
+    
+    /** Returns the current number of outputs to which the data is being replicated. */
+    GUINT32 NumberOfOutputs() const{ return m_outputs.Length(); }
+    
+    /** Writes the data to all output devices in the order they were given.
+        Errors are only presented if an exception is thrown.
+    */
+    virtual GUINT32 WriteBytes(const byte *data, GUINT32 len){
+        for(GUINT32 i = 0; i < m_outputs.Length(); ++i)
+            m_outputs[i]->WriteBytes(data, len);
+        return len;
+    }
+    
 };
 
 
