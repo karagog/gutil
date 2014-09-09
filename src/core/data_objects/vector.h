@@ -39,7 +39,7 @@ NAMESPACE_GUTIL;
 */
 template<class T>class VectorImp
 {
-    GINT32 m_capacity, m_size;
+    GUINT32 m_capacity, m_size;
     T *m_data;
 
 public:
@@ -50,7 +50,7 @@ public:
     inline VectorImp() :m_capacity(0), m_size(0), m_data(NULL) {}
 
     /** Constructs an empty vector capable of holding the given number of items. */
-    explicit VectorImp(GINT32 capacity)
+    explicit VectorImp(GUINT32 capacity)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(0 < capacity)
@@ -59,19 +59,19 @@ public:
 
 
     /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    explicit VectorImp(const T &o, GINT32 size)
+    explicit VectorImp(const T &o, GUINT32 size)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
         Reserve(size);
         set_length(size);
         T *cur(Data());
-        for(GINT32 i(0); i < size; ++i, ++cur)
+        for(GUINT32 i(0); i < size; ++i, ++cur)
             new(cur) T(o);
     }
 
 
     /**  Constructs a vector from the array of data. */
-    VectorImp(T const*arr, GINT32 size)
+    VectorImp(T const*arr, GUINT32 size)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(size > 0)
@@ -79,7 +79,7 @@ public:
             Reserve(size);
             set_length(size);
             T *cur(Data());
-            for(GINT32 i(0); i < size; ++i)
+            for(GUINT32 i(0); i < size; ++i)
                 new(cur++) T(*(arr++));
         }
     }
@@ -92,7 +92,7 @@ public:
                         const typename VectorImp<T>::const_iterator &iter_end)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
-        const GINT32 sz( iter_end - iter_begin );
+        const GUINT32 sz( iter_end - iter_begin );
         if(sz > 0)
             Reserve(sz);
         T *ptr(Data());
@@ -113,7 +113,7 @@ public:
             // Call the copy constructor for each item to initialize the memory
             T *cur( Data() );
             T const *ocur( o.ConstData() );
-            for(GINT32 i(0); i < Length(); ++i)
+            for(GUINT32 i(0); i < Length(); ++i)
                 new(cur++) T(*(ocur++));
         }
     }
@@ -146,9 +146,9 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    T &Insert(const T &item, GINT32 indx)
+    T &Insert(const T &item, GUINT32 indx)
     {
-        const GINT32 len( Length() );
+        const GUINT32 len( Length() );
 
         if(len < indx)
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
@@ -176,7 +176,7 @@ public:
 
                 if(len > 0)
                 {
-                    for(GINT32 i(len - 1); i > indx; --i, --cur)
+                    for(GUINT32 i(len - 1); i > indx; --i, --cur)
                         *cur = *(cur - 1);
                 }
 
@@ -199,7 +199,7 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(const VectorImp<T> &vec, GINT32 indx){
+    void Insert(const VectorImp<T> &vec, GUINT32 indx){
         Insert(vec.ConstData(), vec.Length(), indx);
     }
 
@@ -207,9 +207,9 @@ public:
         \note Invalidates all iterators, because the addition may cause a resize of the internal
         memory, which potentially moves the array.
     */
-    void Insert(T const *vec, GINT32 size, GINT32 indx)
+    void Insert(T const *vec, GUINT32 size, GUINT32 indx)
     {
-        const GINT32 len( Length() );
+        const GUINT32 len( Length() );
 
         if(len < indx)
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
@@ -226,24 +226,24 @@ public:
             if(IsMovableType<T>::Value)
             {
                 memmove(dest + size, dest, (len - indx) * sizeof(T));
-                for(GINT32 i(0); i < size; ++i)
+                for(GUINT32 i(0); i < size; ++i)
                     new(dest++) T(*(vec++));
             }
             else
             {
                 // Call the constructors on the memory location at the end
-                for(GINT32 i(1); i <= len && i <= size; ++i)
+                for(GUINT32 i(1); i <= len && i <= size; ++i)
                     new(Data() + len + size - i) T(*(Data() + len - i));
 
                 T *cur(Data() + len - 1);
                 if(len > 0)
                 {
-                    for(GINT32 i(len - 1); i > (indx + size); --i, --cur)
+                    for(GUINT32 i(len - 1); i > (indx + size); --i, --cur)
                         *cur = *(cur - size);
                 }
 
                 // Then assign the items to the proper location
-                for(GINT32 i(0); i < size; ++i)
+                for(GUINT32 i(0); i < size; ++i)
                 {
                     if(i < len)
                         Data()[indx + i] = vec[i];
@@ -255,7 +255,7 @@ public:
         else
         {
             // Call the copy constructors to initialize the memory at the end of the array
-            for(GINT32 i(0); i < size; ++i)
+            for(GUINT32 i(0); i < size; ++i)
                 new(dest++) T(*(vec++));
         }
 
@@ -315,9 +315,9 @@ public:
         after the input would notice their current element has shifted
         \note O(1) if you remove from the end.  O(N) otherwise.
     */
-    void RemoveAt(GINT32 indx, GINT32 num = 1)
+    void RemoveAt(GUINT32 indx, GUINT32 num = 1)
     {
-        const GINT32 len( Length() );
+        const GUINT32 len( Length() );
 
         if(len == 0 || indx + num > len)
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
@@ -325,7 +325,7 @@ public:
         T *const targ( Data() + indx );
 
         // Call the destructors on the items
-        for(GINT32 i(0); i < num; ++i)
+        for(GUINT32 i(0); i < num; ++i)
             (targ + i)->~T();
 
         // Copy all the following items over 1
@@ -341,17 +341,17 @@ public:
 
                 // Have to call the constructor on the items we removed, because we already destructed
                 //  these memory location above
-                for(GINT32 i(indx); (i < indx + num) && (i < len - num); ++i, ++cur)
+                for(GUINT32 i(indx); (i < indx + num) && (i < len - num); ++i, ++cur)
                     new(cur) T(*(cur + num));
 
                 // Then for the rest of the move, we use the assignment operator, because those
                 //  items have already been initialized.
-                for(GINT32 i(indx + num); i < len - num; ++i, ++cur)
+                for(GUINT32 i(indx + num); i < len - num; ++i, ++cur)
                     *cur = *(cur + num);
             }
 
             // And on the items at the end we call the destructor
-            for(GINT32 i(GUtil::Max(len - num, indx + num)); i < len; ++i)
+            for(GUINT32 i(GUtil::Max(len - num, indx + num)); i < len; ++i)
                 (Data() + i)->~T();
         }
 
@@ -397,10 +397,10 @@ public:
     /** Reserves room for at least this many items.
         Pass 0 to free all memory.
     */
-    void Reserve(GINT32 n){ ReserveExactly( _compute_capacity(n) ); }
+    void Reserve(GUINT32 n){ ReserveExactly( _compute_capacity(n) ); }
 
     /** Reserves room for exactly this number of items. */
-    void ReserveExactly(GINT32 new_capacity)
+    void ReserveExactly(GUINT32 new_capacity)
     {
         if(new_capacity == Capacity())
             return;
@@ -416,8 +416,8 @@ public:
             }
         }
 
-        const GINT32 new_size_in_bytes(new_capacity * sizeof(T));
-        const GINT32 length_bak = Length();
+        const GUINT32 new_size_in_bytes(new_capacity * sizeof(T));
+        const GUINT32 length_bak = Length();
 
         if(0 < new_capacity)
         {
@@ -478,19 +478,19 @@ public:
     /** Resizes the vector.  If the new size is larger than the current, then the default
         object will be copied to give a value to the newly created objects.
     */
-    void Resize(GINT32 new_size, const T &default_object = T()){
+    void Resize(GUINT32 new_size, const T &default_object = T()){
         if(new_size > Capacity())
             Reserve(new_size);
         if(new_size < Length())
         {
             const VectorImp<T>::iterator iter( begin() + new_size );
-            for(GINT32 i(Length()); i > new_size; --i)
+            for(GUINT32 i(Length()); i > new_size; --i)
                 Remove(iter);
         }
         else if(new_size > Length())
         {
             T *cur(Data() + Length());
-            for(GINT32 i(Length()); i < new_size; ++i)
+            for(GUINT32 i(Length()); i < new_size; ++i)
                 new(cur++) T(default_object);
         }
         set_length(new_size);
@@ -499,17 +499,17 @@ public:
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    T const &operator [](GINT32 i) const{ return ConstData()[i]; }
+    T const &operator [](GUINT32 i) const{ return ConstData()[i]; }
 
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
-    T &operator [](GINT32 i){ return Data()[i]; }
+    T &operator [](GUINT32 i){ return Data()[i]; }
 
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    T &At(GINT32 i){
+    T &At(GUINT32 i){
         if(i >= Length())
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return Data()[i];
@@ -518,7 +518,7 @@ public:
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds
     */
-    T const &At(GINT32 i) const{
+    T const &At(GUINT32 i) const{
         if(i >= Length())
             THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return ConstData()[i];
@@ -561,17 +561,17 @@ public:
     }
 
     /** The current length of the vector. */
-    inline GINT32 Length() const{ return m_size; }
+    inline GUINT32 Length() const{ return m_size; }
 
     /** How many items of type T we are capable of holding. */
-    inline GINT32 Capacity() const{ return m_capacity; }
+    inline GUINT32 Capacity() const{ return m_capacity; }
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
-        \return The index on success, -1 on failure
+        \return The index on success, UINT_MAX on failure
     */
-    GINT32 IndexOf(const T &item, GINT32 start = 0) const{
-        GINT32 ret( -1 );
+    GUINT32 IndexOf(const T &item, GUINT32 start = 0) const{
+        GUINT32 ret( GUINT32_MAX );
         T const *cur( ConstData() + start );
         T const *e( ConstDataEnd() );
         while(cur < e)
@@ -588,13 +588,13 @@ public:
 
     /** Conducts a linear search for the first instance of the item
         starting at the given index, and using the == operator to test equality.
-        \return The index on success, -1 on failure
+        \return The index on success, UINT_MAX on failure
     */
-    GINT32 LastIndexOf(const T &item, GINT32 start = -1) const{
-        GINT32 ret(-1);
+    GUINT32 LastIndexOf(const T &item, GUINT32 start = GUINT32_MAX) const{
+        GUINT32 ret(GUINT32_MAX);
         if(Length() > 0)
         {
-            if(start == -1)
+            if(start == GUINT32_MAX)
                 start = Length() - 1;
             T const *cur( ConstData() + start );
             T const *e( ConstData() - 1 );
@@ -612,7 +612,7 @@ public:
     }
 
     /** Returns true if we hold a matching item */
-    inline bool Contains(const T &i) const{ return -1 != IndexOf(i); }
+    inline bool Contains(const T &i) const{ return GUINT32_MAX != IndexOf(i); }
 
     /** Sorts the vector using the given sorting algorithm.
 
@@ -663,23 +663,23 @@ public:
         T &operator *() const{ return *current; }
         T *operator ->() const{ return current; }
 
-        GINT32 Index() const{ return current ? current - m_begin : 0; }
+        GUINT32 Index() const{ return current ? current - m_begin : 0; }
         T *Current() const{ return current; }
 
         iterator &operator ++(){ ++current; return *this; }
         iterator operator ++(int){ iterator ret(*this); ++current; return ret;}
-        iterator &operator +=(GINT32 n){ current += n; return *this; }
-        iterator operator +(GINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
+        iterator &operator +=(GUINT32 n){ current += n; return *this; }
+        iterator operator +(GUINT32 n) const{ iterator ret(*this); ret.current += n; return ret; }
 
         iterator &operator --(){ --current; return *this; }
         iterator operator --(int){ iterator ret(*this); --current; return ret;}
-        iterator &operator -=(GINT32 n){ current -= n; return *this; }
-        iterator operator -(GINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
+        iterator &operator -=(GUINT32 n){ current -= n; return *this; }
+        iterator operator -(GUINT32 n) const{ iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
-        GINT32 operator - (const iterator &other) const{
+        GUINT32 operator - (const iterator &other) const{
             if(m_begin != other.m_begin || current < other.current)
-                return -1;
+                return GUINT32_MAX;
             return current - other.current;
         }
 
@@ -725,23 +725,23 @@ public:
         T const &operator *() const{ return *current; }
         T const*operator ->() const{ return current; }
 
-        GINT32 Index() const{ return current ? current - m_begin : 0; }
+        GUINT32 Index() const{ return current ? current - m_begin : 0; }
         const T *Current() const{ return current; }
 
         const_iterator &operator ++(){ ++current; return *this; }
         const_iterator operator ++(int){ const_iterator ret(*this); ++current; return ret;}
-        const_iterator &operator +=(GINT32 n){ current += n; return *this; }
-        const_iterator operator +(GINT32 n) const{ const_iterator ret(*this); ret.current += n; return ret; }
+        const_iterator &operator +=(GUINT32 n){ current += n; return *this; }
+        const_iterator operator +(GUINT32 n) const{ const_iterator ret(*this); ret.current += n; return ret; }
 
         const_iterator &operator --(){ --current; return *this; }
         const_iterator operator --(int){ const_iterator ret(*this); --current; return ret;}
-        const_iterator &operator -=(GINT32 n){ current -= n; return *this; }
-        const_iterator operator -(GINT32 n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
+        const_iterator &operator -=(GUINT32 n){ current -= n; return *this; }
+        const_iterator operator -(GUINT32 n) const{ const_iterator ret(*this); ret.current -= n; return ret;}
 
         /** Returns the difference between iterators. */
-        GINT32 operator - (const const_iterator &other) const{
+        GUINT32 operator - (const const_iterator &other) const{
             if(m_begin != other.m_begin || current < other.current)
-                return -1;
+                return GUINT32_MAX;
             return current - other.current;
         }
 
@@ -824,7 +824,7 @@ protected:
         have a vector of more complex classes then some of their destructors may not get called.
         \note You must have already allocated the data pointer, otherwise this will dereference a null pointer.
     */
-    inline void set_length(GINT32 len){ m_size = len; }
+    inline void set_length(GUINT32 len){ m_size = len; }
 
     /** Returns the data pointer from a const reference to this. */
     T *get_data_pointer() const{ return m_data; }
@@ -832,11 +832,11 @@ protected:
 
 private:
 
-    static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK<GINT32>( FSB32( n ) ); }
+    static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK<GUINT32>( FSB32( n ) ); }
 
     void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const IComparer<T> &cmp){
-        GINT32 diff( e - b );
-        if(diff == -1);
+        GUINT32 diff( e - b );
+        if(diff == GUINT32_MAX);
         else if(diff == 2)
         {
             T *last( e.Current() - 1 );
@@ -909,9 +909,9 @@ private:
 #define GUTIL_VECTOR_CONSTRUCTORS(base_class) \
     public: \
     Vector() {} \
-    explicit Vector(GINT32 capacity) :base_class(capacity){} \
-    explicit Vector(const T &o, GINT32 size) :base_class(o, size){} \
-    Vector(T const*arr, GINT32 size) :base_class(arr, size){} \
+    explicit Vector(GUINT32 capacity) :base_class(capacity){} \
+    explicit Vector(const T &o, GUINT32 size) :base_class(o, size){} \
+    Vector(T const*arr, GUINT32 size) :base_class(arr, size){} \
     Vector(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
     Vector(const VectorImp<T> &o) :base_class(o) {} \
 
@@ -941,9 +941,9 @@ template<class T> class Vector<T, false> : public Vector<T>
     /** Data() is now a const function. */
     T *Data() const{ return this->get_data_pointer(); }
 
-    T &operator [](GINT32 i) const{ return this->Data()[i]; }
+    T &operator [](GUINT32 i) const{ return this->Data()[i]; }
 
-    T &At(GINT32 i) const{
+    T &At(GUINT32 i) const{
         if(i >= this->Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
         return this->Data()[i];
     }
@@ -957,13 +957,13 @@ template<class T> class Vector<T, true, IRandomAccessContainer<T> > :
 {
     GUTIL_VECTOR_CONSTRUCTORS(Vector<T>)
 
-    virtual T &At(GINT32 i){ return VectorImp<T>::At(i); }
-    virtual T const &At(GINT32 i) const{ return VectorImp<T>::At(i); }
+    virtual T &At(GUINT32 i){ return VectorImp<T>::At(i); }
+    virtual T const &At(GUINT32 i) const{ return VectorImp<T>::At(i); }
 
-    virtual T &Insert(const T &item, GINT32 i){ return VectorImp<T>::Insert(item, i); }
-    virtual void Remove(GINT32 i){ VectorImp<T>::RemoveAt(i); }
+    virtual T &Insert(const T &item, GUINT32 i){ return VectorImp<T>::Insert(item, i); }
+    virtual void Remove(GUINT32 i){ VectorImp<T>::RemoveAt(i); }
 
-    virtual GINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
     virtual void Clear(){ VectorImp<T>::Empty(); }
 
 };
@@ -982,7 +982,7 @@ template<class T> class Vector<T, true, IStack<T> > :
     virtual T &Top(){ return VectorImp<T>::Data()[VectorImp<T>::Length() - 1]; }
     virtual T const &Top() const{ return VectorImp<T>::ConstData()[VectorImp<T>::Length() - 1]; }
 
-    virtual GINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
     virtual void Clear(){ VectorImp<T>::Empty(); }
 
 };
@@ -1000,7 +1000,7 @@ template<class T> class Vector<T, true, IQueue<T> > :
     virtual T &Front(){ return VectorImp<T>::Front(); }
     virtual T const &Front() const{ return VectorImp<T>::Front(); }
 
-    virtual GINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
     virtual void Clear(){ VectorImp<T>::Empty(); }
 
 };
@@ -1022,7 +1022,7 @@ template<class T> class Vector<T, true, IDeque<T> > :
     virtual T &Back(){ return VectorImp<T>::Back(); }
     virtual T const &Back() const{ return VectorImp<T>::Back(); }
 
-    virtual GINT32 Size() const{ return VectorImp<T>::Length(); }
+    virtual GUINT32 Size() const{ return VectorImp<T>::Length(); }
     virtual void Clear(){ VectorImp<T>::Empty(); }
 
 };
