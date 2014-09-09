@@ -232,11 +232,12 @@ bool GPSFile_Import::NextPayload()
     SmartArrayPointer<byte> header_pt(new byte[header_len]);
     {
         ConstrainedInput i(m_file, m_file.Pos(), m_file.Pos() + header_len_ct);
-        ByteArrayOutput o(header_pt.Data());
-        m_cryptor->DecryptData(&o, &i);
-
+        ByteArrayOutput bao(header_pt);
+        OutputReplicator o(1, &bao);
+        SmartPointer<IOutput> ho;
         if(m_validateChecksum)
-            m_hash->AddData(header_pt, header_len);
+            o.AddOutputDevice(ho = new HashOutput(*m_hash));
+        m_cryptor->DecryptData(&o, &i);
     }
 
     // First interpret the payload length:
