@@ -149,7 +149,7 @@ void Deck::Deal(GUINT32 starting_hand, GUINT32 num_cards)
 
     CircularInt tmp(0, m_hands.Length() - 1, starting_hand);
     while(num_cards-- != 0 && 0 < m_cards.Length())
-        for(GINT32 i(0); 0 < m_cards.Length() && i < m_hands.Length(); ++i, ++tmp)
+        for(GUINT32 i(0); 0 < m_cards.Length() && i < m_hands.Length(); ++i, ++tmp)
             m_hands[tmp].m_cards.PushBack( pick_one() );
 }
 
