@@ -101,7 +101,7 @@ static void __compute_password_hash2(byte *result, const char *password,
 #define KDF_ITERATIONS (((GUINT32)1)<<16)
 
 // The default key deriver
-class default_kdf_t : public ICryptorKeyDerivation{
+class default_kdf_t : public Cryptor::IKeyDerivation{
     void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
         __compute_password_hash(key, password, salt, salt_len, KDF_ITERATIONS);
     }
@@ -111,14 +111,14 @@ class default_kdf_t : public ICryptorKeyDerivation{
     void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
         __compute_password_hash2(key, password, salt, salt_len, KDF_ITERATIONS);
     }
-    ICryptorKeyDerivation *Clone() const{ return new default_kdf_t(*this); }
+    IClonable *Clone() const{ return new default_kdf_t(*this); }
 };
 
 
 Cryptor::Cryptor(const char *password, const char *keyfile,
                  GUINT8 nonce_size,
                  const byte *salt, GUINT32 salt_len,
-                 ICryptorKeyDerivation *kdf)
+                 IKeyDerivation *kdf)
     :m_nonceSize(nonce_size),
       m_kdf(kdf)
 {
@@ -134,7 +134,7 @@ Cryptor::Cryptor(const char *password, const char *keyfile,
 
 Cryptor::Cryptor(const Cryptor &other)
     :m_nonceSize(other.m_nonceSize),
-      m_kdf(other.m_kdf->Clone())
+      m_kdf(static_cast<IKeyDerivation *>(other.m_kdf->Clone()))
 {
     memcpy(m_key, other.m_key, sizeof(m_key));
     memcpy(m_key2, other.m_key2, sizeof(m_key2));
@@ -145,12 +145,6 @@ Cryptor::~Cryptor()
 {
     delete m_kdf;
     G_D_UNINIT();
-}
-
-void Cryptor::FillRandom(byte *b, GUINT32 l)
-{
-    G_D;
-    d->rng.GenerateBlock(b, l);
 }
 
 bool Cryptor::CheckPassword(const char *password, const char *keyfile,
@@ -220,7 +214,7 @@ void Cryptor::EncryptData(IOutput *out,
 
     if(NULL == nonce){
         // Initialize a random IV
-        FillRandom(n.Data(), GetNonceSize());
+        d->rng.GenerateBlock(n.Data(), GetNonceSize());
     }
     d->enc.SetKeyWithIV(m_key, sizeof(m_key), nonce == NULL ? n.Data():nonce, GetNonceSize());
     d->enc.SpecifyDataLengths(aData_len + sizeof(m_key2), len);

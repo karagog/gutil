@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_iointerface.h"
 #include "gutil_iprogresshandler.h"
+#include "gutil_iclonable.h"
 
 NAMESPACE_GUTIL1(CryptoPP);
 
@@ -28,29 +29,6 @@ NAMESPACE_GUTIL1(CryptoPP);
     rather than a true cryptographic key.
 */
 #define CRYPTOR_KEY2_SIZE 64
-
-
-/** Defines an interface to allow you to define your own password-based key derivation functions. 
-    This is for advanced users only; normally you don't have to use this.
-*/
-class ICryptorKeyDerivation
-{
-public:
-    /** Create the main Cryptor key from a password and salt. */
-    virtual void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
-    
-    /** Create the main Cryptor key from a keyfile and salt. */
-    virtual void DeriveKey1FromKeyfile(byte *key, const char *keyfile, byte const *salt, GUINT32 salt_len) = 0;
-    
-    /** Create the second Cryptor key from a password and salt. */
-    virtual void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
-
-    /** Used where copying is necessary. */
-    virtual ICryptorKeyDerivation *Clone() const = 0;
-
-    /** You will be deleted by this interface. */
-    virtual ~ICryptorKeyDerivation() {}
-};
 
 
 /** Use this class to encrypt and decrypt data securely and with message authentication.
@@ -82,12 +60,9 @@ public:
 */
 class Cryptor
 {
-    byte m_key [CRYPTOR_KEY1_SIZE];
-    byte m_key2[CRYPTOR_KEY2_SIZE];
-    const GUINT8 m_nonceSize;
-    ICryptorKeyDerivation *m_kdf;
-    void *d;
 public:
+
+    class IKeyDerivation;
 
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
      *  every encrypted message. The MAC is used to verify authenticity of the
@@ -124,7 +99,7 @@ public:
     Cryptor(const char *password, const char *keyfile = 0,
             GUINT8 nonce_size = DefaultNonceSize,
             const byte *salt = NULL, GUINT32 salt_len = 0,
-            ICryptorKeyDerivation *kdf = NULL);
+            IKeyDerivation *kdf = NULL);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
@@ -208,8 +183,33 @@ public:
                      GUtil::IProgressHandler *ph = NULL);
 
 
-    /** Fills the buffer with random data from they cryptor's RNG. */
-    void FillRandom(byte *, GUINT32);
+    /** Defines an interface to allow you to define your own password-based key derivation functions.
+        This is for advanced users only; normally you don't have to use this.
+    */
+    class IKeyDerivation : public GUtil::IClonable
+    {
+    public:
+        /** Create the main Cryptor key from a password and salt. */
+        virtual void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
+
+        /** Create the main Cryptor key from a keyfile and salt. */
+        virtual void DeriveKey1FromKeyfile(byte *key, const char *keyfile, byte const *salt, GUINT32 salt_len) = 0;
+
+        /** Create the second Cryptor key from a password and salt. */
+        virtual void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
+
+        /** You will be deleted by this interface. */
+        virtual ~IKeyDerivation() {}
+    };
+
+
+private:
+
+    byte m_key [CRYPTOR_KEY1_SIZE];
+    byte m_key2[CRYPTOR_KEY2_SIZE];
+    const GUINT8 m_nonceSize;
+    IKeyDerivation *m_kdf;
+    void *d;
 
 };
 
