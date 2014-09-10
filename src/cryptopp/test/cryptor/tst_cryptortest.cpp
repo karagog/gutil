@@ -34,6 +34,7 @@ private Q_SLOTS:
     void test_encryption_with_keyfiles();
     void test_nonce();
     void test_encryption_with_all_features();
+    void test_copy();
 };
 
 void CryptorTest::test_basic_encryption()
@@ -557,6 +558,13 @@ void CryptorTest::test_encryption_with_all_features()
         QVERIFY(false);
     }
     QVERIFY(exception_hit);
+}
+
+void CryptorTest::test_copy()
+{
+    Cryptor c1("password", KEYFILE1);
+    Cryptor c2(c1);
+    QVERIFY(c2.CheckPassword("password", KEYFILE1));
 }
 
 QTEST_APPLESS_MAIN(CryptorTest)
