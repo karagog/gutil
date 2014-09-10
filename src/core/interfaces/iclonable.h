@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,27 +12,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ICLONABLE_H
-#define ICLONABLE_H
+#ifndef GUTIL_ICLONABLE_H
+#define GUTIL_ICLONABLE_H
 
 #include "gutil_macros.h"
 
 NAMESPACE_GUTIL;
 
 
-// A class to define a clonable object interface.
-
-// The template type must be the type of the derived class, otherwise the default
-//  'CloneFrom' implementation won't work.  You can override it if you wish to fix
-//  this behavior.
-
-template <class T> class IClonable
+/** A class to define a clonable object interface. */
+class IClonable
 {
 public:
 
-    // Clones this object to the provided object reference
-    virtual T& CloneTo(T &) const = 0;
+    /** Returns a copy of this object. You can dynamic cast
+     *  the IClonable to test what type it is, assuming you
+     *  have run time type information.
+    */
+    virtual IClonable *Clone() const = 0;
 
+    /** You can be deleted by this interface. */
     virtual ~IClonable(){}
 
 };
@@ -40,4 +39,4 @@ public:
 
 END_NAMESPACE_GUTIL;
 
-#endif // ICLONABLE_H
+#endif // GUTIL_ICLONABLE_H
