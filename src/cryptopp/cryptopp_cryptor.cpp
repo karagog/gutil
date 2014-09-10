@@ -28,9 +28,6 @@ USING_NAMESPACE_GUTIL;
 
 #define DEFAULT_CHUNK_SIZE 1024
 
-// The number of iterations for our key derivation function
-#define KDF_ITERATIONS (((GUINT32)1)<<16)
-
 namespace
 {
 
@@ -54,7 +51,7 @@ const GUINT32 Cryptor::TagLength;
 
 static void __compute_password_hash(byte *result, const char *password,
                                     const byte *salt, GUINT32 salt_len,
-                                    GUINT32 iteration_count = KDF_ITERATIONS)
+                                    GUINT32 iteration_count)
 {
     ::CryptoPP::SHA3_256 h;
     if(salt)
@@ -68,7 +65,7 @@ static void __compute_password_hash(byte *result, const char *password,
 
 static void __compute_keyfile_hash(byte *result, const char *keyfile,
                                    const byte *salt, GUINT32 salt_len,
-                                   GUINT32 iteration_count = KDF_ITERATIONS,
+                                   GUINT32 iteration_count,
                                    IProgressHandler *ph = 0)
 {
     SmartPointer<IInput> in;
@@ -88,7 +85,7 @@ static void __compute_keyfile_hash(byte *result, const char *keyfile,
 
 static void __compute_password_hash2(byte *result, const char *password,
                                      const byte *salt, GUINT32 salt_len,
-                                     GUINT32 iteration_count = KDF_ITERATIONS)
+                                     GUINT32 iteration_count)
 {
     ::CryptoPP::SHA3_512 h;
     if(salt)
@@ -100,11 +97,36 @@ static void __compute_password_hash2(byte *result, const char *password,
         h.CalculateDigest(result, result, h.DIGESTSIZE);
 }
 
+// The number of iterations for our key derivation function
+#define KDF_ITERATIONS (((GUINT32)1)<<16)
+
+// The default key deriver
+class default_kdf_t : public ICryptorKeyDerivation{
+    void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
+        __compute_password_hash(key, password, salt, salt_len, KDF_ITERATIONS);
+    }
+    void DeriveKey1FromKeyfile(byte *key, const char *keyfile, byte const *salt, GUINT32 salt_len){
+        __compute_keyfile_hash(key, keyfile, salt, salt_len, KDF_ITERATIONS);
+    }
+    void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
+        __compute_password_hash2(key, password, salt, salt_len, KDF_ITERATIONS);
+    }
+};
+
 
 Cryptor::Cryptor(const char *password, const char *keyfile,
-                 const byte *salt, GUINT32 salt_len)
-    :m_nonceSize(DefaultNonceSize)
+                 GUINT8 nonce_size,
+                 const byte *salt, GUINT32 salt_len,
+                 ICryptorKeyDerivation *kdf)
+    :m_nonceSize(nonce_size),
+      m_kdf(kdf)
 {
+    if(m_nonceSize < 7 || 13 < m_nonceSize)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid nonce size");
+    
+    if(m_kdf == NULL)
+        m_kdf = new default_kdf_t;
+    
     ChangePassword(password, keyfile, salt, salt_len);
     G_D_INIT();
 }
@@ -119,14 +141,8 @@ Cryptor::Cryptor(const Cryptor &other)
 
 Cryptor::~Cryptor()
 {
+    delete m_kdf;
     G_D_UNINIT();
-}
-
-void Cryptor::SetNonceSize(GUINT8 size)
-{
-    if(size < 7 || 13 < size)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid nonce size");
-    m_nonceSize = size;
 }
 
 void Cryptor::FillRandom(byte *b, GUINT32 l)
@@ -142,13 +158,13 @@ bool Cryptor::CheckPassword(const char *password, const char *keyfile,
     byte buf_key2[sizeof(m_key2)] = {};
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        __compute_password_hash(buf_key, password, salt, salt_len);
+        m_kdf->DeriveKey1FromPassword(buf_key, password, salt, salt_len);
     }
     else{
         // A password and keyfile were given
-        __compute_keyfile_hash(buf_key, keyfile, salt, salt_len);
+        m_kdf->DeriveKey1FromKeyfile(buf_key, keyfile, salt, salt_len);
     }
-    __compute_password_hash2(buf_key2, password, salt, salt_len);
+    m_kdf->DeriveKey2(buf_key2, password, salt, salt_len);
     return (0 == memcmp(m_key, buf_key, sizeof(buf_key))) &&
            (0 == memcmp(m_key2, buf_key2, sizeof(buf_key2)));
 }
@@ -158,24 +174,24 @@ void Cryptor::ChangePassword(const char *password, const char *keyfile,
 {
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        __compute_password_hash(m_key, password, salt, salt_len);
+        m_kdf->DeriveKey1FromPassword(m_key, password, salt, salt_len);
     }
     else{
         // A password and keyfile were given
-        __compute_keyfile_hash(m_key, keyfile, salt, salt_len);
+        m_kdf->DeriveKey1FromKeyfile(m_key, keyfile, salt, salt_len);
     }
-    __compute_password_hash2(m_key2, password, salt, salt_len);
+    m_kdf->DeriveKey2(m_key2, password, salt, salt_len);
 }
 
 
-GUINT64 Cryptor::GetMaxPayloadLength() const
+GUINT64 Cryptor::GetMaxPayloadLength(GUINT8 nonce_size)
 {
-    return GetNonceSize() == 7 ? GUINT64_MAX : ((GUINT64)1 << 8*(15-GetNonceSize())) - 1;
+    return nonce_size == 7 ? GUINT64_MAX : ((GUINT64)1 << 8*(15-nonce_size)) - 1;
 }
 
-void Cryptor::SetMaxPayloadLength(GUINT64 len)
+GUINT8 Cryptor::GetNonceSizeRequired(GUINT64 len)
 {
-    SetNonceSize(Min(13, 15 - ((FSB64(len) + 1) >> 3)));
+    return Min(13, 15 - ((FSB64(len) + 1) >> 3));
 }
 
 void Cryptor::EncryptData(IOutput *out,
@@ -197,7 +213,7 @@ void Cryptor::EncryptData(IOutput *out,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
 
     // With CCM the length is restricted, let's check that here
-    if(GetMaxPayloadLength() < len)
+    if(GetMaxPayloadLength(GetNonceSize()) < len)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
 
     if(NULL == nonce){
@@ -277,7 +293,7 @@ void Cryptor::DecryptData(IOutput *out,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
     len = ct_len - (GetNonceSize() + TagLength);
 
-    if(GetMaxPayloadLength() < len)
+    if(GetMaxPayloadLength(GetNonceSize()) < len)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
 
     // Read the MAC tag and IV at the end of the crypttext

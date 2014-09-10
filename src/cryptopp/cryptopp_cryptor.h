@@ -21,6 +21,35 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(CryptoPP);
 
 
+/** The size of the cryptor's first key, which is the main cryptographic key. */
+#define CRYPTOR_KEY1_SIZE 32
+
+/** The size of the cryptor's second key, which is passed as authenticated data
+    rather than a true cryptographic key.
+*/
+#define CRYPTOR_KEY2_SIZE 64
+
+
+/** Defines an interface to allow you to define your own password-based key derivation functions. 
+    This is for advanced users only; normally you don't have to use this.
+*/
+class ICryptorKeyDerivation
+{
+public:
+    /** Create the main Cryptor key from a password and salt. */
+    virtual void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
+    
+    /** Create the main Cryptor key from a keyfile and salt. */
+    virtual void DeriveKey1FromKeyfile(byte *key, const char *keyfile, byte const *salt, GUINT32 salt_len) = 0;
+    
+    /** Create the second Cryptor key from a password and salt. */
+    virtual void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
+
+    /** You will be deleted by this interface. */
+    virtual ~ICryptorKeyDerivation() {}
+};
+
+
 /** Use this class to encrypt and decrypt data securely and with message authentication.
  *
  *  Authentication means that on decrypting it will recognize if the message has been
@@ -50,10 +79,11 @@ NAMESPACE_GUTIL1(CryptoPP);
 */
 class Cryptor
 {
+    byte m_key [CRYPTOR_KEY1_SIZE];
+    byte m_key2[CRYPTOR_KEY2_SIZE];
+    const GUINT8 m_nonceSize;
+    ICryptorKeyDerivation *m_kdf;
     void *d;
-    GUINT8 m_nonceSize;
-    byte m_key[32];     // The max key size for AES
-    byte m_key2[64];    // The size of a SHA512 hash
 public:
 
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
@@ -65,7 +95,7 @@ public:
     static const GUINT32 TagLength = 16;
 
     /** The default nonce size. Change it with SetNonceSize().  */
-    static const GINT8 DefaultNonceSize = 10;
+    static const GUINT8 DefaultNonceSize = 10;
 
     /** Constructs and initializes the Cryptor using the password and/or keyfile.
      *
@@ -79,45 +109,31 @@ public:
      *  \param password The password to be used for encryption/decryption, must be in UTF-8/ASCII format.
      *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
      *      another one matches by using the CheckPassword function.
+     *  \param nonce_size The length of the nonce, in bytes. Valid values are between 7 and 13
      *  \param keyfile The key file, if any. Can be any file of any size, but it's better
      *      if it's small (under or around 100 bytes) and random. If you leave this blank, only the
      *      password will be required to decrypt.
      *  \param salt A byte array to initialize the hash functions that generate keys from passwords.
      *              You need this to keep your keys fresh without the user changing passwords.
-     *  \param nonce_length The length of the nonce, in bytes. Valid values are between 7 and 13.
-     *              The default is DefaultNonceSize.
+     *  \param kdf Allows you to supply your own custom key derivation function. The default KDF should
+     *              be plenty good, but this allows you more flexibility. The cryptor owns the KDF and deletes it.
     */
     Cryptor(const char *password, const char *keyfile = 0,
-            const byte *salt = NULL, GUINT32 salt_len = 0);
+            GUINT8 nonce_size = DefaultNonceSize,
+            const byte *salt = NULL, GUINT32 salt_len = 0,
+            ICryptorKeyDerivation *kdf = NULL);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
     ~Cryptor();
 
-    /** The length of the nonce. This determines several critical properties
-     *  of the cryptor.
-     *
-     *  There is not a one nonce-size fits all for this parameter. You should
-     *  tailor this number to your needs, depending on the size of the payloads you will
-     *  be encrypting and the number of times the key will be reused.
-     *
-     *  \param size The length of the nonce, in bytes. Valid values are between 7 and 13
-     *  \throws An exception if the value is out of range
-    */
-    void SetNonceSize(GUINT8 size);
-
-    /** Returns the nonce size
-     *  \sa SetNonceSize()
-    */
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
-
-    /** Returns the maximum payload length, which is a function of the nonce size. */
-    GUINT64 GetMaxPayloadLength() const;
-
-    /** Sets the nonce size such that the maximum payload length will be at least as great or greater
-        than the length you specify here. Any value is valid.
-    */
-    void SetMaxPayloadLength(GUINT64);
+    
+    /** Returns the theoretical maximum payload length as a function of nonce size. */
+    static GUINT64 GetMaxPayloadLength(GUINT8 nonce_size);
+    
+    /** Returns the maximum nonce size required to be able to encrypt a payload of the given length. */
+    static GUINT8 GetNonceSizeRequired(GUINT64 max_payload);
 
     /** Returns the maximum suggested number of key uses for the given nonce length.
      *  This function assumes random nonce generation. If you are deterministically

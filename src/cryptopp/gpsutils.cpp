@@ -59,8 +59,7 @@ GPSFile_Export::GPSFile_Export(const char *filepath,
     m_file.Write(placeholder, sizeof(placeholder));
 
     // Initialize the cryptor
-    m_cryptor = new Cryptor(password, keyfile, salt, SALT_LENGTH);
-    m_cryptor->SetNonceSize(NONCE_LENGTH);
+    m_cryptor = new Cryptor(password, keyfile, NONCE_LENGTH, salt, SALT_LENGTH);
 }
 
 GPSFile_Export::~GPSFile_Export()
@@ -178,8 +177,7 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "This file's version is too advanced for me");
 
     // Initialize the cryptor
-    m_cryptor = new Cryptor(password, keyfile, salt, SALT_LENGTH);
-    m_cryptor->SetNonceSize(NONCE_LENGTH);
+    m_cryptor = new Cryptor(password, keyfile, NONCE_LENGTH, salt, SALT_LENGTH);
 
     // Read in and decrypt the header:
     {

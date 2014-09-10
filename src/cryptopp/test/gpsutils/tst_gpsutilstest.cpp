@@ -174,8 +174,8 @@ void GpsutilsTest::test_checksum()
         } catch(const AuthenticationException<> &){
             exception_hit = true;
         }
-        File::Delete(copied_filename);
     }
+    File::Delete(copied_filename);
     QVERIFY(exception_hit);
 
     // Validation should work even if I don't manually read the payloads

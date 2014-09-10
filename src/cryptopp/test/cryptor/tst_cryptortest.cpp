@@ -246,7 +246,7 @@ static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
     QVERIFY(exception_hit);
 
     // Ok now let's encrypt and decrypt and see if it works using keyfiles
-    Cryptor crypt(NULL, KEYFILE1, salt, salt_len);
+    Cryptor crypt(NULL, KEYFILE1, Cryptor::DefaultNonceSize, salt, salt_len);
     String pData = "Hello world!!!";
     Vector<char> cData;
     {
@@ -270,7 +270,7 @@ static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
     QVERIFY(pData == recovered);
 
     // What if we decrypt with the wrong keyfile?
-    Cryptor crypt2(NULL, KEYFILE2, salt, salt_len);
+    Cryptor crypt2(NULL, KEYFILE2, Cryptor::DefaultNonceSize, salt, salt_len);
     exception_hit = false;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -319,7 +319,7 @@ void CryptorTest::test_salt()
     const char *salt = "Hello I am salt";
     __test_encryption_with_keyfiles((byte const *)salt, sizeof(salt));
 
-    Cryptor crypt("password", NULL, (const byte *)salt, sizeof(salt));
+    Cryptor crypt("password", NULL, Cryptor::DefaultNonceSize, (const byte *)salt, sizeof(salt));
 
     String pData = "Hello world!!!";
     String aData = "This data will be authenticated!";
@@ -336,7 +336,8 @@ void CryptorTest::test_salt()
     bool exception_hit = false;
     try{
         const char *bad_salt = "This salt is different";
-        Cryptor crypt2("password", NULL, (const byte *)bad_salt, sizeof(bad_salt));
+        Cryptor crypt2("password", NULL, Cryptor::DefaultNonceSize,
+                       (const byte *)bad_salt, sizeof(bad_salt));
         ByteArrayInput i(cData.ConstData(), cData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
         crypt2.DecryptData(NULL, &i, &ia);
@@ -350,9 +351,9 @@ void CryptorTest::test_salt()
     QVERIFY(exception_hit);
 }
 
-static void __test_cryptor_nonce_length(Cryptor &crypt, int nonce_len)
+static void __test_cryptor_nonce_length(int nonce_len)
 {
-    crypt.SetNonceSize(nonce_len);
+    Cryptor crypt("password", NULL, nonce_len);
     QVERIFY(crypt.GetNonceSize() == nonce_len);
 
     String pData = "Hello world!!!";
@@ -383,11 +384,9 @@ static void __test_cryptor_nonce_length(Cryptor &crypt, int nonce_len)
 
 void CryptorTest::test_nonce()
 {
-    Cryptor crypt("password");
-
     bool exception_hit = false;
     try{
-        crypt.SetNonceSize(6);
+        Cryptor(NULL, NULL, 6);
     }
     catch(...){
         exception_hit = true;
@@ -396,7 +395,7 @@ void CryptorTest::test_nonce()
 
     exception_hit = false;
     try{
-        crypt.SetNonceSize(14);
+        Cryptor(NULL, NULL, 14);
     }
     catch(...){
         exception_hit = true;
@@ -404,7 +403,7 @@ void CryptorTest::test_nonce()
     QVERIFY(exception_hit);
 
     for(int i = 7; i <= 13; ++i)
-        __test_cryptor_nonce_length(crypt, i);
+        __test_cryptor_nonce_length(i);
 
     // Try encrypting a payload that is too large
     class too_large_input : public GUtil::IInput{
@@ -417,7 +416,7 @@ void CryptorTest::test_nonce()
 
     for(int i = 8; i <= 13; ++i)
     {
-        crypt.SetNonceSize(i);
+        Cryptor crypt(NULL, NULL, i);
         exception_hit = false;
         try{
             too_large_input input(((GUINT64)0x10000) << 8*(13-i));
@@ -430,7 +429,8 @@ void CryptorTest::test_nonce()
     }
 
     // Test specifying my own nonce
-    crypt.SetNonceSize(8);
+    Cryptor crypt(NULL, NULL, 8);
+    QVERIFY(crypt.GetNonceSize() == 8);
     GUINT64 n = 0;
     String pData = "Hello world!!!";
     Vector<char> cData;
