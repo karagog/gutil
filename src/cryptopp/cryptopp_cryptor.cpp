@@ -111,6 +111,7 @@ class default_kdf_t : public ICryptorKeyDerivation{
     void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
         __compute_password_hash2(key, password, salt, salt_len, KDF_ITERATIONS);
     }
+    ICryptorKeyDerivation *Clone() const{ return new default_kdf_t(*this); }
 };
 
 
@@ -132,7 +133,8 @@ Cryptor::Cryptor(const char *password, const char *keyfile,
 }
 
 Cryptor::Cryptor(const Cryptor &other)
-    :m_nonceSize(other.m_nonceSize)
+    :m_nonceSize(other.m_nonceSize),
+      m_kdf(other.m_kdf->Clone())
 {
     memcpy(m_key, other.m_key, sizeof(m_key));
     memcpy(m_key2, other.m_key2, sizeof(m_key2));

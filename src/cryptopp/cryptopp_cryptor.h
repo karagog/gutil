@@ -45,6 +45,9 @@ public:
     /** Create the second Cryptor key from a password and salt. */
     virtual void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
 
+    /** Used where copying is necessary. */
+    virtual ICryptorKeyDerivation *Clone() const = 0;
+
     /** You will be deleted by this interface. */
     virtual ~ICryptorKeyDerivation() {}
 };
