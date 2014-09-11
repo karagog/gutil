@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
-/** Implements a smart pointer, which manages a pointer and deletes it when
+/** Implements a smart pointer, which behaves like a normal pointer, but also
+    manages the memory and deletes it when
     the instance destructs.  You can also Relinquish() the naked pointer if you need to take
     control away from the smart pointer.
 
@@ -83,9 +84,7 @@ public:
     T &operator *(){ return *ptr; }
 
     /** Access the pointer's member functions */
-    T const *operator ->() const{ return ptr; }
-    /** Access the pointer's member functions */
-    T *operator ->(){ return ptr; }
+    T *operator ->() const{ return ptr; }
 
     /** Cast operator to the naked pointer.
      *  It is implemented using static_cast, so you can cast to some other pointer types.
