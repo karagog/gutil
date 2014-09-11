@@ -49,20 +49,31 @@ public:
     /** Constructs an empty vector. */
     inline VectorImp() :m_capacity(0), m_size(0), m_data(NULL) {}
 
-    /** Constructs an empty vector capable of holding the given number of items. */
-    explicit VectorImp(GUINT32 capacity)
+    /** Constructs an empty vector capable of holding the given number of items. 
+        \param reserve_exactly If this is true, then only the required length is reserved.
+    */
+    explicit VectorImp(GUINT32 capacity, bool reserve_exactly = false)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
-        if(0 < capacity)
-            Reserve(capacity);
+        if(0 < capacity){
+            if(reserve_exactly)
+                ReserveExactly(capacity);
+            else
+                Reserve(capacity);
+        }
     }
 
 
-    /**  Constructs a vector of the given size, where all elements are copies of the provided object. */
-    explicit VectorImp(const T &o, GUINT32 size)
+    /** Constructs a vector of the given size, where all elements are copies of the provided object. 
+        \param reserve_exactly If this is true, then only the required length is reserved.
+    */
+    VectorImp(const T &o, GUINT32 size, bool reserve_exactly = false)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
-        Reserve(size);
+        if(reserve_exactly)
+            ReserveExactly(size);
+        else
+            Reserve(size);
         set_length(size);
         T *cur(Data());
         for(GUINT32 i(0); i < size; ++i, ++cur)
@@ -70,13 +81,18 @@ public:
     }
 
 
-    /**  Constructs a vector from the array of data. */
-    VectorImp(T const*arr, GUINT32 size)
+    /** Constructs a vector from the array of data.
+        \param reserve_exactly If this is true, then only the required length is reserved.
+    */
+    VectorImp(T const*arr, GUINT32 size, bool reserve_exactly = false)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(size > 0)
         {
-            Reserve(size);
+            if(reserve_exactly)
+                ReserveExactly(size);
+            else
+                Reserve(size);
             set_length(size);
             T *cur(Data());
             for(GUINT32 i(0); i < size; ++i)
@@ -89,12 +105,17 @@ public:
         iter_begin to iter_end.
     */
     VectorImp(const typename VectorImp<T>::const_iterator &iter_begin,
-                        const typename VectorImp<T>::const_iterator &iter_end)
+                        const typename VectorImp<T>::const_iterator &iter_end, 
+                        bool reserve_exactly = false)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
         const GUINT32 sz( iter_end - iter_begin );
-        if(sz > 0)
-            Reserve(sz);
+        if(sz > 0){
+            if(reserve_exactly)
+                ReserveExactly(sz);
+            else
+                Reserve(sz);
+        }
         T *ptr(Data());
         for(VectorImp<T>::const_iterator cur(iter_begin); cur != iter_end;)
             new(ptr++) T(*(cur++));
@@ -102,12 +123,15 @@ public:
 
 
     /** The copy constructor conducts a deep copy, invoking the copy constructors on each item. */
-    VectorImp(const VectorImp<T> &o)
+    VectorImp(const VectorImp<T> &o, bool reserve_exactly = false)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
         if(0 < o.Capacity())
         {
-            Reserve(o.Capacity());
+            if(reserve_exactly)
+                ReserveExactly(o.Length());
+            else
+                Reserve(o.Capacity());
             set_length(o.Length());
 
             // Call the copy constructor for each item to initialize the memory
@@ -909,11 +933,11 @@ private:
 #define GUTIL_VECTOR_CONSTRUCTORS(base_class) \
     public: \
     Vector() {} \
-    explicit Vector(GUINT32 capacity) :base_class(capacity){} \
-    explicit Vector(const T &o, GUINT32 size) :base_class(o, size){} \
-    Vector(T const*arr, GUINT32 size) :base_class(arr, size){} \
-    Vector(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end) :base_class(iter_begin, iter_end){} \
-    Vector(const VectorImp<T> &o) :base_class(o) {} \
+    explicit Vector(GUINT32 capacity, bool reserve_exactly = false) :base_class(capacity, reserve_exactly){} \
+    Vector(const T &o, GUINT32 size, bool reserve_exactly = false) :base_class(o, size, reserve_exactly){} \
+    Vector(T const*arr, GUINT32 size, bool reserve_exactly = false) :base_class(arr, size, reserve_exactly){} \
+    Vector(const typename VectorImp<T>::const_iterator &iter_begin, const typename VectorImp<T>::const_iterator &iter_end, bool reserve_exactly = false) :base_class(iter_begin, iter_end, reserve_exactly){} \
+    Vector(const VectorImp<T> &o, bool reserve_exactly = false) :base_class(o, reserve_exactly) {} \
 
 
 

@@ -247,7 +247,7 @@ static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
     QVERIFY(exception_hit);
 
     // Ok now let's encrypt and decrypt and see if it works using keyfiles
-    Cryptor crypt(NULL, KEYFILE1, Cryptor::DefaultNonceSize, salt, salt_len);
+    Cryptor crypt(NULL, KEYFILE1, Cryptor::DefaultNonceSize, new Cryptor::DefaultKeyDerivation(salt, salt_len));
     String pData = "Hello world!!!";
     Vector<char> cData;
     {
@@ -271,7 +271,7 @@ static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
     QVERIFY(pData == recovered);
 
     // What if we decrypt with the wrong keyfile?
-    Cryptor crypt2(NULL, KEYFILE2, Cryptor::DefaultNonceSize, salt, salt_len);
+    Cryptor crypt2(NULL, KEYFILE2, Cryptor::DefaultNonceSize, new Cryptor::DefaultKeyDerivation(salt, salt_len));
     exception_hit = false;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -286,7 +286,7 @@ static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
     QVERIFY(exception_hit);
 
     // What if we decrypt with the right keyfile but also give a password?
-    crypt2.ChangePassword("password", KEYFILE1, salt, salt_len);
+    crypt2.ChangePassword("password", KEYFILE1);
     exception_hit = false;
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -301,7 +301,7 @@ static void __test_encryption_with_keyfiles(const byte *salt, GUINT32 salt_len)
     QVERIFY(exception_hit);
 
     // But after everything we can still decrypt it with the right keyfile
-    crypt2.ChangePassword("", KEYFILE1, salt, salt_len);
+    crypt2.ChangePassword("", KEYFILE1);
     recovered.Empty();
     try{
         ByteArrayInput i(cData.ConstData(), cData.Length());
@@ -320,7 +320,7 @@ void CryptorTest::test_salt()
     const char *salt = "Hello I am salt";
     __test_encryption_with_keyfiles((byte const *)salt, sizeof(salt));
 
-    Cryptor crypt("password", NULL, Cryptor::DefaultNonceSize, (const byte *)salt, sizeof(salt));
+    Cryptor crypt("password", NULL, Cryptor::DefaultNonceSize, new Cryptor::DefaultKeyDerivation((const byte *)salt, sizeof(salt)));
 
     String pData = "Hello world!!!";
     String aData = "This data will be authenticated!";
@@ -338,7 +338,7 @@ void CryptorTest::test_salt()
     try{
         const char *bad_salt = "This salt is different";
         Cryptor crypt2("password", NULL, Cryptor::DefaultNonceSize,
-                       (const byte *)bad_salt, sizeof(bad_salt));
+                       new Cryptor::DefaultKeyDerivation((const byte *)bad_salt, sizeof(bad_salt)));
         ByteArrayInput i(cData.ConstData(), cData.Length());
         ByteArrayInput ia(aData.ConstData(), aData.Length());
         crypt2.DecryptData(NULL, &i, &ia);

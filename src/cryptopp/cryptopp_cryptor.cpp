@@ -26,7 +26,8 @@ limitations under the License.*/
 #include <math.h>
 USING_NAMESPACE_GUTIL;
 
-#define DEFAULT_CHUNK_SIZE 1024
+// The number of iterations for our key derivation function
+#define KDF_ITERATIONS (((GUINT32)1)<<16)
 
 namespace
 {
@@ -49,134 +50,62 @@ NAMESPACE_GUTIL1(CryptoPP);
 //  in places other than a const expression
 const GUINT32 Cryptor::TagLength;
 
-static void __compute_password_hash(byte *result, const char *password,
-                                    const byte *salt, GUINT32 salt_len,
-                                    GUINT32 iteration_count)
-{
-    ::CryptoPP::SHA3_256 h;
-    if(salt)
-        h.Update(salt, salt_len);
-    h.Update((byte const *)password, password ? strlen(password) : 0);
-    h.Final(result);
-
-    for(GUINT32 i = 0; i < iteration_count; ++i)
-        h.CalculateDigest(result, result, h.DIGESTSIZE);
-}
-
-static void __compute_keyfile_hash(byte *result, const char *keyfile,
-                                   const byte *salt, GUINT32 salt_len,
-                                   GUINT32 iteration_count,
-                                   IProgressHandler *ph = 0)
-{
-    SmartPointer<IInput> in;
-    if(keyfile != NULL && strlen(keyfile) > 0){
-        File *f = new File(keyfile);
-        in = f;
-        f->Open(File::OpenRead);
-    }
-    Hash<SHA3_256> h;
-    if(salt)
-        h.AddData(salt, salt_len);
-    h.ComputeHash(result, in, DEFAULT_CHUNK_SIZE, ph);
-
-    for(GUINT32 i = 0; i < iteration_count; ++i)
-        h.ComputeHash(result, result, h.DigestSize());
-}
-
-static void __compute_password_hash2(byte *result, const char *password,
-                                     const byte *salt, GUINT32 salt_len,
-                                     GUINT32 iteration_count)
-{
-    ::CryptoPP::SHA3_512 h;
-    if(salt)
-        h.Update(salt, salt_len);
-    h.Update((byte const *)password, password ? strlen(password) : 0);
-    h.Final(result);
-
-    for(GUINT32 i = 0; i < iteration_count; ++i)
-        h.CalculateDigest(result, result, h.DIGESTSIZE);
-}
-
-// The number of iterations for our key derivation function
-#define KDF_ITERATIONS (((GUINT32)1)<<16)
-
-// The default key deriver
-class default_kdf_t : public Cryptor::IKeyDerivation{
-    void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
-        __compute_password_hash(key, password, salt, salt_len, KDF_ITERATIONS);
-    }
-    void DeriveKey1FromKeyfile(byte *key, const char *keyfile, byte const *salt, GUINT32 salt_len){
-        __compute_keyfile_hash(key, keyfile, salt, salt_len, KDF_ITERATIONS);
-    }
-    void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len){
-        __compute_password_hash2(key, password, salt, salt_len, KDF_ITERATIONS);
-    }
-    IClonable *Clone() const{ return new default_kdf_t(*this); }
-};
-
 
 Cryptor::Cryptor(const char *password, const char *keyfile,
                  GUINT8 nonce_size,
-                 const byte *salt, GUINT32 salt_len,
                  IKeyDerivation *kdf)
     :m_nonceSize(nonce_size),
       m_kdf(kdf)
 {
     if(m_nonceSize < 7 || 13 < m_nonceSize)
         THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid nonce size");
-    
-    if(m_kdf == NULL)
-        m_kdf = new default_kdf_t;
-    
-    ChangePassword(password, keyfile, salt, salt_len);
+
+    ChangePassword(password, keyfile);
     G_D_INIT();
 }
 
 Cryptor::Cryptor(const Cryptor &other)
     :m_nonceSize(other.m_nonceSize),
+      m_authData(other.m_authData),
       m_kdf(static_cast<IKeyDerivation *>(other.m_kdf->Clone()))
 {
     memcpy(m_key, other.m_key, sizeof(m_key));
-    memcpy(m_key2, other.m_key2, sizeof(m_key2));
     G_D_INIT();
 }
 
 Cryptor::~Cryptor()
 {
-    delete m_kdf;
     G_D_UNINIT();
 }
 
-bool Cryptor::CheckPassword(const char *password, const char *keyfile,
-                            const byte *salt, GUINT32 salt_len) const
+bool Cryptor::CheckPassword(const char *password, const char *keyfile) const
 {
-    byte buf_key[sizeof(m_key)] = {};
-    byte buf_key2[sizeof(m_key2)] = {};
+    byte buf_key[sizeof(m_key)];
+    const Vector<byte> tmpauth = m_kdf->DeriveAuthData(password);
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        m_kdf->DeriveKey1FromPassword(buf_key, password, salt, salt_len);
+        m_kdf->DeriveKeyFromPassword(buf_key, password);
     }
     else{
         // A password and keyfile were given
-        m_kdf->DeriveKey1FromKeyfile(buf_key, keyfile, salt, salt_len);
+        m_kdf->DeriveKeyFromKeyfile(buf_key, keyfile);
     }
-    m_kdf->DeriveKey2(buf_key2, password, salt, salt_len);
-    return (0 == memcmp(m_key, buf_key, sizeof(buf_key))) &&
-           (0 == memcmp(m_key2, buf_key2, sizeof(buf_key2)));
+    return tmpauth.Length() == m_authData.Length() &&
+            0 == memcmp(m_key, buf_key, sizeof(buf_key)) &&
+            0 == memcmp(m_authData.ConstData(), tmpauth.ConstData(), m_authData.Length());
 }
 
-void Cryptor::ChangePassword(const char *password, const char *keyfile,
-                             const byte *salt, GUINT32 salt_len)
+void Cryptor::ChangePassword(const char *password, const char *keyfile)
 {
     if(keyfile == NULL || strlen(keyfile) == 0){
         // Only the password was given (or even a null password)
-        m_kdf->DeriveKey1FromPassword(m_key, password, salt, salt_len);
+        m_kdf->DeriveKeyFromPassword(m_key, password);
     }
     else{
         // A password and keyfile were given
-        m_kdf->DeriveKey1FromKeyfile(m_key, keyfile, salt, salt_len);
+        m_kdf->DeriveKeyFromKeyfile(m_key, keyfile);
     }
-    m_kdf->DeriveKey2(m_key2, password, salt, salt_len);
+    m_authData = m_kdf->DeriveAuthData(password);
 }
 
 
@@ -217,7 +146,7 @@ void Cryptor::EncryptData(IOutput *out,
         d->rng.GenerateBlock(n.Data(), GetNonceSize());
     }
     d->enc.SetKeyWithIV(m_key, sizeof(m_key), nonce == NULL ? n.Data():nonce, GetNonceSize());
-    d->enc.SpecifyDataLengths(aData_len + sizeof(m_key2), len);
+    d->enc.SpecifyDataLengths(aData_len + sizeof(m_authData), len);
 
     GUINT32 read = 0;
     GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
@@ -229,7 +158,7 @@ void Cryptor::EncryptData(IOutput *out,
                 TagLength);
 
     // First pass the authenticated data. Our second key goes in here.
-    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, m_key2, sizeof(m_key2));
+    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, m_authData, sizeof(m_authData));
 
     // If they gave us additional auth data, add it here
     if(aData && 0 < aData->BytesAvailable())
@@ -304,7 +233,7 @@ void Cryptor::DecryptData(IOutput *out,
 
     // Initialize the decryptor
     d->dec.SetKeyWithIV(m_key, sizeof(m_key), mac_iv.Data() + TagLength, GetNonceSize());
-    d->dec.SpecifyDataLengths(aData_len + sizeof(m_key2), len);
+    d->dec.SpecifyDataLengths(aData_len + sizeof(m_authData), len);
     try
     {
         GUINT32 read = 0;
@@ -322,7 +251,7 @@ void Cryptor::DecryptData(IOutput *out,
         df.Put(mac_iv.Data(), TagLength);
 
         // Pass the authenticated data before the plaintext:
-        df.ChannelPut(::CryptoPP::AAD_CHANNEL, m_key2, sizeof(m_key2));
+        df.ChannelPut(::CryptoPP::AAD_CHANNEL, m_authData, sizeof(m_authData));
 
         // If they gave us additional auth data, add it here
         if(aData && 0 < aData->BytesAvailable())
@@ -380,6 +309,70 @@ double Cryptor::GetMaxKeyUsageSuggestion(GUINT8 nonce_length)
         ret = pow(2, 8*nonce_length - 32);
     }
     return ret;
+}
+
+
+
+void Cryptor::DefaultKeyDerivation::DeriveKeyFromPassword(byte *key, const char *password)
+{
+    ::CryptoPP::SHA3_256 h;
+    const GUINT32 pw_len = password ? strlen(password) : 0;
+
+    // Hash it once with the salt
+    h.Update(m_salt.ConstData(), m_salt.Length());
+    h.Update((byte const *)password, pw_len);
+    h.Final(key);
+
+    // Then hash it again a bunch more times using each successive hash
+    //  as a salt for the next iteration.
+    for(GUINT32 i = 0; i < KDF_ITERATIONS; ++i){
+        h.Update(key, Cryptor::KeySize);
+        h.Update((byte const *)password, pw_len);
+        h.Final(key);
+    }
+}
+
+void Cryptor::DefaultKeyDerivation::DeriveKeyFromKeyfile(byte *key, const char *keyfile)
+{
+    SmartPointer<IInput> in;
+    if(keyfile != NULL && strlen(keyfile) > 0){
+        File *f = new File(keyfile);
+        in = f;
+        f->Open(File::OpenRead);
+    }
+
+    // Since the keyfile has enough entropy, we only hash this once (the attacker will not
+    //  do a precomputed dictionary attack when the input is random data.  They may as well
+    //  guess randomly at the key).
+    Hash<SHA3_256> h;
+    h.AddData(m_salt.ConstData(), m_salt.Length());
+    h.ComputeHash(key, in);
+}
+
+Vector<byte> Cryptor::DefaultKeyDerivation::DeriveAuthData(const char *password)
+{
+    ::CryptoPP::SHA3_512 h;
+    byte result[h.DIGESTSIZE];
+    const GUINT32 pw_len = password ? strlen(password) : 0;
+
+    // Hash it once with the salt
+    h.Update(m_salt.ConstData(), m_salt.Length());
+    h.Update((byte const *)password, pw_len);
+    h.Final(result);
+
+    // Then hash it again a bunch more times using each successive hash
+    //  as a salt for the next iteration.
+    for(GUINT32 i = 0; i < KDF_ITERATIONS; ++i){
+        h.Update(result, sizeof(result));
+        h.Update((byte const *)password, pw_len);
+        h.Final(result);
+    }
+    return Vector<byte>(result, sizeof(result));
+}
+
+IClonable *Cryptor::DefaultKeyDerivation::Clone() const
+{
+    return new DefaultKeyDerivation(*this);
 }
 
 

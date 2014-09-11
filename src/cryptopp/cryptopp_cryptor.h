@@ -18,17 +18,10 @@ limitations under the License.*/
 #include "gutil_iointerface.h"
 #include "gutil_iprogresshandler.h"
 #include "gutil_iclonable.h"
+#include "gutil_vector.h"
+#include "gutil_smartpointer.h"
 
 NAMESPACE_GUTIL1(CryptoPP);
-
-
-/** The size of the cryptor's first key, which is the main cryptographic key. */
-#define CRYPTOR_KEY1_SIZE 32
-
-/** The size of the cryptor's second key, which is passed as authenticated data
-    rather than a true cryptographic key.
-*/
-#define CRYPTOR_KEY2_SIZE 64
 
 
 /** Use this class to encrypt and decrypt data securely and with message authentication.
@@ -63,6 +56,7 @@ class Cryptor
 public:
 
     class IKeyDerivation;
+    class DefaultKeyDerivation;
 
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
      *  every encrypted message. The MAC is used to verify authenticity of the
@@ -72,8 +66,11 @@ public:
     */
     static const GUINT32 TagLength = 16;
 
-    /** The default nonce size. Change it with SetNonceSize().  */
+    /** The default nonce size. */
     static const GUINT8 DefaultNonceSize = 10;
+
+    /** The size of the cryptographic key, in bytes. */
+    static const GUINT32 KeySize = 32;
 
     /** Constructs and initializes the Cryptor using the password and/or keyfile.
      *
@@ -98,18 +95,17 @@ public:
     */
     Cryptor(const char *password, const char *keyfile = 0,
             GUINT8 nonce_size = DefaultNonceSize,
-            const byte *salt = NULL, GUINT32 salt_len = 0,
-            IKeyDerivation *kdf = NULL);
+            IKeyDerivation *kdf = new DefaultKeyDerivation);
 
     /** Duplicates the cryptor, taking on the other's password. */
     Cryptor(const Cryptor &);
     ~Cryptor();
 
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
-    
+
     /** Returns the theoretical maximum payload length as a function of nonce size. */
     static GUINT64 GetMaxPayloadLength(GUINT8 nonce_size);
-    
+
     /** Returns the maximum nonce size required to be able to encrypt a payload of the given length. */
     static GUINT8 GetNonceSizeRequired(GUINT64 max_payload);
 
@@ -126,12 +122,10 @@ public:
     static double GetMaxKeyUsageSuggestion(GUINT8 nonce_length);
 
     /** Returns true if the password/keyfile combination is correct. */
-    bool CheckPassword(const char *password, const char *keyfile = 0,
-                       const byte *salt = NULL, GUINT32 salt_len = 0) const;
+    bool CheckPassword(const char *password, const char *keyfile = 0) const;
 
     /** Changes the password/keyfile combination used by the cryptor. */
-    void ChangePassword(const char *password, const char *keyfile = 0,
-                        const byte *salt = NULL, GUINT32 salt_len = 0);
+    void ChangePassword(const char *password, const char *keyfile = 0);
 
 
     /** Encrypts the string.
@@ -189,26 +183,52 @@ public:
     class IKeyDerivation : public GUtil::IClonable
     {
     public:
-        /** Create the main Cryptor key from a password and salt. */
-        virtual void DeriveKey1FromPassword(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
+        /** Create the key from a password and salt. The key must be Cryptor::KeySize large. */
+        virtual void DeriveKeyFromPassword(byte *key_out, const char *password) = 0;
 
-        /** Create the main Cryptor key from a keyfile and salt. */
-        virtual void DeriveKey1FromKeyfile(byte *key, const char *keyfile, byte const *salt, GUINT32 salt_len) = 0;
+        /** Create the key from a keyfile and salt. The key must be Cryptor::KeySize large. */
+        virtual void DeriveKeyFromKeyfile(byte *key_out, const char *keyfile) = 0;
 
-        /** Create the second Cryptor key from a password and salt. */
-        virtual void DeriveKey2(byte *key, const char *password, byte const *salt, GUINT32 salt_len) = 0;
+        /** Create the secret auth data from a password. It may be arbitrarily long (at least greater than 0). */
+        virtual GUtil::Vector<byte> DeriveAuthData(const char *password) = 0;
 
         /** You will be deleted by this interface. */
         virtual ~IKeyDerivation() {}
     };
 
+    /** The default key derivation functions. */
+    class DefaultKeyDerivation : public IKeyDerivation
+    {
+        const GUtil::Vector<byte> m_salt;
+    public:
+        DefaultKeyDerivation() {}
+        DefaultKeyDerivation(byte const *salt, GUINT32 salt_len) :m_salt(salt, salt_len, true) {}
+        DefaultKeyDerivation(const DefaultKeyDerivation &o) :m_salt(o.m_salt, true) {}
+        virtual GUtil::IClonable *Clone() const;
+
+        /** Key is derived by iteratively hashing the password, and using every
+         *  successive hash as salt for the next iteration.
+        */
+        virtual void DeriveKeyFromPassword(byte *, const char *);
+
+        /** Key is derived by straightforward hash. Dictionary attacks don't apply
+         *  for keyfiles.
+        */
+        virtual void DeriveKeyFromKeyfile(byte *, const char *);
+
+        /** Auth data is derived by iteratively hashing the password, and using every
+         *  successive hash as salt for the next iteration.
+        */
+        virtual GUtil::Vector<byte> DeriveAuthData(const char *);
+    };
+
 
 private:
 
-    byte m_key [CRYPTOR_KEY1_SIZE];
-    byte m_key2[CRYPTOR_KEY2_SIZE];
     const GUINT8 m_nonceSize;
-    IKeyDerivation *m_kdf;
+    byte m_key[KeySize];
+    GUtil::Vector<byte> m_authData;
+    GUtil::SmartPointer<IKeyDerivation> m_kdf;
     void *d;
 
 };
