@@ -60,7 +60,7 @@ public:
 
 
 private:
-#ifdef linux
+#ifdef __unix__
     int m_handle;
 #else
     HANDLE m_handle;

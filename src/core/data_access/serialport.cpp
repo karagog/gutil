@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "gutil_serialport.h"
 
-#ifdef linux
+#ifdef __unix__
 #include <termios.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -36,7 +36,7 @@ SerialPort::~SerialPort()
 void SerialPort::Initialize(const char *comport)
 {
     // Function to configure port settings and open new com port
-#ifdef linux
+#ifdef __unix__
 
     m_handle = open(comport, O_RDWR | O_NOCTTY);
     if(m_handle == -1){
@@ -148,7 +148,7 @@ void SerialPort::Close()
 {
     if(IsOpen())
     {
-#ifdef linux
+#ifdef __unix__
         close(m_handle);
 #else
         FlushFileBuffers(m_handle);             //clean up after yourself for the next guy to use the port
@@ -169,7 +169,7 @@ GUINT32 SerialPort::ReadBytes(GBYTE *buf, GUINT32 buf_len, GUINT32 to_read)
     char tempchar;
     for(GUINT32 i = 0; i < to_read && i < buf_len; i++)
     {
-#ifdef linux
+#ifdef __unix__
         GUINT32 tmp_bytes_read = read(m_handle,&tempchar,1);
 #else
         DWORD tmp_bytes_read = 0;
@@ -198,7 +198,7 @@ GUINT32 SerialPort::WriteBytes(const GBYTE *bytes, GUINT32 len)
     */
     for(GUINT32 i = 0; i < len; i++)
     {
-#ifdef linux
+#ifdef __unix__
         GUINT32 tmp_bytes = write(m_handle, bytes++, 1);
 #else
         DWORD tmp_bytes = 0;
