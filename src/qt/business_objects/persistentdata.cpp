@@ -267,7 +267,7 @@ void PersistentData::commit_reject_changes(bool commit)
 
         // Remove data from disk that is not in our memory store
         Vector<Pair<int, QUuid> > disk_ids = m_bds.GetIds();
-        for(int i = 0; i < disk_ids.Length(); ++i){
+        for(GUINT32 i = 0; i < disk_ids.Length(); ++i){
             int cur_id = disk_ids[i].First;
             if(!keep_ids.Contains(cur_id)){
                 m_bds.RemoveData(cur_id);

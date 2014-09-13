@@ -6,6 +6,8 @@ QT -= gui core
 TEMPLATE = lib
 #CONFIG += staticlib
 
+QMAKE_CXXFLAGS += -std=c++0x
+
 CONFIG += warn_off
 
 TOP_DIR = ../..
