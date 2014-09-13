@@ -14,8 +14,6 @@ limitations under the License.*/
 
 #include "rng.h"
 #include <math.h>
-USING_NAMESPACE_GUTIL;
-
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
@@ -36,40 +34,21 @@ static GFLOAT64 __rng_int_to_unit_float(GUINT32 i)
 }
 
 /** Generates two integers with one call to Generate(). */
-static Pair<GUINT32> __rng_generate_two_numbers()
+static GUtil::Pair<GUINT32> __rng_generate_two_numbers()
 {
-    GASSERT(GlobalRNG());
-    GUINT64 L( GlobalRNG()->Generate<GUINT64>() );
-    return Pair<GUINT32>(L >> 32, L);
+    GASSERT(GUtil::GlobalRNG());
+    GUINT64 L( GUtil::GlobalRNG()->Generate<GUINT64>() );
+    return GUtil::Pair<GUINT32>(L >> 32, L);
 }
-
 
 #ifndef GUTIL_NO_DEFAULT_RNG
-
-/** An RNG implemented by the rand() function of the C standard library. */
-struct CStdRNG : public RNG
-{
-    CStdRNG(){ srand(time(NULL)); }
-
-    void Fill(GBYTE *b, GUINT32 l)
-    {
-       // Rand is only guaranteed to return values up to 32767 (0x7FFF)
-       // Therefore I chose to only use it to generate one byte at a time
-       // There are better RNG's out there, so use them if you need to
-       for(GUINT32 i = 0; i < l; ++i)
-           *(b++) = rand();
-    }
-}
-static __cstd_rng;
-
-static RNG *__rng(&__cstd_rng);
-
+static GUtil::CStdRNG __cstd_rng;
+static GUtil::RNG *__rng(&__cstd_rng);
 #else
-static RNG *__rng(0);
+static GUtil::RNG *__rng(0);
 #endif  // GUTIL_NO_DEFAULT_RNG
 
 }
-
 
 NAMESPACE_GUTIL;
 
@@ -211,6 +190,21 @@ bool RNG::Succeed(double probability_of_success)
 bool RNG::CoinToss()
 {
     return Generate<GINT8>() < 0;
+}
+
+
+CStdRNG::CStdRNG()
+{
+    srand(time(NULL));
+}
+
+void CStdRNG::Fill(GBYTE *b, GUINT32 l)
+{
+   // Rand is only guaranteed to return values up to 32767 (0x7FFF)
+   // Therefore I chose to only use it to generate one byte at a time
+   // There are better RNG's out there, so use them if you need to
+   for(GUINT32 i = 0; i < l; ++i)
+       *(b++) = rand();
 }
 
 

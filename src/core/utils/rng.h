@@ -210,6 +210,15 @@ public:
 };
 
 
+/** An RNG implemented by the rand() function of the C standard library. */
+class CStdRNG : public RNG
+{
+public:
+    /** Constructor seeds rand() with the current time. */
+    CStdRNG();
+    virtual void Fill(GBYTE *, GUINT32);
+};
+
 
 /** Returns the global RNG set by SetGlobalRNG(). */
 extern RNG *GlobalRNG();
@@ -219,8 +228,6 @@ extern RNG *GlobalRNG();
  *  If you pass a null pointer it will reset to the default RNG implementation.
 */
 extern void SetGlobalRNG(RNG *);
-
-
 
 
 /** Create a static global instance of this in any library making use of the RNG
