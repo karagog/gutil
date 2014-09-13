@@ -70,113 +70,6 @@ limitations under the License.*/
 
 
 
-
-/** An internal struct for the foreach implementation */
-template<class T, bool IsConst, bool Direction>struct GUtilForeachContainer{};
-
-/** An internal struct specialization for the foreach implementation */
-template<class T>struct GUtilForeachContainer<T, true, true>{
-    GUtilForeachContainer(const T &container) :c(container), iter(c.begin()), end(c.end()) {}
-    const T &c;
-    typename T::const_iterator iter, end;
-};
-
-/** An internal struct specialization for the foreach implementation */
-template<class T>struct GUtilForeachContainer<T, false, true>{
-    GUtilForeachContainer(T &container) :c(container), iter(container.begin()), end(container.end()) {}
-    T &c;
-    typename T::iterator iter, end;
-};
-
-/** An internal struct specialization for the foreach implementation */
-template<class T>struct GUtilForeachContainer<T, true, false>{
-    GUtilForeachContainer(const T &container) :c(container), iter(c.rbegin()), end(c.rend()) {}
-    const T &c;
-    typename T::const_iterator iter, end;
-};
-
-/** An internal struct specialization for the foreach implementation */
-template<class T>struct GUtilForeachContainer<T, false, false>{
-    GUtilForeachContainer(T &container) :c(container), iter(container.rbegin()), end(container.rend()) {}
-    T &c;
-    typename T::iterator iter, end;
-};
-
-
-/** A syntactically concise iteration loop.
-
-    This version of it retains the const-ness of the input container.
-
-    \note Depending on the implementation of the container iterators,
-    the individual elements may or may not be modifiable.  You set the desired
-    const-ness of the element reference in the declaration, and if it compiles then it must work.
-
-    This is better than Qt's foreach loop, because it doesn't make a copy of the
-    container.  Use this version when you DON'T need to modify the container elements.
-
-    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
-
-    \param var A variable declaration for the foreach body.  Use const-references whenever possible.
-    \param container An STL-like container, which must implement an iterator class
-            and begin()/end() functions
-*/
-#define G_FOREACH_CONST(var, container) \
-    for(GUtilForeachContainer<__typeof__(container), true, true> cont(container); cont.iter != cont.end; ++cont.iter) \
-        for(var( *cont.iter ) ;; __extension__({ break; }))
-
-/** A syntactically concise iteration loop.
-
-    This is better than Qt's foreach loop, because it doesn't make a copy of the
-    container.  Use this version when you need to modify the container elements.
-
-    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
-
-    \param var A variable declaration for the foreach body.  Use references whenever possible.
-    \param container An STL-like container, which must implement an iterator class
-            and begin()/end() functions
-*/
-#define G_FOREACH(var, container) \
-    for(GUtilForeachContainer<__typeof__(container), false, true> cont(container); cont.iter != cont.end; ++cont.iter) \
-        for(var( *cont.iter ) ;; __extension__({ break; }))
-
-
-/** A syntactically concise iteration loop that starts at the back of the container.
-
-    This version of it retains the const-ness of the input container.
-
-    \note Depending on the implementation of the container iterators,
-    the individual elements may or may not be modifiable.  You set the desired
-    const-ness of the element reference in the declaration, and if it compiles then it must work.
-
-    This is better than Qt's foreach loop, because it doesn't make a copy of the
-    container.  Use this version when you DON'T need to modify the container elements.
-
-    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
-
-    \param var A variable declaration for the foreach body.  Use const-references whenever possible.
-    \param container An STL-like container, which must implement an iterator class
-            and rbegin()/rend() functions
-*/
-#define G_FOREACH_CONST_REVERSE(var, container) \
-    for(GUtilForeachContainer<__typeof__(container), true, false> cont(container); cont.iter != cont.end; --cont.iter) \
-        for(var( *cont.iter ) ;; __extension__({ break; }))
-
-/** A syntactically concise iteration loop that starts at the back of the container.
-
-    This is better than Qt's foreach loop, because it doesn't make a copy of the
-    container.  Use this version when you need to modify the container elements.
-
-    \note The "break" statement doesn't work with this construct; it behaves exactly like "continue"
-
-    \param var A variable declaration for the foreach body.  Use references whenever possible.
-    \param container An STL-like container, which must implement an iterator class
-            and rbegin()/rend() functions
-*/
-#define G_FOREACH_REVERSE(var, container) \
-    for(GUtilForeachContainer<__typeof__(container), false, false> cont(container); cont.iter != cont.end; --cont.iter) \
-        for(var( *cont.iter ) ;; __extension__({ break; }))
-
-
 /** Loops N times.
 
     \param N The number of times to loop.  Interpreted as an unsigned integer.
@@ -395,8 +288,84 @@ template<class T> static bool OddOrEven(T number){
 }
 
 
-/** Declares a forever loop. */
-#define G_FOREVER           for(;;)
+/** Declares a forever loop that calls your function over and over
+ *  until your function returns false.
+ *  Your function must return a boolean, if false the forever loop breaks.
+*/
+template<class FUNCTION>
+void gForever(FUNCTION f){
+    for(;;) if(0 == f()) break;
+}
+
+/** Iterates through the container from beginning to end and applies
+ *  the function to all objects. You are not allowed to modify any object.
+ *
+ *  \param c The container to iterate through. It must supply iterators via
+ *              the standard begin() and end() functions.
+ *  \param f The function or function object which is called on every object
+ *              in the container. This can also be a lambda function. This function
+ *              takes as a parameter the type of the object in the container, and
+ *              returns true if the loop should continue, or false if you want to break.
+*/
+template<class CONTAINER_TYPE, class FUNCTION>
+void ForEach(const CONTAINER_TYPE &c, FUNCTION f){
+    for(auto i(c.begin()), e(c.end()); i != e; ++i)
+        if(0 == f(*i)) break;
+}
+
+/** Iterates through the container from beginning to end and applies
+ *  the function to all objects. You can modify any object by declaring
+ *  your function with a non-const reference parameter.
+ *
+ *  \param c The container to iterate through. It must supply iterators via
+ *              the standard begin() and end() functions.
+ *  \param f The function or function object which is called on every object
+ *              in the container. This can also be a lambda function. This function
+ *              takes as a parameter the type of the object in the container, and
+ *              returns true if the loop should continue, or false if you want to break.
+*/
+template<class CONTAINER_TYPE, class FUNCTION>
+void ForEach(CONTAINER_TYPE &c, FUNCTION f){
+    for(auto i(c.begin()), e(c.end()); i != e; ++i)
+        if(0 == f(*i)) break;
+}
+
+/** Iterates through the container from end to beginning and applies
+ *  the function to all objects. You are not allowed to modify any object.
+ *
+ *  You can break out of the loop by returning false from your function.
+ *
+ *  \param c The container to iterate through. It must supply iterators via
+ *              the standard rbegin() and rend() functions.
+ *  \param f The function or function object which is called on every object
+ *              in the container. This can also be a lambda function. This function
+ *              takes as a parameter the type of the object in the container, and
+ *              returns true if the loop should continue, or false if you want to break.
+*/
+template<class CONTAINER_TYPE, class FUNCTION>
+void gForEachReverse(const CONTAINER_TYPE &c, FUNCTION f){
+    for(auto i(c.rbegin()), e(c.rend()); i != e; ++i)
+        if(0 == f(*i)) break;
+}
+
+/** Iterates through the container from end to beginning and applies
+ *  the function to all objects. You can modify any object by declaring
+ *  your function with a non-const reference parameter.
+ *
+ *  You can break out of the loop by returning false from your function.
+ *
+ *  \param c The container to iterate through. It must supply iterators via
+ *              the standard rbegin() and rend() functions.
+ *  \param f The function or function object which is called on every object
+ *              in the container. This can also be a lambda function. This function
+ *              takes as a parameter the type of the object in the container, and
+ *              returns true if the loop should continue, or false if you want to break.
+*/
+template<class CONTAINER_TYPE, class FUNCTION>
+void gForEachReverse(CONTAINER_TYPE &c, FUNCTION f){
+    for(auto i(c.rbegin()), e(c.rend()); i != e; ++i)
+        if(0 == f(*i)) break;
+}
 
 
 /** Swap values in memory without using a temporary variable.  This only works
@@ -578,7 +547,7 @@ END_NAMESPACE_GUTIL;
 #if defined(__WIN32)
 #define GUTIL_SHAREDLIBRARY_NAME   GUTIL_SHAREDLIBRARY_NAME_WINDOWS
 #define GUTIL_SHAREDLIBRARY_SUFFIX GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS
-#elif defined(linux)
+#elif defined(__unix__)
 #define GUTIL_SHAREDLIBRARY_NAME   GUTIL_SHAREDLIBRARY_NAME_LINUX
 #define GUTIL_SHAREDLIBRARY_SUFFIX GUTIL_SHAREDLIBRARY_SUFFIX_LINUX
 #else
