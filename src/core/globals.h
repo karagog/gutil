@@ -290,13 +290,60 @@ template<class T> static bool OddOrEven(T number){
 
 /** Declares a forever loop that calls your function over and over
  *  until your function returns false.
- *  Your function must return a boolean, if false the forever loop breaks.
+ *  Your function must return a boolean: if you want to break, return false.
+ *  If you want to continue to the next iteration, return true.
 */
 template<class FUNCTION>
-void gForever(FUNCTION f){
+void Forever(FUNCTION f){
     for(;;) if(0 == f()) break;
 }
 
+
+template<bool can_break, class CONTAINER_TYPE, class FUNCTION>
+struct foreach_t{
+    foreach_t(const CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.begin()), e(c.end()); i != e; ++i) f(*i);
+    }
+    foreach_t(CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.begin()), e(c.end()); i != e; ++i) f(*i);
+    }
+};
+
+template<class CONTAINER_TYPE, class FUNCTION>
+struct foreach_t<true, CONTAINER_TYPE, FUNCTION>{
+    foreach_t(const CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.begin()), e(c.end()); i != e; ++i)
+            if(0 == f(*i)) break;
+    }
+    foreach_t(CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.begin()), e(c.end()); i != e; ++i)
+            if(0 == f(*i)) break;
+    }
+};
+
+template<bool can_break, class CONTAINER_TYPE, class FUNCTION>
+struct foreach_reverse_t{
+    foreach_reverse_t(const CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.rbegin()), e(c.rend()); i != e; ++i) f(*i);
+    }
+    foreach_reverse_t(CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.rbegin()), e(c.rend()); i != e; ++i) f(*i);
+    }
+};
+
+template<class CONTAINER_TYPE, class FUNCTION>
+struct foreach_reverse_t<true, CONTAINER_TYPE, FUNCTION>{
+    foreach_reverse_t(const CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.rbegin()), e(c.rend()); i != e; ++i)
+            if(0 == f(*i)) break;
+    }
+    foreach_reverse_t(CONTAINER_TYPE &c, FUNCTION f){
+        for(auto i(c.rbegin()), e(c.rend()); i != e; ++i)
+            if(0 == f(*i)) break;
+    }
+};
+
+
 /** Iterates through the container from beginning to end and applies
  *  the function to all objects. You are not allowed to modify any object.
  *
@@ -306,11 +353,11 @@ void gForever(FUNCTION f){
  *              in the container. This can also be a lambda function. This function
  *              takes as a parameter the type of the object in the container, and
  *              returns true if the loop should continue, or false if you want to break.
+ *  \param can_break Determines if you can break from the loop by returning false.
 */
-template<class CONTAINER_TYPE, class FUNCTION>
+template<bool can_break = false, class CONTAINER_TYPE, class FUNCTION>
 void ForEach(const CONTAINER_TYPE &c, FUNCTION f){
-    for(auto i(c.begin()), e(c.end()); i != e; ++i)
-        if(0 == f(*i)) break;
+    foreach_t<can_break, CONTAINER_TYPE, FUNCTION>(c, f);
 }
 
 /** Iterates through the container from beginning to end and applies
@@ -324,10 +371,9 @@ void ForEach(const CONTAINER_TYPE &c, FUNCTION f){
  *              takes as a parameter the type of the object in the container, and
  *              returns true if the loop should continue, or false if you want to break.
 */
-template<class CONTAINER_TYPE, class FUNCTION>
+template<bool can_break = false, class CONTAINER_TYPE, class FUNCTION>
 void ForEach(CONTAINER_TYPE &c, FUNCTION f){
-    for(auto i(c.begin()), e(c.end()); i != e; ++i)
-        if(0 == f(*i)) break;
+    foreach_t<can_break, CONTAINER_TYPE, FUNCTION>(c, f);
 }
 
 /** Iterates through the container from end to beginning and applies
@@ -342,10 +388,9 @@ void ForEach(CONTAINER_TYPE &c, FUNCTION f){
  *              takes as a parameter the type of the object in the container, and
  *              returns true if the loop should continue, or false if you want to break.
 */
-template<class CONTAINER_TYPE, class FUNCTION>
-void gForEachReverse(const CONTAINER_TYPE &c, FUNCTION f){
-    for(auto i(c.rbegin()), e(c.rend()); i != e; ++i)
-        if(0 == f(*i)) break;
+template<bool can_break = false, class CONTAINER_TYPE, class FUNCTION>
+void ForEachReverse(const CONTAINER_TYPE &c, FUNCTION f){
+    foreach_reverse_t<can_break, CONTAINER_TYPE, FUNCTION>(c, f);
 }
 
 /** Iterates through the container from end to beginning and applies
@@ -361,10 +406,9 @@ void gForEachReverse(const CONTAINER_TYPE &c, FUNCTION f){
  *              takes as a parameter the type of the object in the container, and
  *              returns true if the loop should continue, or false if you want to break.
 */
-template<class CONTAINER_TYPE, class FUNCTION>
-void gForEachReverse(CONTAINER_TYPE &c, FUNCTION f){
-    for(auto i(c.rbegin()), e(c.rend()); i != e; ++i)
-        if(0 == f(*i)) break;
+template<bool can_break = false, class CONTAINER_TYPE, class FUNCTION>
+void ForEachReverse(CONTAINER_TYPE &c, FUNCTION f){
+    foreach_reverse_t<can_break, CONTAINER_TYPE, FUNCTION>(c, f);
 }
 
 

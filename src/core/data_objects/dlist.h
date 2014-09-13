@@ -78,8 +78,9 @@ public:
           m_first(0),
           m_last(0)
     {
-        G_FOREACH_CONST(const T &item, o)
+        ForEach(o, [](const T &item){
             PushBack(item);
+        });
     }
 
     ~DListImp(){ Clear(); }

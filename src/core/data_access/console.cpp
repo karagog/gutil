@@ -122,14 +122,13 @@ String Console::_read_until_terminator(bool (*is_terminator_char)(char))
     String ret;
     GINT32 cnt(sizeof(__console_read_buffer));
     char *ptr( __console_read_buffer );
-    G_FOREVER
-    {
+    Forever([&]{
         char nextchar( getchar() );
         if(is_terminator_char(nextchar))
         {
             *ptr = '\0';
             ret.Append(__console_read_buffer, ptr - __console_read_buffer);
-            break;
+            return false;
         }
 
         *ptr = nextchar;
@@ -144,7 +143,7 @@ String Console::_read_until_terminator(bool (*is_terminator_char)(char))
         {
             --cnt, ++ptr;
         }
-    }
+    });
     return ret;
 }
 

@@ -168,8 +168,7 @@ template<class T>void Heap<T>::_heapify_down()
     GUINT32 cur( 1 );
     int lvl_cnt(1);
 
-    G_FOREVER
-    {
+    Forever([]{
         const GUINT32 lchild_indx( cur << 1 );
         const GUINT32 rchild_indx( lchild_indx + 1 );
         GUINT32 min_index;
@@ -203,7 +202,7 @@ template<class T>void Heap<T>::_heapify_down()
 
         ++lvl_cnt;
         cur = min_index;
-    }
+    });
 }
 
 

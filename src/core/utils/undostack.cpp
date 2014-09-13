@@ -22,7 +22,7 @@ static void __truncate_stack(Vector<IUndoableAction *> &s, int ind)
 {
     if(0 > ind || ind >= (int)s.Length())
         return;
-        
+
     for(int i = ind; i < (int)s.Length(); ++i)
         delete s[i];
     s.Resize(ind);
@@ -46,16 +46,18 @@ public:
 
     virtual void Undo()
     {
-        G_FOREACH_REVERSE(IUndoableAction *a, Commands)
+        ForEachReverse(Commands, [](IUndoableAction *a){
             a->Undo();
+        });
     }
 
     virtual void Redo()
     {
-        G_FOREACH(IUndoableAction *a, Commands)
+        ForEach(Commands, [](IUndoableAction *a){
             a->Redo();
+        });
     }
-    
+
     virtual String Text() const
     {
         /** \todo Return a list of the commands contained within this macro. */
@@ -64,8 +66,9 @@ public:
 
     virtual ~__undoable_macro_command()
     {
-        G_FOREACH(IUndoableAction *a, Commands)
+        ForEach(Commands, [](IUndoableAction *a){
             delete a;
+        });
     }
 
 };
@@ -114,8 +117,9 @@ void UndoStack::Do(IUndoableAction *cmd)
 
 void UndoStack::Clear()
 {
-    G_FOREACH(IUndoableAction *cmd, m_stack)
+    ForEach(m_stack, [](IUndoableAction *cmd){
         delete cmd;
+    });
 
     m_stack.Clear();
     m_ptr = -1;
@@ -133,7 +137,7 @@ void UndoStack::Undo()
         if(0 <= m_ptr)
         {
             GASSERT(m_ptr < (int)m_stack.Length());
-            
+
             m_stack[m_ptr]->Undo();
             m_ptr--;
         }
@@ -150,7 +154,7 @@ void UndoStack::Redo()
         if(new_ptr < (int)m_stack.Length())
         {
             GASSERT(0 <= new_ptr);
-            
+
             m_stack[new_ptr]->Redo();
             m_ptr = new_ptr;
         }
@@ -183,27 +187,27 @@ void UndoStack::_end_macro(bool commit)
         if(commit)
         {
             IUndoableAction *tmp = c;
-            
+
             // If there is only one command in the macro, then only remember the one command
             if(1 == c->Commands.Length()){
                 tmp = c->Commands[0];
                 c->Commands.Clear();
                 delete c;
             }
-            
+
             m_ptr += 1;
-            
+
             __truncate_stack(m_stack, m_ptr);
-            
+
             m_stack.PushBack(tmp);
         }
         else
         {
             // If we are rolling back the macro, then undo all the previously-
             //  executed commands, starting at the end.
-            G_FOREACH_REVERSE(IUndoableAction *a, c->Commands){
+            ForEachReverse(c->Commands, [](IUndoableAction *a){
                 a->Undo();
-            }
+            });
             delete c;
         }
     }

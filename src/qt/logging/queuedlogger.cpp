@@ -25,19 +25,16 @@ QueuedLogger::~QueuedLogger()
 
 void QueuedLogger::run()
 {
-    LoggingData tmp_item;
-
     m_lock.lock();
-
-    G_FOREVER
-    {
+    Forever([this]{
         // Critical Section
+        LoggingData tmp_item;
         {
             while(!m_cancel && m_queue.IsEmpty())
                 m_forActivity.wait(&m_lock);
 
             if(m_cancel && (m_queue.IsEmpty() || !m_flushQueueOnCancel))
-                break;
+                return false;
 
             // We must be sure that we never go past this point with an empty
             //  queue, otherwise we crash
@@ -56,8 +53,8 @@ void QueuedLogger::run()
 
         // Pick up the lock again before continuing the loop
         m_lock.lock();
-    }
-
+        return true;
+    });
     m_lock.unlock();
 }
 

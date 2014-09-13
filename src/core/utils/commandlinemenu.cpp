@@ -25,16 +25,14 @@ void CommandLineMenu::Exec()
 {
     _current_item = _root;
 
-    G_FOREVER
-    {
+    Forever([=]{
         GUINT32 num_children( _current_item->SubMenus.Length() );
         if(num_children == 0)
-            break;
+            return false;
 
         _print_menu_item(*_current_item);
 
-        G_FOREVER
-        {
+        Forever([=]{
             Console::Write("Please Make a Selection: ");
 
             String input;
@@ -52,17 +50,16 @@ void CommandLineMenu::Exec()
                                        "Invalid Input: '%s'.  "
                                        "Please enter a number between 1 and %d",
                                        input.ConstData(), num_children));
-                continue;
+                return true;
             }
 
             index = index - 1;
 
             _current_item = _current_item->SubMenus[index];
             _current_item->Activated();
-
-            break;
-        }
-    }
+            return false;
+        });
+    });
 }
 
 #define MENU_WIDTH 45

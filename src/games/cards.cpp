@@ -84,9 +84,9 @@ Deck::~Deck()
     Collect();
 
     // Dispose of the card memory
-    G_FOREACH(Card *c, m_cards)
+    ForEach(m_cards, [](Card *c){
         delete c;
-
+    });
     m_cards.Empty();
 }
 
@@ -169,22 +169,24 @@ void Deck::SetNumberHands(GUINT32 N)
 
 bool Deck::IsCollected() const
 {
-    G_FOREACH_CONST(const Hand &h, m_hands){
-        if(0 < h.CardCount())
+    bool ret = true;
+    ForEach<true>(m_hands, [&](const Hand &h){
+        if(0 < h.CardCount()){
+            ret = false;
             return false;
-    }
-    return true;
+        }
+        return true;
+    });
+    return ret;
 }
 
 void Deck::Collect()
 {
-    G_FOREACH(Hand &h, m_hands)
-    {
+    ForEach(m_hands, [this](Hand &h){
         m_cards.Insert(h.m_cards, m_cards.Length());
         m_cards.Insert(h.m_cardsPlayed, m_cards.Length());
-
         clear_hand(h);
-    }
+    });
 }
 
 
@@ -239,8 +241,9 @@ Card *InfiniteDeck::pick_one()
 
 void InfiniteDeck::Collect()
 {
-    G_FOREACH(Hand &h, m_hands)
+    ForEach(m_hands, [](Hand &h){
         clear_hand(h);
+    });
 }
 
 InfiniteDeck::~InfiniteDeck()

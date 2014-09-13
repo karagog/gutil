@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include "gutil_strings.h"
 #include "gutil_smartpointer.h"
+#include "gutil_globals.h"
 #include <stdio.h>
 #include <cstring>
 
@@ -773,8 +774,9 @@ String String::Join(const StringList &sl, const char *separator, GUINT32 len)
             len = strlen(separator);
 
         GUINT32 capacity((sl.Length() - 1) * len + 1);
-        G_FOREACH_CONST(const String &s, sl)
+        ForEach(sl, [&](const String &s){
             capacity += s.Length();
+        });
 
         ret.Reserve(capacity);
 

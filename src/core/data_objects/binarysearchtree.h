@@ -597,8 +597,7 @@ public:
     */
     Vector<T> SortedList() const{
         Vector<T> ret(m_size);
-        G_FOREACH_CONST(const T &item, *this)
-            ret.PushBack(item);
+        ForEach(*this, [&](const T &item){ ret.PushBack(item); });
         return ret;
     }
 

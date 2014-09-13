@@ -8,6 +8,8 @@ CONFIG += plugin
 TOP_DIR = ../../..
 DESTDIR = $$TOP_DIR/lib
 
+QMAKE_CXXFLAGS += -std=c++0x
+
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
 INCLUDEPATH += $$TOP_DIR/include

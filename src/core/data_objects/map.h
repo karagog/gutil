@@ -215,11 +215,6 @@ public:
     /** Creates a vector with the keys in sort order.
 
         \note This list is created in O(N) time, where N is the number of keys.
-
-        \warning You cannot use this return value with the G_FOREACH macro,
-        since this depends on the continuing existence of the container object.
-        If you still want to use G_FOREACH then make your own copy of the keys
-        container and then use it instead.
     */
     Vector<K> Keys() const{
         Vector<K> ret(Size());
