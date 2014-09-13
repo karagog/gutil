@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_SHAREDSMARTPOINTER_H
 #define GUTIL_SHAREDSMARTPOINTER_H
 
-#include "gutil_atomic.h"
 #include "gutil_macros.h"
+#include <atomic>
 #include <new>  // For the placement new operator
 NAMESPACE_GUTIL;
 
@@ -118,11 +118,11 @@ public:
 template<class T>class SmartArrayPointer
 {
     GUTIL_DISABLE_COPY(SmartArrayPointer<T>);
-    T *ptr;
+    T *ptr = NULL;
 public:
 
     /** Initializes the pointer to NULL */
-    SmartArrayPointer() :ptr(NULL){}
+    SmartArrayPointer(){}
 
     /** Initializes the pointer to p, an array of type T. */
     SmartArrayPointer(T *p) :ptr(p){}
@@ -180,7 +180,7 @@ class SharedData
 {
     GUTIL_DISABLE_COPY(SharedData);
     template<class T>friend class SharedSmartPointer;
-    AtomicInt __references;
+    std::atomic<int> __references{0};
 protected:
     SharedData(){}
 };
@@ -196,20 +196,20 @@ protected:
 */
 template<class T>class SharedSmartPointer
 {
-    T *m_data;
+    T *m_data = NULL;
 public:
 
-    SharedSmartPointer() :m_data(NULL){}
-    SharedSmartPointer(T *data) :m_data(data){ m_data->__references.Increment(); }
-    SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->__references.Increment(); }
+    SharedSmartPointer(){}
+    SharedSmartPointer(T *data) :m_data(data){ m_data->__references++; }
+    SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->__references++; }
 
     SharedSmartPointer &operator = (const SharedSmartPointer<T> &other){ return operator = (other.m_data); }
     SharedSmartPointer &operator = (T *data){
-        if(m_data && !m_data->__references.Decrement())
+        if(m_data && 0 == --(m_data->__references))
             delete m_data;
 
         if((m_data = data)){
-            m_data->__references.Increment();
+            m_data->__references++;
         }
         return *this;
     }
@@ -220,7 +220,7 @@ public:
 
     /** Resets the pointer to 0 and dereferences the object, deleting it if necessary. */
     void Clear(){
-        if(m_data && !m_data->__references.Decrement()){
+        if(m_data && 0 == --(m_data->__references)){
             delete m_data;
             m_data = NULL;
         }
@@ -237,9 +237,9 @@ public:
     void Detach(){
         if(m_data && 1 < m_data->__references)
         {
-            m_data->__references.Decrement();
+            m_data->__references--;
             m_data = new T(*m_data);
-            m_data->__references.Increment();
+            m_data->__references++;
         }
     }
 

@@ -46,7 +46,7 @@ template<int NUM_BYTES>
 
 class Id
 {
-    GBYTE m_data[NUM_BYTES] = {};
+    GBYTE m_data[NUM_BYTES]{};
     static const Id s_null;
 public:
 
