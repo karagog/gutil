@@ -33,13 +33,12 @@ NAMESPACE_GUTIL;
     put, it is a random ID generator, for which you specify the length
     as a template parameter.
 
-    It should be noted that a Null Id never equals any other Id, even another
-    null Id.  You should compensate for this in your logic.
+    Null Id's equal other null Id's, unlike in some libraries.
 
     \tparam NUM_BYTES The size of the Id object, in bytes
 
-    \note If you are using the CryptoPP random number generator, you must initialize
-    the RNG before using this class.
+    \note By default new Id's are created from random data obtained from GUtil::GlobalRNG(),
+    which the C rand(). Initialize a better global RNG for better random Id's.
 
     \sa SetGlobalRNG()
 */
@@ -47,24 +46,18 @@ template<int NUM_BYTES>
 
 class Id
 {
-    GBYTE m_data[NUM_BYTES];
-
-    /** A cached null id for fast null comparisons. */
+    GBYTE m_data[NUM_BYTES] = {};
     static const Id s_null;
-
 public:
 
     /** Returns the number of bytes used in the Id.  This is a fixed constant. */
     static const int Size;
 
     /** Constructs a null Id, which has all bytes set to 0. */
-    Id(){ Clear(); }
+    Id(){}
 
     /** Optionally initializes the random ID */
-    explicit Id(bool init){
-        if(init)    this->Generate();
-        else        this->Clear();
-    }
+    explicit Id(bool init){ if(init) this->Generate(); }
 
     /** Generates a new id.  Use as an alternative to the constructor. */
     static Id<NUM_BYTES> NewId(){ return Id(true); }
@@ -188,8 +181,7 @@ public:
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
     Id(const QByteArray &b){
-        if(b.isEmpty())
-            Clear();
+        if(b.isEmpty());
         else if(b.length() < (GINT32)sizeof(m_data))
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Id length too short");
         else
