@@ -25,6 +25,8 @@ else {
 # Enables STL dependent functions
 #DEFINES += GUTIL_STL
 
+QMAKE_CXXFLAGS += -std=c++0x
+
 TOP_DIR = ../..
 
 DESTDIR = $$TOP_DIR/lib

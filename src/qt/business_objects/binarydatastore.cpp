@@ -74,7 +74,7 @@ BinaryDataStore::BinaryDataStore(const QString &filename)
                 THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
 
             QSqlQuery q(db);
-            q.prepare("SELECT sql FROM sqlite_master WHERE tbl_name = '"BDS_TABLE_NAME"'");
+            q.prepare("SELECT sql FROM sqlite_master WHERE tbl_name = '" BDS_TABLE_NAME "'");
             DatabaseUtils::ExecuteQuery(q);
 
             if(!q.next())
@@ -91,10 +91,10 @@ BinaryDataStore::BinaryDataStore(const QString &filename)
         {
             // Initialize a new database
             QSqlQuery q(db);
-            q.prepare("CREATE TABLE "BDS_TABLE_NAME" ("
-                      BDS_ID_COLUMN_SQL","
-                      BDS_SIZE_COLUMN_SQL","
-                      BDS_VERSION_COLUMN_SQL","
+            q.prepare("CREATE TABLE " BDS_TABLE_NAME " ("
+                      BDS_ID_COLUMN_SQL ","
+                      BDS_SIZE_COLUMN_SQL ","
+                      BDS_VERSION_COLUMN_SQL ","
                       BDS_DATA_COLUMN_SQL
                       ");");
             DatabaseUtils::ExecuteQuery(q);
@@ -119,8 +119,8 @@ Pair<int, QUuid> BinaryDataStore::AddData(const QByteArray &data)
     ret.Second = QUuid::createUuid();
 
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("INSERT INTO "BDS_TABLE_NAME
-              " ("BDS_SIZE_COLUMN","BDS_DATA_COLUMN","BDS_VERSION_COLUMN")"
+    q.prepare("INSERT INTO " BDS_TABLE_NAME
+              " (" BDS_SIZE_COLUMN "," BDS_DATA_COLUMN "," BDS_VERSION_COLUMN ")"
               " VALUES (?,?,?)");
     q.addBindValue(data.length());
     q.addBindValue(data, QSql::Binary);
@@ -134,7 +134,7 @@ Pair<int, QUuid> BinaryDataStore::AddData(const QByteArray &data)
 void BinaryDataStore::RemoveData(int id)
 {
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("DELETE FROM " BDS_TABLE_NAME " WHERE "BDS_ID_COLUMN"=?");
+    q.prepare("DELETE FROM " BDS_TABLE_NAME " WHERE " BDS_ID_COLUMN "=?");
     q.addBindValue(id);
     DatabaseUtils::ExecuteQuery(q);
 }
@@ -144,7 +144,7 @@ QByteArray BinaryDataStore::GetData(int id) const
     QByteArray ret;
 
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("SELECT data FROM " BDS_TABLE_NAME " WHERE "BDS_ID_COLUMN"=?");
+    q.prepare("SELECT data FROM " BDS_TABLE_NAME " WHERE " BDS_ID_COLUMN "=?");
     q.addBindValue(id);
     DatabaseUtils::ExecuteQuery(q);
 
@@ -160,8 +160,8 @@ QUuid BinaryDataStore::SetData(int id, const QByteArray &data)
 
     QSqlQuery q(QSqlDatabase::database(m_connString));
     q.prepare("UPDATE " BDS_TABLE_NAME
-              " SET "BDS_SIZE_COLUMN"=?,"BDS_DATA_COLUMN"=?,"BDS_VERSION_COLUMN"=?"
-              " WHERE "BDS_ID_COLUMN"=?");
+              " SET " BDS_SIZE_COLUMN "=?," BDS_DATA_COLUMN "=?," BDS_VERSION_COLUMN "=?"
+              " WHERE " BDS_ID_COLUMN "=?");
     q.addBindValue(data.length());
     q.addBindValue(data, QSql::Binary);
     q.addBindValue(new_version.toString());
@@ -176,7 +176,7 @@ int BinaryDataStore::GetSize(int id) const
     int ret(-1);
 
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("SELECT "BDS_SIZE_COLUMN" FROM "BDS_TABLE_NAME" WHERE "BDS_ID_COLUMN"=?");
+    q.prepare("SELECT " BDS_SIZE_COLUMN " FROM " BDS_TABLE_NAME " WHERE " BDS_ID_COLUMN "=?");
     q.addBindValue(id);
     DatabaseUtils::ExecuteQuery(q);
 
@@ -191,7 +191,7 @@ QUuid BinaryDataStore::GetVersion(int id) const
     QUuid ret;
 
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("SELECT "BDS_VERSION_COLUMN" FROM "BDS_TABLE_NAME" WHERE "BDS_ID_COLUMN"=?");
+    q.prepare("SELECT " BDS_VERSION_COLUMN " FROM " BDS_TABLE_NAME " WHERE " BDS_ID_COLUMN "=?");
     q.addBindValue(id);
     DatabaseUtils::ExecuteQuery(q);
 
@@ -204,7 +204,7 @@ QUuid BinaryDataStore::GetVersion(int id) const
 void BinaryDataStore::Clear()
 {
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("DELETE FROM "BDS_TABLE_NAME);
+    q.prepare("DELETE FROM " BDS_TABLE_NAME);
     DatabaseUtils::ExecuteQuery(q);
 }
 
@@ -213,7 +213,7 @@ Vector< Pair<int, QUuid> > BinaryDataStore::GetIds() const
     Vector< Pair<int, QUuid> > ret;
 
     QSqlQuery q(QSqlDatabase::database(m_connString));
-    q.prepare("SELECT "BDS_ID_COLUMN","BDS_VERSION_COLUMN" FROM "BDS_TABLE_NAME);
+    q.prepare("SELECT " BDS_ID_COLUMN "," BDS_VERSION_COLUMN " FROM " BDS_TABLE_NAME);
     DatabaseUtils::ExecuteQuery(q);
 
     while(q.next())

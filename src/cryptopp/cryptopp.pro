@@ -9,14 +9,15 @@ QT       -= gui
 TARGET = GUtilCryptoPP
 TEMPLATE = lib
 #CONFIG += staticlib
+QMAKE_CXXFLAGS += -std=c++0x
 
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 
 INCLUDEPATH += $$TOP_DIR/include
 LIBS += -L$$TOP_DIR/lib \
-	-lGUtil \
-	-lcryptopp
+        -lGUtil \
+        -lcryptopp
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)
