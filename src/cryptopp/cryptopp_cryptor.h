@@ -54,9 +54,7 @@ NAMESPACE_GUTIL1(CryptoPP);
 class Cryptor
 {
 public:
-
     class IKeyDerivation;
-    class DefaultKeyDerivation;
 
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
      *  every encrypted message. The MAC is used to verify authenticity of the
@@ -183,31 +181,42 @@ public:
     class IKeyDerivation : public GUtil::IClonable
     {
     public:
-        /** Create the key from a password and salt. The key must be Cryptor::KeySize large. */
+        /** Create the key from a password. key_out must be Cryptor::KeySize large. */
         virtual void DeriveKeyFromPassword(byte *key_out, const char *password) = 0;
 
-        /** Create the key from a keyfile and salt. The key must be Cryptor::KeySize large. */
+        /** Create the key from a keyfile. key_out must be Cryptor::KeySize large. */
         virtual void DeriveKeyFromKeyfile(byte *key_out, const char *keyfile) = 0;
 
-        /** Create the secret auth data from a password. It may be arbitrarily long (at least greater than 0). */
+        /** Create the secret auth data from a password. 
+            It must be at least greater than 0, but it's better if it's longer.
+        */
         virtual GUtil::Vector<byte> DeriveAuthData(const char *password) = 0;
 
         /** You will be deleted by this interface. */
         virtual ~IKeyDerivation() {}
     };
-
-    /** The default key derivation functions. */
+    
+    /** The default key derivation functions for the Cryptor. */
     class DefaultKeyDerivation : public IKeyDerivation
     {
         const GUtil::Vector<byte> m_salt;
     public:
-        DefaultKeyDerivation() {}
+        /** It is optional (but highly recommended) to supply salt for deriving the key.
+            This salt guarantees that you get a unique key even if you don't change the password,
+            and forces a dictionary attacker to regenerate his dictionary using the salt, which is
+            (by design) a very expensive process.
+        */
         DefaultKeyDerivation(byte const *salt, GUINT32 salt_len) :m_salt(salt, salt_len, true) {}
+        DefaultKeyDerivation() {}
         DefaultKeyDerivation(const DefaultKeyDerivation &o) :m_salt(o.m_salt, true) {}
         virtual GUtil::IClonable *Clone() const;
 
         /** Key is derived by iteratively hashing the password, and using every
-         *  successive hash as salt for the next iteration.
+            successive hash as salt for the next iteration.
+            
+            This is designed to be a slow operation, to make it prohibitively expensive for
+            an attacker to generate a dictionary of password hashes, but still fast enough
+            that it doesn't detract from the user's experience if they just need to generate 1 key.
         */
         virtual void DeriveKeyFromPassword(byte *, const char *);
 
@@ -217,7 +226,11 @@ public:
         virtual void DeriveKeyFromKeyfile(byte *, const char *);
 
         /** Auth data is derived by iteratively hashing the password, and using every
-         *  successive hash as salt for the next iteration.
+            successive hash as salt for the next iteration.
+         
+            This is designed to be a slow operation, to make it prohibitively expensive for
+            an attacker to generate a dictionary of password hashes, but still fast enough
+            that it doesn't detract from the user's experience if they just need to generate 1 key.
         */
         virtual GUtil::Vector<byte> DeriveAuthData(const char *);
     };
