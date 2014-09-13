@@ -15,32 +15,24 @@ limitations under the License.*/
 #include "cryptopp_rng.h"
 #include <cryptopp/osrng.h>
 
-namespace
-{
-
-struct d_t
-{
+namespace{
+struct d_t{
     ::CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
 };
-
 }
-
 
 NAMESPACE_GUTIL1(CryptoPP);
 
 
-RNG::RNG()
-{
+RNG::RNG(){
     G_D_INIT();
 }
 
-RNG::~RNG()
-{
+RNG::~RNG(){
     G_D_UNINIT();
 }
 
-void RNG::Fill(GBYTE *b, GUINT32 l)
-{
+void RNG::Fill(GBYTE *b, GUINT32 l){
     G_D;
     d->rng.GenerateBlock(b, l);
 }

@@ -20,14 +20,17 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(CryptoPP);
 
 
-class RNG :
-        public ::GUtil::RNG
+/** An RNG implementation using the best Crypto++ RNG available.
+    
+    It is autoseeded with random data from the OS and uses the AES
+    block cypher.
+*/
+class RNG : public ::GUtil::RNG
 {
     void *d;
 public:
     RNG();
-    virtual ~RNG();
-
+    ~RNG();
     virtual void Fill(GBYTE *, GUINT32);
 };
 
