@@ -92,6 +92,10 @@ typedef unsigned char byte;
 #define GFLOAT96    long double
 
 
+/** GUtil's definition of pi. */
+#define G_PI    3.14159265358979323846
+
+
 
 /** Use this to succinctly declare property accessors.
 

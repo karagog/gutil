@@ -18,36 +18,18 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
-ExtendedException::ExtendedException(const Exception<> &inner_exception)
-{
-    SetInnerException(inner_exception);
-}
-
 ExtendedException::~ExtendedException(){}
 
 ExtendedException::ExtendedException(const ExtendedException &o)
-    :_data(o._data)
-{
-    if(o.GetInnerException())
-        SetInnerException(*o.GetInnerException());
-}
+    :Data(o.Data),
+      m_innerException(o.GetInnerException() ? o.GetInnerException()->Clone() : NULL)
+{}
 
 ExtendedException &ExtendedException::operator = (const ExtendedException &o)
 {
     this->~ExtendedException();
     new(this) ExtendedException(o);
     return *this;
-}
-
-void ExtendedException::SetInnerException(const Exception<false> &ex)
-{
-    m_innerException.Clear();
-
-    Exception<true> const *extended( dynamic_cast<Exception<true> const *>(&ex) );
-    if(extended)
-        m_innerException = new Exception<true>(*extended);
-    else
-        m_innerException = new Exception<false>(ex);
 }
 
 

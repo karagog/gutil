@@ -53,15 +53,15 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
     if(q.lastError().isValid())
     {
         DataTransportException<true> ex(q.lastError().text().toAscii().constData());
-
-        ex.SetData("query_text", q.lastQuery().toAscii().constData());
+        ex.Data["query_text"] = q.lastQuery().toAscii().constData();
 
         QMap<QString, QVariant> bound_values( q.boundValues() );
         int cnt(1);
 
-        foreach(QString k, bound_values.keys())
-            ex.SetData(QString("Bound Value %1").arg(cnt++).toAscii().constData(),
-                       bound_values[k].toString().toAscii().constData());
+        ForEach(bound_values.keys(), [&](const QString &k){
+            ex.Data[QString("Bound Value %1").arg(cnt++).toAscii().constData()] =
+                    bound_values[k].toString().toAscii().constData();
+        });
 
         THROW_GUTIL_EXCEPTION(ex);
     }

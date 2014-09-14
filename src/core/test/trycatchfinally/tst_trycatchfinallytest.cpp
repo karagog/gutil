@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gutil_globals.h"
+#include "gutil_extendedexception.h"
 #include <QString>
 #include <QtTest>
 USING_NAMESPACE_GUTIL;
@@ -37,7 +38,7 @@ void TrycatchfinallyTest::test_basics()
     int sequence = 0;
     int catch_executed = 0;
     int finally_executed = 0;
-    TryCatchFinally(
+    TryFinally(
                 [&]{ sequence++; },
                 [&](std::exception){ catch_executed = sequence++; },
                 [&]{ finally_executed = sequence++; }
@@ -50,7 +51,7 @@ void TrycatchfinallyTest::test_basics()
     sequence = 0;
     catch_executed = 0;
     finally_executed = 0;
-    TryCatchFinally(
+    TryFinally(
                 [&]{ sequence++; throw std::exception(); },
                 [&](std::exception){ catch_executed = sequence++; },
                 [&]{ finally_executed = sequence++; }
@@ -65,7 +66,7 @@ void TrycatchfinallyTest::test_basics()
     catch_executed = 0;
     finally_executed = 0;
     try{
-        TryCatchFinally(
+        TryFinally(
                     [&]{ sequence++; throw "This is not a std::exception"; },
                     [&](std::exception){ catch_executed = sequence++; },
                     [&]{ finally_executed = sequence++; }
@@ -85,7 +86,7 @@ void TrycatchfinallyTest::test_basics()
     catch_executed = 0;
     finally_executed = 0;
     try{
-        TryCatchFinally(
+        TryFinally(
         // Try
         [&]{
             sequence++;
@@ -124,20 +125,27 @@ void TrycatchfinallyTest::test_special_exceptions()
     int catch_executed = 0;
     int finally_executed = 0;
     try{
-        TryCatchFinally<GUtil::Exception<> >(
+        TryFinally<Exception<> >(
         // Try
         [&]{
             sequence++;
-            THROW_NEW_GUTIL_EXCEPTION2(NotImplementedException, "Oops...");
+            NotImplementedException<true> ex("Oops...");
+            throw ex;
         },
 
         // Catch
-        [&](const GUtil::Exception<> &ex){
+        [&](Exception<> &ex){
             catch_executed = sequence++;
 
             // Make sure you can cast it to the right exception type
-            QVERIFY(strcmp(ex.what(), "GUtil::NotImplementedException<false>") == 0);
+            QVERIFY(strcmp(ex.what(), "GUtil::NotImplementedException<true>") == 0);
             QVERIFY(strcmp(ex.Message(), "Oops...") == 0);
+
+            // We should be able to modify the exception
+            ExtendedException *extended_ex = dynamic_cast<ExtendedException *>(&ex);
+            QVERIFY(NULL != extended_ex);
+
+            extended_ex->Data["blah"] = "George";
             throw;
         },
 
@@ -147,6 +155,12 @@ void TrycatchfinallyTest::test_special_exceptions()
         });
     } catch(const std::exception &ex) {
         exception_propagated = true;
+
+        // Check if our modifications stuck
+        NotImplementedException<true> const *extended_ex =
+                dynamic_cast<NotImplementedException<true> const *>(&ex);
+        QVERIFY(NULL != extended_ex);
+        QVERIFY(extended_ex->Data.at("blah") == "George");
     }
     QVERIFY(catch_executed == 1);
     QVERIFY(finally_executed == 2);
@@ -159,7 +173,7 @@ void TrycatchfinallyTest::test_special_exceptions()
     catch_executed = 0;
     finally_executed = 0;
     try{
-        TryCatchFinally<GUtil::Exception<> >(
+        TryFinally<GUtil::Exception<> >(
             [&]{ sequence++; throw std::exception(); },
             [&](const GUtil::Exception<> &){ catch_executed = sequence++; },
             [&]{ finally_executed = sequence++; }

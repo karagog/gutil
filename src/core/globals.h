@@ -419,7 +419,7 @@ void ForEachReverse(CONTAINER_TYPE &c, FUNCTION f){
  *
  *  The default usage, which catches std::exception and has no code looks like this:
  *
- *  TryCatchFinally(
+ *  TryFinally(
  *      []{},                           // Try body
  *      [](const std::exception &){},   // Catch body
  *      []{});                          // Finally body
@@ -430,7 +430,7 @@ void ForEachReverse(CONTAINER_TYPE &c, FUNCTION f){
  *  If you want to catch a custom exception type other than std::exception, call it "MyException",
  *  it looks like this:
  *
- *  TryCatchFinally<MyException>(
+ *  TryFinally<MyException>(
  *      []{},                       // Try body
  *      [](const MyException &){},  // Catch body
  *      []{});                      // Finally body
@@ -444,10 +444,10 @@ void ForEachReverse(CONTAINER_TYPE &c, FUNCTION f){
  *              either from the try body or the catch body.
 */
 template<class EXCEPTION = std::exception, class TRY_BLOCK, class CATCH_BLOCK, class FINALLY_BLOCK>
-inline void TryCatchFinally(TRY_BLOCK _try, CATCH_BLOCK _catch, FINALLY_BLOCK _finally)
+inline void TryFinally(TRY_BLOCK _try, CATCH_BLOCK _catch, FINALLY_BLOCK _finally)
 {
     try{ _try(); }
-    catch(const EXCEPTION &e) {
+    catch(EXCEPTION &e) {
         try{ _catch(e); }
         catch(...) { _finally(); throw; }
     }

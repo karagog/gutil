@@ -20,6 +20,7 @@ limitations under the License.*/
 
 #include "gutil_persistentdata.h"
 #include "gutil_usermachinelocks.h"
+#include "gutil_strings.h"
 #include <QRunnable>
 #include <QThreadPool>
 

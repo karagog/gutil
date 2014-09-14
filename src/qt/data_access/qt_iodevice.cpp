@@ -78,7 +78,7 @@ void QT_IODevice::send_data(const QByteArray &data)
                 .arg(bytes_written)
                 .arg(data.length())
                 .toAscii().constData());
-        ex.SetData("err", GetIODevice().errorString().toAscii().constData());
+        ex.Data["err"] = GetIODevice().errorString().toAscii().constData();
         THROW_GUTIL_EXCEPTION( ex );
     }
 }
@@ -120,7 +120,7 @@ QByteArray QT_IODevice::receive_data()
                                         .arg(bytes_read)
                                         .arg(bytes_available)
                                         .toAscii().constData());
-        ex.SetData("err", GetIODevice().errorString().toAscii().constData());
+        ex.Data["err"] = GetIODevice().errorString().toAscii().constData();
         THROW_GUTIL_EXCEPTION( ex );
     }
 

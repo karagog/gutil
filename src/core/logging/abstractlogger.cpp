@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "gutil_abstractlogger.h"
 #include "gutil_map.h"
 USING_NAMESPACE_GUTIL;
+using namespace std;
 
 NAMESPACE_GUTIL;
 
@@ -50,15 +51,12 @@ void AbstractLogger::LogException(const Exception<false> &ex)
         String data_string;
         if(m_options.TestFlag(Option_LogExceptionDetails))
         {
-            const Map<String, String> &keys( ex_ptr->GetDataMap() );
-            if(keys.Size() > 0)
+            const map<string, string> &keys( ex_ptr->Data );
+            if(keys.size() > 0)
             {
                 data_string = "\n\nException Data:";
-
-                for(Map<String, String>::const_iterator it( keys.begin() );
-                    it; ++it)
-                {
-                    String tmps( it->Value() );
+                ForEach(keys, [&](const pair<string, string> &p){
+                    String tmps = String::FromStdString(p.second);
                     if(m_options.TestFlag(Option_TruncateExceptionDetails) &&
                             tmps.Length() > m_truncate_limit)
                     {
@@ -69,9 +67,9 @@ void AbstractLogger::LogException(const Exception<false> &ex)
                     }
 
                     data_string.Append(String::Format("\n\tKey: %s   Value: %s",
-                                                      it->Key().ConstData(),
+                                                      p.first.data(),
                                                       tmps.ConstData()));
-                }
+                });
             }
         }
 

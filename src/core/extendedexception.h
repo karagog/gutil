@@ -22,10 +22,9 @@ limitations under the License.*/
 */
 
 #include "gutil_exception.h"
-#include "gutil_vector.h"
-#include "gutil_map.h"
-#include "gutil_strings.h"
-#include "gutil_smartpointer.h"
+#include <map>
+#include <string>
+#include <memory>
 
 
 /** An exception class that stores more data.
@@ -64,33 +63,20 @@ NAMESPACE_GUTIL;
 /** Implements extended features for exception classes. */
 class ExtendedException
 {
-    GUtil::Map< GUtil::String, GUtil::String> _data;
-    GUtil::SmartPointer< Exception<> > m_innerException;
+    std::unique_ptr<Exception<> > m_innerException;
 public:
 
-    ExtendedException(){}
-    ExtendedException(const Exception<> &inner_exception);
-
+    ExtendedException() {}
+    ExtendedException(const Exception<> &inner_exception)
+        :m_innerException(inner_exception.Clone()) {}
     ExtendedException(const ExtendedException &);
     ExtendedException &operator = (const ExtendedException &);
     virtual ~ExtendedException();
 
-    void SetData(const String &key, const String &value){
-        _data[key] = value;
-    }
-    String GetData(const String &key) const{
-        String ret;
-        if(HasData(key)) ret = _data.At(key);
-        return ret;
-    }
-    bool HasData(const String &key) const{ return _data.Contains(key); }
+    std::map<std::string, std::string> Data;
 
-    /** Returns the map of key-value pairs. */
-    const Map<String, String> &GetDataMap() const
-    { return _data; }
-
-    void SetInnerException(const Exception<> &ex);
-    Exception<false> *GetInnerException() const{ return m_innerException; }
+    void SetInnerException(const Exception<> &ex){ m_innerException.reset(ex.Clone()); }
+    Exception<false> *GetInnerException() const{ return m_innerException.get(); }
 
 };
 

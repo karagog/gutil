@@ -145,7 +145,7 @@ void FileIODevice::_open_file(bool for_write)
     {
         DataTransportException<true> ex(
                 QString("Could not open file: %1").arg(FileName()).toAscii().constData());
-        ex.SetData("err", File().errorString().toAscii().constData());
+        ex.Data["err"] = File().errorString().toAscii().constData();
         THROW_GUTIL_EXCEPTION( ex );
     }
 }

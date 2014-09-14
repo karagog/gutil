@@ -119,7 +119,7 @@ void MachineLockBase::lock(bool for_read, bool block)
         if(!_usermachinelockfile->open(QFile::ReadWrite))
         {
             Exception<true> ex("Couldn't open lockfile!");
-            ex.SetData("err", _usermachinelockfile->errorString().toAscii().constData());
+            ex.Data["err"] = _usermachinelockfile->errorString().toAscii().constData();
 
             _release_lock();
 
@@ -139,7 +139,7 @@ void MachineLockBase::lock(bool for_read, bool block)
     }
     catch(LockException<true> &le)
     {
-        le.SetData("Filename", FileNameForMachineLock().toAscii().constData());
+        le.Data["Filename"] = FileNameForMachineLock().toAscii().constData();
         throw;
     }
 }

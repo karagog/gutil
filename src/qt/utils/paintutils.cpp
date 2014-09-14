@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "paintutils.h"
 #include "gutil_euclideanvector.h"
 #include "gutil_exception.h"
+#include "gutil_macros.h"
 #include <math.h>
 #include <QPainter>
 
@@ -47,10 +48,10 @@ void PaintUtils::DrawArrow(QPainter &painter,
     EuclideanVector2<GFLOAT64> unit = v.UnitVector();
 
     // Find the base of the point triangle
-    EuclideanVector2<GFLOAT64> bevel_base(v - (unit * (cos(bevel_angle*M_PI/180)*bevel_length)));
+    EuclideanVector2<GFLOAT64> bevel_base(v - (unit * (cos(bevel_angle*G_PI/180)*bevel_length)));
 
     // Find the orthogonal vector which takes us to the two points of the triangle
-    EuclideanVector2<GFLOAT64> d = unit.Orthogonal()*(sin(bevel_angle*M_PI/180)*bevel_length);
+    EuclideanVector2<GFLOAT64> d = unit.Orthogonal()*(sin(bevel_angle*G_PI/180)*bevel_length);
 
     // The two points we need are the bevel_base +- the orthogonal vector
     EuclideanVector2<GFLOAT64> pt = bevel_base + d;

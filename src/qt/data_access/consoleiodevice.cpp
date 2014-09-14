@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include "gutil_consoleiodevice.h"
 #include "gutil_console.h"
+#include "gutil_smartpointer.h"
 #include <QFuture>
 #include <QMutex>
 #include <QWaitCondition>

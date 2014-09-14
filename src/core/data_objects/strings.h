@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_vector.h"
 #include "gutil_list.h"
 #include <cstdarg>
-#include <cstring>
+#include <string>
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
 #include <QString>
@@ -383,6 +383,8 @@ public:
     static String FromInt(GUINT32 i){ return String::Format("%d", i); }
     /** Constructs a string from a float. */
     static String FromFloat(GFLOAT32 d){ return String::Format("%#f", d); }
+    /** Constructs a string from a std string. */
+    static String FromStdString(const std::string &s){ return String(s.data(), s.length()); }
 
 
     /** Chops the last N characters off this string, and returns a reference to it */
@@ -892,6 +894,9 @@ public:
     operator const char* () const{ return ConstData(); }
     /** Useful cast operator to char * */
     operator char* (){ return Data(); }
+
+    /** Useful cast operator to std::string */
+    operator std::string (){ return std::string(ConstData(), Length()); }
 
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
