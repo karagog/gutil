@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_EXCEPTION_H
 
 #include "gutil_macros.h"
-
+#include <exception>
 
 #define STRINGIFY( str )  #str
 
@@ -28,14 +28,16 @@ limitations under the License.*/
     { \
     public: \
         ex_name() \
-            : ex_subclass_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<false>") {} \
-        ex_name(const char *message, const char *name = 0) \
-            : ex_subclass_name<false>(0, -1, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
-        ex_name(const char *file, int line, const char *name = 0, const char *message = 0) \
-            : ex_subclass_name<false>(file, line, name == 0 ? "GUtil::" STRINGIFY(ex_name) "<false>" : name, message) {} \
+            : ex_subclass_name<false>(0, -1) {} \
+        ex_name(const char *message) \
+            : ex_subclass_name<false>(0, -1, message) {} \
+        ex_name(const char *file, int line, const char *message = 0) \
+            : ex_subclass_name<false>(file, line, message) {} \
         ex_name(const ex_name<false> &ex) \
             : ex_subclass_name<false>(ex) {} \
-        virtual ~ex_name(){} \
+        virtual ~ex_name() noexcept{} \
+        virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<false>"; } \
+        virtual Exception<> *Clone() const noexcept{ return new ex_name<extended>(*this); } \
         members ; \
     }
 
@@ -59,12 +61,14 @@ NAMESPACE_GUTIL;
     class we all the constructors and they call the base constructors which
     are defined in the lib.
 
-    \note If you catch this type of exception, you will effectively catch any kind of GUtil exception.
+    It derives from the standard exception, so all exceptions can be handled by catching the
+    standard exception.
 */
-class BaseException
+class BaseException : public std::exception
 {
-    char *m_what, *m_file, *m_message;
+    char *m_file;
     int m_line;
+    char *m_message;
 
     /** We allow this function to manipulate the file and line info for this class. */
     friend void __setExceptionFileAndLineInfo(BaseException &, const char *, int);
@@ -72,15 +76,10 @@ class BaseException
 public:
 
     /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *name, const char *message = 0, const char *file = 0, int line = -1);
-
-    BaseException(const BaseException &o);
-    BaseException &operator = (const BaseException &o);
-
-    /** The name of the exception, injected by the constructor.
-        \note You should check that it's non-zero before using.
-    */
-    const char *What() const;
+    BaseException(const char *message = 0, const char *file = 0, int line = -1) noexcept;
+    BaseException(const BaseException &o) noexcept;
+    BaseException &operator = (const BaseException &o) noexcept;
+    virtual ~BaseException() noexcept;
 
     /** You can pass the preprocessor macro __FILE__ into the constructor and it
         will be stored here.
@@ -97,16 +96,10 @@ public:
     /** You can include a null-terminated message with the exception. */
     const char *Message() const;
 
-    /** The destructor is virtual, so it will have RTTI (Run Time Type Info) on it.
-        This will allow you to dynamic_cast a reference to an Exception as a different
-        type of exception at runtime.
-    */
-    virtual ~BaseException();
-
 };
 
 
-/** The base class for all of my exceptions.
+/** The base class for all GUtil exceptions.
 
     Every other type of exception is derived from this.
 
@@ -117,11 +110,9 @@ public:
 template<bool extended = false> class Exception;
 
 template<>
-class Exception<false> :
-        public BaseException
+class Exception<false> : public BaseException
 {
 public:
-    virtual ~Exception(){}
 
     /** Constructs an exception.  Normally you don't construct one directly, you use
         THROW_NEW_GUTIL_EXCEPTION for convenience.
@@ -129,15 +120,15 @@ public:
         \param file The file name for which the exception is thrown.  This MUST be a literal string.
                         You are supposed to use the __FILE__ preprocessor macro.
         \param line The line on which the exception was thrown.  You are supposed to use __LINE__
-        \param name A name for the type of exception being thrown.  This identifies the type of exception to a human.
-                        Like the file parameter, this MUST be a string literal.
         \param message A message for the exception.  Unlike the other string parameters, this one
                         does not need to be a literal string, as it is deep-copied into the exception.
     */
-    Exception(const char *file, int line, const char *what = 0, const char *message = 0);
+    Exception(const char *file, int line, const char *message = 0);
+    Exception(){}
 
-    /** Do not ever construct a null exception.  This is only here for the Qt signals/slots requirement. */
-    Exception():BaseException(0){}
+    virtual const char *what() const noexcept;
+    virtual Exception<> *Clone() const noexcept;
+    virtual ~Exception() noexcept;
 
 };
 
@@ -228,7 +219,7 @@ void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
     and pass the file/line data with it, along with a custom message.
 */
 #define THROW_NEW_GUTIL_EXCEPTION2( ex_type, msg ) \
-    throw ex_type<false>(__FILE__, __LINE__, 0, msg)
+    throw ex_type<false>(__FILE__, __LINE__, msg)
 
 
 /** You can use this to instantiate a new exception with the correct line and file information,
@@ -241,7 +232,7 @@ void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
  *  thus allowing you to modify it before throwing it.
 */
 #define INSTANTIATE_GUTIL_EXCEPTION2(ex_type, var_name, msg) \
-    ex_type<false> var_name(__FILE_, __LINE__, 0, msg)
+    ex_type<false> var_name(__FILE_, __LINE__, msg)
 
 
 END_NAMESPACE_GUTIL;

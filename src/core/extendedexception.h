@@ -42,17 +42,19 @@ template<>class ex_name<true> : \
     public GUtil::ExtendedException \
 { \
     public: \
-        ex_name() :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>"){} \
-        explicit ex_name(const char *message) :ex_name<false>(0, -1, "GUtil::" STRINGIFY(ex_name) "<true>", message){} \
+        ex_name() :ex_name<false>(0, -1){} \
+        explicit ex_name(const char *message) :ex_name<false>(0, -1, message){} \
         ex_name(const char *file, int line) \
-            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>") {} \
+            :ex_name<false>(file, line) {} \
         ex_name(const char *file, \
                          int line, \
                          const char *message, \
                          const GUtil::Exception<false> &inner_exception) \
-            :ex_name<false>(file, line, "GUtil::" STRINGIFY(ex_name) "<true>", message), \
+            :ex_name<false>(file, line, message), \
                 GUtil::ExtendedException(inner_exception) {} \
-        virtual ~ex_name(){} \
+        virtual ~ex_name() noexcept {} \
+        virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<true>"; } \
+        virtual Exception<> *Clone() const noexcept{ return new ex_name<true>(*this); } \
 }
 
 

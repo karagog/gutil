@@ -26,26 +26,18 @@ static void __allocate_and_copy_string(char const *source, char **target)
 }
 
 
-BaseException::BaseException(const char *name, const char *message, const char *file, int line)
-    :m_what(NULL), m_file(NULL), m_message(NULL), m_line(line)
+BaseException::BaseException(const char *message, const char *file, int line) noexcept
+    :m_file(NULL), m_line(line), m_message(NULL)
 {
-    if(name)
-        __allocate_and_copy_string(name, &m_what);
-    if(file)
-        __allocate_and_copy_string(file, &m_file);
-    if(message)
-        __allocate_and_copy_string(message, &m_message);
+    if(file)    __allocate_and_copy_string(file, &m_file);
+    if(message) __allocate_and_copy_string(message, &m_message);
 }
 
-BaseException::BaseException(const BaseException &o)
-    :m_what(NULL), m_file(NULL), m_message(NULL), m_line(o.Line())
+BaseException::BaseException(const BaseException &o) noexcept
+    :m_file(NULL), m_line(o.Line()), m_message(NULL)
 {
-    if(o.What())
-        __allocate_and_copy_string(o.What(), &m_what);
-    if(o.File())
-        __allocate_and_copy_string(o.File(), &m_file);
-    if(o.Message())
-        __allocate_and_copy_string(o.Message(), &m_message);
+    if(o.File())    __allocate_and_copy_string(o.File(), &m_file);
+    if(o.Message()) __allocate_and_copy_string(o.Message(), &m_message);
 }
 
 void __setExceptionFileAndLineInfo(BaseException &ex, const char *file, int line)
@@ -57,10 +49,12 @@ void __setExceptionFileAndLineInfo(BaseException &ex, const char *file, int line
     }
 }
 
-BaseException &BaseException::operator = (const BaseException &o)
+BaseException &BaseException::operator = (const BaseException &o) noexcept
 {
-    this->~BaseException();
-    new(this) BaseException(o);
+    free(m_message);    m_message = NULL;
+    free(m_file);       m_file = NULL;
+    if(o.File())    __allocate_and_copy_string(o.File(), &m_file);
+    if(o.Message()) __allocate_and_copy_string(o.Message(), &m_message);
     return *this;
 }
 
@@ -68,12 +62,6 @@ BaseException::~BaseException()
 {
     free(m_message);
     free(m_file);
-    free(m_what);
-}
-
-const char *BaseException::What() const
-{
-    return m_what;
 }
 
 const char *BaseException::File() const
@@ -93,9 +81,21 @@ const char *BaseException::Message() const
 
 
 
-Exception<false>::Exception(const char *file, int line, const char *name, const char *message)
-    :BaseException(name == 0 ? "GUtil::Exception<false>" : name, message, file, line)
+Exception<false>::Exception(const char *file, int line, const char *message)
+    :BaseException(message, file, line)
 {}
+
+Exception<false>::~Exception(){}
+
+Exception<> *Exception<false>::Clone() const noexcept
+{
+    return new Exception<false>(*this);
+}
+
+const char *Exception<false>::what() const noexcept
+{
+    return "GUtil::Exception<false>";
+}
 
 
 END_NAMESPACE_GUTIL;
