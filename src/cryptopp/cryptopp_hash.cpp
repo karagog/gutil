@@ -61,7 +61,7 @@ void HashBase::AddData(GUtil::IInput *input,
         if(to_read != input->ReadBytes(buf, buf_sz, to_read))
             THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from device");
 
-        AddData(buf, buf_sz);
+        AddData(buf, to_read);
         read += to_read;
 
         if((read + to_read) > len)
