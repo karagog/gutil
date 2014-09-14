@@ -37,21 +37,21 @@ AbstractLogger::AbstractLogger(IOutput *io, const AbstractLogger::LoggingOptions
 
 void AbstractLogger::Clear(){}
 
-void AbstractLogger::LogException(const Exception<false> &ex)
+void AbstractLogger::LogException(const std::exception &std_ex)
 {
     LoggingData d;
     d.MessageLevel = MessageLevel_Error;
     if(!should_log_message(d))
         return;
 
-    ExtendedException const *ex_ptr( dynamic_cast<ExtendedException const *>(&ex) );
-
-    if(ex_ptr)
+    Exception<> const *ex = dynamic_cast<Exception<false> const *>(&std_ex);
+    ExtendedException const *ext_ex( dynamic_cast<ExtendedException const *>(&std_ex) );
+    if(ext_ex)
     {
         String data_string;
         if(m_options.TestFlag(Option_LogExceptionDetails))
         {
-            const map<string, string> &keys( ex_ptr->Data );
+            const map<string, string> &keys( ext_ex->Data );
             if(keys.size() > 0)
             {
                 data_string = "\n\nException Data:";
@@ -73,24 +73,29 @@ void AbstractLogger::LogException(const Exception<false> &ex)
             }
         }
 
-        d.Message = String::Format("%s%s", ex.Message(), data_string.ConstData());
+        d.Message = String::Format("%s%s", ex->Message(), data_string.ConstData());
         d.Title = String::Format("%s caught from line %d of file '%s'%s:",
-                                 ex.what(),
-                                 ex.Line(),
-                                 ex.File() ? ex.File() : "[ no file ]",
-                                 ex_ptr->GetInnerException() ? " (Inner exception follows immediately)" : "");
+                                 ex->what(),
+                                 ex->Line(),
+                                 ex->File() ? ex->File() : "[ no file ]",
+                                 ext_ex->GetInnerException() ? " (Inner exception follows immediately)" : "");
         this->Log(d);
 
-        if(ex_ptr->GetInnerException())
-            AbstractLogger::LogException(*ex_ptr->GetInnerException());
+        if(ext_ex->GetInnerException())
+            AbstractLogger::LogException(*ext_ex->GetInnerException());
+    }
+    else if(ex)
+    {
+        d.Message = ex->Message() ? ex->Message() : "";
+        d.Title = String::Format("%s caught from line %d of file '%s':",
+                                 ex->what(),
+                                 ex->Line(),
+                                 ex->File() ? ex->File() : "[ no file ]");
+        this->Log(d);
     }
     else
     {
-        d.Message = ex.Message() ? ex.Message() : "";
-        d.Title = String::Format("%s caught from line %d of file '%s':",
-                                 ex.what(),
-                                 ex.Line(),
-                                 ex.File() ? ex.File() : "[ no file ]");
+        d.Title = String::Format("Caught %s", std_ex.what());
         this->Log(d);
     }
 }

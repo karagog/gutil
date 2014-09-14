@@ -138,21 +138,7 @@ protected:
         logger given in the constructor.  The exception will either be rethrown or
         trapped, depending on the 'TrapExceptions' property.
     */
-    virtual void handle_exception(const Exception<> &);
-
-
-#   ifdef GUTIL_STL
-
-    /** You can override this method, which are called in the event of a std::exception
-        during an application event.
-
-        In the base implementation, the exception is automatically logged to the
-        logger given in the constructor.  The exception will either be rethrown or
-        trapped, depending on the 'TrapExceptions' property.
-    */
-    virtual void handle_std_exception(const std::exception &);
-
-#   endif
+    virtual void handle_exception(const std::exception &);
 
 
     /** The signal handling function. You can override it to handle os signals (Unix only).

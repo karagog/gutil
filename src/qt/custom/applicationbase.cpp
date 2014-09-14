@@ -42,7 +42,7 @@ void ApplicationBase::Exit(int return_code)
 
 void ApplicationBase::try_exiting(int){}
 
-void ApplicationBase::handle_exception(const Exception<> &ex)
+void ApplicationBase::handle_exception(const std::exception &ex)
 {
     if(!GetTrapExceptions())
         throw ex;

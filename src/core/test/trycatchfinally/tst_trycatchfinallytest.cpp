@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "gutil_extendedexception.h"
 #include <QString>
 #include <QtTest>
+#include <iostream>
+using namespace std;
 USING_NAMESPACE_GUTIL;
 
 class test_exception_t :public std::exception

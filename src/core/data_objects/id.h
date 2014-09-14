@@ -214,12 +214,9 @@ struct hash<GUtil::Id<NUM_BYTES> >{
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
 
-template<int NUM_BYTES>
-inline GUINT32 qHash(const GUtil::Id<NUM_BYTES> &id){ return std::hash(id); }
-
 /** A hash function that allows you to use the Id class as a key in a QHash object. */
-//#define GUTIL_DEFINE_ID_QHASH( NUM_BYTES ) \
-//    inline GUINT32 qHash(const GUtil::Id<NUM_BYTES> &id){ return id.Hash(); }
+#define GUTIL_DEFINE_ID_QHASH( NUM_BYTES ) \
+    inline GUINT32 qHash(const GUtil::Id<NUM_BYTES> &id){ return id.Hash(); }
 
 #endif
 

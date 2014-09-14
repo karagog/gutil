@@ -153,12 +153,14 @@ public:
         this->Log(d);
     }
 
-    /** Logs a GUtil exception with all of its details.
+    /** Logs a exception with all of its details.
+        It is able to parse the different types of GUtil exceptions.
+
         If the exception is an ExtendedException, then depending on the logger's
         options, all of the exception data will also be logged,
         including inner exceptions recursively.
     */
-    virtual void LogException(const GUtil::Exception<false> &);
+    virtual void LogException(const std::exception &);
 
     /** The base logging function.  Every other log function ends up calling this one.
 
