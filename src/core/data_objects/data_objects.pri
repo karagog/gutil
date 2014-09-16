@@ -23,12 +23,14 @@ HEADERS += \
     data_objects/id.h \
     data_objects/trio.h \
     data_objects/icollections.h \
-    data_objects/d.h
+    data_objects/d.h \
+    data_objects/hash.h
 
 SOURCES += \
     data_objects/version.cpp \
     data_objects/strings.cpp \
-    data_objects/uuid.cpp
+    data_objects/uuid.cpp \
+    data_objects/hash.cpp
 
 
 
