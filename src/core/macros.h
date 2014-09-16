@@ -224,9 +224,8 @@ protected: \
 */
 #define GUTIL_DISABLE_COPY(cls) \
     private: \
-        cls(const cls &); \
-        cls &operator =(const cls &); \
-        enum{}
+        cls(const cls &) = delete; \
+        cls &operator =(const cls &) = delete
 
 
 /** Declares a class to be static, by making the assignment operator,
