@@ -14,8 +14,12 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += ../.. ../../..
-LIBS += -L../../../lib -lGUtil
+QMAKE_CXXFLAGS += --std=c++11
+
+TOP_DIR = ../../../..
+
+INCLUDEPATH += $$TOP_DIR/include
+LIBS += -L$$TOP_DIR/lib -lGUtil
 
 unix: LIBS += -Wl,-rpath,../../lib
 

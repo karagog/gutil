@@ -27,9 +27,7 @@ limitations under the License.*/
     template<bool extended = false>class ex_name : public ex_subclass_name<false> \
     { \
     public: \
-        ex_name() \
-            : ex_subclass_name<false>(0, -1) {} \
-        ex_name(const char *message) \
+        ex_name(const char *message = NULL) \
             : ex_subclass_name<false>(0, -1, message) {} \
         ex_name(const char *file, int line, const char *message = 0) \
             : ex_subclass_name<false>(file, line, message) {} \
@@ -123,8 +121,8 @@ public:
         \param message A message for the exception.  Unlike the other string parameters, this one
                         does not need to be a literal string, as it is deep-copied into the exception.
     */
-    Exception(const char *file, int line, const char *message = 0);
-    Exception(){}
+    Exception(const char *file, int line, const char *message = NULL) :BaseException(message, file, line) {}
+    Exception(const char *message = NULL) :BaseException(message) {}
 
     virtual const char *what() const noexcept;
     virtual Exception<> *Clone() const noexcept;

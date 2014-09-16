@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "gutil.h"
-USING_NAMESPACE_GUTIL1(QT);
+#include "gutil_extendedexception.h"
+USING_NAMESPACE_GUTIL;
 
 class ExceptionTest : public QObject
 {
@@ -184,8 +184,8 @@ void ExceptionTest::test_data_exceptions()
     }
     catch(const Exception<> &ex)
     {
-        QVERIFY(ex.What);
-        QVERIFY2(0 == strcmp(ex.What, "Exception<false>"), ex.What);
+        QVERIFY(ex.what());
+        QVERIFY2(0 == strcmp(ex.what(), "GUtil::Exception<false>"), ex.what());
     }
 
     try
@@ -194,8 +194,8 @@ void ExceptionTest::test_data_exceptions()
     }
     catch(const Exception<false> &ex)
     {
-        QVERIFY(ex.What);
-        QVERIFY2(0 == strcmp(ex.What, "Exception<true>"), ex.What);
+        QVERIFY(ex.what());
+        QVERIFY2(0 == strcmp(ex.what(), "GUtil::Exception<true>"), ex.what());
     }
 
 
@@ -206,8 +206,8 @@ void ExceptionTest::test_data_exceptions()
     }
     catch(const XmlException<> &ex)
     {
-        QVERIFY(ex.What);
-        QVERIFY2(0 == strcmp(ex.What, "XmlException<false>"), ex.What);
+        QVERIFY(ex.what());
+        QVERIFY2(0 == strcmp(ex.what(), "GUtil::XmlException<false>"), ex.what());
     }
 
     try
@@ -216,8 +216,8 @@ void ExceptionTest::test_data_exceptions()
     }
     catch(const XmlException<> &ex)
     {
-        QVERIFY(ex.What);
-        QVERIFY2(0 == strcmp(ex.What, "XmlException<true>"), ex.What);
+        QVERIFY(ex.what());
+        QVERIFY2(0 == strcmp(ex.what(), "GUtil::XmlException<true>"), ex.what());
     }
 
     try
@@ -226,41 +226,44 @@ void ExceptionTest::test_data_exceptions()
     }
     catch(const Exception<> &ex)
     {
-        QVERIFY(ex.What);
-        QVERIFY2(0 == strcmp(ex.What, "XmlException<false>"), ex.What);
+        QVERIFY(ex.what());
+        QVERIFY2(0 == strcmp(ex.what(), "GUtil::XmlException<false>"), ex.what());
     }
 
     Exception<false> e("Hello");
-    QVERIFY2(0 == strcmp(e.GetMessage(), "Hello"), e.GetMessage());
+    QVERIFY2(0 == strcmp(e.Message(), "Hello"), e.Message());
 }
 
 void ExceptionTest::test_inner_exceptions()
 {
     XmlException<false> xex_false;
     XmlException<true> xex_true;
-    Exception<true> ex1("", -1, "", &xex_false);
-    Exception<true> ex2("", -1, "", &xex_true);
+    Exception<true> ex1("", -1, "", xex_false);
+    Exception<true> ex2("", -1, "", xex_true);
     QVERIFY(ex1.GetInnerException());
     QVERIFY(ex2.GetInnerException());
-    QVERIFY(0 == strcmp(ex1.GetInnerException()->What, "XmlException<false>"));
-    QVERIFY(0 == strcmp(ex2.GetInnerException()->What, "XmlException<true>"));
-    QVERIFY(!dynamic_cast< const XmlException<false> *>(ex1.GetInnerException()));
-    QVERIFY(!dynamic_cast< const XmlException<true> *>(ex1.GetInnerException()));
-    QVERIFY(dynamic_cast< const Exception<false> *>(ex1.GetInnerException()));
-    QVERIFY(!dynamic_cast< const Exception<true> *>(ex2.GetInnerException()));
-    QVERIFY(dynamic_cast< const Exception<false> *>(ex2.GetInnerException()));
+    QVERIFY(0 == strcmp(ex1.GetInnerException()->what(), "GUtil::XmlException<false>"));
+    QVERIFY(0 == strcmp(ex2.GetInnerException()->what(), "GUtil::XmlException<true>"));
+    
+    // You should be able to dynamic cast it as the proper type
+    QVERIFY(NULL != dynamic_cast< const XmlException<false> *>(ex1.GetInnerException()));
+    QVERIFY(NULL != dynamic_cast< const Exception<false> *>(ex1.GetInnerException()));
+    QVERIFY(NULL == dynamic_cast< const XmlException<true> *>(ex1.GetInnerException()));
+    QVERIFY(NULL != dynamic_cast< const XmlException<true> *>(ex2.GetInnerException()));
+    QVERIFY(NULL == dynamic_cast< const Exception<true> *>(ex2.GetInnerException()));
 
+    // Copying should have no effect on the inner exceptions
     Exception<true> ex1_cpy( ex1 );
     Exception<true> ex2_cpy( ex2 );
     QVERIFY(ex1_cpy.GetInnerException());
     QVERIFY(ex2_cpy.GetInnerException());
-    QVERIFY(0 == strcmp(ex1_cpy.GetInnerException()->What, "XmlException<false>"));
-    QVERIFY(0 == strcmp(ex2_cpy.GetInnerException()->What, "XmlException<true>"));
-    QVERIFY(!dynamic_cast< const XmlException<false> *>(ex1_cpy.GetInnerException()));
-    QVERIFY(!dynamic_cast< const XmlException<true> *>(ex1_cpy.GetInnerException()));
-    QVERIFY(dynamic_cast< const Exception<false> *>(ex1_cpy.GetInnerException()));
-    QVERIFY(!dynamic_cast< const Exception<true> *>(ex2_cpy.GetInnerException()));
-    QVERIFY(dynamic_cast< const Exception<false> *>(ex2_cpy.GetInnerException()));
+    QVERIFY(0 == strcmp(ex1_cpy.GetInnerException()->what(), "GUtil::XmlException<false>"));
+    QVERIFY(0 == strcmp(ex2_cpy.GetInnerException()->what(), "GUtil::XmlException<true>"));
+    QVERIFY(NULL != dynamic_cast< const XmlException<false> *>(ex1_cpy.GetInnerException()));
+    QVERIFY(NULL != dynamic_cast< const Exception<false> *>(ex1_cpy.GetInnerException()));
+    QVERIFY(NULL == dynamic_cast< const XmlException<true> *>(ex1_cpy.GetInnerException()));
+    QVERIFY(NULL != dynamic_cast< const XmlException<true> *>(ex2_cpy.GetInnerException()));
+    QVERIFY(NULL == dynamic_cast< const Exception<true> *>(ex2_cpy.GetInnerException()));
 }
 
 void ExceptionTest::test_polymorphic_cast()

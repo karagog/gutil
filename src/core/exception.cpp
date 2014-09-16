@@ -81,10 +81,6 @@ const char *BaseException::Message() const
 
 
 
-Exception<false>::Exception(const char *file, int line, const char *message)
-    :BaseException(message, file, line)
-{}
-
 Exception<false>::~Exception(){}
 
 Exception<> *Exception<false>::Clone() const noexcept
