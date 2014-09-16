@@ -71,10 +71,34 @@ void StringTest::test_basics()
     QVERIFY(s.IsNull());
     QVERIFY(s.IsEmpty());
 
+    // Copying a null string gives a null string
+    {
+        String s2(s);
+        QVERIFY(s2.Length() == 0);
+        QVERIFY(s2.IsNull());
+        QVERIFY(s2.IsEmpty());
+        QVERIFY(s2 == s);
+    }
+
     s = "";
+    QVERIFY(s.Length() == 0);
     QVERIFY(!s.IsNull());
     QVERIFY(s.IsEmpty());
     QVERIFY(s[0] == '\0');
+
+    // Copying a null string gives a null string
+    {
+        String s2(s);
+        QVERIFY(s2.Length() == 0);
+        QVERIFY(!s2.IsNull());
+        QVERIFY(s2.IsEmpty());
+        QVERIFY(s2[0] == '\0');
+        QVERIFY(s2 == s);
+    }
+
+    s.Empty();
+    QVERIFY(!s.IsNull());
+    QVERIFY(s.IsEmpty());
 
     s.Clear();
     QVERIFY(s.IsNull());
@@ -287,13 +311,13 @@ void StringTest::test_indexof()
     QVERIFY(ind == 0);
 
 
-    QVERIFY(s.IndexOf("Harry") == -1);
-    QVERIFY(s.IndexOf("George", 100) == -1);
-    QVERIFY(s.IndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == -1);
+    QVERIFY(s.IndexOf("Harry") == GUINT32_MAX);
+    QVERIFY(s.IndexOf("George", 100) == GUINT32_MAX);
+    QVERIFY(s.IndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == GUINT32_MAX);
 
-    QVERIFY(s.LastIndexOf("Harry") == -1);
-    QVERIFY(s.LastIndexOf("George", 100) == -1);
-    QVERIFY(s.LastIndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == -1);
+    QVERIFY(s.LastIndexOf("Harry") == GUINT32_MAX);
+    QVERIFY(s.LastIndexOf("George", 100) == GUINT32_MAX);
+    QVERIFY(s.LastIndexOf("asdfasdfasdfasdfasdfadsfasdfasdfasdfasdfasdfasdfasdfasdfa") == GUINT32_MAX);
 }
 
 void StringTest::test_utf8()
@@ -549,10 +573,10 @@ void StringTest::test_utf8_vectors()
         test_vector_UTF8split();
         test_vector_UTF8join();
     }
-    catch(const Exception<> & ex)
+    catch(const exception &ex)
     {
         Exception<true> const *ex_ptr( dynamic_cast<Exception<true> const *>(&ex) );
-        qDebug() << ex.What();
+        qDebug() << ex.what();
         if(ex_ptr)
             qDebug() << ex_ptr->Message();
         throw;
@@ -574,7 +598,7 @@ void StringTest::test_vector_UTF8basics()
     {
         int indx = line.indexOf(' ');
         bool ok(false);
-        GINT32 size = line.left(indx).toInt(&ok);
+        GUINT32 size = line.left(indx).toInt(&ok);
         QVERIFY(ok);
 
         line = line.right(line.length() - (indx + 1));

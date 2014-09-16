@@ -14,6 +14,8 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += --std=c++11
+
 # Enable this define to have access to functions that will convert between Qt types and GUtil types
 DEFINES += GUTIL_CORE_QT_ADAPTERS
 

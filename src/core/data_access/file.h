@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_iointerface.h"
 #include "gutil_strings.h"
+#include <functional>
 
 NAMESPACE_GUTIL;
 
@@ -34,28 +35,31 @@ class File :
 public:
 
     /** Creates a file object with the given filename. */
-    explicit File(const char *filename = NULL)
-        :_p_BufferedWrites(true), m_filename(filename), h(NULL){}
+    explicit File(const char *filename);
     virtual ~File();
 
-    /** Closes the file if it was open and changes the filename*/
-    void SetFilename(const char *filename){
-        if(IsOpen()) Close();
-        m_filename = filename;
-    }
-
     /** Returns the current filename we're set to. */
-    const String &Filename() const{ return m_filename; }
+    const char *Filename() const{ return m_filename; }
 
     /** Returns whether the file exists. */
     bool Exists() const{ return Exists(m_filename); }
     /** Returns whether the file exists. */
     static bool Exists(const char *filename);
 
+    /** Creates the file if it doesn't exist. If it does exist it updates the modification
+     *  time but leaves the file otherwise unchanged.
+    */
+    static void Touch(const char *filename);
+
+    /** Creates the file if it doesn't exist. If it does exist it updates the modification
+     *  time but leaves the file otherwise unchanged.
+    */
+    inline void Touch(){ Touch(m_filename); }
+
     /** Closes the file and deletes it. */
     void Delete(){
         if(IsOpen()) Close();
-        if(m_filename.Length() > 0) Delete(m_filename);
+        Delete(m_filename);
     }
 
     /** Deletes the file. */
@@ -120,6 +124,23 @@ public:
     GUINT32 Read(GBYTE *buffer, GUINT32 buf_len, GUINT32 bytes_to_read = UINT_MAX);
     /** Read data from the file and returns it in a string object. */
     String Read(GUINT32 bytes = UINT_MAX);
+    /** Reads one byte at a time until the predicate returns true.
+        After each read the predicate will be called with the buffer that has
+        accumulated all bytes until that point
+        \param pred A function that tells when to stop reading. It returns true when
+            you want to stop. It is passed a reference to the string, and the integer
+            that is non-zero if you're at the end of the file.
+    */
+    String ReadUntil(std::function<bool(String &)> pred);
+
+    /** Reads the file until the next new line character.
+        \param max_len The maximum number of bytes to read. This prevents you from reading
+            forever if the file has no new lines. By default it is not limited.
+        \returns A null string if there is no more data in the file,
+            or an empty string if the next line is empty. Otherwise
+            it returns the next line in the file, without the new line separator.
+    */
+    String ReadLine(GUINT32 max_len = GUINT32_MAX);
 
     /** Changes the position of the read pointer. */
     virtual void Seek(GUINT64 pos);
@@ -148,7 +169,7 @@ public:
 
 private:
 
-    String m_filename;
+    char *m_filename;
     void *h;
 
 };

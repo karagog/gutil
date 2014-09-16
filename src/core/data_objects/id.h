@@ -95,7 +95,7 @@ public:
     static const Id<NUM_BYTES> &Null(){ return s_null; }
 
     /** Returns the base of the data array, which has a size of Size(). */
-    char const *ConstData() const{ return (char const *)m_data; }
+    byte const*ConstData() const{ return m_data; }
 
 
     /** Sets all bytes of the Id to 0. */
@@ -158,20 +158,6 @@ public:
         return memcmp(lhs.m_data, rhs.m_data, sizeof(Id<NUM_BYTES>::m_data));
     }
 
-    /** Gives you a 4 byte hash of the Id. The hash of the null id is 0.
-     *  This is certainly not a secure hash, just a heuristic to generate
-     *  a probably unique hash quickly (in O(N) time).
-    */
-    GUINT32 Hash() const{
-        byte bytes[4] = {}; \
-        for(int i = 0; i < Size; ++i) \
-            bytes[i & 3] ^= m_data[i]; \
-        return ((GUINT32)bytes[0] << 24) |
-                ((GUINT32)bytes[1] << 16) |
-                ((GUINT32)bytes[2] << 8) |
-                bytes[3]; \
-    }
-
     /** A less-than operator is defined, to support sorted indexes. */
     bool operator < (const Id &other) const{ return 0 > Compare(*this, other); }
     bool operator > (const Id &other) const{ return 0 < Compare(*this, other); }
@@ -203,10 +189,13 @@ template<int NUM_BYTES>struct IsMovableType< GUtil::Id<NUM_BYTES> >{ enum{ Value
 END_NAMESPACE_GUTIL;
 
 
+#include "gutil_hash.h"
 namespace std{
 template<int NUM_BYTES>
 struct hash<GUtil::Id<NUM_BYTES> >{
-    inline size_t operator () (const GUtil::Id<NUM_BYTES> &id) const noexcept { return id.Hash(); }
+    inline size_t operator () (const GUtil::Id<NUM_BYTES> &id) const noexcept {
+        return GUtil::Hash::ComputeHash(id.ConstData(), NUM_BYTES);
+    }
 };
 }
 

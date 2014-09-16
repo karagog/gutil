@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "gutil_map.h"
 #include "gutil_smartpointer.h"
 #include "abstractlogger.h"
+#include <exception>
 
 NAMESPACE_GUTIL;
 
@@ -113,7 +114,7 @@ public:
     }
 
     /** Logs an exception. */
-    static void LogException(const Exception<false> &ex, int logger_id = DefaultId){
+    static void LogException(const std::exception &ex, int logger_id = DefaultId){
         _translate_logger_id(logger_id, false);
         if(m_loggers.Contains(logger_id))
         {

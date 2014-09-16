@@ -60,7 +60,7 @@ public:
 
     /** Creates an empty string with the given capacity (plus one for the null terminator). */
     explicit String(GUINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
-    
+
     /** Creates an empty string with the given capacity (plus one for the null terminator). */
     explicit String(GINT32 capacity) :Vector<char>(capacity + 1) { Data()[capacity] = '\0'; }
 
@@ -373,7 +373,7 @@ public:
     /** Converts the string to a boolean. */
     bool ToBool(bool *ok = 0) const;
     /** Converts the string to an integer. */
-    GUINT32 ToInt(bool *ok = 0) const;
+    GINT32 ToInt(bool *ok = 0) const;
     /** Converts the string to a float. */
     GFLOAT32 ToFloat(bool *ok = 0) const;
 
@@ -926,7 +926,6 @@ private:
     }
 
     void _copy_init(const Vector<char> &);
-    void _copy_assign(const char *, GUINT32 len);
 
 };
 
@@ -942,6 +941,13 @@ bool operator != (const char *c, const GUtil::String &s);
 
 /** A convenience operator that allows you to create strings with the + operator. */
 GUtil::String operator + (const char *, const GUtil::String &);
+
+
+namespace std{
+template<>struct hash<GUtil::String>{
+    GUINT32 operator () (const GUtil::String &s) const noexcept;
+};
+}
 
 
 #endif // GUTIL_STRING_H

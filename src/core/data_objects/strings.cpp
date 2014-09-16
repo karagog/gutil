@@ -15,6 +15,7 @@ limitations under the License.*/
 #include "gutil_strings.h"
 #include "gutil_smartpointer.h"
 #include "gutil_globals.h"
+#include "hash.h"
 #include <stdio.h>
 #include <cstring>
 
@@ -27,13 +28,15 @@ NAMESPACE_GUTIL;
 
 String::String(const char *d, GUINT32 len)
     :Vector<char>(d == NULL ? (len = 0) :
-                              (len == GUINT32_MAX ? (len = strlen(d)) + 1 : len + 1))
+                              (len == GUINT32_MAX ?
+                                   (len = strlen(d)) + 1 : len + 1))
 {
     if(0 < len){
         memcpy(Data(), d, len);
-        Data()[len] = '\0';
         set_length(len);
     }
+    if(NULL != d)
+        Data()[len] = '\0';
 }
 
 String::String(char c, GUINT32 len)
@@ -104,35 +107,23 @@ String::String(const String &s)
 
 String &String::operator = (const String &o)
 {
-    _copy_assign(o, o.IsNull() ? GUINT32_MAX : o.Length());
+    this->~String();
+    new(this) String(o);
     return *this;
 }
 
 String &String::operator = (const char *o)
 {
-    _copy_assign(o, strlen(o));
+    this->~String();
+    new(this) String(o);
     return *this;
 }
 
 void String::_copy_init(const Vector<char> &s)
 {
-    if(0 < s.Length())
-    {
+    if(!s.IsNull()){
         Resize(s.Length());
         memcpy(Data(), s.ConstData(), s.Length());
-    }
-}
-
-void String::_copy_assign(const char *s, GUINT32 len)
-{
-    if(0 == len || (GUINT32_MAX == len && !IsNull()))
-    {
-        Resize(0);
-    }
-    else if(0 < len)
-    {
-        Resize(len);
-        memcpy(Data(), s, len);
     }
 }
 
@@ -687,7 +678,7 @@ bool String::ToBool(bool *ok) const
     return ret != 0;
 }
 
-GUINT32 String::ToInt(bool *ok) const
+GINT32 String::ToInt(bool *ok) const
 {
     GUINT32 ret(0);
     int res( sscanf(ConstData(), "%d", &ret) );
@@ -883,7 +874,7 @@ String &String::ChopUTF8(GUINT32 n)
 String &String::Chop(GUINT32 n)
 {
     if(n >= Length())
-        Clear();
+        Empty();
     else
     {
         GUINT32 len(Length());
@@ -1392,4 +1383,11 @@ GUtil::String operator + (const char *c, const GUtil::String &s)
     GUtil::String ret(sz + s.Length());
     ret.Insert(c, sz, 0);
     return ret.Append(s);
+}
+
+namespace std
+{
+    GUINT32 hash<GUtil::String>::operator () (const GUtil::String &s) const noexcept{
+        return GUtil::Hash::ComputeHash((byte const *)s.ConstData(), s.Length());
+    }
 }

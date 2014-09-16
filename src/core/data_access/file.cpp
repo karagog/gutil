@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@ limitations under the License.*/
 
 #include "file.h"
 #include <stdio.h>
+#include <malloc.h>
+using namespace std;
 
 NAMESPACE_GUTIL;
 
@@ -22,15 +24,29 @@ NAMESPACE_GUTIL;
 #define H reinterpret_cast<FILE *>(h)
 
 
+File::File(const char *filename)
+    :_p_BufferedWrites(true),
+      h(NULL)
+{
+    size_t len = strlen(filename);
+    if(len == 0)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Filename cannot be empty");
+
+    m_filename = (char *)malloc(len + 1);
+    memcpy(m_filename, filename, len + 1);
+}
+
 File::~File()
 {
-    if(IsOpen()) Close();
+    if(IsOpen())
+        Close();
+    free(m_filename);
 }
 
 void File::Open(OpenModeEnum e)
 {
-    if(m_filename.IsEmpty())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Filename cannot be empty");
+    if(IsOpen())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "File already open");
 
     const char *options;
     switch(e)
@@ -57,9 +73,13 @@ void File::Open(OpenModeEnum e)
         THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
     }
 
-    h = fopen(m_filename, options);
-    if(!h)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Unable to open file: '%s'", m_filename.ConstData()));
+    FILE *tmp;
+    if(!(tmp = fopen(m_filename, options)))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                   String::Format("Unable to open '%s': %s",
+                                                  m_filename,
+                                                  strerror(errno)));
+    h = tmp;
 }
 
 void File::Close()
@@ -90,6 +110,15 @@ bool File::Exists(const char *filename)
     return res;
 }
 
+void File::Touch(const char *filename)
+{
+    FILE *f = fopen(filename, "w");
+    if(f == NULL)
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                   String::Format("Unable to touch '%s': %s", filename, strerror(errno)));
+    fclose(f);
+}
+
 void File::Delete(const char *filename)
 {
     if(0 != remove(filename))
@@ -102,9 +131,12 @@ GUINT64 File::Length() const
     if(IsOpen()){
         long int pos = ftell(H);
         if(0 == fseek(H, 0, SEEK_END)){
-            ret = ftell(H);
-            if(0 != fseek(H, pos, SEEK_SET))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to seek back to starting location");
+            GUINT64 tmp = ftell(H);
+
+            // Only set the return var if everything was successful, and
+            //  we could seek back to our original location
+            if(0 == fseek(H, pos, SEEK_SET))
+                ret = tmp;
         }
     }
     else{
@@ -133,11 +165,11 @@ GUINT64 File::Pos() const
 GUINT32 File::Write(const GBYTE *data, GUINT32 len)
 {
     GUINT32 ret = 0;
-    if(1 == fwrite(data, len, 1, H)){
-        if(!GetBufferedWrites())
-            Flush();
-        ret = len;
-    }
+    ret = fwrite(data, 1, len, H);
+    if(len != ret && ferror(H))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Error writing to file: %s", strerror(errno)));
+    if(!GetBufferedWrites())
+        Flush();
     return ret;
 }
 
@@ -149,19 +181,54 @@ void File::Flush()
 GUINT32 File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
 {
     bytes_to_read = Min(buffer_len, bytes_to_read);
-    bytes_to_read = Min((GUINT32)BytesAvailable(), bytes_to_read);
-    if(1 != fread(buffer, bytes_to_read, 1, H))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "All data not read from file");
-    return bytes_to_read;
+    size_t bytes_read = fread(buffer, 1, bytes_to_read, H);
+    if(bytes_read != bytes_to_read && ferror(H))
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Read Error: %s", strerror(errno)));
+    return bytes_read;
 }
+
+#define READ_BUFFER_SIZE 1024
 
 String File::Read(GUINT32 bytes)
 {
     String ret;
-    GUINT32 remaining( Length() - Pos() );
-    ret.Resize(bytes == UINT_MAX ? remaining : bytes);
-    Read(reinterpret_cast<GBYTE *>(ret.Data()), ret.Length(), remaining);
+    char buf[READ_BUFFER_SIZE];
+    size_t total_read = 0;
+    while(0 == feof(H) && total_read < bytes){
+        const size_t to_read = Min(sizeof(buf), bytes - total_read);
+        const size_t bytes_read = fread(buf, 1, to_read, H);
+        if(bytes_read != to_read && ferror(H))
+            THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Read Error: %s", strerror(errno)));
+        ret.Append(buf, bytes_read);
+        total_read += bytes_read;
+    }
     return ret;
+}
+
+String File::ReadUntil(function<bool(String &)> pred)
+{
+    String ret;
+    while(0 == feof(H) && !pred(ret)){
+        char tmp;
+        if(1 != fread(&tmp, 1, 1, H)){
+            if(ferror(H))
+                THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Read Error: %s", strerror(errno)));
+            GASSERT(feof(H));
+        }
+        else
+            ret.Append(tmp);
+    }
+    return ret;
+}
+
+String File::ReadLine(GUINT32 max_len)
+{
+    return ReadUntil([&](String &s){
+        bool chop = s.Length() > 0 && s[s.Length() - 1] == '\n';
+        bool ret = s.Length() >= max_len || chop;
+        if(chop) s.Chop(1);
+        return ret;
+    });
 }
 
 
