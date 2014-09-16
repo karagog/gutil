@@ -206,8 +206,7 @@ END_NAMESPACE_GUTIL;
 namespace std{
 template<int NUM_BYTES>
 struct hash<GUtil::Id<NUM_BYTES> >{
-    hash(const GUtil::Id<NUM_BYTES> &)
-    {}
+    inline size_t operator () (const GUtil::Id<NUM_BYTES> &id) const noexcept { return id.Hash(); }
 };
 }
 
@@ -216,7 +215,10 @@ struct hash<GUtil::Id<NUM_BYTES> >{
 
 /** A hash function that allows you to use the Id class as a key in a QHash object. */
 #define GUTIL_DEFINE_ID_QHASH( NUM_BYTES ) \
-    inline GUINT32 qHash(const GUtil::Id<NUM_BYTES> &id){ return id.Hash(); }
+    inline GUINT32 qHash(const GUtil::Id<NUM_BYTES> &id){ \
+        std::hash<GUtil::Id<NUM_BYTES> > h; \
+        return h(id); \
+    }
 
 #endif
 

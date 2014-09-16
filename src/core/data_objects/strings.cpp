@@ -774,10 +774,8 @@ String String::Join(const StringList &sl, const char *separator, GUINT32 len)
             len = strlen(separator);
 
         GUINT32 capacity((sl.Length() - 1) * len + 1);
-        ForEach(sl, [&](const String &s){
+        for(auto &s : sl)
             capacity += s.Length();
-        });
-
         ret.Reserve(capacity);
 
         for(GUINT32 i(0); i < sl.Length(); ++i)

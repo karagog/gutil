@@ -78,9 +78,8 @@ public:
           m_first(0),
           m_last(0)
     {
-        ForEach(o, [](const T &item){
+        for(const auto &item : o)
             PushBack(item);
-        });
     }
 
     ~DListImp(){ Clear(); }

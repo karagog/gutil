@@ -58,11 +58,10 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
         QMap<QString, QVariant> bound_values( q.boundValues() );
         int cnt(1);
 
-        ForEach(bound_values.keys(), [&](const QString &k){
+        for(const auto &k : bound_values.keys()){
             ex.Data[QString("Bound Value %1").arg(cnt++).toAscii().constData()] =
                     bound_values[k].toString().toAscii().constData();
-        });
-
+        }
         THROW_GUTIL_EXCEPTION(ex);
     }
 }

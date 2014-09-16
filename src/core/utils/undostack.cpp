@@ -53,9 +53,8 @@ public:
 
     virtual void Redo()
     {
-        ForEach(Commands, [](IUndoableAction *a){
+        for(auto a : Commands)
             a->Redo();
-        });
     }
 
     virtual String Text() const
@@ -66,9 +65,8 @@ public:
 
     virtual ~__undoable_macro_command()
     {
-        ForEach(Commands, [](IUndoableAction *a){
+        for(auto a : Commands)
             delete a;
-        });
     }
 
 };
@@ -117,9 +115,8 @@ void UndoStack::Do(IUndoableAction *cmd)
 
 void UndoStack::Clear()
 {
-    ForEach(m_stack, [](IUndoableAction *cmd){
+    for(auto cmd : m_stack)
         delete cmd;
-    });
 
     m_stack.Clear();
     m_ptr = -1;

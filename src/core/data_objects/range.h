@@ -912,7 +912,7 @@ Region<T> &Region<T>::Complement()
     else
     {
         // Complement each range individually
-        ForEach(this->m_ranges, [](Range<T> &r){ r.Complement(); });
+        for(auto &r : this->m_ranges) r.Complement();
 
         // Then combine/divide ranges where appropriate
         Bound<T> ub_mem;

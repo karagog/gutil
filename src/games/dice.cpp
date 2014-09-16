@@ -28,9 +28,8 @@ Dice::Dice(GUINT32 n, GUINT8 s)
 
 void Dice::Roll()
 {
-    ForEach(m_dice, [this](Die &d){
+    for(auto &d : m_dice)
         d = GlobalRNG()->U_Discrete(1, m_sides);
-    });
 }
 
 

@@ -55,7 +55,7 @@ void AbstractLogger::LogException(const std::exception &std_ex)
             if(keys.size() > 0)
             {
                 data_string = "\n\nException Data:";
-                ForEach(keys, [&](const pair<string, string> &p){
+                for(const auto &p : keys){
                     String tmps = String::FromStdString(p.second);
                     if(m_options.TestFlag(Option_TruncateExceptionDetails) &&
                             tmps.Length() > m_truncate_limit)
@@ -69,7 +69,7 @@ void AbstractLogger::LogException(const std::exception &std_ex)
                     data_string.Append(String::Format("\n\tKey: %s   Value: %s",
                                                       p.first.data(),
                                                       tmps.ConstData()));
-                });
+                }
             }
         }
 

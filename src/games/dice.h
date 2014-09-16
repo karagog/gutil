@@ -87,9 +87,7 @@ public:
 
         \note If you want to clear the memory, then call SetNumberDice() with 0.
     */
-    void Clear(){
-        GUtil::ForEach(m_dice, [](Die &d){ d = 0; });
-    }
+    void Clear(){ for(auto &d : m_dice) d = 0; }
 
 
 private:
