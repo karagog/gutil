@@ -17,6 +17,7 @@ limitations under the License.*/
 #include <QPluginLoader>
 #include <QMessageBox>
 #include <QAction>
+using namespace std;
 NAMESPACE_GUTIL1(QT);
 
 
@@ -51,8 +52,11 @@ bool Application::notify(QObject *o, QEvent *ev)
     try{
         ret = QApplication::notify(o, ev);
     }
-    catch(const std::exception &ex){
+    catch(const exception &ex){
         handle_exception(ex);
+    }
+    catch(const shared_ptr<exception> &ex){
+        handle_exception(*ex);
     }
     return ret;
 }
