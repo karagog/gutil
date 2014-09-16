@@ -22,6 +22,7 @@ limitations under the License.*/
 #include "gutil_macros.h"
 #include "gutil_exception.h"
 #include <malloc.h>
+#include <functional>
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)
     #define GUTIL_DEBUG
@@ -454,6 +455,37 @@ inline void TryFinally(TRY_BLOCK _try, CATCH_BLOCK _catch, FINALLY_BLOCK _finall
     catch(...){ _finally(); throw; }
     _finally();
 }
+
+
+/** A helper class for the finally() macro. Do not use directly; use finally() instead. */
+class finally_t{
+    GUTIL_DISABLE_COPY(finally_t);
+    std::function<void(void)> _finally;
+public:
+    template<class FUNCTION>inline finally_t(FUNCTION f) :_finally{f} {}
+    inline ~finally_t(){ _finally(); }
+};
+
+#ifdef finally
+#undef finally
+#endif // finally
+
+/** A macro that executes the function even if flow is broken due to an exception. 
+    You can only use this once per scope, but they can shadow each other
+    inside nested scopes.
+    
+    Use it like this:
+    
+    void risky_function()
+    {
+        finally([]{
+            // Put cleanup code here, before the risky stuff
+        });
+        
+        // Do risky stuff that might throw an exception
+    }
+*/
+#define finally(F)  GUtil::finally_t ___gutil_finally(F)
 
 
 
