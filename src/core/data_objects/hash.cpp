@@ -53,15 +53,38 @@ static GUINT32 const __hash_lut[256] = {
     0x04d2e2b5, 0xe54a6c8a, 0x547ba3bd, 0x6a659fde, 0x0ea79125, 0x24e59bfb, 0x016ce5bc, 0x2219edbc
 };
 
+IClonable *Hash::Clone() const
+{
+    return new Hash;
+}
+
 void Hash::AddData(byte const *b, GUINT32 len)
 {
-    // XOR and rotate one byte to the right. Rotating is so that two
-    //  strings with the same characters do not hash the same if they're not
+    // XOR, add one and rotate one byte to the right.
+    // Adding one for every byte has the effect of including the length of the data in the hash,
+    //  so sequences of the same byte but different lengths do not hash the same.
+    // Rotating has the effect that strings with the same characters do not hash the same if they're not
     //  in the same order.
     for(GUINT32 i = 0; i < len; ++i){
-        m_hash ^= __hash_lut[b[i]];
+        m_hash = (m_hash + 1) ^ __hash_lut[b[i]];
         m_hash = (m_hash >> 8) | (m_hash << 24);
     }
+}
+
+void Hash::Final(byte *out)
+{
+    GUINT32 hash = Final();
+    out[0] = hash >> 24;
+    out[1] = hash >> 16;
+    out[2] = hash >> 8;
+    out[3] = hash;
+}
+
+GUINT32 Hash::Final()
+{
+    GUINT32 ret = m_hash;
+    m_hash = 0;
+    return ret;
 }
 
 

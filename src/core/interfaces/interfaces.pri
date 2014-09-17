@@ -11,9 +11,12 @@ HEADERS += \
     interfaces/iclonable.h \
     interfaces/imatrix.h \
     interfaces/imemoryusagereporter.h \
-    interfaces/iprogresshandler.h
+    interfaces/iprogresshandler.h \
+    interfaces/iointerface.h \
+    interfaces/ihash.h
 
-SOURCES +=
+SOURCES += \
+    interfaces/ihash.cpp
 
 
 

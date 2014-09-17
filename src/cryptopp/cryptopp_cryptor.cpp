@@ -346,7 +346,8 @@ void Cryptor::DefaultKeyDerivation::DeriveKeyFromKeyfile(byte *key, const char *
     //  guess randomly at the key).
     Hash<SHA3_256> h;
     h.AddData(m_salt.ConstData(), m_salt.Length());
-    h.ComputeHash(key, in);
+    h.AddDataFromDevice(in);
+    h.Final(key);
 }
 
 Vector<byte> Cryptor::DefaultKeyDerivation::DeriveAuthData(const char *password)

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_HASH_H
 #define GUTIL_HASH_H
 
-#include "gutil_macros.h"
+#include "gutil_ihash.h"
 
 NAMESPACE_GUTIL;
 
@@ -27,23 +27,36 @@ NAMESPACE_GUTIL;
     \note this is not a secure hash, just one that will give you a (probably) unique
     id from an array of bytes.
 */
-class Hash
+class Hash : public IHash
 {
+    GUTIL_DISABLE_COPY(Hash);
     GUINT32 m_hash{};
 public:
 
-    /** Adds data to the hash. */
-    void AddData(byte const *, GUINT32 len);
+    /** Returns the size of the hash in bytes. */
+    static const GUINT32 Size = sizeof(m_hash);
+    
+    /** \name IHash interface. 
+        \{
+    */
+    virtual GUINT32 DigestSize() const{ return Size; }
+    virtual void AddData(byte const *, GUINT32);
+    virtual void Final(byte *);
+    virtual IClonable *Clone() const;
+    /** \} */
+    
     
     /** Returns the current hash, and resets it to 0 so you can add more data
         to compute the next hash.
     */
-    inline GUINT32 Final(){ GUINT32 ret = m_hash; m_hash = 0; return ret; }
+    GUINT32 Final();
 
     /** Convenience function statically computes hash. */
     inline static GUINT32 ComputeHash(byte const *buf, GUINT32 len){
         Hash h; h.AddData(buf, len); return h.Final();
     }
+    
+    Hash(){}
     
 };
 

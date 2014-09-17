@@ -17,21 +17,21 @@ limitations under the License.*/
 
 #include <cryptopp/simple.h>
 #include "gutil_iointerface.h"
+#include "gutil_cryptopp_hash.h"
 
 NAMESPACE_GUTIL;
 class String;
 END_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(CryptoPP);
-class HashBase;
 
 
 /** Outputs to a hash object. You can get the digest by calling Final() on the hash. */
 class HashOutput : public GUtil::IOutput
 {
-    HashBase &m_hash;
+    Hash<> &m_hash;
 public:
-    HashOutput(HashBase &h) :m_hash(h) {}
+    HashOutput(Hash<> &h) :m_hash(h) {}
     virtual GUINT32 WriteBytes(const GBYTE *data, GUINT32 len);
 };
 

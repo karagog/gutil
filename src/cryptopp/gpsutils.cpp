@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "gpsutils.h"
 #include "cryptopp_cryptor.h"
-#include "cryptopp_hash.h"
 #include "cryptopp_rng.h"
 #include "cryptopp_sinks.h"
 #include "gutil_sourcesandsinks.h"
@@ -113,7 +112,7 @@ void GPSFile_Export::AppendPayloadFile(const char *payload_file,
     _write_payload_header(f.Length(), user_data, user_data_len);
 
     // Add the payload to the hash
-    m_hash->AddData(&f, chunk_size, ph);
+    m_hash->AddDataFromDevice(&f, chunk_size, ph);
 
     // Now encrypt and write the payload
     f.Seek(0);

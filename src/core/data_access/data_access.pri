@@ -1,7 +1,6 @@
 
 HEADERS += \
     data_access/serialport.h \
-    data_access/iointerface.h \
     data_access/file.h \
     data_access/console.h \
     data_access/sourcesandsinks.h \

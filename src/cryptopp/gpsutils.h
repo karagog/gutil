@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_file.h"
 #include "gutil_smartpointer.h"
-#include "gutil_iprogresshandler.h"
+#include "gutil_cryptopp_hash.h"
 
 /** \file
  *  Classes for managing Portable Safe files (GPS).
@@ -41,7 +41,6 @@ limitations under the License.*/
 
 NAMESPACE_GUTIL1(CryptoPP);
 class Cryptor;
-class HashBase;
 END_NAMESPACE_GUTIL1;
 
 #define GPS_HASH_DIGEST_LENGTH  28
@@ -55,7 +54,7 @@ class GPSFile_Export
     GUTIL_DISABLE_COPY(GPSFile_Export);
     GUtil::File m_file;
     GUtil::SmartPointer<GUtil::CryptoPP::Cryptor> m_cryptor;
-    GUtil::SmartPointer<GUtil::CryptoPP::HashBase> m_hash;
+    GUtil::SmartPointer<GUtil::CryptoPP::Hash<>> m_hash;
     const GUINT16 m_userDataSize;
 public:
 
@@ -107,7 +106,7 @@ class GPSFile_Import
     GUTIL_DISABLE_COPY(GPSFile_Import);
     GUtil::File m_file;
     GUtil::SmartPointer<GUtil::CryptoPP::Cryptor> m_cryptor;
-    GUtil::SmartPointer<GUtil::CryptoPP::HashBase> m_hash;
+    GUtil::SmartPointer<GUtil::CryptoPP::Hash<>> m_hash;
 
     bool m_payloadRead;
     GUINT64 m_payloadLength;
