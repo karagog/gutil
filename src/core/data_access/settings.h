@@ -15,17 +15,13 @@ limitations under the License.*/
 #ifndef GUTIL_SETTINGS_H
 #define GUTIL_SETTINGS_H
 
-#include "gutil_file.h"
+#include "gutil_strings.h"
 #include <unordered_map>
-#include <memory>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 
-namespace std{
-class mutex;
-class condition_variable;
-class thread;
-}
-
-NAMESPACE_GUTIL;
+namespace GUtil{
 class String;
 
 
@@ -61,17 +57,19 @@ private:
 
     void _worker_thread();
     void _reload();
+    void _commit_changes();
 
-    File m_file;
-    std::unique_ptr<std::mutex> m_lock;
-    std::unique_ptr<std::condition_variable> m_waitCondition;
-    std::unique_ptr<std::thread> m_worker;
-    std::unique_ptr<std::unordered_map<String, String>> m_data;
+    const String m_fileName;
+    std::unordered_map<String, String> m_data;
     int m_command;
-    bool m_dirty = false;
+    bool m_dirty;
+
+    std::mutex m_lock;
+    std::condition_variable m_waitCondition;
+    std::thread m_worker;
 };
 
 
-END_NAMESPACE_GUTIL;
+}
 
 #endif // GUTIL_SETTINGS_H
