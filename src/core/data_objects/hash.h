@@ -42,7 +42,7 @@ public:
     virtual GUINT32 DigestSize() const{ return Size; }
     virtual void AddData(byte const *, GUINT32);
     virtual void Final(byte *);
-    virtual IClonable *Clone() const;
+    virtual IClonable *Clone() const noexcept;
     /** \} */
     
     

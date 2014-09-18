@@ -29,7 +29,7 @@ public:
      *  the IClonable to test what type it is, assuming you
      *  have run time type information.
     */
-    virtual IClonable *Clone() const = 0;
+    virtual IClonable *Clone() const noexcept = 0;
 
     /** You can be deleted by this interface. */
     virtual ~IClonable(){}

@@ -371,7 +371,7 @@ Vector<byte> Cryptor::DefaultKeyDerivation::DeriveAuthData(const char *password)
     return Vector<byte>(result, sizeof(result));
 }
 
-IClonable *Cryptor::DefaultKeyDerivation::Clone() const
+IClonable *Cryptor::DefaultKeyDerivation::Clone() const noexcept
 {
     return new DefaultKeyDerivation(*this);
 }

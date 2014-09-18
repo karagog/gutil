@@ -106,7 +106,7 @@ public: \
     Hash(); \
     virtual ~Hash(); \
     virtual HashAlgorithmEnum GetHashAlgorithm() const; \
-    virtual GUtil::IClonable *Clone() const; \
+    virtual GUtil::IClonable *Clone() const noexcept; \
 }
 
 DECLARE_HASH(SHA3_512);

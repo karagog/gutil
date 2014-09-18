@@ -209,7 +209,7 @@ public:
         DefaultKeyDerivation(byte const *salt, GUINT32 salt_len) :m_salt(salt, salt_len, true) {}
         DefaultKeyDerivation() {}
         DefaultKeyDerivation(const DefaultKeyDerivation &o) :m_salt(o.m_salt, true) {}
-        virtual GUtil::IClonable *Clone() const;
+        virtual GUtil::IClonable *Clone() const noexcept;
 
         /** Key is derived by iteratively hashing the password, and using every
             successive hash as salt for the next iteration.

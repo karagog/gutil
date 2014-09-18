@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_EXCEPTION_H
 #define GUTIL_EXCEPTION_H
 
-#include "gutil_macros.h"
+#include "gutil_iclonable.h"
 #include <exception>
 
 #define STRINGIFY( str )  #str
@@ -24,23 +24,23 @@ limitations under the License.*/
  *  You can make an exception derived from a specified exception class and with custom members.
 */
 #define GUTIL_EXCEPTION_DECLARE3(ex_name, ex_subclass_name, members) \
-    template<bool extended = false>class ex_name : public ex_subclass_name<false> \
+    template<bool extended = false>class ex_name : public ex_subclass_name \
     { \
     public: \
-        ex_name(const char *message = NULL) \
-            : ex_subclass_name<false>(0, -1, message) {} \
-        ex_name(const char *file, int line, const char *message = 0) \
-            : ex_subclass_name<false>(file, line, message) {} \
-        ex_name(const ex_name<false> &ex) \
-            : ex_subclass_name<false>(ex) {} \
+        inline ex_name(const char *message = NULL) \
+            : ex_subclass_name(0, -1, message) {} \
+        inline ex_name(const char *file, int line, const char *message = 0) \
+            : ex_subclass_name(file, line, message) {} \
+        inline ex_name(const ex_name<false> &ex) \
+            : ex_subclass_name(ex) {} \
         virtual ~ex_name() noexcept{} \
         virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<false>"; } \
-        virtual Exception<> *Clone() const noexcept{ return new ex_name<extended>(*this); } \
+        virtual IClonable *Clone() const noexcept{ return new ex_name<extended>(*this); } \
         members ; \
     }
 
 /** You can use this to declare exceptions with public data members. */
-#define GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( ex_name, members ) GUTIL_EXCEPTION_DECLARE3(ex_name, GUtil::Exception, members)
+#define GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( ex_name, members ) GUTIL_EXCEPTION_DECLARE3(ex_name, GUtil::Exception<false>, members)
 
 
 /** Use this to declare simple exception types with no extra public members. */
@@ -62,7 +62,7 @@ NAMESPACE_GUTIL;
     It derives from the standard exception, so all exceptions can be handled by catching the
     standard exception.
 */
-class BaseException : public std::exception
+class BaseException : public std::exception, public IClonable
 {
     char *m_file;
     int m_line;
@@ -74,7 +74,7 @@ class BaseException : public std::exception
 public:
 
     /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *message = 0, const char *file = 0, int line = -1) noexcept;
+    BaseException(const char *file, int line, const char *message) noexcept;
     BaseException(const BaseException &o) noexcept;
     BaseException &operator = (const BaseException &o) noexcept;
     virtual ~BaseException() noexcept;
@@ -105,30 +105,7 @@ public:
     basic information, like the file and line numbers, as well as a string identifier.
     You can use the extended version to include more complex data in your exceptions.
 */
-template<bool extended = false> class Exception;
-
-template<>
-class Exception<false> : public BaseException
-{
-public:
-
-    /** Constructs an exception.  Normally you don't construct one directly, you use
-        THROW_NEW_GUTIL_EXCEPTION for convenience.
-
-        \param file The file name for which the exception is thrown.  This MUST be a literal string.
-                        You are supposed to use the __FILE__ preprocessor macro.
-        \param line The line on which the exception was thrown.  You are supposed to use __LINE__
-        \param message A message for the exception.  Unlike the other string parameters, this one
-                        does not need to be a literal string, as it is deep-copied into the exception.
-    */
-    Exception(const char *file, int line, const char *message = NULL) :BaseException(message, file, line) {}
-    Exception(const char *message = NULL) :BaseException(message) {}
-
-    virtual const char *what() const noexcept;
-    virtual Exception<> *Clone() const noexcept;
-    virtual ~Exception() noexcept;
-
-};
+GUTIL_EXCEPTION_DECLARE2( Exception, BaseException );
 
 
 // Here are the other types of exceptions (all derived from Exception)
@@ -197,11 +174,6 @@ GUTIL_EXCEPTION_DECLARE( InvalidStateTransitionException );
 
 
 
-/** This friend of the exception class is used to override the file and line
- *  info for an exception after instantiation.  You should use the
-*/
-void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
-
 /** Use this convenient macro to insert the file/line data in the exception */
 #define THROW_GUTIL_EXCEPTION( except ) \
     GUtil::__setExceptionFileAndLineInfo(except, __FILE__, __LINE__); \
@@ -231,6 +203,12 @@ void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
 */
 #define INSTANTIATE_GUTIL_EXCEPTION2(ex_type, var_name, msg) \
     ex_type<false> var_name(__FILE_, __LINE__, msg)
+
+    
+/** This friend of the exception class is used to override the file and line
+ *  info for an exception after instantiation.  You should use the
+*/
+void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
 
 
 END_NAMESPACE_GUTIL;

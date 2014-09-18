@@ -127,7 +127,7 @@ Hash<> *Hash<>::CreateHash(HashAlgorithmEnum h)
         Hash<H_MINE>::Hash() :Hash<>(new ::CryptoPP::H_CRYPTOPP) {} \
         Hash<H_MINE>::~Hash() { delete static_cast< ::CryptoPP::H_CRYPTOPP *>(this->hash); } \
         HashAlgorithmEnum Hash<H_MINE>::GetHashAlgorithm() const{ return H_MINE; } \
-        IClonable *Hash<H_MINE>::Clone() const{ return new Hash<H_MINE>; }
+        IClonable *Hash<H_MINE>::Clone() const noexcept{ return new Hash<H_MINE>; }
         
 DECLARE_HASH_IMPLEMENTATION(SHA3_512, SHA3_512);
 DECLARE_HASH_IMPLEMENTATION(SHA3_384, SHA3_384);

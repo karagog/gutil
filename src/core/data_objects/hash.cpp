@@ -53,7 +53,7 @@ static GUINT32 const __hash_lut[256] = {
     0x04d2e2b5, 0xe54a6c8a, 0x547ba3bd, 0x6a659fde, 0x0ea79125, 0x24e59bfb, 0x016ce5bc, 0x2219edbc
 };
 
-IClonable *Hash::Clone() const
+IClonable *Hash::Clone() const noexcept
 {
     return new Hash;
 }

@@ -63,19 +63,19 @@ NAMESPACE_GUTIL;
 /** Implements extended features for exception classes. */
 class ExtendedException
 {
-    std::unique_ptr<Exception<> > m_innerException;
+    std::unique_ptr<Exception<>> m_innerException;
 public:
 
     ExtendedException() {}
     ExtendedException(const Exception<> &inner_exception)
-        :m_innerException(inner_exception.Clone()) {}
+        :m_innerException((Exception<>*)inner_exception.Clone()) {}
     ExtendedException(const ExtendedException &);
     ExtendedException &operator = (const ExtendedException &);
     virtual ~ExtendedException();
 
     std::map<std::string, std::string> Data;
 
-    void SetInnerException(const Exception<> &ex){ m_innerException.reset(ex.Clone()); }
+    void SetInnerException(const Exception<> &ex){ m_innerException.reset((Exception<>*)ex.Clone()); }
     Exception<false> *GetInnerException() const{ return m_innerException.get(); }
 
 };

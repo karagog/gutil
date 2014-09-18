@@ -22,7 +22,7 @@ ExtendedException::~ExtendedException(){}
 
 ExtendedException::ExtendedException(const ExtendedException &o)
     :Data(o.Data),
-      m_innerException(o.GetInnerException() ? o.GetInnerException()->Clone() : NULL)
+      m_innerException(o.GetInnerException() ? (Exception<>*)o.GetInnerException()->Clone() : NULL)
 {}
 
 ExtendedException &ExtendedException::operator = (const ExtendedException &o)

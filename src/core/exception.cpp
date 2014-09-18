@@ -26,7 +26,7 @@ static void __allocate_and_copy_string(char const *source, char **target)
 }
 
 
-BaseException::BaseException(const char *message, const char *file, int line) noexcept
+BaseException::BaseException(const char *file, int line, const char *message) noexcept
     :m_file(NULL), m_line(line), m_message(NULL)
 {
     if(file)    __allocate_and_copy_string(file, &m_file);
@@ -77,20 +77,6 @@ int BaseException::Line() const
 const char *BaseException::Message() const
 {
     return m_message;
-}
-
-
-
-Exception<false>::~Exception(){}
-
-Exception<> *Exception<false>::Clone() const noexcept
-{
-    return new Exception<false>(*this);
-}
-
-const char *Exception<false>::what() const noexcept
-{
-    return "GUtil::Exception<false>";
 }
 
 
