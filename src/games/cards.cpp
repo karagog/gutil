@@ -126,14 +126,17 @@ void Deck::Shuffle()
         Vector<Card *> tmp( m_cards.Length() );
 
         // Deal each card randomly into the tmp vector
-        while(1 < m_cards.Length())
         {
-            GINT32 index( GlobalRNG()->U_Discrete(0, m_cards.Length() - 1) );
+            LockedPointer<RNG> rng = GlobalRNG();
+            while(1 < m_cards.Length())
+            {
+                GINT32 index( rng->U_Discrete(0, m_cards.Length() - 1) );
 
-            tmp.PushBack( m_cards[index] );
-            m_cards.RemoveAt(index);
+                tmp.PushBack( m_cards[index] );
+                m_cards.RemoveAt(index);
+            }
+            tmp.PushBack( m_cards[0] );
         }
-        tmp.PushBack( m_cards[0] );
 
         // Now all the cards exist in the tmp vector, so we call swap to put them
         //  back in the deck in constant time.

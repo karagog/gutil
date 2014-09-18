@@ -8,7 +8,8 @@ HEADERS += \
     utils/commandlinemenu.h \
     utils/rng.h \
     utils/circularint.h \
-    utils/undostack.h
+    utils/undostack.h \
+    $$PWD/lockedpointer.h
 
 SOURCES += \
     utils/commandlineargs.cpp \

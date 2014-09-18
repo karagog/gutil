@@ -17,7 +17,8 @@ limitations under the License.*/
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
-
+#include <mutex>
+using namespace std;
 
 namespace{
 
@@ -34,12 +35,14 @@ static GFLOAT64 __rng_int_to_unit_float(GUINT32 i)
 }
 
 /** Generates two integers with one call to Generate(). */
-static GUtil::Pair<GUINT32> __rng_generate_two_numbers()
+static GUtil::Pair<GUINT32> __rng_generate_two_numbers(GUtil::RNG *rng)
 {
-    GASSERT(GUtil::GlobalRNG());
-    GUINT64 L( GUtil::GlobalRNG()->Generate<GUINT64>() );
+    GUINT64 L( rng->Generate<GUINT64>() );
     return GUtil::Pair<GUINT32>(L >> 32, L);
 }
+
+// Serializes access to the RNG (if used from multiple threads)
+static std::mutex __rng_lock;
 
 #ifndef GUTIL_NO_DEFAULT_RNG
 static GUtil::CStdRNG __cstd_rng;
@@ -56,13 +59,14 @@ NAMESPACE_GUTIL;
 RNG::~RNG()
 {}
 
-RNG *GlobalRNG()
+LockedPointer<RNG> GlobalRNG()
 {
-    return __rng;
+    return LockedPointer<RNG>(__rng, __rng_lock);
 }
 
 void SetGlobalRNG(RNG *r)
 {
+    lock_guard<mutex> lkr(__rng_lock);
 #ifndef GUTIL_NO_DEFAULT_RNG
     if(0 == r)
         __rng = &__cstd_rng;
@@ -93,7 +97,7 @@ GFLOAT64 RNG::N(GFLOAT64 mean, GFLOAT64 standard_deviation)
     //  not for its efficiency.
 
     // Generate two independent U(0, 1) values (optimized)
-    const Pair<GUINT32> p( __rng_generate_two_numbers() );
+    const Pair<GUINT32> p( __rng_generate_two_numbers(this) );
     const GFLOAT64 u( __rng_int_to_unit_float(p.First) );
     const GFLOAT64 v( __rng_int_to_unit_float(p.Second) );
 
@@ -103,7 +107,7 @@ GFLOAT64 RNG::N(GFLOAT64 mean, GFLOAT64 standard_deviation)
 Pair<GFLOAT64> RNG::N2(GFLOAT64 mean, GFLOAT64 standard_deviation)
 {
     // Generate two independent U(0, 1) values (optimized)
-    const Pair<GUINT32> p( __rng_generate_two_numbers() );
+    const Pair<GUINT32> p( __rng_generate_two_numbers(this) );
     const GFLOAT64 u( __rng_int_to_unit_float(p.First) );
     const GFLOAT64 v( __rng_int_to_unit_float(p.Second) );
 

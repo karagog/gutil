@@ -28,8 +28,9 @@ Dice::Dice(GUINT32 n, GUINT8 s)
 
 void Dice::Roll()
 {
+    LockedPointer<RNG> rng = GlobalRNG();
     for(auto &d : m_dice)
-        d = GlobalRNG()->U_Discrete(1, m_sides);
+        d = rng->U_Discrete(1, m_sides);
 }
 
 

@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include "gutil_globals.h"
 #include "gutil_pair.h"
+#include "gutil_lockedpointer.h"
 
 NAMESPACE_GUTIL;
 
@@ -221,7 +222,7 @@ public:
 
 
 /** Returns the global RNG set by SetGlobalRNG(). */
-extern RNG *GlobalRNG();
+extern LockedPointer<RNG> GlobalRNG();
 
 /** Initializes the global RNG(). You must call this before GlobalRNG() returns anything.
  *  The memory is owned by the caller, so you are responsible for cleaning it up.
