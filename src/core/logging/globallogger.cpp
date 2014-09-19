@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,10 +13,48 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "globallogger.h"
+#include "queuedlogger.h"
+#include "gutil_smartpointer.h"
 
 NAMESPACE_GUTIL;
 
-// Static variables
+
+// The instance of the global logger that was set with SetGlobalLogger()
+static ILog *__globallog_instance = NULL;
+
+// Convenience class forwards all calls to the global logger instance, ignoring them if there is no logger set.
+struct global_logger_t : public ILog{
+    virtual void Log(const LoggingData &d) noexcept{
+        if(__globallog_instance)
+            __globallog_instance->Log(d);
+    }
+    virtual void LogException(const std::exception &e) noexcept{
+        if(__globallog_instance)
+            __globallog_instance->LogException(e);
+    }
+    virtual void Clear(){
+        if(__globallog_instance)
+            __globallog_instance->Clear();
+    }
+} static __globallogger;
+
+ILog &GlobalLogger()
+{
+    return __globallogger;
+}
+
+void SetGlobalLogger(ILog *l)
+{
+    GASSERT2(NULL == dynamic_cast<QueuedLogger*>(l), 
+             "Do not set a QueuedLogger as the global logger; I'm already doing that for you!");
+             
+    // Destroy the old logger
+    delete __globallog_instance;
+    
+    // Set the new logger
+    if(l) __globallog_instance = new QueuedLogger(l);
+    else  __globallog_instance = NULL;
+}
 
 
 END_NAMESPACE_GUTIL;

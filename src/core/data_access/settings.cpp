@@ -88,7 +88,7 @@ void Settings::_worker_thread()
                 break;
             }
         } catch(const exception &ex) {
-            GlobalLogger::LogException(ex);
+            GlobalLogger().LogException(ex);
         }
 
         // Reclaim the lock

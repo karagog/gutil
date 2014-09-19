@@ -30,31 +30,17 @@ class LoggerTest : public QObject
 signals:
     void notify_message(const QString &, const QString &);
 
-protected:
-    static void log_repetetive(int id);
-
 private Q_SLOTS:
     void test_normal_logging();
     void test_exception_logging();
     void test_queuedlogger();
-
     void test_global_logging();
-    //void test_concurrent();
-
     void test_grouplogger();
 
 private:
     void _test_abstract_logger(ILog &);
     void _test_logger_exception(ILog &);
 };
-
-void LoggerTest::log_repetetive(int id)
-{
-    QVERIFY(false);
-//    for(int i = 0; i < 10; i++)
-//        GlobalLogger::LogMessage(String::FromInt(id),
-//                                 String::Format("Concurrent message #%d", i));
-}
 
 void LoggerTest::_test_abstract_logger(ILog &l)
 {
@@ -112,21 +98,28 @@ void LoggerTest::test_exception_logging()
 
 void LoggerTest::test_global_logging()
 {
-
+    // There is no way to test if we have set a global logger or not
+    GlobalLogger().LogInfo("This does not get logged anywhere, because there is no global logger");
+    
+    // Check setting
+    FileLogger *flog = new FileLogger("global.log");
+    flog->Clear();
+    SetGlobalLogger(flog);
+    GlobalLogger().LogInfo("This is logged to the global logger");
+    
+    // The true logger type is obscured; This is an opaque utility.
+    QVERIFY(NULL == dynamic_cast<FileLogger*>(&GlobalLogger()));
+    QVERIFY(NULL == dynamic_cast<QueuedLogger*>(&GlobalLogger()));
+    
+    try{
+        throw Exception<>("This is a test of the global logger's exception handling");
+    } catch(exception &ex) {
+        GlobalLogger().LogException(ex);
+    }
+    
+    // Clear the global logger so we don't have a memory leak
+    SetGlobalLogger(NULL);
 }
-
-//void LoggerTest::test_concurrent()
-//{
-//    QFuture<void> f1 = QtConcurrent::run(log_repetetive, 1);
-//    QFuture<void> f2 = QtConcurrent::run(log_repetetive, 2);
-//    QFuture<void> f3 = QtConcurrent::run(log_repetetive, 3);
-//    QFuture<void> f4 = QtConcurrent::run(log_repetetive, 4);
-
-//    f1.waitForFinished();
-//    f2.waitForFinished();
-//    f3.waitForFinished();
-//    f4.waitForFinished();
-//}
 
 void LoggerTest::test_grouplogger()
 {
