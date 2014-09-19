@@ -54,6 +54,9 @@ limitations under the License.*/
     /** Special output method for debug mode. */
     #define GDEBUG(x)       __gutil_debug(x)
 
+    /** Only outputs if the condition is true */
+    #define GDEBUG2(c, x)       if(c) __gutil_debug(x)
+
     /** Defines a debug assertion, which only executes in debug mode and aborts
         the program if the boolean condition returns false
     */
@@ -65,6 +68,7 @@ limitations under the License.*/
     #define DEBUG_LOGGING
 #else
     #define GDEBUG(x)
+    #define GDEBUG2(c, x)
     #define GASSERT(x)
     #define GASSERT2(x, y)
 #endif
