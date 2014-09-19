@@ -42,20 +42,11 @@ void ApplicationBase::Exit(int return_code)
 
 void ApplicationBase::try_exiting(int){}
 
-void ApplicationBase::handle_exception(const std::exception &ex)
+void ApplicationBase::handle_exception(std::exception &)
 {
     if(!GetTrapExceptions())
-        throw ex;
+        throw;  // We're inside of a catch handler, so this rethrows
 }
-
-
-#ifdef GUTIL_STL
-void ApplicationBase::handle_std_exception(const std::exception &ex)
-{
-    if(!GetTrapExceptions())
-        throw ex;
-}
-#endif
 
 
 void ApplicationBase::handle_os_signal(int){}

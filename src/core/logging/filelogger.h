@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,30 +15,31 @@ limitations under the License.*/
 #ifndef GUTIL_FILELOGGER_H
 #define GUTIL_FILELOGGER_H
 
+#include "gutil_outputdevicelogger.h"
 #include "gutil_file.h"
-#include "gutil_abstractlogger.h"
 
 NAMESPACE_GUTIL;
 
 
-/** A logger that outputs to a. */
-class FileLogger :
-    public AbstractLogger
+/** A logger that outputs to a file. */
+class FileLogger : public OutputDeviceLogger
 {
+    File *m_file;
 public:
+    /** Creates a FileLogger that logs to the given file. */
     FileLogger(const char *filename)
-        :AbstractLogger(new File(filename))
-    {
-        File *f(static_cast<File *>(io_device()));
-        f->SetBufferedWrites(false);    // A log file must not delay writing
-        f->Open(File::OpenAppend);
-    }
+        :OutputDeviceLogger([&]{
+            m_file = new File(filename);
+            try{ m_file->Open(File::OpenAppend); }
+            catch(...) { delete m_file; throw; }
+            return m_file;
+        }())
+    {}
 
     /** Erases the contents of the logfile. */
     virtual void Clear(){
-        File *f( static_cast<File *>(io_device()) );
-        f->Close();
-        f->Open(File::OpenReadWriteTruncate);
+        m_file->Close();
+        m_file->Open(File::OpenReadWriteTruncate);
     }
 };
 

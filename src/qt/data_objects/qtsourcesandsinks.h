@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_QT_SOURCESANDSINKS_H
 #define GUTIL_QT_SOURCESANDSINKS_H
 
-#include "gutil_iointerface.h"
+#include "gutil_iio.h"
 #include "gutil_sourcesandsinks.h"
 #include <QByteArray>
 

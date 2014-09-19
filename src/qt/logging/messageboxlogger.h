@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,32 +17,26 @@ limitations under the License.*/
 #ifndef GUTIL_MESSAGEBOXLOGGER_H
 #define GUTIL_MESSAGEBOXLOGGER_H
 
-#include "gutil_abstractlogger.h"
+#include "gutil_ilog.h"
 
 class QWidget;
 
 NAMESPACE_GUTIL1(QT);
 
 
-/** A logger implementation which displays the message in a modal dialog box.
-*/
-class MessageBoxLogger :
-        public GUtil::AbstractLogger
+/** A logger implementation which displays the message in a modal dialog box. */
+class MessageBoxLogger : public GUtil::ILog
 {
     QWidget *m_parent;
 public:
 
-    explicit MessageBoxLogger(QWidget *parent = 0) :AbstractLogger(NULL), m_parent(parent){}
-
-    virtual ~MessageBoxLogger(){}
-
-
-protected:
+    explicit MessageBoxLogger(QWidget *parent = 0) :m_parent(parent) {}
+    virtual ~MessageBoxLogger() {}
 
     /** Displays a modal dialog box with the title and message, with the
         appropriate severity.
     */
-    virtual void log_protected(const LoggingData &);
+    virtual void Log(const LoggingData &) noexcept;
 
 };
 

@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,20 +17,44 @@ limitations under the License.*/
 
 #include "gutil_databaselogger.h"
 #include "gutil_databaseutils.h"
+#include <exception>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QResource>
 #include <QVariant>
 USING_NAMESPACE_GUTIL;
+using namespace std;
 
 NAMESPACE_GUTIL1(QT);
 
 
-void DatabaseLogger::InitializeDatabase() const
+static void __open_and_validate_connection(QSqlDatabase &db, const QString &table)
 {
-    QSqlDatabase db(QSqlDatabase::database(GetConnectionString()));
-    _open_and_validate_connection(db);
+    if(db.connectionName().isEmpty())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "No connection string set");
+
+    if(table.isEmpty())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception, "No table name given");
+
+    if(!db.isValid())
+        THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                   "Invalid database.  "
+                                   "You must first add the database with QSqlDatabase::addDatabase()");
+
+    if(!db.isOpen())
+    {
+        // Try to open the database if it's not already open
+        if(!db.open())
+            THROW_NEW_GUTIL_EXCEPTION2(Exception,
+                                       String::Format("Could not open log database: %s", db.lastError().text().toUtf8().constData()));
+    }
+}
+
+static void __init_db(const QString &connStr, const QString &tableName)
+{
+    QSqlDatabase db(QSqlDatabase::database(connStr));
+    __open_and_validate_connection(db, tableName);
 
     QString sql_resource;
     if(db.driverName() == "QSQLITE")
@@ -46,41 +70,29 @@ void DatabaseLogger::InitializeDatabase() const
     if(rs.isCompressed())
         sql = qUncompress(sql);
 
-    sql.replace("%TABLE_NAME%", GetTableName().toUtf8());
-
+    sql.replace("%TABLE_NAME%", tableName.toUtf8());
     DatabaseUtils::ExecuteScript(db, sql);
 }
 
-void DatabaseLogger::_open_and_validate_connection(QSqlDatabase &db) const
+DatabaseLogger::DatabaseLogger(const char *conn_str, const char *table_name)
+    :m_connStr(conn_str), m_tableName(table_name)
 {
-    if(GetConnectionString().isEmpty())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "No connection string set");
-
-    if(!db.isValid())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   "Invalid database.  "
-                                   "You must first add the database with QSqlDatabase::addDatabase()");
-
-    if(!db.isOpen())
-    {
-        // Try to open the database if it's not already open
-        if(!db.open())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, QString("Could not open database: %1").arg(db.lastError().text()).toUtf8());
-    }
+    __init_db(m_connStr, m_tableName);
 }
 
-void DatabaseLogger::Log(const String &message, const String &title, MessageLevelEnum ml, time_t)
+void DatabaseLogger::Log(const LoggingData &d) noexcept
 {
-    QSqlQuery q(QString("INSERT INTO %1"
-                        " (Date, Severity, Title, Message)"
-                        " VALUES (?, ?, ?, ?)")
-                .arg(GetTableName()),
-                QSqlDatabase::database(GetConnectionString()));
-    q.addBindValue(DatabaseUtils::ConvertDateToString(QDateTime::currentDateTime()));
-    q.addBindValue((int)ml);
-    q.addBindValue(title.ToQString());
-    q.addBindValue(message.ToQString());
-    q.exec();
+    QSqlQuery q(QSqlDatabase::database(GetConnectionString()));
+    q.prepare(QString("INSERT INTO %1"
+                      " (Date, Severity, Title, Message)"
+                      " VALUES (?, ?, ?, ?)")
+              .arg(GetTableName()));
+    q.addBindValue(DatabaseUtils::ConvertDateToString(QDateTime::fromTime_t(d.LogTime)));
+    q.addBindValue((int)d.MessageLevel);
+    q.addBindValue(d.Title.ToQString());
+    q.addBindValue(d.Message.ToQString());
+    if(!q.exec())
+        qDebug("Log to database failed...");
 }
 
 

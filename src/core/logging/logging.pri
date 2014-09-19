@@ -1,15 +1,15 @@
 HEADERS += \
-    logging/abstractlogger.h \
     logging/filelogger.h \
     logging/consolelogger.h \
     logging/grouplogger.h \
     logging/globallogger.h \
-    logging/debuglogger.h
+    $$PWD/outputdevicelogger.h \
+    $$PWD/ilog.h
 
 SOURCES += \
-    logging/abstractlogger.cpp \
     logging/globallogger.cpp \
-    logging/debuglogger.cpp
+    $$PWD/outputdevicelogger.cpp \
+    $$PWD/ilog.cpp
 
 
 

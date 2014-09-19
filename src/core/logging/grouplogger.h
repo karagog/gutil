@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,43 +15,50 @@ limitations under the License.*/
 #ifndef GUTIL_GROUPLOGGER_H
 #define GUTIL_GROUPLOGGER_H
 
-#include "abstractlogger.h"
+#include "gutil_ilog.h"
 #include "gutil_vector.h"
-#include "gutil_smartpointer.h"
+#include <cstdarg>
+
 NAMESPACE_GUTIL;
 
 
-/** A logger class that logs to a group of loggers
-    \note This class is NOT thread-safe
+/** A logger class that logs to a group of loggers.
+
+    It owns all the logs in the group, and will delete them when finished.
 */
-class GroupLogger :
-        public AbstractLogger
+class GroupLogger : public ILog
 {
+    Vector<ILog *> m_loggers;
 public:
 
-    GroupLogger() :AbstractLogger(0) {}
+    /** Constructs a null group logger that doesn't log to anything.
+     *  Call AddLogger() to add a logger to the group.
+    */
+    GroupLogger() {}
+    virtual ~GroupLogger(){ for(auto l : m_loggers) delete l; }
 
-    /** Overridden from AbstractLogger to log the message to all loggers in the group */
-    virtual void Log(const String &message,
-                     const String &title = String(),
-                     MessageLevelEnum msg_lvl = MessageLevel_Info)
-    {
-        // Log the message to all of our loggers
-        for(Vector< SharedSmartPointer<AbstractLogger> >::const_iterator iter(m_loggers.begin());
-            iter != m_loggers.end(); ++iter)
-            (*iter)->Log(message, title, msg_lvl);
+    /** Constructs a group logger with the given set of loggers.
+     *  \param n The number of loggers
+    */
+    GroupLogger(int n, ...)
+        :m_loggers(n){
+        va_list args;
+        va_start(args, n);
+        for(int i = 0; i < n; ++i)
+            AddLogger(va_arg(args, ILog *));
+        va_end(args);
+    }
+
+    /** Log the message to all loggers in the group. */
+    virtual void Log(const LoggingData &d) noexcept{
+        for(auto &l : m_loggers) l->Log(d);
     }
 
     /** Adds a logger to the group.
         This class takes ownership of the memory. There is no way to remove it
         from the group.  Would that ever be useful?
     */
-    void AddLogger(AbstractLogger *l){ m_loggers.PushBack(l); }
-
-
-private:
-
-    Vector< SharedSmartPointer<AbstractLogger> > m_loggers;
+    inline void AddLogger(ILog *l){ m_loggers.PushBack(l); }
 
 };
 

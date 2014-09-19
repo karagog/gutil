@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_CONSOLE_H
 #define GUTIL_CONSOLE_H
 
-#include "gutil_iointerface.h"
+#include "gutil_iio.h"
 #include "gutil_strings.h"
 
 NAMESPACE_GUTIL;

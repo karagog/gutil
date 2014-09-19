@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ihash.h"
-#include "iointerface.h"
+#include "iio.h"
 #include "gutil_iprogresshandler.h"
 #include "gutil_globals.h"
 

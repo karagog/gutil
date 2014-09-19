@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,19 +15,18 @@ limitations under the License.*/
 #ifndef GUTIL_CONSOLELOGGER_H
 #define GUTIL_CONSOLELOGGER_H
 
-#include "abstractlogger.h"
+#include "gutil_outputdevicelogger.h"
 #include "gutil_console.h"
+
 NAMESPACE_GUTIL;
 
 
 /** A logger that outputs to the console. */
-class ConsoleLogger :
-        public AbstractLogger
+class ConsoleLogger : public OutputDeviceLogger
 {
 public:
-    ConsoleLogger(Console::OutputStreamEnum e = Console::StandardOut)
-        :AbstractLogger(new Console(e))
-    {}
+    inline ConsoleLogger(Console::OutputStreamEnum e = Console::StandardOut)
+        :OutputDeviceLogger(new Console(e)) {}
 };
 
 

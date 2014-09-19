@@ -15,10 +15,7 @@ limitations under the License.*/
 #ifndef GAPPLICATIONBASE_H
 #define GAPPLICATIONBASE_H
 
-#include "gutil_macros.h"
 #include "gutil_commandlineargs.h"
-#include "gutil_extendedexception.h"
-#include "gutil_abstractlogger.h"
 #include <QCoreApplication>
 
 
@@ -138,7 +135,7 @@ protected:
         logger given in the constructor.  The exception will either be rethrown or
         trapped, depending on the 'TrapExceptions' property.
     */
-    virtual void handle_exception(const std::exception &);
+    virtual void handle_exception(std::exception &);
 
 
     /** The signal handling function. You can override it to handle os signals (Unix only).

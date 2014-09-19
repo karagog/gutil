@@ -1,4 +1,4 @@
-/*Copyright 2013 George Karagoulis
+/*Copyright 2013-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "coreapplication.h"
+#include <memory>
+using namespace std;
+
 NAMESPACE_GUTIL1(QT);
 
 
@@ -49,22 +52,15 @@ void CoreApplication::Quit()
 bool CoreApplication::notify(QObject *o, QEvent *ev)
 {
     bool ret(false);
-    try
-    {
+    try{
         ret = QCoreApplication::notify(o, ev);
     }
-    catch(Exception<> &ex)
-    {
+    catch(exception &ex){
         handle_exception(ex);
     }
-
-#   ifdef GUTIL_STL
-    catch(std::exception &ex)
-    {
-        handle_std_exception(ex);
+    catch(const shared_ptr<exception> &ex){
+        handle_exception(*ex);
     }
-#   endif
-
     return ret;
 }
 

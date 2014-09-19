@@ -17,26 +17,31 @@ limitations under the License.*/
 #include "messageboxlogger.h"
 #include "gutil_extendedexception.h"
 #include <QMessageBox>
+#include <QDateTime>
 USING_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(QT);
 
 
-void MessageBoxLogger::log_protected(const LoggingData &d)
+void MessageBoxLogger::Log(const LoggingData &d) noexcept
 {
+    QString title = QString("%1 %2")
+            .arg(QDateTime::fromTime_t(d.LogTime).toString())
+            .arg(d.Title.ConstData());
+    QString msg(d.Message.ConstData());
     switch(d.MessageLevel)
     {
-    case MessageLevel_Info:
-        QMessageBox::information(m_parent, d.Title.ToQString(), d.Message.ToQString());
+    case LogLevelInfo:
+        QMessageBox::information(m_parent, title, msg);
         break;
-    case MessageLevel_Warning:
-        QMessageBox::warning(m_parent, d.Title.ToQString(), d.Message.ToQString());
+    case LogLevelWarning:
+        QMessageBox::warning(m_parent, title, msg);
         break;
-    case MessageLevel_Error:
-        QMessageBox::critical(m_parent, d.Title.ToQString(), d.Message.ToQString());
+    case LogLevelError:
+        QMessageBox::critical(m_parent, title, msg);
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION( NotImplementedException );
+        break;
     }
 }
 

@@ -14,14 +14,17 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += --std=c++11
 
 SOURCES += tst_loggertest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 DEFINES += GUTIL_DEBUG
 
-INCLUDEPATH += ../../../../include ../../..
-LIBS += -L../../../../lib \
+TOP_DIR = ../../../../..
+
+INCLUDEPATH += $$TOP_DIR/include
+LIBS += -L$$TOP_DIR/lib \
     -lGUtil
 
 unix: LIBS += -Wl,-rpath,.

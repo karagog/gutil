@@ -12,8 +12,8 @@ HEADERS += \
     interfaces/imatrix.h \
     interfaces/imemoryusagereporter.h \
     interfaces/iprogresshandler.h \
-    interfaces/iointerface.h \
-    interfaces/ihash.h
+    interfaces/ihash.h \
+    $$PWD/iio.h
 
 SOURCES += \
     interfaces/ihash.cpp

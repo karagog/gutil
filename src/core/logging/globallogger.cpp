@@ -17,29 +17,6 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 // Static variables
-Map<int, SharedSmartPointer<AbstractLogger> > GlobalLogger::m_loggers;
-int GlobalLogger::m_default_logger_id = 0;
 
-
-void GlobalLogger::_translate_logger_id(int &id, bool allow_new_id)
-{
-    if(id == DebugId);
-    else if(id == DefaultId)
-        id = m_default_logger_id;
-    else if(id == NewId)
-    {
-        if(!allow_new_id)
-            THROW_NEW_GUTIL_EXCEPTION2(ArgumentException, "Can't create new ID here");
-
-        // Auto-assign a logger id
-        id = 1;
-        while(m_loggers.Contains(id))
-            id++;
-    }
-    else if(id < 0)
-    {
-        THROW_NEW_GUTIL_EXCEPTION2(ArgumentException, "Logger ID not recognized");
-    }
-}
 
 END_NAMESPACE_GUTIL;

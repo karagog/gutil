@@ -1,15 +1,11 @@
 
 HEADERS += \
     logging/messageboxlogger.h \
-    logging/databaselogger.h \
-    logging/queuedlogger.h \
-    logging/threadsafelogger.h
+    logging/databaselogger.h
 
 SOURCES += \
     logging/messageboxlogger.cpp \
-    logging/databaselogger.cpp \
-    logging/queuedlogger.cpp \
-    logging/threadsafelogger.cpp
+    logging/databaselogger.cpp
 
 RESOURCES += \
     logging/sql_scripts.qrc

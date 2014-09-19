@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_CRYPTOPP_CRYPTOR_H
 #define GUTIL_CRYPTOPP_CRYPTOR_H
 
-#include "gutil_iointerface.h"
+#include "gutil_iio.h"
 #include "gutil_iprogresshandler.h"
 #include "gutil_iclonable.h"
 #include "gutil_vector.h"

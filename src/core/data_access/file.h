@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_FILE_H
 #define GUTIL_FILE_H
 
-#include "gutil_iointerface.h"
+#include "gutil_iio.h"
 #include "gutil_strings.h"
 #include <functional>
 
