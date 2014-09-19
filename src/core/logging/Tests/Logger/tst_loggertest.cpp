@@ -100,23 +100,23 @@ void LoggerTest::test_global_logging()
 {
     // There is no way to test if we have set a global logger or not
     GlobalLogger().LogInfo("This does not get logged anywhere, because there is no global logger");
-    
+
     // Check setting
     FileLogger *flog = new FileLogger("global.log");
     flog->Clear();
     SetGlobalLogger(flog);
     GlobalLogger().LogInfo("This is logged to the global logger");
-    
+
     // The true logger type is obscured; This is an opaque utility.
     QVERIFY(NULL == dynamic_cast<FileLogger*>(&GlobalLogger()));
     QVERIFY(NULL == dynamic_cast<QueuedLogger*>(&GlobalLogger()));
-    
+
     try{
-        throw Exception<>("This is a test of the global logger's exception handling");
+        throw Exception<true>("This is a test of the global logger's exception handling");
     } catch(exception &ex) {
         GlobalLogger().LogException(ex);
     }
-    
+
     // Clear the global logger so we don't have a memory leak
     SetGlobalLogger(NULL);
 }
@@ -156,19 +156,19 @@ void LoggerTest::test_queuedlogger()
     FileLogger *flog = new FileLogger("queued.log");
     flog->Clear();
     QueuedLogger log(flog);
-    
+
     // Create a bunch of threads to pound the queued logger
     qDebug("Starting %d background threads...", no_threads);
     for(int i = 0; i < no_threads; ++i)
         threads.push_back(new std::thread(&__log_repetitive, &log, i + 1));
-        
+
     // Let all the threads finish
     qDebug("Waiting for the threads to finish...");
     for(auto t : threads){
         t->join();
         delete t;
     }
-    
+
     qDebug("Done logging, now waiting for the logger to finish...");
 }
 

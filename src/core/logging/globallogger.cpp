@@ -22,7 +22,7 @@ NAMESPACE_GUTIL;
 // The instance of the global logger that was set with SetGlobalLogger()
 static ILog *__globallog_instance = NULL;
 
-// Convenience class forwards all calls to the global logger instance, ignoring them if there is no logger set.
+// forwards all calls to the global logger instance, ignoring them if there is no logger set.
 struct global_logger_t : public ILog{
     virtual void Log(const LoggingData &d) noexcept{
         if(__globallog_instance)
@@ -36,6 +36,8 @@ struct global_logger_t : public ILog{
         if(__globallog_instance)
             __globallog_instance->Clear();
     }
+    ~global_logger_t(){ GDEBUG2(__globallog_instance,
+                                "WARNING: You forgot to clean up the global logger!"); }
 } static __globallogger;
 
 ILog &GlobalLogger()
@@ -45,12 +47,12 @@ ILog &GlobalLogger()
 
 void SetGlobalLogger(ILog *l)
 {
-    GASSERT2(NULL == dynamic_cast<QueuedLogger*>(l), 
-             "Do not set a QueuedLogger as the global logger; I'm already doing that for you!");
-             
+    GDEBUG2(NULL != dynamic_cast<QueuedLogger*>(l),
+            "Do not set a QueuedLogger as the global logger; I'm already doing that for you!");
+
     // Destroy the old logger
     delete __globallog_instance;
-    
+
     // Set the new logger
     if(l) __globallog_instance = new QueuedLogger(l);
     else  __globallog_instance = NULL;
