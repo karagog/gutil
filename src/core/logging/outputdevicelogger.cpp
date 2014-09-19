@@ -53,6 +53,7 @@ void OutputDeviceLogger::log_text_out(const String &msg) noexcept
 {
     try{
         m_out->WriteBytes((byte const *)msg.ConstData(), msg.Length());
+        m_out->Flush();
     } catch(...) {
         GDEBUG("I just trapped an exception while logging...");
     }

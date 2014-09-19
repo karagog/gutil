@@ -21,10 +21,15 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
-/** A logger that outputs to a file. */
+/** A logger that outputs to a file.
+    
+    \note This uses calls to the C library fwrite(), which in some C library versions
+    is thread safe, and in others is not. Therefore if you need to guarantee thread safety,
+    protect this with a QueuedLogger.
+*/
 class FileLogger : public OutputDeviceLogger
 {
-    File *m_file;
+    File *m_file;   // Gets deleted by the output device logger
 public:
     /** Creates a FileLogger that logs to the given file. */
     FileLogger(const char *filename)

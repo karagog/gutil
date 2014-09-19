@@ -17,9 +17,10 @@ limitations under the License.*/
 #include "gutil_globallogger.h"
 #include "gutil_grouplogger.h"
 #include "gutil_extendedexception.h"
-#include <QtConcurrentRun>
+#include "gutil_queuedlogger.h"
 #include <QtCore/QString>
 #include <QtTest/QtTest>
+#include <thread>
 using namespace std;
 USING_NAMESPACE_GUTIL;
 
@@ -35,6 +36,7 @@ protected:
 private Q_SLOTS:
     void test_normal_logging();
     void test_exception_logging();
+    void test_queuedlogger();
 
     void test_global_logging();
     //void test_concurrent();
@@ -42,7 +44,7 @@ private Q_SLOTS:
     void test_grouplogger();
 
 private:
-    void _test_abstract_logger(AbstractLogger &);
+    void _test_abstract_logger(ILog &);
     void _test_logger_exception(ILog &);
 };
 
@@ -54,7 +56,7 @@ void LoggerTest::log_repetetive(int id)
 //                                 String::Format("Concurrent message #%d", i));
 }
 
-void LoggerTest::_test_abstract_logger(AbstractLogger &l)
+void LoggerTest::_test_abstract_logger(ILog &l)
 {
     l.LogInfo("This is a message", "Hello world");
     l.LogError("Bar", "Foo");
@@ -142,6 +144,39 @@ void LoggerTest::test_grouplogger()
 
     g.AddLogger(f3);
     g.LogInfo("This message is in all three logs");
+}
+
+static void __log_repetitive(ILog *l, int thread_no)
+{
+    const int repetitions = 1000;
+    //qDebug("Thread %d started", thread_no);
+    const String title = String::Format("Thread Number %d", thread_no);
+    for(int i = 0; i < repetitions; ++i)
+        l->LogInfo("This is a test", title);
+    //qDebug("Thread %d finished", thread_no);
+}
+
+void LoggerTest::test_queuedlogger()
+{
+    const int no_threads = 50;
+    vector<std::thread *> threads;
+    FileLogger *flog = new FileLogger("queued.log");
+    flog->Clear();
+    QueuedLogger log(flog);
+    
+    // Create a bunch of threads to pound the queued logger
+    qDebug("Starting %d background threads...", no_threads);
+    for(int i = 0; i < no_threads; ++i)
+        threads.push_back(new std::thread(&__log_repetitive, &log, i + 1));
+        
+    // Let all the threads finish
+    qDebug("Waiting for the threads to finish...");
+    for(auto t : threads){
+        t->join();
+        delete t;
+    }
+    
+    qDebug("Done logging, now waiting for the logger to finish...");
 }
 
 
