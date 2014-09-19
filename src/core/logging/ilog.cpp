@@ -40,10 +40,8 @@ void ILog::LogException(const std::exception &std_ex) noexcept
         }
 
         d.Message = String::Format("%s%s", ex->Message(), data_string.ConstData());
-        d.Title = String::Format("%s caught from line %d of file '%s'%s:",
+        d.Title = String::Format("%s caught%s",
                                  ex->what(),
-                                 ex->Line(),
-                                 ex->File() ? ex->File() : "[ no file ]",
                                  ext_ex->GetInnerException() ? " (Inner exception follows immediately)" : "");
         Log(d);
         if(ext_ex->GetInnerException())
@@ -51,16 +49,13 @@ void ILog::LogException(const std::exception &std_ex) noexcept
     }
     else if(ex){
         // Normal exception
-        d.Message = ex->Message() ? ex->Message() : "";
-        d.Title = String::Format("%s caught from line %d of file '%s':",
-                                 ex->what(),
-                                 ex->Line(),
-                                 ex->File() ? ex->File() : "[ no file ]");
+        d.Message = ex->Message();
+        d.Title = String::Format("%s caught", ex->what());
         Log(d);
     }
     else{
         // Some other type of std::exception that we don't know how to parse
-        d.Title = String::Format("Caught %s", std_ex.what());
+        d.Title = String::Format("%s caught", std_ex.what());
         Log(d);
     }
 }

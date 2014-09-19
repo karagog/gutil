@@ -239,7 +239,7 @@ template<class K, class V>const V &Map<K, V>::At(const K &k) const
 {
     iterator iter(_index.Search(k));
     if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
     return iter->Value();
 }
 
@@ -247,7 +247,7 @@ template<class K, class V>V &Map<K, V>::At(const K &k)
 {
     iterator iter(_index.Search(k));
     if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
     return iter->Value();
 }
 
@@ -255,7 +255,7 @@ template<class K, class V>V const &Map<K, V>::At(const K &k, const V &v) const
 {
     iterator iter(_index.Search(k));
     if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
     return iter->Values().At(iter->Values().IndexOf(v));
 }
 
@@ -263,7 +263,7 @@ template<class K, class V>V &Map<K, V>::At(const K &k, const V &v)
 {
     iterator iter(_index.Search(k));
     if(!iter)
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
     return iter->Values().At(iter->Values().IndexOf(v));
 }
 
@@ -293,7 +293,7 @@ template<class K, class V>V &Map<K, V>::operator [](const K &k)
 template<class K, class V>const Vector<V> &Map<K, V>::Values(const K &k) const
 {
     iterator iter(_index.Search(k));
-    if(!iter) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+    if(!iter) throw IndexOutOfRangeException<>();
     return iter->Values();
 }
 

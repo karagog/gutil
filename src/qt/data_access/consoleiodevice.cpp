@@ -183,11 +183,9 @@ ConsoleIODevice::ConsoleIODevice(bool aw, QObject *parent)
       _p_AsynchronousWrite(aw)
 {
     if(__class_data.initialized)
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   "You have already instantiated one of these. "
-                                   " This class was intended only to be instantiated once in"
-                                   " an application."
-                                   );
+        throw DataTransportException<>("You have already instantiated one of these. "
+                                       " This class was intended only to be instantiated once in"
+                                       " an application.");
 
     __class_data.initialized = true;
     __class_data.send_count = 0;

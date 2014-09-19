@@ -46,7 +46,7 @@ void Widget::AlignWidgets(
         const QList<QWidget *>&,
         bool)
 {
-    THROW_NEW_GUTIL_EXCEPTION( NotImplementedException );
+    throw NotImplementedException<>();
 }
 
 QWidget *Widget::FindTopMostParent(QWidget *w)

@@ -156,8 +156,7 @@ QString UniversalMutex::GetFilepath() const
 void UniversalMutex::_lock()
 {
     if(_lock_file_path.isNull())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   "You must first set the lockfile path");
+        throw Exception<>("You must first set the lockfile path");
     QFile f(_lock_file_path);
 
     f.open(QFile::ReadWrite);
@@ -175,9 +174,7 @@ void UniversalMutex::_lock()
         if(unrecognized_guid)
         {
             f.close();
-            THROW_NEW_GUTIL_EXCEPTION2( LockException,
-                                       QString("Someone else already owns the universal lock: %1")
-                                       .arg(GetFilepath()).toAscii().constData());
+            throw LockException<>(QString("Someone else already owns the universal lock: %1").arg(GetFilepath()).toAscii());
         }
 
         f.resize(0);
@@ -232,13 +229,8 @@ bool UniversalMutex::_has_lock(bool from_cache) const
 
 void UniversalMutex::_fail_if_locked() const
 {
-//    if(!_lock_file_set())
-//        THROW_NEW_GUTIL_EXCEPTION2( LockException,
-//                                   "No file path set!" );
-
     if(_is_locked)
-        THROW_NEW_GUTIL_EXCEPTION2( LockException,
-                                   "Cannot complete operation while mutex is locked" );
+        throw LockException<>("Cannot complete operation while mutex is locked");
 }
 
 void UniversalMutex::run()

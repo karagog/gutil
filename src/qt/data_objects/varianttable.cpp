@@ -63,7 +63,7 @@ void VariantTable::ReadXml(QXmlStreamReader &sr)
     if(sr.readNextStartElement())
     {
         if(sr.name() != DATATABLE_XML_ID)
-            THROW_NEW_GUTIL_EXCEPTION2(XmlException, String::Format("Unrecognized XML Node: %s", sr.name().toString().toUtf8().constData()));
+            throw XmlException<>(String::Format("Unrecognized XML Node: %s", sr.name().toString().toUtf8().constData()));
 
         SetName( String(sr.attributes().at(0).value().toString()).FromBase64() );
         int rows = sr.attributes().at(1).value().toString().toInt();
@@ -72,7 +72,7 @@ void VariantTable::ReadXml(QXmlStreamReader &sr)
         for(int i = 0; i < cols; i++)
         {
             if(!sr.readNextStartElement() || sr.name() != "c")
-                THROW_NEW_GUTIL_EXCEPTION2(XmlException, "Unrecognized XML Data");
+                throw XmlException<>("Unrecognized XML Data");
             String col_key( Variant::FromXml(sr).toString().toUtf8().constData() );
             String col_name( Variant::FromXml(sr).toString().toUtf8().constData() );
             AddColumn(col_key, col_name);
@@ -92,14 +92,14 @@ void VariantTable::ReadXml(QXmlStreamReader &sr)
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(XmlException, "Not a valid DataTable serialization");
+        throw XmlException<>("Not a valid DataTable serialization");
     }
 }
 
 void VariantTable::ReadRowXml(QXmlStreamReader &sr, DataRow<QVariant> &dr)
 {
     if(!sr.readNextStartElement())
-        THROW_NEW_GUTIL_EXCEPTION2(XmlException, "Unrecognized XML Data");
+        throw XmlException<>("Unrecognized XML Data");
     for(DataRow<QVariant>::iterator iter(dr.begin()); iter != dr.end(); ++iter)
         iter.SetValue(Variant::FromXml(sr));
     while(sr.tokenType() != QXmlStreamReader::EndElement || sr.name() != "r") sr.readNext();

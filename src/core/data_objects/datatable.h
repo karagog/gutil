@@ -70,14 +70,13 @@ protected:
     virtual void pre_add(DataColumn &item, int indx){
         GUTIL_UNUSED(indx);
         if(Contains(item))
-            THROW_NEW_GUTIL_EXCEPTION2(ValidationException, String::Format("The column key '%s' is already in the table", item.GetKey().ConstData()));
+            throw ValidationException<>(String::Format("The column key '%s' is already in the table", item.GetKey().ConstData()));
     }
     virtual void pre_item_changed(const DataColumn &value_before, const DataColumn &new_value, int indx){
         GUTIL_UNUSED(value_before);
         GUTIL_UNUSED(indx);
         if(Contains(new_value))
-            THROW_NEW_GUTIL_EXCEPTION2(ValidationException,
-                                       String::Format("The column key '%s' is already in the table", new_value.GetKey().ConstData()));
+            throw ValidationException<>(String::Format("The column key '%s' is already in the table", new_value.GetKey().ConstData()));
     }
 };
 
@@ -113,11 +112,11 @@ public:
     typename Collection<T>::ItemReference operator [](int col){ return Collection<T>::operator [](col); }
 
     const T &operator [](const String &col_name) const{
-        if(!m_columnMap->Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!m_columnMap->Contains(col_name)) throw IndexOutOfRangeException<>();
         return operator [](m_columnMap->At(col_name));
     }
     typename Collection<T>::ItemReference operator [](const String &col_name){
-        if(!m_columnMap->Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!m_columnMap->Contains(col_name)) throw IndexOutOfRangeException<>();
         return operator [](m_columnMap->At(col_name));
     }
 
@@ -453,11 +452,11 @@ public:
     DataRow<T> const &operator [](GINT32 indx) const{ return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](indx); }
 
     DataRow<T> &operator [](const String &col_name){
-        if(!column_map.Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!column_map.Contains(col_name)) throw IndexOutOfRangeException<>();
         return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](column_map[col_name]);
     }
     DataRow<T> const &operator [](const String &col_name) const{
-        if(!column_map.Contains(col_name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!column_map.Contains(col_name)) throw IndexOutOfRangeException<>();
         return *Collection< SharedSmartPointer< DataRow<T> > >::operator [](column_map.At(col_name));
     }
 
@@ -489,7 +488,7 @@ public:
         m_columns.Remove(index);
     }
     void RemoveColumn(const String &name){
-        if(!column_map.Contains(name)) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!column_map.Contains(name)) throw IndexOutOfRangeException<>();
         RemoveColumn(column_map[name]);
     }
 

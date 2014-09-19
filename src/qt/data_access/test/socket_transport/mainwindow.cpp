@@ -39,8 +39,7 @@ MainWindow::MainWindow(bool server, QWidget *parent) :
         sock->Socket().waitForConnected(5000);
 
         if(!sock->IsConnected())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                      "Not Connected");
+            throw Exception<>("Not Connected");
     }
 }
 

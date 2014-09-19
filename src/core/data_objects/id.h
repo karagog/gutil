@@ -82,7 +82,7 @@ public:
     */
     Id(const Vector<char> &v){
         if(v.Length() < sizeof(m_data))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Id length too short");
+            throw Exception<>("Id length too short");
         memcpy(m_data, v.ConstData(), sizeof(m_data));
     }
 
@@ -169,7 +169,7 @@ public:
     Id(const QByteArray &b){
         if(b.isEmpty());
         else if(b.length() < (GINT32)sizeof(m_data))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Id length too short");
+            throw Exception<>("Id length too short");
         else
             memcpy(m_data, b.constData(), sizeof(m_data));
     }

@@ -185,7 +185,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
         if(sr.readNextStartElement())
         {
             if(sr.name() != GVARIANT_XML_ID)
-                THROW_NEW_GUTIL_EXCEPTION(XmlException);
+                throw XmlException<>();
 
             int type = sr.attributes().at(0).value().toString().toInt();
 
@@ -269,7 +269,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
                 for(int i = 0; i < tmpint; i++)
                 {
                     if(!sr.readNextStartElement())
-                        THROW_NEW_GUTIL_EXCEPTION(XmlException);
+                        throw XmlException<>();
 
                     sltemp1.append(GUtil::String(sr.attributes().at(0).value().toString())
                                    .FromBase64());
@@ -300,7 +300,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
                 for(int i = 0; i < tmpint; i++)
                 {
                     if(!sr.readNextStartElement())
-                        THROW_NEW_GUTIL_EXCEPTION(XmlException);
+                        throw XmlException<>();
 
                     QString key = GUtil::String(
                                 sr.attributes().at(0).value().toString()

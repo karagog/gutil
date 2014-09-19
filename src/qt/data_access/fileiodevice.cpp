@@ -96,7 +96,7 @@ void FileIODevice::SetFileName(const QString &filename)
                 d.mkpath(fi.path());
 
             if(!f.open(QFile::WriteOnly))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, f.errorString().toUtf8());
+                throw Exception<>(f.errorString().toUtf8());
             f.close();
         }
 
@@ -132,7 +132,7 @@ void FileIODevice::_open_file(bool for_write)
         else if(GetWriteMode() == WriteOver)
             flags |= QFile::Truncate;
         else
-            THROW_NEW_GUTIL_EXCEPTION( NotImplementedException);
+            throw NotImplementedException<>();
     }
     else
     {
@@ -146,7 +146,7 @@ void FileIODevice::_open_file(bool for_write)
         DataTransportException<true> ex(
                 QString("Could not open file: %1").arg(FileName()).toAscii().constData());
         ex.Data["err"] = File().errorString().toAscii().constData();
-        THROW_GUTIL_EXCEPTION( ex );
+        throw ex;
     }
 }
 

@@ -108,7 +108,7 @@ public:
             {
                 void *new_data( malloc(sizeof(T) * (1 << (m_pageCount - new_pages + m + 1))) );
                 if(!new_data)
-                    THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+                    throw BadAllocationException<>();
                 d.Insert(reinterpret_cast<T *>(new_data), d.end());
             }
         }
@@ -365,12 +365,12 @@ public:
 
     /** Returns the item at the given index.  Throws an exception if index out of range. */
     const T &At(GUINT32 indx) const{
-        if(indx >= Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(indx >= Length()) throw IndexOutOfRangeException<>();
         return *at(indx);
     }
     /** Returns the item at the given index.  Throws an exception if index out of range. */
     T &At(GUINT32 indx){
-        if(indx >= Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(indx >= Length()) throw IndexOutOfRangeException<>();
         return *at(indx);
     }
 
@@ -394,7 +394,7 @@ public:
         }
             break;
         default:
-            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            throw NotImplementedException<>();
         }
     }
 

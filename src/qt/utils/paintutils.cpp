@@ -31,7 +31,7 @@ void PaintUtils::DrawArrow(QPainter &painter,
                            int thickness)
 {
     if(bevel_angle >= 90)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "No angles over 90 degrees");
+        throw Exception<>("No angles over 90 degrees");
 
     painter.save();
     QPen pen(color);

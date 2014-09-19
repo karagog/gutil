@@ -123,7 +123,7 @@ void MachineLockBase::lock(bool for_read, bool block)
 
             _release_lock();
 
-            THROW_GUTIL_EXCEPTION( ex );
+            throw ex;
         }
 
         // Then actually lock the file
@@ -134,7 +134,7 @@ void MachineLockBase::lock(bool for_read, bool block)
             _usermachinelockfile->close();
             _release_lock();
 
-            THROW_NEW_GUTIL_EXCEPTION2( LockException, "Already locked by another process" );
+            throw LockException<>("Already locked by another process");
         }
     }
     catch(LockException<true> &le)
@@ -163,11 +163,11 @@ QString MachineLockBase::FileNameForMachineLock() const
 void MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
 {
     if(FileNameForMachineLock().isEmpty())
-        THROW_NEW_GUTIL_EXCEPTION2( Exception, "The machine-lock file has not been set.  You must "
-                              "provide an identifier and optional modifier to use this function" );
+        throw Exception<>("The machine-lock file has not been set.  You must"
+                          " provide an identifier and optional modifier to use this function" );
 
     if(IsLockedOnMachine())
-        THROW_NEW_GUTIL_EXCEPTION2( LockException, "I already own the lock!" );
+        throw LockException<>("I already own the lock!");
 
 
     QReadWriteLock &l = _get_lock_reference();
@@ -191,7 +191,7 @@ void MachineLockBase::_grab_lock_in_process(bool for_read, bool block)
     if(GetLockOwner())
         SetReadLockOwner(for_read);
     else
-        THROW_NEW_GUTIL_EXCEPTION2( LockException, "Lock held by someone else in this process!" );
+        throw LockException<>("Lock held by someone else in this process!");
 }
 
 

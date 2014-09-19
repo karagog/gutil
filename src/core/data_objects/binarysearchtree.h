@@ -576,7 +576,7 @@ public:
     */
     const T &Min() const{
         if(Size() == 0)
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
         return _first()->Data;
     }
 
@@ -586,7 +586,7 @@ public:
     */
     const T &Max() const{
         if(Size() == 0)
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
         return _last()->Data;
     }
 
@@ -864,7 +864,7 @@ template<class T, class KeyType>void BinarySearchTree<T, KeyType>::Add(const T &
         if(iter)
         {
             // There's an insertion collision
-            THROW_NEW_GUTIL_EXCEPTION(UniqueKeyException);
+            throw UniqueKeyException<>();
         }
 
         node *new_node( new node(object, iter.m_parent) );

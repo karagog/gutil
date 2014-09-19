@@ -147,7 +147,7 @@ void Deck::Shuffle()
 void Deck::Deal(GUINT32 starting_hand, GUINT32 num_cards)
 {
     if(starting_hand >= m_hands.Length())
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
 
     CircularInt tmp(0, m_hands.Length() - 1, starting_hand);
     while(num_cards-- != 0 && 0 < m_cards.Length())
@@ -165,7 +165,7 @@ Card *Deck::pick_one()
 void Deck::SetNumberHands(GUINT32 N)
 {
     if(!IsCollected())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "The cards must be collected first");
+        throw Exception<>("The cards must be collected first");
     m_hands.Resize(N);
 }
 
@@ -215,14 +215,14 @@ int Hand::default_compare(Card * const &lhs, Card * const &rhs)
 char const *Card::ValueString(Card::ValueEnum v)
 {
     if(v < Card::InvalidValue || v > Card::Joker)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid card value");
+        throw Exception<>("Invalid card value");
     return __card_value_LUT[ static_cast<int>(v) ];
 }
 
 char const *Card::SuitString(Card::SuitEnum s)
 {
     if(s < Card::InvalidSuit || s > Card::Wild)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid suit value");
+        throw Exception<>("Invalid suit value");
     return __card_suit_LUT[ static_cast<int>(s) ];
 }
 

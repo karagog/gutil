@@ -49,9 +49,8 @@ void ProcessStatusIndicator::SetStatus(int newStatus)
     if(_status_lock.IsLockedOnMachine())
         _status_data.SetValue("status", newStatus);
     else
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                  "You aren't the process that controls the status."
-                                  "\nYou must first call SetIsRunningProcess(true)");
+        throw Exception<>("You aren't the process that controls the status."
+                          "\nYou must first call SetIsRunningProcess(true)");
 }
 
 bool ProcessStatusIndicator::IsProcessRunning()
@@ -123,8 +122,7 @@ void ProcessStatusIndicator::SendMessageToControllingProcess(const QString &mess
         if(sock.waitForConnected())
             sock.write(message.toAscii());
         else
-            THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                       sock.errorString().toAscii().constData());
+            throw Exception<>(sock.errorString().toAscii().constData());
     }
 }
 

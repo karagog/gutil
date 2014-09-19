@@ -60,7 +60,7 @@ public:
     /** Throws an exception if we are currently readonly. */
     void FailIfReadOnly() const{
         if(IsReadOnly())
-            THROW_NEW_GUTIL_EXCEPTION2( ReadOnlyException, ReadonlyMessageIdentifier() );
+            throw ReadOnlyException<>(ReadonlyMessageIdentifier());
     }
 
 

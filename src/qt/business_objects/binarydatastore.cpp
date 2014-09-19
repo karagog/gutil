@@ -43,7 +43,7 @@ NAMESPACE_GUTIL1(QT);
 
 BinaryDataStore::BinaryDataStore()
 {
-    THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+    throw NotImplementedException<>();
 }
 
 BinaryDataStore::BinaryDataStore(const QString &filename)
@@ -56,14 +56,11 @@ BinaryDataStore::BinaryDataStore(const QString &filename)
     {
         QSqlDatabase db( QSqlDatabase::addDatabase("QSQLITE", m_connString) );
         if(!db.isValid())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to use SQLite functionality");
+            throw Exception<>("Unable to use SQLite functionality");
 
         db.setDatabaseName(filename);
         if(!db.open()){
-            THROW_NEW_GUTIL_EXCEPTION2(
-                        Exception,
-                        String::Format("Cannot open database: %s",
-                                       String::FromQString(db.lastError().text()).ConstData()));
+            throw Exception<>(String::Format("Cannot open database: %s", db.lastError().text().toUtf8().constData()));
         }
 
         if(db_existed)
@@ -71,21 +68,21 @@ BinaryDataStore::BinaryDataStore(const QString &filename)
             // Check to make sure the existing database is in the expected format
             QStringList tables( db.tables() );
             if(1 != tables.count() || tables[0] != BDS_TABLE_NAME)
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
+                throw Exception<>("Database has unexpected format");
 
             QSqlQuery q(db);
             q.prepare("SELECT sql FROM sqlite_master WHERE tbl_name = '" BDS_TABLE_NAME "'");
             DatabaseUtils::ExecuteQuery(q);
 
             if(!q.next())
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
+                throw Exception<>("Database has unexpected format");
 
             QString table_sql(q.record().value(0).toString());
             if(-1 == table_sql.indexOf(BDS_ID_COLUMN_SQL) ||
                     -1 == table_sql.indexOf(BDS_SIZE_COLUMN_SQL) ||
                     -1 == table_sql.indexOf(BDS_DATA_COLUMN_SQL) ||
                     -1 == table_sql.indexOf(BDS_VERSION_COLUMN_SQL))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database has unexpected format");
+                throw Exception<>("Database has unexpected format");
         }
         else
         {

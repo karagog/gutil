@@ -79,7 +79,7 @@ void QT_IODevice::send_data(const QByteArray &data)
                 .arg(data.length())
                 .toAscii().constData());
         ex.Data["err"] = GetIODevice().errorString().toAscii().constData();
-        THROW_GUTIL_EXCEPTION( ex );
+        throw ex;
     }
 }
 
@@ -121,7 +121,7 @@ QByteArray QT_IODevice::receive_data()
                                         .arg(bytes_available)
                                         .toAscii().constData());
         ex.Data["err"] = GetIODevice().errorString().toAscii().constData();
-        THROW_GUTIL_EXCEPTION( ex );
+        throw ex;
     }
 
     return ret;
@@ -138,8 +138,7 @@ bool QT_IODevice::has_data_available()
 void QT_IODevice::_fail_if_not_open()
 {
     if(!GetIODevice().isOpen())
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   "IO Device is not open!" );
+        throw DataTransportException<>("IO Device is not open!");
 }
 
 

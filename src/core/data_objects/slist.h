@@ -107,7 +107,7 @@ public:
         // We use malloc so we can handle a bad allocation event ourselves
         node *new_node( (node *)malloc(sizeof(node)) );
         if(new_node == NULL)
-            THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+            throw BadAllocationException<>();
         new(new_node) node(i, iter.current);
 
         if(iter.parent)
@@ -177,7 +177,7 @@ public:
         }
             break;
         default:
-            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            throw NotImplementedException<>();
             break;
         }
     }

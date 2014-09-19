@@ -32,7 +32,7 @@ void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandle
     while(read < len)
     {
         if(to_read != input->ReadBytes(buf.get(), buf_sz, to_read))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from device");
+            throw Exception<>("Error reading from device");
 
         AddData(buf.get(), to_read);
         read += to_read;
@@ -42,7 +42,7 @@ void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandle
 
         if(ph){
             if(ph->ShouldOperationCancel())
-                THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                throw CancelledOperationException<>();
             ph->ProgressUpdated(((float)read / len) * 100);
         }
     }

@@ -93,7 +93,7 @@ template <class T>
 T IMatrix<T>::FindMaxValue(int &row, int &col) const
 {
     if(RowCount() == 0)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Empty matrix");
+        throw Exception<>("Empty matrix");
 
     T max;
     bool max_found(false);

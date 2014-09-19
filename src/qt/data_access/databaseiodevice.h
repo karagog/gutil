@@ -210,7 +210,7 @@ private:
 
     void _fail_if_not_ready() const{
         if(!IsReady())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Database IO device not read for use");
+            throw Exception<>("Database IO device not read for use");
     }
 
     QString _prepare_where_clause(

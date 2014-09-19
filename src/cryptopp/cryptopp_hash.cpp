@@ -117,7 +117,7 @@ Hash<> *Hash<>::CreateHash(HashAlgorithmEnum h)
         ret = new Hash<MD2>;
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        throw NotImplementedException<>();
     }
     return ret;
 }

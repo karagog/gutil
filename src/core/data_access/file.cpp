@@ -30,7 +30,7 @@ File::File(const char *filename)
 {
     size_t len = strlen(filename);
     if(len == 0)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Filename cannot be empty");
+        throw Exception<>("Filename cannot be empty");
 
     m_filename = (char *)malloc(len + 1);
     memcpy(m_filename, filename, len + 1);
@@ -46,7 +46,7 @@ File::~File()
 void File::Open(OpenModeEnum e)
 {
     if(IsOpen())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "File already open");
+        throw Exception<>("File already open");
 
     const char *options;
     switch(e)
@@ -70,15 +70,12 @@ void File::Open(OpenModeEnum e)
         options = "a+b";
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        throw NotImplementedException<>();
     }
 
     FILE *tmp;
     if(!(tmp = fopen(m_filename, options)))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   String::Format("Unable to open '%s': %s",
-                                                  m_filename,
-                                                  strerror(errno)));
+        throw Exception<>(String::Format("Unable to open '%s': %s", m_filename, strerror(errno)));
     h = tmp;
 }
 
@@ -90,7 +87,7 @@ void File::Close()
         //  systems may automatically close a file before your program
         //  gets around to it.  In that case your program could
         //  end always with a crash.
-        //THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to close file");
+        //throw Exception<>("Unable to close file");
     }
 
     // Even if fclose fails, the handle is not associated with the file anymore
@@ -114,15 +111,14 @@ void File::Touch(const char *filename)
 {
     FILE *f = fopen(filename, "w");
     if(f == NULL)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   String::Format("Unable to touch '%s': %s", filename, strerror(errno)));
+        throw Exception<>(String::Format("Unable to touch '%s': %s", filename, strerror(errno)));
     fclose(f);
 }
 
 void File::Delete(const char *filename)
 {
     if(0 != remove(filename))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to delete file");
+        throw Exception<>("Unable to delete file");
 }
 
 GUINT64 File::Length() const
@@ -154,7 +150,7 @@ GUINT64 File::Length() const
 void File::Seek(GUINT64 pos)
 {
     if(0 != fseek(H, pos, SEEK_SET))
-        THROW_NEW_GUTIL_EXCEPTION(GUtil::Exception);
+        throw Exception<>();
 }
 
 GUINT64 File::Pos() const
@@ -167,7 +163,7 @@ GUINT32 File::Write(const GBYTE *data, GUINT32 len)
     GUINT32 ret = 0;
     ret = fwrite(data, 1, len, H);
     if(len != ret && ferror(H))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Error writing to file: %s", strerror(errno)));
+        throw Exception<>(String::Format("Error writing to file: %s", strerror(errno)));
     if(!GetBufferedWrites())
         Flush();
     return ret;
@@ -183,7 +179,7 @@ GUINT32 File::Read(GBYTE *buffer, GUINT32 buffer_len, GUINT32 bytes_to_read)
     bytes_to_read = Min(buffer_len, bytes_to_read);
     size_t bytes_read = fread(buffer, 1, bytes_to_read, H);
     if(bytes_read != bytes_to_read && ferror(H))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Read Error: %s", strerror(errno)));
+        throw Exception<>(String::Format("Read Error: %s", strerror(errno)));
     return bytes_read;
 }
 
@@ -198,7 +194,7 @@ String File::Read(GUINT32 bytes)
         const size_t to_read = Min(sizeof(buf), bytes - total_read);
         const size_t bytes_read = fread(buf, 1, to_read, H);
         if(bytes_read != to_read && ferror(H))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Read Error: %s", strerror(errno)));
+            throw Exception<>(String::Format("Read Error: %s", strerror(errno)));
         ret.Append(buf, bytes_read);
         total_read += bytes_read;
     }
@@ -212,7 +208,7 @@ String File::ReadUntil(function<bool(String &)> pred)
         char tmp;
         if(1 != fread(&tmp, 1, 1, H)){
             if(ferror(H))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Read Error: %s", strerror(errno)));
+                throw Exception<>(String::Format("Read Error: %s", strerror(errno)));
             GASSERT(feof(H));
         }
         else

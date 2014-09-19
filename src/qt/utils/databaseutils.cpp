@@ -62,7 +62,7 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
             ex.Data[QString("Bound Value %1").arg(cnt++).toAscii().constData()] =
                     bound_values[k].toString().toAscii().constData();
         }
-        THROW_GUTIL_EXCEPTION(ex);
+        throw ex;
     }
 }
 
@@ -86,9 +86,7 @@ void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
 void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
 {
     if(!db.transaction())
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   QString("Unable to create a transaction: %1")
-                                   .arg(db.lastError().text()).toAscii().constData());
+        throw DataTransportException<>(QString("Unable to create a transaction: %1").arg(db.lastError().text()).toAscii());
     try
     {
         QSqlQuery q(db);
@@ -112,9 +110,7 @@ void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
     }
 
     if(!db.commit())
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   QString("Transaction commit failed: %1")
-                                   .arg(db.lastError().text()).toAscii().constData());
+        throw DataTransportException<>(QString("Transaction commit failed: %1").arg(db.lastError().text()).toAscii());
 }
 
 #endif // DATABASE_FUNCTIONALITY
@@ -140,8 +136,7 @@ QDateTime DatabaseUtils::ConvertStringToDate(const QString &s)
         QStringList splitted = s.split('_');
 
         if(splitted.size() < 5)
-            THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                       QString("Invalid date string: %1").arg(s).toAscii().constData());
+            throw Exception<>(QString("Invalid date string: %1").arg(s).toAscii().constData());
 
         d.setDate(QDate(splitted[0].toInt(), splitted[1].toInt(), splitted[2].toInt()));
 

@@ -68,7 +68,7 @@ public:
         Throws an exception if the index is beyond the array's end
     */
     bool At(GUINT32 indx) const{
-        if(indx >= m_size) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(indx >= m_size) throw IndexOutOfRangeException<>();
         return operator [](indx);
     }
 

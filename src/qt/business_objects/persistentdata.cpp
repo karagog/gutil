@@ -40,7 +40,7 @@ void PersistentData::_clear_data_index(QMap<QString, data_t *> &data, QMap<int, 
 
 PersistentData::PersistentData()
 {
-    THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+    throw NotImplementedException<>();
 }
 
 PersistentData::PersistentData(const QString &identifier, const QString &modifier, QObject *parent)

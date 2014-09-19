@@ -91,17 +91,17 @@ public:
 
     const T &At(GINT32 index) const{ return _collection.At(index); }
     ItemReference At(GINT32 index){
-        if(index < 0 || index >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(index < 0 || index >= Count()) throw IndexOutOfRangeException<>();
         return ItemReference(this, index);
     }
     const T &At(GUINT32 index) const{ return _collection.At(index); }
     ItemReference At(GUINT32 index){
-        if(index < 0 || index >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(index < 0 || index >= Count()) throw IndexOutOfRangeException<>();
         return ItemReference(this, index);
     }
 
     void Remove(int index){
-        if(0 > index || index >= Count()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(0 > index || index >= Count()) throw IndexOutOfRangeException<>();
 
         pre_remove(_collection[index], index);
         T cpy(operator[](index));
@@ -372,7 +372,7 @@ template <typename T>
 void Collection<T>::Insert(const T &value, int index)
 {
     if(index < 0 || index > Count())
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
 
     T new_item(value);
 

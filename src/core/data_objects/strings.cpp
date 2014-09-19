@@ -150,7 +150,7 @@ void String::Resize(GUINT32 sz, char c)
 String &String::Insert(const String &s, GUINT32 indx)
 {
     if(indx > Length())
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
 
     GUINT32 len( Length() );
     GUINT32 sl( s.Length() );
@@ -171,7 +171,7 @@ String &String::Insert(const String &s, GUINT32 indx)
 String &String::Insert(const char *c, GUINT32 sz, GUINT32 indx)
 {
     if(indx > Length())
-        THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        throw IndexOutOfRangeException<>();
 
     GUINT32 len( Length() );
 
@@ -1055,7 +1055,7 @@ int String::UTF8CharFromUnicode(char *dest, GUINT32 uc_value)
         break;
     default:
         // The value is not in the valid Unicode space
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
+        throw Exception<>();
         break;
     }
     return ret;
@@ -1107,7 +1107,7 @@ char String::Base64a2i(char c)
     else
     {
         // Unrecognized base 64 character
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
+        throw Exception<>();
     }
 }
 
@@ -1140,7 +1140,7 @@ char String::Base64i2a(char c)
     else
     {
         // Unrecognized base 64 character
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
+        throw Exception<>();
     }
 }
 
@@ -1213,7 +1213,7 @@ String String::FromBase64(const char *str, GUINT32 len)
 
     // The string length must be a multiple of 4
     if(len & 0b0011)
-        THROW_NEW_GUTIL_EXCEPTION(Exception);
+        throw Exception<>();
 
     String ret( (len * 3) >> 2 );
 
@@ -1235,11 +1235,11 @@ String String::FromBase64(const char *str, GUINT32 len)
                 ret.Append( (c << 6) | d );
             else if(i < (len - 4))
                 // String is in unrecognized format
-                THROW_NEW_GUTIL_EXCEPTION( Exception );
+                throw Exception<>();
         }
         else if(d >= 0)
             // String is in unrecognized format
-            THROW_NEW_GUTIL_EXCEPTION( Exception );
+            throw Exception<>();
     }
 
     return ret;
@@ -1253,7 +1253,7 @@ String String::FromBase16(const char *str, GUINT32 len)
 
     // Input string must be a multiple of 2
     if(len & 1)
-        THROW_NEW_GUTIL_EXCEPTION( Exception );
+        throw Exception<>();
 
     String ret(len >> 1);
     for(GUINT32 i = 0; i < len; i += 2)
@@ -1309,7 +1309,7 @@ char String::CharToHex(char c)
     }
     else
         // Unrecognized hex character
-        THROW_NEW_GUTIL_EXCEPTION( Exception );
+        throw Exception<>();
 
     return ret;
 }
@@ -1320,7 +1320,7 @@ char String::HexToChar(char c)
 
     // Make sure it's a valid hex digit
     if(0 != (c & 0xf0))
-        THROW_NEW_GUTIL_EXCEPTION( Exception );
+        throw Exception<>();
 
     // If it's less than 10, display a number
     else if(c < 0x0A)

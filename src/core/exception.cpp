@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,57 +26,31 @@ static void __allocate_and_copy_string(char const *source, char **target)
 }
 
 
-BaseException::BaseException(const char *file, int line, const char *message) noexcept
-    :m_file(NULL), m_line(line), m_message(NULL)
+BaseException::BaseException(const char *message) noexcept
+    :m_message(NULL)
 {
-    if(file)    __allocate_and_copy_string(file, &m_file);
     if(message) __allocate_and_copy_string(message, &m_message);
 }
 
 BaseException::BaseException(const BaseException &o) noexcept
-    :m_file(NULL), m_line(o.Line()), m_message(NULL)
+    :m_message(NULL)
 {
-    if(o.File())    __allocate_and_copy_string(o.File(), &m_file);
-    if(o.Message()) __allocate_and_copy_string(o.Message(), &m_message);
-}
-
-void __setExceptionFileAndLineInfo(BaseException &ex, const char *file, int line)
-{
-    ex.m_line = line;
-    if(file){
-        free(ex.m_file);
-        __allocate_and_copy_string(file, &ex.m_file);
-    }
+    if(o.m_message && 0 < strlen(o.m_message))
+        __allocate_and_copy_string(o.m_message, &m_message);
 }
 
 BaseException &BaseException::operator = (const BaseException &o) noexcept
 {
-    free(m_message);    m_message = NULL;
-    free(m_file);       m_file = NULL;
-    if(o.File())    __allocate_and_copy_string(o.File(), &m_file);
-    if(o.Message()) __allocate_and_copy_string(o.Message(), &m_message);
+    free(m_message);
+    m_message = NULL;
+    if(o.m_message) 
+        __allocate_and_copy_string(o.Message(), &m_message);
     return *this;
 }
 
 BaseException::~BaseException()
 {
     free(m_message);
-    free(m_file);
-}
-
-const char *BaseException::File() const
-{
-    return m_file;
-}
-
-int BaseException::Line() const
-{
-    return m_line;
-}
-
-const char *BaseException::Message() const
-{
-    return m_message;
 }
 
 

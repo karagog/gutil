@@ -33,8 +33,7 @@ public:
         :f(filename)
     {
         if(!f.exists())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                       QString("File does not exist: %1").arg(filename).toUtf8().constData());
+            throw Exception<>(QString("File does not exist: %1").arg(filename).toUtf8().constData());
     }
 
     ~TestVectorReader()
@@ -48,7 +47,7 @@ public:
         if(!f.isOpen())
         {
             if(!f.open(QFile::ReadOnly))
-                THROW_NEW_GUTIL_EXCEPTION(Exception);
+                throw Exception<>();
         }
 
         int cnt(0);

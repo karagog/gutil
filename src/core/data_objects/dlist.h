@@ -102,7 +102,7 @@ public:
     T &Insert(const T &item, ITERATOR_TYPE &iter){
         // The iterator must be valid, except in the case when we insert on the end
         if(0 < Count() && !iter.m_current && !iter.m_prev_node)
-            THROW_NEW_GUTIL_EXCEPTION(Exception);
+            throw Exception<>();
 
         // Insert, and then fix the iterator so it points to the correct node
         T &ret( _insert(item, iter) );
@@ -125,7 +125,7 @@ public:
     T &Insert(const T &item, const ITERATOR_TYPE &iter){
         // The iterator must be valid, except in the case when we insert on the end
         if(0 < Count() && !iter.m_current && !iter.m_prev_node)
-            THROW_NEW_GUTIL_EXCEPTION(Exception);
+            throw Exception<>();
         return _insert(item, iter);
     }
 
@@ -173,7 +173,7 @@ public:
     */
     T &Front(){
         GASSERT(m_first);
-        if(!m_first) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!m_first) throw IndexOutOfRangeException<>();
         return m_first->Data;
     }
 
@@ -182,7 +182,7 @@ public:
     */
     const T &Front() const{
         GASSERT(m_first);
-        if(!m_first) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!m_first) throw IndexOutOfRangeException<>();
         return m_first->Data;
     }
 
@@ -191,7 +191,7 @@ public:
     */
     T &Back(){
         GASSERT(m_last);
-        if(!m_last) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!m_last) throw IndexOutOfRangeException<>();
         return m_last->Data;
     }
 
@@ -200,7 +200,7 @@ public:
     */
     const T &Back() const{
         GASSERT(m_last);
-        if(!m_last) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(!m_last) throw IndexOutOfRangeException<>();
         return m_last->Data;
     }
 
@@ -529,7 +529,7 @@ public:
         }
             break;
         default:
-            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            throw NotImplementedException<>();
         }
     }
 

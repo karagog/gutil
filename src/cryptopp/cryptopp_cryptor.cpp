@@ -58,7 +58,7 @@ Cryptor::Cryptor(const char *password, const char *keyfile,
       m_kdf(kdf)
 {
     if(m_nonceSize < 7 || 13 < m_nonceSize)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid nonce size");
+        throw Exception<>("Invalid nonce size");
 
     ChangePassword(password, keyfile);
     G_D_INIT();
@@ -135,11 +135,11 @@ void Cryptor::EncryptData(IOutput *out,
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
     GUINT64 len = pData ? pData->BytesAvailable() : 0;
     if(len == GUINT32_MAX)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Source invalid: Length must be known");
+        throw Exception<>("Source invalid: Length must be known");
 
     // With CCM the length is restricted, let's check that here
     if(GetMaxPayloadLength(GetNonceSize()) < len)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
+        throw Exception<>("Payload too large for the given nonce size");
 
     if(NULL == nonce){
         // Initialize a random IV
@@ -165,7 +165,7 @@ void Cryptor::EncryptData(IOutput *out,
     {
         SmartArrayPointer<byte> a(new byte[aData_len]);
         if(aData_len != aData->ReadBytes(a, aData_len, aData_len))
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from auth data source");
+            throw Exception<>("Error reading from auth data source");
         ef.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData_len);
     }
 
@@ -181,7 +181,7 @@ void Cryptor::EncryptData(IOutput *out,
                 to_read = len - read;
 
             if(to_read != pData->ReadBytes(buf, buf_sz, to_read))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+                throw Exception<>("Error reading from source");
 
             ef.Put(buf, to_read, true);
             if(out)
@@ -191,7 +191,7 @@ void Cryptor::EncryptData(IOutput *out,
             if(ph){
                 ph->ProgressUpdated(((float)read / len) * 100);
                 if(ph->ShouldOperationCancel())
-                    THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                    throw CancelledOperationException<>();
             }
         }
     }
@@ -215,18 +215,18 @@ void Cryptor::DecryptData(IOutput *out,
     if(ph) ph->ProgressUpdated(0);
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
     if(cData == NULL || (ct_len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid data length");
+        throw Exception<>("Invalid data length");
     len = ct_len - (GetNonceSize() + TagLength);
 
     if(GetMaxPayloadLength(GetNonceSize()) < len)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload too large for the given nonce size");
+        throw Exception<>("Payload too large for the given nonce size");
 
     // Read the MAC tag and IV at the end of the crypttext
     SmartArrayPointer<byte> mac_iv(new byte[TagLength + GetNonceSize()]);
     cData->Seek(cData->Length() - (TagLength + GetNonceSize()));
     if(GetNonceSize() + TagLength !=
             cData->ReadBytes(mac_iv.Data(), GetNonceSize() + TagLength, GetNonceSize() + TagLength))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+        throw Exception<>("Error reading from source");
 
     // Seek back to the start of the message
     cData->Seek(0);
@@ -258,7 +258,7 @@ void Cryptor::DecryptData(IOutput *out,
         {
             SmartArrayPointer<byte> a(new byte[aData_len]);
             if(aData_len != aData->ReadBytes(a, aData_len, aData_len))
-                THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from auth data source");
+                throw Exception<>("Error reading from auth data source");
             df.ChannelPut(::CryptoPP::AAD_CHANNEL, a.Data(), aData_len);
         }
 
@@ -272,7 +272,7 @@ void Cryptor::DecryptData(IOutput *out,
                     to_read = len - read;
 
                 if(to_read != cData->ReadBytes(buf, buf_sz, to_read))
-                    THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from source");
+                    throw Exception<>("Error reading from source");
 
                 df.Put(buf, to_read, true);
                 if(out)
@@ -282,7 +282,7 @@ void Cryptor::DecryptData(IOutput *out,
                 if(ph){
                     ph->ProgressUpdated(((float)read / len) * 100);
                     if(ph->ShouldOperationCancel())
-                        THROW_NEW_GUTIL_EXCEPTION(CancelledOperationException);
+                        throw CancelledOperationException<>();
                 }
             }
         }
@@ -292,7 +292,7 @@ void Cryptor::DecryptData(IOutput *out,
     }
     catch(const ::CryptoPP::Exception &ex)
     {
-        THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException, ex.what());
+        throw AuthenticationException<>(ex.what());
     }
 
     // Seek the input device to the end of the message

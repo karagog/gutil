@@ -72,9 +72,7 @@ DatabaseIODevice::DatabaseIODevice(const QString &db_connection_id,
         //    }
         else
         {
-            THROW_NEW_GUTIL_EXCEPTION2(NotImplementedException,
-                                       QString("Database driver '%1' not implemented")
-                                       .arg(driver).toUtf8());
+            throw NotImplementedException<>(String::Format("Database driver '%s' not implemented", driver.toUtf8().constData()));
         }
     }
 }
@@ -227,9 +225,7 @@ void DatabaseIODevice::Insert(const VariantTable &t)
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(t.Name()).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(t.Name()).toUtf8());
     }
 }
 
@@ -289,9 +285,7 @@ VariantTable DatabaseIODevice::Select(const DatabaseSelectionParameters &params,
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(params.Table().Name()).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(params.Table().Name()).toUtf8());
     }
 
     VariantTable ret(*t);
@@ -317,9 +311,7 @@ long DatabaseIODevice::Count(const DatabaseSelectionParameters &params)
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(params.Table().Name()).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(params.Table().Name()).toUtf8());
     }
 
     long ret(0);
@@ -347,9 +339,7 @@ void DatabaseIODevice::Update(const DatabaseSelectionParameters &sp,
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(sp.Table().Name()).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(sp.Table().Name()).toUtf8());
     }
 }
 
@@ -363,9 +353,7 @@ void DatabaseIODevice::Delete(const DatabaseSelectionParameters &p)
     }
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(p.Table().Name()).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(p.Table().Name()).toUtf8());
     }
 }
 
@@ -380,9 +368,7 @@ DatabaseSelectionParameters DatabaseIODevice::GetBlankSelectionParameters(
                 );
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(table_name).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(table_name).toUtf8());
     }
 
     DatabaseSelectionParameters ret(*p);
@@ -400,9 +386,7 @@ DatabaseValueParameters DatabaseIODevice::GetBlankValueParameters(const QString 
                 );
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(table_name).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(table_name).toUtf8());
     }
 
     DatabaseValueParameters ret(*p);
@@ -417,9 +401,7 @@ VariantTable DatabaseIODevice::GetBlankTable(const QString &table_name) const
         t = new VariantTable(_tables[table_name]);
     else
     {
-        THROW_NEW_GUTIL_EXCEPTION2(NotFoundException,
-                                   QString("Table not recognized: (%1)")
-                                   .arg(table_name).toUtf8());
+        throw NotFoundException<>(QString("Table not recognized: (%1)").arg(table_name).toUtf8());
     }
 
     VariantTable ret(*t);
@@ -440,7 +422,7 @@ void DatabaseIODevice::send_data(const QByteArray &d)
         bool ok(false);
         QXmlStreamReader sr(d);
         if(!sr.readNextStartElement() || sr.name() != "x")
-            THROW_NEW_GUTIL_EXCEPTION(XmlException);
+            throw XmlException<>();
 
         write_cmd = (WriteCommandsEnum)
                 sr.attributes().at(0).value().toString().toInt(&ok);
@@ -452,19 +434,15 @@ void DatabaseIODevice::send_data(const QByteArray &d)
     }
     catch(const XmlException<> &ex)
     {
-        THROW_NEW_GUTIL_EXCEPTION3(DataTransportException,
-                                   "Not a valid XML string",
-                                   ex);
+        throw DataTransportException<true>("Not a valid XML string", ex);
     }
 
     if(t.ColumnCount() == 0)
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   "No data to send");
+        throw DataTransportException<>("No data to send");
 
     QSqlDatabase _database = QSqlDatabase::database(_connection_id);
     if(!IsReady())
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   "Database not ready");
+        throw DataTransportException<>("Database not ready");
 
 
     QSqlQuery query(_database);
@@ -629,16 +607,13 @@ QByteArray DatabaseIODevice::receive_data()
     if(_p_ReadCommand == CommandReadNoop ||
        !_selection_parameters ||
        _selection_parameters->ColumnCount() == 0)
-        THROW_NEW_GUTIL_EXCEPTION2( DataTransportException,
-                                    "You have not specified any parameters "
-                                    "for the selection");
+       throw DataTransportException<>("You have not specified any parameters for the selection");
 
     QByteArray ret;
     QSqlDatabase _database = QSqlDatabase::database(_connection_id);
 
     if(!IsReady())
-        THROW_NEW_GUTIL_EXCEPTION2(DataTransportException,
-                                   "Database not ready");
+        throw DataTransportException<>("Database not ready");
 
     QSqlQuery query(_database);
 
@@ -788,10 +763,10 @@ void DatabaseIODevice::OpenDatabaseConnection()
 {
     QSqlDatabase db(QSqlDatabase::database(GetDatabaseConnectionId()));
     if(!db.isValid())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, String::Format("Invalid database: %s", GetDatabaseConnectionId().toUtf8().constData()));
+        throw Exception<>(String::Format("Invalid database: %s", GetDatabaseConnectionId().toUtf8().constData()));
     if(!db.isOpen()){
         if(!db.open())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, db.lastError().text().toUtf8());
+            throw Exception<>(db.lastError().text().toUtf8());
     }
 }
 

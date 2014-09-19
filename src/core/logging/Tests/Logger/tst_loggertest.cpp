@@ -78,7 +78,7 @@ void LoggerTest::_test_logger_exception(ILog &l)
         ex.Data["thirdkey"] = "ERROR";
         ex.Data["thirdkey"] = "this works";
         ex.Data["fourthkey"] = "";
-        THROW_GUTIL_EXCEPTION(ex);
+        throw ex;
     }
     catch(const exception &ex)
     {

@@ -40,7 +40,7 @@ void SerialPort::Initialize(const char *comport)
 
     m_handle = open(comport, O_RDWR | O_NOCTTY);
     if(m_handle == -1){
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Could not open com port");
+        throw Exception<>("Could not open com port");
     }
 
     struct termios options;
@@ -77,7 +77,7 @@ void SerialPort::Initialize(const char *comport)
     options.c_cflag |= (CLOCAL | CREAD);
 
     if(tcsetattr(m_handle,TCSAFLUSH,&options) != 0){
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Could not set port options");
+        throw Exception<>("Could not set port options");
     }
 
     // Flush everything that's waiting on the port
@@ -94,7 +94,7 @@ void SerialPort::Initialize(const char *comport)
                                 comport, -1,
                                 comport_wchar, 10))
     {
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid COM port");
+        throw Exception<>("Invalid COM port");
     }
 
     m_handle = CreateFile(comport_wchar,
@@ -106,7 +106,7 @@ void SerialPort::Initialize(const char *comport)
                           0);
 
     if(m_handle == INVALID_HANDLE_VALUE){
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Unable to open COM port");
+        throw Exception<>("Unable to open COM port");
     }
 
     //cout<<"Successfully opened "<<comport.c_str()<<endl;
@@ -114,7 +114,7 @@ void SerialPort::Initialize(const char *comport)
     dcbSerialParams.DCBlength=sizeof(dcbSerialParams);
     if (!GetCommState(m_handle, &dcbSerialParams)) {
         CloseHandle(m_handle); // Give up
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot get the port state");
+        throw Exception<>("Cannot get the port state");
     }
 
     // Next set the com port parameters
@@ -125,7 +125,7 @@ void SerialPort::Initialize(const char *comport)
 
     if(!SetCommState(m_handle, &dcbSerialParams)) {
         CloseHandle(m_handle); // Give up
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot set the port parameters");
+        throw Exception<>("Cannot set the port parameters");
     }
 
     // Set up timeouts
@@ -137,7 +137,7 @@ void SerialPort::Initialize(const char *comport)
 
     if(!SetCommTimeouts(m_handle, &timeouts)){
         CloseHandle(m_handle); // Give up
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Cannot set the communication timeouts");
+        throw Exception<>("Cannot set the communication timeouts");
     }
 
     FlushFileBuffers(m_handle);             //make sure there's nothing left over in the buffer

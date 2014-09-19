@@ -168,7 +168,7 @@ void SelectDateRange::SetDateRange(const Range<QDate> &r)
     {
         int days_apart = new_start.daysTo(new_end);
         if(0 > days_apart)
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "The end date must come after the start");
+            throw Exception<>("The end date must come after the start");
 
         m_dateStart = new_start;
         m_dateEnd = new_end;

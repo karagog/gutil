@@ -30,7 +30,7 @@ static FILE *__get_output_stream(Console::OutputStreamEnum e)
         ret = stderr;
         break;
     default:
-        THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+        throw NotImplementedException<>();
     }
     return ret;
 }
@@ -105,7 +105,7 @@ GINT32 Console::ReadInteger()
 {
     GINT32 ret;
     if(0 == scanf("%d", &ret))
-        THROW_NEW_GUTIL_EXCEPTION(ConversionException);
+        throw ConversionException<>();
     return ret;
 }
 
@@ -113,7 +113,7 @@ GFLOAT32 Console::ReadFloat()
 {
     GFLOAT32 ret;
     if(0 == scanf("%f", &ret))
-        THROW_NEW_GUTIL_EXCEPTION(ConversionException);
+        throw ConversionException<>();
     return ret;
 }
 

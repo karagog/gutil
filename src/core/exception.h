@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,9 +28,7 @@ limitations under the License.*/
     { \
     public: \
         inline ex_name(const char *message = NULL) \
-            : ex_subclass_name(0, -1, message) {} \
-        inline ex_name(const char *file, int line, const char *message = 0) \
-            : ex_subclass_name(file, line, message) {} \
+            : ex_subclass_name(message) {} \
         inline ex_name(const ex_name<false> &ex) \
             : ex_subclass_name(ex) {} \
         virtual ~ex_name() noexcept{} \
@@ -64,35 +62,17 @@ NAMESPACE_GUTIL;
 */
 class BaseException : public std::exception, public IClonable
 {
-    char *m_file;
-    int m_line;
     char *m_message;
-
-    /** We allow this function to manipulate the file and line info for this class. */
-    friend void __setExceptionFileAndLineInfo(BaseException &, const char *, int);
-
 public:
 
     /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *file, int line, const char *message) noexcept;
+    BaseException(const char *message) noexcept;
     BaseException(const BaseException &o) noexcept;
     BaseException &operator = (const BaseException &o) noexcept;
     virtual ~BaseException() noexcept;
 
-    /** You can pass the preprocessor macro __FILE__ into the constructor and it
-        will be stored here.
-        \note You should check that it's non-zero before using.
-    */
-    const char *File() const;
-
-    /** You can pass the preprocessor macro __LINE__ into the constructor and it
-        will be stored here.
-        \note Will be -1 if not specified
-    */
-    int Line() const;
-
     /** You can include a null-terminated message with the exception. */
-    const char *Message() const;
+    inline const char *Message() const{ return m_message ? m_message : ""; }
 
 };
 
@@ -173,44 +153,6 @@ GUTIL_EXCEPTION_DECLARE( BuildException );
 GUTIL_EXCEPTION_DECLARE( InvalidStateTransitionException );
 
 
-
-/** Use this convenient macro to insert the file/line data in the exception */
-#define THROW_GUTIL_EXCEPTION( except ) \
-    GUtil::__setExceptionFileAndLineInfo(except, __FILE__, __LINE__); \
-    throw except
-
-/** Use this convenient macro to instantiate an exception of the specified type,
-    and pass the file/line data with it.
-*/
-#define THROW_NEW_GUTIL_EXCEPTION( ex_type ) \
-    throw ex_type<false>(__FILE__, __LINE__)
-
-/** Use this convenient macro to instantiate an exception of the specified type,
-    and pass the file/line data with it, along with a custom message.
-*/
-#define THROW_NEW_GUTIL_EXCEPTION2( ex_type, msg ) \
-    throw ex_type<false>(__FILE__, __LINE__, msg)
-
-
-/** You can use this to instantiate a new exception with the correct line and file information,
- *  thus allowing you to modify it before throwing it.
-*/
-#define INSTANTIATE_GUTIL_EXCEPTION(ex_type, var_name) \
-    ex_type<false> var_name(__FILE_, __LINE__)
-
-/** You can use this to instantiate a new exception with a message and the correct line and file information,
- *  thus allowing you to modify it before throwing it.
-*/
-#define INSTANTIATE_GUTIL_EXCEPTION2(ex_type, var_name, msg) \
-    ex_type<false> var_name(__FILE_, __LINE__, msg)
-
-    
-/** This friend of the exception class is used to override the file and line
- *  info for an exception after instantiation.  You should use the
-*/
-void __setExceptionFileAndLineInfo(BaseException &, const char *file, int line);
-
-
 END_NAMESPACE_GUTIL;
 
-#endif // GEXEPTION_H
+#endif // GUTIL_EXCEPTION_H

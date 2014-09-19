@@ -175,7 +175,7 @@ public:
         const GUINT32 len( Length() );
 
         if(len < indx)
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
 
         // Allocate more memory if we have to
         if(len == Capacity())
@@ -236,7 +236,7 @@ public:
         const GUINT32 len( Length() );
 
         if(len < indx)
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
 
         // Allocate more memory if we have to
         if((len + size) > Capacity())
@@ -344,7 +344,7 @@ public:
         const GUINT32 len( Length() );
 
         if(len == 0 || indx + num > len)
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
 
         T *const targ( Data() + indx );
 
@@ -452,7 +452,7 @@ public:
                 m_data = (T*)realloc(m_data, new_size_in_bytes);
 
                 if(NULL == m_data)
-                    THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+                    throw BadAllocationException<>();
             }
             else
             {
@@ -462,7 +462,7 @@ public:
                 T *new_data( (T*)malloc(new_size_in_bytes) );
 
                 if(NULL == new_data)
-                    THROW_NEW_GUTIL_EXCEPTION(BadAllocationException);
+                    throw BadAllocationException<>();
 
                 if(backup)
                 {
@@ -535,7 +535,7 @@ public:
     */
     T &At(GUINT32 i){
         if(i >= Length())
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
         return Data()[i];
     }
 
@@ -544,7 +544,7 @@ public:
     */
     T const &At(GUINT32 i) const{
         if(i >= Length())
-            THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+            throw IndexOutOfRangeException<>();
         return ConstData()[i];
     }
 
@@ -659,7 +659,7 @@ public:
         }
             break;
         default:
-            THROW_NEW_GUTIL_EXCEPTION(NotImplementedException);
+            throw NotImplementedException<>();
         }
     }
 
@@ -968,7 +968,7 @@ template<class T> class Vector<T, false> : public Vector<T>
     T &operator [](GUINT32 i) const{ return this->Data()[i]; }
 
     T &At(GUINT32 i) const{
-        if(i >= this->Length()) THROW_NEW_GUTIL_EXCEPTION(IndexOutOfRangeException);
+        if(i >= this->Length()) throw IndexOutOfRangeException<>();
         return this->Data()[i];
     }
 };

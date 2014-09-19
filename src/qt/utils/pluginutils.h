@@ -56,12 +56,12 @@ public:
         pl.setFileName(plugin_filename);
         if(!pl.instance()){
             QString error = pl.errorString();
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, QString("Cannot load plugin: %1").arg(error).toUtf8().constData());
+            throw Exception<>(QString("Cannot load plugin: %1").arg(error).toUtf8().constData());
         }
 
         IFace *ret = qobject_cast<IFace *>(pl.instance());
         if(0 == ret)
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Plugin lacking interface");
+            throw Exception<>("Plugin lacking interface");
         return ret;
     }
 

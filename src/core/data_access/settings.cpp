@@ -111,10 +111,10 @@ void Settings::_reload()
 
     if(header.Length() != header_len + 1 ||
         0 != memcmp(SETTINGS_FILE_HEADER, header.ConstData(), header_len))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid file header");
+        throw Exception<>("Invalid file header");
 
     if(sizeof(purported_hash) != f.Read(purported_hash, sizeof(purported_hash), sizeof(purported_hash)))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid file header");
+        throw Exception<>("Invalid file header");
 
     // Now read in the file line by line and populate our data
     Hash hf;
@@ -128,7 +128,7 @@ void Settings::_reload()
 
         StringList sl = line.Split(':');
         if(sl.Length() != 2)
-            THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid line");
+            throw Exception<>("Invalid line");
 
         // Convert from base64
         sl[0] = String::FromBase64(sl[0].Trimmed());
@@ -149,7 +149,7 @@ void Settings::_reload()
     byte calculated_hash[4];
     hf.Final(calculated_hash);
     if(0 != memcmp(purported_hash, calculated_hash, sizeof(calculated_hash)))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Checksum mismatch. Was the file corrupted?");
+        throw Exception<>("Checksum mismatch. Was the file corrupted?");
 
     // Now that we have all the data and the checksum matches, update our data members
     //  with the new data we got

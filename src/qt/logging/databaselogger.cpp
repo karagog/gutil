@@ -32,22 +32,19 @@ NAMESPACE_GUTIL1(QT);
 static void __open_and_validate_connection(QSqlDatabase &db, const QString &table)
 {
     if(db.connectionName().isEmpty())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "No connection string set");
+        throw Exception<>("No connection string set");
 
     if(table.isEmpty())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "No table name given");
+        throw Exception<>("No table name given");
 
     if(!db.isValid())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                   "Invalid database.  "
-                                   "You must first add the database with QSqlDatabase::addDatabase()");
+        throw Exception<>("Invalid database. You must first add the database with QSqlDatabase::addDatabase()");
 
     if(!db.isOpen())
     {
         // Try to open the database if it's not already open
         if(!db.open())
-            THROW_NEW_GUTIL_EXCEPTION2(Exception,
-                                       String::Format("Could not open log database: %s", db.lastError().text().toUtf8().constData()));
+            throw Exception<>(String::Format("Could not open log database: %s", db.lastError().text().toUtf8().constData()));
     }
 }
 
@@ -60,11 +57,10 @@ static void __init_db(const QString &connStr, const QString &tableName)
     if(db.driverName() == "QSQLITE")
         sql_resource = ":/GUtil/sql/create_log_database.sqlite.sql";
     else
-        THROW_NEW_GUTIL_EXCEPTION2(NotImplementedException,
-                                   QString("SQL Driver '%1'").arg(db.driverName()).toUtf8());
+        throw NotImplementedException<>(QString("SQL Driver '%1'").arg(db.driverName()).toUtf8());
 
     QResource rs(sql_resource);
-    if(!rs.isValid()) THROW_NEW_GUTIL_EXCEPTION(BuildException);
+    if(!rs.isValid()) throw BuildException<>();
 
     QByteArray sql((char *)rs.data(), rs.size());
     if(rs.isCompressed())

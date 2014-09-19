@@ -83,7 +83,7 @@ void GPSFile_Export::AppendPayload(byte const *payload, GUINT32 payload_length,
                                    byte const *user_data, GUINT16 user_data_len)
 {
     if(user_data_len > UserDataSize())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload metadata too long");
+        throw Exception<>("Payload metadata too long");
 
     // The first thing we write is the payload header
     _write_payload_header(payload_length, user_data, user_data_len);
@@ -103,7 +103,7 @@ void GPSFile_Export::AppendPayloadFile(const char *payload_file,
                                        IProgressHandler *ph)
 {
     if(user_data_len > UserDataSize())
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload metadata too long");
+        throw Exception<>("Payload metadata too long");
 
     File f(payload_file);
     f.Open(File::OpenRead);
@@ -166,14 +166,14 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
     byte header_pt[GPS_HEADER_LENGTH];
     m_file.Open(File::OpenRead);
     if(m_file.Length() < (sizeof(version_salt) + sizeof(header_pt) + m_cryptor->TagLength + NONCE_LENGTH))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Invalid file (too small)");
+        throw Exception<>("Invalid file (too small)");
 
     // Read in the version + salt
     if(sizeof(version_salt) != m_file.Read(version_salt, sizeof(version_salt), sizeof(version_salt)))
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Error reading from file");
+        throw Exception<>("Error reading from file");
 
     if(version_salt[0] > VERSION)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "This file's version is too advanced for me");
+        throw Exception<>("This file's version is too advanced for me");
 
     // Initialize the cryptor
     m_cryptor = new Cryptor(password, keyfile, NONCE_LENGTH, new Cryptor::DefaultKeyDerivation(salt, SALT_LENGTH));
@@ -219,8 +219,7 @@ bool GPSFile_Import::NextPayload()
             byte calculated[GPS_HASH_DIGEST_LENGTH];
             m_hash->Final(calculated);
             if(0 != memcmp(calculated, m_finalHash, GPS_HASH_DIGEST_LENGTH))
-                THROW_NEW_GUTIL_EXCEPTION2(AuthenticationException,
-                                           "Checksum does not match received data");
+                throw AuthenticationException<>("Checksum does not match received data");
         }
         return false;
     }
@@ -251,7 +250,7 @@ bool GPSFile_Import::NextPayload()
 void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgressHandler *ph)
 {
     if(m_payloadRead)
-        THROW_NEW_GUTIL_EXCEPTION2(Exception, "Payload already gotten");
+        throw Exception<>("Payload already gotten");
 
     OutputReplicator o;
     SmartPointer<IOutput> o1;

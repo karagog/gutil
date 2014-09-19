@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,15 +41,9 @@ template<>class ex_name<true> : \
     public GUtil::ExtendedException \
 { \
     public: \
-        ex_name() :ex_name<false>(0, -1){} \
-        explicit ex_name(const char *message) :ex_name<false>(0, -1, message){} \
-        ex_name(const char *file, int line) \
-            :ex_name<false>(file, line) {} \
-        ex_name(const char *file, \
-                         int line, \
-                         const char *message, \
-                         const GUtil::Exception<false> &inner_exception) \
-            :ex_name<false>(file, line, message), \
+        ex_name(const char *message = NULL) :ex_name<false>(message){} \
+        ex_name(const char *message, const GUtil::Exception<> &inner_exception) \
+            :ex_name<false>(message), \
                 GUtil::ExtendedException(inner_exception) {} \
         virtual ~ex_name() noexcept {} \
         virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<true>"; } \
@@ -100,13 +94,6 @@ GUTIL_EXCEPTION_DECLARE_EXTENDED( DivideByZeroException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( UniqueKeyException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( BuildException );
 GUTIL_EXCEPTION_DECLARE_EXTENDED( InvalidStateTransitionException );
-
-
-
-/** This version lets you pass an inner exception into it */
-#define THROW_NEW_GUTIL_EXCEPTION3( ex_type, message, inner_except ) \
-    throw ex_type<true>(__FILE__, __LINE__, message, inner_except)
-
 
 
 END_NAMESPACE_GUTIL;
