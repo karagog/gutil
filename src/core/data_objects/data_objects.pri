@@ -10,7 +10,6 @@ HEADERS += \
     data_objects/flags.h \
     data_objects/collection.h \
     data_objects/version.h \
-    data_objects/sharedobject.h \
     data_objects/datatable.h \
     data_objects/pair.h \
     data_objects/pairlist.h \

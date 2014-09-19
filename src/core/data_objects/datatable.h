@@ -84,7 +84,6 @@ protected:
 
 template<class T>
 class DataRow :
-        public SharedData,
         public IUpdatable,
         protected ResizableCollection<T>
 {
@@ -94,7 +93,7 @@ class DataRow :
 public:
 
     DataRow(const DataRow<T> &o)
-        :SharedData(), IUpdatable(),
+        :IUpdatable(),
           ResizableCollection<T>(o),
           m_columns(o.m_columns),
           m_columnMap(o.m_columnMap),

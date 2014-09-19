@@ -165,94 +165,87 @@ public:
 };
 
 
-
-
-/** Inherit from this class to declare your class able to be used by the shared data
-    pointer class.
-
-    It keeps track of references to your class with atomic increment
-    decrement classes.
-
-    All functions are protected, because it is not meant to be used by the outside
-    world; only by the shared data pointer.
-*/
-class SharedData
-{
-    GUTIL_DISABLE_COPY(SharedData);
-    template<class T>friend class SharedSmartPointer;
-    std::atomic<int> __references{0};
-protected:
-    SharedData(){}
-};
-
-
-
 /** Implements an explicitly shared smart pointer.
 
     It counts the references to a given pointer and deletes it when everybody is
-    done referencing it.
-
-    The template class must derive from SharedData
+    done referencing it. If you want to make your own copy, use Detach().
 */
 template<class T>class SharedSmartPointer
 {
-    T *m_data = NULL;
+    SmartPointer<T> m_ptr;
+    SmartPointer<std::atomic<GUINT32>> m_refs;
 public:
 
-    SharedSmartPointer(){}
-    SharedSmartPointer(T *data) :m_data(data){ m_data->__references++; }
-    SharedSmartPointer(const SharedSmartPointer<T> &other) :m_data(other.m_data){ m_data->__references++; }
+    SharedSmartPointer() {}
+    SharedSmartPointer(T *data)
+        :m_ptr(data), m_refs(new std::atomic<GUINT32>(1)) {}
+    SharedSmartPointer(const SharedSmartPointer<T> &o)
+        :m_ptr(o.m_ptr.Data()), m_refs(o.m_refs.Data()){
+        if(o) (*m_refs)++;
+    }
+    inline ~SharedSmartPointer(){ Clear(); }
 
-    SharedSmartPointer &operator = (const SharedSmartPointer<T> &other){ return operator = (other.m_data); }
-    SharedSmartPointer &operator = (T *data){
-        if(m_data && 0 == --(m_data->__references))
-            delete m_data;
-
-        if((m_data = data)){
-            m_data->__references++;
-        }
+    SharedSmartPointer &operator = (const SharedSmartPointer<T> &other){
+        this->~SharedSmartPointer();
+        new(this) SharedSmartPointer<T>(other);
         return *this;
     }
-    ~SharedSmartPointer(){ Clear(); }
 
-    T *Data(){ return m_data; }
-    const T *ConstData() const{ return m_data; }
+    /** Returns direct access to the pointer. */
+    inline T *Data() const{ return m_ptr; }
 
-    /** Resets the pointer to 0 and dereferences the object, deleting it if necessary. */
+    /** Resets the pointer to 0 and deletes the object if it's not referenced anymore. */
     void Clear(){
-        if(m_data && 0 == --(m_data->__references)){
-            delete m_data;
-            m_data = NULL;
+        if(*this){
+            if(0 == --(*m_refs)){
+                // No more refs, Delete the data
+                m_ptr.Clear();
+                m_refs.Clear();
+            }
+            else{
+                // There are other refs, so relinquish the data
+                m_ptr.Relinquish();
+                m_refs.Relinquish();
+            }
         }
     }
 
-    operator T *(){ return m_data; }
-    operator T const *() const{ return m_data; }
-
-    T *operator -> (){ return m_data; }
-    const T *operator ->() const{ return m_data; }
-    T &operator * (){ return *m_data; }
-    const T &operator * () const{ return *m_data; }
-
+    /** Make a copy of the original object and become the sole owner
+     *  of the new copy. If this was the last reference to the object,
+     *  then nothing happens.
+    */
     void Detach(){
-        if(m_data && 1 < m_data->__references)
-        {
-            m_data->__references--;
-            m_data = new T(*m_data);
-            m_data->__references++;
+        if(*this){
+            if(--(*m_refs)){
+                T *tmp = m_ptr;
+                m_ptr.Relinquish();
+                m_refs.Relinquish();
+                m_ptr = new T(*tmp);
+                m_refs = new std::atomic<GUINT32>(1);
+            }
+            else
+                (*m_refs)++;
         }
     }
 
-    bool IsNull() const{ return m_data == NULL; }
-    operator bool () const{ return m_data; }
+    inline operator T *(){ return Data(); }
+    inline operator T const *() const{ return Data(); }
 
-    bool operator == (const SharedSmartPointer<T> &o) const{ return ConstData() == o.ConstData(); }
-    bool operator != (const SharedSmartPointer<T> &o) const{ return ConstData() != o.ConstData(); }
+    inline T *operator -> (){ return Data(); }
+    inline const T *operator ->() const{ return Data(); }
+    inline T &operator * (){ return *Data(); }
+    inline const T &operator * () const{ return *Data(); }
+
+    bool IsNull() const{ return !Data(); }
+    operator bool () const{ return Data(); }
+
+    bool operator == (const SharedSmartPointer<T> &o) const{ return Data() == o.Data(); }
+    bool operator != (const SharedSmartPointer<T> &o) const{ return Data() != o.Data(); }
 
     /** Cast operator to the naked pointer.
      *  It is implemented using static_cast, so you can cast to some other pointer types.
     */
-    template<class U>operator U *() const{ return static_cast<U *>(m_data); }
+    template<class U>operator U *() const{ return static_cast<U *>(Data()); }
 
 };
 

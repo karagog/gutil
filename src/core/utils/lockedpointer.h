@@ -37,33 +37,20 @@ NAMESPACE_GUTIL;
 template<class T>
 class LockedPointer
 {
+    T *pointer;
+    std::shared_ptr<std::lock_guard<std::mutex>> pointer_guard;
 public:
 
     /** Constructs a locked pointer around p, acquiring the lock until this
      *  object is destroyed.
     */
     LockedPointer(T *p, std::mutex &lock)
-        :m_data(new data_t(p, lock)) {}
+        :pointer_guard(new std::lock_guard<std::mutex>(lock)) {}
 
-    T *Data() const{ return m_data->pointer; }
+    T *Data() const{ return pointer; }
     T *operator -> () const{ return Data(); }
     T &operator * () const{ return *Data(); }
 
-
-private:
-    struct data_t{
-        T *pointer;
-        std::mutex &lock;
-
-        data_t(T *p, std::mutex &l)
-            :pointer(p), lock(l) {
-            lock.lock();
-        }
-        ~data_t(){
-            lock.unlock();
-        }
-    };
-    std::shared_ptr<data_t> m_data;
 };
 
 
