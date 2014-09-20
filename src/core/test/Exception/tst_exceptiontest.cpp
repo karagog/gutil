@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <QtCore/QString>
 #include <QtTest/QtTest>
 #include "gutil_extendedexception.h"
+#include "gutil_consolelogger.h"
 USING_NAMESPACE_GUTIL;
 
 class ExceptionTest : public QObject
@@ -82,6 +83,40 @@ void ExceptionTest::test_basic()
         catch(const Exception<true> &e)
         {
             exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+        // Try out the cool initializer list syntax
+        exception_hit = false;
+        try
+        {
+            std::string s1 = "Hi";
+            throw Exception<true>{
+                {"Hello", "World"},
+                {"More", "Data"},
+                {s1, "George"}
+            };
+        }
+        catch(const Exception<true> &e)
+        {
+            exception_hit = true;
+        }
+        QVERIFY(exception_hit);
+
+        // Try out the cool initializer list syntax
+        exception_hit = false;
+        try
+        {
+            std::string s1 = "Hi";
+            throw Exception<true>("This is the message",
+                                  XmlException<>("This is the inner exception"),
+            {{"Hello", "World"},
+             {"More", "Data"}});
+        }
+        catch(const Exception<true> &e)
+        {
+            exception_hit = true;
+            //ConsoleLogger().LogException(e);
         }
         QVERIFY(exception_hit);
 
@@ -238,13 +273,13 @@ void ExceptionTest::test_inner_exceptions()
 {
     XmlException<false> xex_false;
     XmlException<true> xex_true;
-    Exception<true> ex1("", -1, "", xex_false);
-    Exception<true> ex2("", -1, "", xex_true);
+    Exception<true> ex1("", xex_false);
+    Exception<true> ex2("", xex_true);
     QVERIFY(ex1.GetInnerException());
     QVERIFY(ex2.GetInnerException());
     QVERIFY(0 == strcmp(ex1.GetInnerException()->what(), "GUtil::XmlException<false>"));
     QVERIFY(0 == strcmp(ex2.GetInnerException()->what(), "GUtil::XmlException<true>"));
-    
+
     // You should be able to dynamic cast it as the proper type
     QVERIFY(NULL != dynamic_cast< const XmlException<false> *>(ex1.GetInnerException()));
     QVERIFY(NULL != dynamic_cast< const Exception<false> *>(ex1.GetInnerException()));

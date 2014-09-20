@@ -41,7 +41,6 @@ HEADERS += \
     globals.h \
     macros.h
 SOURCES += \
-    extendedexception.cpp \
     exception.cpp \
     globals.cpp
 

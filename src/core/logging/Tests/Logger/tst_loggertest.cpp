@@ -72,13 +72,13 @@ void LoggerTest::_test_logger_exception(ILog &l)
 {
     try
     {
-        XmlException<true> ex("May the force be with you");
-        ex.Data["firstkey"] = "boo!";
-        ex.Data["secondkey"] = "what?";
-        ex.Data["thirdkey"] = "ERROR";
-        ex.Data["thirdkey"] = "this works";
-        ex.Data["fourthkey"] = "";
-        throw ex;
+        // Pretty cool syntax, eh?
+        throw XmlException<true>("May the force be with you",
+                                 DataTransportException<true>{{"OMG", "Nested exceptions!"}},
+        {{"firstkey", "boo!"},
+         {"secondkey", "what?"},
+         {"thirdkey", "this works"},
+         {"fourthkey", ""}});
     }
     catch(const exception &ex)
     {

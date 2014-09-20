@@ -25,6 +25,7 @@ limitations under the License.*/
 #include <map>
 #include <string>
 #include <memory>
+#include <initializer_list>
 
 
 /** An exception class that stores more data.
@@ -41,10 +42,17 @@ template<>class ex_name<true> : \
     public GUtil::ExtendedException \
 { \
     public: \
-        ex_name(const char *message = NULL) :ex_name<false>(message){} \
+        ex_name() {} \
+        ex_name(const char *message) :ex_name<false>(message) {} \
+        ex_name(const char *message, std::initializer_list<std::pair<const std::string, std::string>> il) \
+            :ex_name<false>(message), ExtendedException(il) {} \
+        ex_name(std::initializer_list<std::pair<const std::string, std::string>> il) \
+            :ExtendedException(il) {} \
+        ex_name(const char *message, const GUtil::Exception<> &inner_exception, \
+                std::initializer_list<std::pair<const std::string, std::string>> il) \
+            :ex_name<false>(message), ExtendedException(il, inner_exception) {} \
         ex_name(const char *message, const GUtil::Exception<> &inner_exception) \
-            :ex_name<false>(message), \
-                GUtil::ExtendedException(inner_exception) {} \
+            :ex_name<false>(message), ExtendedException(inner_exception) {} \
         virtual ~ex_name() noexcept {} \
         virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<true>"; } \
         virtual Exception<> *Clone() const noexcept{ return new ex_name<true>(*this); } \
@@ -59,19 +67,29 @@ class ExtendedException
 {
     std::unique_ptr<Exception<>> m_innerException;
 public:
-
-    ExtendedException() {}
-    ExtendedException(const Exception<> &inner_exception)
-        :m_innerException((Exception<>*)inner_exception.Clone()) {}
-    ExtendedException(const ExtendedException &);
-    ExtendedException &operator = (const ExtendedException &);
-    virtual ~ExtendedException();
-
+    /** Directly access the exception data map. */
     std::map<std::string, std::string> Data;
 
-    void SetInnerException(const Exception<> &ex){ m_innerException.reset((Exception<>*)ex.Clone()); }
-    Exception<false> *GetInnerException() const{ return m_innerException.get(); }
-
+    /** Access the exception's inner exception (may be null). */
+    inline Exception<> *GetInnerException() const{ return m_innerException.get(); }
+    virtual ~ExtendedException() {}
+protected:
+    ExtendedException() {}
+    ExtendedException(std::initializer_list<std::pair<const std::string, std::string>> il)
+        :Data(il) {}
+    ExtendedException(std::initializer_list<std::pair<const std::string, std::string>> il, const Exception<> &inner_exception)
+        :m_innerException((Exception<>*)inner_exception.Clone()), Data(il) {}
+    ExtendedException(const Exception<> &inner_exception)
+        :m_innerException((Exception<>*)inner_exception.Clone()) {}
+    ExtendedException(const ExtendedException &o)
+        :m_innerException(o.m_innerException ? (Exception<>*)o.m_innerException->Clone() : NULL),
+          Data(o.Data) {}
+    ExtendedException &operator = (const ExtendedException &o){
+        if(o.m_innerException) m_innerException.reset((Exception<> *)o.GetInnerException()->Clone());
+        else m_innerException.reset(NULL);
+        Data = o.Data;
+        return *this;
+    }
 };
 
 
