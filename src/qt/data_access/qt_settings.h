@@ -15,33 +15,34 @@ limitations under the License.*/
 #ifndef GUTIL_QT_SETTINGS_H
 #define GUTIL_QT_SETTINGS_H
 
-#include "gutil_smartpointer.h"
+#include "gutil_settings.h"
 #include "gutil_strings.h"
 #include <QVariant>
+#include <QObject>
 
 namespace GUtil{
 class Settings;
 }
 
-NAMESPACE_GUTIL1(QT);
+namespace GUtil{ namespace QT{
 
 
 /** A wrapper around GUtil::Settings that stores QVariants,
  *  so you can store just about any Qt type.
 */
-class Settings
+class Settings :
+        public QObject,
+        private GUtil::Settings
 {
-    const QString m_identity;
-    const QString m_modifier;
-    const QString m_filename;
-    GUtil::SmartPointer<GUtil::Settings> m_settings;
+    Q_OBJECT
+    QString m_identity;
+    QString m_modifier;
 public:
 
-    Settings(const char *identity, const char *modifier = "");
-    ~Settings();
+    Settings(const char *identity, const char *modifier = "", QObject * = 0);
 
     /** Returns a null variant if the key does not exist */
-    QVariant Value(const GUtil::String &key) const;
+    QVariant Value(const GUtil::String &key);
 
     /** Sets the data at the given key to the given value */
     void SetValue(const GUtil::String &key, const QVariant &value);
@@ -50,19 +51,19 @@ public:
     void RemoveValue(const GUtil::String &key);
 
     /** Returns true if the settings have been modified but not written to disk yet. */
-    bool IsDirty() const;
+    bool IsDirty();
 
     /** Writes the changes to disk */
     void CommitChanges();
 
     /** Returns whether the key is in the config settings. */
-    bool Contains(const GUtil::String &key) const;
+    bool Contains(const GUtil::String &key);
 
     /** Returns the list of keys in the data store. */
-    GUtil::StringList Keys() const;
+    GUtil::StringList Keys();
 
     /** Returns the file name of the file which is storing the cached data. */
-    const QString &GetFileName() const{ return m_filename; }
+    QString GetFileName() const{ return GUtil::Settings::FileName().ToQString(); }
 
     /** Returns the identity string you passed in the constructor. */
     QString const &GetIdentity() const{ return m_identity; }
@@ -70,9 +71,20 @@ public:
     /** Returns the modifier string you passed in the constructor. */
     QString const &GetModifier() const{ return m_modifier; }
 
+
+signals:
+
+    void NotifyReloaded();
+    void NotifyChangesCommitted();
+
+protected:
+
+    virtual void on_reloaded(){ emit NotifyReloaded(); }
+    virtual void on_changes_written(){ emit NotifyChangesCommitted(); }
+
 };
 
 
-END_NAMESPACE_GUTIL1;
+}}
 
 #endif // GUTIL_QT_SETTINGS_H

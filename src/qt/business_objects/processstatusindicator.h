@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "gutil_qt_settings.h"
 #include "gutil_usermachinelocks.h"
 #include "gutil_strings.h"
+#include "gutil_smartpointer.h"
 #include <QRunnable>
 #include <QThreadPool>
 
@@ -70,7 +71,7 @@ public:
     void SetStatus(int status_type);
 
     /** Gets the current process status */
-    int GetStatus() const{ return _status_data.Value("status").toInt(); }
+    int GetStatus(){ return _status_data.Value("status").toInt(); }
 
     /** Returns true of the process is running */
     bool IsProcessRunning();

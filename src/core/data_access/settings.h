@@ -37,6 +37,9 @@ public:
     explicit Settings(const char *filename);
     ~Settings();
 
+    /** Returns the file name. */
+    const String &FileName() const{ return m_fileName; }
+
     /** Returns true if the cache is dirty and needs to be written to disk. */
     bool IsDirty();
 
@@ -71,6 +74,12 @@ public:
 
     void SetValue(const String &key, const String &data);
     void SetValues(std::initializer_list<std::pair<const String, String>>);
+
+
+protected:
+
+    virtual void on_reloaded(){}
+    virtual void on_changes_written(){}
 
 
 private:

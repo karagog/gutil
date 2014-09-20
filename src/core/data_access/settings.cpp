@@ -183,9 +183,11 @@ void Settings::_worker_thread()
             {
             case cmd_reload:
                 _reload();
+                on_reloaded();
                 break;
             case cmd_write_changes:
                 _commit_changes();
+                on_changes_written();
                 break;
             default:
                 break;

@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "qt_settings.h"
-#include "gutil_settings.h"
 #include "gutil_variant.h"
 #include <QDesktopServices>
 #include <QDir>
@@ -21,69 +20,66 @@ USING_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(QT);
 
-static QString __get_filename(const QString &identity, const QString &modifier)
+static String __get_filename(const char *identity, const char *modifier)
 {
     QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
     QDir tmpdir(data_path);
     if(!tmpdir.exists()){
         if(!tmpdir.mkpath(data_path))
-            return QString::null;
+            return String();
     }
 
-    QString ret = QString("%1/%2")
-            .arg(tmpdir.absolutePath())
-            .arg(identity);
-    if(!modifier.isEmpty())
-        ret.append(".").append(modifier);
-    ret.append(".GUtilSettings");
-    return ret;
+    String ret = String::Format("%s/%s",
+                                tmpdir.absolutePath().toUtf8().constData(),
+                                identity);
+    if(modifier && strlen(modifier) > 0)
+        ret.Append(".").Append(modifier);
+    return ret.Append(".GUtilSettings");
 }
 
 
-Settings::Settings(const char *identity, const char *modifier)
-    :m_identity(identity),
-      m_modifier(modifier),
-      m_filename(__get_filename(m_identity, m_modifier)),
-      m_settings(new GUtil::Settings(m_filename.toUtf8()))
+Settings::Settings(const char *identity, const char *modifier, QObject *parent)
+    :QObject(parent),
+      GUtil::Settings(__get_filename(identity, modifier)),
+      m_identity(identity),
+      m_modifier(modifier)
 {}
 
-Settings::~Settings() {}
-
-StringList Settings::Keys() const
+StringList Settings::Keys()
 {
-    return m_settings->Keys();
+    return GUtil::Settings::Keys();
 }
 
-QVariant Settings::Value(const String &key) const
+QVariant Settings::Value(const String &key)
 {
-    return Variant::ConvertFromXmlQString(m_settings->GetValue(key).ToQString());
+    return Variant::ConvertFromXmlQString(GUtil::Settings::GetValue(key).ToQString());
 }
 
 void Settings::SetValue(const String &key, const QVariant &value)
 {
     String data = Variant::ConvertToXmlQString(value);
-    m_settings->SetValue(key, data);
+    GUtil::Settings::SetValue(key, data);
 }
 
 void Settings::RemoveValue(const String &key)
 {
-    m_settings->Remove(key);
+    GUtil::Settings::Remove(key);
 }
 
-bool Settings::Contains(const String &key) const
+bool Settings::Contains(const String &key)
 {
-    return m_settings->Contains(key);
+    return GUtil::Settings::Contains(key);
 }
 
-bool Settings::IsDirty() const
+bool Settings::IsDirty()
 {
-    return m_settings->IsDirty();
+    return GUtil::Settings::IsDirty();
 }
 
 void Settings::CommitChanges()
 {
-    m_settings->CommitChanges();
+    GUtil::Settings::CommitChanges();
 }
 
 
