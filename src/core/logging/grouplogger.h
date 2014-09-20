@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "gutil_ilog.h"
 #include "gutil_vector.h"
-#include <cstdarg>
+#include <initializer_list>
 
 NAMESPACE_GUTIL;
 
@@ -40,13 +40,10 @@ public:
     /** Constructs a group logger with the given set of loggers.
      *  \param n The number of loggers
     */
-    GroupLogger(int n, ...)
-        :m_loggers(n){
-        va_list args;
-        va_start(args, n);
-        for(int i = 0; i < n; ++i)
-            AddLogger(va_arg(args, ILog *));
-        va_end(args);
+    GroupLogger(std::initializer_list<ILog *> il)
+        :m_loggers(il.size()){
+        for(auto l : il)
+            AddLogger(l);
     }
 
     /** Log the message to all loggers in the group. */
