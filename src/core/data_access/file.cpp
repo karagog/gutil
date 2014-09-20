@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "file.h"
+#include "gutil_extendedexception.h"
 #include <stdio.h>
 #include <malloc.h>
 using namespace std;
@@ -24,23 +25,22 @@ NAMESPACE_GUTIL;
 #define H reinterpret_cast<FILE *>(h)
 
 
-File::File(const char *filename)
+File::File(const char *filename, OpenModeEnum md)
     :_p_BufferedWrites(true),
+      m_filename(filename),
       h(NULL)
 {
-    size_t len = strlen(filename);
-    if(len == 0)
+    if(m_filename.IsEmpty())
         throw Exception<>("Filename cannot be empty");
 
-    m_filename = (char *)malloc(len + 1);
-    memcpy(m_filename, filename, len + 1);
+    if(md != DoNotOpen)
+        Open(md);
 }
 
 File::~File()
 {
     if(IsOpen())
         Close();
-    free(m_filename);
 }
 
 void File::Open(OpenModeEnum e)
@@ -69,13 +69,18 @@ void File::Open(OpenModeEnum e)
     case OpenReadAndAppend:
         options = "a+b";
         break;
+    case DoNotOpen:
+        return;
     default:
         throw NotImplementedException<>();
     }
 
     FILE *tmp;
     if(!(tmp = fopen(m_filename, options)))
-        throw Exception<>(String::Format("Unable to open '%s': %s", m_filename, strerror(errno)));
+        throw Exception<true>("Cannot open file", {
+                                  {"filename", m_filename},
+                                  {"error", strerror(errno)}
+                              });
     h = tmp;
 }
 
@@ -221,7 +226,7 @@ String File::ReadLine(GUINT32 max_len)
 {
     return ReadUntil([&](String &s){
         bool chop = s.Length() > 0 && s[s.Length() - 1] == '\n';
-        bool ret = s.Length() >= max_len || chop;
+        bool ret = chop || (max_len != GUINT32_MAX && s.Length() >= (max_len + 1));
         if(chop) s.Chop(1);
         return ret;
     });

@@ -34,8 +34,37 @@ class File :
     GUTIL_DISABLE_COPY(File);
 public:
 
-    /** Creates a file object with the given filename. */
-    explicit File(const char *filename);
+    /** Describes different ways of opening a file. */
+    enum OpenModeEnum
+    {
+        /** Don't open the file. */
+        DoNotOpen,
+
+        /** Open file with read access */
+        OpenRead,
+
+        /** Open file with write access.  Existing file data is erased. */
+        OpenWrite,
+
+        /** Open file with read/write access.  Existing file data is preserved. */
+        OpenReadWrite,
+
+        /** Open the file with read/write access.  Existing file data is erased.*/
+        OpenReadWriteTruncate,
+
+        /** Open file for writing, and start with the file pointer at the end. */
+        OpenAppend,
+
+        /** Open file for reading/writing, but no matter where the file pointer is,
+            it will always be moved to the end of the file when you write.
+        */
+        OpenReadAndAppend
+    };
+
+    /** Creates a file object with the given filename, and optionally opens it
+     *  with the given mode.
+    */
+    explicit File(const char *filename, OpenModeEnum open_mode = DoNotOpen);
     virtual ~File();
 
     /** Returns the current filename we're set to. */
@@ -64,30 +93,6 @@ public:
 
     /** Deletes the file. */
     static void Delete(const char *filename);
-
-    /** Describes different ways of opening a file. */
-    enum OpenModeEnum
-    {
-        /** Open file with read access */
-        OpenRead,
-
-        /** Open file with write access.  Existing file data is erased. */
-        OpenWrite,
-
-        /** Open file with read/write access.  Existing file data is preserved. */
-        OpenReadWrite,
-
-        /** Open the file with read/write access.  Existing file data is erased.*/
-        OpenReadWriteTruncate,
-
-        /** Open file for writing, and start with the file pointer at the end. */
-        OpenAppend,
-
-        /** Open file for reading/writing, but no matter where the file pointer is,
-            it will always be moved to the end of the file when you write.
-        */
-        OpenReadAndAppend
-    };
 
     /** Opens the file with the given mode flags. */
     void Open(OpenModeEnum);
@@ -169,7 +174,7 @@ public:
 
 private:
 
-    char *m_filename;
+    const String m_filename;
     void *h;
 
 };
