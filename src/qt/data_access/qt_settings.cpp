@@ -48,6 +48,8 @@ Settings::Settings(const char *identity, const char *modifier)
       m_settings(new GUtil::Settings(m_filename.toUtf8()))
 {}
 
+Settings::~Settings() {}
+
 StringList Settings::Keys() const
 {
     return m_settings->Keys();
@@ -72,6 +74,16 @@ void Settings::RemoveValue(const String &key)
 bool Settings::Contains(const String &key) const
 {
     return m_settings->Contains(key);
+}
+
+bool Settings::IsDirty() const
+{
+    return m_settings->IsDirty();
+}
+
+void Settings::CommitChanges()
+{
+    m_settings->CommitChanges();
 }
 
 

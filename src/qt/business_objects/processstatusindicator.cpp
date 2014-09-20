@@ -31,8 +31,8 @@ ProcessStatusIndicator::ProcessStatusIndicator(QObject *parent)
       _status_lock(IDENTITY_FORMAT, ""),
       _status_data(IDENTITY_FORMAT)
 {
-    connect(&_status_data, SIGNAL(DataChanged()),
-            this, SLOT(_status_data_changed()));
+//    connect(&_status_data, SIGNAL(DataChanged()),
+//            this, SLOT(_status_data_changed()));
 }
 
 ProcessStatusIndicator::~ProcessStatusIndicator()

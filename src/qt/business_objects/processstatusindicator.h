@@ -18,7 +18,7 @@ limitations under the License.*/
 #ifndef GUTIL_PROCESSSTATUSINDICATOR_H
 #define GUTIL_PROCESSSTATUSINDICATOR_H
 
-#include "gutil_persistentdata.h"
+#include "gutil_qt_settings.h"
 #include "gutil_usermachinelocks.h"
 #include "gutil_strings.h"
 #include <QRunnable>
@@ -45,7 +45,7 @@ class ProcessStatusIndicator :
     Q_OBJECT
 
     GUtil::QT::UserMachineReadWriteLock _status_lock;
-    PersistentData _status_data;
+    Settings _status_data;
     GUtil::SmartPointer<ProcessStatusServer> _server;
 public:
 

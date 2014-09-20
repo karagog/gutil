@@ -37,7 +37,8 @@ class Settings
     GUtil::SmartPointer<GUtil::Settings> m_settings;
 public:
 
-    Settings(const char *identity, const char *modifier);
+    Settings(const char *identity, const char *modifier = "");
+    ~Settings();
 
     /** Returns a null variant if the key does not exist */
     QVariant Value(const GUtil::String &key) const;
@@ -47,6 +48,12 @@ public:
 
     /** Remove a specific key */
     void RemoveValue(const GUtil::String &key);
+
+    /** Returns true if the settings have been modified but not written to disk yet. */
+    bool IsDirty() const;
+
+    /** Writes the changes to disk */
+    void CommitChanges();
 
     /** Returns whether the key is in the config settings. */
     bool Contains(const GUtil::String &key) const;
