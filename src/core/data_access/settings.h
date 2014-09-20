@@ -38,7 +38,7 @@ public:
     virtual ~Settings();
 
     /** Returns true if the cache is dirty and needs to be written to disk. */
-    bool IsDirty() const;
+    bool IsDirty();
 
     /** Writes cached changes to disk. */
     void CommitChanges();
@@ -46,11 +46,25 @@ public:
     /** Loads the settings from the file, overwriting what's in the cache. */
     void Reload();
 
+    /** Returns the keys that are in the settings. */
+    StringList Keys();
 
-protected:
+    /** Returns the data for the given key.
+     *  \returns The data for the key. If the key is not in the settings, it returns
+     *  a null string. The return could also be an empty string, if the data was empty.
+    */
+    String GetData(const String &key);
 
-    virtual void on_changes_committed() {}
-    virtual void on_reloaded() {}
+    /** Returns the list of values for the given keys. Use this to avoid locking and
+     *  relocking a bunch of times if you need lots of values.
+    */
+    StringList GetData(const StringList &keys);
+
+    /** Returns all the key-value mappints */
+    std::unordered_map<String, String> AllData();
+
+    void SetValue(const String &key, const String &data);
+    void SetValues(std::initializer_list<std::pair<const String, String>>);
 
 
 private:

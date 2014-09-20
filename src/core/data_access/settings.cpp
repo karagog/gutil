@@ -42,18 +42,99 @@ Settings::Settings(const char *filename)
 Settings::~Settings()
 {
     // Take down the background thread
-    m_lock.lock();
+    unique_lock<mutex> lkr(m_lock);
+    m_waitCondition.wait(lkr, [&]{ return m_command == cmd_sleep; });
     m_command = cmd_exit;
     m_lock.unlock();
     m_waitCondition.notify_one();
     m_worker.join();
 }
 
+bool Settings::IsDirty()
+{
+    unique_lock<mutex> lkr(m_lock);
+    return m_dirty && m_command == cmd_sleep;
+}
+
 void Settings::Reload()
 {
     unique_lock<mutex> lkr(m_lock);
+
+    // One command at a time; block until worker is idle
+    m_waitCondition.wait(lkr, [this]{ return m_command == cmd_sleep; });
     m_command = cmd_reload;
     m_waitCondition.notify_one();
+}
+
+void Settings::CommitChanges()
+{
+    unique_lock<mutex> lkr(m_lock);
+
+    // One command at a time; block until worker is idle
+    m_waitCondition.wait(lkr, [this]{ return m_command == cmd_sleep; });
+    m_command = cmd_write_changes;
+    m_waitCondition.notify_one();
+}
+
+void Settings::SetValue(const String &key, const String &data)
+{
+    unique_lock<mutex> lkr(m_lock);
+    m_data[key] = data;
+    m_dirty = true;
+}
+
+void Settings::SetValues(std::initializer_list<std::pair<const String, String>> il)
+{
+    unique_lock<mutex> lkr(m_lock);
+    m_data.insert(il);
+    m_dirty = true;
+}
+
+String Settings::GetData(const String &key)
+{
+    String ret;
+    unique_lock<mutex> lkr(m_lock);
+    // If we're reloading we'll wait for the update
+    m_waitCondition.wait(lkr, [this]{ return m_command != cmd_reload; });
+    auto i = m_data.find(key);
+    if(i != m_data.end())
+        ret = i->second;
+    return ret;
+}
+
+StringList Settings::GetData(const StringList &keys)
+{
+    StringList ret;
+    unique_lock<mutex> lkr(m_lock);
+    // If we're reloading we'll wait for the update
+    m_waitCondition.wait(lkr, [this]{ return m_command != cmd_reload; });
+    for(auto k : keys){
+        auto i = m_data.find(k);
+        if(i == m_data.end())
+            ret.Append(String());
+        else
+            ret.Append(i->second);
+    }
+    return ret;
+}
+
+unordered_map<String, String> Settings::AllData()
+{
+    unique_lock<mutex> lkr(m_lock);
+    // If we're reloading we'll wait for the update
+    m_waitCondition.wait(lkr, [this]{ return m_command != cmd_reload; });
+    return m_data;
+}
+
+StringList Settings::Keys()
+{
+    StringList ret;
+    unique_lock<mutex> lkr(m_lock);
+    // If we're reloading we'll wait for the update
+    m_waitCondition.wait(lkr, [this]{ return m_command != cmd_reload; });
+    for(auto k : m_data)
+        ret.Append(k.first);
+    return ret;
 }
 
 void Settings::_worker_thread()
@@ -61,28 +142,22 @@ void Settings::_worker_thread()
     unique_lock<mutex> lkr(m_lock);
     while(1){
         // Wait for something to do
-        worker_commands cur_command = cmd_sleep;
         m_waitCondition.wait(lkr, [&]{
-            return (cur_command = (worker_commands)m_command) != cmd_sleep;
+            return m_command != cmd_sleep;
         });
 
-        // Unlock while we process the request
-        lkr.unlock();
-
         // We can break here if told to quit
-        if(cur_command == cmd_exit)
+        if(m_command == cmd_exit)
             break;
 
         try{
-            switch(cur_command)
+            switch((worker_commands)m_command)
             {
             case cmd_reload:
                 _reload();
-                on_reloaded();
                 break;
             case cmd_write_changes:
                 _commit_changes();
-                on_changes_committed();
                 break;
             default:
                 break;
@@ -90,79 +165,119 @@ void Settings::_worker_thread()
         } catch(const exception &ex) {
             GlobalLogger().LogException(ex);
         }
-
-        // Reclaim the lock
-        m_lock.lock();
     }
 }
 
 void Settings::_reload()
 {
+    // Unlock while we read the file
+    m_lock.unlock();
+    unordered_map<String, String> newdata;
+
+    // Be sure to reclaim the lock at the end
+    finally([&]{
+        m_lock.lock();
+        m_data = newdata;
+        m_dirty = false;
+        m_command = cmd_sleep;
+        m_waitCondition.notify_all();
+    });
+
     // Open the file and make sure it's valid
-    File f(m_fileName);
-    byte purported_hash[4]{};
-    if(!f.Exists())
+    if(!File::Exists(m_fileName))
         return;
 
     // Read the header
-    f.Open(File::OpenRead);
+    File f(m_fileName, File::OpenRead);
     const GUINT32 header_len = sizeof(SETTINGS_FILE_HEADER) - 1;
     String header = f.ReadLine(header_len);
 
-    if(header.Length() != header_len + 1 ||
-        0 != memcmp(SETTINGS_FILE_HEADER, header.ConstData(), header_len))
+    if(header.Length() != header_len ||
+            0 != memcmp(SETTINGS_FILE_HEADER, header.ConstData(), header_len))
         throw Exception<>("Invalid file header");
 
+    byte purported_hash[4];
     if(sizeof(purported_hash) != f.Read(purported_hash, sizeof(purported_hash), sizeof(purported_hash)))
         throw Exception<>("Invalid file header");
 
     // Now read in the file line by line and populate our data
     Hash hf;
-    unordered_map<String, String> newdata;
     String line = f.ReadLine().Trimmed();
     while(!line.IsNull())
     {
         // Skip empty lines
-        if(line.IsEmpty())
-            continue;
+        if(!line.IsEmpty()){
+            StringList sl = line.Split(':');
+            if(sl.Length() != 2)
+                throw Exception<>("Invalid line");
 
-        StringList sl = line.Split(':');
-        if(sl.Length() != 2)
-            throw Exception<>("Invalid line");
+            // Convert from base64
+            sl[0] = String::FromBase64(sl[0].Trimmed());
+            sl[1] = String::FromBase64(sl[1].Trimmed());
 
-        // Convert from base64
-        sl[0] = String::FromBase64(sl[0].Trimmed());
-        sl[1] = String::FromBase64(sl[1].Trimmed());
+            // Add the data to our checksum
+            hf.AddData((byte const *)sl[0].ConstData(), sl[0].Length());
+            hf.AddData((byte const *)sl[1].ConstData(), sl[1].Length());
 
-        // Add the data to our checksum
-        hf.AddData((byte const *)sl[0].ConstData(), sl[0].Length());
-        hf.AddData((byte const *)sl[1].ConstData(), sl[1].Length());
-
-        // Add the data to our data objects
-        newdata.emplace(sl[0], sl[1]);
+            // Add the data to our data objects
+            newdata.emplace(sl[0], sl[1]);
+        }
 
         // Read the next line
         line = f.ReadLine().Trimmed();
     }
-    f.Close();
 
     byte calculated_hash[4];
     hf.Final(calculated_hash);
     if(0 != memcmp(purported_hash, calculated_hash, sizeof(calculated_hash)))
         throw Exception<>("Checksum mismatch. Was the file corrupted?");
-
-    // Now that we have all the data and the checksum matches, update our data members
-    //  with the new data we got
-    unique_lock<mutex> lkr(m_lock);
-    m_data = newdata;
-    m_dirty = false;
-    m_command = cmd_sleep;
-    m_waitCondition.notify_one();
 }
 
 void Settings::_commit_changes()
 {
+    // Copy the data so we can release the lock
+    unordered_map<String, String> data(m_data);
 
+    // Release the lock while we write the file
+    m_lock.unlock();
+
+    // Be sure to reclaim the lock at the end
+    finally([&]{
+        m_lock.lock();
+        m_dirty = false;
+        m_command = cmd_sleep;
+        m_waitCondition.notify_all();
+    });
+
+    // Write the header
+    File f(m_fileName, File::OpenReadWriteTruncate);
+    f.Write(String::Format("%s\n", SETTINGS_FILE_HEADER));
+
+    // Reserve space for the checksum
+    int checksum_pos = f.Pos();
+    f.Write("word\n");
+
+    // Now write the file line by line, computing the hash as we go
+    Hash hf;
+    for(const auto &p : data){
+        f.Write(p.first.ToBase64());
+        f.Write(":");
+        f.Write(p.second.ToBase64());
+        f.Write("\n");
+
+        // Add the plaintext values to the hash
+        hf.AddData((const byte *)p.first.ConstData(), p.first.Length());
+        hf.AddData((const byte *)p.second.ConstData(), p.second.Length());
+    }
+
+    // Now go back and write the hash
+    GUINT32 hash_final = hf.Final();
+    byte tb;
+    f.Seek(checksum_pos);
+    f.Write(&(tb = (hash_final >> 24)), 1);
+    f.Write(&(tb = (hash_final >> 16) & 0x0FF), 1);
+    f.Write(&(tb = (hash_final >> 8) & 0x0FF), 1);
+    f.Write(&(tb = hash_final & 0x0FF), 1);
 }
 
 
