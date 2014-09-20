@@ -39,7 +39,7 @@ void ILog::LogException(const std::exception &std_ex) noexcept
             }
         }
 
-        d.Message = String::Format("%s%s", ex->Message(), data_string.ConstData());
+        d.Message = String::Format("%s%s", ex->Message().data(), data_string.ConstData());
         d.Title = String::Format("%s caught%s",
                                  ex->what(),
                                  ext_ex->GetInnerException() ? " (Inner exception follows immediately)" : "");

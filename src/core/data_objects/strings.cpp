@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "hash.h"
 #include <stdio.h>
 #include <cstring>
+using namespace std;
 
 /** A null byte to mark the end of a string. */
 #define STRING_TERMINATOR   static_cast<char>(0x00)
@@ -106,6 +107,13 @@ String::String(const String &s)
 }
 
 String &String::operator = (const String &o)
+{
+    this->~String();
+    new(this) String(o);
+    return *this;
+}
+
+String &String::operator = (const string &o)
 {
     this->~String();
     new(this) String(o);

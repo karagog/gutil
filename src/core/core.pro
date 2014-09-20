@@ -40,7 +40,6 @@ HEADERS += \
     globals.h \
     macros.h
 SOURCES += \
-    exception.cpp \
     globals.cpp
 
 include(math/math.pri)

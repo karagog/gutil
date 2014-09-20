@@ -66,17 +66,15 @@ NAMESPACE_GUTIL;
 */
 class BaseException : public std::exception, public IClonable
 {
-    char *m_message;
+    const std::string m_message;
 public:
 
-    /** Use this constructor to inject more information in your exception. */
-    BaseException(const char *message) noexcept;
-    BaseException(const BaseException &o) noexcept;
-    BaseException &operator = (const BaseException &o) noexcept;
-    virtual ~BaseException() noexcept;
+    /** Use this constructor to inject a message in your exception. */
+    BaseException(const char *message) noexcept :m_message(message) {}
+    virtual ~BaseException() noexcept {}
 
-    /** You can include a null-terminated message with the exception. */
-    inline const char *Message() const{ return m_message ? m_message : ""; }
+    /** Returns the exception message (may be empty). */
+    inline const std::string &Message() const{ return m_message; }
 
 };
 

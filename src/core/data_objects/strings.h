@@ -90,13 +90,19 @@ public:
     String(const UTF8ConstIterator &b, const UTF8ConstIterator &e);
 
     /** Basically a copy constructor, but for the base type. */
-    String(const Vector<char> &s);
+    String(const Vector<char> &);
 
     /** Copy constructor. */
-    String(const String &s);
+    String(const String &);
+
+    /** Copy constructor. */
+    String(const std::string &s) :String(s.data(), s.length()) {}
 
     /** Assignment operator. */
-    String &operator = (const String &s);
+    String &operator = (const String &);
+
+    /** Assignment operator. */
+    String &operator = (const std::string &);
 
     /** Assignment operator. */
     String &operator = (const char *c);
