@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_usermachinelocks.h"
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include "qt_locked_file/qtlockedfile.h"
 #include <QFileInfo>
 #include <QDesktopServices>

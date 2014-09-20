@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "file.h"
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include <stdio.h>
 #include <malloc.h>
 using namespace std;
@@ -78,7 +78,7 @@ void File::Open(OpenModeEnum e)
     FILE *tmp;
     if(!(tmp = fopen(m_filename, options)))
         throw Exception<true>("Cannot open file", {
-                                  {"filename", m_filename},
+                                  {"filename", m_filename.ToStdString()},
                                   {"error", strerror(errno)}
                               });
     h = tmp;

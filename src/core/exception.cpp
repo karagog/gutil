@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_exception.h"
+#include "exception.h"
 #include <cstring>
 #include <malloc.h>
 #include <new>
@@ -43,7 +43,7 @@ BaseException &BaseException::operator = (const BaseException &o) noexcept
 {
     free(m_message);
     m_message = NULL;
-    if(o.m_message) 
+    if(o.m_message)
         __allocate_and_copy_string(o.Message(), &m_message);
     return *this;
 }

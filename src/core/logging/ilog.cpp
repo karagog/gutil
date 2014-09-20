@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ilog.h"
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 using namespace std;
 
 NAMESPACE_GUTIL;
@@ -29,13 +29,13 @@ void ILog::LogException(const std::exception &std_ex) noexcept
     if(ext_ex){
         // If it's an extended exception
         String data_string{""};
-        const map<String, String> &keys( ext_ex->Data );
+        const map<std::string, std::string> &keys( ext_ex->Data );
         if(keys.size() > 0){
             data_string = "\n\nException Data:";
             for(const auto &p : keys){
                 data_string.Append(String::Format("\n\tKey: %s   Value: %s",
-                                                  p.first.ConstData(),
-                                                  p.second.ConstData()));
+                                                  p.first.data(),
+                                                  p.second.data()));
             }
         }
 

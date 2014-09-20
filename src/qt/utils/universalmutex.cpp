@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "gutil_universalmutex.h"
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include "gutil_globals.h"
 #include <QFile>
 NAMESPACE_GUTIL1(QT);

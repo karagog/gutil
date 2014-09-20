@@ -14,7 +14,7 @@ limitations under the License.*/
 #ifndef GUTIL_COLLECTION_H
 #define GUTIL_COLLECTION_H
 
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include "gutil_list.h"
 #include "gutil_vector.h"
 

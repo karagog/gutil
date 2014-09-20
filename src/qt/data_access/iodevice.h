@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_IODEVICE_H
 
 #include "gutil_ireadonlyobject.h"
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include <QByteArray>
 #include <QMutex>
 #include <QUuid>

@@ -17,6 +17,10 @@ limitations under the License.*/
 
 #include "gutil_iclonable.h"
 #include <exception>
+#include <string>
+#include <map>
+#include <memory>
+#include <initializer_list>
 
 #define STRINGIFY( str )  #str
 
@@ -151,6 +155,92 @@ GUTIL_EXCEPTION_DECLARE( BuildException );
 
 /** Means that someone tried an invalid state transition. */
 GUTIL_EXCEPTION_DECLARE( InvalidStateTransitionException );
+
+
+
+/** An exception class that stores more data.
+
+    This is a template specialization from the regular (non-extended) exception
+    to an extended exception, which stores more complex data, including a message
+    and a string-string map.
+
+    \note You must have already declared the non-extended version of the exception
+*/
+#define GUTIL_EXCEPTION_DECLARE_EXTENDED( ex_name ) \
+template<>class ex_name<true> : \
+    public ex_name<false>, \
+    public GUtil::ExtendedException \
+{ \
+    public: \
+        ex_name() {} \
+        ex_name(const char *message) :ex_name<false>(message) {} \
+        ex_name(const char *message, std::initializer_list<std::pair<const std::string, std::string>> il) \
+            :ex_name<false>(message), ExtendedException(il) {} \
+        ex_name(std::initializer_list<std::pair<const std::string, std::string>> il) \
+            :ExtendedException(il) {} \
+        ex_name(const char *message, const GUtil::Exception<> &inner_exception, \
+                std::initializer_list<std::pair<const std::string, std::string>> il) \
+            :ex_name<false>(message), ExtendedException(il, inner_exception) {} \
+        ex_name(const char *message, const GUtil::Exception<> &inner_exception) \
+            :ex_name<false>(message), ExtendedException(inner_exception) {} \
+        virtual ~ex_name() noexcept {} \
+        virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<true>"; } \
+        virtual Exception<> *Clone() const noexcept{ return new ex_name<true>(*this); } \
+}
+
+
+
+/** Implements extended features for exception classes. */
+class ExtendedException
+{
+    std::unique_ptr<Exception<>> m_innerException;
+public:
+    /** Directly access the exception data map. */
+    std::map<std::string, std::string> Data;
+
+    /** Access the exception's inner exception (may be null). */
+    inline Exception<> *GetInnerException() const{ return m_innerException.get(); }
+    virtual ~ExtendedException() {}
+protected:
+    ExtendedException() {}
+    ExtendedException(std::initializer_list<std::pair<const std::string, std::string>> il)
+        :Data(il) {}
+    ExtendedException(std::initializer_list<std::pair<const std::string, std::string>> il, const Exception<> &inner_exception)
+        :m_innerException((Exception<>*)inner_exception.Clone()), Data(il) {}
+    ExtendedException(const Exception<> &inner_exception)
+        :m_innerException((Exception<>*)inner_exception.Clone()) {}
+    ExtendedException(const ExtendedException &o)
+        :m_innerException(o.m_innerException ? (Exception<>*)o.m_innerException->Clone() : NULL),
+          Data(o.Data) {}
+    ExtendedException &operator = (const ExtendedException &o){
+        if(o.m_innerException) m_innerException.reset((Exception<> *)o.GetInnerException()->Clone());
+        else m_innerException.reset(NULL);
+        Data = o.Data;
+        return *this;
+    }
+};
+
+
+GUTIL_EXCEPTION_DECLARE_EXTENDED( Exception );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( NotImplementedException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( BadAllocationException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ReadOnlyException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ArgumentException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ConversionException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( DataTransportException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( XmlException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( EndOfFileException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( LockException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( NullReferenceException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( IndexOutOfRangeException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( ValidationException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( InvalidCastException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( NotFoundException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( DivideByZeroException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( UniqueKeyException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( BuildException );
+GUTIL_EXCEPTION_DECLARE_EXTENDED( InvalidStateTransitionException );
+
 
 
 END_NAMESPACE_GUTIL;

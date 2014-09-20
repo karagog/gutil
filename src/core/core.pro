@@ -37,7 +37,6 @@ else {
 
 HEADERS += \
     exception.h \
-    extendedexception.h \
     globals.h \
     macros.h
 SOURCES += \

@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include "gutil_databaseiodevice.h"
 #include "gutil_databaseutils.h"
 #include "gutil_smartpointer.h"

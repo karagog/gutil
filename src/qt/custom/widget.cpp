@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "widget.h"
-#include "gutil_extendedexception.h"
+#include "gutil_exception.h"
 #include <QApplication>
 #include <QDesktopWidget>
 
