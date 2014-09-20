@@ -1,4 +1,4 @@
-/*Copyright 2010-2013 George Karagoulis
+/*Copyright 2010-2014 George Karagoulis
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "applicationbase.h"
+#include "gutil_globallogger.h"
 
 #ifdef Q_OS_LINUX
 #include <signal.h>
@@ -42,8 +43,9 @@ void ApplicationBase::Exit(int return_code)
 
 void ApplicationBase::try_exiting(int){}
 
-void ApplicationBase::handle_exception(std::exception &)
+void ApplicationBase::handle_exception(std::exception &ex)
 {
+    GlobalLogger().LogException(ex);
     if(!GetTrapExceptions())
         throw;  // We're inside of a catch handler, so this rethrows
 }
