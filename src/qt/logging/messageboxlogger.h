@@ -18,19 +18,20 @@ limitations under the License.*/
 #define GUTIL_MESSAGEBOXLOGGER_H
 
 #include "gutil_ilog.h"
-
+#include <QObject>
 class QWidget;
 
-NAMESPACE_GUTIL1(QT);
+namespace GUtil{ namespace QT{
 
 
 /** A logger implementation which displays the message in a modal dialog box. */
-class MessageBoxLogger : public GUtil::ILog
+class MessageBoxLogger : public QObject, public GUtil::ILog
 {
-    QWidget *m_parent;
+    Q_OBJECT
+    QWidget *m_parentWidget;
 public:
 
-    explicit MessageBoxLogger(QWidget *parent = 0) :m_parent(parent) {}
+    explicit MessageBoxLogger(QWidget *parent = 0);
     virtual ~MessageBoxLogger() {}
 
     /** Displays a modal dialog box with the title and message, with the
@@ -38,10 +39,15 @@ public:
     */
     virtual void Log(const LoggingData &) noexcept;
 
+
+private slots:
+
+    void _log(const LoggingData &);
+
 };
 
 
-END_NAMESPACE_GUTIL1;
+}}
 
 #endif // GUTIL_MESSAGEBOXLOGGER_H
 

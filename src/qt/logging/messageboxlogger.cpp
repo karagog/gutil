@@ -15,15 +15,29 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include "messageboxlogger.h"
-#include "gutil_extendedexception.h"
 #include <QMessageBox>
 #include <QDateTime>
+#include <QMetaType>
 USING_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(QT);
 
 
+MessageBoxLogger::MessageBoxLogger(QWidget *parent)
+    :QObject((QObject *)parent),
+      m_parentWidget(parent)
+{
+    qRegisterMetaType<LoggingData>("LoggingData");
+}
+
 void MessageBoxLogger::Log(const LoggingData &d) noexcept
+{
+    // Invoke this as a queued signal so the logging happens in our event loop
+    QMetaObject::invokeMethod(this, "_log", Qt::QueuedConnection,
+                              Q_ARG(LoggingData, d));
+}
+
+void MessageBoxLogger::_log(const LoggingData &d)
 {
     QString title = QString("%1 %2")
             .arg(QDateTime::fromTime_t(d.LogTime).toString())
@@ -32,13 +46,13 @@ void MessageBoxLogger::Log(const LoggingData &d) noexcept
     switch(d.MessageLevel)
     {
     case LogLevelInfo:
-        QMessageBox::information(m_parent, title, msg);
+        QMessageBox::information(m_parentWidget, title, msg);
         break;
     case LogLevelWarning:
-        QMessageBox::warning(m_parent, title, msg);
+        QMessageBox::warning(m_parentWidget, title, msg);
         break;
     case LogLevelError:
-        QMessageBox::critical(m_parent, title, msg);
+        QMessageBox::critical(m_parentWidget, title, msg);
         break;
     default:
         break;
