@@ -35,7 +35,7 @@ class Settings
 public:
 
     explicit Settings(const char *filename);
-    virtual ~Settings();
+    ~Settings();
 
     /** Returns true if the cache is dirty and needs to be written to disk. */
     bool IsDirty();
@@ -49,16 +49,22 @@ public:
     /** Returns the keys that are in the settings. */
     StringList Keys();
 
+    /** Returns true if the key is in the settings. */
+    bool Contains(const String &key);
+
+    /** Removes the key from the settings. */
+    void Remove(const String &key);
+
     /** Returns the data for the given key.
      *  \returns The data for the key. If the key is not in the settings, it returns
      *  a null string. The return could also be an empty string, if the data was empty.
     */
-    String GetData(const String &key);
+    String GetValue(const String &key);
 
     /** Returns the list of values for the given keys. Use this to avoid locking and
      *  relocking a bunch of times if you need lots of values.
     */
-    StringList GetData(const StringList &keys);
+    StringList GetValues(const StringList &keys);
 
     /** Returns all the key-value mappints */
     std::unordered_map<String, String> AllData();

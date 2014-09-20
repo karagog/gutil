@@ -44,6 +44,14 @@ Settings::~Settings()
     // Take down the background thread
     unique_lock<mutex> lkr(m_lock);
     m_waitCondition.wait(lkr, [&]{ return m_command == cmd_sleep; });
+
+    // Write any changes if we're still dirty
+    if(m_dirty){
+        m_command = cmd_write_changes;
+        m_waitCondition.notify_one();
+        m_waitCondition.wait(lkr, [&]{ return m_command == cmd_sleep; });
+    }
+
     m_command = cmd_exit;
     m_lock.unlock();
     m_waitCondition.notify_one();
@@ -90,7 +98,27 @@ void Settings::SetValues(std::initializer_list<std::pair<const String, String>> 
     m_dirty = true;
 }
 
-String Settings::GetData(const String &key)
+bool Settings::Contains(const String &key)
+{
+    unique_lock<mutex> lkr(m_lock);
+    // If we're reloading we'll wait for the update
+    m_waitCondition.wait(lkr, [this]{ return m_command != cmd_reload; });
+    return m_data.find(key) != m_data.end();
+}
+
+void Settings::Remove(const String &key)
+{
+    unique_lock<mutex> lkr(m_lock);
+    // If we're reloading we'll wait for the update
+    m_waitCondition.wait(lkr, [this]{ return m_command != cmd_reload; });
+    auto i = m_data.find(key);
+    if(i != m_data.end()){
+        m_data.erase(i);
+        m_dirty = true;
+    }
+}
+
+String Settings::GetValue(const String &key)
 {
     String ret;
     unique_lock<mutex> lkr(m_lock);
@@ -102,7 +130,7 @@ String Settings::GetData(const String &key)
     return ret;
 }
 
-StringList Settings::GetData(const StringList &keys)
+StringList Settings::GetValues(const StringList &keys)
 {
     StringList ret;
     unique_lock<mutex> lkr(m_lock);
@@ -238,13 +266,21 @@ void Settings::_commit_changes()
     // Copy the data so we can release the lock
     unordered_map<String, String> data(m_data);
 
+    // We'll mark ourselves clean because we will immediately commit to disk
+    // and this allows the main thread to safely modify the map while we work.
+    bool was_dirty = m_dirty;
+    m_dirty = false;
+
     // Release the lock while we write the file
     m_lock.unlock();
 
-    // Be sure to reclaim the lock at the end
+    // Be sure to reclaim the lock at the end, and re-mark ourselves dirty if
+    //  something fails
+    bool restore_dirty = true;
     finally([&]{
         m_lock.lock();
-        m_dirty = false;
+        if(restore_dirty)
+            m_dirty = was_dirty || m_dirty; // Could have been marked dirty while working
         m_command = cmd_sleep;
         m_waitCondition.notify_all();
     });
@@ -278,6 +314,9 @@ void Settings::_commit_changes()
     f.Write(&(tb = (hash_final >> 16) & 0x0FF), 1);
     f.Write(&(tb = (hash_final >> 8) & 0x0FF), 1);
     f.Write(&(tb = hash_final & 0x0FF), 1);
+
+    // Mission success
+    restore_dirty = false;
 }
 
 

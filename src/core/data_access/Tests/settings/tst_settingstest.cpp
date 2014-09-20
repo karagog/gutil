@@ -57,20 +57,20 @@ void SettingsTest::test_basics()
         s.SetValue("first", "value1");
         QVERIFY(s.IsDirty());
         QVERIFY(s.Keys().Length() == 1);
-        QVERIFY(s.GetData("first") == "value1");
+        QVERIFY(s.GetValue("first") == "value1");
 
         // Add another value
         s.SetValue("second", "value2");
         QVERIFY(s.IsDirty());
         QVERIFY(s.Keys().Length() == 2);
-        QVERIFY(s.GetData("first") == "value1");
-        QVERIFY(s.GetData("second") == "value2");
+        QVERIFY(s.GetValue("first") == "value1");
+        QVERIFY(s.GetValue("second") == "value2");
 
         s.CommitChanges();
         QVERIFY(!s.IsDirty());
         QVERIFY(s.Keys().Length() == 2);
-        QVERIFY(s.GetData("first") == "value1");
-        QVERIFY(s.GetData("second") == "value2");
+        QVERIFY(s.GetValue("first") == "value1");
+        QVERIFY(s.GetValue("second") == "value2");
 
         // Check that AllData works
         auto alldata = s.AllData();
@@ -80,11 +80,30 @@ void SettingsTest::test_basics()
 
     {
         // Check that a new one reads the same values
-        Settings s2(SETTINGS_FILENAME);
-        QVERIFY(!s2.IsDirty());
-        QVERIFY(s2.Keys().Length() == 2);
-        QVERIFY(s2.GetData("first") == "value1");
-        QVERIFY(s2.GetData("second") == "value2");
+        Settings s(SETTINGS_FILENAME);
+        QVERIFY(!s.IsDirty());
+        QVERIFY(s.Keys().Length() == 2);
+        QVERIFY(s.GetValue("first") == "value1");
+        QVERIFY(s.GetValue("second") == "value2");
+
+        // Check that I can remove a key
+        s.Remove("first");
+        QVERIFY(s.IsDirty());
+        QVERIFY(s.Keys().Length() == 1);
+        QVERIFY(s.GetValue("first").IsNull());
+        QVERIFY(s.GetValue("second") == "value2");
+
+        // Notice I didn't commit changes; it should auto-commit them
+        //  when the object destructs
+    }
+
+    {
+        // Check that our changes persisted again
+        Settings s(SETTINGS_FILENAME);
+        QVERIFY(!s.IsDirty());
+        QVERIFY(s.Keys().Length() == 1);
+        QVERIFY(s.GetValue("first").IsNull());
+        QVERIFY(s.GetValue("second") == "value2");
     }
 }
 
