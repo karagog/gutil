@@ -45,7 +45,7 @@ public:
      *  object is destroyed.
     */
     LockedPointer(T *p, std::mutex &lock)
-        :pointer_guard(new std::lock_guard<std::mutex>(lock)) {}
+        :pointer(p), pointer_guard(new std::lock_guard<std::mutex>(lock)) {}
 
     T *Data() const{ return pointer; }
     T *operator -> () const{ return Data(); }
