@@ -22,8 +22,8 @@ limitations under the License.*/
 */
 
 #include "gutil_exception.h"
+#include "gutil_strings.h"
 #include <map>
-#include <string>
 #include <memory>
 #include <initializer_list>
 
@@ -44,12 +44,12 @@ template<>class ex_name<true> : \
     public: \
         ex_name() {} \
         ex_name(const char *message) :ex_name<false>(message) {} \
-        ex_name(const char *message, std::initializer_list<std::pair<const std::string, std::string>> il) \
+        ex_name(const char *message, std::initializer_list<std::pair<const String, String>> il) \
             :ex_name<false>(message), ExtendedException(il) {} \
-        ex_name(std::initializer_list<std::pair<const std::string, std::string>> il) \
+        ex_name(std::initializer_list<std::pair<const String, String>> il) \
             :ExtendedException(il) {} \
         ex_name(const char *message, const GUtil::Exception<> &inner_exception, \
-                std::initializer_list<std::pair<const std::string, std::string>> il) \
+                std::initializer_list<std::pair<const String, String>> il) \
             :ex_name<false>(message), ExtendedException(il, inner_exception) {} \
         ex_name(const char *message, const GUtil::Exception<> &inner_exception) \
             :ex_name<false>(message), ExtendedException(inner_exception) {} \
@@ -68,16 +68,16 @@ class ExtendedException
     std::unique_ptr<Exception<>> m_innerException;
 public:
     /** Directly access the exception data map. */
-    std::map<std::string, std::string> Data;
+    std::map<String, String> Data;
 
     /** Access the exception's inner exception (may be null). */
     inline Exception<> *GetInnerException() const{ return m_innerException.get(); }
     virtual ~ExtendedException() {}
 protected:
     ExtendedException() {}
-    ExtendedException(std::initializer_list<std::pair<const std::string, std::string>> il)
+    ExtendedException(std::initializer_list<std::pair<const String, String>> il)
         :Data(il) {}
-    ExtendedException(std::initializer_list<std::pair<const std::string, std::string>> il, const Exception<> &inner_exception)
+    ExtendedException(std::initializer_list<std::pair<const String, String>> il, const Exception<> &inner_exception)
         :m_innerException((Exception<>*)inner_exception.Clone()), Data(il) {}
     ExtendedException(const Exception<> &inner_exception)
         :m_innerException((Exception<>*)inner_exception.Clone()) {}

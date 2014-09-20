@@ -61,6 +61,14 @@ public:
         while(count-- != 0) Append(item);
     }
 
+    ListImp(std::initializer_list<T> il)
+        :m_pageCount(0),
+          m_size(0)
+    {
+        Reserve(il.size());
+        for(auto i : il) Append(i);
+    }
+
     /** Conducts a deep copy of the list */
     ListImp(const ListImp &o)
         :m_pageCount(0),
@@ -725,6 +733,7 @@ private:
     class_name(){} \
     class_name(GUINT32 reserve_capacity) :base_class(reserve_capacity){} \
     explicit class_name(const T &item, GUINT32 count = 1) :base_class(item, count){} \
+    class_name(std::initializer_list<T> il) :base_class(il) {} \
     class_name(const base_class &o) :base_class(o){} \
 
 

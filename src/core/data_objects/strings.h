@@ -896,7 +896,8 @@ public:
     operator char* (){ return Data(); }
 
     /** Useful cast operator to std::string */
-    operator std::string (){ return std::string(ConstData(), Length()); }
+    operator std::string () const{ return ToStdString(); }
+    std::string ToStdString() const{ return std::string(ConstData(), Length()); }
 
 
 #ifdef GUTIL_CORE_QT_ADAPTERS

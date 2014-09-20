@@ -726,7 +726,10 @@ String String::Trimmed() const
         }
     }
 
-    return String(iter_front, iter_back);
+    if(Length() == 0)
+        return *this;
+    else
+        return String(iter_front, iter_back);
 }
 
 
