@@ -56,7 +56,7 @@ bool Application::notify(QObject *o, QEvent *ev)
     catch(exception &ex){
         handle_exception(ex);
     }
-    catch(const shared_ptr<exception> &ex){
+    catch(const shared_ptr<GUtil::Exception<>> &ex){
         handle_exception(*ex);
     }
     return ret;
