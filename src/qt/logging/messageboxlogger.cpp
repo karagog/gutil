@@ -33,7 +33,7 @@ MessageBoxLogger::MessageBoxLogger(QWidget *parent)
 void MessageBoxLogger::Log(const LoggingData &d) noexcept
 {
     // Invoke this as a queued signal so the logging happens in our event loop
-    QMetaObject::invokeMethod(this, "_log", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(this, "_log", Qt::AutoConnection,
                               Q_ARG(LoggingData, d));
 }
 
