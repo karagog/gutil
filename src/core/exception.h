@@ -31,13 +31,13 @@ limitations under the License.*/
     template<bool extended = false>class ex_name : public ex_subclass_name \
     { \
     public: \
-        inline ex_name(const char *message = NULL) \
+        inline ex_name(const char *message = "") \
             : ex_subclass_name(message) {} \
         inline ex_name(const ex_name<false> &ex) \
             : ex_subclass_name(ex) {} \
         virtual ~ex_name() noexcept{} \
-        virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<false>"; } \
-        virtual IClonable *Clone() const noexcept{ return new ex_name<extended>(*this); } \
+        virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<>"; } \
+        virtual IClonable *Clone() const noexcept{ return new ex_name<false>(*this); } \
         members ; \
     }
 
