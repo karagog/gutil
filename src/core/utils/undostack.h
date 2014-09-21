@@ -36,11 +36,12 @@ public:
 
     /** Redoes the Undo() function.  This is called only after Do() was called
         the first time, and you undid it and now you want to do it again.
+        The default implementation executes Do() again.
     */
-    virtual void Redo() = 0;
+    virtual void Redo(){ Do(); }
 
     /** A field to provide a textual description of the action. */
-    virtual GUtil::String Text() const = 0;
+    virtual GUtil::String Text() const{ return String(); }
 
     /** So the implementation class can be deleted by the interface. */
     virtual ~IUndoableAction(){}
