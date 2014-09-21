@@ -166,7 +166,7 @@ public:
     /** Sorts the list with the given sorting algorithm. */
     void Sort(bool ascending = true,
                      GUtil::SortTypeEnum e = GUtil::MergeSort,
-                     const IComparer<T> &comparer = DefaultComparer<T>())
+                     const IComparer<T> &comparer = IComparer<T>())
     {
         switch(e)
         {

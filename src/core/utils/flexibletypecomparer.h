@@ -28,22 +28,22 @@ template<class T>class FlexibleTypeComparer :
         public IComparer<T>
 {
     int (*compare)(const T &, const T &);
-    
+
 public:
 
     /** Constructs a type comparer with the default compare function (less-than operator). */
-    FlexibleTypeComparer(){ _init(&DefaultCompare); }
+    FlexibleTypeComparer(){ _init(&GUtil::Compare<T>); }
 
     /** Constructs a type comparer with a compare function you supply. */
     FlexibleTypeComparer(int (*cmp)(const T &, const T &)){ _init(cmp); }
-    
+
     /** This instance will take on the compare behavior of the given argument. */
     FlexibleTypeComparer<T> &operator = (const FlexibleTypeComparer<T> &ftc){
         this->~FlexibleTypeComparer<T>();
         new(this) FlexibleTypeComparer<T>(ftc);
         return *this;
     }
-    
+
     /** This instance will take on the compare behavior of the given argument. */
     FlexibleTypeComparer<T> &operator = (int (*cmp)(const T &, const T &)){
         this->~FlexibleTypeComparer<T>();
@@ -61,20 +61,7 @@ public:
     */
     int Compare(const T &lhs, const T &rhs) const{ return compare(lhs, rhs); }
 
-    /** The default compare function uses the less-than operator.
 
-        This static function is made publicly available, in case you want to use the
-        default compare without consuming the class itself
-    */
-    static int DefaultCompare(const T &lhs, const T &rhs){
-        if(lhs < rhs)
-            return -1;
-        if(rhs < lhs)
-            return 1;
-        return 0;
-    }
-    
-    
 private:
 
     void _init(int (*cmp)(const T &, const T &)){
@@ -83,10 +70,6 @@ private:
 
 };
 
-
-/** A convenience class that compares two objects with their less-than operator. */
-template<class T>
-class DefaultComparer : public FlexibleTypeComparer<T>{};
 
 template<class T>struct IsMovableType< FlexibleTypeComparer<T> >{ enum{ Value = 1 }; };
 

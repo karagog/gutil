@@ -518,7 +518,7 @@ public:
     */
     void Sort(bool ascending = true,
               GUtil::SortTypeEnum e = GUtil::MergeSort,
-              const GUtil::IComparer<T> &comparer = GUtil::DefaultComparer<T>())
+              const GUtil::IComparer<T> &comparer = GUtil::IComparer<T>())
     {
         switch(e)
         {

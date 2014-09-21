@@ -22,6 +22,7 @@ limitations under the License.*/
 #include <limits.h>
 #include <malloc.h>
 #include <cstring>
+#include <functional>
 NAMESPACE_GUTIL;
 
 
@@ -49,7 +50,7 @@ public:
     /** Constructs an empty vector. */
     inline VectorImp() :m_capacity(0), m_size(0), m_data(NULL) {}
 
-    /** Constructs an empty vector capable of holding the given number of items. 
+    /** Constructs an empty vector capable of holding the given number of items.
         \param reserve_exactly If this is true, then only the required length is reserved.
     */
     explicit VectorImp(GUINT32 capacity, bool reserve_exactly = false)
@@ -64,7 +65,7 @@ public:
     }
 
 
-    /** Constructs a vector of the given size, where all elements are copies of the provided object. 
+    /** Constructs a vector of the given size, where all elements are copies of the provided object.
         \param reserve_exactly If this is true, then only the required length is reserved.
     */
     VectorImp(const T &o, GUINT32 size, bool reserve_exactly = false)
@@ -105,7 +106,7 @@ public:
         iter_begin to iter_end.
     */
     VectorImp(const typename VectorImp<T>::const_iterator &iter_begin,
-                        const typename VectorImp<T>::const_iterator &iter_end, 
+                        const typename VectorImp<T>::const_iterator &iter_end,
                         bool reserve_exactly = false)
         :m_capacity(0), m_size(0), m_data(NULL)
     {
@@ -648,14 +649,29 @@ public:
 
         \param sort_type The sorting algorithm to use.
     */
-    void Sort(bool ascending = true, const GUtil::IComparer<T> &comparer = GUtil::DefaultComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
-        switch(sort_type)
-        {
-        case GUtil::MergeSort:
-        {
+    void Sort(bool ascending = true, const GUtil::IComparer<T> &comparer = GUtil::IComparer<T>(), GUtil::SortTypeEnum sort_type = MergeSort){
+        Sort([&](const T &lhs, const T &rhs){ return comparer(lhs, rhs); }, ascending, sort_type);
+    }
+
+    /** Sorts the vector using the given sorting algorithm.
+
+        \param compare You can supply your own compare function, in case
+        the less-than operator is not good enough for you.
+
+        \param ascending The results are sorted ascendingly or descendingly
+        according to this flag.
+
+        \param sort_type The sorting algorithm to use.
+    */
+    void Sort(std::function<int(const T &, const T &)> compare,
+              bool ascending = true,
+              GUtil::SortTypeEnum sort_type = MergeSort)
+    {
+        switch(sort_type){
+        case GUtil::MergeSort: {
             VectorImp<T> buffer;
             buffer.ReserveExactly(Length());
-            _merge_sort(begin(), end(), ascending, buffer, comparer);
+            _merge_sort(begin(), end(), ascending, buffer, compare);
         }
             break;
         default:
@@ -858,7 +874,8 @@ private:
 
     static int _compute_capacity(int n){ return n <= 0 ? 0 : GEN_BITMASK<GUINT32>( FSB32( n ) ); }
 
-    void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer, const IComparer<T> &cmp){
+    void _merge_sort(const iterator &b, const iterator &e, bool ascending, VectorImp<T> &buffer,
+                     std::function<int(const T &lhs, const T &rhs)> cmp){
         GUINT32 diff( e - b );
         if(diff == GUINT32_MAX);
         else if(diff == 2)
