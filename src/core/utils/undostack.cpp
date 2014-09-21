@@ -95,7 +95,7 @@ String UndoStack::GetRedoText() const
 void UndoStack::Do(IUndoableAction *cmd)
 {
     Vector<IUndoableAction *> *vec;
-
+    std::unique_ptr<IUndoableAction> ex_guard(cmd);
     cmd->Do();
 
     if(IsMakingMacro())
@@ -111,6 +111,7 @@ void UndoStack::Do(IUndoableAction *cmd)
 
     // Push the item on the end of the list
     vec->PushBack(cmd);
+    ex_guard.release();
 }
 
 void UndoStack::Clear()
