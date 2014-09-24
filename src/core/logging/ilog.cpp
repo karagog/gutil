@@ -29,7 +29,7 @@ void ILog::LogException(const std::exception &std_ex) noexcept
     if(ext_ex){
         // If it's an extended exception
         String data_string{""};
-        const map<std::string, std::string> &keys( ext_ex->Data );
+        const unordered_map<string, string> &keys( ext_ex->Data );
         if(keys.size() > 0){
             data_string = "\n\nException Data:";
             for(const auto &p : keys){

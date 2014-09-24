@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "gutil_iclonable.h"
 #include <exception>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <initializer_list>
 
@@ -194,7 +194,7 @@ class ExtendedException
     std::unique_ptr<Exception<>> m_innerException;
 public:
     /** Directly access the exception data map. */
-    std::map<std::string, std::string> Data;
+    std::unordered_map<std::string, std::string> Data;
 
     /** Access the exception's inner exception (may be null). */
     inline Exception<> *GetInnerException() const{ return m_innerException.get(); }
