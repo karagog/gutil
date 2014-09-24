@@ -20,11 +20,6 @@ limitations under the License.*/
 
 namespace GUtil{
 
-/** Throw this exception from the ReadBytes and WriteBytes functions, and
- *  provide the correct number of bytes
-*/
-GUTIL_EXCEPTION_DECLARE_WITH_MEMBERS( IOException, int Bytes );
-
 
 /** An abstract interface that says you implement a way of receiving data
     from somewhere
@@ -33,9 +28,6 @@ class IInput
 {
 public:
     /** Attempts to read data from the device.
-
-        Derived classes should throw an IOException upon error, with the
-        number of bytes read.
 
         If no exception is thrown, it should return the number of bytes read.
 
