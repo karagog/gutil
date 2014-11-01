@@ -16,7 +16,7 @@ HEADERS += \
     data_objects/symmetricmatrix.h \
     data_objects/range.h \
     data_objects/nullable.h \
-    data_objects/strings.h \
+    data_objects/string.h \
     data_objects/bitvector.h \
     data_objects/uuid.h \
     data_objects/id.h \
@@ -27,7 +27,7 @@ HEADERS += \
 
 SOURCES += \
     data_objects/version.cpp \
-    data_objects/strings.cpp \
+    data_objects/string.cpp \
     data_objects/uuid.cpp \
     data_objects/hash.cpp
 

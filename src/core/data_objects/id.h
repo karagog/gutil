@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_ID_H
 
 #include <gutil/rng.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <cstring>
 
 #ifdef GUTIL_CORE_QT_ADAPTERS

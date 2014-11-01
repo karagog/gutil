@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_UNDOSTACK_H
 
 #include <gutil/vector.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 
 NAMESPACE_GUTIL;
 

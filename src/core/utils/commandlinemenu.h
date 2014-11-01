@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_COMMANDLINEMENU_H
 #define GUTIL_COMMANDLINEMENU_H
 
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <gutil/vector.h>
 #include <gutil/smartpointer.h>
 #include <gutil/macros.h>

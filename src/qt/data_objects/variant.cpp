@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "variant.h"
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <limits.h>

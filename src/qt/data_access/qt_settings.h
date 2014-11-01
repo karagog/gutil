@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_QT_SETTINGS_H
 
 #include <gutil/settings.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <QVariant>
 #include <QObject>
 

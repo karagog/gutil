@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_DATABASEUTILS_H
 
 #include <gutil/macros.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <QString>
 #include <QDateTime>
 

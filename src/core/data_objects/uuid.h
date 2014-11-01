@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_UUID_H
 #define GUTIL_UUID_H
 
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <gutil/globals.h>
 
 NAMESPACE_GUTIL;

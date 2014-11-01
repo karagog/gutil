@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_SETTINGS_H
 #define GUTIL_SETTINGS_H
 
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <unordered_map>
 #include <mutex>
 #include <condition_variable>

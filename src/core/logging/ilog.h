@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_ILOG_H
 #define GUTIL_ILOG_H
 
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <time.h>
 
 namespace std{

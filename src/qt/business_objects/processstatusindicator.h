@@ -20,7 +20,7 @@ limitations under the License.*/
 
 #include <gutil/qt_settings.h>
 #include <gutil/usermachinelocks.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <gutil/smartpointer.h>
 #include <QRunnable>
 #include <QThreadPool>

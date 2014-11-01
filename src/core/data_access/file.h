@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_FILE_H
 
 #include <gutil/iio.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <functional>
 
 NAMESPACE_GUTIL;

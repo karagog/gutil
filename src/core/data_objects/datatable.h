@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <gutil/collection.h>
 #include <gutil/map.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 #include <gutil/pairlist.h>
 #include <gutil/smartpointer.h>
 #include <gutil/iupdatable.h>

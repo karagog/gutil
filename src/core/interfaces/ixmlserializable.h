@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <gutil/macros.h>
 #include <gutil/exception.h>
-#include <gutil/strings.h>
+#include <gutil/string.h>
 
 NAMESPACE_GUTIL;
 
