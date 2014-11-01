@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_SELECTDATERANGE_H
 #define GUTIL_SELECTDATERANGE_H
 
-#include "gutil_smartpointer.h"
-#include "gutil_range.h"
+#include <gutil/smartpointer.h>
+#include <gutil/range.h>
 #include <QWidget>
 #include <QDateTime>
 
@@ -28,7 +28,7 @@ namespace Ui {
 class SelectDateRange;
 }
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Use this control to select a range of time. */

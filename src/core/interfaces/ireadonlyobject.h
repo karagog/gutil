@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef IREADONLYOBJECT_H
 #define IREADONLYOBJECT_H
 
-#include "gutil_macros.h"
-#include "gutil_exception.h"
+#include <gutil/macros.h>
+#include <gutil/exception.h>
 
 NAMESPACE_GUTIL;
 

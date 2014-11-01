@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_STRING_H
 #define GUTIL_STRING_H
 
-#include "gutil_vector.h"
-#include "gutil_list.h"
+#include <gutil/vector.h>
+#include <gutil/list.h>
 #include <cstdarg>
 #include <string>
 
@@ -891,7 +891,9 @@ public:
     String &operator += (const String &s){ Append(s); return *this; }
 
     char &operator[] (GUINT32 i){ return Vector<char>::operator [](i); }
+    char &operator[] (GINT32 i){ return Vector<char>::operator [](i); }
     const char &operator[] (GUINT32 i) const{ return Vector<char>::operator [](i); }
+    const char &operator[] (GINT32 i) const{ return Vector<char>::operator [](i); }
 
     char &At(GUINT32 i){ return Vector<char>::At(i); }
     const char &At(GUINT32 i) const{ return Vector<char>::At(i); }

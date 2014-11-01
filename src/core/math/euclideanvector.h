@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_EUCLIDEANVECTOR_H
 #define GUTIL_EUCLIDEANVECTOR_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <math.h>
 NAMESPACE_GUTIL;
 

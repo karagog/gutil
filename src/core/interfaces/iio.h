@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_IOINTERFACE_H
 #define GUTIL_IOINTERFACE_H
 
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <limits.h>
 
 namespace GUtil{

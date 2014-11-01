@@ -29,7 +29,7 @@ limitations under the License.*/
 
     Classes and functions in the root GUtil namespace don't, by convention, depend on
     anything outside of the GUtilCore library.  If there is a class which depends on Qt,
-    you should find it in GUtil::QT root.  If a class depends on CryptoPP, you should find it
+    you should find it in GUtil::Qt root.  If a class depends on CryptoPP, you should find it
     in the GUtil::CryptoPP root.
 
     The GUtil namespace is divided into sub-namespaces, organizing classes/functions into
@@ -42,7 +42,7 @@ limitations under the License.*/
     Dice, cards, etc...  Business objects relating to games, but not dependent on Qt.
 
 
-    \namespace GUtil::QT GUtil's Qt-dependent classes and functions.
+    \namespace GUtil::Qt GUtil's Qt-dependent classes and functions.
 
     This namespace is divided similarly with the base GUtil namespace, into modules
     like DataObjects, BusinessObjects, etc...  The only difference is that classes

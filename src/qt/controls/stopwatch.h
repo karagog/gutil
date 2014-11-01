@@ -17,13 +17,13 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_stopwatchengine.h"
+#include <gutil/stopwatchengine.h>
 #include <QPushButton>
 
 class QLabel;
 class QPushButton;
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Implements a simple stopwatch widget. */

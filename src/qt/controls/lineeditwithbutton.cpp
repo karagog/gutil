@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "lineeditwithbutton.h"
 #include <QHBoxLayout>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 LineEditWithButton::LineEditWithButton(QAction *a, QWidget *par)
@@ -24,7 +24,7 @@ LineEditWithButton::LineEditWithButton(QAction *a, QWidget *par)
 {
     // The m_button starts out hidden, then fades in magically
     m_button.hide();
-    m_button.setToolButtonStyle(Qt::ToolButtonFollowStyle);
+    m_button.setToolButtonStyle(::Qt::ToolButtonFollowStyle);
     m_button.setDefaultAction(a);
     m_button.setText("...");
 
@@ -47,7 +47,7 @@ LineEditWithButton::LineEditWithButton(QAction *a, QWidget *par)
     layout()->addWidget(&m_lineEdit);
     layout()->addWidget(&m_button);
 
-    m_button.setFocusPolicy(Qt::NoFocus);
+    m_button.setFocusPolicy(::Qt::NoFocus);
     setFocusProxy(&m_lineEdit);
 }
 

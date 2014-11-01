@@ -17,11 +17,11 @@ limitations under the License.*/
 #ifndef GUTIL_MESSAGEBOXLOGGER_H
 #define GUTIL_MESSAGEBOXLOGGER_H
 
-#include "gutil_ilog.h"
+#include <gutil/ilog.h>
 #include <QObject>
 class QWidget;
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** A logger implementation which displays the message in a modal dialog box. */

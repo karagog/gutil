@@ -19,7 +19,7 @@ limitations under the License.*/
 
 #include <QWidget>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** My own subclass of QWidget with added functionality.

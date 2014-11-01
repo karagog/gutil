@@ -15,13 +15,13 @@ limitations under the License.*/
 #ifndef DATATRANSFERUTILS_H
 #define DATATRANSFERUTILS_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 
 
 class QString;
 class QByteArray;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A static class that declares functions which may help in

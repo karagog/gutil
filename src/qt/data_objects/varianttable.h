@@ -15,14 +15,14 @@ limitations under the License.*/
 #ifndef GUTIL_VARIANTTABLE_H
 #define GUTIL_VARIANTTABLE_H
 
-#include "gutil_datatable.h"
-#include "gutil_variant.h"
+#include <gutil/datatable.h>
+#include <gutil/variant.h>
 
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 class VariantTable :

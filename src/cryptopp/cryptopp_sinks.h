@@ -16,8 +16,8 @@ limitations under the License.*/
 #define GUTIL_CRYPTOPP_SINKS_H
 
 #include <cryptopp/simple.h>
-#include "gutil_iio.h"
-#include "gutil_cryptopp_hash.h"
+#include <gutil/iio.h>
+#include <gutil/cryptopp_hash.h>
 
 NAMESPACE_GUTIL;
 class String;

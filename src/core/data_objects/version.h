@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_VERSION_H
 #define GUTIL_VERSION_H
 
-#include "gutil_macros.h"
-#include "gutil_strings.h"
+#include <gutil/macros.h>
+#include <gutil/strings.h>
 
 NAMESPACE_GUTIL;
 

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QDialog>
 #include <QLineEdit>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** A ready-made dialog to prompt the user for a string value. */

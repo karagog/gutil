@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_SET_H
 #define GUTIL_SET_H
 
-#include "gutil_vector.h"
-#include "gutil_binarysearchtree.h"
+#include <gutil/vector.h>
+#include <gutil/binarysearchtree.h>
 NAMESPACE_GUTIL;
 
 

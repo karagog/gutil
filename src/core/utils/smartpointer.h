@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_SHAREDSMARTPOINTER_H
 #define GUTIL_SHAREDSMARTPOINTER_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <atomic>
 #include <new>  // For the placement new operator
 NAMESPACE_GUTIL;

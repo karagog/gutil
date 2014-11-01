@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_GLOBALLOGGER_H
 #define GUTIL_GLOBALLOGGER_H
 
-#include "gutil_ilog.h"
+#include <gutil/ilog.h>
 
 /** \file    
 

@@ -14,11 +14,11 @@ limitations under the License.*/
 
 #include "cryptopp_cryptor.h"
 #include "cryptopp_sinks.h"
-#include "gutil_d.h"
-#include "gutil_exception.h"
-#include "gutil_file.h"
-#include "gutil_smartpointer.h"
-#include "gutil_cryptopp_hash.h"
+#include <gutil/d.h>
+#include <gutil/exception.h>
+#include <gutil/file.h>
+#include <gutil/smartpointer.h>
+#include <gutil/cryptopp_hash.h>
 #include <cryptopp/ccm.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/osrng.h>

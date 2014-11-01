@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #include "ihash.h"
 #include "iio.h"
-#include "gutil_iprogresshandler.h"
-#include "gutil_globals.h"
+#include <gutil/iprogresshandler.h>
+#include <gutil/globals.h>
 
 NAMESPACE_GUTIL;
 

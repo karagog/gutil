@@ -9,7 +9,7 @@ QT       -= gui
 TARGET = GUtilCryptoPP
 TEMPLATE = lib
 #CONFIG += staticlib
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++11
 
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib

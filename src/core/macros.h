@@ -26,7 +26,7 @@ limitations under the License.*/
 
 
 // Include the useful hidden member data implementation for all to use
-#include "gutil_d.h"
+#include <gutil/d.h>
 
 
 /** Represents a generic 8 bits of memory. */

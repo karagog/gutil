@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include "iodevice.h"
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Implements an IODevice that listens and writes to the console on a 

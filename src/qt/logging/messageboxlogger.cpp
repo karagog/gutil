@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QMetaType>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 MessageBoxLogger::MessageBoxLogger(QWidget *parent)
@@ -33,7 +33,7 @@ MessageBoxLogger::MessageBoxLogger(QWidget *parent)
 void MessageBoxLogger::Log(const LoggingData &d) noexcept
 {
     // Invoke this as a queued signal so the logging happens in our event loop
-    QMetaObject::invokeMethod(this, "_log", Qt::AutoConnection,
+    QMetaObject::invokeMethod(this, "_log", ::Qt::AutoConnection,
                               Q_ARG(LoggingData, d));
 }
 

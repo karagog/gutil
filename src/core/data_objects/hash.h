@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_HASH_H
 #define GUTIL_HASH_H
 
-#include "gutil_ihash.h"
+#include <gutil/ihash.h>
 
 NAMESPACE_GUTIL;
 

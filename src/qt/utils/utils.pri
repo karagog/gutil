@@ -1,6 +1,4 @@
 
-LIBS += -lGUtilThirdPartyQtLockedFile
-
 SOURCES += \
     utils/usermachinelocks.cpp \
     utils/universalmutex.cpp \

@@ -38,7 +38,7 @@ limitations under the License.*/
  *
  * foo.cpp:
  *
- *  #include "gutil_d.h"
+ *  #include <gutil/d.h>
  *
  *  // Your class' data type (the name must match, but of course the class members are up to you)
  *  struct d_t

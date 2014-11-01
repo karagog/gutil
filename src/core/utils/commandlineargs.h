@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_COMMANDLINEARGS_H
 #define GUTIL_COMMANDLINEARGS_H
 
-#include "gutil_macros.h"
-#include "gutil_strings.h"
+#include <gutil/macros.h>
+#include <gutil/strings.h>
 
 NAMESPACE_GUTIL;
 

@@ -17,8 +17,8 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_range.h"
-#include "gutil_globals.h"
+#include <gutil/range.h>
+#include <gutil/globals.h>
 #include <QAbstractItemView>
 #include <QPointer>
 #include <QRubberBand>
@@ -32,7 +32,7 @@ namespace GUtil{
 
 template <class T> class SymmetricMatrix;
 
-namespace QT{
+namespace Qt{
 
 class FormattedText;
 
@@ -72,9 +72,9 @@ public:
     //   using the 'data()' function
     enum DataEnum
     {
-        StartDate = Qt::UserRole + 25,
-        EndDate = Qt::UserRole + 26,
-        StartAndEndDate = Qt::UserRole + 27
+        StartDate = ::Qt::UserRole + 25,
+        EndDate = ::Qt::UserRole + 26,
+        StartAndEndDate = ::Qt::UserRole + 27
     };
 
     // QAbstractItemView interface:
@@ -129,7 +129,7 @@ protected:
 
 
     // QAbstractItemView interface:
-    virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+    virtual QModelIndex moveCursor(CursorAction cursorAction, ::Qt::KeyboardModifiers modifiers);
     virtual int horizontalOffset() const;
     virtual int verticalOffset() const;
     virtual bool isIndexHidden(const QModelIndex &index) const;

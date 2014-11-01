@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef GUTIL_DATABASELOGGER_H
 #define GUTIL_DATABASELOGGER_H
 
-#include "gutil_ilog.h"
+#include <gutil/ilog.h>
 #include <QString>
 
 class QSqlDatabase;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** Logs stuff to a database */

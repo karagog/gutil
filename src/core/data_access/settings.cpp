@@ -13,10 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "settings.h"
-#include "gutil_globals.h"
-#include "gutil_globallogger.h"
-#include "gutil_hash.h"
-#include "gutil_file.h"
+#include <gutil/globals.h>
+#include <gutil/globallogger.h>
+#include <gutil/hash.h>
+#include <gutil/file.h>
 using namespace std;
 
 static const char SETTINGS_FILE_HEADER[] = "# GUtil Persistent Settings";

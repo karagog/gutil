@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_RNG_H
 #define GUTIL_RNG_H
 
-#include "gutil_globals.h"
-#include "gutil_pair.h"
-#include "gutil_lockedpointer.h"
+#include <gutil/globals.h>
+#include <gutil/pair.h>
+#include <gutil/lockedpointer.h>
 
 NAMESPACE_GUTIL;
 

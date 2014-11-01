@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_OUTPUTDEVICELOGGER_H
 #define GUTIL_OUTPUTDEVICELOGGER_H
 
-#include "gutil_ilog.h"
-#include "gutil_smartpointer.h"
+#include <gutil/ilog.h>
+#include <gutil/smartpointer.h>
 
 NAMESPACE_GUTIL;
 class IOutput;

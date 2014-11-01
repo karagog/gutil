@@ -14,7 +14,7 @@ limitations under the License.*/
 #ifndef GUTIL_IUPDATABLE_H
 #define GUTIL_IUPDATABLE_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 
 NAMESPACE_GUTIL;
 

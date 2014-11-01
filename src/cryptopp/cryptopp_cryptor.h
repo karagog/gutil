@@ -15,11 +15,11 @@ limitations under the License.*/
 #ifndef GUTIL_CRYPTOPP_CRYPTOR_H
 #define GUTIL_CRYPTOPP_CRYPTOR_H
 
-#include "gutil_iio.h"
-#include "gutil_iprogresshandler.h"
-#include "gutil_iclonable.h"
-#include "gutil_vector.h"
-#include "gutil_smartpointer.h"
+#include <gutil/iio.h>
+#include <gutil/iprogresshandler.h>
+#include <gutil/iclonable.h>
+#include <gutil/vector.h>
+#include <gutil/smartpointer.h>
 
 NAMESPACE_GUTIL1(CryptoPP);
 

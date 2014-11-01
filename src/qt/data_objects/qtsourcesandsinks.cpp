@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "qtsourcesandsinks.h"
 #include <QByteArray>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 GUINT32 QByteArrayOutput::WriteBytes(const byte *ba, unsigned int len)

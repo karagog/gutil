@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_GPSUTILS_H
 #define GUTIL_GPSUTILS_H
 
-#include "gutil_file.h"
-#include "gutil_smartpointer.h"
-#include "gutil_cryptopp_hash.h"
+#include <gutil/file.h>
+#include <gutil/smartpointer.h>
+#include <gutil/cryptopp_hash.h>
 
 /** \file
  *  Classes for managing Portable Safe files (GPS).

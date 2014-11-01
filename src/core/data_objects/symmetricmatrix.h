@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef SYMMETRICMATRIX_H
 #define SYMMETRICMATRIX_H
 
-#include "gutil_imatrix.h"
-#include "gutil_vector.h"
+#include <gutil/imatrix.h>
+#include <gutil/vector.h>
 
 NAMESPACE_GUTIL;
 

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_EXCEPTION_H
 #define GUTIL_EXCEPTION_H
 
-#include "gutil_iclonable.h"
+#include <gutil/iclonable.h>
 #include <exception>
 #include <string>
 #include <unordered_map>

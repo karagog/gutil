@@ -16,7 +16,7 @@ limitations under the License.*/
 
 #include "localsocketiodevice.h"
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 LocalSocketIODevice::LocalSocketIODevice(QLocalSocket *s, QObject *parent)

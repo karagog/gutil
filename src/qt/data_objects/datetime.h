@@ -16,9 +16,9 @@ limitations under the License.*/
 #define GDATETIME_H
 
 #include <QDateTime>
-#include "gutil_flags.h"
+#include <gutil/flags.h>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A customization of QDateTime.
@@ -125,8 +125,8 @@ private:
 END_NAMESPACE_GUTIL1;
 
 
-GUTIL_DECLARE_FLAG_OPERATORS(GUtil::QT::DateTime::TimeBreakdownFlags,
-                             GUtil::QT::DateTime::TimeBreakdownFlag);
+GUTIL_DECLARE_FLAG_OPERATORS(GUtil::Qt::DateTime::TimeBreakdownFlags,
+                             GUtil::Qt::DateTime::TimeBreakdownFlag);
 
 
 #endif // GDATETIME_H

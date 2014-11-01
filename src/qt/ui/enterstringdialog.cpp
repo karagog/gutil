@@ -12,13 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include "enterstringdialog.h"
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QDialogButtonBox>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 #define DIALOG_WIDTH 400
 #define DIALOG_HEIGHT 100
@@ -40,7 +40,7 @@ EnterStringDialog::EnterStringDialog(const QString &title, const QString &prompt
 
     QDialogButtonBox *bb;
     l->addWidget(bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                                           Qt::Horizontal,
+                                           ::Qt::Horizontal,
                                            this));
     connect(bb, SIGNAL(accepted()), this, SLOT(accept()));
     connect(bb, SIGNAL(rejected()), this, SLOT(reject()));

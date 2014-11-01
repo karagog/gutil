@@ -14,7 +14,7 @@ DESTDIR = $$TOP_DIR/lib
 TEMPLATE = lib
 CONFIG += staticlib
 
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++11
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)

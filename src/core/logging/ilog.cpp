@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ilog.h"
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 using namespace std;
 
 NAMESPACE_GUTIL;

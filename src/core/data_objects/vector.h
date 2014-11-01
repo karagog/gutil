@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_VECTOR_H
 #define GUTIL_VECTOR_H
 
-#include "gutil_globals.h"
-#include "gutil_flexibletypecomparer.h"
-#include "gutil_icollections.h"
+#include <gutil/globals.h>
+#include <gutil/flexibletypecomparer.h>
+#include <gutil/icollections.h>
 #include <new>
 #include <limits.h>
 #include <malloc.h>
@@ -525,11 +525,13 @@ public:
         \note Does not do any bounds checking.
     */
     T const &operator [](GUINT32 i) const{ return ConstData()[i]; }
+    T const &operator [](GINT32 i) const{ return ConstData()[i]; }
 
     /** Accesses the data at the given index.
         \note Does not do any bounds checking.
     */
     T &operator [](GUINT32 i){ return Data()[i]; }
+    T &operator [](GINT32 i){ return Data()[i]; }
 
     /** Accesses the data at the given index.
         \note Checks the index and throws an exception if it is out of bounds

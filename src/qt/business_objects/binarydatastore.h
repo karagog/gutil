@@ -17,12 +17,12 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
-#include "gutil_vector.h"
-#include "gutil_pair.h"
+#include <gutil/vector.h>
+#include <gutil/pair.h>
 #include <QString>
 #include <QUuid>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** Use this class to manage binary data without consuming lots of memory.

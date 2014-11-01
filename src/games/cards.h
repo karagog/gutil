@@ -30,8 +30,8 @@ limitations under the License.*/
 #ifndef GUTIL_CARDS_H
 #define GUTIL_CARDS_H
 
-#include "gutil_flexibletypecomparer.h"
-#include "gutil_vector.h"
+#include <gutil/flexibletypecomparer.h>
+#include <gutil/vector.h>
 
 NAMESPACE_GUTIL1(Games);
 

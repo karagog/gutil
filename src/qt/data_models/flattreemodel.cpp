@@ -13,9 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "flattreemodel.h"
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 void FlatTreeModel::setSourceModel(QAbstractItemModel *m)

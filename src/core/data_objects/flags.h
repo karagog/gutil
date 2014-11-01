@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_FLAGS_H
 #define GUTIL_FLAGS_H
 
-#include "gutil_globals.h"
-#include "gutil_bitvector.h"
+#include <gutil/globals.h>
+#include <gutil/bitvector.h>
 NAMESPACE_GUTIL;
 
 

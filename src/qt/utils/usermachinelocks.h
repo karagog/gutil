@@ -17,15 +17,15 @@ limitations under the License.*/
 #ifndef APPLICATIONLOCK_H
 #define APPLICATIONLOCK_H
 
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <QString>
 #include <QMap>
 #include <QReadWriteLock>
 #include <QSemaphore>
 
-class QtLockedFile;
+class QLockFile;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** An easy to use inter-process locking mechanism.
@@ -69,7 +69,8 @@ protected:
 
 private:
 
-    QtLockedFile *_usermachinelockfile;
+    QLockFile *_usermachinelockfile;
+    QString m_filename;
 
     void _grab_lock_in_process(bool for_read, bool block);
     void _release_lock(){
@@ -77,7 +78,6 @@ private:
         SetLockOwner(false);
     }
 
-    void _pre_init();
     void _post_init();
 
     QReadWriteLock &_get_lock_reference(){

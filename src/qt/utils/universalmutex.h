@@ -27,7 +27,7 @@ limitations under the License.*/
 #include <QStringList>
 
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** This class provides mutually exclusive access to a file.

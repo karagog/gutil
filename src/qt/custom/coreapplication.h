@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include "applicationbase.h"
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** A customized QCoreApplication, which implements the Application functionality */

@@ -15,14 +15,14 @@ limitations under the License.*/
 #ifndef GUTIL_IODEVICE_H
 #define GUTIL_IODEVICE_H
 
-#include "gutil_ireadonlyobject.h"
-#include "gutil_exception.h"
+#include <gutil/ireadonlyobject.h>
+#include <gutil/exception.h>
 #include <QByteArray>
 #include <QMutex>
 #include <QUuid>
 #include <QObject>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** This is an abstract base class to represent different methods of data transport
@@ -94,7 +94,7 @@ protected:
     virtual QByteArray receive_data() = 0;
 
     // IReadonly interface
-    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::QT::IODevice"; }
+    virtual const char *ReadonlyMessageIdentifier() const{ return "GUtil::Qt::IODevice"; }
 
 
 protected slots:

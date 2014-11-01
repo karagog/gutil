@@ -17,12 +17,12 @@ limitations under the License.*/
 #ifndef GUTIL_PROCESSSTATUSSERVER_H
 #define GUTIL_PROCESSSTATUSSERVER_H
 
-#include "gutil_smartpointer.h"
+#include <gutil/smartpointer.h>
 #include <QLocalSocket>
 #include <QLocalServer>
 #include <QThreadPool>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Implements an application status server, which provides status information

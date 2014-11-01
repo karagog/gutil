@@ -13,20 +13,20 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "aboutgutil.h"
-#include "gutil_globals.h"
-#include "gutil_about.h"
+#include <gutil/globals.h>
+#include <gutil/about.h>
 #include <QResource>
 
 
 /** Defines the implementation of the about window */
 class __about_gutil :
-        public GUtil::QT::About
+        public GUtil::Qt::About
 {
     Q_OBJECT
 public:
 
     explicit __about_gutil(QWidget *parent)
-        : GUtil::QT::About(parent, false, true)
+        : GUtil::Qt::About(parent, false, true)
     {
         // Set up the about window
         _dialog.setWindowTitle("About GUtil");
@@ -50,7 +50,7 @@ public:
 
 
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 void AboutGUtil::ShowAboutGUtil(QWidget *parent)
@@ -60,7 +60,5 @@ void AboutGUtil::ShowAboutGUtil(QWidget *parent)
 
 
 END_NAMESPACE_GUTIL1;
-
-Q_EXPORT_PLUGIN2(GUtilAboutPlugin, GUtil::QT::AboutGUtil)
 
 #include "aboutgutil.moc"

@@ -13,12 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "variant.h"
-#include "gutil_strings.h"
+#include <gutil/strings.h>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <limits.h>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 #define GVARIANT_XML_ID "GV"
 
@@ -256,7 +256,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
                                          sltemp3.at(1).toInt(),
                                          sltemp3.at(2).toInt(),
                                          sltemp3.at(3).toInt()),
-                                   (Qt::TimeSpec)sltemp1.at(2).toInt()));
+                                   (::Qt::TimeSpec)sltemp1.at(2).toInt()));
                 break;
             case BitArray:
                 baBitArray.resize(d.length());
@@ -279,7 +279,7 @@ void Variant::ReadXml(QXmlStreamReader &sr)
                 break;
             case RegExp:
                 sltemp1 = sr.attributes().at(2).value().toString().split(",");
-                setValue(QRegExp(d, (Qt::CaseSensitivity)sltemp1.at(0).toInt(),
+                setValue(QRegExp(d, (::Qt::CaseSensitivity)sltemp1.at(0).toInt(),
                                  (QRegExp::PatternSyntax)sltemp1.at(1).toInt()));
                 break;
             case Url:

@@ -17,11 +17,11 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QString>
 #include <QFont>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A convenience class that pairs a piece of text with the font with which to format it. */

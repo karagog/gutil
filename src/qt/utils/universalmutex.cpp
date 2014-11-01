@@ -14,11 +14,11 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_universalmutex.h"
-#include "gutil_exception.h"
-#include "gutil_globals.h"
+#include <gutil/universalmutex.h>
+#include <gutil/exception.h>
+#include <gutil/globals.h>
 #include <QFile>
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define UNIVERSAL_MUTEX_MODIFIER "UNIVERSAL_LOCK"
@@ -34,7 +34,7 @@ UniversalMutex::UniversalMutex(const QString &file_path,
       _is_locked(false)
 {
     if(!m_id.isNull())
-        m_Ids.append(m_id);
+        m_Ids.append(m_id.toString());
 
     if(!file_path.isNull())
         SetFilePath(file_path);
@@ -168,17 +168,17 @@ void UniversalMutex::_lock()
         {
             QUuid tmp(f.readAll().constData());
             if(!tmp.isNull())
-                unrecognized_guid = !m_Ids.contains(tmp);
+                unrecognized_guid = !m_Ids.contains(tmp.toString());
         }
 
         if(unrecognized_guid)
         {
             f.close();
-            throw LockException<>(QString("Someone else already owns the universal lock: %1").arg(GetFilepath()).toAscii());
+            throw LockException<>(QString("Someone else already owns the universal lock: %1").arg(GetFilepath()).toUtf8());
         }
 
         f.resize(0);
-        f.write(m_id.toString().toAscii());
+        f.write(m_id.toString().toUtf8());
     }
     f.close();
 }

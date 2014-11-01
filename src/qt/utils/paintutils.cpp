@@ -13,13 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "paintutils.h"
-#include "gutil_euclideanvector.h"
-#include "gutil_exception.h"
-#include "gutil_macros.h"
+#include <gutil/euclideanvector.h>
+#include <gutil/exception.h>
+#include <gutil/macros.h>
 #include <math.h>
 #include <QPainter>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 void PaintUtils::DrawArrow(QPainter &painter,

@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_SOURCESANDSINKS_H
 #define GUTIL_SOURCESANDSINKS_H
 
-#include "gutil_iio.h"
-#include "gutil_vector.h"
+#include <gutil/iio.h>
+#include <gutil/vector.h>
 #include <cstdarg>
 
 NAMESPACE_GUTIL;

@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "file.h"
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <stdio.h>
 #include <malloc.h>
 using namespace std;

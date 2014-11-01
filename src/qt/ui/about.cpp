@@ -15,11 +15,11 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 
-#include "gutil_about.h"
-#include "gutil_macros.h"
-#include "gutil_application.h"
-#include "gutil_licensewindow.h"
-#include "gutil_aboutgutil.h"
+#include <gutil/about.h>
+#include <gutil/macros.h>
+#include <gutil/application.h>
+#include <gutil/licensewindow.h>
+#include <gutil/aboutgutil.h>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
@@ -29,7 +29,7 @@ limitations under the License.*/
 #include <QPluginLoader>
 #include <QMessageBox>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 #define TITLE_HEIGHT 40
 
@@ -74,7 +74,7 @@ QString AboutLogic::_load_about_gutil_plugin()
             .arg(QCoreApplication::applicationDirPath())
             .arg(GUTIL_SHAREDLIBRARY_NAME GUTIL_SHAREDLIBRARY_SUFFIX)));
         if(pl.load()){
-            IAboutGUtil *iface( qobject_cast<GUtil::QT::IAboutGUtil *>(pl.instance()) );
+            IAboutGUtil *iface( qobject_cast<GUtil::Qt::IAboutGUtil *>(pl.instance()) );
             if(iface){
                 si_ag = iface;
             }
@@ -130,8 +130,8 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
     // Prepare the dialog layout
     _dialog.resize(400, 300);
 
-    _header.setAlignment(Qt::AlignHCenter);
-    _buildinfo.setAlignment(Qt::AlignHCenter);
+    _header.setAlignment(::Qt::AlignHCenter);
+    _buildinfo.setAlignment(::Qt::AlignHCenter);
     {
         QFont f;
         f.setBold(true);
@@ -143,7 +143,7 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
     QHBoxLayout *top_level_layout(new QHBoxLayout);
     m_imageFrame->hide();
     top_level_layout->addWidget(m_imageFrame);
-    top_level_layout->setAlignment(m_imageFrame, Qt::AlignTop);
+    top_level_layout->setAlignment(m_imageFrame, ::Qt::AlignTop);
 
     QVBoxLayout *vbl( new QVBoxLayout );
     top_level_layout->addLayout(vbl);

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "gutil_strings.h"
+#include <gutil/strings.h>
 
 NAMESPACE_GUTIL;
 

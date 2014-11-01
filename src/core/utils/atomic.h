@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_ATOMIC_H
 #define GUTIL_ATOMIC_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 
 NAMESPACE_GUTIL;
 

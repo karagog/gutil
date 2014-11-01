@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "faderwidget.h"
-#include "gutil_globals.h"
+#include <gutil/globals.h>
 #include <QPainter>
 #include <QEvent>
 #include <QTimer>
@@ -21,7 +21,7 @@ USING_NAMESPACE_GUTIL;
 
 #define FADE_RESOLUTION 40
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 FaderWidget::FaderWidget(QWidget *par, GUINT32 fade_duration, GUINT32 fade_delay)

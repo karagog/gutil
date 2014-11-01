@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_GROUPLOGGER_H
 #define GUTIL_GROUPLOGGER_H
 
-#include "gutil_ilog.h"
-#include "gutil_vector.h"
+#include <gutil/ilog.h>
+#include <gutil/vector.h>
 #include <initializer_list>
 
 NAMESPACE_GUTIL;

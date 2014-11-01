@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_QUEUEDLOGGER_H
 #define GUTIL_QUEUEDLOGGER_H
 
-#include "gutil_ilog.h"
-#include "gutil_smartpointer.h"
-#include "gutil_slist.h"
+#include <gutil/ilog.h>
+#include <gutil/smartpointer.h>
+#include <gutil/slist.h>
 #include <thread>
 #include <mutex>
 #include <condition_variable>

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_IHASH_H
 #define GUTIL_IHASH_H
 
-#include "gutil_iclonable.h"
+#include <gutil/iclonable.h>
 #include <memory>
 
 NAMESPACE_GUTIL;

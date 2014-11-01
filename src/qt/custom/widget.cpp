@@ -13,11 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "widget.h"
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <QApplication>
 #include <QDesktopWidget>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 void Widget::CenterOverWidget(QWidget *main, QWidget *child)

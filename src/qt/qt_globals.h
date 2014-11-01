@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_QT_GLOBALS_H
 #define GUTIL_QT_GLOBALS_H
 
-#include "gutil_strings.h"
-#include "gutil_exception.h"
+#include <gutil/strings.h>
+#include <gutil/exception.h>
 #include <QMetaType>
 
 

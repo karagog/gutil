@@ -14,8 +14,8 @@ limitations under the License.*/
 #ifndef GUTIL_PAIRLIST_H
 #define GUTIL_PAIRLIST_H
 
-#include "gutil_pair.h"
-#include "gutil_list.h"
+#include <gutil/pair.h>
+#include <gutil/list.h>
 
 NAMESPACE_GUTIL;
 

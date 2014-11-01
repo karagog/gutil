@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "cards.h"
-#include "gutil_circularint.h"
-#include "gutil_rng.h"
+#include <gutil/circularint.h>
+#include <gutil/rng.h>
 USING_NAMESPACE_GUTIL;
 
 

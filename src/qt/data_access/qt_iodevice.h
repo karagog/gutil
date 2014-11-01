@@ -20,7 +20,7 @@ limitations under the License.*/
 
 class QIODevice;
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** An IO device that encapsulates a normal Qt IODevice.

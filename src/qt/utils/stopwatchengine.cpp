@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <QTimerEvent>
 #include <QTimer>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define DEFAULT_TIMER_RESOLUTION 100

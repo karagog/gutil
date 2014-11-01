@@ -14,14 +14,13 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_usermachinelocks.h"
-#include "gutil_exception.h"
-#include "qt_locked_file/qtlockedfile.h"
+#include <gutil/usermachinelocks.h>
+#include <gutil/exception.h>
 #include <QFileInfo>
-#include <QDesktopServices>
+#include <QStandardPaths>
+#include <QLockFile>
 
-
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 QMap<QString, QReadWriteLock *> MachineLockBase::process_locks;
 QReadWriteLock MachineLockBase::process_locks_lock;
@@ -30,30 +29,21 @@ QSemaphore MachineLockBase::process_locks_sem;
 MachineLockBase::MachineLockBase(const QString &u, const QString &id, const QString &modifier)
     :_p_StringModifier(u),
     _p_LockOwner(false),
-    _p_ReadLockOwner(false)
+    _p_ReadLockOwner(false),
+    _usermachinelockfile(0)
 {
-    _pre_init();
-
     SetUserMachineLockIdentifier(id, modifier);
-
     _post_init();
 }
 
 MachineLockBase::MachineLockBase(const QString &u, const QString &file_name)
     :_p_StringModifier(u),
     _p_LockOwner(false),
-    _p_ReadLockOwner(false)
+    _p_ReadLockOwner(false),
+    _usermachinelockfile(0)
 {
-    _pre_init();
-
     SetUserMachineLockFileName(file_name);
-
     _post_init();
-}
-
-void MachineLockBase::_pre_init()
-{
-    _usermachinelockfile = new QtLockedFile();
 }
 
 void MachineLockBase::_post_init()
@@ -90,7 +80,7 @@ void MachineLockBase::SetUserMachineLockIdentifier(
         return;
 
     SetUserMachineLockFileName(QString("%1/%2%3.%4")
-                               .arg(QDesktopServices::storageLocation(QDesktopServices::DataLocation))
+                               .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
                                .arg(identifier)
                                .arg(modifier.length() != 0 ?
                                     QString(".%1").arg(modifier) :
@@ -106,7 +96,8 @@ void MachineLockBase::SetUserMachineLockFileName(const QString &fn)
     UnlockForMachine();
 
     delete _usermachinelockfile;
-    _usermachinelockfile = new QtLockedFile(fn);
+    _usermachinelockfile = new QLockFile(fn);
+    m_filename = fn;
 }
 
 void MachineLockBase::lock(bool for_read, bool block)
@@ -115,23 +106,9 @@ void MachineLockBase::lock(bool for_read, bool block)
     {
         _grab_lock_in_process(for_read, block);
 
-        // Then open the file in preparation for locking
-        if(!_usermachinelockfile->open(QFile::ReadWrite))
+        if((block && !_usermachinelockfile->lock()) ||
+           (!block && !_usermachinelockfile->tryLock()))
         {
-            Exception<true> ex("Couldn't open lockfile!");
-            ex.Data["err"] = _usermachinelockfile->errorString().toAscii().constData();
-
-            _release_lock();
-
-            throw ex;
-        }
-
-        // Then actually lock the file
-        else if(!_usermachinelockfile->lock(
-                for_read ? QtLockedFile::ReadLock : QtLockedFile::WriteLock,
-                block))
-        {
-            _usermachinelockfile->close();
             _release_lock();
 
             throw LockException<>("Already locked by another process");
@@ -139,7 +116,7 @@ void MachineLockBase::lock(bool for_read, bool block)
     }
     catch(LockException<true> &le)
     {
-        le.Data["Filename"] = FileNameForMachineLock().toAscii().constData();
+        le.Data["Filename"] = FileNameForMachineLock().toUtf8().constData();
         throw;
     }
 }
@@ -150,14 +127,13 @@ void MachineLockBase::UnlockForMachine()
         return;
 
     _usermachinelockfile->unlock();
-    _usermachinelockfile->close();
 
     _release_lock();
 }
 
 QString MachineLockBase::FileNameForMachineLock() const
 {
-    return QFileInfo(*_usermachinelockfile).absoluteFilePath();
+    return QFileInfo(m_filename).absoluteFilePath();
 }
 
 void MachineLockBase::_grab_lock_in_process(bool for_read, bool block)

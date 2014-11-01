@@ -7,6 +7,9 @@ TEMPLATE = lib
 
 DEFINES += GUTIL_CORE_QT_ADAPTERS
 
+QT += widgets
+QT += concurrent
+
 #QT -= gui
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
@@ -27,7 +30,7 @@ else {
 # Enables STL dependent functions
 #DEFINES += GUTIL_STL
 
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++11
 
 TOP_DIR = ../..
 

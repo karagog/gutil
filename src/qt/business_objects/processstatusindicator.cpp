@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QLocalServer>
 #include <QCoreApplication>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define IDENTITY_FORMAT "PROCESS_STATUS"
@@ -120,9 +120,9 @@ void ProcessStatusIndicator::SendMessageToControllingProcess(const QString &mess
         QLocalSocket sock;
         sock.connectToServer(GetProcessIdentityString());
         if(sock.waitForConnected())
-            sock.write(message.toAscii());
+            sock.write(message.toUtf8());
         else
-            throw Exception<>(sock.errorString().toAscii().constData());
+            throw Exception<>(sock.errorString().toUtf8().constData());
     }
 }
 

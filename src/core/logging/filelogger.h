@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_FILELOGGER_H
 #define GUTIL_FILELOGGER_H
 
-#include "gutil_outputdevicelogger.h"
-#include "gutil_file.h"
+#include <gutil/outputdevicelogger.h>
+#include <gutil/file.h>
 
 NAMESPACE_GUTIL;
 

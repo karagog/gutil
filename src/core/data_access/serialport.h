@@ -19,7 +19,7 @@ limitations under the License.*/
         #include <windows.h>
 #endif
 
-#include "gutil_iio.h"
+#include <gutil/iio.h>
 
 /** \file
 

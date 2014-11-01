@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "processstatusserver.h"
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 void ProcessStatusServer::incomingConnection(quintptr socketDescriptor)

@@ -18,9 +18,9 @@ limitations under the License.*/
 #include <QObject>
 #include <QTime>
 #include <QReadWriteLock>
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** This class behaves like a stopwatch.  It is thread safe. */

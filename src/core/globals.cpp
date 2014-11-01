@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "globals.h"
-#include "gutil_macros.h"
-#include "gutil_rng.h"
+#include <gutil/macros.h>
+#include <gutil/rng.h>
 #include <cstdlib>
 #include <time.h>
 

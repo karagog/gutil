@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef IMATRIX_H
 #define IMATRIX_H
 
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 
 NAMESPACE_GUTIL;
 

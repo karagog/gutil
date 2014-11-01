@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef DATATABLEMODEL_H
 #define DATATABLEMODEL_H
 
-#include "gutil_macros.h"
-#include "gutil_varianttable.h"
+#include <gutil/macros.h>
+#include <gutil/varianttable.h>
 #include <QAbstractTableModel>
 
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 // Use this as a datamodel for the data table object
@@ -42,10 +42,10 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant headerData(int section, ::Qt::Orientation orientation, int role) const;
 
     bool setData(const QModelIndex &index, const QVariant &value, int role);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    ::Qt::ItemFlags flags(const QModelIndex &index) const;
 
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());
@@ -56,7 +56,7 @@ public:
 protected:
 
     virtual QVariant _data(const QModelIndex &, int) const;
-    virtual QVariant _headerData(int, Qt::Orientation, int) const;
+    virtual QVariant _headerData(int, ::Qt::Orientation, int) const;
 
     virtual bool _setData(const QModelIndex &, const QVariant &, int);
 

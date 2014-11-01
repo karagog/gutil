@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_IMEMORYUSAGEREPORTER_H
 #define GUTIL_IMEMORYUSAGEREPORTER_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 NAMESPACE_GUTIL1(Interfaces);
 
 

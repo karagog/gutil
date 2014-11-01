@@ -13,14 +13,14 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "stopwatch.h"
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QTimerEvent>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QFormLayout>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define TIMER_INTERVAL 100
@@ -36,12 +36,12 @@ Stopwatch::Stopwatch(QWidget *parent)
     tmp->setLayout(fl);
     fl->addRow("Start:", lbl_startTime = new QLabel(this));
     fl->addRow("Stop:", lbl_endTime = new QLabel(this));
-    lbl_startTime->setAlignment(Qt::AlignRight);
-    lbl_endTime->setAlignment(Qt::AlignRight);
+    lbl_startTime->setAlignment(::Qt::AlignRight);
+    lbl_endTime->setAlignment(::Qt::AlignRight);
     layout()->addWidget(tmp);
 
     layout()->addWidget(lbl_time = new QLabel(this));
-    lbl_time->setAlignment(Qt::AlignHCenter);
+    lbl_time->setAlignment(::Qt::AlignHCenter);
     {
         QFont f;
         f.setBold(true);

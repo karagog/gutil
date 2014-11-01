@@ -16,8 +16,8 @@ limitations under the License.*/
 
 
 #include "binarydatastore.h"
-#include "gutil_databaseutils.h"
-#include "gutil_variant.h"
+#include <gutil/databaseutils.h>
+#include <gutil/variant.h>
 #include <QFile>
 #include <QVariant>
 #include <QByteArray>
@@ -27,7 +27,7 @@ limitations under the License.*/
 #include <QSqlError>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define BDS_TABLE_NAME "data"

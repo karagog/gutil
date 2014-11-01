@@ -31,7 +31,7 @@ String Environment::Username()
 #ifdef _WIN32
 
 //#if defined(UNICODE)
-//    if ( qWinVersion() & Qt::WV_NT_based )
+//    if ( qWinVersion() & ::Qt::WV_NT_based )
 //    {
 //        TCHAR winUserName[UNLEN + 1]; // UNLEN is defined in LMCONS.H
 //        DWORD winUserNameSize = sizeof(winUserName);

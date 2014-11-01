@@ -1,4 +1,6 @@
 
+QT += widgets
+
 TARGET = GUtilAboutPlugin
 #VERSION = 0.0.0
 
@@ -8,7 +10,7 @@ CONFIG += plugin
 TOP_DIR = ../../..
 DESTDIR = $$TOP_DIR/lib
 
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++11
 
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 

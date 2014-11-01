@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QFileSystemWatcher>
 #include <QCryptographicHash>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 FileIODevice::FileIODevice(const QString &filename, QObject *parent)
@@ -144,8 +144,8 @@ void FileIODevice::_open_file(bool for_write)
     if(!File().isOpen())
     {
         DataTransportException<true> ex(
-                QString("Could not open file: %1").arg(FileName()).toAscii().constData());
-        ex.Data["err"] = File().errorString().toAscii().constData();
+                QString("Could not open file: %1").arg(FileName()).toUtf8().constData());
+        ex.Data["err"] = File().errorString().toUtf8().constData();
         throw ex;
     }
 }

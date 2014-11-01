@@ -15,7 +15,7 @@ limitations under the License.*/
 #include "datatablemodel.h"
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 DataTableModel::DataTableModel(QObject *parent)
@@ -54,12 +54,12 @@ QVariant DataTableModel::_data(const QModelIndex &index, int role) const
 {
     QVariant ret;
 
-    switch((Qt::ItemDataRole)role)
+    switch((::Qt::ItemDataRole)role)
     {
-    case Qt::DisplayRole:
+    case ::Qt::DisplayRole:
         ret = (*GetDataTable())[index.row()][index.column()];
         break;
-    case Qt::EditRole:
+    case ::Qt::EditRole:
         ret = (*GetDataTable())[index.row()][index.column()];
         break;
     default:
@@ -69,7 +69,7 @@ QVariant DataTableModel::_data(const QModelIndex &index, int role) const
     return ret;
 }
 
-QVariant DataTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant DataTableModel::headerData(int section, ::Qt::Orientation orientation, int role) const
 {
     if(!_p_DataTable)
         return QVariant();
@@ -77,26 +77,26 @@ QVariant DataTableModel::headerData(int section, Qt::Orientation orientation, in
     return _headerData(section, orientation, role);
 }
 
-QVariant DataTableModel::_headerData(int section, Qt::Orientation orientation, int role) const
+QVariant DataTableModel::_headerData(int section, ::Qt::Orientation orientation, int role) const
 {
     QVariant ret;
 
-    if(orientation == Qt::Horizontal)
+    if(orientation == ::Qt::Horizontal)
     {
-        switch((Qt::ItemDataRole)role)
+        switch((::Qt::ItemDataRole)role)
         {
-        case Qt::DisplayRole:
+        case ::Qt::DisplayRole:
             ret = GetDataTable()->Columns()[section].Value().GetName().ToQString();
             break;
         default:
             break;
         }
     }
-    else if(orientation == Qt::Vertical)
+    else if(orientation == ::Qt::Vertical)
     {
-        switch((Qt::ItemDataRole)role)
+        switch((::Qt::ItemDataRole)role)
         {
-        case Qt::DisplayRole:
+        case ::Qt::DisplayRole:
             ret = section;
             break;
         default:
@@ -119,12 +119,12 @@ bool DataTableModel::_setData(const QModelIndex &index, const QVariant &value, i
 {
     bool ret(true);
 
-    switch((Qt::ItemDataRole)role)
+    switch((::Qt::ItemDataRole)role)
     {
-    case Qt::DisplayRole:
+    case ::Qt::DisplayRole:
         (*GetDataTable())[index.row()][index.column()] = value;
         break;
-    case Qt::EditRole:
+    case ::Qt::EditRole:
         (*GetDataTable())[index.row()][index.column()] = value;
         break;
     default:
@@ -135,18 +135,18 @@ bool DataTableModel::_setData(const QModelIndex &index, const QVariant &value, i
     return ret;
 }
 
-Qt::ItemFlags DataTableModel::flags(const QModelIndex &index) const
+::Qt::ItemFlags DataTableModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags ret(Qt::ItemIsEnabled |
-                      Qt::ItemIsSelectable |
-                      Qt::ItemIsUserCheckable);
+    ::Qt::ItemFlags ret(::Qt::ItemIsEnabled |
+                      ::Qt::ItemIsSelectable |
+                      ::Qt::ItemIsUserCheckable);
 
     if(!_p_DataTable ||
             !index.isValid())
         return ret;
 
-    ret |= Qt::ItemIsEditable;
-    ret |= Qt::ItemIsDragEnabled;
+    ret |= ::Qt::ItemIsEditable;
+    ret |= ::Qt::ItemIsDragEnabled;
 
     return ret;
 }
@@ -175,7 +175,7 @@ bool DataTableModel::insertColumns(int column, int count, const QModelIndex &par
     beginInsertColumns(parent, column, column + count - 1);
     {
         for(int i = 0; i < count; i++)
-            GetDataTable()->InsertColumn(DataColumn(QUuid::createUuid().toString().toAscii().constData()), column);
+            GetDataTable()->InsertColumn(DataColumn(QUuid::createUuid().toString().toUtf8().constData()), column);
     }
     endInsertColumns();
     return true;

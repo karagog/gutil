@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef PLUGINLOADER_H
 #define PLUGINLOADER_H
 
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <QPluginLoader>
 
 
@@ -28,7 +28,7 @@ limitations under the License.*/
 #endif
 
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A utility to simplify loading plugins at runtime. */

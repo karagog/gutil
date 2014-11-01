@@ -18,10 +18,10 @@ limitations under the License.*/
 #ifndef GDATABASEIODEVICE_H
 #define GDATABASEIODEVICE_H
 
-#include "gutil_iodevice.h"
-#include "gutil_pairlist.h"
-#include "gutil_collection.h"
-#include "gutil_varianttable.h"
+#include <gutil/iodevice.h>
+#include <gutil/pairlist.h>
+#include <gutil/collection.h>
+#include <gutil/varianttable.h>
 #include <QVariant>
 #include <QMap>
 #include <QMutex>
@@ -30,7 +30,7 @@ limitations under the License.*/
 class QSqlQuery;
 class QSqlDatabase;
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 class VariantTable;
 class DatabaseSelectionParameters;

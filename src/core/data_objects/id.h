@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_ID_H
 #define GUTIL_ID_H
 
-#include "gutil_rng.h"
-#include "gutil_strings.h"
+#include <gutil/rng.h>
+#include <gutil/strings.h>
 #include <cstring>
 
 #ifdef GUTIL_CORE_QT_ADAPTERS
@@ -189,7 +189,7 @@ template<int NUM_BYTES>struct IsMovableType< GUtil::Id<NUM_BYTES> >{ enum{ Value
 END_NAMESPACE_GUTIL;
 
 
-#include "gutil_hash.h"
+#include <gutil/hash.h>
 namespace std{
 template<int NUM_BYTES>
 struct hash<GUtil::Id<NUM_BYTES> >{

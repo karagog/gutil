@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_LIST_H
 #define GUTIL_LIST_H
 
-#include "gutil_vector.h"
-#include "gutil_icollections.h"
-#include "gutil_macros.h"
+#include <gutil/vector.h>
+#include <gutil/icollections.h>
+#include <gutil/macros.h>
 NAMESPACE_GUTIL;
 
 
@@ -313,7 +313,7 @@ public:
             iter->~T();
 
         // Free our page memory
-        for(int p(0); p < m_pageCount; ++p)
+        for(GUINT32 p(0); p < m_pageCount; ++p)
             free( d[p] );
 
         d.Clear();
@@ -644,7 +644,7 @@ protected:
     static GUINT32 capacity(GUINT32 number_of_pages){ return (1 << number_of_pages) - 1; }
 
     T *at(GUINT32 indx) const{
-        const int pindx( FSB32(++indx) );
+        const GUINT32 pindx( FSB32(++indx) );
         return d[pindx] + TRUNCATE_LEFT_32(indx, 32 - pindx);
     }
 

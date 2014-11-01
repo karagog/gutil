@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_timelineview.h"
-#include "gutil_symmetricmatrix.h"
-#include "gutil_formattedtext.h"
-#include "gutil_datetime.h"
+#include <gutil/timelineview.h>
+#include <gutil/symmetricmatrix.h>
+#include <gutil/formattedtext.h>
+#include <gutil/datetime.h>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -39,7 +39,7 @@ limitations under the License.*/
 
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 TimelineView::TimelineView(QWidget *p)
@@ -86,7 +86,7 @@ void TimelineView::paintEvent(QPaintEvent *ev)
        _end_time <= _start_time)
     {
         p.drawText(QRect(_origin_point.x(), _origin_point.y(), 500, _finish_point.y() - _origin_point.y()),
-                   Qt::AlignVCenter, "Invalid Time Range Selection");
+                   ::Qt::AlignVCenter, "Invalid Time Range Selection");
         p.end();
         return;
     }
@@ -142,7 +142,7 @@ void TimelineView::paintEvent(QPaintEvent *ev)
                   (long long)(_finish_point.y() - _origin_point.y()) * time_til / _range_in_seconds );
 
             p.drawLine(_origin_point.x() - 5, y, _origin_point.x(), y);
-            p.drawText(11, y - 10, 60, 20, Qt::AlignLeft | Qt::AlignTop,
+            p.drawText(11, y - 10, 60, 20, ::Qt::AlignLeft | ::Qt::AlignTop,
                        tmptime.toString(fmt));
 
             // Advance the time
@@ -181,7 +181,7 @@ void TimelineView::paintEvent(QPaintEvent *ev)
         {
             // Draw a white rectange for their drag rect
             const int middle_point( (m_dragRect->right() + m_dragRect->left()) / 2 );
-            _draw_rect(m_dragRect->normalized(), Qt::white, QString("(New Item)"), p);
+            _draw_rect(m_dragRect->normalized(), ::Qt::white, QString("(New Item)"), p);
 
             const bool b_swap( m_dragRect->bottom() < m_dragRect->top() );
             _draw_datetime_rect(PointToDateTime(QPoint(0, m_dragRect->top() - verticalScrollBar()->value())),
@@ -263,7 +263,7 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
     else if(!p.clipRegion().intersects(item_rect))
         return;
 
-    QVariant color_variant = ind.data(Qt::BackgroundRole);
+    QVariant color_variant = ind.data(::Qt::BackgroundRole);
     QColor c;
     if(color_variant.isValid())
         c = color_variant.value<QColor>();
@@ -274,8 +274,8 @@ void TimelineView::_draw_item(const QModelIndex &ind, QPainter &p)
         c = QColor(SELECTED_RGB);
 
     _draw_rect(item_rect, c,
-               FormattedText(ind.data(Qt::DisplayRole).toString(),
-                              ind.data(Qt::FontRole).value<QFont>()),
+               FormattedText(ind.data(::Qt::DisplayRole).toString(),
+                              ind.data(::Qt::FontRole).value<QFont>()),
                p);
 
     if(ind == currentIndex())
@@ -296,7 +296,7 @@ void TimelineView::_draw_rect(const QRect &r, const QColor &c, const FormattedTe
         const int text_offset( 20 );
         p.setFont(txt.Font);
         p.drawText(r.left() + text_offset, r.top(), r.width() - text_offset, r.height(),
-                   Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap,
+                   ::Qt::AlignLeft | ::Qt::AlignVCenter | ::Qt::TextWordWrap,
                    txt.Text);
     }
     p.restore();
@@ -314,9 +314,9 @@ void TimelineView::_draw_datetime_rect(const QDateTime &dt, const QPoint &point,
     QRect textRect(QPoint(point.x() - bounding_rect.width() / 2,
                           point.y() + (raise ? -(bounding_rect.height() + 1) : 2 )),
                    bounding_rect.size());
-    p.fillRect(textRect, Qt::white);
+    p.fillRect(textRect, ::Qt::white);
     p.drawRect(textRect);
-    p.drawText(textRect, Qt::AlignHCenter, fmt_string);
+    p.drawText(textRect, ::Qt::AlignHCenter, fmt_string);
 }
 
 QRect TimelineView::visualRect(const QModelIndex &index) const
@@ -446,7 +446,7 @@ QModelIndex TimelineView::indexAt(const QPoint &point) const
     return ret;
 }
 
-QModelIndex TimelineView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers)
+QModelIndex TimelineView::moveCursor(CursorAction cursorAction, ::Qt::KeyboardModifiers)
 {
     QModelIndex ret;
     QModelIndex cur( currentIndex() );
@@ -528,7 +528,7 @@ void TimelineView::_update_scrollbars()
 
 void TimelineView::wheelEvent(QWheelEvent *ev)
 {
-    if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier))
+    if(QApplication::keyboardModifiers().testFlag(::Qt::ControlModifier))
     {
         double diff = SCROLL_INCREMENT * ev->delta();
         if(_scale_factor + diff > 0)
@@ -552,9 +552,9 @@ void TimelineView::keyPressEvent(QKeyEvent *event)
 {
     event->ignore();
 
-    if(event->modifiers().testFlag(Qt::ControlModifier))
+    if(event->modifiers().testFlag(::Qt::ControlModifier))
     {
-        if(event->key() == Qt::Key_0)
+        if(event->key() == ::Qt::Key_0)
         {
             // Restore the default scale
             _scale_factor = 1;
@@ -610,7 +610,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 {
     QAbstractItemView::mousePressEvent(event);
 
-    if(event->button() == Qt::LeftButton)
+    if(event->button() == ::Qt::LeftButton)
     {
         QPoint pos( event->pos() );
         QModelIndex ind( indexAt(pos) );
@@ -653,7 +653,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
                 m_drag_startDate = PointToDateTime(rect.topLeft());
                 m_drag_endDate = PointToDateTime(rect.bottomRight());
 
-                setCursor(Qt::ClosedHandCursor);
+                setCursor(::Qt::ClosedHandCursor);
             }
 
             viewport()->update();
@@ -701,7 +701,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
     else if(m_draggingIndex.isValid())
     {
         if(!m_drag_startDate.isNull() && !m_drag_endDate.isNull())
-            setCursor(Qt::OpenHandCursor);
+            setCursor(::Qt::OpenHandCursor);
 
         // Commit the data from the drag/drop session (Only if it changed)
         QDateTime st, en;
@@ -805,17 +805,17 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
             if((Abs(pos.y() - rect.top()) <= DRAG_ADJUSTMENT_MARGIN ||
                 Abs(pos.y() - rect.bottom()) <= DRAG_ADJUSTMENT_MARGIN))
             {
-                setCursor(Qt::SizeVerCursor);
+                setCursor(::Qt::SizeVerCursor);
             }
             else if(pos.y() >= rect.top() && pos.y() <= rect.bottom())
             {
                 setCursor(m_draggingIndex.isValid() ?
-                              Qt::ClosedHandCursor : Qt::OpenHandCursor);
+                              ::Qt::ClosedHandCursor : ::Qt::OpenHandCursor);
             }
         }
-        else if(cursor().shape() != Qt::ArrowCursor)
+        else if(cursor().shape() != ::Qt::ArrowCursor)
         {
-            setCursor(Qt::ArrowCursor);
+            setCursor(::Qt::ArrowCursor);
         }
     }
 }
@@ -876,14 +876,14 @@ bool TimelineView::eventFilter(QObject *o, QEvent *ev)
 {
     if(ev->type() == QEvent::KeyPress)
     {
-        if(((QKeyEvent *)ev)->key() == Qt::Key_Return)
+        if(((QKeyEvent *)ev)->key() == ::Qt::Key_Return)
             _commit_dateTime_editor();
     }
     else if(ev->type() == QEvent::MouseMove)
     {
         // Make sure the cursor stays an arrow when hovering over a child widget
-        if(cursor().shape() != Qt::IBeamCursor && cursor().shape() != Qt::ArrowCursor)
-            setCursor(Qt::ArrowCursor);
+        if(cursor().shape() != ::Qt::IBeamCursor && cursor().shape() != ::Qt::ArrowCursor)
+            setCursor(::Qt::ArrowCursor);
     }
 
     return QAbstractItemView::eventFilter(o, ev);

@@ -14,10 +14,10 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
-#include "gutil_exception.h"
-#include "gutil_databaseiodevice.h"
-#include "gutil_databaseutils.h"
-#include "gutil_smartpointer.h"
+#include <gutil/exception.h>
+#include <gutil/databaseiodevice.h>
+#include <gutil/databaseutils.h>
+#include <gutil/smartpointer.h>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlResult>
@@ -26,7 +26,7 @@ limitations under the License.*/
 #include <QXmlStreamWriter>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 DatabaseIODevice::DatabaseIODevice(const QString &db_connection_id,
@@ -699,7 +699,7 @@ QByteArray DatabaseIODevice::receive_data()
             }
         }
 
-        ret = tbl->ToXmlQString().toAscii();
+        ret = tbl->ToXmlQString().toUtf8();
         delete tbl;
     }
     else

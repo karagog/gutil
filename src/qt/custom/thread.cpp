@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "thread.h"
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 Thread::Thread(QObject *parent)

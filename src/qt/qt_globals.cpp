@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "qt_globals.h"
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 static void __initialize_qt_metatypes()

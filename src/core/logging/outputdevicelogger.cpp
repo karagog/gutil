@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "outputdevicelogger.h"
-#include "gutil_iio.h"
+#include <gutil/iio.h>
 
 NAMESPACE_GUTIL;
 

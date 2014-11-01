@@ -17,13 +17,13 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
 #include <QProgressBar>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Implements a progress bar that you can push like a button, and has a

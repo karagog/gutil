@@ -17,12 +17,12 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <QDialog>
 #include <QLabel>
 #include <QTextEdit>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 class IAboutGUtil;
 

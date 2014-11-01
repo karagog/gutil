@@ -13,11 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "progressbarcontrol.h"
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QStackedLayout>
 #include <QVBoxLayout>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 ProgressBarControl::ProgressBarControl(bool be, QWidget *parent)
@@ -32,7 +32,7 @@ ProgressBarControl::ProgressBarControl(bool be, QWidget *parent)
     layout()->setContentsMargins(0, 0, 0, 0);
     layout()->addWidget(&_progressBar);
 
-    _label.setAlignment(Qt::AlignCenter);
+    _label.setAlignment(::Qt::AlignCenter);
     QFont f;  f.setBold(true);
     _label.setFont(f);
 

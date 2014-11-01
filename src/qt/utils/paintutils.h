@@ -15,13 +15,13 @@ limitations under the License.*/
 #ifndef GUTIL_PAINTUTILS_H
 #define GUTIL_PAINTUTILS_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QColor>
 
 class QPainter;
 class QPointF;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A class that defines functions which are useful for
@@ -49,7 +49,7 @@ public:
                           const QPointF &end,
                           int bevel_length,
                           GFLOAT64 bevel_angle = 30,
-                          const QColor &color = Qt::black,
+                          const QColor &color = ::Qt::black,
                           int thickness = 5);
 
 };

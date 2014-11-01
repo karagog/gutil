@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "globallogger.h"
 #include "queuedlogger.h"
-#include "gutil_smartpointer.h"
+#include <gutil/smartpointer.h>
 
 NAMESPACE_GUTIL;
 

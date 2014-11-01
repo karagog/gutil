@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include "selectdaterange.h"
 #include "ui_selectdaterange.h"
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QDateEdit>
 #include <QLineEdit>
 #include <QDateTimeEdit>
@@ -23,7 +23,7 @@ limitations under the License.*/
 #include <QFormLayout>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 SelectDateRange::SelectDateRange(QWidget *parent)
@@ -233,7 +233,7 @@ void SelectDateRange::_combobox_index_changed()
             m_dateEdit->setSizePolicy(sp);
             connect(m_dateEdit, SIGNAL(dateTimeChanged(QDateTime)),
                     this, SLOT(_date_updated()));
-            //m_dateEdit->setAlignment(Qt::AlignRight);
+            //m_dateEdit->setAlignment(::Qt::AlignRight);
         }
 
         ui->gridLayout->addWidget(m_dateEdit, 0, 2, 1, 2);

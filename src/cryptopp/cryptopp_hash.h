@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef CRYPTOPP_HASH_H
 #define CRYPTOPP_HASH_H
 
-#include "gutil_ihash.h"
+#include <gutil/ihash.h>
 
 namespace CryptoPP{
 class HashTransformation;

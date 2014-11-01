@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "cryptopp_hash.h"
-#include "gutil_smartpointer.h"
-#include "gutil_globals.h"
+#include <gutil/smartpointer.h>
+#include <gutil/globals.h>
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include <cryptopp/md2.h>

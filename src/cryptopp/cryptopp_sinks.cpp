@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "cryptopp_sinks.h"
-#include "gutil_strings.h"
-#include "gutil_iio.h"
+#include <gutil/strings.h>
+#include <gutil/iio.h>
 #include "cryptopp_hash.h"
 #include <QByteArray>
 

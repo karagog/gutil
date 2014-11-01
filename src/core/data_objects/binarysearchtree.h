@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_BST_H
 #define GUTIL_BST_H
 
-#include "gutil_exception.h"
-#include "gutil_flexibletypecomparer.h"
-#include "gutil_vector.h"
+#include <gutil/exception.h>
+#include <gutil/flexibletypecomparer.h>
+#include <gutil/vector.h>
 
 NAMESPACE_GUTIL;
 

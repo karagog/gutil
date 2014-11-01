@@ -16,17 +16,19 @@ limitations under the License.*/
 #include <memory>
 using namespace std;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 CoreApplication::CoreApplication(int &argc, char **argv)
-    :QCoreApplication(argc, argv)
+    :QCoreApplication(argc, argv),
+      ApplicationBase(argc, argv)
 {
     _init();
 }
 
 CoreApplication::CoreApplication(int &argc, char **argv, const QString &application_name, const QString &application_version)
-    :QCoreApplication(argc, argv)
+    :QCoreApplication(argc, argv),
+      ApplicationBase(argc, argv)
 {
     if(!application_name.isEmpty())
         setApplicationName(application_name);

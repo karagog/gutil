@@ -17,12 +17,12 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_applicationbase.h"
+#include <gutil/applicationbase.h>
 #include <QApplication>
 
 class QAction;
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** My derived version of QApplication.
@@ -47,11 +47,11 @@ public:
         \param application_name The name of the application, which determines, among other things,
         the directory paths to the various storage locations.
         \param application_version The current version of the application
-        \sa QDesktopServices::storageLocation()
+        \sa QStandardPaths::writableLocation()
     */
     Application(int &argc, char **argv,
-                          const QString &application_name,
-                          const QString &application_version = QString::null);
+                const QString &application_name,
+                const QString &application_version = QString::null);
 
     virtual ~Application();
 
@@ -155,7 +155,7 @@ private:
     cast, so in case you didn't actually instantiate a Application it will return NULL.
     \sa qApp
 */
-#define gApp   dynamic_cast<GUtil::QT::Application *>(qApp)
+#define gApp   dynamic_cast<GUtil::Qt::Application *>(qApp)
 
 
 #endif // GUI_FUNCTIONALITY

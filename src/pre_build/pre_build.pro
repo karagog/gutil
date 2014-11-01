@@ -14,7 +14,8 @@ CONFIG += staticlib
 TOP_DIR = ../..
 
 HEADER_CMD = python $$TOP_DIR/scripts/GenerateHeaders.py
-HEADER_PREFIX = gutil_
+#HEADER_PREFIX = gutil_
+HEADER_PREFIX =
 
 # Directory patterns for which we want to ignore all headers
 IGNORE_PATHS = Test
@@ -24,7 +25,7 @@ HEADERGEN_TARGET_DIRS = core,qt,cryptopp,qt_plugins,games
 
 headers.commands = $$HEADER_CMD \
                         --working-dir=.. \
-                        --output-dir=../include \
+                        --output-dir=../include/gutil \
                         --input-dirs=$$HEADERGEN_TARGET_DIRS \
                         --ignore-path=$$IGNORE_PATHS \
                         --output-prefix=$$HEADER_PREFIX

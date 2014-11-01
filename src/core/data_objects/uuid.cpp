@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_uuid.h"
-#include "gutil_rng.h"
+#include <gutil/uuid.h>
+#include <gutil/rng.h>
 #include <cstring>
 
 NAMESPACE_GUTIL;

@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_exception.h"
-#include "gutil_consoleiodevice.h"
-#include "gutil_console.h"
-#include "gutil_smartpointer.h"
+#include <gutil/exception.h>
+#include <gutil/consoleiodevice.h>
+#include <gutil/console.h>
+#include <gutil/smartpointer.h>
 #include <QFuture>
 #include <QMutex>
 #include <QWaitCondition>
@@ -24,7 +24,7 @@ limitations under the License.*/
 #include <QThread>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 // This is the data that is shared between the class and the background threads.
@@ -246,7 +246,7 @@ GUINT64 ConsoleIODevice::WriteLine(QString data)
        data_copy.at(data_copy.length() - 1) != '\n')
         data_copy.append('\n');
 
-    Write(data_copy.toAscii());
+    Write(data_copy.toUtf8());
     return __class_data.send_count;
 }
 
@@ -299,7 +299,7 @@ QByteArray ConsoleIODevice::receive_data()
     __console_io_data.receive_lock.lock();
     {
         if(!__console_io_data.receive_queue.isEmpty())
-            ret = __console_io_data.receive_queue.dequeue().toAscii();
+            ret = __console_io_data.receive_queue.dequeue().toUtf8();
     }
     __console_io_data.receive_lock.unlock();
     return ret;

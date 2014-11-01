@@ -13,16 +13,16 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "qt_settings.h"
-#include "gutil_variant.h"
-#include <QDesktopServices>
+#include <gutil/variant.h>
+#include <QStandardPaths>
 #include <QDir>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 static String __get_filename(const char *identity, const char *modifier)
 {
-    QString data_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    QString data_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
     QDir tmpdir(data_path);
     if(!tmpdir.exists()){

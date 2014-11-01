@@ -19,7 +19,7 @@ limitations under the License.*/
 
 #include <QTreeView>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** This is just a customized QTreeView, with extra functions

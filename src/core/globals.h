@@ -19,8 +19,8 @@ limitations under the License.*/
     Global definitions that anyone can use.
 */
 
-#include "gutil_macros.h"
-#include "gutil_exception.h"
+#include <gutil/macros.h>
+#include <gutil/exception.h>
 #include <malloc.h>
 #include <functional>
 

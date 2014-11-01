@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <QXmlStreamReader>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define DATATABLE_XML_ID        "GUtil_Table"

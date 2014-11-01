@@ -16,8 +16,8 @@ limitations under the License.*/
 #include "cryptopp_cryptor.h"
 #include "cryptopp_rng.h"
 #include "cryptopp_sinks.h"
-#include "gutil_sourcesandsinks.h"
-#include "gutil_smartpointer.h"
+#include <gutil/sourcesandsinks.h>
+#include <gutil/smartpointer.h>
 USING_NAMESPACE_GUTIL1(CryptoPP);
 
 #define SALT_LENGTH         8

@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef GUTIL_IQXMLSERIALIZABLE_H
 #define GUTIL_IQXMLSERIALIZABLE_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QString>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** An abstract interface deriving from the core XML serializable class,

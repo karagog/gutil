@@ -21,12 +21,12 @@ limitations under the License.*/
     plugin.  You can see the about gutil plugin for an example.
 */
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QtPlugin>
 
 class QWidget;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** The abstract plugin interface for showing and setting up an about window */
@@ -43,6 +43,6 @@ public:
 END_NAMESPACE_GUTIL1;
 
 // We have to declare this outside the namespace
-Q_DECLARE_INTERFACE(GUtil::QT::IAboutGUtil, "GUtil.IAboutGUtil")
+Q_DECLARE_INTERFACE(GUtil::Qt::IAboutGUtil, "GUtil.IAboutGUtil")
 
 #endif // ABOUTPLUGININTERFACE_H

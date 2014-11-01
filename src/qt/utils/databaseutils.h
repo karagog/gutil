@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_DATABASEUTILS_H
 #define GUTIL_DATABASEUTILS_H
 
-#include "gutil_macros.h"
-#include "gutil_strings.h"
+#include <gutil/macros.h>
+#include <gutil/strings.h>
 #include <QString>
 #include <QDateTime>
 
@@ -24,7 +24,7 @@ class QSqlQuery;
 class QSqlDatabase;
 
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A static class that defines functions which are useful for

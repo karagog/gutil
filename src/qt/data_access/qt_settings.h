@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_QT_SETTINGS_H
 #define GUTIL_QT_SETTINGS_H
 
-#include "gutil_settings.h"
-#include "gutil_strings.h"
+#include <gutil/settings.h>
+#include <gutil/strings.h>
 #include <QVariant>
 #include <QObject>
 
@@ -24,7 +24,7 @@ namespace GUtil{
 class Settings;
 }
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** A wrapper around GUtil::Settings that stores QVariants,

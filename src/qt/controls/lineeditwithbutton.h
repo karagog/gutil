@@ -17,11 +17,11 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_faderwidget.h"
+#include <gutil/faderwidget.h>
 #include <QToolButton>
 #include <QLineEdit>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Implements a simple line edit, with a button on the far right that fades

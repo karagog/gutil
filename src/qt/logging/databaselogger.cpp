@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
 
-#include "gutil_databaselogger.h"
-#include "gutil_databaseutils.h"
+#include <gutil/databaselogger.h>
+#include <gutil/databaseutils.h>
 #include <exception>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -26,7 +26,7 @@ limitations under the License.*/
 USING_NAMESPACE_GUTIL;
 using namespace std;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 static void __open_and_validate_connection(QSqlDatabase &db, const QString &table)

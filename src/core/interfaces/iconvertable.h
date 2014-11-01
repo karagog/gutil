@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef ICONVERTABLE_H
 #define ICONVERTABLE_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 
 NAMESPACE_GUTIL;
 

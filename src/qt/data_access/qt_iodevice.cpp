@@ -12,14 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include "qt_iodevice.h"
 #include <QIODevice>
 
 #define DEFAULT_WRITE_PROGRESS_RESOLUTION -1
 #define DEFAULT_READ_PROGRESS_RESOLUTION -1
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 QT_IODevice::QT_IODevice(QIODevice *io, QObject *parent)
@@ -77,8 +77,8 @@ void QT_IODevice::send_data(const QByteArray &data)
                 QString("Write failed after writing %1 / %2 bytes")
                 .arg(bytes_written)
                 .arg(data.length())
-                .toAscii().constData());
-        ex.Data["err"] = GetIODevice().errorString().toAscii().constData();
+                .toUtf8().constData());
+        ex.Data["err"] = GetIODevice().errorString().toUtf8().constData();
         throw ex;
     }
 }
@@ -119,8 +119,8 @@ QByteArray QT_IODevice::receive_data()
         DataTransportException<true> ex(QString("Read %1 / %2 bytes")
                                         .arg(bytes_read)
                                         .arg(bytes_available)
-                                        .toAscii().constData());
-        ex.Data["err"] = GetIODevice().errorString().toAscii().constData();
+                                        .toUtf8().constData());
+        ex.Data["err"] = GetIODevice().errorString().toUtf8().constData();
         throw ex;
     }
 

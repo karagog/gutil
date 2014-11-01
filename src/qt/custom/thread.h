@@ -15,12 +15,12 @@ limitations under the License.*/
 #ifndef GUTIL_THREAD_H
 #define GUTIL_THREAD_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QThread>
 #include <QReadWriteLock>
 #include <QWaitCondition>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Useful QThread wrapper

@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "dice.h"
-#include "gutil_rng.h"
+#include <gutil/rng.h>
 USING_NAMESPACE_GUTIL;
 
 NAMESPACE_GUTIL1(Games);

@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_HEAP_H
 #define GUTIL_HEAP_H
 
-#include "gutil_macros.h"
-#include "gutil_vector.h"
-#include "gutil_flexibletypecomparer.h"
+#include <gutil/macros.h>
+#include <gutil/vector.h>
+#include <gutil/flexibletypecomparer.h>
 NAMESPACE_GUTIL;
 
 

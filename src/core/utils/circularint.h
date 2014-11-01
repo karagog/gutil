@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_CIRCULARINT_H
 #define GUTIL_CIRCULARINT_H
 
-#include "gutil_globals.h"
+#include <gutil/globals.h>
 
 NAMESPACE_GUTIL;
 

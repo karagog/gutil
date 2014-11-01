@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef GUTIL_VARIANT_H
 #define GUTIL_VARIANT_H
 
-#include "gutil_macros.h"
-#include "gutil_exception.h"
-#include "gutil_iqxmlserializable.h"
+#include <gutil/macros.h>
+#include <gutil/exception.h>
+#include <gutil/iqxmlserializable.h>
 #include <QVariant>
 #include <QBitArray>
 #include <QRegExp>
@@ -37,7 +37,7 @@ limitations under the License.*/
 #include <string>
 #endif
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** A class derived from QVariant to extend its functionality.
@@ -114,7 +114,7 @@ END_NAMESPACE_GUTIL1;
 
 
 // Register these types with the Qt meta-type system so we can use them with QVariants
-Q_DECLARE_METATYPE(GUtil::QT::Variant);
+Q_DECLARE_METATYPE(GUtil::Qt::Variant);
 Q_DECLARE_METATYPE(QUuid);
 Q_DECLARE_METATYPE(float);
 

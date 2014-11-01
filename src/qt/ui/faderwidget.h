@@ -17,10 +17,10 @@ limitations under the License.*/
 
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QWidget>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** This class causes a QWidget to fade in/out.

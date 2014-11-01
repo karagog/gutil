@@ -18,9 +18,9 @@ limitations under the License.*/
 #ifndef GUTIL_NO_GUI_FUNCTIONALITY
 
 #include <QAbstractProxyModel>
-#include "gutil_map.h"
+#include <gutil/map.h>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** This class will represent a tree model as a list model, essentially

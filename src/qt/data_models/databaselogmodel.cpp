@@ -13,9 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "databaselogmodel.h"
-#include "gutil_databaseutils.h"
-#include "gutil_databaselogger.h"
-USING_NAMESPACE_GUTIL1(QT);
+#include <gutil/databaseutils.h>
+#include <gutil/databaselogger.h>
+USING_NAMESPACE_GUTIL1(Qt);
 
 DatabaseLogModel::DatabaseLogModel(const DatabaseLogger &logger, QObject *parent)
     :QSqlTableModel(parent, QSqlDatabase::database(logger.GetConnectionString()))
@@ -28,12 +28,12 @@ QVariant DatabaseLogModel::data(const QModelIndex &idx, int role) const
     QVariant ret( QSqlTableModel::data(idx, role) );
     if(idx.column() == 0)
     {
-       if(role == Qt::DisplayRole || role == Qt::EditRole)
+       if(role == ::Qt::DisplayRole || role == ::Qt::EditRole)
            ret = DatabaseUtils::ConvertStringToDate(ret.toString());
     }
     else if(idx.column() == 1)
     {
-        if(role == Qt::DisplayRole || role == Qt::EditRole)
+        if(role == ::Qt::DisplayRole || role == ::Qt::EditRole)
         {
             switch((DatabaseLogger::LogLevelEnum)ret.toInt())
             {
@@ -60,9 +60,9 @@ bool DatabaseLogModel::select()
     removeColumn(5);
     removeColumn(4);
 
-    setHeaderData(0, Qt::Horizontal, tr("Date"));
-    setHeaderData(1, Qt::Horizontal, tr("Severity"));
-    setHeaderData(2, Qt::Horizontal, tr("Message"));
-    setHeaderData(3, Qt::Horizontal, tr("Title"));
+    setHeaderData(0, ::Qt::Horizontal, tr("Date"));
+    setHeaderData(1, ::Qt::Horizontal, tr("Severity"));
+    setHeaderData(2, ::Qt::Horizontal, tr("Message"));
+    setHeaderData(3, ::Qt::Horizontal, tr("Title"));
     return ret;
 }

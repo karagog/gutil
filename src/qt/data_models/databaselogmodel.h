@@ -17,7 +17,7 @@ limitations under the License.*/
 
 #include <QSqlTableModel>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 class DatabaseLogger;
 

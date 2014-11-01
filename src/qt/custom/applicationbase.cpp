@@ -13,17 +13,19 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "applicationbase.h"
-#include "gutil_globallogger.h"
+#include <gutil/globallogger.h>
 
 #ifdef Q_OS_LINUX
 #include <signal.h>
 #endif
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
-ApplicationBase::ApplicationBase()
-    :_p_TrapExceptions(false)
+ApplicationBase::ApplicationBase(int &argc, char **argv)
+    :_p_TrapExceptions(false),
+      m_argc(argc),
+      m_argv(argv)
 {}
 
 ApplicationBase::~ApplicationBase(){}

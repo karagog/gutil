@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <QMetaType>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 IODevice::IODevice(QObject *parent)

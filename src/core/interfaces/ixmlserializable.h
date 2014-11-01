@@ -15,9 +15,9 @@ limitations under the License.*/
 #ifndef CORE_IXMLSERIALIZABLE_H
 #define CORE_IXMLSERIALIZABLE_H
 
-#include "gutil_macros.h"
-#include "gutil_exception.h"
-#include "gutil_strings.h"
+#include <gutil/macros.h>
+#include <gutil/exception.h>
+#include <gutil/strings.h>
 
 NAMESPACE_GUTIL;
 

@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
 #include "databaseutils.h"
-#include "gutil_exception.h"
+#include <gutil/exception.h>
 #include <QStringList>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -24,11 +24,11 @@ limitations under the License.*/
 USING_NAMESPACE_GUTIL;
 
 #ifdef GUTIL_DEBUG2
-#include "gutil_console.h"
+#include <gutil/console.h>
 #endif
 
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 GUtil::String DatabaseUtils::InfoString(const QSqlQuery &q)
@@ -38,10 +38,10 @@ GUtil::String DatabaseUtils::InfoString(const QSqlQuery &q)
     foreach(QVariant v, q.boundValues().values())
     {
         ++cnt;
-        tmp.Append( String::Format("  Bound value %d: %s\n", cnt, v.toString().toAscii().constData()) );
+        tmp.Append( String::Format("  Bound value %d: %s\n", cnt, v.toString().toUtf8().constData()) );
     }
 
-    String ret = String::Format("Query String:    \"%s\"", q.lastQuery().toAscii().constData());
+    String ret = String::Format("Query String:    \"%s\"", q.lastQuery().toUtf8().constData());
     if(!tmp.IsEmpty()){
         ret.Append(String::Format("\n\n%s", tmp.ConstData()));
     }
@@ -52,15 +52,15 @@ void DatabaseUtils::ThrowQueryException(const QSqlQuery &q)
 {
     if(q.lastError().isValid())
     {
-        DataTransportException<true> ex(q.lastError().text().toAscii().constData());
-        ex.Data["query_text"] = q.lastQuery().toAscii().constData();
+        DataTransportException<true> ex(q.lastError().text().toUtf8().constData());
+        ex.Data["query_text"] = q.lastQuery().toUtf8().constData();
 
         QMap<QString, QVariant> bound_values( q.boundValues() );
         int cnt(1);
 
         for(const auto &k : bound_values.keys()){
-            ex.Data[QString("Bound Value %1").arg(cnt++).toAscii().constData()] =
-                    bound_values[k].toString().toAscii().constData();
+            ex.Data[QString("Bound Value %1").arg(cnt++).toUtf8().constData()] =
+                    bound_values[k].toString().toUtf8().constData();
         }
         throw ex;
     }
@@ -86,7 +86,7 @@ void DatabaseUtils::ExecuteQuery(QSqlQuery &q)
 void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
 {
     if(!db.transaction())
-        throw DataTransportException<>(QString("Unable to create a transaction: %1").arg(db.lastError().text()).toAscii());
+        throw DataTransportException<>(QString("Unable to create a transaction: %1").arg(db.lastError().text()).toUtf8());
     try
     {
         QSqlQuery q(db);
@@ -110,7 +110,7 @@ void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
     }
 
     if(!db.commit())
-        throw DataTransportException<>(QString("Transaction commit failed: %1").arg(db.lastError().text()).toAscii());
+        throw DataTransportException<>(QString("Transaction commit failed: %1").arg(db.lastError().text()).toUtf8());
 }
 
 #endif // DATABASE_FUNCTIONALITY
@@ -136,7 +136,7 @@ QDateTime DatabaseUtils::ConvertStringToDate(const QString &s)
         QStringList splitted = s.split('_');
 
         if(splitted.size() < 5)
-            throw Exception<>(QString("Invalid date string: %1").arg(s).toAscii().constData());
+            throw Exception<>(QString("Invalid date string: %1").arg(s).toUtf8().constData());
 
         d.setDate(QDate(splitted[0].toInt(), splitted[1].toInt(), splitted[2].toInt()));
 

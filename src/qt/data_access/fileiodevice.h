@@ -17,15 +17,15 @@ limitations under the License.*/
 #ifndef GUTIL_FILETRANSPORT_H
 #define GUTIL_FILETRANSPORT_H
 
-#include "gutil_exception.h"
-#include "gutil_qt_iodevice.h"
-#include "gutil_usermachinelocks.h"
+#include <gutil/exception.h>
+#include <gutil/qt_iodevice.h>
+#include <gutil/usermachinelocks.h>
 #include <QDateTime>
 #include <QFile>
 
 class QFileSystemWatcher;
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** A mechanism for exchanging data with a file.

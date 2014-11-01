@@ -15,10 +15,10 @@ limitations under the License.*/
 #ifndef GUTIL_ABOUTGUTIL_H
 #define GUTIL_ABOUTGUTIL_H
 
-#include "gutil_aboutplugininterface.h"
+#include <gutil/aboutplugininterface.h>
 #include <QtPlugin>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 /** Plugin wrapper that shows GUtil's about window
@@ -31,7 +31,8 @@ class AboutGUtil :
         public IAboutGUtil
 {
     Q_OBJECT
-    Q_INTERFACES(GUtil::QT::IAboutGUtil);
+    Q_INTERFACES(GUtil::Qt::IAboutGUtil)
+    Q_PLUGIN_METADATA(IID "GUtil.Qt.AboutGUtil")
 public:
 
     /** Shows the "About GUtil" window with the widget as parent */

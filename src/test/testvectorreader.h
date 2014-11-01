@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_TESTVECTORREADER_H
 #define GUTIL_TESTVECTORREADER_H
 
-#include "gutil_macros.h"
+#include <gutil/macros.h>
 #include <QFile>
 
 NAMESPACE_GUTIL1(Test);

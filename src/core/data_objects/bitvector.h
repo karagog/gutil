@@ -14,7 +14,7 @@ limitations under the License.*/
 #ifndef GUTIL_BITVECTOR_H
 #define GUTIL_BITVECTOR_H
 
-#include "gutil_vector.h"
+#include <gutil/vector.h>
 
 NAMESPACE_GUTIL;
 

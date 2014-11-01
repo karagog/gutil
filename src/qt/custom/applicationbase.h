@@ -15,8 +15,9 @@ limitations under the License.*/
 #ifndef GAPPLICATIONBASE_H
 #define GAPPLICATIONBASE_H
 
-#include "gutil_commandlineargs.h"
+#include <gutil/commandlineargs.h>
 #include <QCoreApplication>
+#include <QStringList>
 
 
 #ifdef gApp
@@ -32,11 +33,11 @@ limitations under the License.*/
     \note You need to compile with RTTI for this to work.
     \sa qApp
 */
-#define gApp   dynamic_cast<GUtil::QT::ApplicationBase *>(qApp)
+#define gApp   dynamic_cast<GUtil::Qt::ApplicationBase *>(qApp)
 
 
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 /** Used as a base class for the common functionality of Application and CoreApplication.
@@ -69,7 +70,7 @@ public:
 
     /** Get convenient access to the command line arguments. */
     GUtil::CommandLineArgs Args() const{
-        return GUtil::CommandLineArgs(qApp->argc(), qApp->argv());
+        return GUtil::CommandLineArgs(m_argc, m_argv);
     }
 
 
@@ -111,7 +112,7 @@ protected:
     /** The constructor is protected to prevent you from instantiating one
         without the rest of the GUtil application.
     */
-    ApplicationBase();
+    ApplicationBase(int &argc, char **argv);
     virtual ~ApplicationBase();
 
 
@@ -154,6 +155,8 @@ private:
     */
     static void _handle_os_signal(int);
 
+    int &m_argc;
+    char **m_argv;
 };
 
 

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "qt_iodevice.h"
 #include <QLocalSocket>
 
-namespace GUtil{ namespace QT{
+namespace GUtil{ namespace Qt{
 
 
 class LocalSocketIODevice :

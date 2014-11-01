@@ -13,23 +13,25 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "application.h"
-#include "gutil_about.h"
+#include <gutil/about.h>
 #include <QPluginLoader>
 #include <QMessageBox>
 #include <QAction>
 #include <memory>
 using namespace std;
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 Application::Application(int &argc, char **argv)
-    :QApplication(argc, argv)
+    :QApplication(argc, argv),
+      ApplicationBase(argc, argv)
 {
     _init();
 }
 
 Application::Application(int &argc, char **argv, const QString &application_name, const QString &application_version)
-    :QApplication(argc, argv)
+    :QApplication(argc, argv),
+      ApplicationBase(argc, argv)
 {
     if(!application_name.isEmpty())
         setApplicationName(application_name);
@@ -116,7 +118,7 @@ QAction *Application::CreateActionAboutGUtil(QObject *p)
 
 void Application::AboutGUtil(QWidget *dialog_parent)
 {
-    GUtil::QT::About::ShowAboutGUtil(dialog_parent);
+    GUtil::Qt::About::ShowAboutGUtil(dialog_parent);
 }
 
 void Application::about_to_quit(){}

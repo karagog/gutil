@@ -12,12 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "gutil_datatransferutils.h"
-#include "gutil_exception.h"
+#include <gutil/datatransferutils.h>
+#include <gutil/exception.h>
 #include <QFile>
 USING_NAMESPACE_GUTIL;
 
-NAMESPACE_GUTIL1(QT);
+NAMESPACE_GUTIL1(Qt);
 
 
 #define CHUNK_SIZE 4096
@@ -33,7 +33,7 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
     QFile f(filename);
     if(!f.open(QFile::WriteOnly | QFile::Truncate))
     {
-        throw Exception<>(QString("Could not open file: %1").arg(f.errorString()).toAscii());
+        throw Exception<>(QString("Could not open file: %1").arg(f.errorString()).toUtf8());
     }
 
     int bytes_written(0);
@@ -57,7 +57,7 @@ void DataTransferUtils::WriteDataToFileInChunks(const QString &filename,
     {
         QString err(*cancel_flag ? "Cancelled" : f.errorString());
         f.close();
-        throw Exception<>(QString("Write Failed: %1").arg(err).toAscii());
+        throw Exception<>(QString("Write Failed: %1").arg(err).toUtf8());
     }
     f.close();
 }
@@ -74,12 +74,12 @@ void DataTransferUtils::CopyFileInChunks(const QString &source,
     QFile d(dest);
     if(!d.open(QFile::WriteOnly | QFile::Truncate))
     {
-        throw Exception<>(QString("Could not open file for writing: %1").arg(d.errorString()).toAscii());
+        throw Exception<>(QString("Could not open file for writing: %1").arg(d.errorString()).toUtf8());
     }
     if(!s.open(QFile::ReadOnly))
     {
         d.close();
-        throw Exception<>(QString("Could not open file for reading: %1").arg(s.errorString()).toAscii());
+        throw Exception<>(QString("Could not open file for reading: %1").arg(s.errorString()).toUtf8());
     }
 
     int data_length(s.size());
@@ -112,7 +112,7 @@ void DataTransferUtils::CopyFileInChunks(const QString &source,
                     .arg(s.errorString()));
         d.close();
         s.close();
-        throw Exception<>(QString("Write Failed: %1").arg(err).toAscii());
+        throw Exception<>(QString("Write Failed: %1").arg(err).toUtf8());
     }
     d.close();
     s.close();
@@ -128,7 +128,7 @@ QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
     QFile f(filename);
     if(!f.open(QFile::ReadOnly))
     {
-        throw Exception<>(QString("Could not open file: %1").arg(f.errorString()).toAscii());
+        throw Exception<>(QString("Could not open file: %1").arg(f.errorString()).toUtf8());
     }
 
     QByteArray ret;
@@ -154,7 +154,7 @@ QByteArray DataTransferUtils::ReadDataFromFileInChunks(const QString &filename,
     {
         QString err(*cancel_flag ? "Cancelled" : f.errorString());
         f.close();
-        throw Exception<>(QString("Write Failed: %1").arg(err).toAscii());
+        throw Exception<>(QString("Write Failed: %1").arg(err).toUtf8());
     }
     f.close();
     return ret;
