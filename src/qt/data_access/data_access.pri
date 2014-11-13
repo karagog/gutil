@@ -6,7 +6,8 @@ HEADERS += \
     data_access/databaseiodevice.h \
     data_access/fileiodevice.h \
     data_access/localsocketiodevice.h \
-    $$PWD/qt_settings.h
+    $$PWD/qt_settings.h \
+    $$PWD/comportwatcher.h
 
 SOURCES += \
     data_access/iodevice.cpp \
@@ -15,7 +16,8 @@ SOURCES += \
     data_access/localsocketiodevice.cpp \
     data_access/fileiodevice.cpp \
     data_access/databaseiodevice.cpp \
-    $$PWD/qt_settings.cpp
+    $$PWD/qt_settings.cpp \
+    $$PWD/comportwatcher.cpp
 
 
 
