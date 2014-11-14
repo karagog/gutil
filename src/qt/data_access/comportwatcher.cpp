@@ -46,6 +46,7 @@ void COMPortWatcher::StopWatching()
     killTimer(m_tid);
     m_tid = -1;
     m_availablePorts.clear();
+    emit NotifyAvailableCOMPortsChanged();
 }
 
 void COMPortWatcher::timerEvent(QTimerEvent *ev)
