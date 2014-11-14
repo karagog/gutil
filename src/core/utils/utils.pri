@@ -9,7 +9,8 @@ HEADERS += \
     utils/rng.h \
     utils/circularint.h \
     utils/undostack.h \
-    $$PWD/lockedpointer.h
+    $$PWD/lockedpointer.h \
+    $$PWD/qmath.h
 
 SOURCES += \
     utils/commandlineargs.cpp \
