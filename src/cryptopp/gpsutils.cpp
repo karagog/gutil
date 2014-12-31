@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "gpsutils.h"
-#include "cryptopp_cryptor.h"
 #include "cryptopp_rng.h"
 #include "cryptopp_sinks.h"
 #include <gutil/sourcesandsinks.h>
@@ -35,8 +34,7 @@ NAMESPACE_GUTIL;
 
 
 GPSFile_Export::GPSFile_Export(const char *filepath,
-                               const char *password,
-                               const char *keyfile,
+                               const Cryptor::Credentials &creds,
                                GUINT16 userdata_size)
     :m_file(filepath),
       m_hash(new Hash<SHA3_224>),
@@ -58,7 +56,7 @@ GPSFile_Export::GPSFile_Export(const char *filepath,
     m_file.Write(placeholder, sizeof(placeholder));
 
     // Initialize the cryptor
-    m_cryptor = new Cryptor(password, keyfile, NONCE_LENGTH, new Cryptor::DefaultKeyDerivation(salt, SALT_LENGTH));
+    m_cryptor = new Cryptor(creds, NONCE_LENGTH, new Cryptor::DefaultKeyDerivation(salt, SALT_LENGTH));
 }
 
 GPSFile_Export::~GPSFile_Export()
@@ -152,8 +150,7 @@ void GPSFile_Export::_write_payload_header(GUINT64 payload_length,
 
 
 GPSFile_Import::GPSFile_Import(const char *filepath,
-                               const char *password,
-                               const char *keyfile,
+                               const Cryptor::Credentials &creds,
                                bool validate)
     :m_file(filepath),
       m_hash(validate ? new Hash<SHA3_224> : NULL),
@@ -176,7 +173,7 @@ GPSFile_Import::GPSFile_Import(const char *filepath,
         throw Exception<>("This file's version is too advanced for me");
 
     // Initialize the cryptor
-    m_cryptor = new Cryptor(password, keyfile, NONCE_LENGTH, new Cryptor::DefaultKeyDerivation(salt, SALT_LENGTH));
+    m_cryptor = new Cryptor(creds, NONCE_LENGTH, new Cryptor::DefaultKeyDerivation(salt, SALT_LENGTH));
 
     // Read in and decrypt the header:
     {

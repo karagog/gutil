@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <gutil/file.h>
 #include <gutil/smartpointer.h>
 #include <gutil/cryptopp_hash.h>
+#include <gutil/cryptopp_cryptor.h>
 
 /** \file
  *  Classes for managing Portable Safe files (GPS).
@@ -69,8 +70,7 @@ public:
      *              each header.
     */
     GPSFile_Export(const char *filepath,
-                   const char *password,
-                   const char *keyfile = NULL,
+                   const GUtil::CryptoPP::Cryptor::Credentials &,
                    GUINT16 userdata_size = 0);
     ~GPSFile_Export();
 
@@ -130,8 +130,7 @@ public:
      *  a small overhead to doing this, but will guarantee the file's content authenticity.
     */
     GPSFile_Import(const char *filepath,
-                   const char *password,
-                   const char *keyfile = NULL,
+                   const GUtil::CryptoPP::Cryptor::Credentials &,
                    bool validate_checksum = true);
     ~GPSFile_Import();
 

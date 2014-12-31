@@ -51,7 +51,7 @@ NAMESPACE_GUTIL1(CryptoPP);
 const GUINT32 Cryptor::TagLength;
 
 
-Cryptor::Cryptor(const char *password, const char *keyfile,
+Cryptor::Cryptor(const Credentials &creds,
                  GUINT8 nonce_size,
                  IKeyDerivation *kdf)
     :m_nonceSize(nonce_size),
@@ -60,7 +60,7 @@ Cryptor::Cryptor(const char *password, const char *keyfile,
     if(m_nonceSize < 7 || 13 < m_nonceSize)
         throw Exception<>("Invalid nonce size");
 
-    ChangePassword(password, keyfile);
+    ChangeCredentials(creds);
     G_D_INIT();
 }
 
@@ -78,34 +78,34 @@ Cryptor::~Cryptor()
     G_D_UNINIT();
 }
 
-bool Cryptor::CheckPassword(const char *password, const char *keyfile) const
+bool Cryptor::CheckCredentials(const Credentials &creds) const
 {
     byte buf_key[sizeof(m_key)];
-    const Vector<byte> tmpauth = m_kdf->DeriveAuthData(password);
-    if(keyfile == NULL || strlen(keyfile) == 0){
+    const Vector<byte> tmpauth = m_kdf->DeriveAuthData(creds.Password);
+    if(Credentials::PasswordType == creds.Type){
         // Only the password was given (or even a null password)
-        m_kdf->DeriveKeyFromPassword(buf_key, password);
+        m_kdf->DeriveKeyFromPassword(buf_key, creds.Password);
     }
     else{
-        // A password and keyfile were given
-        m_kdf->DeriveKeyFromKeyfile(buf_key, keyfile);
+        // A keyfile was given (and optional password)
+        m_kdf->DeriveKeyFromKeyfile(buf_key, creds.Keyfile);
     }
     return tmpauth.Length() == m_authData.Length() &&
             0 == memcmp(m_key, buf_key, sizeof(buf_key)) &&
             0 == memcmp(m_authData.ConstData(), tmpauth.ConstData(), m_authData.Length());
 }
 
-void Cryptor::ChangePassword(const char *password, const char *keyfile)
+void Cryptor::ChangeCredentials(const Credentials &creds)
 {
-    if(keyfile == NULL || strlen(keyfile) == 0){
+    if(Credentials::PasswordType == creds.Type){
         // Only the password was given (or even a null password)
-        m_kdf->DeriveKeyFromPassword(m_key, password);
+        m_kdf->DeriveKeyFromPassword(m_key, creds.Password);
     }
     else{
-        // A password and keyfile were given
-        m_kdf->DeriveKeyFromKeyfile(m_key, keyfile);
+        // A keyfile was given (and optionally a password)
+        m_kdf->DeriveKeyFromKeyfile(m_key, creds.Keyfile);
     }
-    m_authData = m_kdf->DeriveAuthData(password);
+    m_authData = m_kdf->DeriveAuthData(creds.Password);
 }
 
 

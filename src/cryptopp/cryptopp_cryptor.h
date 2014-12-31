@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <gutil/iio.h>
 #include <gutil/iprogresshandler.h>
 #include <gutil/iclonable.h>
-#include <gutil/vector.h>
+#include <gutil/string.h>
 #include <gutil/smartpointer.h>
 
 NAMESPACE_GUTIL1(CryptoPP);
@@ -56,6 +56,31 @@ class Cryptor
 public:
     class IKeyDerivation;
 
+    /** Holds the data needed to authenticate the user. */
+    struct Credentials
+    {
+        enum TypeEnum
+        {
+            PasswordType,
+            KeyfileType,
+            PasswordAndKeyfileType
+        } Type;
+
+        /** The password to be used for encryption/decryption, must be in UTF-8/ASCII format.
+        *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
+        *      another one matches by using the CheckPassword function.
+        */
+        GUtil::String Password;
+
+        /** The key file, if any. Can be any file of any size, but it's better
+        *      if it's small (under or around 100 bytes) and random. If you leave this blank, only the
+        *      password will be required to decrypt.
+        */
+        GUtil::String Keyfile;
+
+        explicit Credentials(TypeEnum t = PasswordType) :Type(t) {}
+    };
+
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
      *  every encrypted message. The MAC is used to verify authenticity of the
      *  entire message, so if any single bit is wrong the MAC tag will know it.
@@ -79,19 +104,13 @@ public:
      *  a password and a keyfile. If you do this, you will be required to present both the correct
      *  password and keyfile if you want to successfully decrypt the message.
      *
-     *  \param password The password to be used for encryption/decryption, must be in UTF-8/ASCII format.
-     *      After initialization, the Cryptor has no idea what the password is anymore, but you can check if
-     *      another one matches by using the CheckPassword function.
      *  \param nonce_size The length of the nonce, in bytes. Valid values are between 7 and 13
-     *  \param keyfile The key file, if any. Can be any file of any size, but it's better
-     *      if it's small (under or around 100 bytes) and random. If you leave this blank, only the
-     *      password will be required to decrypt.
      *  \param salt A byte array to initialize the hash functions that generate keys from passwords.
      *              You need this to keep your keys fresh without the user changing passwords.
      *  \param kdf Allows you to supply your own custom key derivation function. The default KDF should
      *              be plenty good, but this allows you more flexibility. The cryptor owns the KDF and deletes it.
     */
-    Cryptor(const char *password, const char *keyfile = 0,
+    Cryptor(const Credentials &,
             GUINT8 nonce_size = DefaultNonceSize,
             IKeyDerivation *kdf = new DefaultKeyDerivation);
 
@@ -120,10 +139,10 @@ public:
     static double GetMaxKeyUsageSuggestion(GUINT8 nonce_length);
 
     /** Returns true if the password/keyfile combination is correct. */
-    bool CheckPassword(const char *password, const char *keyfile = 0) const;
+    bool CheckCredentials(const Credentials &) const;
 
     /** Changes the password/keyfile combination used by the cryptor. */
-    void ChangePassword(const char *password, const char *keyfile = 0);
+    void ChangeCredentials(const Credentials &);
 
 
     /** Encrypts the string.
@@ -187,7 +206,7 @@ public:
         /** Create the key from a keyfile. key_out must be Cryptor::KeySize large. */
         virtual void DeriveKeyFromKeyfile(byte *key_out, const char *keyfile) = 0;
 
-        /** Create the secret auth data from a password. 
+        /** Create the secret auth data from a password.
             It must be at least greater than 0, but it's better if it's longer.
         */
         virtual GUtil::Vector<byte> DeriveAuthData(const char *password) = 0;
@@ -195,7 +214,7 @@ public:
         /** You will be deleted by this interface. */
         virtual ~IKeyDerivation() {}
     };
-    
+
     /** The default key derivation functions for the Cryptor. */
     class DefaultKeyDerivation : public IKeyDerivation
     {
@@ -213,7 +232,7 @@ public:
 
         /** Key is derived by iteratively hashing the password, and using every
             successive hash as salt for the next iteration.
-            
+
             This is designed to be a slow operation, to make it prohibitively expensive for
             an attacker to generate a dictionary of password hashes, but still fast enough
             that it doesn't detract from the user's experience if they just need to generate 1 key.
@@ -227,7 +246,7 @@ public:
 
         /** Auth data is derived by iteratively hashing the password, and using every
             successive hash as salt for the next iteration.
-         
+
             This is designed to be a slow operation, to make it prohibitively expensive for
             an attacker to generate a dictionary of password hashes, but still fast enough
             that it doesn't detract from the user's experience if they just need to generate 1 key.
