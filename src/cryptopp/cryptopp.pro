@@ -15,9 +15,13 @@ TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 
 INCLUDEPATH += $$TOP_DIR/include
-LIBS += -L$$TOP_DIR/lib \
-        -lGUtil \
-        -lcryptopp
+
+win32{
+LIBS += \
+    -L$$TOP_DIR/lib \
+    -lGUtil \
+    -lcryptopp
+}
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)
