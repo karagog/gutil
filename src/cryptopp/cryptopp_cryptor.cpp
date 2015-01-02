@@ -146,7 +146,7 @@ void Cryptor::EncryptData(IOutput *out,
         d->rng.GenerateBlock(n.Data(), GetNonceSize());
     }
     d->enc.SetKeyWithIV(m_key, sizeof(m_key), nonce == NULL ? n.Data():nonce, GetNonceSize());
-    d->enc.SpecifyDataLengths(aData_len + sizeof(m_authData), len);
+    d->enc.SpecifyDataLengths(aData_len + m_authData.Length(), len);
 
     GUINT32 read = 0;
     GUINT32 to_read = chunk_size == 0 ? len : chunk_size;
@@ -158,7 +158,7 @@ void Cryptor::EncryptData(IOutput *out,
                 TagLength);
 
     // First pass the authenticated data. Our second key goes in here.
-    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, m_authData, sizeof(m_authData));
+    ef.ChannelPut(::CryptoPP::AAD_CHANNEL, m_authData, m_authData.Length());
 
     // If they gave us additional auth data, add it here
     if(aData && 0 < aData->BytesAvailable())
@@ -233,7 +233,7 @@ void Cryptor::DecryptData(IOutput *out,
 
     // Initialize the decryptor
     d->dec.SetKeyWithIV(m_key, sizeof(m_key), mac_iv.Data() + TagLength, GetNonceSize());
-    d->dec.SpecifyDataLengths(aData_len + sizeof(m_authData), len);
+    d->dec.SpecifyDataLengths(aData_len + m_authData.Length(), len);
     try
     {
         GUINT32 read = 0;
@@ -251,7 +251,7 @@ void Cryptor::DecryptData(IOutput *out,
         df.Put(mac_iv.Data(), TagLength);
 
         // Pass the authenticated data before the plaintext:
-        df.ChannelPut(::CryptoPP::AAD_CHANNEL, m_authData, sizeof(m_authData));
+        df.ChannelPut(::CryptoPP::AAD_CHANNEL, m_authData, m_authData.Length());
 
         // If they gave us additional auth data, add it here
         if(aData && 0 < aData->BytesAvailable())
