@@ -43,6 +43,10 @@ public:
     /** Controls whether to show/hide the progress bar automatically. Default is true. */
     PROPERTY(AutoShow, bool);
 
+    /** Controls whether the control allows cancelling. */
+    void SetIsCancellable(bool);
+    bool IsCancellable() const{ return m_isCancellable; }
+
     /** Access to the label */
     QLabel &Label(){ return _label; }
     /** Access to the label */
@@ -76,6 +80,7 @@ private:
     QProgressBar _progressBar;
     QLabel _label;
     QPushButton _button;
+    bool m_isCancellable;
 
 };
 

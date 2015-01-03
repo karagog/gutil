@@ -22,7 +22,8 @@ NAMESPACE_GUTIL1(Qt);
 
 ProgressBarControl::ProgressBarControl(bool be, QWidget *parent)
     :QWidget(parent),
-      _p_AutoShow(true)
+      _p_AutoShow(true),
+      m_isCancellable(true)
 {
     _button.setStyleSheet("background-color: rgba(0,0,0,0);");
 
@@ -51,6 +52,12 @@ ProgressBarControl::ProgressBarControl(bool be, QWidget *parent)
         hide();
 }
 
+void ProgressBarControl::SetIsCancellable(bool c)
+{
+    m_isCancellable = c;
+    _button.setVisible(c);
+}
+
 void ProgressBarControl::setButtonEnabled(bool which)
 {
     if(which)
@@ -76,7 +83,9 @@ void ProgressBarControl::SetProgress(int p, const QString &s)
 
     _progressBar.setValue(p);
     if(_button.isVisible())
-        _label.setText(QString(tr("%1 (Click to cancel)")).arg(s));
+        _label.setText(QString(tr("%1%2"))
+                       .arg(s)
+                       .arg(m_isCancellable ? tr(" (Click to cancel)") : QString::null));
     else
         _label.setText(s);
 }
