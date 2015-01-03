@@ -173,7 +173,7 @@ public:
         else
             memcpy(m_data, b.constData(), sizeof(m_data));
     }
-    QByteArray ToQByteArray() const{ return QByteArray((const char *)m_data, sizeof(m_data)); }
+    QByteArray ToQByteArray() const{ return IsNull() ? QByteArray() : QByteArray((const char *)m_data, sizeof(m_data)); }
     explicit operator QByteArray () const { return ToQByteArray(); }
 #endif // GUTIL_CORE_QT_ADAPTERS
 
