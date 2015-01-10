@@ -29,6 +29,7 @@ void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandle
 
     std::unique_ptr<byte[]> buf( new byte[buf_sz] );
     if(ph) ph->ProgressUpdated(0);
+    finally([=]{ if(ph) ph->ProgressUpdated(100); });
     while(read < len)
     {
         if(to_read != input->ReadBytes(buf.get(), buf_sz, to_read))
@@ -46,7 +47,6 @@ void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandle
             ph->ProgressUpdated(((float)read / len) * 100);
         }
     }
-    if(ph) ph->ProgressUpdated(100);
 }
 
 

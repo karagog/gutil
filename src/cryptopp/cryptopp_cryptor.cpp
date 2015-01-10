@@ -131,6 +131,7 @@ void Cryptor::EncryptData(IOutput *out,
     if(NULL == nonce)
         n.Set(new byte[GetNonceSize()]);
     if(ph) ph->ProgressUpdated(0);
+    finally([=]{ if(ph) ph->ProgressUpdated(100); });
 
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
     GUINT64 len = pData ? pData->BytesAvailable() : 0;
@@ -200,7 +201,6 @@ void Cryptor::EncryptData(IOutput *out,
     // Write the IV at the very end
     out->WriteBytes(nonce == NULL ? n.Data():nonce, GetNonceSize());
     out->Flush();
-    if(ph) ph->ProgressUpdated(100);
 }
 
 
@@ -213,6 +213,7 @@ void Cryptor::DecryptData(IOutput *out,
     G_D;
     GUINT64 ct_len, len;
     if(ph) ph->ProgressUpdated(0);
+    finally([=]{ if(ph) ph->ProgressUpdated(100); });
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
     if(cData == NULL || (ct_len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
         throw Exception<>("Invalid data length");
@@ -299,7 +300,6 @@ void Cryptor::DecryptData(IOutput *out,
     cData->Seek(ct_len);
 
     if(out) out->Flush();
-    if(ph) ph->ProgressUpdated(100);
 }
 
 double Cryptor::GetMaxKeyUsageSuggestion(GUINT8 nonce_length)
