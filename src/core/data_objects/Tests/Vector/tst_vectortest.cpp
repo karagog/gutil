@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "gutil_vector.h"
+#include <gutil/vector.h>
 #include <vector>
 USING_NAMESPACE_GUTIL;
 
@@ -27,6 +27,7 @@ public:
 
 private Q_SLOTS:
     void test_basic_function();
+    void test_pushfront();
     void test_removal();
     void test_vector_of_vector();
     void test_non_movable_class();
@@ -77,11 +78,11 @@ void VectorTest::test_basic_function()
     qDebug(QString("An empty vector uses %1 bytes, and a std::vector uses %2.")
            .arg(sizeof(Vector<int>))
            .arg(sizeof(std::vector<int>))
-           .toAscii().constData());
+           .toLatin1().constData());
 
     qDebug(QString("An empty vector with a random access interface uses %1 bytes.")
            .arg(sizeof(Vector<int, true, IRandomAccessContainer<int> >))
-           .toAscii().constData());
+           .toLatin1().constData());
 
     for(int i(0); i < 100; ++i)
     {
@@ -120,6 +121,24 @@ void VectorTest::test_basic_function()
     vec.Insert(0, vec.begin());
     for(int i(0); i < 5; i++)
         QVERIFY(vec[i] == i);
+}
+
+void VectorTest::test_pushfront()
+{
+    static const int count = 1000;
+
+    Vector<int> vec;
+    for(int i = count; i >= 1; --i)
+        vec.PushFront(i);
+
+    QVERIFY(vec.Length() == count);
+
+    for(int *b = vec.Data(), *e = b + count, i = 1;
+        b != e;
+        ++b, ++i)
+    {
+        QVERIFY(*b == i);
+    }
 }
 
 void VectorTest::test_removal()
@@ -260,7 +279,7 @@ void VectorTest::test_sorting()
     v.Insert(2);
     v.Insert(1);
     v.Insert(0);
-    v.Sort(true, GUtil::DefaultComparer<int>(), GUtil::MergeSort);
+    v.Sort(true, GUtil::IComparer<int>(), GUtil::MergeSort);
 
 //    for(int i = 0; i < 11; ++i)
 //        qDebug() << v[i];
