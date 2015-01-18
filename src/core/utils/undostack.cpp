@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "undostack.h"
+using namespace std;
 
 NAMESPACE_GUTIL;
 
@@ -73,8 +74,8 @@ public:
 
 
 
-UndoStack::UndoStack()
-    :m_ptr(-1), m_macro(NULL)
+UndoStack::UndoStack(function<void()> cb)
+    :m_ptr(-1), m_macro(NULL), m_cb(cb)
 {}
 
 UndoStack::~UndoStack()
@@ -112,6 +113,8 @@ void UndoStack::Do(IUndoableAction *cmd)
     // Push the item on the end of the list
     vec->PushBack(cmd);
     ex_guard.release();
+
+    m_cb();
 }
 
 void UndoStack::Clear()
@@ -124,6 +127,8 @@ void UndoStack::Clear()
 
     if(IsMakingMacro())
         delete reinterpret_cast<__undoable_macro_command *>(m_macro);
+
+    m_cb();
 }
 
 void UndoStack::Undo()
@@ -140,6 +145,8 @@ void UndoStack::Undo()
             m_ptr--;
         }
     }
+
+    m_cb();
 }
 
 void UndoStack::Redo()
@@ -157,6 +164,8 @@ void UndoStack::Redo()
             m_ptr = new_ptr;
         }
     }
+
+    m_cb();
 }
 
 
@@ -213,6 +222,8 @@ void UndoStack::_end_macro(bool commit)
     {
         delete c;
     }
+
+    m_cb();
 }
 
 bool UndoStack::IsMakingMacro()

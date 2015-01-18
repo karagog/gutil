@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <gutil/vector.h>
 #include <gutil/string.h>
+#include <functional>
 
 NAMESPACE_GUTIL;
 
@@ -80,10 +81,14 @@ class UndoStack
     GUtil::Vector<IUndoableAction *> m_stack;
     int m_ptr;
     void *m_macro;
+    std::function<void()> m_cb;
 
 public:
 
-    UndoStack();
+    /** Constructs an undo stack with the given callback for when the
+     *  stack changes
+    */
+    explicit UndoStack(std::function<void()> on_current_changed = []{});
     virtual ~UndoStack();
 
 
