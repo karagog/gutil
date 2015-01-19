@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifndef GUTIL_NO_SERIAL_FUNCTIONALITY
+
 #include "comportwatcher.h"
 #include <QSerialPortInfo>
 #include <QTimerEvent>
@@ -78,3 +80,5 @@ QStringList COMPortWatcher::GetAvailablePorts()
 
 
 END_NAMESPACE_GUTIL1;
+
+#endif // GUTIL_NO_SERIAL_FUNCTIONALITY

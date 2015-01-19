@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
+
 #include "processstatusserver.h"
 
 NAMESPACE_GUTIL1(Qt);
@@ -26,3 +28,5 @@ void ProcessStatusServer::incomingConnection(quintptr socketDescriptor)
 
 
 END_NAMESPACE_GUTIL1;
+
+#endif // GUTIL_NO_NETWORK_FUNCTIONALITY

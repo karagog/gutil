@@ -12,9 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include "databaseutils.h"
+#include <QStringList>
+
 #ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
 
-#include "databaseutils.h"
 #include <gutil/exception.h>
 #include <QStringList>
 #include <QSqlQuery>
@@ -113,6 +115,8 @@ void DatabaseUtils::ExecuteScript(QSqlDatabase &db, const QString &script_sql)
         throw DataTransportException<>(QString("Transaction commit failed: %1").arg(db.lastError().text()).toUtf8());
 }
 
+#else
+NAMESPACE_GUTIL1(Qt);
 #endif // DATABASE_FUNCTIONALITY
 
 

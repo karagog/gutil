@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_DATABASELOGMODEL_H
 #define GUTIL_DATABASELOGMODEL_H
 
+#ifndef GUTIL_NO_DATABASE_FUNCTIONALITY
+
 #include <QSqlTableModel>
 
 namespace GUtil{ namespace Qt{
@@ -44,5 +46,7 @@ public:
 
 
 }}
+
+#endif // GUTIL_NO_DATABASE_FUNCTIONALITY
 
 #endif // GUTIL_DATABASELOGMODEL_H

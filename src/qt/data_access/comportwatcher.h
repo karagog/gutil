@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef COMPORTWATCHER_H
-#define COMPORTWATCHER_H
+#ifndef GUTIL_COMPORTWATCHER_H
+#define GUTIL_COMPORTWATCHER_H
 
 #ifndef GUTIL_NO_SERIAL_FUNCTIONALITY
 
@@ -59,4 +59,4 @@ private:
 
 #endif // GUTIL_NO_SERIAL_FUNCTIONALITY
 
-#endif // COMPORTWATCHER_H
+#endif // GUTIL_COMPORTWATCHER_H

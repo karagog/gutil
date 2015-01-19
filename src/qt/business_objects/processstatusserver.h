@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
-
 #ifndef GUTIL_PROCESSSTATUSSERVER_H
 #define GUTIL_PROCESSSTATUSSERVER_H
+
+#ifndef GUTIL_NO_NETWORK_FUNCTIONALITY
 
 #include <gutil/smartpointer.h>
 #include <QLocalSocket>
@@ -89,7 +89,6 @@ private:
 
 }}
 
+#endif // GUTIL_NO_NETWORK_FUNCTIONALITY
 
 #endif // GUTIL_PROCESSSTATUSSERVER_H
-
-#endif // GUTIL_NO_NETWORK_FUNCTIONALITY

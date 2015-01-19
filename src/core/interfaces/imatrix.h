@@ -95,7 +95,7 @@ T IMatrix<T>::FindMaxValue(int &row, int &col) const
     if(RowCount() == 0)
         throw Exception<>("Empty matrix");
 
-    T max;
+    T max = 0;
     bool max_found(false);
     row = -1;  col = -1;
 
