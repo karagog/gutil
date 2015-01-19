@@ -13,14 +13,14 @@ QT += concurrent
 #QT -= gui
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
-QT += serialport
-#DEFINES += GUTIL_NO_SERIAL_FUNCTIONALITY
+#QT += serialport
+DEFINES += GUTIL_NO_SERIAL_FUNCTIONALITY
 
 QT += sql
 #DEFINES += GUTIL_NO_DATABASE_FUNCTIONALITY
 
-QT += network
-#DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
+#QT += network
+DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)
