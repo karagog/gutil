@@ -323,11 +323,9 @@ void Cryptor::DefaultKeyDerivation::DeriveKeyFromPassword(byte *key, const char 
     h.Update((byte const *)password, pw_len);
     h.Final(key);
 
-    // Then hash it again a bunch more times using each successive hash
-    //  as a salt for the next iteration.
+    // Then hash the result again a bunch more times
     for(GUINT32 i = 0; i < KDF_ITERATIONS; ++i){
         h.Update(key, Cryptor::KeySize);
-        h.Update((byte const *)password, pw_len);
         h.Final(key);
     }
 }
