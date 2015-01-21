@@ -313,7 +313,7 @@ public:
             iter->~T();
 
         // Free our page memory
-        for(GUINT32 p(0); p < m_pageCount; ++p)
+        for(int p(0); p < m_pageCount; ++p)
             free( d[p] );
 
         d.Clear();

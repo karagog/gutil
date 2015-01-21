@@ -165,7 +165,7 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
             m_buttonList.append(aboutGUtil);
             aboutGUtil->setMinimumWidth(PUSH_BUTTON_WIDTH);
             connect(aboutGUtil, SIGNAL(clicked()),
-                    this, SLOT(ShowAboutGUtil()));
+                    this, SLOT(_show_about_gutil()));
         }
         QPushButton *btnLicense( 0 );
         if(show_license_button)
@@ -173,7 +173,7 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
             btnLicense = new QPushButton("Show License", &_dialog);
             m_buttonList.append(btnLicense);
             btnLicense->setMinimumWidth(PUSH_BUTTON_WIDTH);
-            connect(btnLicense, SIGNAL(clicked()), this, SLOT(ShowLicense()));
+            connect(btnLicense, SIGNAL(clicked()), this, SLOT(_show_license()));
         }
         QPushButton *ok( new QPushButton("Ok", &_dialog) );
         m_buttonList.append(ok);
@@ -203,6 +203,16 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
     _dialog.setLayout(top_level_layout);
 
     _text.setReadOnly(true);
+}
+
+void About::_show_about_gutil()
+{
+    ShowAboutGUtil(_dialog.parentWidget());
+}
+
+void About::_show_license()
+{
+    ShowLicense(_dialog.parentWidget());
 }
 
 void About::SetImage(const QString &filename)
@@ -241,7 +251,7 @@ void About::AddPushButton(QPushButton *pb)
 
 void About::ShowAbout()
 {
-    _dialog.exec();
+    _dialog.show();
 }
 
 

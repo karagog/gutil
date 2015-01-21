@@ -148,6 +148,12 @@ protected:
     QTextEdit _text;
 
 
+private slots:
+
+    void _show_about_gutil();
+    void _show_license();
+
+
 private:
 
     QWidget *m_imageFrame;
