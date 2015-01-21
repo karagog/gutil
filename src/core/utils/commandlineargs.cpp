@@ -22,22 +22,15 @@ CommandLineArgs::CommandLineArgs(int argc, char **argv)
         Insert(argv[i]);
 }
 
-int CommandLineArgs::FindArgument(const String &f, bool case_sensitive) const
+String const *CommandLineArgs::FindArgument(const String &f, bool case_sensitive) const
 {
-    int ret(-1);
+    String const *ret(NULL);
     String search(case_sensitive ? f : f.ToUpper());
 
     const String *cur( ConstData() );
-    for(GUINT32 i(0); i < Length(); ++i, ++cur)
-    {
-        String s(case_sensitive ? *cur : cur->ToUpper());
-
-        if(s == search)
-        {
-            ret = i;
-            break;
-        }
+    for(GUINT32 i(0); !ret && i < Length(); ++i, ++cur){
+        if(search == (case_sensitive ? *cur : cur->ToUpper()))
+            ret = cur;
     }
-
     return ret;
 }
