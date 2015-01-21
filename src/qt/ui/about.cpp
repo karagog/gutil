@@ -251,7 +251,7 @@ void About::AddPushButton(QPushButton *pb)
 
 void About::ShowAbout()
 {
-    _dialog.exec();
+    _dialog.show();
 }
 
 
