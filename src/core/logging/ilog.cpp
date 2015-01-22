@@ -21,43 +21,57 @@ NAMESPACE_GUTIL;
 
 void ILog::LogException(const std::exception &std_ex) noexcept
 {
-    LoggingData d;
-    d.MessageLevel = LogLevelError;
-
-    Exception<> const *ex = dynamic_cast<Exception<false> const *>(&std_ex);
-    ExtendedException const *ext_ex( dynamic_cast<ExtendedException const *>(&std_ex) );
+    Exception<false> const *ex = dynamic_cast<Exception<false> const *>(&std_ex);
+    Exception<true> const *ext_ex( dynamic_cast<Exception<true> const *>(&std_ex) );
     if(ext_ex){
         // If it's an extended exception
-        String data_string{""};
-        const unordered_map<string, string> &keys( ext_ex->Data );
-        if(keys.size() > 0){
-            data_string = "\n\nException Data:";
-            for(const auto &p : keys){
-                data_string.Append(String::Format("\n\tKey: %s   Value: %s",
-                                                  p.first.data(),
-                                                  p.second.data()));
-            }
-        }
-
-        d.Message = String::Format("%s%s", ex->Message().data(), data_string.ConstData());
-        d.Title = String::Format("%s caught%s",
-                                 ex->what(),
-                                 ext_ex->GetInnerException() ? " (Inner exception follows immediately)" : "");
-        Log(d);
+        Log(PrepareExceptionData(*ext_ex));
         if(ext_ex->GetInnerException())
             ILog::LogException(*ext_ex->GetInnerException());
     }
     else if(ex){
         // Normal exception
-        d.Message = ex->Message();
-        d.Title = String::Format("%s caught", ex->what());
-        Log(d);
+        Log(PrepareExceptionData(*ex));
     }
     else{
         // Some other type of std::exception that we don't know how to parse
+        LoggingData d;
+        d.MessageLevel = LogLevelError;
         d.Title = String::Format("%s caught", std_ex.what());
         Log(d);
     }
+}
+
+ILog::LoggingData ILog::PrepareExceptionData(const Exception<false> &e)
+{
+    LoggingData ret;
+    ret.MessageLevel = LogLevelError;
+    ret.Message = e.Message();
+    ret.Title = String::Format("%s caught", e.what());
+    return ret;
+}
+
+ILog::LoggingData ILog::PrepareExceptionData(const Exception<true> &e)
+{
+    LoggingData ret;
+    ret.MessageLevel = LogLevelError;
+
+    String data_string{""};
+    const unordered_map<string, string> &keys( e.Data );
+    if(keys.size() > 0){
+        data_string = "\n\nException Data:";
+        for(const auto &p : keys){
+            data_string.Append(String::Format("\n\tKey: %s   Value: %s",
+                                              p.first.data(),
+                                              p.second.data()));
+        }
+    }
+
+    ret.Message = String::Format("%s%s", e.Message().data(), data_string.ConstData());
+    ret.Title = String::Format("%s caught%s",
+                             e.what(),
+                             e.GetInnerException() ? " (Inner exception follows immediately)" : "");
+    return ret;
 }
 
 
