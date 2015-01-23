@@ -61,9 +61,9 @@ public:
     {
         enum TypeEnum
         {
-            PasswordType,
-            KeyfileType,
-            PasswordAndKeyfileType
+            PasswordType            = 0,
+            KeyfileType             = 1,
+            PasswordAndKeyfileType  = 2
         } Type;
 
         /** The password to be used for encryption/decryption, must be in UTF-8/ASCII format.
