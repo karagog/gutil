@@ -40,11 +40,11 @@ public:
     /** Searches for a specific argument, with or without case-sensitivity.
         \returns -1 if not found
     */
-    int FindArgument(const String &, bool case_sensitive = true) const;
+    String const *FindArgument(const String &, bool case_sensitive = true) const;
 
     /** Returns whether the given argument is present in the argument list. */
     bool Contains(const String &arg, bool case_sensitive = true) const{
-        return FindArgument(arg, case_sensitive) != -1;
+        return NULL != FindArgument(arg, case_sensitive);
     }
 
     /** Get the program name argument, or the element at argument 0 */

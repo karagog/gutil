@@ -89,6 +89,9 @@ public:
         {}
     };
 
+    static LoggingData PrepareExceptionData(const Exception<false> &);
+    static LoggingData PrepareExceptionData(const Exception<true> &);
+
     /** Logs the message. */
     virtual void Log(const LoggingData &) noexcept = 0;
 
