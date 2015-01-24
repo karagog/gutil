@@ -7,7 +7,7 @@
 QT       -= core gui
 
 TARGET = GUtilGames
-#VERSION = 0.0.0
+unix: VERSION = 0.0.0
 
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib

@@ -7,6 +7,7 @@
 QT       -= gui
 
 TARGET = GUtilCryptoPP
+unix: VERSION = 0.0.0
 TEMPLATE = lib
 #CONFIG += staticlib
 QMAKE_CXXFLAGS += -std=c++11

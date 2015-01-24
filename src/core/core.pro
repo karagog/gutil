@@ -1,5 +1,5 @@
 TARGET = GUtil
-#VERSION = 0.0.0
+unix: VERSION = 0.0.0
 
 QT -= gui core
 

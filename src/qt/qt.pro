@@ -1,6 +1,6 @@
 
 TARGET = GUtilQt
-#VERSION = 0.0.0
+unix: VERSION = 0.0.0
 
 TEMPLATE = lib
 #CONFIG += staticlib
