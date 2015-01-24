@@ -4,7 +4,7 @@ QT += testlib
 DESTDIR = $$TOP_DIR/lib
 
 TARGET = GUtilTest
-#VERSION = 0.0.0
+unix: VERSION = 0.0.0
 
 TEMPLATE = lib
 
