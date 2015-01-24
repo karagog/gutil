@@ -9,9 +9,6 @@ QT       -= core gui
 TARGET = GUtilGames
 unix: VERSION = 0.0.0
 
-# Different branches may change this line depending on where their application will deploy
-unix: QMAKE_RPATHDIR =
-
 TOP_DIR = ../..
 DESTDIR = $$TOP_DIR/lib
 TEMPLATE = lib
@@ -25,6 +22,9 @@ CONFIG(debug, debug|release) {
 }
 else {
     #message(Preparing release build)
+
+    # Different branches may change this line depending on where their application will deploy
+    unix: QMAKE_RPATHDIR =
 }
 
 INCLUDEPATH += $$TOP_DIR/include

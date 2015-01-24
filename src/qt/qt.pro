@@ -2,9 +2,6 @@
 TARGET = GUtilQt
 unix: VERSION = 0.0.0
 
-# Different branches may change this line depending on where their application will deploy
-unix: QMAKE_RPATHDIR = /usr/local/lib/gryptonite
-
 TEMPLATE = lib
 #CONFIG += staticlib
 
@@ -16,14 +13,14 @@ QT += concurrent
 #QT -= gui
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
 
-#QT += serialport
-DEFINES += GUTIL_NO_SERIAL_FUNCTIONALITY
+QT += serialport
+#DEFINES += GUTIL_NO_SERIAL_FUNCTIONALITY
 
 QT += sql
 #DEFINES += GUTIL_NO_DATABASE_FUNCTIONALITY
 
-#QT += network
-DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
+QT += network
+#DEFINES += GUTIL_NO_NETWORK_FUNCTIONALITY
 
 CONFIG(debug, debug|release) {
     #message(Preparing debug build)
@@ -31,6 +28,9 @@ CONFIG(debug, debug|release) {
 }
 else {
     #message(Preparing release build)
+
+    # Different branches may change this line depending on where their application will deploy
+    unix: QMAKE_RPATHDIR = /usr/local/lib/gryptonite
 }
 
 # Enables STL dependent functions
