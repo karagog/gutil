@@ -3,6 +3,9 @@ QT += widgets
 
 TARGET = GUtilAboutPlugin
 
+# Different branches may change this line depending on where their application will deploy
+unix: QMAKE_RPATHDIR =
+
 TEMPLATE = lib
 CONFIG += plugin
 
