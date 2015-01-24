@@ -35,6 +35,16 @@ NAMESPACE_GUTIL1(Qt);
 
 #define PUSH_BUTTON_WIDTH 100
 
+#define GUTIL_ABOUT_PLUGIN_NAME_BASE    "GUtilAboutPlugin"
+#define GUTIL_ABOUT_PLUGIN_NAME_WINDOWS         GUTIL_ABOUT_PLUGIN_NAME_BASE    GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS
+#define GUTIL_ABOUT_PLUGIN_NAME_LINUX   "lib"   GUTIL_ABOUT_PLUGIN_NAME_BASE    GUTIL_SHAREDLIBRARY_SUFFIX_LINUX
+
+#if defined(__WIN32)
+#define GUTIL_ABOUT_PLUGIN_NAME     GUTIL_ABOUT_PLUGIN_NAME_WINDOWS
+#elif defined(__unix__)
+#define GUTIL_ABOUT_PLUGIN_NAME     GUTIL_ABOUT_PLUGIN_NAME_LINUX
+#endif
+
 /** A reference to the about plugin instance.  This is lazy-loaded when the user
  *   opens the first about window.
  */
@@ -72,7 +82,7 @@ QString AboutLogic::_load_about_gutil_plugin()
     {
         QPluginLoader pl(QDir::toNativeSeparators(QString("%1/%2")
             .arg(QCoreApplication::applicationDirPath())
-            .arg(GUTIL_SHAREDLIBRARY_NAME GUTIL_SHAREDLIBRARY_SUFFIX)));
+            .arg(GUTIL_ABOUT_PLUGIN_NAME)));
         if(pl.load()){
             IAboutGUtil *iface( qobject_cast<GUtil::Qt::IAboutGUtil *>(pl.instance()) );
             if(iface){
