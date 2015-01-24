@@ -33,7 +33,9 @@ class AboutGUtil :
     Q_OBJECT
     Q_INTERFACES(GUtil::Qt::IAboutGUtil)
     Q_PLUGIN_METADATA(IID "GUtil.Qt.AboutGUtil")
+    void *ptr;
 public:
+    AboutGUtil();
 
     /** Shows the "About GUtil" window with the widget as parent */
     virtual void ShowAboutGUtil(QWidget *parent = 0);

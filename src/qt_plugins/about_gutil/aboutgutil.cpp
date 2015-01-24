@@ -30,6 +30,7 @@ public:
     {
         // Set up the about window
         _dialog.setWindowTitle("About GUtil");
+        _dialog.resize(500, 375);
 
         _header.setText("GUtil Libraries - " GUTIL_VERSION);
 
@@ -53,9 +54,16 @@ public:
 NAMESPACE_GUTIL1(Qt);
 
 
+AboutGUtil::AboutGUtil()
+    :ptr(NULL)
+{}
+
 void AboutGUtil::ShowAboutGUtil(QWidget *parent)
 {
-    __about_gutil(parent).ShowAbout();
+    __about_gutil *ag = (__about_gutil*)ptr;
+    if(!ptr)
+        ptr = ag = (new __about_gutil(parent));
+    ag->ShowAbout();
 }
 
 
