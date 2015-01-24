@@ -9,9 +9,6 @@ QT       -= gui
 TARGET = GUtilCryptoPP
 unix: VERSION = 0.0.0
 
-# Different branches may change this line depending on where their application will deploy
-unix: QMAKE_RPATHDIR =
-
 TEMPLATE = lib
 #CONFIG += staticlib
 QMAKE_CXXFLAGS += -std=c++11
@@ -34,6 +31,9 @@ CONFIG(debug, debug|release) {
 }
 else {
     #message(Preparing release build)
+
+    # Different branches may change this line depending on where their application will deploy
+    unix: QMAKE_RPATHDIR =
 }
 
 SOURCES += \

@@ -3,8 +3,16 @@ QT += widgets
 
 TARGET = GUtilAboutPlugin
 
-# Different branches may change this line depending on where their application will deploy
-unix: QMAKE_RPATHDIR =
+CONFIG(debug, debug|release) {
+    #message(Preparing debug build)
+    DEFINES += DEBUG
+}
+else {
+    #message(Preparing release build)
+
+    # Different branches may change this line depending on where their application will deploy
+    unix: QMAKE_RPATHDIR =
+}
 
 TEMPLATE = lib
 CONFIG += plugin
