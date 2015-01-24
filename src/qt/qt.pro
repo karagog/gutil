@@ -2,6 +2,9 @@
 TARGET = GUtilQt
 unix: VERSION = 0.0.0
 
+# Different branches may change this line depending on where their application will deploy
+unix: QMAKE_RPATHDIR =
+
 TEMPLATE = lib
 #CONFIG += staticlib
 
