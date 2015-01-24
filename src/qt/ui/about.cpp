@@ -32,6 +32,7 @@ limitations under the License.*/
 NAMESPACE_GUTIL1(Qt);
 
 #define TITLE_HEIGHT 40
+#define IMAGE_HEIGHT 60
 
 #define PUSH_BUTTON_WIDTH 100
 
@@ -150,16 +151,20 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
         _header.setFixedHeight(TITLE_HEIGHT);
     }
 
-    QHBoxLayout *top_level_layout(new QHBoxLayout);
-    m_imageFrame->hide();
-    top_level_layout->addWidget(m_imageFrame);
-    top_level_layout->setAlignment(m_imageFrame, ::Qt::AlignTop);
+    QVBoxLayout *top_level_layout(new QVBoxLayout);
+    {
+        QHBoxLayout *hbl(new QHBoxLayout);
+        top_level_layout->addLayout(hbl);
+        m_imageFrame->hide();
+        hbl->addWidget(m_imageFrame);
+        //hbl->setAlignment(m_imageFrame, ::Qt::AlignTop);
 
-    QVBoxLayout *vbl( new QVBoxLayout );
-    top_level_layout->addLayout(vbl);
-    vbl->addWidget(&_header);
-    vbl->addWidget(&_buildinfo);
-    vbl->addWidget(&_text);
+        QVBoxLayout *vbl( new QVBoxLayout );
+        hbl->addLayout(vbl);
+        vbl->addWidget(&_header);
+        vbl->addWidget(&_buildinfo);
+    }
+    top_level_layout->addWidget(&_text);
     {
         // Set up the buttons at the bottom of the widget
         m_buttonWidget = new QWidget(&_dialog);
@@ -206,7 +211,7 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
         connect(aboutQt, SIGNAL(clicked()), this, SLOT(ShowAboutQt()));
         connect(ok, SIGNAL(clicked()), &_dialog, SLOT(accept()));
 
-        vbl->addWidget(m_buttonWidget);
+        top_level_layout->addWidget(m_buttonWidget);
 
         ok->setFocus();
     }
@@ -234,7 +239,7 @@ void About::SetImage(const QString &filename)
     }
     else
     {
-        m_imageFrame->setFixedSize(TITLE_HEIGHT, TITLE_HEIGHT);
+        m_imageFrame->setFixedSize(IMAGE_HEIGHT, IMAGE_HEIGHT);
         m_imageFrame->setStyleSheet(QString("image: url(%1);").arg(filename));
         m_imageFrame->show();
         _dialog.setWindowIcon(QIcon(filename));
