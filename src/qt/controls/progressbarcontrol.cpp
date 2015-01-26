@@ -75,10 +75,10 @@ void ProgressBarControl::SetProgress(int p, const QString &s)
 {
     if(GetAutoShow())
     {
-        if(p == _progressBar.minimum() && !isVisible())
-            show();
-        else if(p == _progressBar.maximum() && isVisible())
+        if(p == _progressBar.maximum() && isVisible())
             hide();
+        else if(p < _progressBar.maximum() && !isVisible())
+            show();
     }
 
     _progressBar.setValue(p);
