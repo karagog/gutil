@@ -33,7 +33,7 @@ else {
     #message(Preparing release build)
 
     # Different branches may change this line depending on where their application will deploy
-    unix: QMAKE_RPATHDIR = /usr/local/lib/gryptonite
+    unix: QMAKE_RPATHDIR =
 }
 
 SOURCES += \
