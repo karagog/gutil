@@ -36,7 +36,21 @@ HEADERS += aboutgutil.h
 RESOURCES += \
     aboutgutil.qrc
 
-OTHER_FILES += \
-    abouttext.txt \
-    licensetext.txt
+OTHER_FILES +=
 
+win32{
+    copy_license.commands = copy ..\..\..\LICENSE license.txt
+    copy_notice.commands = copy  ..\..\..\NOTICE notice.txt
+}
+unix{
+    copy_license.commands = cp ../../../LICENSE license.txt
+    copy_notice.commands =  cp ../../../NOTICE notice.txt
+}
+
+PRE_TARGETDEPS = \
+    copy_license \
+    copy_notice
+
+QMAKE_EXTRA_TARGETS = \
+    copy_license \
+    copy_notice

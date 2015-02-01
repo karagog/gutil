@@ -26,7 +26,7 @@ class __about_gutil :
 public:
 
     explicit __about_gutil(QWidget *parent)
-        : GUtil::Qt::About(parent, false, true)
+        : GUtil::Qt::About(parent, false, true, true)
     {
         // Set up the about window
         _dialog.setWindowTitle("About GUtil");
@@ -37,7 +37,7 @@ public:
         _buildinfo.setText(QString("Built on %1").arg(GUtil::BUILD_TIME));
 
         // Fetch the about text from a resource
-        QResource r(":/GUtil/About/abouttext.txt");
+        QResource r(":/GUtil/About/about.txt");
         if(r.isValid())
             _text.setPlainText(r.isCompressed() ?
                                   qUncompress(r.data(), r.size()) :

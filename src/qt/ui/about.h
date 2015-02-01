@@ -42,6 +42,8 @@ public slots:
     */
     void ShowLicense(QWidget *parent = 0);
 
+    void ShowNotice(QWidget *parent = 0);
+
     /** Shows GUtil's about window. */
     static void ShowAboutGUtil(QWidget *parent = 0);
 
@@ -68,6 +70,9 @@ protected:
         You can override the virtual function to customize your own license text if you need to.
     */
     virtual QString get_license_text();
+
+    /** Returns the notice text, if any. By default it returns the GUtil notice text. */
+    virtual QString get_notice_text();
 
 
 private:
@@ -97,7 +102,10 @@ public:
         of the button click calls the virtual function get_license_text() as a content sourse for the
         license window.
     */
-    explicit About(QWidget *parent = 0, bool show_about_gutil_button = true, bool show_license_button = false);
+    explicit About(QWidget *parent = 0,
+                   bool show_about_gutil_button = true,
+                   bool show_license_button = true,
+                   bool show_notice_button = false);
 
     /** Returns the title of the about window. */
     QString GetTitle() const{ return _header.text(); }
@@ -152,6 +160,7 @@ private slots:
 
     void _show_about_gutil();
     void _show_license();
+    void _show_notice();
 
 
 private:
