@@ -107,6 +107,13 @@ void AboutLogic::ShowLicense(QWidget *parent)
     LicenseWindow( get_license_text(), parent ).exec();
 }
 
+void AboutLogic::ShowNotice(QWidget *parent)
+{
+    LicenseWindow lw( get_notice_text(), parent );
+    lw.setWindowTitle(tr("Notice"));
+    lw.exec();
+}
+
 QString AboutLogic::get_license_text()
 {
     QString ret;
@@ -118,7 +125,7 @@ QString AboutLogic::get_license_text()
     if(si_ag)
     {
         // fetch the license info from the plugin's resources
-        QResource r(":GUtil/About/licensetext.txt");
+        QResource r(":GUtil/About/license.txt");
         if(r.isValid()){
             ret = r.isCompressed() ? qUncompress(r.data(), r.size()) :
                                      QByteArray((const char *)r.data(), r.size());
@@ -130,9 +137,30 @@ QString AboutLogic::get_license_text()
     return ret;
 }
 
+QString AboutLogic::get_notice_text()
+{
+    QString ret;
+    QString err( _load_about_gutil_plugin() );
+
+    if(si_ag)
+    {
+        QResource r(":GUtil/About/notice.txt");
+        if(r.isValid()){
+            ret = r.isCompressed() ? qUncompress(r.data(), r.size()) :
+                                     QByteArray((const char *)r.data(), r.size());
+        }
+    }
+    else
+        ret = QString("(Unable to load resource: %1)").arg(err);
+    return ret;
+}
 
 
-About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_button)
+
+About::About(QWidget *parent,
+             bool show_about_gutil_button,
+             bool show_license_button,
+             bool show_notice_button)
     :AboutLogic(parent),
       _dialog(parent),
       m_imageFrame(new QWidget(&_dialog)),
@@ -176,7 +204,7 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
         QPushButton *aboutGUtil( 0 );
         if(show_about_gutil_button)
         {
-            aboutGUtil = new QPushButton("About GUtil", &_dialog);
+            aboutGUtil = new QPushButton(tr("About GUtil"), &_dialog);
             m_buttonList.append(aboutGUtil);
             aboutGUtil->setMinimumWidth(PUSH_BUTTON_WIDTH);
             connect(aboutGUtil, SIGNAL(clicked()),
@@ -185,12 +213,20 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
         QPushButton *btnLicense( 0 );
         if(show_license_button)
         {
-            btnLicense = new QPushButton("Show License", &_dialog);
+            btnLicense = new QPushButton(tr("License"), &_dialog);
             m_buttonList.append(btnLicense);
             btnLicense->setMinimumWidth(PUSH_BUTTON_WIDTH);
             connect(btnLicense, SIGNAL(clicked()), this, SLOT(_show_license()));
         }
-        QPushButton *ok( new QPushButton("Ok", &_dialog) );
+        QPushButton *btnNotice( 0 );
+        if(show_notice_button)
+        {
+            btnNotice = new QPushButton(tr("Notice"), &_dialog);
+            m_buttonList.append(btnNotice);
+            btnNotice->setMinimumWidth(PUSH_BUTTON_WIDTH);
+            connect(btnNotice, SIGNAL(clicked()), this, SLOT(_show_notice()));
+        }
+        QPushButton *ok( new QPushButton(tr("Ok"), &_dialog) );
         m_buttonList.append(ok);
 
         hbl->addWidget(aboutQt);
@@ -203,6 +239,11 @@ About::About(QWidget *parent, bool show_about_gutil_button, bool show_license_bu
         if(btnLicense)
         {
             hbl->addWidget(btnLicense);
+            hbl->addStretch(1);
+        }
+        if(btnNotice)
+        {
+            hbl->addWidget(btnNotice);
             hbl->addStretch(1);
         }
         hbl->addWidget(ok);
@@ -228,6 +269,11 @@ void About::_show_about_gutil()
 void About::_show_license()
 {
     ShowLicense(_dialog.parentWidget());
+}
+
+void About::_show_notice()
+{
+    ShowNotice(_dialog.parentWidget());
 }
 
 void About::SetImage(const QString &filename)
