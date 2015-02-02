@@ -1118,7 +1118,7 @@ char String::Base64a2i(char c)
     else
     {
         // Unrecognized base 64 character
-        throw Exception<>();
+        throw Exception<>(String::Format("Unrecognized base-64 character: %c", c));
     }
 }
 
@@ -1150,8 +1150,7 @@ char String::Base64i2a(char c)
     }
     else
     {
-        // Unrecognized base 64 character
-        throw Exception<>();
+        throw Exception<>(String::Format("Unrecognized base-64 character: %x", c));
     }
 }
 
@@ -1222,9 +1221,8 @@ String String::FromBase64(const char *str, GUINT32 len)
     if(len == GUINT32_MAX)
         len = strlen(str);
 
-    // The string length must be a multiple of 4
     if(len & 0b0011)
-        throw Exception<>();
+        throw Exception<>("Invalid Input: String length must be a multiple of 4");
 
     String ret( (len * 3) >> 2 );
 
@@ -1262,9 +1260,8 @@ String String::FromBase16(const char *str, GUINT32 len)
     if(len == GUINT32_MAX)
         len = strlen(str);
 
-    // Input string must be a multiple of 2
     if(len & 1)
-        throw Exception<>();
+        throw Exception<>("Invalid Input: String length must be a multiple of 2");
 
     String ret(len >> 1);
     for(GUINT32 i = 0; i < len; i += 2)
@@ -1319,8 +1316,7 @@ char String::CharToHex(char c)
         ret = 0x09 + rnib;
     }
     else
-        // Unrecognized hex character
-        throw Exception<>();
+        throw Exception<>(String::Format("Unrecognized HEX character: %c", c));
 
     return ret;
 }
@@ -1331,7 +1327,7 @@ char String::HexToChar(char c)
 
     // Make sure it's a valid hex digit
     if(0 != (c & 0xf0))
-        throw Exception<>();
+        throw Exception<>(String::Format("Invalid HEX digit: %x", c));
 
     // If it's less than 10, display a number
     else if(c < 0x0A)
