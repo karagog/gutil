@@ -120,6 +120,12 @@ protected:
             // The call to getchar() blocks until data has been read
             char c = getchar();
 
+            // If getchar fails,
+            if(c == EOF){
+                GDEBUG("Console read failed. Stopping receiver thread...");
+                break;
+            }
+
             // If we detect an end line
             if(c == '\n')
             {
