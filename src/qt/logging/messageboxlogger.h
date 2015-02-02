@@ -34,6 +34,9 @@ public:
     explicit MessageBoxLogger(QWidget *parent = 0);
     virtual ~MessageBoxLogger() {}
 
+    void SetParentWidget(QWidget *parent){ m_parentWidget = parent; }
+    QWidget *GetParentWidget() const{ return m_parentWidget; }
+
     /** Displays a modal dialog box with the title and message, with the
         appropriate severity.
     */
