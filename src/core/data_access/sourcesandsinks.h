@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUTIL_SOURCESANDSINKS_H
 
 #include <gutil/iio.h>
-#include <gutil/vector.h>
+#include <gutil/string.h>
 #include <cstdarg>
 
 NAMESPACE_GUTIL;
@@ -41,7 +41,7 @@ public:
     ByteArrayInput(char const *ba, GUINT32 len)
         :m_start((byte const *)ba), m_end(m_start + len), m_cur(m_start) {}
 
-    ByteArrayInput(const GUtil::Vector<char> &s)
+    ByteArrayInput(const String &s)
         :m_start((byte const *)s.ConstData()), m_end(m_start + s.Length()), m_cur(m_start) {}
 
     ByteArrayInput(const GUtil::Vector<byte> &s)
@@ -110,16 +110,32 @@ public:
 };
 
 
+/** Outputs to a string. Use as a data sink. */
+class StringOutput : public GUtil::IOutput
+{
+    String &m_out;
+public:
+
+    StringOutput(String &ba) :m_out(ba) {}
+
+    virtual GUINT32 WriteBytes(const byte *data, GUINT32 len){
+        m_out.Insert((const char *)data, len, m_out.Length());
+        return len;
+    }
+
+};
+
+
 /** Outputs to a vector byte array. Use as a data sink. */
 class VectorByteArrayOutput : public GUtil::IOutput
 {
-    Vector<char> &m_out;
+    Vector<byte> &m_out;
 public:
 
-    VectorByteArrayOutput(Vector<char> &ba) :m_out(ba) {}
+    VectorByteArrayOutput(Vector<byte> &ba) :m_out(ba) {}
 
     virtual GUINT32 WriteBytes(const byte *data, GUINT32 len){
-        m_out.Insert((char const *)data, len, m_out.Length());
+        m_out.Insert(data, len, m_out.Length());
         return len;
     }
 
