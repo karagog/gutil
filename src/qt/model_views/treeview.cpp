@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "treeview.h"
 #include <gutil/macros.h>
 #include <QContextMenuEvent>
+#include <QHeaderView>
 
 NAMESPACE_GUTIL1(Qt);
 
@@ -60,6 +61,11 @@ void TreeView::_append_children_to_selection(const QModelIndex &ind, QItemSelect
 
     for(int i = 0; i < model()->rowCount(ind); i++)
         _append_children_to_selection(model()->index(i, 0, ind), sel, fl);
+}
+
+void TreeView::ResizeColumnsToContents()
+{
+    header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 END_NAMESPACE_GUTIL1;

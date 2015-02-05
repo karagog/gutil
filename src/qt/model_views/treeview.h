@@ -48,7 +48,9 @@ public slots:
                                int selection_flags = QItemSelectionModel::Select |
                                                      QItemSelectionModel::Rows);
 
-
+    /** A slot to automatically resize the columns to their contents. */
+    void ResizeColumnsToContents();
+    
 private:
 
     void _append_children_to_selection(const QModelIndex &, QItemSelection &, int);
