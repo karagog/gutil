@@ -32,14 +32,14 @@ limitations under the License.*/
     public: \
         inline ex_name(const char *message = "") \
             : ex_subclass_name(message) {} \
-        inline ex_name(const ex_name<false> &ex) \
+        inline ex_name(const GUtil::Exception<false> &ex) \
             : ex_subclass_name(ex) {} \
         virtual ~ex_name() noexcept{} \
         virtual const char *what() const noexcept{ return "GUtil::" STRINGIFY(ex_name) "<>"; } \
         virtual IClonable *Clone() const noexcept{ return new ex_name<false>(*this); } \
         members ; \
     }
-    
+
 /** Use this to declare extended exception types, which hold more complex data.
 
     This is a template specialization from the regular (non-extended) exception
@@ -55,6 +55,9 @@ template<>class ex_name<true> : public ex_name<false>, public GUtil::ExtendedExc
             ex_name(const char *message) :ex_name<false>(message) {} \
             ex_name(const char *message, std::initializer_list<std::pair<const std::string, std::string>> il) \
                 :ex_name<false>(message), ExtendedException(il) {} \
+            ex_name(const GUtil::Exception<true> &ex) \
+                :ex_name<false>((const GUtil::Exception<false> &)ex), \
+                 ExtendedException((const GUtil::ExtendedException &)ex) {} \
             ex_name(std::initializer_list<std::pair<const std::string, std::string>> il) \
                 :ExtendedException(il) {} \
             ex_name(const char *message, const GUtil::Exception<> &inner_exception, \
@@ -67,21 +70,21 @@ template<>class ex_name<true> : public ex_name<false>, public GUtil::ExtendedExc
             virtual Exception<> *Clone() const noexcept{ return new ex_name<true>(*this); } \
     }
 
-    
+
 /** Use this to declare only the base type of exception, derived from the given subclass. */
 #define GUTIL_EXCEPTION_DECLARE_BASE2( ex_name, ex_subclass_name ) GUTIL_EXCEPTION_DECLARE_BASE3(ex_name, ex_subclass_name, private:)
 
 /** Use this to declare only the base type of exception. */
 #define GUTIL_EXCEPTION_DECLARE_BASE( ex_name ) GUTIL_EXCEPTION_DECLARE_BASE2(ex_name, GUtil::Exception<false>)
 
-/** You can use this to declare exceptions (base and extended) which derive from the given base class and 
+/** You can use this to declare exceptions (base and extended) which derive from the given base class and
     have the given public data members.
 */
 #define GUTIL_EXCEPTION_DECLARE3( ex_name, ex_subclass_name, members ) \
     GUTIL_EXCEPTION_DECLARE_BASE3(ex_name, ex_subclass_name, members); \
     GUTIL_EXCEPTION_DECLARE_EXTENDED(ex_name)
-    
-/** You can use this to declare exceptions (base and extended) which derive from the given base class and 
+
+/** You can use this to declare exceptions (base and extended) which derive from the given base class and
     have the given public data members.
 */
 #define GUTIL_EXCEPTION_DECLARE2( ex_name, ex_subclass_name ) \
