@@ -108,6 +108,13 @@ public slots:
     */
     static void AboutGUtil(QWidget *dialog_parent = 0);
 
+    /** Tells the application to check for updates. The default implementation
+     *  does nothing.
+     *  \param silent Tells the application NOT to tell the user that their software
+     *              is alreadyup to date.
+    */
+    virtual void CheckForUpdates(bool silent = true);
+
 
 protected slots:
 

@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include "version.h"
 
-
 /** Constructs a new Version object with the given string */
 static void __init_with_string(::GUtil::Version *,
                                const GUtil::String &);
@@ -62,12 +61,11 @@ void __init_with_string(::GUtil::Version *v,
     v->SetMinorVersion(-1);
     v->SetReleaseVersion(-1);
 
-    // If s is not an empty string
     if(!s.IsEmpty())
     {
         int tmp;
         bool ok(false);
-        GUtil::StringList lst( s.Split('.') );
+        GUtil::StringList lst( s.Split('_')[0].Split('.') );
         v->SetMajorVersion(0);
         v->SetMinorVersion(0);
         v->SetReleaseVersion(0);

@@ -121,6 +121,8 @@ void Application::AboutGUtil(QWidget *dialog_parent)
     GUtil::Qt::About::ShowAboutGUtil(dialog_parent);
 }
 
+void Application::CheckForUpdates(bool){}
+
 void Application::about_to_quit(){}
 
 
