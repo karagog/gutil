@@ -21,6 +21,15 @@ limitations under the License.*/
 NAMESPACE_GUTIL;
 
 
+/** Understands versions given by a string in a specific format.
+ *  The format must be as follows:
+ *
+ *  It is 3 decimal values separated by periods, the first denoting
+ *  the major version, the second the minor version and the third
+ *  the release version. You can also optionally have a "_prerelease"
+ *  (or any other string following the underscore) and it will be
+ *  safely ignored.
+*/
 class Version
 {
 public:

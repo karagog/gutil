@@ -5,7 +5,8 @@ SOURCES += \
     utils/datatransferutils.cpp \
     utils/databaseutils.cpp \
     utils/stopwatchengine.cpp \
-    utils/paintutils.cpp
+    utils/paintutils.cpp \
+    $$PWD/updatenotifier.cpp
 
 HEADERS += \
     utils/usermachinelocks.h \
@@ -14,7 +15,8 @@ HEADERS += \
     utils/databaseutils.h \
     utils/stopwatchengine.h \
     utils/paintutils.h \
-    utils/pluginutils.h
+    utils/pluginutils.h \
+    $$PWD/updatenotifier.h
 
 
 
