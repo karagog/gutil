@@ -45,7 +45,6 @@ void UpdateNotifier::_reply_received(QNetworkReply *reply)
         QVariant redirect_url = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
         if(!redirect_url.isNull()){
             if(reply->url() == redirect_url.toUrl()){
-                qDebug(redirect_url.toUrl().toString().toUtf8().constData());
                 reply->manager()->deleteLater();
                 return;
             }
