@@ -82,5 +82,10 @@ void Settings::CommitChanges()
     GUtil::Settings::CommitChanges();
 }
 
+void Settings::RejectChanges()
+{
+    GUtil::Settings::RejectChanges();
+}
+
 
 END_NAMESPACE_GUTIL1;

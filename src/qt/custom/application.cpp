@@ -14,10 +14,8 @@ limitations under the License.*/
 
 #include "application.h"
 #include <gutil/about.h>
-#include <QPluginLoader>
 #include <QMessageBox>
 #include <QAction>
-#include <memory>
 using namespace std;
 NAMESPACE_GUTIL1(Qt);
 

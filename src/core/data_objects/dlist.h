@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <gutil/flexibletypecomparer.h>
 #include <gutil/exception.h>
 #include <gutil/globals.h>
+#include <malloc.h>
 NAMESPACE_GUTIL;
 
 
@@ -655,7 +656,7 @@ private:
         GASSERT(0 == Count() || iter.m_current || iter.m_prev_node);
 
         node *cur( iter.m_current );
-        node *new_node( GMALLOC(node) );
+        node *new_node( (node*)malloc(sizeof(node)) );
         new(new_node) node(i, cur);
 
         if(cur){
@@ -708,7 +709,7 @@ private:
             }
         }
 
-        GFREE(cur);
+        free(cur);
         --m_size;
     }
 

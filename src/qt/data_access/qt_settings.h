@@ -56,6 +56,9 @@ public:
     /** Writes the changes to disk */
     void CommitChanges();
 
+    /** Reverts back to the last commit */
+    void RejectChanges();
+
     /** Returns whether the key is in the config settings. */
     bool Contains(const GUtil::String &key);
 

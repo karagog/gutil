@@ -81,7 +81,15 @@ void Settings::CommitChanges()
     // One command at a time; block until worker is idle
     m_waitCondition.wait(lkr, [this]{ return m_command == cmd_sleep; });
     m_command = cmd_write_changes;
+    m_prevData = m_data;
     m_waitCondition.notify_one();
+}
+
+void Settings::RejectChanges()
+{
+    unique_lock<mutex> lkr(m_lock);
+    m_data = m_prevData;
+    m_dirty = false;
 }
 
 void Settings::SetValue(const String &key, const String &data)
@@ -183,6 +191,7 @@ void Settings::_worker_thread()
             {
             case cmd_reload:
                 _reload();
+                m_prevData = m_data;
                 on_reloaded();
                 break;
             case cmd_write_changes:

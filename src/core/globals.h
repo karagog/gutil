@@ -96,25 +96,6 @@ limitations under the License.*/
     if(destination != source) destination = source;
 
 
-/** Allocates 1 element of type T.
-    This will automatically throw a GUtil::BadAllocationException if the memory
-    could not be allocated.
-    \param T The type of object for which memory will be allocated
-*/
-#define GMALLOC( T )   GUtil::gmalloc<T>(1, __FILE__, __LINE__)
-
-/** Allocates an array of N elements of type T.
-    This will automatically throw a GUtil::BadAllocationException if the memory
-    could not be allocated.
-    \param T The type of object for which memory will be allocated
-    \param N The number of objects
-*/
-#define GMALLOC2( T, N )   GUtil::gmalloc<T>(N, __FILE__, __LINE__)
-
-/** Frees the memory allocated by GMALLOC */
-#define GFREE( mem_ptr )   free(mem_ptr)
-
-
 
 // In this section we define our potential COM exports (no namespaces when exporting)
 
@@ -587,16 +568,6 @@ static inline GUINT32 TRUNCATE_LEFT_32(GUINT32 w, int n)
                 ((w << n) >> n) : 0;
 }
 
-
-/** This is an internal function.  Don't use this directly, instead
-    use the macro GMALLOC.
-*/
-template<class T>
-static T *gmalloc(GUINT32 N, const char *file, GUINT32 line){
-    T *ret( reinterpret_cast<T *>(malloc( N * sizeof(T) )) );
-    if(!ret) throw GUtil::BadAllocationException<>(file, line);
-    return ret;
-}
 
 
 /** Some global enumerations that you can use for consistency

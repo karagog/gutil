@@ -20,13 +20,13 @@ limitations under the License.*/
 #include <gutil/application.h>
 #include <gutil/licensewindow.h>
 #include <gutil/aboutgutil.h>
+#include <gutil/pluginutils.h>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
 #include <QDir>
 #include <QtPlugin>
 #include <QResource>
-#include <QPluginLoader>
 #include <QMessageBox>
 
 NAMESPACE_GUTIL1(Qt);
@@ -36,27 +36,16 @@ NAMESPACE_GUTIL1(Qt);
 
 #define PUSH_BUTTON_WIDTH 100
 
-#define GUTIL_ABOUT_PLUGIN_NAME_BASE    "GUtilAboutPlugin"
-#define GUTIL_ABOUT_PLUGIN_NAME_WINDOWS         GUTIL_ABOUT_PLUGIN_NAME_BASE    GUTIL_SHAREDLIBRARY_SUFFIX_WINDOWS
-#define GUTIL_ABOUT_PLUGIN_NAME_LINUX   "lib"   GUTIL_ABOUT_PLUGIN_NAME_BASE    GUTIL_SHAREDLIBRARY_SUFFIX_LINUX
+#define GUTIL_ABOUT_PLUGIN_NAME    "GUtilAboutPlugin"
 
-#if defined(__WIN32)
-#define GUTIL_ABOUT_PLUGIN_NAME     GUTIL_ABOUT_PLUGIN_NAME_WINDOWS
-#elif defined(__unix__)
-#define GUTIL_ABOUT_PLUGIN_NAME     GUTIL_ABOUT_PLUGIN_NAME_LINUX
-#endif
+
+static QPluginLoader s_pl;
 
 /** A reference to the about plugin instance.  This is lazy-loaded when the user
  *   opens the first about window.
  */
 static IAboutGUtil *si_ag( 0 );
 
-AboutLogic::AboutLogic(QObject *parent)
-    :QObject(parent)
-{}
-
-AboutLogic::~AboutLogic()
-{}
 
 void AboutLogic::ShowAboutQt()
 {
@@ -68,11 +57,11 @@ void AboutLogic::ShowAboutGUtil(QWidget *parent)
     // Make sure the gutil about plugin is loaded
     _load_about_gutil_plugin();
 
-    if(NULL != si_ag){
+    if(si_ag){
         si_ag->ShowAboutGUtil(parent);
     }
     else{
-        QMessageBox::critical(0, "ERROR", "Unable to show About GUtil", QMessageBox::Ok);
+        QMessageBox::critical(0, "ERROR", "GUtil is really great, but I can't tell you about it because the necessary plugin won't load!", QMessageBox::Ok);
     }
 }
 
@@ -80,25 +69,7 @@ QString AboutLogic::_load_about_gutil_plugin()
 {
     QString error_msg;
     if(NULL == si_ag)
-    {
-        QPluginLoader pl(QDir::toNativeSeparators(QString("%1/%2")
-            .arg(QCoreApplication::applicationDirPath())
-            .arg(GUTIL_ABOUT_PLUGIN_NAME)));
-        if(pl.load()){
-            IAboutGUtil *iface( qobject_cast<GUtil::Qt::IAboutGUtil *>(pl.instance()) );
-            if(iface){
-                si_ag = iface;
-            }
-            else
-            {
-                error_msg = "Unable to cast plugin as expected type";
-                pl.unload();
-            }
-        }
-        else{
-            error_msg = QString("Unable to load about plugin: %1\n\n").arg(pl.fileName());
-        }
-    }
+        si_ag = PluginUtils::LoadPlugin<IAboutGUtil>(s_pl, GUTIL_ABOUT_PLUGIN_NAME);
     return error_msg;
 }
 
