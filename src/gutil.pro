@@ -8,7 +8,7 @@ SUBDIRS += \
     third_party \
     core \
     qt \
-    cryptopp \
+#    cryptopp \
     qt_plugins \
     games \
     test
