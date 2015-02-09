@@ -46,6 +46,9 @@ public:
     /** Writes cached changes to disk. */
     void CommitChanges();
 
+    /** Throws away changes and goes back to the state at last commit. */
+    void RejectChanges();
+
     /** Loads the settings from the file, overwriting what's in the cache. */
     void Reload();
 
@@ -90,6 +93,7 @@ private:
 
     const String m_fileName;
     std::unordered_map<String, String> m_data;
+    std::unordered_map<String, String> m_prevData;
     int m_command;
     bool m_dirty;
 
