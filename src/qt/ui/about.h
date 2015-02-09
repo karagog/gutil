@@ -53,11 +53,11 @@ public slots:
 
 public:
 
-    /** Constructor an AboutLogic instance. */
-    explicit AboutLogic(QObject *parent = 0);
+    /** Construct an AboutLogic instance. */
+    explicit AboutLogic(QObject *parent = 0) :QObject(parent) {}
 
     /** Virtual destructor for dynamic type casting. */
-    virtual ~AboutLogic();
+    virtual ~AboutLogic() {}
 
 
 protected:
