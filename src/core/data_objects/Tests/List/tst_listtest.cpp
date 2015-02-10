@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <QtCore/QString>
 #include <QtTest/QtTest>
-#include "gutil_list.h"
+#include <gutil/list.h>
 USING_NAMESPACE_GUTIL;
 
 
@@ -58,20 +58,20 @@ void ListTest::test_basic_function()
     List<int>::const_iterator riter(lst.rbegin());
     for(int i(0); i < 10; ++i, ++iter, --riter)
     {
-        QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toAscii());
+        QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toLatin1());
         QVERIFY(i == *iter);
-        QVERIFY2(9 - i == *riter, QString("%1 != %2").arg(9 - i).arg(*riter).toAscii());
+        QVERIFY2(9 - i == *riter, QString("%1 != %2").arg(9 - i).arg(*riter).toLatin1());
     }
 
     lst.Prepend(-1);
     QVERIFY(lst.Length() == 11);
     for(int i(-1); i < 10; ++i)
-        QVERIFY2(i == lst[i + 1], QString("%1 != %2").arg(i).arg(lst[i + 1]).toAscii());
+        QVERIFY2(i == lst[i + 1], QString("%1 != %2").arg(i).arg(lst[i + 1]).toLatin1());
 
     lst.RemoveAt(0);
     QVERIFY(lst.Length() == 10);
     for(int i(0); i < 10; ++i)
-        QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toAscii());
+        QVERIFY2(i == lst[i], QString("%1 != %2").arg(i).arg(lst[i]).toLatin1());
 }
 
 
@@ -123,7 +123,7 @@ void ListTest::test_lots()
     }
 
     for(int i(0); i < NUMBER; ++i)
-        QVERIFY2(lst[i] == i, QString("%1 != %2").arg(lst[i]).arg(i).toAscii());
+        QVERIFY2(lst[i] == i, QString("%1 != %2").arg(lst[i]).arg(i).toLatin1());
 
     for(int i(0); i < NUMBER; ++i)
         lst.RemoveAt(lst.Length() - 1);
@@ -175,6 +175,13 @@ void ListTest::test_sorting()
         QVERIFY2(mem <= l[i], QString("%1 > %2").arg(mem).arg(l[i]).toUtf8());
         mem = l[i];
     }
+
+
+    // Try sorting 1 item
+    l = {1};
+    l.Sort();
+    QVERIFY(l.Length() == 1);
+    QVERIFY(l[0] == 1);
 }
 
 

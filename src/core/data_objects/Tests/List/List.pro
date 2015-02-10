@@ -12,6 +12,8 @@ TARGET = tst_listtest
 CONFIG   += console
 CONFIG   -= app_bundle
 
+QMAKE_CXXFLAGS += -std=c++11
+
 TEMPLATE = app
 
 TOP_DIR = ../../../../..
