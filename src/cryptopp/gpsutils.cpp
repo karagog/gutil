@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <gutil/sourcesandsinks.h>
 #include <gutil/smartpointer.h>
 USING_NAMESPACE_GUTIL1(CryptoPP);
+using namespace std;
 
 #define SALT_LENGTH         8
 #define GPS_HEADER_LENGTH   2 + GPS_HASH_DIGEST_LENGTH
@@ -98,7 +99,7 @@ void GPSFile_Export::AppendPayloadFile(const char *payload_file,
                                        byte const *user_data,
                                        GUINT16 user_data_len,
                                        GUINT32 chunk_size,
-                                       IProgressHandler *ph)
+                                       function<bool(int)> progress_cb)
 {
     if(user_data_len > UserDataSize())
         throw Exception<>("Payload metadata too long");
@@ -110,11 +111,11 @@ void GPSFile_Export::AppendPayloadFile(const char *payload_file,
     _write_payload_header(f.Length(), user_data, user_data_len);
 
     // Add the payload to the hash
-    m_hash->AddDataFromDevice(&f, chunk_size, ph);
+    m_hash->AddDataFromDevice(&f, chunk_size, progress_cb);
 
     // Now encrypt and write the payload
     f.Seek(0);
-    m_cryptor->EncryptData(&m_file, &f, NULL, NULL, chunk_size, ph);
+    m_cryptor->EncryptData(&m_file, &f, NULL, NULL, chunk_size, progress_cb);
 }
 
 #define PAYLOAD_LENGTH_BYTES    8
@@ -244,7 +245,7 @@ bool GPSFile_Import::NextPayload()
     return true;
 }
 
-void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgressHandler *ph)
+void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, function<bool(int)> progress_cb)
 {
     if(m_payloadRead)
         throw Exception<>("Payload already gotten");
@@ -260,7 +261,7 @@ void GPSFile_Import::GetCurrentPayload(byte *dest, GUINT32 chunk_size, IProgress
     ConstrainedInput i(m_file, m_file.Pos(),
                        m_file.Pos() + CurrentPayloadSize() + m_cryptor->TagLength + NONCE_LENGTH);
     if(o.NumberOfOutputs() > 0)
-        m_cryptor->DecryptData(&o, &i, NULL, chunk_size, ph);
+        m_cryptor->DecryptData(&o, &i, NULL, chunk_size, progress_cb);
     else
         i.Seek(i.Length());
     m_payloadRead = true;

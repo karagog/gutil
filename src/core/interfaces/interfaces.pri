@@ -11,7 +11,6 @@ HEADERS += \
     interfaces/iclonable.h \
     interfaces/imatrix.h \
     interfaces/imemoryusagereporter.h \
-    interfaces/iprogresshandler.h \
     interfaces/ihash.h \
     $$PWD/iio.h
 

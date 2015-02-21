@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_CRYPTOPP_CRYPTOR_H
 #define GUTIL_CRYPTOPP_CRYPTOR_H
 
+#include <functional>
 #include <gutil/iio.h>
-#include <gutil/iprogresshandler.h>
 #include <gutil/iclonable.h>
 #include <gutil/string.h>
 #include <gutil/smartpointer.h>
@@ -159,7 +159,8 @@ public:
      *          pass null a nonce will be randomly generated for you.
      *  \param chunk_size Optionally process the file in chunks (given in bytes).
      *          If you pass 0 it does the whole file in one go.
-     *  \param ph An optional progress handler for long operations; large data sources.
+     *  \param progress_cb An optional progress handler for long operations; large data sources.
+     *          It should return true if the user wants to cancel the operation, otherwise false.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
     */
     void EncryptData(GUtil::IOutput *out,
@@ -167,7 +168,7 @@ public:
                      GUtil::IInput *aData = NULL,
                      byte const *nonce = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = NULL);
+                     std::function<bool(int)> progress_cb = [](int){ return false; });
 
     /** Decrypts the string and throw an exception if decryption failed.
      *  It could fail due to a wrong key, wrong data (length), or if a bit was flipped somewhere
@@ -181,7 +182,8 @@ public:
      *              only used if you encrypted data with the aData parameter.
      *  \param chunk_size Optionally process the file in chunks (given in bytes).
      *          If you pass 0 it does the whole file in one go.
-     *  \param ph An optional progress handler for long operations; large data sources.
+     *  \param progress_cb An optional progress handler for long operations; large data sources.
+     *          It should return true if the user wants to cancel, otherwise false.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
      *  \throws A GUtil exception if decryption failed. It could fail due to a wrong key,
      *              wrong data (or length), or if a bit was flipped somewhere,
@@ -191,7 +193,7 @@ public:
                      GUtil::IRandomAccessInput *cData,
                      GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = NULL);
+                     std::function<bool(int)> progress_cb = [](int){ return false; });
 
 
     /** Defines an interface to allow you to define your own password-based key derivation functions.

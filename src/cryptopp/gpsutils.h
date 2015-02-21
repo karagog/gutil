@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef GUTIL_GPSUTILS_H
 #define GUTIL_GPSUTILS_H
 
+#include <functional>
 #include <gutil/file.h>
 #include <gutil/smartpointer.h>
 #include <gutil/cryptopp_hash.h>
@@ -31,7 +32,7 @@ limitations under the License.*/
  *  file header. The GPS file is designed to be completely opaque, so without successfully
  *  decrypting this file header, the rest of the file is
  *  meaningless and its data completely unintelligible. You can't tell how many payloads
- *  there are, or how big they are.
+ *  there are, or how big each one is.
  *
  *  After the file header come any amount of payloads, one after the other. There
  *  can be 0 to infinity of them, and each one has its own header (the payload header)
@@ -91,7 +92,7 @@ public:
                            byte const *user_data = NULL,
                            GUINT16 user_data_len = 0,
                            GUINT32 chunk_size = 0,
-                           IProgressHandler *ph = 0);
+                           std::function<bool(int)> progress_cb = [](int){ return false; });
 
 private:
 
@@ -154,7 +155,8 @@ public:
     /** Writes the current payload to the destination buffer. The buffer must
      *  be at least CurrentPayloadSize() large.
     */
-    void GetCurrentPayload(byte *dest, GUINT32 chunk_size = 0, GUtil::IProgressHandler * = NULL);
+    void GetCurrentPayload(byte *dest, GUINT32 chunk_size = 0,
+                           std::function<bool(int)> progress_cb = [](int){ return false; });
 
 };
 
