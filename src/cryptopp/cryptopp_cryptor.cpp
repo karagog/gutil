@@ -25,6 +25,7 @@ limitations under the License.*/
 #include <cryptopp/sha3.h>
 #include <math.h>
 USING_NAMESPACE_GUTIL;
+using namespace std;
 
 // The number of iterations for our key derivation function
 #define KDF_ITERATIONS (((GUINT32)1)<<16)
@@ -124,14 +125,14 @@ void Cryptor::EncryptData(IOutput *out,
                           IInput *aData,
                           byte const *nonce,
                           GUINT32 chunk_size,
-                          IProgressHandler *ph)
+                          function<bool(int)> progress_cb)
 {
     G_D;
     SmartArrayPointer<byte> n;
     if(NULL == nonce)
         n.Set(new byte[GetNonceSize()]);
-    if(ph) ph->ProgressUpdated(0);
-    finally([=]{ if(ph) ph->ProgressUpdated(100); });
+    progress_cb(0);
+    finally([=]{ progress_cb(100); });
 
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
     GUINT64 len = pData ? pData->BytesAvailable() : 0;
@@ -189,11 +190,8 @@ void Cryptor::EncryptData(IOutput *out,
                 out->Flush();
             read += to_read;
 
-            if(ph){
-                ph->ProgressUpdated(((float)read / len) * 100);
-                if(ph->ShouldOperationCancel())
-                    throw CancelledOperationException<>();
-            }
+            if(progress_cb(((float)read / len) * 100))
+                throw CancelledOperationException<>();
         }
     }
     ef.MessageEnd();
@@ -208,12 +206,12 @@ void Cryptor::DecryptData(IOutput *out,
                           IRandomAccessInput *cData,
                           IInput *aData,
                           GUINT32 chunk_size,
-                          IProgressHandler *ph)
+                          function<bool(int)> progress_cb)
 {
     G_D;
     GUINT64 ct_len, len;
-    if(ph) ph->ProgressUpdated(0);
-    finally([=]{ if(ph) ph->ProgressUpdated(100); });
+    progress_cb(0);
+    finally([=]{ progress_cb(100); });
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
     if(cData == NULL || (ct_len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
         throw Exception<>("Invalid data length");
@@ -280,11 +278,8 @@ void Cryptor::DecryptData(IOutput *out,
                     out->Flush();
                 read += to_read;
 
-                if(ph){
-                    ph->ProgressUpdated(((float)read / len) * 100);
-                    if(ph->ShouldOperationCancel())
-                        throw CancelledOperationException<>();
-                }
+                if(progress_cb(((float)read / len) * 100))
+                    throw CancelledOperationException<>();
             }
         }
 

@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_CRYPTOPP_CRYPTOR_H
 #define GUTIL_CRYPTOPP_CRYPTOR_H
 
+#include <functional>
 #include <gutil/iio.h>
-#include <gutil/iprogresshandler.h>
 #include <gutil/iclonable.h>
 #include <gutil/string.h>
 #include <gutil/smartpointer.h>
@@ -118,6 +118,10 @@ public:
     Cryptor(const Cryptor &);
     ~Cryptor();
 
+    /** Returns a const reference to the key derivation function, which was injected through the constructor. */
+    IKeyDerivation const &GetKeyDerivationFunction() const{ return *m_kdf; }
+    
+    /** Returns the size of the nonce used by the cryptor. */
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
 
     /** Returns the theoretical maximum payload length as a function of nonce size. */
@@ -159,7 +163,8 @@ public:
      *          pass null a nonce will be randomly generated for you.
      *  \param chunk_size Optionally process the file in chunks (given in bytes).
      *          If you pass 0 it does the whole file in one go.
-     *  \param ph An optional progress handler for long operations; large data sources.
+     *  \param progress_cb An optional progress handler for long operations; large data sources.
+     *          It should return true if the user wants to cancel the operation, otherwise false.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
     */
     void EncryptData(GUtil::IOutput *out,
@@ -167,7 +172,7 @@ public:
                      GUtil::IInput *aData = NULL,
                      byte const *nonce = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = NULL);
+                     std::function<bool(int)> progress_cb = [](int){ return false; });
 
     /** Decrypts the string and throw an exception if decryption failed.
      *  It could fail due to a wrong key, wrong data (length), or if a bit was flipped somewhere
@@ -181,7 +186,8 @@ public:
      *              only used if you encrypted data with the aData parameter.
      *  \param chunk_size Optionally process the file in chunks (given in bytes).
      *          If you pass 0 it does the whole file in one go.
-     *  \param ph An optional progress handler for long operations; large data sources.
+     *  \param progress_cb An optional progress handler for long operations; large data sources.
+     *          It should return true if the user wants to cancel, otherwise false.
      *          In order for this to be useful, you should set a reasonable value for chunk_size.
      *  \throws A GUtil exception if decryption failed. It could fail due to a wrong key,
      *              wrong data (or length), or if a bit was flipped somewhere,
@@ -191,7 +197,7 @@ public:
                      GUtil::IRandomAccessInput *cData,
                      GUtil::IInput *aData = NULL,
                      GUINT32 chunk_size = 0,
-                     GUtil::IProgressHandler *ph = NULL);
+                     std::function<bool(int)> progress_cb = [](int){ return false; });
 
 
     /** Defines an interface to allow you to define your own password-based key derivation functions.
@@ -229,6 +235,12 @@ public:
         DefaultKeyDerivation() {}
         DefaultKeyDerivation(const DefaultKeyDerivation &o) :m_salt(o.m_salt, true) {}
         virtual GUtil::IClonable *Clone() const noexcept;
+        
+        /** Returns a reference to the salt used to derive the key. The length is given by SaltLength(). */
+        inline byte const *Salt() const{ return m_salt.ConstData(); }
+        
+        /** Returns the length of the salt, as given to the constructor. */
+        inline int SaltLength() const{ return m_salt.Length(); }
 
         /** Key is derived by iteratively hashing the password, and using every
             successive hash as salt for the next iteration.
@@ -256,13 +268,11 @@ public:
 
 
 private:
-
     const GUINT8 m_nonceSize;
     byte m_key[KeySize];
     GUtil::Vector<byte> m_authData;
     GUtil::SmartPointer<IKeyDerivation> m_kdf;
     void *d;
-
 };
 
 

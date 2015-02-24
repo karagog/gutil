@@ -14,13 +14,13 @@ limitations under the License.*/
 
 #include "ihash.h"
 #include "iio.h"
-#include <gutil/iprogresshandler.h>
 #include <gutil/globals.h>
+using namespace std;
 
 NAMESPACE_GUTIL;
 
 
-void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandler *ph)
+void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, function<bool(int)> progress_cb)
 {
     GUINT32 len = input ? input->BytesAvailable() : 0;
     GUINT32 to_read = chunk_size == 0 ? len : Min(chunk_size, len);
@@ -28,8 +28,8 @@ void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandle
     const GUINT32 buf_sz = to_read;
 
     std::unique_ptr<byte[]> buf( new byte[buf_sz] );
-    if(ph) ph->ProgressUpdated(0);
-    finally([=]{ if(ph) ph->ProgressUpdated(100); });
+    progress_cb(0);
+    finally([=]{ progress_cb(100); });
     while(read < len)
     {
         if(to_read != input->ReadBytes(buf.get(), buf_sz, to_read))
@@ -41,11 +41,8 @@ void IHash::AddDataFromDevice(IInput *input, GUINT32 chunk_size, IProgressHandle
         if((read + to_read) > len)
             to_read = len - read;
 
-        if(ph){
-            if(ph->ShouldOperationCancel())
-                throw CancelledOperationException<>();
-            ph->ProgressUpdated(((float)read / len) * 100);
-        }
+        if(progress_cb(((float)read / len) * 100))
+            throw CancelledOperationException<>();
     }
 }
 

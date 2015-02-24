@@ -17,10 +17,10 @@ limitations under the License.*/
 
 #include <gutil/iclonable.h>
 #include <memory>
+#include <functional>
 
 NAMESPACE_GUTIL;
 class IInput;
-class IProgressHandler;
 
 
 /** A class to define a hashing interface. 
@@ -58,7 +58,8 @@ public:
     /** Adds data from a generic input device, in chunks, and allows you to observe
         progress and even cancel it.
     */
-    void AddDataFromDevice(IInput *input, GUINT32 chunk_size = 0, IProgressHandler *ph = 0);
+    void AddDataFromDevice(IInput *input, GUINT32 chunk_size = 0,
+                           std::function<bool(int)> progress_cb = [](int){ return false; });
     
     /** \} */
 };
