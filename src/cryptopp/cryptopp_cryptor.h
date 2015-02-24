@@ -118,6 +118,10 @@ public:
     Cryptor(const Cryptor &);
     ~Cryptor();
 
+    /** Returns a const reference to the key derivation function, which was injected through the constructor. */
+    IKeyDerivation const &GetKeyDerivationFunction() const{ return *m_kdf; }
+    
+    /** Returns the size of the nonce used by the cryptor. */
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
 
     /** Returns the theoretical maximum payload length as a function of nonce size. */
@@ -231,6 +235,12 @@ public:
         DefaultKeyDerivation() {}
         DefaultKeyDerivation(const DefaultKeyDerivation &o) :m_salt(o.m_salt, true) {}
         virtual GUtil::IClonable *Clone() const noexcept;
+        
+        /** Returns a reference to the salt used to derive the key. The length is given by SaltLength(). */
+        inline byte const *Salt() const{ return m_salt.ConstData(); }
+        
+        /** Returns the length of the salt, as given to the constructor. */
+        inline int SaltLength() const{ return m_salt.Length(); }
 
         /** Key is derived by iteratively hashing the password, and using every
             successive hash as salt for the next iteration.
@@ -258,13 +268,11 @@ public:
 
 
 private:
-
     const GUINT8 m_nonceSize;
     byte m_key[KeySize];
     GUtil::Vector<byte> m_authData;
     GUtil::SmartPointer<IKeyDerivation> m_kdf;
     void *d;
-
 };
 
 
