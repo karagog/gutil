@@ -26,7 +26,7 @@ NAMESPACE_GUTIL;
     Normally you can just use the static functions to write/read from the console,
     but it also has the feature that it implements IInput and IOutput, so you can
     instantiate one and use it like an IO device.
-    
+
     \note This uses calls to the C library fputs(), which in some C library versions
     is thread safe, and in others is not. Therefore if you need to guarantee thread safety,
     protect this with a QueuedLogger.
@@ -98,7 +98,7 @@ public:
         return _read_until_terminator(&_is_whitespace);
     }
 
-    virtual GUINT64 BytesAvailable() const{ return GUINT64_MAX; }
+    virtual GUINT32 BytesAvailable() const{ return GUINT32_MAX; }
 
 
 
