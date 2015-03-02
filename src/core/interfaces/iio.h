@@ -91,6 +91,9 @@ public:
         if(num_bytes < chunk_size)
             chunk_size = num_bytes;
 
+        if(progress_cb(0))
+            throw CancelledOperationException<>();
+
         std::vector<byte> buf(chunk_size);
         while(bytes_pumped < num_bytes)
         {
