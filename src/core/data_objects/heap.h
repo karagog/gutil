@@ -76,19 +76,19 @@ public:
         _heapify_down();
     }
 
-    /** Returns the item at the top of the heap.
+    /** Returns the item at the top of the heap, or null if empty.
         \note O(1)
     */
-    const T &Top() const{ return data[0]; }
+    const T *Top() const{ return data.Length() != 0 ? &data[0] : NULL; }
 
-    /** Returns the item at the top of the heap.
+    /** Returns the item at the top of the heap, or null if empty.
         \note Be sure not to modify the sorting key!
         \note O(1)
     */
-    T &Top(){ return data[0]; }
+    T *Top(){ return data.Length() != 0 ? &data[0] : NULL; }
 
     /** The number of items in the heap. */
-    GUINT32 Count() const{ return data.Size(); }
+    GUINT32 Count() const{ return data.Length(); }
 
     /** Returns a pointer to the start of the heap array. */
     const T *ConstData() const{ return data.ConstData(); }
@@ -168,7 +168,7 @@ template<class T>void Heap<T>::_heapify_down()
     GUINT32 cur( 1 );
     int lvl_cnt(1);
 
-    Forever([]{
+    while(1){
         const GUINT32 lchild_indx( cur << 1 );
         const GUINT32 rchild_indx( lchild_indx + 1 );
         GUINT32 min_index;
@@ -202,7 +202,7 @@ template<class T>void Heap<T>::_heapify_down()
 
         ++lvl_cnt;
         cur = min_index;
-    });
+    };
 }
 
 
