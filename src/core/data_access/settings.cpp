@@ -269,7 +269,7 @@ void Settings::_reload()
     byte calculated_hash[4];
     hf.Final(calculated_hash);
     if(0 != memcmp(purported_hash, calculated_hash, sizeof(calculated_hash)))
-        throw Exception<>("Checksum mismatch. Was the file corrupted?");
+        throw Exception<>("Checksum mismatch. Was the settings file corrupted?");
 }
 
 void Settings::_commit_changes()
