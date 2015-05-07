@@ -213,18 +213,18 @@ void Cryptor::DecryptData(IOutput *out,
     progress_cb(0);
     finally([=]{ progress_cb(100); });
     const GUINT64 aData_len = aData ? aData->BytesAvailable() : 0;
-    if(cData == NULL || (ct_len = cData->BytesAvailable()) < (GetNonceSize() + TagLength))
+    if(cData == NULL || (ct_len = cData->BytesAvailable()) < GetCrypttextSizeDiff())
         throw Exception<>("Invalid data length");
-    len = ct_len - (GetNonceSize() + TagLength);
+    len = ct_len - GetCrypttextSizeDiff();
 
     if(GetMaxPayloadLength(GetNonceSize()) < len)
         throw Exception<>("Payload too large for the given nonce size");
 
     // Read the MAC tag and IV at the end of the crypttext
-    SmartArrayPointer<byte> mac_iv(new byte[TagLength + GetNonceSize()]);
-    cData->Seek(cData->Length() - (TagLength + GetNonceSize()));
-    if(GetNonceSize() + TagLength !=
-            cData->ReadBytes(mac_iv.Data(), GetNonceSize() + TagLength, GetNonceSize() + TagLength))
+    SmartArrayPointer<byte> mac_iv(new byte[GetCrypttextSizeDiff()]);
+    cData->Seek(cData->Length() - GetCrypttextSizeDiff());
+    if(GetCrypttextSizeDiff() !=
+            cData->ReadBytes(mac_iv.Data(), GetCrypttextSizeDiff(), GetCrypttextSizeDiff()))
         throw Exception<>("Error reading from source");
 
     // Seek back to the start of the message

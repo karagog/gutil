@@ -120,9 +120,14 @@ public:
 
     /** Returns a const reference to the key derivation function, which was injected through the constructor. */
     IKeyDerivation const &GetKeyDerivationFunction() const{ return *m_kdf; }
-    
+
     /** Returns the size of the nonce used by the cryptor. */
     GUINT8 GetNonceSize() const{ return m_nonceSize; }
+
+    /** Returns the extra number of bytes that get added to a crypttext message.
+     *  This includes the MAC tag length and the nonce length.
+    */
+    GUINT32 GetCrypttextSizeDiff() const{ return GetNonceSize() + TagLength; }
 
     /** Returns the theoretical maximum payload length as a function of nonce size. */
     static GUINT64 GetMaxPayloadLength(GUINT8 nonce_size);
@@ -235,10 +240,10 @@ public:
         DefaultKeyDerivation() {}
         DefaultKeyDerivation(const DefaultKeyDerivation &o) :m_salt(o.m_salt, true) {}
         virtual GUtil::IClonable *Clone() const noexcept;
-        
+
         /** Returns a reference to the salt used to derive the key. The length is given by SaltLength(). */
         inline byte const *Salt() const{ return m_salt.ConstData(); }
-        
+
         /** Returns the length of the salt, as given to the constructor. */
         inline int SaltLength() const{ return m_salt.Length(); }
 
