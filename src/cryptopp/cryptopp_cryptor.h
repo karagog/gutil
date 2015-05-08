@@ -61,6 +61,7 @@ public:
     {
         enum TypeEnum
         {
+            NoType                  = -1,
             PasswordType            = 0,
             KeyfileType             = 1,
             PasswordAndKeyfileType  = 2
@@ -78,7 +79,7 @@ public:
         */
         GUtil::String Keyfile;
 
-        explicit Credentials(TypeEnum t = PasswordType) :Type(t) {}
+        explicit Credentials(TypeEnum t = NoType) :Type(t) {}
     };
 
     /** The size of the tag, or Message Authentication Code (MAC) that goes on
@@ -152,6 +153,9 @@ public:
 
     /** Changes the password/keyfile combination used by the cryptor. */
     void ChangeCredentials(const Credentials &);
+
+    /** Returns the type of credentials */
+    Credentials::TypeEnum GetCredentialsType() const{ return m_credsType; }
 
 
     /** Encrypts the string.
@@ -277,6 +281,7 @@ private:
     byte m_key[KeySize];
     GUtil::Vector<byte> m_authData;
     GUtil::SmartPointer<IKeyDerivation> m_kdf;
+    Credentials::TypeEnum m_credsType;
     void *d;
 };
 
