@@ -68,7 +68,8 @@ Cryptor::Cryptor(const Credentials &creds,
 Cryptor::Cryptor(const Cryptor &other)
     :m_nonceSize(other.m_nonceSize),
       m_authData(other.m_authData),
-      m_kdf(static_cast<IKeyDerivation *>(other.m_kdf->Clone()))
+      m_kdf(static_cast<IKeyDerivation *>(other.m_kdf->Clone())),
+      m_credsType(other.m_credsType)
 {
     memcpy(m_key, other.m_key, sizeof(m_key));
     G_D_INIT();
@@ -83,15 +84,22 @@ bool Cryptor::CheckCredentials(const Credentials &creds) const
 {
     byte buf_key[sizeof(m_key)];
     const Vector<byte> tmpauth = m_kdf->DeriveAuthData(creds.Password);
-    if(Credentials::PasswordType == creds.Type){
-        // Only the password was given (or even a null password)
-        m_kdf->DeriveKeyFromPassword(buf_key, creds.Password);
+    bool success = true;
+    try{
+        if(Credentials::PasswordType == creds.Type){
+            // Only the password was given (or even a null password)
+            m_kdf->DeriveKeyFromPassword(buf_key, creds.Password);
+        }
+        else{
+            // A keyfile was given (and optional password)
+            m_kdf->DeriveKeyFromKeyfile(buf_key, creds.Keyfile);
+
+        }
+    } catch(...) {
+        success = false;
     }
-    else{
-        // A keyfile was given (and optional password)
-        m_kdf->DeriveKeyFromKeyfile(buf_key, creds.Keyfile);
-    }
-    return tmpauth.Length() == m_authData.Length() &&
+    return success &&
+            tmpauth.Length() == m_authData.Length() &&
             0 == memcmp(m_key, buf_key, sizeof(buf_key)) &&
             0 == memcmp(m_authData.ConstData(), tmpauth.ConstData(), m_authData.Length());
 }
@@ -107,6 +115,7 @@ void Cryptor::ChangeCredentials(const Credentials &creds)
         m_kdf->DeriveKeyFromKeyfile(m_key, creds.Keyfile);
     }
     m_authData = m_kdf->DeriveAuthData(creds.Password);
+    m_credsType = creds.Type;
 }
 
 
