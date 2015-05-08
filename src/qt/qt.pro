@@ -28,6 +28,7 @@ CONFIG(debug, debug|release) {
 }
 else {
     #message(Preparing release build)
+    DEFINES += QT_NO_DEBUG_OUTPUT
 
     # Different branches may change this line depending on where their application will deploy
     unix: QMAKE_RPATHDIR =
