@@ -8,7 +8,6 @@ TEMPLATE = lib
 DEFINES += GUTIL_CORE_QT_ADAPTERS
 
 QT += widgets
-QT += concurrent
 
 #QT -= gui
 #DEFINES += GUTIL_NO_GUI_FUNCTIONALITY
