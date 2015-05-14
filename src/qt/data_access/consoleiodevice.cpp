@@ -20,7 +20,6 @@ limitations under the License.*/
 #include <QMutex>
 #include <QWaitCondition>
 #include <QQueue>
-#include <QtConcurrentRun>
 #include <QThread>
 USING_NAMESPACE_GUTIL;
 
@@ -62,49 +61,50 @@ bool __console_io_data_t::cancel_send(false);
 GUINT64 __console_io_data_t::sent_id(0);
 
 
-static void __send_worker()
+class __send_worker : public QThread
 {
-    __console_io_data.send_lock.lock();
+    void run(){
+        __console_io_data.send_lock.lock();
 
-    // Initialize static variables here
-    __console_io_data.sent_id = 0;
+        // Initialize static variables here
+        __console_io_data.sent_id = 0;
 
-    // We use a do-while here to guarantee that the loop body will execute
-    //  at least once, which guarantees that the send queue is flushed
-    //  even if the thread gets cancelled before it starts.
-    do
-    {
-        // Wait here for data to be queued for sending
-        while(__console_io_data.send_queue.isEmpty() &&
-              !__console_io_data.cancel_send)
+        // We use a do-while here to guarantee that the loop body will execute
+        //  at least once, which guarantees that the send queue is flushed
+        //  even if the thread gets cancelled before it starts.
+        do
         {
-            __console_io_data.send_condition.wait(&__console_io_data.send_lock);
+            // Wait here for data to be queued for sending
+            while(__console_io_data.send_queue.isEmpty() &&
+                  !__console_io_data.cancel_send)
+            {
+                __console_io_data.send_condition.wait(&__console_io_data.send_lock);
+            }
+
+            // Always empty the queue before we wait or cancel
+            while(!__console_io_data.send_queue.isEmpty())
+            {
+                // Dequeue some data from the send queue and relinquish the lock while we write
+                QPair<GUINT64, QByteArray> p( __console_io_data.send_queue.dequeue() );
+                __console_io_data.send_lock.unlock();
+
+                // Write the data to console (slow operation)
+                Console::Write(p.second.constData());
+
+                __console_io_data.send_lock.lock();
+                __console_io_data.sent_id = p.first;
+                __console_io_data.sent_condition.wakeAll();
+            }
         }
+        while(!__console_io_data.cancel_send);
 
-        // Always empty the queue before we wait or cancel
-        while(!__console_io_data.send_queue.isEmpty())
-        {
-            // Dequeue some data from the send queue and relinquish the lock while we write
-            QPair<GUINT64, QByteArray> p( __console_io_data.send_queue.dequeue() );
-            __console_io_data.send_lock.unlock();
+        GASSERT(__console_io_data.send_queue.isEmpty());
 
-            // Write the data to console (slow operation)
-            Console::Write(p.second.constData());
-
-            __console_io_data.send_lock.lock();
-            __console_io_data.sent_id = p.first;
-            __console_io_data.sent_condition.wakeAll();
-        }
+        // Reset static variables for the next user
+        __console_io_data.cancel_send = false;
+        __console_io_data.send_lock.unlock();
     }
-    while(!__console_io_data.cancel_send);
-
-    GASSERT(__console_io_data.send_queue.isEmpty());
-
-    // Reset static variables for the next user
-    __console_io_data.cancel_send = false;
-    __console_io_data.send_lock.unlock();
-}
-
+};
 
 class __receive_worker : public QThread
 {
@@ -112,7 +112,7 @@ class __receive_worker : public QThread
 signals:
     void new_line();
 protected:
-    virtual void run()
+    void run()
     {
         QString buf;
         while(true)
@@ -171,15 +171,15 @@ protected:
 // Static class data to really hide the implementation.  This data is unprotected by locks.
 struct __class_data_t
 {
-    static SmartPointer<__receive_worker> receive_worker;
-    static QFuture<void> send_worker;
+    static __receive_worker receive_worker;
+    static __send_worker send_worker;
     static GUINT64 send_count;
     static bool initialized;
 
 } __class_data;
 
-SmartPointer<__receive_worker> __class_data_t::receive_worker;
-QFuture<void> __class_data_t::send_worker;
+__receive_worker __class_data_t::receive_worker;
+__send_worker __class_data_t::send_worker;
 GUINT64 __class_data_t::send_count(0);
 bool __class_data_t::initialized(false);
 
@@ -197,11 +197,10 @@ ConsoleIODevice::ConsoleIODevice(bool aw, QObject *parent)
     __class_data.send_count = 0;
 
     // Start the send/receive workers
-    __class_data.send_worker = QtConcurrent::run(&__send_worker);
+    __class_data.send_worker.start();
 
-    __class_data.receive_worker = new __receive_worker;
-    connect(__class_data.receive_worker, SIGNAL(new_line()), this, SLOT(raiseReadyRead()));
-    __class_data.receive_worker->start();
+    connect(&__class_data.receive_worker, SIGNAL(new_line()), this, SLOT(raiseReadyRead()));
+    __class_data.receive_worker.start();
 }
 
 ConsoleIODevice::~ConsoleIODevice()
@@ -220,14 +219,13 @@ ConsoleIODevice::~ConsoleIODevice()
     // We must hold the lock to terminate, thereby guaranteeing that no important data
     //  is corrupted.
     __console_io_data.receive_lock.lock();
-    __class_data.receive_worker->terminate();
-    __class_data.receive_worker->wait();
+    __class_data.receive_worker.terminate();
+    __class_data.receive_worker.wait();
     __console_io_data.receive_queue.clear();
     __console_io_data.receive_lock.unlock();
-    __class_data.receive_worker.Clear();
 
     // Wait for everyone to finish
-    __class_data.send_worker.waitForFinished();
+    __class_data.send_worker.wait();
 
     // Now we allow another instantiation of the class
     __class_data.initialized = false;
