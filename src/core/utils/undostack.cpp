@@ -40,9 +40,10 @@ public:
 
     virtual void Do()
     {
-        // Nobody should ever call do on the macro command.  That would be a bug
+        // Nobody should ever call Do() on the macro command.  That would be a bug
         // They can only Undo() or Redo()
-        GDEBUG(false);
+        GASSERT(false);
+        throw NotImplementedException<>();
     }
 
     virtual void Undo()

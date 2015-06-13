@@ -8,13 +8,12 @@
 #  2.) Generate doxygen documentation (and compress it in a .zip)
 #  3.) TBD...
 
-TEMPLATE = lib
+TEMPLATE = aux
 CONFIG += staticlib
 
 TOP_DIR = ../..
 
 HEADER_CMD = python $$TOP_DIR/scripts/GenerateHeaders.py
-#HEADER_PREFIX = gutil_
 HEADER_PREFIX =
 
 # Directory patterns for which we want to ignore all headers

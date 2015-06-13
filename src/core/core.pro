@@ -7,6 +7,7 @@ TEMPLATE = lib
 #CONFIG += staticlib
 
 QMAKE_CXXFLAGS += -std=c++11
+macx: QMAKE_CXXFLAGS += -stdlib=libc++
 
 CONFIG += warn_off
 

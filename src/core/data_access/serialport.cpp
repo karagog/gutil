@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#ifndef __APPLE__
+
 #include <gutil/serialport.h>
 
 #ifdef __unix__
@@ -213,3 +215,5 @@ GUINT32 SerialPort::WriteBytes(const GBYTE *bytes, GUINT32 len)
 
 
 END_NAMESPACE_GUTIL;
+
+#endif // __APPLE__
