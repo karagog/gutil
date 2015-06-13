@@ -21,7 +21,7 @@ limitations under the License.*/
 
 #include <gutil/macros.h>
 #include <gutil/exception.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <functional>
 
 #if (defined(QT_DEBUG) || defined(DEBUG)) && !defined(GUTIL_DEBUG)

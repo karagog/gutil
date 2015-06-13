@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <gutil/icollections.h>
 #include <new>
 #include <limits.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <cstring>
 #include <functional>
 NAMESPACE_GUTIL;
