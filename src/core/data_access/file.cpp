@@ -15,7 +15,8 @@ limitations under the License.*/
 #include "file.h"
 #include <gutil/exception.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
+#include <errno.h>
 using namespace std;
 
 NAMESPACE_GUTIL;

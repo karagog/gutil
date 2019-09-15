@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_ATOMIC_H
 #define GUTIL_ATOMIC_H
 
+#ifndef __APPLE__
+
 #include <gutil/macros.h>
 
 NAMESPACE_GUTIL;
@@ -31,7 +33,7 @@ public:
 
     /** Constructs the atomic int with the given initial value. */
     AtomicInt(GINT32 i) :m_value(i){}
-    
+
     AtomicInt(const AtomicInt &i) :m_value(i.Value()){}
 
     /** The integer's current value. */
@@ -69,5 +71,7 @@ public:
 
 
 END_NAMESPACE_GUTIL;
+
+#endif // __APPLE__
 
 #endif // GUTIL_ATOMIC_H

@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <gutil/flexibletypecomparer.h>
 #include <gutil/exception.h>
 #include <gutil/globals.h>
-#include <malloc.h>
+#include <stdlib.h>
 NAMESPACE_GUTIL;
 
 

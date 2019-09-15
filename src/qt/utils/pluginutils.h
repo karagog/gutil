@@ -22,6 +22,9 @@ limitations under the License.*/
 #if defined(Q_OS_LINUX)
     #define PLUGIN_PREFIX "lib"
     #define PLUGIN_SUFFIX ".so"
+#elif defined(Q_OS_MAC)
+    #define PLUGIN_PREFIX "lib"
+    #define PLUGIN_SUFFIX ".dylib"
 #elif defined(Q_OS_WIN)
     #define PLUGIN_PREFIX ""
     #define PLUGIN_SUFFIX ".dll"

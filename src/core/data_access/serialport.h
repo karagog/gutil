@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GUTIL_SERIAL_H
 #define GUTIL_SERIAL_H
 
+#ifndef __APPLE__
+
 #ifdef _WIN32
         #include <windows.h>
 #endif
@@ -69,5 +71,7 @@ private:
 
 
 END_NAMESPACE_GUTIL;
+
+#endif // __APPLE__
 
 #endif  // GUTIL_SERIAL_H
